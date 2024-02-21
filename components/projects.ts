@@ -23,9 +23,9 @@ const projects: Project[] = [
     name: "EXPERI by Hiyalo",
     tag: "Property search and listing platform",
     description: `A web app to search and list properties.`,
-    technologies: ["NextJS", "tRPC", "Drizzle ORM"],
-    website: "experi-nine.vercel.app",
-    iframe: "experi-nine.vercel.app4",
+    technologies: ["NextJS", "tRPC", "Drizzle ORM", "T3 Stack"],
+    website: "https://www.experi-nine.vercel.app",
+    iframe: "https://www.experi-nine.vercel.app4",
   },
   {
     name: "QorePay Payment Gateway",
