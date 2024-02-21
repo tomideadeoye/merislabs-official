@@ -78,10 +78,10 @@ const projects: Project[] = [
     name: "DEXTER",
     description:
       "Analyses company user signups, churn, & more for informed business decisions.",
-    technologies: ["React", "Django"],
+    technologies: ["Django", "Python", "React"],
     website: "dexter.dukka.com",
     image: "software2.png",
-    tag: "DUKKA: Analytics for Internal Teams",
+    tag: "DUKKA: Analytics for company internal teams",
   },
 ];
 
