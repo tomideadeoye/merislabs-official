@@ -23,7 +23,7 @@ export default function Footer() {
     {
       name: "Github",
       link: "https://github.com/tomideadeoye",
-      icon: <FaGithub className="text-black dark:text-white" />,
+      icon: <FaGithub />,
     },
     {
       name: "Medium",
