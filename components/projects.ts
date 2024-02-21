@@ -24,8 +24,8 @@ const projects: Project[] = [
     tag: "Property search and listing platform",
     description: `A web app to search and list properties.`,
     technologies: ["NextJS", "tRPC", "Drizzle ORM", "T3 Stack"],
-    website: "https://www.experi-nine.vercel.app",
-    iframe: "https://www.experi-nine.vercel.app",
+    website: "https://experi-nine.vercel.app/",
+    iframe: "https://experi-nine.vercel.app/",
   },
   {
     name: "QorePay Payment Gateway",
