@@ -24,11 +24,11 @@ export default function Zigzag() {
           <div className="grid gap-20">
             {projects.map((project, index) => (
               <div
-                className="md:grid md:grid-cols-12 md:gap-6 items-center"
+                className="flex flex-col md:flex-row items-center justify-center gap-4"
                 key={project.name}
               >
                 <div
-                  className={`max-w-xl md:max-w-none md:w-full mx-auto md:col-span-5 lg:col-span-6 mb-8 md:mb-0 rtl flex-row-reverse items-center`}
+                  className={`max-w-xl md:max-w-none md:w-full mx-auto flex-row-reverse items-center w-full`}
                   data-aos="fade-up"
                 >
                   {project?.video && (
@@ -47,10 +47,10 @@ export default function Zigzag() {
                   )}
 
                   {project.image && (
-                    <Image
+                    <img
                       src={`/images/${project.image}`}
                       alt={project.name}
-                      width={400}
+                      width="auto"
                       height={400}
                       className="object-contain rounded-2xl px-4 self-center"
                       style={{
@@ -62,9 +62,7 @@ export default function Zigzag() {
                     <iframe
                       title={project.name}
                       src={project.iframe}
-                      width="540"
-                      height="405"
-                      className="object-contain rounded-2xl px-4 self-center"
+                      className="object-contain rounded-2xl px-4 self-center w-full aspect-video min-h-[400px]"
                       style={{
                         borderRadius: "40px",
                       }}
