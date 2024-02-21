@@ -24,7 +24,7 @@ export default function Zigzag() {
           <div className="grid gap-20">
             {projects.map((project, index) => (
               <div
-                className="flex flex-col md:flex-row items-center justify-center gap-4"
+                className="flex flex-col md:flex-row gap-4"
                 key={project.name}
               >
                 <div
@@ -70,7 +70,7 @@ export default function Zigzag() {
                   )}
                 </div>
                 <div
-                  className="max-w-xl md:max-w-none md:w-full mx-auto md:col-span-7 lg:col-span-6"
+                  className="max-w-xl md:max-w-none w-full mx-auto md:col-span-7 lg:col-span-6 "
                   data-aos="fade-left"
                 >
                   <div className="md:pl-4 lg:pl-12 xl:pl-16">
