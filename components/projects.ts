@@ -23,7 +23,7 @@ const projects: Project[] = [
     name: "EXPERI by Hiyalo",
     tag: "Property search and listing platform",
     description: `A web app to search and list properties.`,
-    technologies: ["NextJS", "tRPC", "Drizzle ORM", "T3 Stack"],
+    technologies: ["NextJS", "tRPC", "Drizzle ORM", "T3 Stack", "Clerk Auth"],
     website: "https://experi-nine.vercel.app/",
     iframe: "https://experi-nine.vercel.app/",
   },
