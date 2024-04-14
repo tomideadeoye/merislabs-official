@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import MobileMenu from "./mobile-menu";
+import { usePathname } from "next/navigation";
 
 interface NavItem {
   id: string;
@@ -14,6 +17,13 @@ const navItems: NavItem[] = [
 ];
 
 export default function Header() {
+  const currentPage = usePathname();
+
+  // Function to determine if the current link is active
+  const isActive = (link: string): boolean => {
+    return currentPage === link;
+  };
+
   return (
     <header className="absolute w-full z-30">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -30,15 +40,17 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Desktop navigation */}
           <nav className="hidden md:flex md:grow">
-            {/* Desktop sign in links */}
             <ul className="flex grow justify-end flex-wrap items-center">
               {navItems.map((item) => (
                 <li key={item.id}>
                   <Link
                     href={item.link}
-                    className="font-medium text-purple-600 hover:text-gray-200 px-4 py-3 flex items-center transition duration-150 ease-in-out"
+                    className={`inline-block cursor-pointer px-4 py-3 transition duration-300 ease-in-out ${
+                      isActive(item.link)
+                        ? "border-b-2 border-b-yellow-500 text-white"
+                        : "hover:border-b-2 hover:text-white"
+                    }`}
                   >
                     {item.id}
                   </Link>
@@ -47,7 +59,7 @@ export default function Header() {
             </ul>
           </nav>
 
-          {/* <MobileMenu /> */}
+          <MobileMenu />
         </div>
       </div>
     </header>

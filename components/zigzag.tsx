@@ -1,6 +1,8 @@
 import Image from "next/image";
 
 import { projects } from "./projects";
+import Iframe from "react-iframe";
+import Link from "next/link";
 
 export default function Zigzag() {
   return (
@@ -59,11 +61,17 @@ export default function Zigzag() {
                     />
                   )}
                   {project.iframe && (
-                    <iframe
+                    <Iframe
+                      width="640px"
+                      height="320px"
+                      id=""
+                      display="block"
+                      allowFullScreen
+                      position="relative"
                       title={project.name}
-                      src={project.iframe}
+                      url={project.iframe}
                       className="object-contain rounded-2xl px-4 self-center w-full aspect-video min-h-[400px]"
-                      style={{
+                      styles={{
                         borderRadius: "40px",
                       }}
                     />
@@ -96,6 +104,13 @@ export default function Zigzag() {
                           </li>
                         ))}
                     </ul>
+                    <div className="flex gap-2 mt-6">
+                      {project.links?.map((link, index) => (
+                        <Link className="hover:underline" href={link[1]}>
+                          {link[0].toLocaleUpperCase()}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

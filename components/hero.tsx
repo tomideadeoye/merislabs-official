@@ -1,11 +1,11 @@
+import Blocks from "@/app/(default)/blocks/page";
 import ModalVideo from "@/components/modal-video";
 import VideoThumb from "@/public/images/hero-image-01.jpg";
 
 export default function Hero() {
   return (
     <section>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative">
-        {/* Illustration behind hero content */}
+      <div className="mx-auto sm:px-6 relative">
         <div
           className="absolute left-0 bottom-0 -ml-20 hidden lg:block pointer-events-none"
           aria-hidden="true"
@@ -40,8 +40,8 @@ export default function Hero() {
               fill="url(#illustration-02)"
             />
           </svg>
+          Blocks
         </div>
-
         {/* Hero content */}
         <div className="relative pt-32 pb-10 md:pt-40 md:pb-16">
           {/* Section header */}
@@ -63,6 +63,7 @@ export default function Hero() {
                 <a
                   className="btn text-white bg-purple-600 hover:bg-purple-700 w-full mb-4 sm:w-auto sm:mb-0"
                   href="mailto:tomide@merislabs.com"
+                  target="_blank"
                 >
                   Drop an email
                 </a>
@@ -87,7 +88,8 @@ export default function Hero() {
             videoWidth={1920}
             videoHeight={1080}
           /> */}
-        </div>
+        </div>{" "}
+        <Blocks />
       </div>
     </section>
   );
