@@ -1,59 +1,85 @@
-interface Project {
+export interface Project {
   name: string;
   description: string;
   technologies: string[];
-  website: string;
   video?: string;
   image?: string;
   iframe?: string;
   tag: string;
+  links: [string, string][];
+  img: string;
 }
 
 const projects: Project[] = [
-  {
-    name: "UNICOM",
-    tag: "JEE: Compliance Management for Enterprises",
-    description: `Project Unicom Project is a web app developed for JEE to present need compliance with regulations.`,
-    technologies: ["ExpressJS", "React"],
-    website: "https://unicomreport.netlify.app/",
-    video:
-      "https://user-images.githubusercontent.com/55337742/241769519-0da29dbd-d2e7-49e0-a463-bd074a7c4e11.mp4",
-  },
-  {
-    name: "EXPERI by Hiyalo",
-    tag: "Property search and listing platform",
-    description: `A web app to search and list properties.`,
-    technologies: ["NextJS", "tRPC", "Drizzle ORM", "T3 Stack", "Clerk Auth"],
-    website: "https://experi-nine.vercel.app/",
-    iframe: "https://experi-nine.vercel.app/",
-  },
   {
     name: "QorePay Payment Gateway",
     tag: "QOREPAY: Payment settlement for Nigerian Businesses",
     description:
       "QorePay is a payment app that allows users to send and receive money from anywhere in the world. It also allows users to pay bills, buy airtime, and make transfers to bank accounts.",
-    technologies: ["ExpressJs", "React", "AWS", "Zendesk"],
-    website: "https://qorepay.com/",
-    video:
-      "https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4",
+    technologies: ["ExpressJs", "React/NextJs", "AWS"],
+    iframe: "https://qorepay.com",
+    img: "/qorepay.png",
+    links: [
+      ["website", "https://qorepay.com/"],
+      [
+        "video",
+        "https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4",
+      ],
+    ],
+  },
+  {
+    name: "UNICOM",
+    tag: "JEE: Compliance Management for Enterprises",
+    description: `Project Unicom Project is a web app developed for JEE to present need compliance with regulations.`,
+    technologies: ["ExpressJS", "React"],
+    iframe: "https://unicomreport.netlify.app/home",
+    links: [
+      ["website", "https://unicomreport.netlify.app/"],
+      [
+        "video",
+        "https://user-images.githubusercontent.com/55337742/241769519-0da29dbd-d2e7-49e0-a463-bd074a7c4e11.mp4",
+      ],
+    ],
+    img: "unicom.png",
+  },
+  {
+    name: "CyberStream",
+    tag: "Explore IMDB Database",
+    description:
+      "Get IMDB movie details from website or add javascript SDK package to you app",
+    technologies: ["Electron", "React", "Tsup Bundler"],
+    iframe: "https://cyberstream.vercel.app",
+    links: [
+      ["NPM Package", "https://www.npmjs.com/package/cyber-stream-sdk"],
+      ["Website", "https://cyberstream.vercel.app"],
+    ],
+    img: "/cyberstream.png",
   },
   {
     name: "Price History Chart",
     description:
       "Built a candlestick chart to describe price movements of a cryptocurrencies.  Each 'candlestick' typically shows one day, thus a one-month chart may show the 20 trading days as 20 candlesticks. Candlestick charts can also be built using intervals shorter or longer than one day.",
     technologies: ["React", "Binance API", "Apex Charts"],
-    website: "https://sisyphus-tomide.vercel.app/",
-    video:
-      "https://user-images.githubusercontent.com/55337742/241746561-b4bbc74e-9729-4285-bf09-e1d830ed323e.mp4",
+
+    iframe: "https://sisyphus-tomide.vercel.app",
     tag: "PROPRIETARY: live Rate Conversion Data",
+    links: [
+      ["website", "https://sisyphus-tomide.vercel.app/"],
+      [
+        "video",
+        "https://user-images.githubusercontent.com/55337742/241746561-b4bbc74e-9729-4285-bf09-e1d830ed323e.mp4",
+      ],
+    ],
+    img: "/cyberstream.png",
   },
   {
     name: "QTF Energy Solutions",
     description: "Company website with Slack Integration for Demo Requests",
     technologies: ["NextJs", "Slack APIs", "SendGrid"],
-    website: "https://www.qtfenergy.com/",
     iframe: "https://www.qtfenergy.com/",
     tag: "PROPRIETARY: live Rate Conversion Data",
+    links: [["website", "https://www.qtfenergy.com/"]],
+    img: "/qtf.png",
   },
   {
     name: "JUICE SPEND",
@@ -61,27 +87,44 @@ const projects: Project[] = [
     description:
       "Beta website of crypto payment startup. Juice helps African businesses make global payments with local currency.",
     technologies: ["React", "Material UI"],
-    website: "https://tomidejuiceui.netlify.app/",
-    video:
-      "https://user-images.githubusercontent.com/55337742/211080250-419b92a5-7ef0-423a-be4a-2e0658dca314.mov",
+    iframe: "https://tomidejuiceui.netlify.app/",
+    links: [
+      ["website", "https://tomidejuiceui.netlify.app/"],
+      [
+        "video",
+        "https://user-images.githubusercontent.com/55337742/211080250-419b92a5-7ef0-423a-be4a-2e0658dca314.mov",
+      ],
+    ],
+    img: "juice.png",
+  },
+  {
+    name: "EXPERI by Hiyalo",
+    tag: "Property search and listing platform",
+    description: `A web app to search and list properties.`,
+    technologies: ["NextJS", "tRPC", "Drizzle ORM", "T3 Stack", "Clerk Auth"],
+    links: [["website", "https://experi-nine.vercel.app/"]],
+    iframe: "https://experi-nine.vercel.app/",
+    img: "/experi.png",
   },
   {
     name: "DUKKA",
     description:
       "Book keeping App for SMEs created for Dukka Inc. The company aims to build the os for e-commerce in Africa and competes with other providers like Bumpa.",
     technologies: ["flutter", "django"],
-    website: "dukka.com",
-    image: "software3.png",
+    iframe: "https://dukka.com",
+    img: "/software3.png",
     tag: "DUKKA: Book Keeping for SMEs",
+    links: [["website", "https://dukka.com"]],
   },
   {
     name: "DEXTER",
     description:
       "Analyses company user signups, churn, & more for informed business decisions.",
     technologies: ["Django", "Python", "React"],
-    website: "dexter.dukka.com",
     image: "software2.png",
+    img: "/software2.png",
     tag: "DUKKA: Analytics for company internal teams",
+    links: [["website", "dexter.dukka.com"]],
   },
 ];
 
