@@ -28,6 +28,22 @@ const projects: Project[] = [
     ],
   },
   {
+    name: "PitchR",
+    tag: "Business funding for startups",
+    description:
+      "PitchR provides advisory services for startups to grow their businesses.",
+    technologies: ["NextJs"],
+    iframe: "https://pitchr.africa/",
+    img: "/pitchr.png",
+    links: [
+      ["website", "https://pitchr.africa/"],
+      [
+        "video",
+        "https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4",
+      ],
+    ],
+  },
+  {
     name: "UNICOM",
     tag: "JEE: Compliance Management for Enterprises",
     description: `Project Unicom Project is a web app developed for JEE to present need compliance with regulations.`,
