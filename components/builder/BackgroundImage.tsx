@@ -1,40 +1,41 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Project } from "../projects";
-import { CurrentSlideData } from "@/app/(default)/blocks/page";
 
+// Define the prop types
 type Props = {
-  transitionData: Project;
-  currentSlideData: CurrentSlideData;
+  transitionData: {
+    img: string;
+  };
+  currentSlideData: {
+    data: {
+      img: string;
+    };
+  };
 };
 
+// Define the BackgroundImage component
 function BackgroundImage({ transitionData, currentSlideData }: Props) {
-  const randomNumer = Math.floor(Math.random() * 100);
-  const isRandomRandomNumberEven = randomNumer % 2 === 0;
+  // Generate a random number to decide the gradient direction
+  const randomNumber = Math.floor(Math.random() * 100);
+  const isRandomNumberEven = randomNumber % 2 === 0;
+  const backgroundStyle = isRandomNumberEven
+    ? "bg-gradient-to-r from-purple-600 to-blue-500"
+    : "bg-gradient-to-r from-blue-500 to-purple-600";
 
   return (
-    <>
-      {transitionData && (
-        <motion.img
-          key={transitionData.img}
-          layoutId={transitionData.img}
-          alt="Transition Image"
-          transition={{
-            opacity: { ease: "linear" },
-            layout: { duration: 0.6 },
-          }}
-          className=" absolute left-0 top-0 z-10 h-full w-full object-cover brightness-50"
-          src={isRandomRandomNumberEven ? "/web.png" : "/designs.png"}
-        />
-      )}
-      <motion.img
-        alt="Current Image"
-        key={currentSlideData.data.img + "transition"}
-        src={isRandomRandomNumberEven ? "/web.png" : "/designs.png"}
-        className=" absolute left-0 top-0 h-full w-full object-cover brightness-50"
-      />
-    </>
+    <motion.div
+      className={`absolute left-0 top-0 h-full w-full ${backgroundStyle}`}
+      transition={{
+        opacity: { ease: "linear", duration: 0.6 },
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {/* Placeholder for additional content or elements */}
+    </motion.div>
   );
 }
 
+// Export the component
 export default BackgroundImage;
