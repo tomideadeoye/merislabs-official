@@ -9,6 +9,9 @@ type Props = {
 };
 
 function BackgroundImage({ transitionData, currentSlideData }: Props) {
+  const randomNumer = Math.floor(Math.random() * 100);
+  const isRandomRandomNumberEven = randomNumer % 2 === 0;
+
   return (
     <>
       {transitionData && (
@@ -21,13 +24,13 @@ function BackgroundImage({ transitionData, currentSlideData }: Props) {
             layout: { duration: 0.6 },
           }}
           className=" absolute left-0 top-0 z-10 h-full w-full object-cover brightness-50"
-          src={transitionData.img}
+          src={isRandomRandomNumberEven ? "/web.png" : "/designs.png"}
         />
       )}
       <motion.img
         alt="Current Image"
         key={currentSlideData.data.img + "transition"}
-        src={currentSlideData.data.img}
+        src={isRandomRandomNumberEven ? "/web.png" : "/designs.png"}
         className=" absolute left-0 top-0 h-full w-full object-cover brightness-50"
       />
     </>

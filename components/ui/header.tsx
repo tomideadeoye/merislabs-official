@@ -8,12 +8,11 @@ import { usePathname } from "next/navigation";
 interface NavItem {
   id: string;
   link: string;
-  subnav: any[]; // You can replace `any[]` with a more specific type if needed
 }
 
 const navItems: NavItem[] = [
-  { id: "Blog", link: "https://medium.com/@tomideadeoye", subnav: [] },
-  { id: "Links", link: "https://linktr.ee/tomideadeoye", subnav: [] },
+  { id: "Blog", link: "https://medium.com/@tomideadeoye" },
+  { id: "Links", link: "https://linktr.ee/tomideadeoye" },
 ];
 
 export default function Header() {
