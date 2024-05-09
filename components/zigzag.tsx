@@ -107,7 +107,7 @@ export default function Zigzag() {
                     <div className="flex gap-2 mt-6">
                       {project.links?.map((link, index) => (
                         <Link className="hover:underline" href={link[1]}>
-                          {link[0].toLocaleUpperCase()}
+                          {link[0].toLowerCase()}
                         </Link>
                       ))}
                     </div>
