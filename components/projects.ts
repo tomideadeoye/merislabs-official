@@ -33,8 +33,9 @@ const projects: Project[] = [
     description:
       "PitchR provides advisory services for startups to grow their businesses.",
     technologies: ["NextJs"],
-    iframe: "https://pitchr.africa/",
+    iframe: "https://www.pitchr.africa/",
     img: "/pitchr.png",
+
     links: [
       ["website", "https://pitchr.africa/"],
       [
