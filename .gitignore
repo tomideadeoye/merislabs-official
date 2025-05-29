@@ -37,3 +37,122 @@ next-env.d.ts
 
 # contentlayer
 .contentlayer
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment files
+.env
+.env.*
+
+# Virtual environments
+venv/
+.venv/
+env/
+myenv/
+ENV/
+env.bak/
+env_old/
+*.egg-info/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Database & storage
+/files/
+chroma_db/
+
+# Browser drivers (like for Selenium)
+chromedriver
+
+# Project-specific folders
+superpower/
+
+# VSCode or other IDE settings
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Python venv & cache
+venv/
+.venv/
+__pycache__/
+
+# OS / IDE
+.DS_Store
+.vscode/
+
+qdrant_storage/
+
+# Python general
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environment (though less needed in container)
+.venv/
+venv/
+ENV/
+env/
+
+# Sensitive Files - VERY IMPORTANT
+.env
+*.env
+auth.cfg
+credentials.*
+*.pem
+*.key
+
+# VS Code specific (user settings, history)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# Dev Container cache/temp (Adjust if needed)
+# .devcontainer/library-scripts/
+# Keep .devcontainer itself and config files!
+
+# Qdrant Data (Mounted volume)
+qdrant_storage/ # Or whatever you named the volume locally if not using Docker volume
+
+# Generated Output (unless you *want* to share specific outputs)
+orion_outputs/
+
+# Other OS/IDE files
+.DS_Store
+Thumbs.db
+.aider*
