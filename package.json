@@ -11,16 +11,22 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@qdrant/js-client-rest": "^1.14.1",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-slot": "^1.2.3",
     "aos": "^3.0.0-beta.6",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "framer-motion": "^11.0.6",
     "litellm": "^0.12.0",
     "lucide-react": "^0.511.0",
     "next": "^15.3.3",
+    "next-auth": "^5.0.0-beta.28",
     "next-cloudinary": "^5.20.0",
+    "node-fetch": "^3.3.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.5.2",
@@ -28,7 +34,8 @@
     "react-iframe": "^1.8.5",
     "react-use": "^17.5.0",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
@@ -39,6 +46,8 @@
     "@types/react-dom": "^19.1.5",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.4",
+    "shadcn": "^2.6.0",
+    "shadcn-ui": "^0.9.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"
   }
