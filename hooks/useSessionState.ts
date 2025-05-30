@@ -1,36 +1,34 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { SessionStateKeys, getSessionState, initializeSession, OrionSessionState } from "@/app_state";
+import { SessionStateKeys, initializeClientSession, OrionSessionState, sessionStore } from "@/app_state";
 
 if (typeof window !== "undefined") {
-  initializeSession();
+  initializeClientSession();
 }
 
 export const useSessionState = <K extends SessionStateKeys>(
   key: K,
-  defaultValue?: OrionSessionState[K]
+  explicitDefaultValue?: OrionSessionState[K]
 ): [OrionSessionState[K], (newValue: OrionSessionState[K]) => void] => {
-  const sessionManager = getSessionState();
 
   const [value, setValue] = useState<OrionSessionState[K]>(() => {
-    const existingValue = sessionManager.getState(key);
-    return existingValue !== undefined ? existingValue : defaultValue;
+    return sessionStore.getState(key, explicitDefaultValue);
   });
 
   useEffect(() => {
-    const currentValue = sessionManager.getState(key);
-    if (currentValue !== undefined && currentValue !== value) {
-      setValue(currentValue);
+    const currentStoredValue = sessionStore.getState(key, explicitDefaultValue);
+    if (currentStoredValue !== value) {
+      setValue(currentStoredValue);
     }
-  }, [key, sessionManager, value]);
+  }, [key, explicitDefaultValue, value]);
 
   const updateValue = useCallback(
     (newValue: OrionSessionState[K]) => {
-      sessionManager.setState(key, newValue);
+      sessionStore.setState(key, newValue);
       setValue(newValue);
     },
-    [key, sessionManager]
+    [key]
   );
 
   return [value, updateValue];

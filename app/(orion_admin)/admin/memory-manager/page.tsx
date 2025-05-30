@@ -8,7 +8,7 @@ export default function MemoryManagerFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames["Memory Manager"]}
+        title={PageNames.MEMORY_MANAGER}
         icon={<DatabaseZap className="h-7 w-7" />}
         description="Manage your memory system and data."
       />
