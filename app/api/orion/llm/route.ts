@@ -22,7 +22,11 @@ export async function POST(request: NextRequest) {
 
     const llmParams: LLMParams = { requestType, primaryContext, ...rest };
 
-    const [responseObject, content] = await getLlmAnswerWithFallbackAsync(llmParams);
+    const [responseObject, content] = await getLlmAnswerWithFallbackAsync(llmParams.prompt, {
+      model: llmParams.model,
+      temperature: llmParams.temperature,
+      timeout: llmParams.max_tokens ? Math.ceil(llmParams.max_tokens / 50) : undefined
+    });
 
     if (!responseObject.success && responseObject.error === API_KEY_ERROR_MESSAGE) {
       console.error(`[LLM_API_ERROR] API Key related error for model: ${responseObject.model}`);

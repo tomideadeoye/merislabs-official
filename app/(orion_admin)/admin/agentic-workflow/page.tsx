@@ -8,7 +8,7 @@ export default function AgenticWorkflowFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames["Agentic Workflow"]}
+        title={PageNames.AGENTIC}
         icon={<BrainCircuit className="h-7 w-7" />}
         description="Automate workflows and agentic tasks."
       />

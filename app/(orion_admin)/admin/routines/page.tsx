@@ -8,7 +8,7 @@ export default function RoutinesFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames.Routines}
+        title={PageNames.ROUTINES}
         icon={<Repeat className="h-7 w-7" />}
         description="Manage your daily and weekly routines."
       />
