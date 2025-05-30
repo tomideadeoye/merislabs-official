@@ -12,7 +12,7 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface JournalEntryFormProps {
-    // Props can be added later if needed
+    onEntrySaved?: (entryId: string, reflection?: string) => void;
 }
 
 // Predefined mood options
@@ -29,7 +29,7 @@ const tagOptions = [
     "project_alpha", "project_beta", "finance", "travel", "family"
 ];
 
-export const JournalEntryForm: React.FC<JournalEntryFormProps> = () => {
+export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved }) => {
     const [journalText, setJournalText] = useSessionState(SessionStateKeys.JOURNAL_TEXT, "");
     const [mood, setMood] = useState<string>("");
     const [moodOpen, setMoodOpen] = useState(false);
@@ -63,8 +63,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = () => {
             const response = await fetch('/api/orion/journal/save', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer admin-token'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
@@ -77,6 +76,11 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = () => {
                 setJournalText("");
                 setMood("");
                 setTags("");
+                
+                // Notify parent component about the new entry
+                if (onEntrySaved) {
+                    onEntrySaved(data.sourceId, data.reflection);
+                }
             } else {
                 throw new Error(data.error || "Failed to save journal entry.");
             }
@@ -87,7 +91,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = () => {
         } finally {
             setIsSaving(false);
         }
-    }, [journalText, mood, tags, setJournalText]);
+    }, [journalText, mood, tags, setJournalText, onEntrySaved]);
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 bg-gray-800 rounded-lg shadow-xl">

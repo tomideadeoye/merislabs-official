@@ -1,22 +1,61 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ScoredMemoryPoint } from '@/types/orion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Tag, Smile, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 
 interface JournalEntryDisplayProps {
   entry: ScoredMemoryPoint;
+  initialReflection?: string;
 }
 
-export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry }) => {
+export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry, initialReflection }) => {
   const { payload, score } = entry;
   const entryDate = new Date(payload.timestamp);
-  const [showReflection, setShowReflection] = useState(false);
-  const [reflection, setReflection] = useState<string | null>(null);
+  const [showReflection, setShowReflection] = useState(!!initialReflection);
+  const [reflection, setReflection] = useState<string | null>(initialReflection || null);
   const [isLoadingReflection, setIsLoadingReflection] = useState(false);
+
+  // Check for reflection when component mounts if not provided initially
+  useEffect(() => {
+    if (!reflection && !isLoadingReflection) {
+      checkForExistingReflection();
+    }
+  }, []);
+
+  const checkForExistingReflection = async () => {
+    try {
+      // Search for reflection with the original_entry_id matching this entry's source_id
+      const response = await fetch('/api/orion/memory/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          queryText: "*",
+          filter: {
+            must: [
+              { key: "type", match: { value: "journal_reflection" } },
+              { key: "original_entry_id", match: { value: payload.source_id } }
+            ]
+          },
+          limit: 1
+        })
+      });
+
+      const data = await response.json();
+      if (data.success && data.results && data.results.length > 0) {
+        setReflection(data.results[0].payload.text);
+        // Don't show reflection automatically, let user click to show it
+      }
+    } catch (error) {
+      console.error("Error checking for existing reflection:", error);
+    }
+  };
 
   const fetchReflection = async () => {
     if (reflection) {
@@ -30,8 +69,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry 
       const response = await fetch('/api/orion/memory/search', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin-token'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           queryText: "*",
@@ -54,8 +92,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry 
         const llmResponse = await fetch('/api/orion/llm', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer admin-token'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             requestType: "JOURNAL_REFLECTION",
@@ -87,8 +124,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry 
           const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer admin-token'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
               texts: [llmData.content]
@@ -101,15 +137,15 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry 
             await fetch('/api/orion/memory/upsert', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer admin-token'
+                'Content-Type': 'application/json'
               },
               body: JSON.stringify({
                 points: [{
                   id: crypto.randomUUID(),
                   vector: embeddingData.embeddings[0],
                   payload: reflectionPayload
-                }]
+                }],
+                collectionName: ORION_MEMORY_COLLECTION_NAME
               })
             });
           }

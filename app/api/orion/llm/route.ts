@@ -4,12 +4,21 @@ import {
   LLMParams,
 } from "@/lib/orion_llm";
 import { API_KEY_ERROR_MESSAGE } from "@/lib/constants";
+import { auth } from "@/auth";
+import { ASK_QUESTION_REQUEST_TYPE, ORION_MEMORY_COLLECTION_NAME } from "@/lib/orion_config";
+import type { ScoredMemoryPoint } from "@/types/orion";
 
 export async function POST(request: NextRequest) {
+  // Check authentication
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 
-    const { requestType, primaryContext, ...rest } = body;
+    const { requestType, primaryContext, profileContext, ...rest } = body;
     if (!requestType || !primaryContext) {
       return NextResponse.json(
         {
@@ -20,10 +29,70 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const llmParams: LLMParams = { requestType, primaryContext, ...rest };
+    let enhancedPrompt = primaryContext;
+
+    // RAG implementation for Ask Question
+    if (requestType === ASK_QUESTION_REQUEST_TYPE) {
+      const userQuestion = primaryContext;
+      let retrievedContext = "";
+      const MAX_CONTEXT_SNIPPETS = 5;
+
+      try {
+        console.log(`[ASK_ORION_API] Searching memory for question: "${userQuestion.substring(0, 50)}..."`);
+        
+        // Search memory for relevant context
+        const memorySearchResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/search`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            queryText: userQuestion,
+            collectionName: ORION_MEMORY_COLLECTION_NAME,
+            limit: MAX_CONTEXT_SNIPPETS
+          })
+        });
+        
+        const memorySearchData = await memorySearchResponse.json();
+
+        if (memorySearchData.success && memorySearchData.results && memorySearchData.results.length > 0) {
+          const snippets = memorySearchData.results.map((item: ScoredMemoryPoint, index: number) => 
+            `Memory ${index + 1} (Source: ${item.payload.source_id}, Type: ${item.payload.type || "unknown"}, Score: ${item.score.toFixed(4)}):\n${item.payload.text}`
+          ).join("\n\n---\n\n");
+          
+          retrievedContext = `\n\nBased on your stored memories, here is some potentially relevant context:\n--- START OF RETRIEVED MEMORIES ---\n${snippets}\n--- END OF RETRIEVED MEMORIES ---\n`;
+          console.log(`[ASK_ORION_API] Retrieved ${memorySearchData.results.length} relevant memories.`);
+        } else {
+          console.log(`[ASK_ORION_API] No specific relevant memories found for the question.`);
+        }
+      } catch (memError: any) {
+        console.error(`[ASK_ORION_API] Error during memory search: ${memError.message}`);
+        // Continue without memory context if search fails
+      }
+
+      // Construct the enhanced prompt with retrieved memories
+      enhancedPrompt = `
+You are Orion, Tomide's AI Life-Architecture System. Your persona is supportive, empathetic, insightful, structured, reliable, and positive, addressing him as "my love" or "Tomide".
+
+${profileContext ? `Tomide's Profile Context:\n${profileContext}\n\n` : ''}
+${retrievedContext}
+Considering all the above context (especially the retrieved memories if any), please provide a comprehensive and insightful answer to Tomide's following question:
+
+Question: "${userQuestion}"
+
+Provide your answer directly. If using retrieved memories, synthesize them into your answer naturally rather than just listing them. If no specific memories were highly relevant, answer based on the question and profile context.
+      `;
+    }
+
+    const llmParams: LLMParams = { 
+      requestType, 
+      primaryContext: enhancedPrompt, 
+      profileContext,
+      ...rest 
+    };
 
     // Create a prompt from primaryContext if prompt is not provided
-    const prompt = llmParams.prompt || primaryContext;
+    const prompt = llmParams.prompt || enhancedPrompt;
     const [responseObject, content] = await getLlmAnswerWithFallbackAsync(prompt, {
       model: llmParams.model,
       temperature: llmParams.temperature,

@@ -4,15 +4,16 @@ import React, { useState, useCallback } from 'react';
 import { PageHeader } from "@/components/ui/page-header";
 import { PageNames, SessionStateKeys } from "@/app_state";
 import { useSessionState } from '@/hooks/useSessionState';
-import { DatabaseZap, Search, Loader2, AlertTriangle, Info } from "lucide-react";
+import { DatabaseZap, Search, Loader2, AlertTriangle, Info, PlusCircle } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/types/orion';
 import { JournalEntryDisplay } from '@/components/orion/JournalEntryDisplay';
+import { AddToMemoryForm } from '@/components/orion/AddToMemoryForm';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function MemoryManagerFeaturePage() {
   const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
@@ -23,18 +24,22 @@ export default function MemoryManagerFeaturePage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [limit, setLimit] = useState<number>(5);
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
   const handleSearch = useCallback(async (event?: React.FormEvent) => {
     if (event) event.preventDefault();
     if (!searchQuery.trim() && !filterType.trim() && !filterTags.trim()) {
       setError("Please enter a search query, type, or tags to search.");
       setSearchResults([]);
+      setHasSearched(true);
       return;
     }
 
     setIsLoading(true);
     setError(null);
     setSearchResults([]);
+    setHasSearched(true);
 
     try {
       const filterConditions: QdrantFilterCondition[] = [];
@@ -52,8 +57,7 @@ export default function MemoryManagerFeaturePage() {
       const response = await fetch('/api/orion/memory/search', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin-token'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           queryText: searchQuery.trim() || "*",
@@ -81,6 +85,11 @@ export default function MemoryManagerFeaturePage() {
     }
   }, [searchQuery, filterType, filterTags, limit]);
 
+  const handleMemoryAdded = () => {
+    // Increment refresh trigger to potentially update UI or show feedback
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -91,9 +100,32 @@ export default function MemoryManagerFeaturePage() {
         memoryInitialized={memoryInitialized}
       />
 
+      {/* Section to Add New Memory Item */}
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-xl text-blue-400">Search Orion's Memory</CardTitle>
+          <CardTitle className="text-xl text-green-400 flex items-center">
+            <PlusCircle className="mr-2 h-6 w-6"/>
+            Add New Item to Orion's Memory
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Capture any thought, note, or piece of information.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AddToMemoryForm onMemoryAdded={handleMemoryAdded} />
+        </CardContent>
+      </Card>
+
+      {/* Search Section */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-xl text-blue-400 flex items-center">
+            <Search className="mr-2 h-6 w-6"/>
+            Search Orion's Memory
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Query the knowledge base using semantic search and filters.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSearch} className="space-y-4">
@@ -116,7 +148,7 @@ export default function MemoryManagerFeaturePage() {
                   type="text"
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}
-                  placeholder="e.g., journal_entry, note"
+                  placeholder="e.g., journal_entry, general_note"
                   className="bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
                 />
               </div>
@@ -168,7 +200,7 @@ export default function MemoryManagerFeaturePage() {
         </div>
       )}
 
-      {!isLoading && !error && searchResults.length === 0 && searchQuery && (
+      {!isLoading && !error && searchResults.length === 0 && hasSearched && (
         <div className="my-6 bg-yellow-900/30 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-md relative flex items-start" role="alert">
           <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
           <p>No results found for your query and filters.</p>

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { checkAuth } from '@/lib/auth';
+import { auth } from '@/auth';
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const authError = await checkAuth(request);
-  if (authError) return authError;
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  }
 
   try {
     const body = await request.json();

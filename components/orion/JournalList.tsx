@@ -13,6 +13,7 @@ interface JournalListProps {
 
 export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) => {
   const [entries, setEntries] = useState<ScoredMemoryPoint[]>([]);
+  const [reflections, setReflections] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [offset, setOffset] = useState<number>(0);
@@ -35,8 +36,7 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
       const response = await fetch('/api/orion/memory/search', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin-token'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           queryText: "*",
@@ -56,6 +56,9 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
         setEntries(prev => currentOffset === 0 ? newEntries : [...prev, ...newEntries]);
         setOffset(currentOffset + newEntries.length);
         setHasMore(newEntries.length === limit);
+        
+        // Fetch reflections for new entries
+        fetchReflectionsForEntries(newEntries);
       } else {
         throw new Error(data.error || 'Failed to fetch journal entries.');
       }
@@ -67,6 +70,46 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
       setIsLoading(false);
     }
   }, []);
+
+  const fetchReflectionsForEntries = async (entries: ScoredMemoryPoint[]) => {
+    try {
+      // Get all source_ids
+      const sourceIds = entries.map(entry => entry.payload.source_id);
+      
+      // Fetch all reflections in one batch
+      const response = await fetch('/api/orion/memory/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          queryText: "*",
+          filter: {
+            must: [
+              { key: "type", match: { value: "journal_reflection" } }
+            ]
+          },
+          limit: 100 // Adjust as needed
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.results) {
+        // Create a map of original_entry_id to reflection text
+        const newReflections: Record<string, string> = {};
+        data.results.forEach((reflection: ScoredMemoryPoint) => {
+          if (reflection.payload.original_entry_id && sourceIds.includes(reflection.payload.original_entry_id)) {
+            newReflections[reflection.payload.original_entry_id] = reflection.payload.text;
+          }
+        });
+        
+        setReflections(prev => ({ ...prev, ...newReflections }));
+      }
+    } catch (error) {
+      console.error("Error fetching reflections:", error);
+    }
+  };
 
   useEffect(() => {
     fetchJournalEntries(0, initialLimit);
@@ -107,7 +150,11 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
     <div className="mt-8 space-y-4">
       <h2 className="text-xl font-semibold text-gray-200 border-b border-gray-700 pb-2">Past Entries</h2>
       {entries.map((entry) => (
-        <JournalEntryDisplay key={entry.id} entry={entry} />
+        <JournalEntryDisplay 
+          key={entry.id} 
+          entry={entry} 
+          initialReflection={reflections[entry.payload.source_id]}
+        />
       ))}
       {hasMore && (
         <div className="text-center mt-6">

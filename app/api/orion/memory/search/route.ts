@@ -7,8 +7,15 @@ import {
 } from "@/lib/orion_config";
 import { spawn } from "child_process";
 import path from "path";
+import { auth } from "@/auth";
 
 export async function POST(request: NextRequest) {
+  // Check authentication
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { 
