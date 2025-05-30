@@ -1,4 +1,4 @@
-import { initializeSessionState } from './app_state';
+import { initializeClientSession } from './app_state';
 import { SessionStateKeys } from './types/orion';
 
 describe('app_state', () => {
@@ -7,7 +7,7 @@ describe('app_state', () => {
   });
 
   it('should initialize required session keys', () => {
-    initializeSessionState();
+    initializeClientSession();
 
     expect(localStorage.getItem(SessionStateKeys.USER_NAME)).toBeDefined();
     expect(localStorage.getItem(SessionStateKeys.CURRENT_MOOD)).toBeDefined();

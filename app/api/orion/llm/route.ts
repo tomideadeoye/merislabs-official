@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
 
     const llmParams: LLMParams = { requestType, primaryContext, ...rest };
 
-    const [responseObject, content] = await getLlmAnswerWithFallbackAsync(llmParams.prompt, {
+    // Create a prompt from primaryContext if prompt is not provided
+    const prompt = llmParams.prompt || primaryContext;
+    const [responseObject, content] = await getLlmAnswerWithFallbackAsync(prompt, {
       model: llmParams.model,
       temperature: llmParams.temperature,
       timeout: llmParams.max_tokens ? Math.ceil(llmParams.max_tokens / 50) : undefined

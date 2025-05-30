@@ -14,7 +14,7 @@ const moods = [
 ];
 
 export function MoodCheckIn() {
-  const [, setCurrentMood] = useSessionState<string | undefined>(
+  const [, setCurrentMood] = useSessionState(
     SessionStateKeys.CURRENT_MOOD,
     undefined
   );
