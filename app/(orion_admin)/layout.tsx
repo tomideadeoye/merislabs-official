@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { initializeSessionState, PageNames, SessionStateKeys, initializeSession } from "@/app_state";
+import { PageNames, SessionStateKeys, PageNameValue, initializeClientSession } from "@/app_state";
 import { useSessionState } from "@/hooks/useSessionState";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api-client";
@@ -24,23 +24,22 @@ import {
 
 interface NavItem {
   href: string;
-  label: string;
+  label: PageNameValue;
   icon: React.ElementType;
-  sessionKey?: SessionStateKeys;
 }
 
 const adminNavItems: NavItem[] = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/draft-communication", label: PageNames["Draft Communication"], icon: MessageSquareText },
-  { href: "/admin/journal", label: PageNames.Journal, icon: BookOpenText },
-  { href: "/admin/networking", label: PageNames.Networking, icon: Network },
-  { href: "/admin/opportunity-pipeline", label: PageNames["Opportunity Pipeline"], icon: BriefcaseBusiness },
-  { href: "/admin/habitica", label: PageNames["Habitica Integration"], icon: Rocket },
-  { href: "/admin/memory-manager", label: PageNames["Memory Manager"], icon: DatabaseZap },
-  { href: "/admin/agentic-workflow", label: PageNames["Agentic Workflow"], icon: BrainCircuit },
-  { href: "/admin/routines", label: PageNames.Routines, icon: Repeat },
-  { href: "/admin/whatsapp-helper", label: PageNames["WhatsApp Helper"], icon: Users },
-  { href: "/admin/system-settings", label: PageNames["System Settings"], icon: Cog },
+  { href: "/admin", label: PageNames.ADMIN_DASHBOARD, icon: LayoutDashboard },
+  { href: "/admin/draft-communication", label: PageNames.DRAFT_COMM, icon: MessageSquareText },
+  { href: "/admin/journal", label: PageNames.JOURNAL, icon: BookOpenText },
+  { href: "/admin/networking", label: PageNames.NETWORKING, icon: Network },
+  { href: "/admin/opportunity-pipeline", label: PageNames.PIPELINE, icon: BriefcaseBusiness },
+  { href: "/admin/habitica", label: PageNames.HABITICA, icon: Rocket },
+  { href: "/admin/memory-manager", label: PageNames.MEMORY_MANAGER, icon: DatabaseZap },
+  { href: "/admin/agentic-workflow", label: PageNames.AGENTIC, icon: BrainCircuit },
+  { href: "/admin/routines", label: PageNames.ROUTINES, icon: Repeat },
+  { href: "/admin/whatsapp-helper", label: PageNames.WHATSAPP, icon: Users },
+  { href: "/admin/system-settings", label: PageNames.SYSTEM, icon: Cog },
 ];
 
 const AdminSidebar: React.FC = () => {
@@ -79,22 +78,17 @@ const AdminSidebar: React.FC = () => {
 };
 
 export default function OrionAdminLayout({ children }: { children: React.ReactNode }) {
-  const [userName] = useSessionState<string | undefined>(SessionStateKeys.USER_NAME, "Architect");
-  const [memoryInitialized, setMemoryInitialized] = useSessionState<boolean>(
-    SessionStateKeys.MEMORY_INITIALIZED,
-    false
-  );
+  const [userName] = useSessionState(SessionStateKeys.USER_NAME);
+  const [memoryInitialized, setMemoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED);
 
   useEffect(() => {
-    initializeSessionState();
-    console.log("Orion Admin Layout Initialized Session State");
+    initializeClientSession();
+    console.log("Orion Admin Layout: Client session initialization ensured.");
   }, []);
 
   useEffect(() => {
-    initializeSession();
-
     const initMemory = async () => {
-      if (!memoryInitialized) {
+      if (memoryInitialized === false) {
         try {
           const response = await apiClient.post("/orion/memory/initialize");
           if (response.data.success) {
@@ -108,7 +102,9 @@ export default function OrionAdminLayout({ children }: { children: React.ReactNo
         }
       }
     };
-    initMemory();
+    if (typeof window !== "undefined") {
+      initMemory();
+    }
   }, [memoryInitialized, setMemoryInitialized]);
 
   return (
@@ -117,7 +113,7 @@ export default function OrionAdminLayout({ children }: { children: React.ReactNo
       <main className="flex-1 overflow-y-auto p-6 pt-8 md:p-8 lg:pt-8 ml-64">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-xl text-gray-400">
-            Welcome back, <span className="font-semibold text-blue-400">{userName}</span>!
+            Welcome back, <span className="font-semibold text-blue-400">{userName ?? "Architect"}</span>!
           </h1>
         </div>
         {children}
