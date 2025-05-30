@@ -1,4 +1,32 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
-}
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+    // --- Existing User Settings ---
+    "CodeGPT.apiKey": "Azure",
+    "files.associations": {
+      "*.txt": "markdown"
+    },
+    "git.ignoreLimitWarning": true,
+
+    // --- Recommended Python Settings ---
+    "python.analysis.typeCheckingMode": "basic", // Keep user's setting if desired, or change to "strict"
+
+    // --- Use Ruff for Formatting & Linting (Recommended) ---
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit", // Fixes what Ruff can safely fix on save
+        "source.organizeImports": "explicit" // Organizes imports using Ruff on save
+      }
+    },
+    "ruff.lint.args": [], // Optional: Add custom ruff lint args if needed
+    "ruff.format.args": [], // Optional: Add custom ruff format args if needed
+
+    // --- General File Handling ---
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "*test.py"],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true
+  }
