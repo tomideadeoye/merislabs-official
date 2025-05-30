@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageNames, SessionStateKeys } from "@/app_state";
 import { useSessionState } from "@/hooks/useSessionState";
@@ -10,6 +11,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function JournalFeaturePage() {
   const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleEntrySaved = () => {
+    // Trigger a refresh of the journal list when a new entry is saved
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   return (
     <div className="space-y-6 h-full flex flex-col">
@@ -23,11 +30,11 @@ export default function JournalFeaturePage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 flex-grow min-h-0">
         <div className="lg:col-span-1">
-          <JournalEntryForm />
+          <JournalEntryForm onEntrySaved={handleEntrySaved} />
         </div>
         
         <ScrollArea className="lg:col-span-1 lg:max-h-[calc(100vh-12rem)] pr-2">
-          <JournalList initialLimit={5} />
+          <JournalList initialLimit={5} key={`journal-list-${refreshTrigger}`} />
         </ScrollArea>
       </div>
     </div>

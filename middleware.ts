@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "./auth";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -14,15 +14,12 @@ export async function middleware(request: NextRequest) {
   // Define admin paths that need authentication
   const isAdminPath = path.startsWith("/admin");
   
-  // Get the session token
-  const token = await getToken({ 
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET
-  });
+  // Get the session
+  const session = await auth();
   
   // Redirect logic for public pages
   if (isPublicPath) {
-    if (token) {
+    if (session) {
       // If user is already logged in, redirect to admin dashboard
       return NextResponse.redirect(new URL("/admin", request.url));
     }
@@ -32,7 +29,7 @@ export async function middleware(request: NextRequest) {
   
   // Authentication check for protected API routes
   if (isProtectedApiPath) {
-    if (!token) {
+    if (!session) {
       // Return 401 Unauthorized for API routes
       return new NextResponse(
         JSON.stringify({ success: false, error: "Authentication required" }),
@@ -45,7 +42,7 @@ export async function middleware(request: NextRequest) {
   
   // Authentication check for admin pages
   if (isAdminPath) {
-    if (!token) {
+    if (!session) {
       // Redirect to login page with return URL
       const url = new URL("/signin", request.url);
       url.searchParams.set("callbackUrl", encodeURI(request.url));

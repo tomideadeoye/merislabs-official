@@ -7,11 +7,12 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, Zap, Lightbulb, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Zap, Lightbulb, BarChart3, Settings, HelpCircle } from "lucide-react";
 
 const quickActions = [
 	{ label: PageNames.DRAFT_COMM, href: "/admin/draft-communication", icon: Lightbulb },
 	{ label: PageNames.JOURNAL, href: "/admin/journal", icon: Zap },
+	{ label: PageNames.ASK, href: "/admin/ask-question", icon: HelpCircle },
 	{ label: PageNames.PIPELINE, href: "/admin/opportunity-pipeline", icon: BarChart3 },
 	{ label: PageNames.SYSTEM, href: "/admin/system-settings", icon: Settings },
 ];
@@ -42,7 +43,7 @@ export default function AdminDashboardPage() {
 				memoryInitialized={memoryInitialized}
 			/>
 
-			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
 				{quickActions.map((action) => (
 					<Card key={action.label} className="hover:shadow-blue-500/30 hover:shadow-lg transition-shadow">
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
