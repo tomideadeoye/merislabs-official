@@ -8,7 +8,7 @@ export default function SystemSettingsFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames["System Settings"]}
+        title={PageNames.SYSTEM}
         icon={<Cog className="h-7 w-7" />}
         description="Configure system preferences and settings."
       />

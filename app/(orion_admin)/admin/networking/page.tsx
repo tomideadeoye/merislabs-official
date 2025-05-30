@@ -8,7 +8,7 @@ export default function NetworkingFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames.Networking}
+        title={PageNames.NETWORKING}
         icon={<Network className="h-7 w-7" />}
         description="Manage your professional network and contacts."
       />

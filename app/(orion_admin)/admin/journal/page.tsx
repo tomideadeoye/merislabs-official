@@ -8,7 +8,7 @@ export default function JournalFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames.Journal}
+        title={PageNames.JOURNAL}
         icon={<BookOpenText className="h-7 w-7" />}
         description="Write and review your journal entries."
       />

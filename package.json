@@ -3,18 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "NODE_ENV=development next dev",
+    "build": "NODE_ENV=production next build",
+    "start": "NODE_ENV=production next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@qdrant/js-client-rest": "^1.14.1",
     "@radix-ui/react-slot": "^1.2.3",
-    "@types/node": "^20.10.4",
-    "@types/react": "^18.2.42",
-    "@types/react-dom": "^18.2.17",
     "aos": "^3.0.0-beta.6",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
@@ -31,14 +28,18 @@
     "react-iframe": "^1.8.5",
     "react-use": "^17.5.0",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.3.3"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
     "@types/aos": "^3.0.7",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.27",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.4",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3"
   }
 }

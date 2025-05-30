@@ -8,7 +8,7 @@ export default function HabiticaFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames["Habitica Integration"]}
+        title={PageNames.HABITICA}
         icon={<Rocket className="h-7 w-7" />}
         description="Integrate and manage your Habitica tasks and rewards."
       />

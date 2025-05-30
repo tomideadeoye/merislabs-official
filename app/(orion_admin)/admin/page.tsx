@@ -10,16 +10,16 @@ import Link from "next/link";
 import { LayoutDashboard, Zap, Lightbulb, BarChart3, Settings } from "lucide-react";
 
 const quickActions = [
-	{ label: PageNames["Draft Communication"], href: "/admin/draft-communication", icon: Lightbulb },
-	{ label: PageNames.Journal, href: "/admin/journal", icon: Zap },
-	{ label: PageNames["Opportunity Pipeline"], href: "/admin/opportunity-pipeline", icon: BarChart3 },
-	{ label: PageNames["System Settings"], href: "/admin/system-settings", icon: Settings },
+	{ label: PageNames.DRAFT_COMM, href: "/admin/draft-communication", icon: Lightbulb },
+	{ label: PageNames.JOURNAL, href: "/admin/journal", icon: Zap },
+	{ label: PageNames.PIPELINE, href: "/admin/opportunity-pipeline", icon: BarChart3 },
+	{ label: PageNames.SYSTEM, href: "/admin/system-settings", icon: Settings },
 ];
 
 export default function AdminDashboardPage() {
-	const [currentMood] = useSessionState<string | undefined>(SessionStateKeys.CURRENT_MOOD, undefined);
-	const [userName] = useSessionState<string>(SessionStateKeys.USER_NAME, "Architect");
-	const [memoryInitialized] = useSessionState<boolean>(SessionStateKeys.MEMORY_INITIALIZED, false);
+  const [currentMood] = useSessionState<string | undefined>(SessionStateKeys.CURRENT_MOOD as SessionStateKeys, undefined);
+  const [userName] = useSessionState<string>(SessionStateKeys.USER_NAME as SessionStateKeys, "Architect");
+  const [memoryInitialized] = useSessionState<boolean>(SessionStateKeys.MEMORY_INITIALIZED as SessionStateKeys, false);
 
 	const welcomeDate = new Date().toLocaleDateString("en-US", {
 		weekday: "long",

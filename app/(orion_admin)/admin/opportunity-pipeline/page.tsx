@@ -8,7 +8,7 @@ export default function OpportunityPipelineFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames["Opportunity Pipeline"]}
+        title={PageNames.PIPELINE}
         icon={<BriefcaseBusiness className="h-7 w-7" />}
         description="Track and manage your sales and business opportunities."
       />

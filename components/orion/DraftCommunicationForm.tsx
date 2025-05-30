@@ -10,7 +10,7 @@ import {
 import { toast } from "react-hot-toast";
 
 interface DraftCommunicationFormProps {
-  profileData?: string;
+  profileData?: string | null; // Accept null as well as undefined
   memoryAvailable?: boolean;
 }
 
@@ -49,7 +49,7 @@ export function DraftCommunicationForm({ profileData, memoryAvailable }: DraftCo
 
   const handleAskQuestion = useCallback(async () => {
     if (!askQuestion.trim()) {
-      toast.warning("Please enter a question.");
+      toast.error("Please enter a question.");
       return;
     }
     setAskProcessing(true);
@@ -80,7 +80,7 @@ export function DraftCommunicationForm({ profileData, memoryAvailable }: DraftCo
 
   const handleGenerate = useCallback(async () => {
     if (!generateInput.trim()) {
-      toast.warning("Please enter input for generation.");
+      toast.error("Please enter input for generation.");
       return;
     }
     setGenerateProcessing(true);

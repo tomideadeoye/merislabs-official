@@ -8,7 +8,7 @@ export default function WhatsAppHelperFeaturePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={PageNames["WhatsApp Helper"]}
+        title={PageNames.WHATSAPP}
         icon={<Users className="h-7 w-7" />}
         description="Assist with WhatsApp messaging and automation."
       />
