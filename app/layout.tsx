@@ -1,42 +1,33 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./css/style.css";
+// import { ThemeProvider } from "@/components/theme-provider";
 
-import { Inter, Architects_Daughter } from "next/font/google";
+const inter = Inter({ subsets: ["latin"] });
 
-import Header from "@/components/ui/header";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const architects_daughter = Architects_Daughter({
-  subsets: ["latin"],
-  variable: "--font-architects-daughter",
-  weight: "400",
-  display: "swap",
-});
-
-export const metadata = {
-  title: "Meris Labs - Tomide Adeoye",
-  description:
-    "Developing web and mobile applications for various industries, from financial services to legal.",
+export const metadata: Metadata = {
+  title: "MerisLabs by Tomide Adeoye",
+  description: "Portfolio and Life Architecture System",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${architects_daughter.variable} font-inter antialiased bg-gray-900 text-gray-200 tracking-tight`}
+        className={`${inter.className} bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 antialiased`}
       >
-        <div className="flex flex-col min-h-screen overflow-hidden">
-          <Header />
-          {children}
-        </div>
+        {/* <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        > */}
+        {children}
+        {/* </ThemeProvider> */}
       </body>
     </html>
   );
