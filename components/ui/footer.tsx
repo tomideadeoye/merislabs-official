@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { FaMedium, FaXTwitter } from "react-icons/fa6";
 import { FaLinkedin, FaGithub } from "react-icons/fa";
+import { ReactNode } from "react";
 
 export default function Footer() {
   interface Social {
     name: string;
     link: string;
-    icon: JSX.Element;
+    icon: ReactNode;
   }
 
   const socials: Social[] = [

@@ -17,9 +17,9 @@ const quickActions = [
 ];
 
 export default function AdminDashboardPage() {
-  const [currentMood] = useSessionState<string | undefined>(SessionStateKeys.CURRENT_MOOD as SessionStateKeys, undefined);
-  const [userName] = useSessionState<string>(SessionStateKeys.USER_NAME as SessionStateKeys, "Architect");
-  const [memoryInitialized] = useSessionState<boolean>(SessionStateKeys.MEMORY_INITIALIZED as SessionStateKeys, false);
+  const [currentMood] = useSessionState(SessionStateKeys.CURRENT_MOOD, undefined);
+  const [userName] = useSessionState(SessionStateKeys.USER_NAME, "Architect");
+  const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
 
 	const welcomeDate = new Date().toLocaleDateString("en-US", {
 		weekday: "long",
