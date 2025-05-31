@@ -6,7 +6,7 @@ import {
 import { API_KEY_ERROR_MESSAGE } from "@/lib/constants";
 import { auth } from "@/auth";
 import { ASK_QUESTION_REQUEST_TYPE, ORION_MEMORY_COLLECTION_NAME } from "@/lib/orion_config";
-import type { ScoredMemoryPoint } from "@/types/orion";
+import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from "@/types/orion";
 
 export async function POST(request: NextRequest) {
   // Check authentication
@@ -18,7 +18,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const { requestType, primaryContext, profileContext, ...rest } = body;
+    const { 
+      requestType, 
+      primaryContext, 
+      profileContext, 
+      memorySourceTypes, 
+      memorySourceTags,
+      ...rest 
+    } = body;
+    
     if (!requestType || !primaryContext) {
       return NextResponse.json(
         {
@@ -40,6 +48,36 @@ export async function POST(request: NextRequest) {
       try {
         console.log(`[ASK_ORION_API] Searching memory for question: "${userQuestion.substring(0, 50)}..."`);
         
+        // Construct filter based on memory source types and tags
+        const filterConditions: QdrantFilterCondition[] = [];
+        
+        if (memorySourceTypes && memorySourceTypes.length > 0) {
+          memorySourceTypes.forEach((type: string) => {
+            filterConditions.push({ 
+              key: "payload.type", 
+              match: { value: type } 
+            });
+          });
+        }
+        
+        if (memorySourceTags && memorySourceTags.length > 0) {
+          memorySourceTags.forEach((tag: string) => {
+            filterConditions.push({ 
+              key: "payload.tags", 
+              match: { value: tag.toLowerCase() } 
+            });
+          });
+        }
+        
+        const qdrantFilter: QdrantFilter | null = filterConditions.length > 0 
+          ? { should: filterConditions } 
+          : null;
+        
+        // Log filter for debugging
+        if (qdrantFilter) {
+          console.log(`[ASK_ORION_API] Using memory filter:`, JSON.stringify(qdrantFilter));
+        }
+        
         // Search memory for relevant context
         const memorySearchResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/search`, {
           method: 'POST',
@@ -49,7 +87,8 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             queryText: userQuestion,
             collectionName: ORION_MEMORY_COLLECTION_NAME,
-            limit: MAX_CONTEXT_SNIPPETS
+            limit: MAX_CONTEXT_SNIPPETS,
+            filter: qdrantFilter
           })
         });
         
@@ -60,10 +99,18 @@ export async function POST(request: NextRequest) {
             `Memory ${index + 1} (Source: ${item.payload.source_id}, Type: ${item.payload.type || "unknown"}, Score: ${item.score.toFixed(4)}):\n${item.payload.text}`
           ).join("\n\n---\n\n");
           
-          retrievedContext = `\n\nBased on your stored memories, here is some potentially relevant context:\n--- START OF RETRIEVED MEMORIES ---\n${snippets}\n--- END OF RETRIEVED MEMORIES ---\n`;
+          const filterDescription = qdrantFilter 
+            ? " (filtered by your specified memory types/tags)" 
+            : "";
+            
+          retrievedContext = `\n\nBased on your stored memories${filterDescription}, here is some potentially relevant context:\n--- START OF RETRIEVED MEMORIES ---\n${snippets}\n--- END OF RETRIEVED MEMORIES ---\n`;
           console.log(`[ASK_ORION_API] Retrieved ${memorySearchData.results.length} relevant memories.`);
         } else {
-          console.log(`[ASK_ORION_API] No specific relevant memories found for the question.`);
+          const noResultsReason = qdrantFilter 
+            ? " with the specified filters" 
+            : "";
+            
+          console.log(`[ASK_ORION_API] No specific relevant memories found${noResultsReason}.`);
         }
       } catch (memError: any) {
         console.error(`[ASK_ORION_API] Error during memory search: ${memError.message}`);
@@ -116,6 +163,7 @@ Provide your answer directly. If using retrieved memories, synthesize them into 
       content,
       model: responseObject.model,
       error: responseObject.error,
+      memoryFiltersApplied: !!(memorySourceTypes || memorySourceTags)
     });
   } catch (error) {
     console.error("[LLM_API_ROUTE_ERROR]", error);

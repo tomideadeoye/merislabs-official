@@ -20,9 +20,11 @@ import {
   BarChart2, 
   AlertCircle, 
   ArrowRightCircle, 
-  Info 
+  Info,
+  ListTodo
 } from 'lucide-react';
 import { OpportunityDetails, EvaluationOutput } from '@/types/opportunity';
+import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
 
 interface OpportunityEvaluatorProps {
   className?: string;
@@ -37,6 +39,10 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   const [evaluation, setEvaluation] = useState<EvaluationOutput | { rawOutput?: string } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Habitica task dialog state
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState<boolean>(false);
+  const [selectedStep, setSelectedStep] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,6 +105,11 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         ))}
       </ul>
     );
+  };
+  
+  const handleCreateTask = (step: string) => {
+    setSelectedStep(step);
+    setIsTaskDialogOpen(true);
   };
 
   return (
@@ -277,7 +288,18 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 </Label>
                 <ul className="list-disc list-inside pl-4 text-sm text-gray-300 space-y-1">
                   {evaluation.suggestedNextSteps.map((step, index) => (
-                    <li key={index}>{step}</li>
+                    <li key={index} className="flex items-start">
+                      <span className="flex-1">{step}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCreateTask(step)}
+                        className="ml-2 text-xs flex items-center bg-gray-700 hover:bg-gray-600 text-blue-300"
+                      >
+                        <ListTodo className="mr-1 h-3 w-3" />
+                        Create Task
+                      </Button>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -304,6 +326,15 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           </CardContent>
         </Card>
       )}
+      
+      <CreateHabiticaTaskDialog
+        isOpen={isTaskDialogOpen}
+        setIsOpen={setIsTaskDialogOpen}
+        initialTaskText={selectedStep}
+        initialTaskNotes={`Next step for opportunity: ${title}`}
+        sourceModule="Opportunity Evaluator"
+        sourceReferenceId={title}
+      />
     </div>
   );
 };

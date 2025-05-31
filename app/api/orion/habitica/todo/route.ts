@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createTodo } from '@/lib/habitica_client';
+import { HabiticaApiClient } from '@/lib/habitica_client';
 import { auth } from '@/auth';
+import { db } from '@/lib/database';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
   // Check authentication
@@ -11,21 +13,68 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { text, notes, date, priority, tags, userId, apiToken } = body;
+    const { 
+      userId, 
+      apiToken, 
+      taskData,
+      orionSourceModule,
+      orionSourceReferenceId
+    } = body;
     
-    if (!text || typeof text !== 'string' || text.trim() === "") {
-      return NextResponse.json({ success: false, error: 'Task text cannot be empty.' }, { status: 400 });
+    if (!userId || !apiToken) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Habitica User ID and API Token are required' 
+      }, { status: 400 });
+    }
+    
+    if (!taskData || !taskData.text || typeof taskData.text !== 'string' || taskData.text.trim() === "") {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Task text cannot be empty.' 
+      }, { status: 400 });
     }
 
-    // Create todo in Habitica
-    const todo = await createTodo(
-      text, 
-      { notes, date, priority, tags }, 
-      userId, 
-      apiToken
-    );
+    // Create Habitica client with provided credentials
+    const habiticaClient = new HabiticaApiClient({ userId, apiToken });
     
-    return NextResponse.json({ success: true, todo });
+    // Create todo in Habitica
+    const newHabiticaTask = await habiticaClient.createTask({
+      text: taskData.text,
+      type: 'todo',
+      notes: taskData.notes,
+      priority: taskData.priority,
+      tags: taskData.tags
+    });
+    
+    // Store the link between Habitica task and Orion source if provided
+    if (newHabiticaTask && newHabiticaTask._id && orionSourceModule && orionSourceReferenceId) {
+      try {
+        const linkStmt = db.prepare(`
+          INSERT INTO habitica_task_links (
+            id, habiticaTaskId, orionSourceModule, orionSourceReferenceId, orionTaskText, createdAt
+          ) VALUES (
+            @id, @habiticaTaskId, @orionSourceModule, @orionSourceReferenceId, @orionTaskText, @createdAt
+          )
+        `);
+        
+        linkStmt.run({
+          id: uuidv4(),
+          habiticaTaskId: newHabiticaTask._id,
+          orionSourceModule,
+          orionSourceReferenceId,
+          orionTaskText: taskData.text,
+          createdAt: new Date().toISOString()
+        });
+        
+        console.log(`[HABITICA_TODO_API] Link saved for Habitica task ${newHabiticaTask._id} to Orion source ${orionSourceModule}:${orionSourceReferenceId}`);
+      } catch (dbError: any) {
+        console.error(`[HABITICA_TODO_API] Failed to save task link to local DB: ${dbError.message}`);
+        // Non-critical for task creation itself, so continue
+      }
+    }
+    
+    return NextResponse.json({ success: true, todo: newHabiticaTask });
   } catch (error: any) {
     console.error('[HABITICA_TODO_API_ERROR]', error.message);
     return NextResponse.json(

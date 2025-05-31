@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/ui/page-header";
-import { SessionStateKeys } from "@/app_state";
+import { PageNames, SessionStateKeys } from "@/app_state";
 import { useSessionState } from "@/hooks/useSessionState";
 import { AskQuestionForm } from "@/components/orion/AskQuestionForm";
 import { HelpCircle } from "lucide-react";
@@ -14,7 +14,7 @@ export default function AskQuestionPage() {
       <PageHeader
         title="Ask Orion"
         icon={<HelpCircle className="h-7 w-7" />}
-        description="Ask questions and get personalized answers based on your memories and profile."
+        description="Ask questions and get personalized answers based on your memories and profile. Use filters to target specific memory types."
         showMemoryStatus={true}
         memoryInitialized={memoryInitialized}
       />
