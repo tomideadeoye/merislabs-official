@@ -1,29 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserStats } from '@/lib/habitica_client';
-import { auth } from '@/auth';
+import { HabiticaApiClient } from '@/lib/habitica_client';
 
-export async function GET(request: NextRequest) {
-  // Check authentication
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
-  }
-
+/**
+ * API route for fetching Habitica user stats
+ */
+export async function POST(req: NextRequest) {
   try {
-    // Get user credentials from query parameters
-    const { searchParams } = request.nextUrl;
-    const userId = searchParams.get('userId') || undefined;
-    const apiToken = searchParams.get('apiToken') || undefined;
-
-    // Fetch user stats from Habitica
-    const stats = await getUserStats(userId, apiToken);
-
-    return NextResponse.json({ success: true, stats });
+    const { userId, apiToken } = await req.json();
+    
+    if (!userId || !apiToken) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Habitica User ID and API Token are required' 
+      }, { status: 400 });
+    }
+    
+    // Create Habitica client with provided credentials
+    const habiticaClient = new HabiticaApiClient({ userId, apiToken });
+    
+    // Fetch user stats
+    const stats = await habiticaClient.getUserStats();
+    
+    return NextResponse.json({ 
+      success: true, 
+      data: stats 
+    });
   } catch (error: any) {
-    console.error('[HABITICA_STATS_API_ERROR]', error.message);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch Habitica stats.', details: error.message || "Unknown error" },
-      { status: 500 }
-    );
+    console.error('Error in POST /api/orion/habitica/stats:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message || 'An unexpected error occurred' 
+    }, { status: 500 });
   }
 }

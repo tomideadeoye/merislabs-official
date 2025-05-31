@@ -1,7 +1,3 @@
-/**
- * Types for the Opportunity Evaluator feature
- */
-
 export interface OpportunityDetails {
   title: string;
   description: string;
@@ -11,20 +7,58 @@ export interface OpportunityDetails {
 
 export interface EvaluationOutput {
   fitScorePercentage: number;
+  recommendation: string;
+  reasoning: string;
   alignmentHighlights: string[];
   gapAnalysis: string[];
-  riskRewardAnalysis: {
-    highRiskHighReward?: string;
-    lowRiskHighReward?: string;
-    highRiskLowReward?: string;
-    lowRiskLowReward?: string;
-  };
-  recommendation: 'Pursue' | 'Delay & Prepare' | 'Reject' | 'Consider Further';
+  riskRewardAnalysis: any;
   suggestedNextSteps: string[];
-  reasoning: string;
-  relevantPastExperiences?: { 
-    source_id: string;
-    text_snippet: string;
-    relevance_note: string;
-  }[];
+  rawOutput?: string;
+}
+
+// Draft Application Types
+export interface OpportunityInputData {
+  title: string;
+  company: string;
+  description: string;
+  tags?: string[];
+}
+
+export interface ApplicantProfileInputData {
+  name: string;
+  backgroundSummary: string;
+  keySkills: string[];
+  goals: string;
+  location?: string;
+  values?: string[];
+}
+
+export interface EvaluationSummaryInputData {
+  fitScorePercentage?: number;
+  alignmentHighlights?: string[];
+  gapAnalysis?: string[];
+  riskRewardAnalysis?: string;
+  suggestedNextSteps?: string[];
+}
+
+export interface MemorySnippetInputData {
+  content: string;
+  tags?: string[];
+  date?: string;
+}
+
+export interface DraftApplicationRequestBody {
+  opportunity: OpportunityInputData;
+  applicantProfile: ApplicantProfileInputData;
+  evaluationSummary?: EvaluationSummaryInputData;
+  memorySnippets?: MemorySnippetInputData[];
+  numberOfDrafts?: number;
+}
+
+export interface DraftApplicationResponseBody {
+  success: boolean;
+  drafts?: string[];
+  error?: string;
+  details?: string;
+  modelUsed?: string;
 }

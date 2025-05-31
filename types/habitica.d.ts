@@ -1,65 +1,79 @@
 /**
- * Types for Habitica API integration
+ * Types for Habitica integration
  */
 
-export interface HabiticaTask {
-  _id?: string;
-  id: string;
-  userId?: string;
-  type: 'habit' | 'daily' | 'todo' | 'reward';
-  text: string;
-  notes?: string;
-  tags?: string[];
-  value?: number;
-  priority?: number; // Difficulty: 0.1 (Trivial) to 2 (Hard)
-  attribute?: 'str' | 'int' | 'per' | 'con';
-  checklist?: HabiticaChecklistItem[];
-  completed?: boolean;
-  date?: string; // Due date for todos
-  createdAt?: string;
-  updatedAt?: string;
+export interface HabiticaUserStats {
+  _id: string;
+  auth?: {
+    local: {
+      username: string;
+    };
+  };
+  stats: {
+    hp: number;
+    mp: number;
+    exp: number;
+    gp: number;
+    lvl: number;
+    class: string;
+    points: number;
+    str: number;
+    con: number;
+    int: number;
+    per: number;
+    toNextLevel: number;
+    maxHealth: number;
+    maxMP: number;
+  };
+  profile: {
+    name: string;
+  };
 }
 
-export interface HabiticaChecklistItem {
+export interface HabiticaTask {
+  _id: string;
+  id?: string;
   text: string;
+  type: 'habit' | 'daily' | 'todo' | 'reward';
+  notes: string;
+  tags: string[];
+  value: number;
+  priority: 0.1 | 1 | 1.5 | 2;
+  attribute: string;
+  challenge: any;
+  group: any;
+  date: string | null;
+  dateCompleted: string | null;
   completed: boolean;
-  id: string;
+  isDue?: boolean;
+  nextDue?: string[];
+  streak?: number;
+  frequency?: string;
+  everyX?: number;
+  checklist?: Array<{
+    id: string;
+    text: string;
+    completed: boolean;
+  }>;
+  orionOrigin?: {
+    orionSourceModule: string;
+    orionSourceReferenceId: string;
+    createdAt: string;
+  };
+}
+
+export interface HabiticaTaskCreationParams {
+  text: string;
+  type: 'habit' | 'daily' | 'todo' | 'reward';
+  notes?: string;
+  date?: string;
+  priority?: 0.1 | 1 | 1.5 | 2;
+  tags?: string[];
 }
 
 export interface HabiticaTaskCreateData {
   text: string;
-  type: 'todo' | 'habit' | 'daily' | 'reward';
+  type: string;
   notes?: string;
-  date?: string;
   priority?: number;
-  tags?: string[];
-}
-
-export interface HabiticaTaskScoreData {
-  delta: number;
-  hp: number;
-  mp: number;
-  exp: number;
-  gp: number;
-  lvl: number;
-}
-
-export interface HabiticaUserStats {
-  profile?: { name?: string };
-  stats?: {
-    hp: number;
-    maxHealth: number;
-    mp: number;
-    maxMP: number;
-    exp: number;
-    toNextLevel: number;
-    lvl: number;
-    gp: number;
-    class?: string;
-  };
-}
-
-export interface HabiticaCredentials {
-  userId: string;
-  apiToken: string;
 }

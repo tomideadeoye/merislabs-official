@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import type { ScoredMemoryPoint } from '@/types/orion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, Tag, Smile, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { CalendarDays, Tag, Smile, MessageSquare, ChevronDown, ChevronUp, ListTodo, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { AddTaskFromReflection } from './AddTaskFromReflection';
@@ -16,12 +16,21 @@ interface JournalEntryDisplayProps {
   initialReflection?: string;
 }
 
+interface ActionReflection {
+  text: string;
+  taskText: string;
+  timestamp: string;
+}
+
 export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry, initialReflection }) => {
   const { payload, score } = entry;
   const entryDate = new Date(payload.timestamp);
   const [showReflection, setShowReflection] = useState(!!initialReflection);
   const [reflection, setReflection] = useState<string | null>(initialReflection || null);
   const [isLoadingReflection, setIsLoadingReflection] = useState(false);
+  const [actionReflections, setActionReflections] = useState<ActionReflection[]>([]);
+  const [isLoadingActionReflections, setIsLoadingActionReflections] = useState(false);
+  const [showActionReflections, setShowActionReflections] = useState(false);
   const [userId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [apiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
 
@@ -168,6 +177,53 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
     }
   };
 
+  const fetchActionReflections = async () => {
+    if (actionReflections.length > 0) {
+      setShowActionReflections(!showActionReflections);
+      return;
+    }
+
+    setIsLoadingActionReflections(true);
+    try {
+      // Search for action reflections related to this journal entry
+      const response = await fetch('/api/orion/memory/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          queryText: "*",
+          filter: {
+            must: [
+              { key: "type", match: { value: "action_reflection" } },
+              { key: "related_orion_source_id", match: { value: payload.source_id } }
+            ]
+          },
+          limit: 10
+        })
+      });
+
+      const data = await response.json();
+      if (data.success && data.results && data.results.length > 0) {
+        const reflections = data.results.map(result => ({
+          text: result.payload.text,
+          taskText: result.payload.original_task_text || "Unknown task",
+          timestamp: result.payload.timestamp
+        }));
+        setActionReflections(reflections);
+        setShowActionReflections(true);
+      } else {
+        // No action reflections found
+        setActionReflections([]);
+        setShowActionReflections(true);
+      }
+    } catch (error) {
+      console.error("Error fetching action reflections:", error);
+    } finally {
+      setIsLoadingActionReflections(false);
+    }
+  };
+
   // Extract potential task from reflection
   const extractTaskSuggestion = (reflectionText: string | null): string | null => {
     if (!reflectionText) return null;
@@ -251,6 +307,53 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
               )}
             </div>
             <p className="text-sm text-gray-300 whitespace-pre-wrap">{reflection}</p>
+          </div>
+        )}
+        
+        {/* Action Reflections Section */}
+        {hasHabiticaCredentials && (
+          <div className="mt-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs flex items-center bg-gray-700 hover:bg-gray-600 text-green-300"
+              onClick={fetchActionReflections}
+              disabled={isLoadingActionReflections}
+            >
+              {isLoadingActionReflections ? (
+                <>Loading action reflections...</>
+              ) : showActionReflections ? (
+                <>Hide Action Reflections <ChevronUp className="ml-1 h-3 w-3" /></>
+              ) : (
+                <>Show Action Reflections <BookOpen className="ml-1 h-3 w-3" /></>
+              )}
+            </Button>
+          </div>
+        )}
+        
+        {showActionReflections && (
+          <div className="mt-3">
+            {actionReflections.length === 0 ? (
+              <p className="text-xs text-gray-400 italic">No action reflections found for tasks from this entry.</p>
+            ) : (
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-green-400">Action Reflections:</h4>
+                {actionReflections.map((reflection, index) => (
+                  <div key={index} className="p-3 bg-gray-700/30 rounded-md border border-green-800/50">
+                    <div className="flex items-center mb-2">
+                      <ListTodo className="h-3 w-3 mr-1 text-green-400" />
+                      <span className="text-xs font-medium text-green-300">
+                        Task: {reflection.taskText}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-300 whitespace-pre-wrap">{reflection.text}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(reflection.timestamp).toLocaleDateString()} ({new Date(reflection.timestamp).toLocaleTimeString()})
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
         

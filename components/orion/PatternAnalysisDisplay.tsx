@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, AlertTriangle, CheckCircle2, Lightbulb, Brain, Info } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle2, Lightbulb, Brain, Info, ListTodo } from 'lucide-react';
 import { IdentifiedPattern } from '@/types/insights';
+import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
 
 interface PatternAnalysisDisplayProps {
   className?: string;
@@ -24,6 +25,11 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [customQuery, setCustomQuery] = useState<string>("");
+  
+  // Habitica task dialog state
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState<boolean>(false);
+  const [selectedInsight, setSelectedInsight] = useState<string>("");
+  const [selectedTheme, setSelectedTheme] = useState<string>("");
 
   const handleAnalyzePatterns = async () => {
     setIsLoading(true);
@@ -66,6 +72,12 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const handleCreateTask = (insight: string, theme: string) => {
+    setSelectedInsight(insight);
+    setSelectedTheme(theme);
+    setIsTaskDialogOpen(true);
   };
 
   return (
@@ -219,9 +231,22 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
                 {pattern.actionableInsight && (
                   <div className="mt-2 pt-2 border-t border-gray-700 flex items-start">
                     <Lightbulb className="h-5 w-5 mr-2 text-yellow-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-yellow-300">
-                      <span className="font-medium">Consider:</span> {pattern.actionableInsight}
-                    </p>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <p className="text-yellow-300">
+                          <span className="font-medium">Consider:</span> {pattern.actionableInsight}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCreateTask(pattern.actionableInsight, pattern.theme)}
+                          className="ml-2 text-xs flex items-center bg-gray-700 hover:bg-gray-600 text-blue-300"
+                        >
+                          <ListTodo className="mr-1 h-3 w-3" />
+                          Create Task
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -229,6 +254,15 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
           ))}
         </div>
       )}
+      
+      <CreateHabiticaTaskDialog
+        isOpen={isTaskDialogOpen}
+        setIsOpen={setIsTaskDialogOpen}
+        initialTaskText={selectedInsight}
+        initialTaskNotes={`From Pattern Analysis: ${selectedTheme}`}
+        sourceModule="Pattern Tracker"
+        sourceReferenceId={selectedTheme}
+      />
     </div>
   );
 };

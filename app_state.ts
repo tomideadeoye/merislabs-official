@@ -5,9 +5,12 @@ import type {
 } from "@/types/orion";
 import { SessionStateKeys } from "@/hooks/useSessionState";
 
+export { SessionStateKeys };
+
 export const PageNames = {
   HOME: "🏠 Home",
   WHATSAPP: "📱 WhatsApp Helper",
+  WHATSAPP_ANALYSIS: "💬 WhatsApp Analysis",
   NETWORKING: "🤝 Networking Outreach",
   DRAFT_COMM: "✍️ Draft Communication",
   ASK: "❓ Ask Question",
@@ -24,6 +27,7 @@ export const PageNames = {
   OPPORTUNITY: "🧐 Opportunity Evaluator",
   EMOTIONAL: "🧘 Emotional Tracker",
   LOCAL_FILES: "📂 Local Files",
+  IDEA_INCUBATOR: "💡 Idea Incubator",
   ADMIN_DASHBOARD: "👑 Admin Dashboard",
 } as const;
 

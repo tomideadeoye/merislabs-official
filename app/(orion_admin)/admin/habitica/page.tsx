@@ -1,113 +1,86 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { PageHeader } from "@/components/ui/page-header";
 import { PageNames } from "@/app_state";
 import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/hooks/useSessionState';
 import { HabiticaCredentialsForm } from '@/components/orion/HabiticaCredentialsForm';
-import { HabiticaStats } from '@/components/orion/HabiticaStats';
+import { HabiticaStatsDisplay } from '@/components/orion/HabiticaStatsDisplay';
 import { HabiticaTaskList } from '@/components/orion/HabiticaTaskList';
-import { HabiticaAddTodo } from '@/components/orion/HabiticaAddTodo';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Rocket, CheckSquare, ListTodo, Key } from 'lucide-react';
+import { HabiticaTaskForm } from '@/components/orion/HabiticaTaskForm';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Rocket, ShieldAlert } from 'lucide-react';
 
 export default function HabiticaPage() {
-  const [userId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
-  const [apiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
-  const [isConfigured, setIsConfigured] = useState<boolean>(false);
-  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
-
-  useEffect(() => {
-    setIsConfigured(Boolean(userId && apiToken));
-  }, [userId, apiToken]);
-
-  const handleCredentialsSaved = () => {
-    setIsConfigured(true);
-  };
-
-  const handleTaskAdded = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
+  const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
+  const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
+  const [refreshKey, setRefreshKey] = useState<number>(Date.now());
+  
+  const credentialsAreSet = Boolean(habiticaUserId && habiticaApiToken);
+  
+  const handleCredentialsUpdated = useCallback(() => {
+    setRefreshKey(Date.now());
+  }, []);
+  
+  const handleTaskCreated = useCallback(() => {
+    setRefreshKey(Date.now());
+  }, []);
 
   return (
     <div className="space-y-8">
       <PageHeader
         title="Habitica Integration"
         icon={<Rocket className="h-7 w-7" />}
-        description="Connect Orion with Habitica to manage your tasks and build productive habits."
+        description="Connect Orion to your Habitica account to manage tasks and bridge insights with action."
       />
-
-      {!isConfigured ? (
-        <div className="max-w-md mx-auto">
-          <HabiticaCredentialsForm onCredentialsSaved={handleCredentialsSaved} />
+      
+      <HabiticaCredentialsForm onCredentialsSet={handleCredentialsUpdated} />
+      
+      {credentialsAreSet ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <HabiticaStatsDisplay key={`stats-${refreshKey}`} />
+            
+            <Card className="bg-gray-800 border-gray-700 mt-6">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Create New Task</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Add a new task to your Habitica account
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <HabiticaTaskForm 
+                  key={`form-${refreshKey}`}
+                  onTaskCreated={handleTaskCreated} 
+                />
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="lg:col-span-2">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <HabiticaTaskList key={`tasks-${refreshKey}`} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       ) : (
-        <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="bg-gray-800 border-gray-700">
-            <TabsTrigger value="dashboard" className="data-[state=active]:bg-gray-700">
-              <Rocket className="h-4 w-4 mr-2" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="todos" className="data-[state=active]:bg-gray-700">
-              <CheckSquare className="h-4 w-4 mr-2" />
-              To-Dos
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-gray-700">
-              <Key className="h-4 w-4 mr-2" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="dashboard" className="mt-6 space-y-6">
-            {/* Dashboard Tab Content */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-1">
-                <HabiticaStats key={`stats-${refreshTrigger}`} />
-              </div>
-              <div className="md:col-span-2">
-                <HabiticaTaskList 
-                  key={`tasks-${refreshTrigger}`}
-                  type="todos" 
-                  limit={5}
-                  onTaskCompleted={handleTaskAdded}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <HabiticaAddTodo onTodoAdded={handleTaskAdded} />
-              <HabiticaTaskList 
-                key={`completed-${refreshTrigger}`}
-                type="completedTodos" 
-                limit={5}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="todos" className="mt-6 space-y-6">
-            {/* To-Dos Tab Content */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-1">
-                <HabiticaAddTodo onTodoAdded={handleTaskAdded} />
-              </div>
-              <div className="md:col-span-2">
-                <HabiticaTaskList 
-                  key={`all-todos-${refreshTrigger}`}
-                  type="todos"
-                  onTaskCompleted={handleTaskAdded}
-                />
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="settings" className="mt-6 space-y-6">
-            {/* Settings Tab Content */}
-            <div className="max-w-md mx-auto">
-              <HabiticaCredentialsForm onCredentialsSaved={handleCredentialsSaved} />
-            </div>
-          </TabsContent>
-        </Tabs>
+        <Card className="bg-gray-800/50 border-gray-700 border-dashed">
+          <CardHeader>
+            <CardTitle className="text-gray-400 flex items-center">
+              <ShieldAlert className="mr-2 h-5 w-5" />
+              Habitica Connection Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-500">
+              Please enter your Habitica User ID and API Token above to connect Orion to your Habitica account.
+              Once connected, you'll be able to view your stats, manage tasks, and create new to-dos.
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
