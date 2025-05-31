@@ -11,13 +11,13 @@ export async function GET(request: NextRequest) {
 
   try {
     // Get user credentials from query parameters
-    const searchParams = request.nextUrl.searchParams;
+    const { searchParams } = request.nextUrl;
     const userId = searchParams.get('userId') || undefined;
     const apiToken = searchParams.get('apiToken') || undefined;
-    
+
     // Fetch user stats from Habitica
     const stats = await getUserStats(userId, apiToken);
-    
+
     return NextResponse.json({ success: true, stats });
   } catch (error: any) {
     console.error('[HABITICA_STATS_API_ERROR]', error.message);

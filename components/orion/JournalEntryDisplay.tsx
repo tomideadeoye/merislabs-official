@@ -7,6 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Tag, Smile, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+import { AddTaskFromReflection } from './AddTaskFromReflection';
+import { useSessionState } from '@/hooks/useSessionState';
+import { SessionStateKeys } from '@/app_state';
 
 interface JournalEntryDisplayProps {
   entry: ScoredMemoryPoint;
@@ -19,6 +22,8 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
   const [showReflection, setShowReflection] = useState(!!initialReflection);
   const [reflection, setReflection] = useState<string | null>(initialReflection || null);
   const [isLoadingReflection, setIsLoadingReflection] = useState(false);
+  const [userId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
+  const [apiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
 
   // Check for reflection when component mounts if not provided initially
   useEffect(() => {
@@ -163,6 +168,36 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
     }
   };
 
+  // Extract potential task from reflection
+  const extractTaskSuggestion = (reflectionText: string | null): string | null => {
+    if (!reflectionText) return null;
+    
+    // Look for common task suggestion patterns in the reflection
+    const patterns = [
+      /you could (try|consider) (to )?([\w\s]+)/i,
+      /I suggest (that you )?([\w\s]+)/i,
+      /you might want to ([\w\s]+)/i,
+      /it would be helpful to ([\w\s]+)/i,
+      /consider ([\w\s]+ing)/i,
+      /action item: ([\w\s]+)/i,
+      /task: ([\w\s]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = reflectionText.match(pattern);
+      if (match) {
+        // Return the captured suggestion, cleaning up any trailing punctuation
+        const suggestion = match[match.length - 1].trim().replace(/[.!,;:]$/, '');
+        return suggestion.charAt(0).toUpperCase() + suggestion.slice(1);
+      }
+    }
+    
+    return null;
+  };
+
+  const taskSuggestion = reflection ? extractTaskSuggestion(reflection) : null;
+  const hasHabiticaCredentials = userId && apiToken;
+
   return (
     <Card className="mb-4 bg-gray-800 border-gray-700 hover:shadow-lg hover:border-blue-600/50 transition-all duration-200">
       <CardHeader>
@@ -209,7 +244,12 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
         
         {showReflection && reflection && (
           <div className="mt-3 p-3 bg-gray-700/50 rounded-md border border-gray-600">
-            <h4 className="text-sm font-medium text-blue-400 mb-2">AI Reflection:</h4>
+            <div className="flex justify-between items-start">
+              <h4 className="text-sm font-medium text-blue-400 mb-2">AI Reflection:</h4>
+              {taskSuggestion && hasHabiticaCredentials && (
+                <AddTaskFromReflection suggestedTask={taskSuggestion} />
+              )}
+            </div>
             <p className="text-sm text-gray-300 whitespace-pre-wrap">{reflection}</p>
           </div>
         )}

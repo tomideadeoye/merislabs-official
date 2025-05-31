@@ -1,102 +1,83 @@
-import { NextRequest, NextResponse } from "next/server";
-import { QdrantClient } from "@qdrant/js-client-rest";
-import { 
-  QDRANT_HOST, 
-  QDRANT_PORT, 
-  ORION_MEMORY_COLLECTION_NAME 
-} from "@/lib/orion_config";
-import { spawn } from "child_process";
-import path from "path";
-import { auth } from "@/auth";
+import { NextRequest, NextResponse } from 'next/server';
+import { QdrantFilter } from '@/types/orion';
+import { MEMORY_COLLECTION_NAME } from '@/lib/constants';
 
-export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
-  }
-
+/**
+ * API route for searching memories
+ */
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { 
-      queryText, 
-      limit = 5, 
-      filter,
-      collectionName = ORION_MEMORY_COLLECTION_NAME
+      query, 
+      limit = 10, 
+      filter, 
+      withVectors = false,
+      minScore = 0.7,
+      collectionName = MEMORY_COLLECTION_NAME
     } = body;
-
-    if (!queryText) {
-      return NextResponse.json(
-        { success: false, error: "Invalid 'queryText' parameter. Expected a non-empty string." },
-        { status: 400 }
-      );
+    
+    // Validate required fields
+    if (!query) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Query is required' 
+      }, { status: 400 });
     }
-
-    // Generate embedding for the query
-    const queryEmbedding = await generateEmbedding(queryText);
     
-    // Initialize the Qdrant client
-    const client = new QdrantClient({
-      url: `http://${QDRANT_HOST}:${QDRANT_PORT}`
+    // Generate embeddings for the query
+    const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        texts: [query]
+      })
     });
     
-    // Search Qdrant with the query embedding
-    const searchResults = await client.search(collectionName, {
-      vector: queryEmbedding,
-      limit: limit,
-      filter: filter || undefined,
-      with_payload: true,
-      with_vector: false,
+    const embeddingData = await embeddingResponse.json();
+    
+    if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length === 0) {
+      throw new Error(embeddingData.error || 'Failed to generate embeddings');
+    }
+    
+    const queryVector = embeddingData.embeddings[0];
+    
+    // Search for similar vectors in Qdrant
+    const searchResponse = await fetch('/api/orion/memory/search-vectors', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        vector: queryVector,
+        limit,
+        filter,
+        withVectors,
+        collectionName
+      })
     });
-
+    
+    const searchData = await searchResponse.json();
+    
+    if (!searchData.success) {
+      throw new Error(searchData.error || 'Failed to search vectors');
+    }
+    
+    // Filter results by score if minScore is provided
+    const filteredResults = searchData.results.filter((result: any) => result.score >= minScore);
+    
     return NextResponse.json({ 
       success: true, 
-      results: searchResults,
-      count: searchResults.length
+      results: filteredResults
     });
-
+    
   } catch (error: any) {
-    console.error("Search error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to search memory.", details: error.message || String(error) },
-      { status: 500 }
-    );
+    console.error('Error in memory/search route:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message || 'An unexpected error occurred' 
+    }, { status: 500 });
   }
-}
-
-async function generateEmbedding(text: string): Promise<number[]> {
-  return new Promise((resolve, reject) => {
-    const pythonProcess = spawn('python', [
-      path.join(process.cwd(), 'scripts', 'generate_embeddings.py')
-    ]);
-    
-    let outputData = '';
-    let errorData = '';
-    
-    // Send the text to the Python script
-    pythonProcess.stdin.write(JSON.stringify([text]));
-    pythonProcess.stdin.end();
-    
-    pythonProcess.stdout.on('data', (data) => {
-      outputData += data.toString();
-    });
-    
-    pythonProcess.stderr.on('data', (data) => {
-      errorData += data.toString();
-    });
-    
-    pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Python process exited with code ${code}: ${errorData}`));
-        return;
-      }
-      
-      try {
-        const embeddings = JSON.parse(outputData);
-        resolve(embeddings[0]); // Return the first (and only) embedding
-      } catch (error) {
-        reject(new Error(`Failed to parse embedding: ${error}`));
-      }
-    });
-  });
 }

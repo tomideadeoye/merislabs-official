@@ -262,4 +262,12 @@ export interface OrionSessionState {
 
   [SessionStateKeys.WH_TEMPLATE_INPUT]?: string;
   [SessionStateKeys.WH_GENERATED_RESPONSE]?: string;
+  
+  // Strategic Outreach Engine state
+  [SessionStateKeys.OUTREACH_OPPORTUNITY]?: string;
+  [SessionStateKeys.OUTREACH_GOAL]?: string;
+  [SessionStateKeys.OUTREACH_TYPE]?: string;
+  [SessionStateKeys.OUTREACH_TONE]?: string;
+  [SessionStateKeys.OUTREACH_GENERATING]?: boolean;
+  [SessionStateKeys.OUTREACH_DRAFT]?: string;
 }
