@@ -46,15 +46,15 @@ export async function POST(req: NextRequest) {
     }
     
     // Get relevant memories
-    const relevantMemories = await searchMemory({
-      query: `${narrativeType} ${valueProposition?.valueStatement || ''} career achievements professional strengths`,
-      limit: 5,
-      filter: {
+    const relevantMemories = await searchMemory(
+      `${narrativeType} ${valueProposition?.valueStatement || ''} career achievements professional strengths`,
+      5,
+      {
         must: [
           { key: 'payload.tags', match: { value: 'achievement' } }
         ]
       }
-    });
+    );
     
     // Get profile data
     let profileData = '';
@@ -113,23 +113,25 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
 `;
 
     // Generate narrative content using LLM
-    const llmResponse = await generateLLMResponse({
-      requestType: 'narrative_generation',
-      primaryContext: prompt,
-      profileContext: profileData,
-      temperature: 0.7,
-      maxTokens: 2000
-    });
+    const llmResponse = await generateLLMResponse(
+      'narrative_generation',
+      prompt,
+      {
+        profileContext: profileData,
+        temperature: 0.7,
+        max_tokens: 2000
+      }
+    );
     
-    if (!llmResponse.success || !llmResponse.content) {
+    if (!llmResponse) {
       return NextResponse.json({ 
         success: false, 
-        error: llmResponse.error || 'Failed to generate narrative content' 
+        error: 'Failed to generate narrative content' 
       }, { status: 500 });
     }
     
     // Extract title from content (assuming the LLM includes a title at the beginning)
-    let content = llmResponse.content;
+    let content = llmResponse;
     let suggestedTitle = '';
     
     // Try to extract title from the first line if it looks like a title

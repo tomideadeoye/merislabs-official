@@ -1,107 +1,85 @@
 export type OpportunityType = 'job' | 'education_program' | 'project_collaboration' | 'funding' | 'other';
-
-export type OpportunityStatus = 
-  | 'identified'
-  | 'researching'
-  | 'evaluating'
-  | 'evaluated_positive'
-  | 'evaluated_negative'
-  | 'application_drafting'
-  | 'application_ready'
-  | 'applied'
-  | 'outreach_planned'
-  | 'outreach_sent'
-  | 'follow_up_needed'
-  | 'follow_up_sent'
-  | 'interview_scheduled'
-  | 'interview_completed'
-  | 'offer_received'
-  | 'negotiating'
-  | 'accepted'
-  | 'rejected_by_them'
-  | 'declined_by_me'
-  | 'on_hold'
-  | 'archived';
-
+export type OpportunityStatus = 'identified' | 'evaluating' | 'pursuing' | 'applied' | 'interviewing' | 'negotiating' | 'accepted' | 'rejected' | 'declined' | 'archived';
 export type OpportunityPriority = 'high' | 'medium' | 'low';
 
-export interface Opportunity {
-  id: string;
+export interface OpportunityDetails {
+  id?: string;
   title: string;
-  companyOrInstitution?: string;
+  company?: string;
+  description: string;
   type: OpportunityType;
-  status: OpportunityStatus;
-  descriptionSummary?: string;
-  dateIdentified: string;
-  nextActionDate?: string;
-  priority?: OpportunityPriority;
-  sourceURL?: string;
-  tags?: string[];
-  relatedEvaluationId?: string;
-  relatedApplicationIds?: string[];
-  relatedStakeholderIds?: string[];
-  relatedNoteIds?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface OpportunityCreatePayload {
-  title: string;
-  companyOrInstitution?: string;
-  type: OpportunityType;
-  status: OpportunityStatus;
-  descriptionSummary?: string;
-  sourceURL?: string;
-  tags?: string[];
-  priority?: OpportunityPriority;
-  nextActionDate?: string;
-}
-
-export interface OpportunityUpdatePayload {
-  title?: string;
-  companyOrInstitution?: string;
-  type?: OpportunityType;
   status?: OpportunityStatus;
-  descriptionSummary?: string;
-  sourceURL?: string;
-  tags?: string[];
   priority?: OpportunityPriority;
-  nextActionDate?: string;
-  relatedEvaluationId?: string;
-  relatedApplicationIds?: string[];
-  relatedStakeholderIds?: string[];
-  relatedNoteIds?: string[];
+  url?: string;
+  deadline?: string;
+  location?: string;
+  salary?: string;
+  contact?: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  evaluationOutput?: EvaluationOutput;
+  tailoredCV?: string;
+  webResearchContext?: string;
+  tags?: string[];
 }
 
-export interface RiskRewardAnalysis {
-  potentialRewards?: string;
-  potentialRisks?: string;
-  timeInvestment?: string;
-  financialConsiderations?: string;
-  careerImpact?: string;
+export interface Opportunity extends OpportunityDetails {
+  id: string;
 }
 
 export interface EvaluationOutput {
   fitScorePercentage: number;
   recommendation: string;
   reasoning: string;
-  alignmentHighlights: string[];
-  gapAnalysis: string[];
-  riskRewardAnalysis?: RiskRewardAnalysis;
-  suggestedNextSteps: string[];
+  alignmentHighlights?: string[];
+  gapAnalysis?: string[];
+  riskRewardAnalysis?: any;
+  suggestedNextSteps?: string[];
+  rawOutput?: string;
 }
 
-export interface Stakeholder {
-  id: string;
-  name: string;
-  role: string;
-  company: string;
-  email?: string;
-  phone?: string;
-  linkedInUrl?: string;
+export interface OpportunityCreatePayload {
+  title: string;
+  company?: string;
+  description: string;
+  type: OpportunityType;
+  status?: OpportunityStatus;
+  priority?: OpportunityPriority;
+  url?: string;
+  deadline?: string;
+  location?: string;
+  salary?: string;
+  contact?: string;
   notes?: string;
+}
+
+export interface OpportunityUpdatePayload {
+  title?: string;
+  company?: string;
+  description?: string;
+  type?: OpportunityType;
+  status?: OpportunityStatus;
+  priority?: OpportunityPriority;
+  url?: string;
+  deadline?: string;
+  location?: string;
+  salary?: string;
+  contact?: string;
+  notes?: string;
+  tailoredCV?: string;
+  webResearchContext?: string;
   tags?: string[];
+}
+
+export interface DraftApplicationRequestBody {
   opportunityId: string;
-  createdAt: string;
-  updatedAt: string;
+  applicationType: 'cover_letter' | 'email' | 'message';
+  customInstructions?: string;
+}
+
+export interface DraftApplicationResponseBody {
+  success: boolean;
+  draftContent?: string;
+  error?: string;
 }

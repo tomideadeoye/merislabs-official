@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PROVIDER_MODEL_CONFIGS, DEFAULT_GENERATION_PROVIDERS } from "@/lib/llm_providers";
+import { PROVIDER_MODEL_CONFIGS } from "@/lib/llm_providers";
 import { constructLlmMessages, getDefaultModelForRequestType } from "@/lib/orion_llm";
 import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from "@/types/orion";
 import { ASK_QUESTION_REQUEST_TYPE, ORION_MEMORY_COLLECTION_NAME } from "@/lib/orion_config";
@@ -67,8 +67,8 @@ function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: st
   return {
     apiKey,
     endpoint,
-    deploymentId: modelConfig.deploymentId,
-    apiVersion: modelConfig.apiVersion
+    deploymentId: modelConfig.deploymentId || undefined,
+    apiVersion: modelConfig.apiVersion || undefined
   };
 }
 
@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
       modelToUse,
       messages,
       temperature,
-      maxTokens
+      maxTokens || undefined
     );
 
     return NextResponse.json(result);

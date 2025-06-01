@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SentenceTransformerEmbedding } from '@huggingface/inference';
+import { HfInference } from '@huggingface/inference';
 
-// Initialize the embedding model
-const embeddingModel = new SentenceTransformerEmbedding({
-  model: 'sentence-transformers/all-MiniLM-L6-v2'
-});
+// Initialize the Hugging Face inference client
+const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+const MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +27,10 @@ export async function POST(request: NextRequest) {
     const embeddings = await Promise.all(
       validTexts.map(async (text) => {
         try {
-          const embedding = await embeddingModel.embed(text);
+          const embedding = await hf.featureExtraction({
+            model: MODEL_NAME,
+            inputs: text
+          });
           return embedding;
         } catch (error) {
           console.error(`[EMBEDDING_API] Error generating embedding for text: ${text.substring(0, 50)}...`, error);

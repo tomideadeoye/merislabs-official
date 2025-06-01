@@ -1,24 +1,78 @@
-import React from 'react';
-import Link from 'next/link';
-import { 
-  FileText, 
-  FileEdit, 
-  Search, 
-  Users, 
-  Calendar, 
-  ExternalLink,
-  Download
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Opportunity } from '@/types/opportunity';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Calendar, ExternalLink } from 'lucide-react';
+import { OpportunityActions } from '@/components/orion/pipeline/OpportunityActions';
 
-interface OpportunityDetailViewProps {
-  opportunity: Opportunity;
-}
-
-export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProps) {
+export default function OpportunityDetailPage() {
+  const params = useParams();
+  const opportunityId = params?.id as string;
+  
+  const [opportunity, setOpportunity] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    async function fetchOpportunity() {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/orion/opportunity/${opportunityId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setOpportunity(data.opportunity);
+        } else {
+          setError(data.error || 'Failed to fetch opportunity');
+        }
+      } catch (err: any) {
+        setError(err.message || 'An error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    if (opportunityId) {
+      fetchOpportunity();
+    }
+  }, [opportunityId]);
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-red-500">Error</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  if (!opportunity) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Opportunity Not Found</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>The requested opportunity could not be found.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -102,7 +156,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <div>
                   <p className="text-sm font-medium mb-1">Tags</p>
                   <div className="flex flex-wrap gap-1">
-                    {opportunity.tags.map((tag, index) => (
+                    {opportunity.tags.map((tag: string, index: number) => (
                       <Badge key={index} variant="outline" className="text-xs">
                         {tag}
                       </Badge>
@@ -118,46 +172,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
               <CardTitle>Actions</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {opportunity.tailoredCV && (
-                  <div className="flex items-center justify-between mb-2 p-2 bg-gray-100 dark:bg-gray-800 rounded">
-                    <span className="text-sm">Tailored CV</span>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/api/orion/opportunity/${opportunity.id}/cv`}>
-                        <Download className="h-4 w-4 mr-1" />
-                        Download
-                      </Link>
-                    </Button>
-                  </div>
-                )}
-                
-                <div className="mt-6 flex flex-wrap gap-2">
-                  <Link href={`/opportunity/${opportunity.id}/analyze`}>
-                    <Button variant="outline" size="sm">
-                      <Search className="h-4 w-4 mr-2" />
-                      Analyze JD
-                    </Button>
-                  </Link>
-                  <Link href={`/opportunity/${opportunity.id}/cv-tailoring`}>
-                    <Button variant="outline" size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Tailor CV
-                    </Button>
-                  </Link>
-                  <Link href={`/opportunity/${opportunity.id}/application`}>
-                    <Button variant="outline" size="sm">
-                      <FileEdit className="h-4 w-4 mr-2" />
-                      Draft Application
-                    </Button>
-                  </Link>
-                  <Link href={`/opportunity/${opportunity.id}/networking`}>
-                    <Button variant="outline" size="sm">
-                      <Users className="h-4 w-4 mr-2" />
-                      Find Contacts
-                    </Button>
-                  </Link>
-                </div>
-              </div>
+              <OpportunityActions opportunity={opportunity} />
             </CardContent>
           </Card>
         </div>

@@ -64,8 +64,8 @@ function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: st
   return {
     apiKey,
     endpoint,
-    deploymentId: modelConfig.deploymentId,
-    apiVersion: modelConfig.apiVersion
+    deploymentId: modelConfig.deploymentId || undefined,
+    apiVersion: modelConfig.apiVersion || undefined
   };
 }
 
