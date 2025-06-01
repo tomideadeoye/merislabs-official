@@ -1,105 +1,199 @@
 "use client";
 
 import React from 'react';
-import type { Opportunity } from '@/types/opportunity';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, Building, CalendarDays, BarChart2 } from 'lucide-react';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Opportunity } from '@/types/opportunity';
+import { 
+  Calendar, 
+  ExternalLink, 
+  ChevronRight,
+  BarChart2,
+  FileText,
+  Users
+} from 'lucide-react';
+import { format } from 'date-fns';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
 }
 
-const getStatusColor = (status?: string): string => {
-  switch (status) {
-    case 'identified': return 'bg-gray-500';
-    case 'researching':
-    case 'evaluating': return 'bg-blue-500';
-    case 'evaluated_positive':
-    case 'application_drafting':
-    case 'application_ready': return 'bg-sky-500';
-    case 'applied':
-    case 'outreach_planned':
-    case 'outreach_sent': return 'bg-indigo-500';
-    case 'follow_up_needed':
-    case 'follow_up_sent': return 'bg-purple-500';
-    case 'interview_scheduled':
-    case 'interview_completed': return 'bg-fuchsia-500';
-    case 'offer_received':
-    case 'negotiating': return 'bg-lime-500';
-    case 'accepted': return 'bg-green-500';
-    case 'rejected_by_them':
-    case 'declined_by_me': return 'bg-red-600';
-    case 'on_hold': return 'bg-yellow-600';
-    case 'archived': return 'bg-slate-600';
-    default: return 'bg-gray-400';
-  }
-};
-
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity }) => {
-  const formattedStatus = opportunity.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  const formattedType = opportunity.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const router = useRouter();
   
+  const handleViewDetails = () => {
+    router.push(`/admin/opportunity-pipeline/${opportunity.id}`);
+  };
+  
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'identified':
+      case 'researching':
+      case 'evaluating':
+        return 'bg-blue-900/30 text-blue-300 border-blue-700';
+      case 'evaluated_positive':
+      case 'application_drafting':
+      case 'application_ready':
+        return 'bg-purple-900/30 text-purple-300 border-purple-700';
+      case 'applied':
+      case 'outreach_planned':
+      case 'outreach_sent':
+      case 'follow_up_needed':
+      case 'follow_up_sent':
+        return 'bg-yellow-900/30 text-yellow-300 border-yellow-700';
+      case 'interview_scheduled':
+      case 'interview_completed':
+        return 'bg-orange-900/30 text-orange-300 border-orange-700';
+      case 'offer_received':
+      case 'negotiating':
+      case 'accepted':
+        return 'bg-green-900/30 text-green-300 border-green-700';
+      case 'rejected_by_them':
+      case 'declined_by_me':
+        return 'bg-red-900/30 text-red-300 border-red-700';
+      case 'on_hold':
+      case 'archived':
+      default:
+        return 'bg-gray-900/30 text-gray-300 border-gray-700';
+    }
+  };
+  
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-900/30 text-red-300 border-red-700';
+      case 'medium':
+        return 'bg-yellow-900/30 text-yellow-300 border-yellow-700';
+      case 'low':
+        return 'bg-green-900/30 text-green-300 border-green-700';
+      default:
+        return 'bg-gray-900/30 text-gray-300 border-gray-700';
+    }
+  };
+  
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy');
+    } catch (e) {
+      return dateString;
+    }
+  };
+  
+  const hasEvaluation = !!opportunity.relatedEvaluationId;
+  const hasApplicationDrafts = !!opportunity.applicationMaterialIds;
+  const hasStakeholders = !!opportunity.stakeholderContactIds;
+
   return (
-    <Card className="flex flex-col h-full bg-gray-800 border-gray-700 hover:shadow-xl hover:border-blue-500/60 transition-all duration-200">
-      <CardHeader className="pb-3">
+    <Card 
+      className="bg-gray-800 border-gray-700 hover:border-gray-600 transition-colors cursor-pointer"
+      onClick={handleViewDetails}
+    >
+      <CardContent className="p-4">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg text-blue-300 hover:text-blue-200">
-            <Link href={`/admin/opportunity-pipeline/${opportunity.id}`}>
-              {opportunity.title}
-            </Link>
-          </CardTitle>
-          <Badge className={`text-xs text-white ${getStatusColor(opportunity.status)}`}>
-            {formattedStatus}
-          </Badge>
+          <div>
+            <h3 className="font-medium text-gray-200">{opportunity.title}</h3>
+            <p className="text-sm text-gray-400">{opportunity.companyOrInstitution}</p>
+          </div>
+          
+          <div className="flex flex-col items-end space-y-1">
+            <Badge 
+              variant="outline" 
+              className={getStatusColor(opportunity.status)}
+            >
+              {opportunity.status.replace(/_/g, ' ')}
+            </Badge>
+            
+            {opportunity.priority && (
+              <Badge 
+                variant="outline" 
+                className={getPriorityColor(opportunity.priority)}
+              >
+                {opportunity.priority} priority
+              </Badge>
+            )}
+          </div>
         </div>
-        <CardDescription className="text-xs text-gray-400 flex items-center pt-1">
-          <Building className="mr-1.5 h-3.5 w-3.5" /> {opportunity.companyOrInstitution}
-          <Briefcase className="ml-3 mr-1.5 h-3.5 w-3.5" /> {formattedType}
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="flex-grow space-y-2 text-sm text-gray-300">
-        {opportunity.descriptionSummary && (
-          <p className="line-clamp-3 text-gray-400 text-xs">
-            {opportunity.descriptionSummary}
-          </p>
-        )}
         
-        <div className="flex items-center text-xs text-gray-500">
-          <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
-          Identified: {new Date(opportunity.dateIdentified).toLocaleDateString()}
+        <div className="mt-3 flex items-center text-xs text-gray-400">
+          <Calendar className="h-3 w-3 mr-1" />
+          <span>Identified: {formatDate(opportunity.dateIdentified)}</span>
+          
           {opportunity.nextActionDate && (
-            <span className="ml-3 flex items-center">
-              <CalendarDays className="mr-1.5 h-3.5 w-3.5 text-yellow-400" /> 
-              Next Action: {new Date(opportunity.nextActionDate).toLocaleDateString()}
-            </span>
+            <>
+              <span className="mx-1">•</span>
+              <span>Next action: {formatDate(opportunity.nextActionDate)}</span>
+            </>
           )}
         </div>
         
-        {opportunity.priority && (
-          <div className="flex items-center text-xs">
-            <BarChart2 className="mr-1.5 h-3.5 w-3.5 text-red-400" /> 
-            Priority: <span className="font-medium text-gray-200 ml-1">{opportunity.priority.toUpperCase()}</span>
+        {opportunity.descriptionSummary && (
+          <p className="mt-2 text-sm text-gray-300 line-clamp-2">{opportunity.descriptionSummary}</p>
+        )}
+        
+        {opportunity.tags && opportunity.tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1">
+            {opportunity.tags.slice(0, 3).map((tag, index) => (
+              <Badge key={index} variant="outline" className="bg-gray-700 text-gray-300 text-xs">
+                {tag}
+              </Badge>
+            ))}
+            {opportunity.tags.length > 3 && (
+              <Badge variant="outline" className="bg-gray-700 text-gray-300 text-xs">
+                +{opportunity.tags.length - 3} more
+              </Badge>
+            )}
           </div>
         )}
-      </CardContent>
-      
-      <CardFooter className="pt-3">
-        <div className="flex flex-wrap gap-1">
-          {opportunity.tags?.slice(0, 3).map(tag => (
-            <Badge key={tag} variant="secondary" className="text-xs bg-gray-700 text-gray-300 hover:bg-gray-600">
-              {tag}
-            </Badge>
-          ))}
-          {opportunity.tags && opportunity.tags.length > 3 && (
-            <Badge variant="outline" className="text-xs border-gray-600 text-gray-500">
-              +{opportunity.tags.length - 3} more
-            </Badge>
+        
+        <div className="mt-3 flex justify-between items-center">
+          <div className="flex space-x-2">
+            {hasEvaluation && (
+              <Badge variant="outline" className="bg-blue-900/20 text-blue-300 border-blue-700/50 flex items-center">
+                <BarChart2 className="h-3 w-3 mr-1" />
+                Evaluated
+              </Badge>
+            )}
+            
+            {hasApplicationDrafts && (
+              <Badge variant="outline" className="bg-green-900/20 text-green-300 border-green-700/50 flex items-center">
+                <FileText className="h-3 w-3 mr-1" />
+                Drafts
+              </Badge>
+            )}
+            
+            {hasStakeholders && (
+              <Badge variant="outline" className="bg-purple-900/20 text-purple-300 border-purple-700/50 flex items-center">
+                <Users className="h-3 w-3 mr-1" />
+                Contacts
+              </Badge>
+            )}
+          </div>
+          
+          {opportunity.sourceURL && (
+            <a 
+              href={opportunity.sourceURL} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-blue-400 hover:text-blue-300"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
           )}
         </div>
-      </CardFooter>
+        
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-full mt-3 justify-center bg-gray-700 hover:bg-gray-600 text-gray-300"
+        >
+          View Details
+          <ChevronRight className="ml-1 h-4 w-4" />
+        </Button>
+      </CardContent>
     </Card>
   );
 };
