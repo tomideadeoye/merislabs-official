@@ -40,15 +40,15 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
   const [tagInput, setTagInput] = useState<string>(filters.tag || '');
   
   const handleStatusChange = (value: string) => {
-    setFilters({ ...filters, status: value || undefined });
+    setFilters({ ...filters, status: value === 'all' ? undefined : value });
   };
   
   const handleTypeChange = (value: string) => {
-    setFilters({ ...filters, type: value || undefined });
+    setFilters({ ...filters, type: value === 'all' ? undefined : value });
   };
   
   const handlePriorityChange = (value: string) => {
-    setFilters({ ...filters, priority: value || undefined });
+    setFilters({ ...filters, priority: value === 'all' ? undefined : value });
   };
   
   const handleTagSearch = () => {
@@ -100,12 +100,12 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Status</label>
-          <Select value={filters.status || ''} onValueChange={handleStatusChange}>
+          <Select value={filters.status || 'all'} onValueChange={handleStatusChange}>
             <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="identified">Identified</SelectItem>
               <SelectItem value="researching">Researching</SelectItem>
               <SelectItem value="evaluating">Evaluating</SelectItem>
@@ -122,12 +122,12 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
         
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Type</label>
-          <Select value={filters.type || ''} onValueChange={handleTypeChange}>
+          <Select value={filters.type || 'all'} onValueChange={handleTypeChange}>
             <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="job">Job</SelectItem>
               <SelectItem value="education_program">Education Program</SelectItem>
               <SelectItem value="project_collaboration">Project/Collaboration</SelectItem>
@@ -139,12 +139,12 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
         
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Priority</label>
-          <Select value={filters.priority || ''} onValueChange={handlePriorityChange}>
+          <Select value={filters.priority || 'all'} onValueChange={handlePriorityChange}>
             <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
               <SelectValue placeholder="All Priorities" />
             </SelectTrigger>
             <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-              <SelectItem value="">All Priorities</SelectItem>
+              <SelectItem value="all">All Priorities</SelectItem>
               <SelectItem value="high">High</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="low">Low</SelectItem>
