@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/database';
-import { EmotionalLogEntry } from '@/types/emotions';
+import { EmotionalLogEntry } from '@/types/orion';
 
 /**
  * API route for retrieving emotion logs
@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
     const emotion = url.searchParams.get('emotion');
+    const hasDistortionAnalysis = url.searchParams.get('hasDistortionAnalysis');
     
     // Build query with filters
     let query = `SELECT * FROM emotional_logs WHERE 1=1`;
@@ -31,6 +32,12 @@ export async function GET(req: NextRequest) {
     if (emotion) {
       query += ` AND primaryEmotion = @emotion`;
       params.emotion = emotion;
+    }
+    
+    if (hasDistortionAnalysis === 'true') {
+      query += ` AND cognitiveDistortionAnalysis IS NOT NULL`;
+    } else if (hasDistortionAnalysis === 'false') {
+      query += ` AND cognitiveDistortionAnalysis IS NULL`;
     }
     
     // Add sorting and pagination
@@ -54,7 +61,10 @@ export async function GET(req: NextRequest) {
       accompanyingThoughts: row.accompanyingThoughts,
       copingMechanismsUsed: JSON.parse(row.copingMechanismsUsed || '[]'),
       contextualNote: row.contextualNote,
-      relatedJournalSourceId: row.relatedJournalSourceId
+      relatedJournalSourceId: row.relatedJournalSourceId,
+      cognitiveDistortionAnalysis: row.cognitiveDistortionAnalysis ? 
+                                  JSON.parse(row.cognitiveDistortionAnalysis) : 
+                                  undefined
     }));
     
     return NextResponse.json({ 
