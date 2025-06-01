@@ -1,4 +1,4 @@
-export type OpportunityStatus = 
+export type OpportunityStatus =
   | 'identified'
   | 'researching'
   | 'evaluating'
@@ -21,7 +21,7 @@ export type OpportunityStatus =
   | 'on_hold'
   | 'archived';
 
-export type OpportunityType = 
+export type OpportunityType =
   | 'job'
   | 'education_program'
   | 'project_collaboration'
@@ -82,7 +82,7 @@ export interface OpportunityUpdatePayload {
 export interface OpportunityDetails {
   title: string;
   description: string;
-  type: 'job' | 'education' | 'project' | 'other';
+  type: OpportunityType;
   url?: string;
 }
 

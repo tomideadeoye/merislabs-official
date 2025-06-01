@@ -1,99 +1,57 @@
 "use client";
 
-import { useState, useCallback } from 'react';
-import { OpportunityDraft, StakeholderOutreach } from '@/types/opportunity';
+import { useState, useEffect } from 'react';
 
-interface UseOpportunityMemoryProps {
-  opportunityId: string;
+export interface OpportunityMemory {
+  id: string;
+  content: string;
+  timestamp: string;
+  type: 'note' | 'evaluation' | 'highlight';
 }
 
-export function useOpportunityMemory({ opportunityId }: UseOpportunityMemoryProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+export function useOpportunityMemory(opportunityId: string) {
+  const [memories, setMemories] = useState<OpportunityMemory[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Save application draft to memory
-  const saveDraftToMemory = useCallback(async (draft: string, style: string): Promise<boolean> => {
-    setIsLoading(true);
-    setError(null);
-    
+
+  const addMemory = async (memory: Omit<OpportunityMemory, 'id' | 'timestamp'>) => {
     try {
-      const response = await fetch('/api/orion/memory/add-memory', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          content: draft,
-          metadata: {
-            type: 'application_draft',
-            opportunityId,
-            style,
-            timestamp: new Date().toISOString()
-          }
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to save draft to memory');
-      }
-      
-      return true;
-    } catch (err: any) {
-      console.error('Error saving draft to memory:', err);
-      setError(err.message || 'An unexpected error occurred');
-      return false;
+      setLoading(true);
+      const newMemory: OpportunityMemory = {
+        ...memory,
+        id: `mem_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+      };
+      setMemories(prev => [...prev, newMemory]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add memory');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [opportunityId]);
-  
-  // Save outreach message to memory
-  const saveOutreachToMemory = useCallback(async (message: string, stakeholderInfo: any): Promise<boolean> => {
-    setIsLoading(true);
-    setError(null);
-    
+  };
+
+  const removeMemory = async (memoryId: string) => {
     try {
-      const response = await fetch('/api/orion/memory/add-memory', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          content: message,
-          metadata: {
-            type: 'stakeholder_outreach',
-            opportunityId,
-            stakeholderName: stakeholderInfo.name,
-            stakeholderRole: stakeholderInfo.role,
-            stakeholderCompany: stakeholderInfo.company,
-            platform: stakeholderInfo.platform || 'email',
-            timestamp: new Date().toISOString()
-          }
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to save outreach to memory');
-      }
-      
-      return true;
-    } catch (err: any) {
-      console.error('Error saving outreach to memory:', err);
-      setError(err.message || 'An unexpected error occurred');
-      return false;
+      setLoading(true);
+      setMemories(prev => prev.filter(m => m.id !== memoryId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove memory');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    // Load memories for the opportunity
+    // This would typically fetch from an API
+    setMemories([]);
   }, [opportunityId]);
-  
+
   return {
-    isLoading,
+    memories,
+    loading,
     error,
-    saveDraftToMemory,
-    saveOutreachToMemory
+    addMemory,
+    removeMemory,
   };
 }
