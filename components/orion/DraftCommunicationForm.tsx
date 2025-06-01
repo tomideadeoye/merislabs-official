@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { apiClient } from "../../lib/api-client";
+import { apiClient } from "@/lib/apiClient";
 import {
   WHATSAPP_REPLY_HELPER_REQUEST_TYPE,
   DRAFT_COMMUNICATION_REQUEST_TYPE,
   ASK_QUESTION_REQUEST_TYPE,
-} from "../../lib/orion_config";
+} from "@/lib/orion_config";
 import { toast } from "react-hot-toast";
 
 interface DraftCommunicationFormProps {

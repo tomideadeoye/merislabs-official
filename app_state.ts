@@ -82,21 +82,26 @@ class SessionStateManager {
   private constructor() {
     if (typeof window !== "undefined") {
       const storedInitFlag = window.localStorage.getItem(
-        SessionStateKeys.SESSION_STATE_INITIALIZED
+        "session_state_initialized"
       );
       if (storedInitFlag === "true") {
         this.initialized = true;
-        Object.values(SessionStateKeys).forEach((k) => {
-          const key = k as SessionStateKeys;
-          const storedValue = window.localStorage.getItem(key);
-          if (storedValue !== null) {
+        // Iterate through localStorage directly instead of using SessionStateKeys
+        for (let i = 0; i < window.localStorage.length; i++) {
+          const storageKey = window.localStorage.key(i);
+          if (storageKey && storageKey !== "session_state_initialized") {
             try {
-              this.stateCache[key] = JSON.parse(storedValue);
-            } catch {
-              // ignore parse errors
+              const storedValue = window.localStorage.getItem(storageKey);
+              if (storedValue !== null) {
+                this.stateCache[storageKey as SessionStateKeys] = JSON.parse(storedValue);
+              }
+            } catch (error) {
+              console.warn(`Failed to parse stored value for key ${storageKey}:`, error);
+              // Remove corrupted data
+              window.localStorage.removeItem(storageKey);
             }
           }
-        });
+        }
       }
     }
   }
@@ -166,10 +171,10 @@ class SessionStateManager {
       }
     }
     window.localStorage.setItem(
-      SessionStateKeys.SESSION_STATE_INITIALIZED,
+      "session_state_initialized",
       JSON.stringify(true)
     );
-    this.stateCache[SessionStateKeys.SESSION_STATE_INITIALIZED] = true;
+    this.stateCache["session_state_initialized" as SessionStateKeys] = true;
     this.initialized = true;
   }
 

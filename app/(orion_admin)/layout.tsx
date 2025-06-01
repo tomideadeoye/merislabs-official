@@ -10,10 +10,10 @@ import { apiClient } from "@/lib/api-client";
 
 import {
   LayoutDashboard,
-  MessageSquareText,
+  MessageSquare,
   BookOpenText,
   Network,
-  BriefcaseBusiness,
+  Briefcase,
   Rocket,
   DatabaseZap,
   BrainCircuit,
@@ -35,10 +35,10 @@ interface NavItem {
 
 const adminNavItems: NavItem[] = [
   { href: "/admin", label: PageNames.ADMIN_DASHBOARD, icon: LayoutDashboard },
-  { href: "/admin/draft-communication", label: PageNames.DRAFT_COMM, icon: MessageSquareText },
+  { href: "/admin/draft-communication", label: PageNames.DRAFT_COMM, icon: MessageSquare },
   { href: "/admin/journal", label: PageNames.JOURNAL, icon: BookOpenText },
   { href: "/admin/networking", label: PageNames.NETWORKING, icon: Network },
-  { href: "/admin/opportunity-pipeline", label: PageNames.PIPELINE, icon: BriefcaseBusiness },
+  { href: "/admin/opportunity-pipeline", label: PageNames.PIPELINE, icon: Briefcase },
   { href: "/admin/habitica", label: PageNames.HABITICA, icon: Rocket },
   { href: "/admin/ask-question", label: PageNames.ASK, icon: BrainCircuit },
   { href: "/admin/routines", label: PageNames.ROUTINES, icon: Repeat },

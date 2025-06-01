@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { OpportunityDetailView } from '@/components/orion/opportunities/OpportunityDetailView';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
-import { BriefcaseBusiness, ArrowLeft, Loader2 } from 'lucide-react';
+import { Briefcase, ArrowLeft, Loader2 } from 'lucide-react';
 import { Opportunity, EvaluationOutput } from '@/types/opportunity';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -111,7 +111,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
       <div className="space-y-6">
         <PageHeader
           title="Opportunity Not Found"
-          icon={<BriefcaseBusiness className="h-7 w-7" />}
+          icon={<Briefcase className="h-7 w-7" />}
           description="The requested opportunity could not be found."
         />
         

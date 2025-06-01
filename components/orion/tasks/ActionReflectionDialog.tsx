@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, CheckCircle, AlertTriangle, MessageCircleQuestion } from 'lucide-react';
+import { Loader2, CheckCircle, AlertTriangle, MessageCircle } from 'lucide-react';
 
 interface ActionReflectionDialogProps {
   isOpen: boolean;
@@ -92,7 +92,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
       <DialogContent className="sm:max-w-lg bg-gray-800 border-gray-700 text-gray-200">
         <DialogHeader>
           <DialogTitle className="text-green-400 flex items-center">
-            <MessageCircleQuestion className="mr-2 h-5 w-5" /> Reflect on Action Completed
+            <MessageCircle className="mr-2 h-5 w-5" /> Reflect on Action Completed
           </DialogTitle>
           <DialogDescription className="text-gray-400">
             You've completed: <strong className="text-gray-300">"{completedTaskText}"</strong>.
