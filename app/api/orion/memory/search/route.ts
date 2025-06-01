@@ -1,83 +1,86 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { QdrantFilter } from '@/types/orion';
-import { MEMORY_COLLECTION_NAME } from '@/lib/constants';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 
-/**
- * API route for searching memories
- */
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const { 
-      query, 
-      limit = 10, 
-      filter, 
-      withVectors = false,
-      minScore = 0.7,
-      collectionName = MEMORY_COLLECTION_NAME
+    const body = await request.json();
+    const {
+      query,
+      collectionName = ORION_MEMORY_COLLECTION_NAME,
+      limit = 5,
+      filter = {},
+      minScore = 0.7
     } = body;
-    
-    // Validate required fields
-    if (!query) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Query is required' 
-      }, { status: 400 });
+
+    if (!query || typeof query !== 'string' || query.trim() === "") {
+      return NextResponse.json({ success: false, error: 'Query cannot be empty.' }, { status: 400 });
     }
-    
-    // Generate embeddings for the query
-    const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
+
+    console.log(`[MEMORY_SEARCH_API] Searching for: "${query}" in collection: ${collectionName}`);
+    console.log(`[MEMORY_SEARCH_API] Filter:`, JSON.stringify(filter));
+
+    // 1. Generate embedding for the query
+    console.log(`[MEMORY_SEARCH_API] Requesting embedding for query...`);
+    const embeddingResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/generate-embeddings`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': request.headers.get('Authorization') || ''
       },
       body: JSON.stringify({
         texts: [query]
       })
     });
-    
+
     const embeddingData = await embeddingResponse.json();
     
     if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length === 0) {
-      throw new Error(embeddingData.error || 'Failed to generate embeddings');
+      console.error("[MEMORY_SEARCH_API] Failed to generate embeddings:", embeddingData.error);
+      throw new Error(embeddingData.error || 'Failed to generate embeddings.');
     }
-    
+
     const queryVector = embeddingData.embeddings[0];
-    
-    // Search for similar vectors in Qdrant
-    const searchResponse = await fetch('/api/orion/memory/search-vectors', {
+    console.log(`[MEMORY_SEARCH_API] Embeddings generated successfully.`);
+
+    // 2. Search Qdrant with the query vector
+    const searchResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/vector-search`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': request.headers.get('Authorization') || ''
       },
       body: JSON.stringify({
         vector: queryVector,
+        collectionName,
         limit,
         filter,
-        withVectors,
-        collectionName
+        withPayload: true,
+        withVector: false,
+        scoreThreshold: minScore
       })
     });
-    
+
     const searchData = await searchResponse.json();
     
     if (!searchData.success) {
-      throw new Error(searchData.error || 'Failed to search vectors');
+      console.error("[MEMORY_SEARCH_API] Failed to search memory:", searchData.error);
+      throw new Error(searchData.error || 'Failed to search memory.');
     }
-    
-    // Filter results by score if minScore is provided
-    const filteredResults = searchData.results.filter((result: any) => result.score >= minScore);
-    
+
+    console.log(`[MEMORY_SEARCH_API] Search successful. Found ${searchData.results.length} results.`);
+
+    // 3. Return the search results
     return NextResponse.json({ 
       success: true, 
-      results: filteredResults
+      results: searchData.results,
+      query
     });
-    
+
   } catch (error: any) {
-    console.error('Error in memory/search route:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'An unexpected error occurred' 
-    }, { status: 500 });
+    console.error('[MEMORY_SEARCH_API_ERROR]', error.message, error.stack);
+    return NextResponse.json(
+      { success: false, error: 'Failed to search memory.', details: error.message || "Unknown error" },
+      { status: 500 }
+    );
   }
 }

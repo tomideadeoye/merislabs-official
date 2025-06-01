@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, ChevronDown, ChevronUp, Filter, Brain } from 'lucide-react';
-import { ASK_QUESTION_REQUEST_TYPE } from '@/lib/orion_config';
+// Import directly from the file
+import { ASK_QUESTION_REQUEST_TYPE } from '../../lib/orion_config';
 
 const MEMORY_TYPES = [
   { id: "journal_entry", label: "Journal Entries" },
