@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/database';
 import { v4 as uuidv4 } from 'uuid';
-import { EmotionalLogEntry, LogEmotionRequest } from '@/types/emotions';
+import { EmotionalLogEntry, LogEmotionRequestBody } from '@/types/orion';
 
 /**
  * API route for logging emotions
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as LogEmotionRequest;
+    const body = await req.json() as LogEmotionRequestBody;
     
-    // Validate required fields
-    if (!body.primaryEmotion) {
+    // Validate required fields - allow either emotion or automatic thought
+    if (!body.primaryEmotion && !body.cognitiveDistortionAnalysis?.automaticThought) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Primary emotion is required' 
+        error: 'Primary emotion or an automatic thought is required' 
       }, { status: 400 });
     }
     
@@ -22,25 +22,28 @@ export async function POST(req: NextRequest) {
     const newEntry: EmotionalLogEntry = {
       id: uuidv4(),
       timestamp: body.entryTimestamp || new Date().toISOString(),
-      primaryEmotion: body.primaryEmotion,
+      primaryEmotion: body.primaryEmotion || "N/A (Distortion Analysis)",
       secondaryEmotions: body.secondaryEmotions || [],
       intensity: body.intensity,
       triggers: body.triggers || [],
       physicalSensations: body.physicalSensations || [],
-      accompanyingThoughts: body.accompanyingThoughts,
+      accompanyingThoughts: body.accompanyingThoughts || body.cognitiveDistortionAnalysis?.automaticThought,
       copingMechanismsUsed: body.copingMechanismsUsed || [],
       contextualNote: body.contextualNote,
-      relatedJournalSourceId: body.relatedJournalSourceId
+      relatedJournalSourceId: body.relatedJournalSourceId,
+      cognitiveDistortionAnalysis: body.cognitiveDistortionAnalysis
     };
     
     // Insert into database
     const stmt = db.prepare(`
       INSERT INTO emotional_logs (
         id, timestamp, primaryEmotion, secondaryEmotions, intensity, triggers,
-        physicalSensations, accompanyingThoughts, copingMechanismsUsed, contextualNote, relatedJournalSourceId
+        physicalSensations, accompanyingThoughts, copingMechanismsUsed, contextualNote, 
+        relatedJournalSourceId, cognitiveDistortionAnalysis
       ) VALUES (
         @id, @timestamp, @primaryEmotion, @secondaryEmotionsJson, @intensity, @triggersJson,
-        @physicalSensationsJson, @accompanyingThoughts, @copingMechanismsUsedJson, @contextualNote, @relatedJournalSourceId
+        @physicalSensationsJson, @accompanyingThoughts, @copingMechanismsUsedJson, @contextualNote, 
+        @relatedJournalSourceId, @cognitiveDistortionAnalysisJson
       )
     `);
     
@@ -55,7 +58,10 @@ export async function POST(req: NextRequest) {
       accompanyingThoughts: newEntry.accompanyingThoughts,
       copingMechanismsUsedJson: JSON.stringify(newEntry.copingMechanismsUsed),
       contextualNote: newEntry.contextualNote,
-      relatedJournalSourceId: newEntry.relatedJournalSourceId
+      relatedJournalSourceId: newEntry.relatedJournalSourceId,
+      cognitiveDistortionAnalysisJson: newEntry.cognitiveDistortionAnalysis 
+                                      ? JSON.stringify(newEntry.cognitiveDistortionAnalysis) 
+                                      : null
     });
     
     return NextResponse.json({ 

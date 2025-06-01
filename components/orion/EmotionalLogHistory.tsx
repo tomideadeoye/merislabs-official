@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, AlertTriangle, Calendar, Search, RefreshCw } from 'lucide-react';
-import { EmotionalLogEntry } from '@/types/emotions';
+import { Loader2, AlertTriangle, Calendar, Search, RefreshCw, BrainCircuit } from 'lucide-react';
+import { EmotionalLogEntry } from '@/types/orion';
+import { CognitiveDistortionDisplay } from './cbt/CognitiveDistortionDisplay';
+import { Switch } from '@/components/ui/switch';
 
 interface EmotionalLogHistoryProps {
   className?: string;
@@ -23,6 +25,7 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [emotion, setEmotion] = useState<string>('');
+  const [showDistortionAnalysisOnly, setShowDistortionAnalysisOnly] = useState<boolean>(false);
 
   useEffect(() => {
     fetchLogs();
@@ -40,6 +43,7 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
       if (emotion) params.append('emotion', emotion);
+      if (showDistortionAnalysisOnly) params.append('hasDistortionAnalysis', 'true');
       
       const response = await fetch(`/api/orion/emotions/history?${params.toString()}`);
       const data = await response.json();
@@ -112,43 +116,58 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
           </div>
         </div>
         
-        <div className="flex justify-end space-x-2">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => {
-              setStartDate('');
-              setEndDate('');
-              setEmotion('');
-            }}
-            className="bg-gray-700 hover:bg-gray-600"
-          >
-            Clear Filters
-          </Button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Switch 
+              id="show-distortions"
+              checked={showDistortionAnalysisOnly}
+              onCheckedChange={setShowDistortionAnalysisOnly}
+            />
+            <Label htmlFor="show-distortions" className="text-sm text-gray-300 cursor-pointer flex items-center">
+              <BrainCircuit className="h-4 w-4 mr-1 text-purple-400" />
+              Show only entries with cognitive distortion analysis
+            </Label>
+          </div>
           
-          <Button 
-            type="submit" 
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            <Search className="mr-2 h-4 w-4" />
-            Search
-          </Button>
-          
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={fetchLogs}
-            className="bg-gray-700 hover:bg-gray-600"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
+          <div className="flex justify-end space-x-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => {
+                setStartDate('');
+                setEndDate('');
+                setEmotion('');
+                setShowDistortionAnalysisOnly(false);
+              }}
+              className="bg-gray-700 hover:bg-gray-600"
+            >
+              Clear Filters
+            </Button>
+            
+            <Button 
+              type="submit" 
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Search
+            </Button>
+            
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={fetchLogs}
+              className="bg-gray-700 hover:bg-gray-600"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </form>
       
       {isLoading ? (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-          <span className="ml-2 text-gray-400">Loading emotional logs...</span>
+          <span className="ml-2 text-gray-400">Loading entries...</span>
         </div>
       ) : error ? (
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-start">
@@ -157,7 +176,7 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
         </div>
       ) : logs.length === 0 ? (
         <div className="text-center py-8 text-gray-400">
-          <p>No emotional logs found. Start logging your emotions to see them here.</p>
+          <p>No entries found. Start logging your emotions or thoughts to see them here.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -167,9 +186,18 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <div className={`w-3 h-3 rounded-full mr-2 ${getIntensityColor(log.intensity)}`}></div>
-                      <h3 className="text-lg font-medium text-gray-200">{log.primaryEmotion}</h3>
-                      {log.intensity && (
+                      {log.primaryEmotion !== "N/A (Distortion Analysis)" && (
+                        <div className={`w-3 h-3 rounded-full mr-2 ${getIntensityColor(log.intensity)}`}></div>
+                      )}
+                      <h3 className="text-lg font-medium text-gray-200">
+                        {log.primaryEmotion !== "N/A (Distortion Analysis)" ? log.primaryEmotion : (
+                          <span className="flex items-center text-purple-300">
+                            <BrainCircuit className="h-4 w-4 mr-1" />
+                            Thought Analysis
+                          </span>
+                        )}
+                      </h3>
+                      {log.intensity && log.primaryEmotion !== "N/A (Distortion Analysis)" && (
                         <span className="ml-2 text-sm text-gray-400">Intensity: {log.intensity}/10</span>
                       )}
                     </div>
@@ -207,6 +235,10 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
                     <p className="text-sm text-gray-400">Context:</p>
                     <p className="text-sm text-gray-300">{log.contextualNote}</p>
                   </div>
+                )}
+                
+                {log.cognitiveDistortionAnalysis && (
+                  <CognitiveDistortionDisplay data={log.cognitiveDistortionAnalysis} />
                 )}
               </CardContent>
             </Card>
