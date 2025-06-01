@@ -41,3 +41,30 @@ export interface LogEmotionRequestBody {
   relatedJournalSourceId?: string;
   cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData;
 }
+
+export interface ScoredMemoryPoint {
+  score: number;
+  payload: {
+    text: string;
+    source_id: string;
+    timestamp: string;
+    indexed_at: string;
+    type: string;
+    tags?: string[];
+    mood?: string;
+  };
+  vector?: number[];
+}
+
+export interface QdrantFilterCondition {
+  key: string;
+  match: {
+    value: string | number | boolean;
+  };
+}
+
+export interface QdrantFilter {
+  must?: QdrantFilterCondition[];
+  should?: QdrantFilterCondition[];
+  must_not?: QdrantFilterCondition[];
+}

@@ -1,4 +1,4 @@
-import type { Opportunity, OpportunityStatus, OpportunityType } from '../types/opportunity';
+import type { OpportunityStatus, OpportunityType } from '../types/opportunity.d.ts';
 import axios from 'axios';
 
 // Test opportunities
@@ -127,7 +127,8 @@ async function testOpportunityEvaluation() {
           evaluationOutput: evaluation
         });
 
-        console.log('\nCreated opportunity:', createResponse.data.opportunity.id);
+        const { id } = createResponse.data.opportunity;
+        console.log('\nCreated opportunity:', id);
 
         // Brief pause between tests
         await new Promise(resolve => setTimeout(resolve, 1000));
