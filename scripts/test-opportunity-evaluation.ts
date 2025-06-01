@@ -77,11 +77,11 @@ async function testOpportunityEvaluation() {
     }
 
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    
+
     // Test each opportunity
     for (const opportunity of opportunities) {
       console.log(`\nTesting opportunity: ${opportunity.title}`);
-      
+
       // 1. Test opportunity evaluation
       const evalResponse = await fetch(`${baseUrl}/api/orion/opportunity/evaluate`, {
         method: 'POST',
@@ -97,14 +97,14 @@ async function testOpportunityEvaluation() {
       }
 
       const evalData = await evalResponse.json();
-      
+
       // Validate evaluation response structure
       if (!evalData.success || !evalData.evaluation) {
         throw new Error(`Invalid evaluation response: ${JSON.stringify(evalData)}`);
       }
 
       const evaluation = evalData.evaluation as EvaluationOutput;
-      
+
       // Log evaluation results
       console.log('\nEvaluation Results:');
       console.log('Fit Score:', evaluation.fitScorePercentage + '%');
