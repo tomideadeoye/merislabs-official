@@ -4,7 +4,7 @@ import React from 'react';
 import { PageHeader } from "@/components/ui/page-header";
 import { PageNames } from "@/app_state";
 import { BriefcaseBusiness } from "lucide-react";
-import { OpportunityDetailView } from '@/components/orion/OpportunityDetailView';
+import { OpportunityDetailView } from '@/components/orion/pipeline/OpportunityDetailView';
 
 interface OpportunityDetailPageProps {
   params: {
@@ -20,8 +20,8 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
       <PageHeader
         title={PageNames.PIPELINE}
         icon={<BriefcaseBusiness className="h-7 w-7" />}
-        description="View and manage opportunity details"
-        backLink="/admin/opportunity-pipeline"
+        description="Manage and track your career opportunities"
+        showMemoryStatus={true}
       />
       
       <OpportunityDetailView opportunityId={opportunityId} />
