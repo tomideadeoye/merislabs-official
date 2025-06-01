@@ -44,6 +44,10 @@ export interface Opportunity {
   tags?: string[];
   notes?: string;
   lastStatusUpdate: string;
+  relatedEvaluationId?: string;
+  applicationMaterialIds?: string;
+  stakeholderContactIds?: string;
+  relatedHabiticaTaskIds?: string;
 }
 
 export interface OpportunityCreatePayload {
@@ -69,6 +73,10 @@ export interface OpportunityUpdatePayload {
   sourceURL?: string;
   tags?: string[];
   notes?: string;
+  relatedEvaluationId?: string;
+  applicationMaterialIds?: string;
+  stakeholderContactIds?: string;
+  relatedHabiticaTaskIds?: string;
 }
 
 export interface OpportunityDetails {
@@ -139,8 +147,29 @@ export interface DraftApplicationRequestBody {
 export interface DraftApplicationResponseBody {
   success: boolean;
   drafts?: string[];
+  draftIds?: string[];
   modelUsed?: string;
   warning?: string;
   error?: string;
   details?: string;
+}
+
+export interface OpportunityEvaluator {
+  evaluateOpportunity: (details: OpportunityDetails) => Promise<EvaluationOutput>;
+}
+
+export interface OpportunityDraft {
+  id: string;
+  content: string;
+  style: string;
+  createdAt: string;
+}
+
+export interface StakeholderOutreach {
+  id: string;
+  stakeholderId: string;
+  message: string;
+  platform: string;
+  createdAt: string;
+  status: 'draft' | 'sent' | 'replied';
 }
