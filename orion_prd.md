@@ -525,14 +525,11 @@ Embeddings: sentence-transformers (all-MiniLM-L6-v2).
 Orchestration: n8n (Docker/Cloud).
 
 API Framework: FastAPI / Flask.
-
-UI: Streamlit (Current).
-
-Task Management: Habitica API (habitica library or requests).
+Task Management: Habitica API & Notion
 
 Utilities: requests, python-dotenv, loguru, pandas, selenium, aiohttp, googlesearch-python, dnspython, smtplib, uuid, nltk (optional), pytest.
 
-Voice: speech_recognition, pyttsx3, gTTS, ElevenLabs API (optional).
+Voice: speech_recognition, pyttsx3, gTTS
 
 Financial: Plaid API (future, high security), Stock Data APIs (future).
 

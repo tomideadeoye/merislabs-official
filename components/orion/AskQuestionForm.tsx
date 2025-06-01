@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/hooks/useSessionState';
 import { Button } from '@/components/ui/button';
@@ -26,12 +26,20 @@ export const AskQuestionForm: React.FC = () => {
   const [answer, setAnswer] = useSessionState(SessionStateKeys.ASK_Q_ANSWER, "");
   const [isProcessing, setIsProcessing] = useSessionState(SessionStateKeys.ASK_Q_PROCESSING, false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Client-side only state for button disabled status to prevent hydration mismatch
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   // Memory filtering state
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedMemoryTypes, setSelectedMemoryTypes] = useState<string[]>([]);
   const [memoryTags, setMemoryTags] = useState<string>("");
   const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
+
+  // Update button disabled state on client side only
+  useEffect(() => {
+    setIsButtonDisabled(isProcessing || !(question || "").trim());
+  }, [isProcessing, question]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,7 +208,7 @@ export const AskQuestionForm: React.FC = () => {
         <div className="flex justify-between items-center">
           <Button
             type="submit"
-            disabled={isProcessing || !question?.trim()}
+            disabled={isButtonDisabled}
             className="bg-blue-600 hover:bg-blue-700"
           >
             {isProcessing ? (

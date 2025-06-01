@@ -1,12 +1,29 @@
+
+export const metadata = {
+  title: "MerisLabs",
+  description: "End-to-end software development for businesses.",
+};
+
+import Hero from "@/components/hero";
+import Features from "@/components/features";
+import Newsletter from "@/components/newsletter";
+import Zigzag from "@/components/zigzag";
+import Testimonials from "@/components/testimonials";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Home() {
   return (
-    <main className="container mx-auto py-12">
+
+
+    <main className="container mx-auto py-12"> <Hero />
+      <Features />
+      <Zigzag />
+      <Testimonials />
+      <Newsletter />
       <h1 className="text-4xl font-bold mb-8 text-center">Meris Labs</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
@@ -20,7 +37,7 @@ export default function Home() {
             </Link>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Memory Explorer</CardTitle>
@@ -33,7 +50,7 @@ export default function Home() {
             </Link>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Opportunities</CardTitle>
