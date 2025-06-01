@@ -1,13 +1,13 @@
-import "./globals.css";
-import { Inter } from "next/font/google";
-import { Metadata } from "next";
-import { AuthProvider } from "@/components/auth-provider";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { MemoryProvider } from '@/components/orion/MemoryProvider';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Orion - Personal AI Assistant",
-  description: "Your personal AI assistant for productivity and knowledge management",
+  title: 'Meris Labs',
+  description: 'Meris Labs Official',
 };
 
 export default function RootLayout({
@@ -18,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <MemoryProvider>
+          {children}
+        </MemoryProvider>
       </body>
     </html>
   );

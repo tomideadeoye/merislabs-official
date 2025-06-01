@@ -24,60 +24,88 @@ python notion_api_server.py
 PYTHON_API_URL=http://localhost:5002
 ```
 
-## Usage in NextJS
+## Architecture
 
-Import the memory client in your NextJS components:
+The memory integration consists of:
 
-```javascript
-import { searchMemory, upsertMemory, generateEmbeddings } from '@/orion_python_backend/memory_api_client';
-```
+1. **Python API Server**: Handles communication with Qdrant
+   - `/api/memory/search` - Search for memory points
+   - `/api/memory/upsert` - Add or update memory points
+   - `/api/memory/generate-embeddings` - Generate embeddings for text
 
-### Search Memory
+2. **NextJS API Routes**: Proxy requests to the Python API
+   - `/api/orion/memory/search-proxy`
+   - `/api/orion/memory/upsert-proxy`
+   - `/api/orion/memory/generate-embeddings-proxy`
+   - `/api/orion/memory/index-text` - Convenience endpoint for indexing text
 
-```javascript
-const results = await searchMemory("search query", {
-  must: [
-    { key: "type", match: { value: "journal_entry" } }
-  ]
-}, 10);
+3. **React Components**:
+   - `MemoryProvider` - Context provider for memory operations
+   - `MemorySearch` - Search component
+   - `MemoryInput` - Input component for adding memories
+   - `JournalEntryWithMemory` - Journal entry component that uses memory
 
-if (results.success) {
-  // Process results.results array
+4. **React Hooks**:
+   - `useMemory` - Hook for memory operations
+   - `useMemoryContext` - Hook for accessing the memory context
+
+## Usage
+
+### In React Components
+
+```jsx
+import { useMemoryContext } from '@/components/orion/MemoryProvider';
+
+export function MyComponent() {
+  const { search, add, results, isLoading } = useMemoryContext();
+
+  const handleSearch = async () => {
+    await search('query text');
+    // results will be updated automatically
+  };
+
+  const handleAdd = async () => {
+    await add('Memory text', 'source-id', 'memory-type', ['tag1', 'tag2']);
+  };
+
+  return (
+    <div>
+      {results.map(result => (
+        <div key={result.payload.source_id}>
+          {result.payload.text}
+        </div>
+      ))}
+    </div>
+  );
 }
 ```
 
-### Add Memory
+### Direct API Calls
 
 ```javascript
-// First generate embeddings
-const embedResponse = await generateEmbeddings(["Memory text content"]);
-
-if (embedResponse.success) {
-  // Then store the memory with the embedding
-  const upsertResponse = await upsertMemory([{
-    id: "unique-id", // Optional, will be generated if not provided
-    vector: embedResponse.embeddings[0],
-    payload: {
-      text: "Memory text content",
-      source_id: "source-id",
-      timestamp: new Date().toISOString(),
-      indexed_at: new Date().toISOString(),
-      type: "memory_type",
-      tags: ["tag1", "tag2"]
+// Search memory
+const response = await fetch('/api/orion/memory/search-proxy', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    queryText: 'search query',
+    filter: {
+      must: [{ key: 'type', match: { value: 'journal_entry' } }]
     }
-  }]);
-}
+  })
+});
+
+// Add memory
+const response = await fetch('/api/orion/memory/index-text', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    text: 'Memory text',
+    type: 'journal_entry',
+    tags: ['journal', 'important']
+  })
+});
 ```
-
-## API Endpoints
-
-The NextJS app communicates with the Python API through these proxy endpoints:
-
-- `/api/orion/memory/search-proxy` - Search for memory points
-- `/api/orion/memory/upsert-proxy` - Add or update memory points
-- `/api/orion/memory/generate-embeddings-proxy` - Generate embeddings for text
-
-These proxy endpoints forward requests to the Python API running at `PYTHON_API_URL`.
 
 ## Memory Structure
 
@@ -85,17 +113,24 @@ Each memory point has the following structure:
 
 ```typescript
 interface MemoryPoint {
-  id: string;
-  vector: number[]; // Embedding vector
-  payload: {
-    text: string;
-    source_id: string;
-    timestamp: string;
-    indexed_at: string;
-    type: string;
-    tags?: string[];
-    mood?: string;
-    // Additional fields can be added as needed
-  }
+  text: string;
+  source_id: string;
+  timestamp: string;
+  indexed_at?: string;
+  type: string;
+  tags?: string[];
+  mood?: string;
+  [key: string]: any; // Additional fields
+}
+
+interface ScoredMemoryPoint {
+  score: number;
+  payload: MemoryPoint;
+  vector?: number[];
 }
 ```
+
+## Pages
+
+- `/journal` - Journal page for writing and viewing journal entries
+- `/memory-explorer` - Memory explorer for searching and adding memories
