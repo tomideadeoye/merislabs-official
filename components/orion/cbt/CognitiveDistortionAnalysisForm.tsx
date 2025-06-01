@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { InfoIcon } from 'lucide-react';
 
 interface CognitiveDistortionAnalysisFormProps {
@@ -108,16 +107,9 @@ export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalys
                   <Label htmlFor={`dist-${distortion.id}`} className="text-xs font-normal text-gray-300 cursor-pointer">
                     {distortion.name}
                   </Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <InfoIcon className="h-3 w-3 ml-1 text-gray-500 cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-gray-900 text-gray-200 border-gray-700 max-w-xs">
-                        <p className="text-xs">{DISTORTION_DESCRIPTIONS[distortion.id]}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div className="ml-1 cursor-help" title={DISTORTION_DESCRIPTIONS[distortion.id]}>
+                    <InfoIcon className="h-3 w-3 text-gray-500" />
+                  </div>
                 </div>
               </div>
             ))}
