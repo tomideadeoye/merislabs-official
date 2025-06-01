@@ -375,6 +375,23 @@ Present Risk/Reward analysis (using matrix). Outline trade-offs.
 
 Output: Structured evaluation report with recommendation (Pursue, Delay, Reject) and potential next steps. Uses orion_llm and orion_memory.
 
+5.5.1.1 Opportunity Engagement Super-Flow (IMPLEMENTED):
+
+A guided, end-to-end experience when a new promising opportunity is identified and logged in the Opportunity Tracker.
+
+Components:
+- Enhanced Opportunity Detail View: Central hub integrating evaluation, narrative alignment, application drafting, stakeholder outreach, task creation, and reflection.
+- Evaluation Integration: "Evaluate with Orion" button that pre-fills and runs the Opportunity Evaluator, with results linked to the opportunity record.
+- Narrative Alignment: Post-evaluation, suggests relevant narrative points from memory to inform application materials.
+- Application Material Drafting: "Draft Application" button pulls opportunity details, profile, and evaluation insights to generate tailored drafts.
+- Stakeholder Engagement: "Find Stakeholders" button uses the Stakeholder Search & Outreach Engine, linking contacts back to the opportunity.
+- Task Creation: Key next steps from the Evaluator can be sent to Habitica with one click, with origin linking.
+- Reflection Points: After submitting an application or key outreach, prompts for Journal Entry related to that step.
+- Visual Pipeline: Kanban view for drag-and-drop status updates and workflow visualization.
+
+Integration Points:
+- Opportunity Tracker → Opportunity Evaluator → Narrative Clarity Studio → Application Drafting → Stakeholder Outreach → Habitica Tasks → Journal/Reflection
+
 5.5.2. Strategy Partner Module:
 
 Integrated function within core /ask_orion logic.
