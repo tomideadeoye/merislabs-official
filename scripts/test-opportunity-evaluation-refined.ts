@@ -1,10 +1,12 @@
-import type { OpportunityDetails, EvaluationOutput, OpportunityType } from '../types/opportunity.d';
-import { auth } from '../auth';Import types
-import { type OpportunityDetails, type EvaluationOutput, type OpportunityType } from '../types/opportunity.d.ts';
-import { auth } from '../auth';
+import type { Opportunity, OpportunityStatus, OpportunityType } from '../types/opportunity';
 
 // Test opportunities
-const opportunities: OpportunityDetails[] = [
+const opportunities: Array<{
+  title: string;
+  description: string;
+  type: OpportunityType;
+  url?: string;
+}> = [
   {
     title: "Senior Software Engineer",
     description: `Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.
@@ -67,21 +69,18 @@ Areas of Focus:
 ];
 
 async function testOpportunityEvaluation() {
-  // Get mocked auth session
-  const session = await auth();
-
   try {
-    // Get mock auth session token
-    if (!session?.user) {
-      throw new Error('Failed to get authenticated session');
-    }
+    // Using mock auth session for testing
+    const mockSession = {
+      user: { id: 'test-user', name: 'Test User', email: 'test@example.com' }
+    };
 
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    
+
     // Test each opportunity
     for (const opportunity of opportunities) {
       console.log(`\nTesting opportunity: ${opportunity.title}`);
-      
+
       // 1. Test opportunity evaluation
       const evalResponse = await fetch(`${baseUrl}/api/orion/opportunity/evaluate`, {
         method: 'POST',
@@ -97,14 +96,14 @@ async function testOpportunityEvaluation() {
       }
 
       const evalData = await evalResponse.json();
-      
+
       // Validate evaluation response structure
       if (!evalData.success || !evalData.evaluation) {
         throw new Error(`Invalid evaluation response: ${JSON.stringify(evalData)}`);
       }
 
-      const evaluation = evalData.evaluation as EvaluationOutput;
-      
+      const evaluation = evalData.evaluation;
+
       // Log evaluation results
       console.log('\nEvaluation Results:');
       console.log('Fit Score:', evaluation.fitScorePercentage + '%');
@@ -135,7 +134,7 @@ async function testOpportunityEvaluation() {
         },
         body: JSON.stringify({
           ...opportunity,
-          status: 'evaluating',
+          status: 'evaluating' as OpportunityStatus,
           priority: 'medium',
           evaluationOutput: evaluation
         })
