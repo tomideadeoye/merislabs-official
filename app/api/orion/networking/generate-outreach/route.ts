@@ -30,10 +30,23 @@ Your strengths include:
 5. Crafting messages that are concise yet impactful
 6. Providing clear value propositions for why the connection would be mutually beneficial
 
+Focus on establishing genuine connection, demonstrating credible interest, and proposing a clear, low-friction next step (e.g., a brief chat). Messages should be concise and tailored to the platform.
+
+For LinkedIn messages:
+- Keep under 300 characters (LinkedIn's limit)
+- Be specific about why you're connecting with this particular person
+- Reference their work, role, or company specifically
+- Avoid generic templates or obvious mass outreach language
+
+For email outreach:
+- Be brief but substantive (4-6 sentences)
+- Include a specific reference to the recipient's role or recent work if available
+- Clearly articulate why this connection would be valuable to both parties
+- End with a specific, low-commitment call to action
+
 You excel at helping professionals initiate conversations that lead to meaningful relationships rather than transactional exchanges.`;
 
 export async function POST(request: NextRequest) {
-  // Check authentication
   const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -129,16 +142,19 @@ Please create two distinct versions:
 
 1. LinkedIn Connection Request:
    - Must be under 300 characters (LinkedIn's limit)
-   - Personalized and specific (not generic)
-   - Clear reason for connecting
+   - Personalized and specific to this individual (not generic)
+   - Reference their specific role, work, or company achievements if available
+   - Clear reason for connecting that provides value to them
    - Professional but conversational tone
    - No direct ask for job help in initial message
+   - Focus on one key point of connection or interest
 
 2. Email Outreach:
    - Brief but more detailed than LinkedIn (4-6 sentences)
    - Professional with a warm tone
-   - Specific reference to their role or company
+   - Specific reference to their role or recent work
    - Clear value proposition for why they should respond
+   - Include 1-2 relevant achievements or experiences from your profile that relate to their work
    - Concrete but small next step/call to action
    ${hasJobInterest ? '- Subtle reference to your interest in opportunities at their company' : ''}
    - Proper greeting and sign-off
@@ -149,7 +165,9 @@ Format your response with clear "LinkedIn Connection Request:" and "Email Outrea
     // Call the LLM API
     const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/orion/llm`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         requestType: DRAFT_COMMUNICATION_REQUEST_TYPE,
         primaryContext,
