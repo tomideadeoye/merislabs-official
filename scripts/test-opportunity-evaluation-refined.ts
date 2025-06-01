@@ -82,7 +82,7 @@ async function testOpportunityEvaluation() {
       console.log(`\nTesting opportunity: ${opportunity.title}`);
 
       console.log(`\nSending request to: ${baseUrl}/api/orion/opportunity/evaluate`);
-      
+
       // 1. Test opportunity evaluation
       const evalResponse = await Promise.race([
         fetch(`${baseUrl}/api/orion/opportunity/evaluate`, {
@@ -93,7 +93,7 @@ async function testOpportunityEvaluation() {
           },
           body: JSON.stringify(opportunity)
         }),
-        new Promise((_, reject) => 
+        new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Request timeout after 10s')), 10000)
         )
       ]) as Response;

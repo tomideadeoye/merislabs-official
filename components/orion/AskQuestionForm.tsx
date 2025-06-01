@@ -11,7 +11,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, ChevronDown, ChevronUp, Filter, Brain } from 'lucide-react';
 import { ASK_QUESTION_REQUEST_TYPE } from '@/lib/orion_config';
 
-// Available memory types for filtering
 const MEMORY_TYPES = [
   { id: "journal_entry", label: "Journal Entries" },
   { id: "journal_reflection", label: "Journal Reflections" },
@@ -26,7 +25,7 @@ export const AskQuestionForm: React.FC = () => {
   const [answer, setAnswer] = useSessionState(SessionStateKeys.ASK_Q_ANSWER, "");
   const [isProcessing, setIsProcessing] = useSessionState(SessionStateKeys.ASK_Q_PROCESSING, false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Memory filtering state
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedMemoryTypes, setSelectedMemoryTypes] = useState<string[]>([]);
@@ -35,7 +34,7 @@ export const AskQuestionForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!question || !question.trim()) {
       setError("Please enter a question.");
       return;
@@ -53,18 +52,18 @@ export const AskQuestionForm: React.FC = () => {
         temperature: 0.7,
         max_tokens: 1000
       };
-      
+
       // Add memory filters if selected
       if (selectedMemoryTypes.length > 0) {
         payload.memorySourceTypes = selectedMemoryTypes;
         setFiltersApplied(true);
       }
-      
+
       if (memoryTags.trim()) {
         payload.memorySourceTags = memoryTags.split(',').map(tag => tag.trim()).filter(Boolean);
         setFiltersApplied(true);
       }
-      
+
       if (!selectedMemoryTypes.length && !memoryTags.trim()) {
         setFiltersApplied(false);
       }
@@ -91,15 +90,15 @@ export const AskQuestionForm: React.FC = () => {
       setIsProcessing(false);
     }
   };
-  
+
   const handleTypeToggle = (typeId: string) => {
-    setSelectedMemoryTypes(prev => 
-      prev.includes(typeId) 
-        ? prev.filter(id => id !== typeId) 
+    setSelectedMemoryTypes(prev =>
+      prev.includes(typeId)
+        ? prev.filter(id => id !== typeId)
         : [...prev, typeId]
     );
   };
-  
+
   const clearFilters = () => {
     setSelectedMemoryTypes([]);
     setMemoryTags("");
@@ -117,10 +116,10 @@ export const AskQuestionForm: React.FC = () => {
             disabled={isProcessing}
           />
         </div>
-        
+
         {/* Memory Filters Section */}
         <div className="bg-gray-800 border border-gray-700 rounded-md overflow-hidden">
-          <div 
+          <div
             className="p-3 flex justify-between items-center cursor-pointer hover:bg-gray-750"
             onClick={() => setShowFilters(!showFilters)}
           >
@@ -141,7 +140,7 @@ export const AskQuestionForm: React.FC = () => {
               <ChevronDown className="h-4 w-4 text-gray-400" />
             )}
           </div>
-          
+
           {showFilters && (
             <div className="p-3 border-t border-gray-700 bg-gray-750">
               <div className="space-y-3">
@@ -152,12 +151,12 @@ export const AskQuestionForm: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2">
                     {MEMORY_TYPES.map(type => (
                       <div key={type.id} className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={`type-${type.id}`}
                           checked={selectedMemoryTypes.includes(type.id)}
                           onCheckedChange={() => handleTypeToggle(type.id)}
                         />
-                        <Label 
+                        <Label
                           htmlFor={`type-${type.id}`}
                           className="text-sm text-gray-300 cursor-pointer"
                         >
@@ -167,7 +166,7 @@ export const AskQuestionForm: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="memoryTags" className="text-sm text-gray-400 mb-2 block">
                     Memory Tags (comma-separated)
@@ -180,11 +179,11 @@ export const AskQuestionForm: React.FC = () => {
                     className="bg-gray-700 border-gray-600 text-gray-200"
                   />
                 </div>
-                
+
                 <div className="flex justify-end">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     size="sm"
                     onClick={clearFilters}
                     className="text-gray-300 border-gray-600"
@@ -196,11 +195,11 @@ export const AskQuestionForm: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         <div className="flex justify-between items-center">
-          <Button 
-            type="submit" 
-            disabled={isProcessing || !question?.trim()} 
+          <Button
+            type="submit"
+            disabled={isProcessing || !question?.trim()}
             className="bg-blue-600 hover:bg-blue-700"
           >
             {isProcessing ? (
@@ -215,7 +214,7 @@ export const AskQuestionForm: React.FC = () => {
               </>
             )}
           </Button>
-          
+
           {error && (
             <p className="text-red-400 text-sm">{error}</p>
           )}
@@ -226,7 +225,7 @@ export const AskQuestionForm: React.FC = () => {
         <div className="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-md">
           <h3 className="text-lg font-medium text-blue-400 mb-2">Orion's Answer:</h3>
           <div className="text-gray-300 whitespace-pre-wrap">{answer}</div>
-          
+
           {filtersApplied && (
             <p className="mt-4 text-xs text-gray-400">
               <Filter className="h-3 w-3 inline mr-1" />
