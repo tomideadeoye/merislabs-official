@@ -16,7 +16,7 @@ interface OpportunityEvaluatorProps {
 export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ className }) => {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [type, setType] = useState<string>('job');
+  const [type, setType] = useState<'job' | 'education_program' | 'project_collaboration' | 'funding' | 'other'>('job');
   const [url, setUrl] = useState<string>('');
   
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
@@ -38,7 +38,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
       const opportunityDetails: OpportunityDetails = {
         title: title.trim(),
         description: description.trim(),
-        type: type as 'job' | 'education' | 'project' | 'other',
+        type: type,
         url: url.trim() || undefined
       };
       
@@ -91,8 +91,9 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 className="w-full rounded-md bg-gray-700 border-gray-600 text-gray-200 p-2"
               >
                 <option value="job">Job</option>
-                <option value="education">Education Program</option>
-                <option value="project">Project/Collaboration</option>
+                <option value="education_program">Education Program</option>
+                <option value="project_collaboration">Project/Collaboration</option>
+                <option value="funding">Funding</option>
                 <option value="other">Other</option>
               </select>
             </div>

@@ -1,7 +1,11 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
+// Ensure we have a secret for NextAuth
+const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || 'a_very_long_secret_value_at_least_32_chars';
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: secret,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
