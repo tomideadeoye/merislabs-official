@@ -1,79 +1,90 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { 
-  Filter, 
-  SortAsc, 
-  SortDesc, 
-  X, 
+import {
+  Filter,
+  SortAsc,
+  SortDesc,
+  X,
   Search,
   Tag
 } from 'lucide-react';
-import { OpportunityFilters as FiltersType } from '@/hooks/useOpportunities';
+import type {
+  OpportunityDetails,
+  OpportunityType,
+  OpportunityStatus,
+  OpportunityPriority
+} from '@/types/opportunity';
 
 interface OpportunityFiltersProps {
-  filters: FiltersType;
-  setFilters: (filters: FiltersType) => void;
-  sort: string;
-  setSort: (sort: string) => void;
+  filters: Partial<OpportunityDetails> & { tag?: string };
+  sort: keyof OpportunityDetails;
   sortOrder: 'asc' | 'desc';
-  setSortOrder: (order: 'asc' | 'desc') => void;
+  onFilterChangeAction: (filters: Partial<OpportunityDetails> & { tag?: string }) => void;
+  onSortChangeAction: (sortBy: keyof OpportunityDetails, sortOrder: 'asc' | 'desc') => void;
 }
 
 export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
   filters,
-  setFilters,
   sort,
-  setSort,
   sortOrder,
-  setSortOrder
+  onFilterChangeAction,
+  onSortChangeAction
 }) => {
   const [tagInput, setTagInput] = useState<string>(filters.tag || '');
-  
+
   const handleStatusChange = (value: string) => {
-    setFilters({ ...filters, status: value === 'all' ? undefined : value });
+    const status = value === 'all' ? undefined : (value as OpportunityStatus);
+    const newFilters = { ...filters, status };
+    onFilterChangeAction(newFilters);
   };
-  
+
   const handleTypeChange = (value: string) => {
-    setFilters({ ...filters, type: value === 'all' ? undefined : value });
+    const type = value === 'all' ? undefined : (value as OpportunityType);
+    const newFilters = { ...filters, type };
+    onFilterChangeAction(newFilters);
   };
-  
+
   const handlePriorityChange = (value: string) => {
-    setFilters({ ...filters, priority: value === 'all' ? undefined : value });
+    const priority = value === 'all' ? undefined : (value as OpportunityPriority);
+    const newFilters = { ...filters, priority };
+    onFilterChangeAction(newFilters);
   };
-  
+
   const handleTagSearch = () => {
-    setFilters({ ...filters, tag: tagInput || undefined });
+    const newFilters = { ...filters, tag: tagInput || undefined };
+    onFilterChangeAction(newFilters);
   };
-  
+
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleTagSearch();
     }
   };
-  
+
   const handleSortChange = (value: string) => {
-    setSort(value);
+    onSortChangeAction(value as keyof OpportunityDetails, sortOrder);
   };
-  
+
   const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    onSortChangeAction(sort, newOrder);
   };
-  
+
   const clearFilters = () => {
-    setFilters({});
+    onFilterChangeAction({});
     setTagInput('');
   };
-  
+
   const hasActiveFilters = Object.values(filters).some(value => value !== undefined);
 
   return (
@@ -83,11 +94,11 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
           <Filter className="mr-2 h-4 w-4 text-gray-400" />
           Filter Opportunities
         </h3>
-        
+
         {hasActiveFilters && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={clearFilters}
             className="text-gray-400 hover:text-gray-300"
           >
@@ -96,7 +107,7 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
           </Button>
         )}
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Status</label>
@@ -107,19 +118,19 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
             <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="identified">Identified</SelectItem>
-              <SelectItem value="researching">Researching</SelectItem>
               <SelectItem value="evaluating">Evaluating</SelectItem>
-              <SelectItem value="application_ready">Application Ready</SelectItem>
+              <SelectItem value="pursuing">Pursuing</SelectItem>
               <SelectItem value="applied">Applied</SelectItem>
-              <SelectItem value="interview_scheduled">Interview Scheduled</SelectItem>
-              <SelectItem value="offer_received">Offer Received</SelectItem>
+              <SelectItem value="interviewing">Interviewing</SelectItem>
+              <SelectItem value="negotiating">Negotiating</SelectItem>
               <SelectItem value="accepted">Accepted</SelectItem>
-              <SelectItem value="rejected_by_them">Rejected</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="declined">Declined</SelectItem>
               <SelectItem value="archived">Archived</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        
+
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Type</label>
           <Select value={filters.type || 'all'} onValueChange={handleTypeChange}>
@@ -136,7 +147,7 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
             </SelectContent>
           </Select>
         </div>
-        
+
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Priority</label>
           <Select value={filters.priority || 'all'} onValueChange={handlePriorityChange}>
@@ -151,7 +162,7 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
             </SelectContent>
           </Select>
         </div>
-        
+
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Tag Search</label>
           <div className="flex">
@@ -165,7 +176,7 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
                 className="pl-8 bg-gray-700 border-gray-600 text-gray-200"
               />
             </div>
-            <Button 
+            <Button
               onClick={handleTagSearch}
               className="ml-2 bg-blue-600 hover:bg-blue-700"
             >
@@ -174,7 +185,7 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
           </div>
         </div>
       </div>
-      
+
       <div className="flex justify-between items-center border-t border-gray-700 pt-4">
         <div className="flex items-center">
           <label className="text-xs text-gray-400 mr-2">Sort By:</label>
@@ -183,15 +194,15 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-              <SelectItem value="lastStatusUpdate">Last Updated</SelectItem>
-              <SelectItem value="dateIdentified">Date Identified</SelectItem>
+              <SelectItem value="updatedAt">Last Updated</SelectItem>
+              <SelectItem value="createdAt">Date Identified</SelectItem>
               <SelectItem value="nextActionDate">Next Action Date</SelectItem>
               <SelectItem value="title">Title</SelectItem>
-              <SelectItem value="companyOrInstitution">Company/Institution</SelectItem>
+              <SelectItem value="company">Company</SelectItem>
               <SelectItem value="priority">Priority</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -205,7 +216,7 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
             )}
           </Button>
         </div>
-        
+
         <div className="text-xs text-gray-500">
           {hasActiveFilters ? 'Filtered results' : 'Showing all opportunities'}
         </div>

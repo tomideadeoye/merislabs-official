@@ -1,6 +1,4 @@
 import type { OpportunityDetails, EvaluationOutput, OpportunityType } from '../types/opportunity.d';
-import { auth } from '../auth';Import types
-import { type OpportunityDetails, type EvaluationOutput, type OpportunityType } from '../types/opportunity.d.ts';
 import { auth } from '../auth';
 
 // Test opportunities

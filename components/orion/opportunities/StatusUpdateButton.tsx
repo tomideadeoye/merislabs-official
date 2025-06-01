@@ -3,225 +3,177 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
-  DropdownMenu,
-  DropdownMenuContent,
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Loader2, ChevronDown } from 'lucide-react';
-import { Opportunity, OpportunityStatus } from '@/types/opportunity';
-import { JournalReflectionDialog } from './JournalReflectionDialog';
+import { ChevronDown, Loader2 } from 'lucide-react';
 
 interface StatusUpdateButtonProps {
-  opportunity: Opportunity;
-  onStatusUpdate?: (newStatus: OpportunityStatus) => void;
+  opportunityId: string;
+  currentStatus: string;
 }
 
-// Define status transitions based on current status
-const getNextStatuses = (currentStatus: OpportunityStatus): { status: OpportunityStatus; label: string }[] => {
-  switch (currentStatus) {
-    case 'identified':
-      return [
-        { status: 'researching', label: 'Start Researching' },
-        { status: 'evaluating', label: 'Start Evaluation' }
-      ];
-    case 'researching':
-      return [
-        { status: 'evaluating', label: 'Start Evaluation' },
-        { status: 'on_hold', label: 'Put On Hold' }
-      ];
-    case 'evaluating':
-      return [
-        { status: 'evaluated_positive', label: 'Mark as Positive Evaluation' },
-        { status: 'evaluated_negative', label: 'Mark as Negative Evaluation' }
-      ];
-    case 'evaluated_positive':
-      return [
-        { status: 'application_drafting', label: 'Start Drafting Application' },
-        { status: 'outreach_planned', label: 'Plan Stakeholder Outreach' }
-      ];
-    case 'application_drafting':
-      return [
-        { status: 'application_ready', label: 'Application Ready' },
-        { status: 'applied', label: 'Mark as Applied' }
-      ];
-    case 'application_ready':
-      return [
-        { status: 'applied', label: 'Mark as Applied' }
-      ];
-    case 'applied':
-      return [
-        { status: 'follow_up_needed', label: 'Follow-up Needed' },
-        { status: 'interview_scheduled', label: 'Interview Scheduled' },
-        { status: 'rejected_by_them', label: 'Rejected by Company' }
-      ];
-    case 'outreach_planned':
-      return [
-        { status: 'outreach_sent', label: 'Outreach Sent' }
-      ];
-    case 'outreach_sent':
-      return [
-        { status: 'follow_up_needed', label: 'Follow-up Needed' },
-        { status: 'interview_scheduled', label: 'Interview Scheduled' }
-      ];
-    case 'follow_up_needed':
-      return [
-        { status: 'follow_up_sent', label: 'Follow-up Sent' }
-      ];
-    case 'follow_up_sent':
-      return [
-        { status: 'interview_scheduled', label: 'Interview Scheduled' },
-        { status: 'rejected_by_them', label: 'Rejected by Company' }
-      ];
-    case 'interview_scheduled':
-      return [
-        { status: 'interview_completed', label: 'Interview Completed' }
-      ];
-    case 'interview_completed':
-      return [
-        { status: 'offer_received', label: 'Offer Received' },
-        { status: 'rejected_by_them', label: 'Rejected by Company' }
-      ];
-    case 'offer_received':
-      return [
-        { status: 'negotiating', label: 'Start Negotiation' },
-        { status: 'accepted', label: 'Offer Accepted' },
-        { status: 'declined_by_me', label: 'Offer Declined' }
-      ];
-    case 'negotiating':
-      return [
-        { status: 'accepted', label: 'Offer Accepted' },
-        { status: 'declined_by_me', label: 'Offer Declined' }
-      ];
-    default:
-      return [
-        { status: 'on_hold', label: 'Put On Hold' },
-        { status: 'archived', label: 'Archive' }
-      ];
-  }
-};
-
-// Define which status changes should trigger reflection
-const shouldPromptReflection = (newStatus: OpportunityStatus): boolean => {
-  return ['applied', 'interview_completed', 'outreach_sent', 'offer_received', 'accepted', 'declined_by_me', 'rejected_by_them'].includes(newStatus);
-};
-
-// Get reflection type based on status
-const getReflectionType = (status: OpportunityStatus): 'application_sent' | 'interview_completed' | 'outreach_sent' | 'general' => {
-  if (status === 'applied') return 'application_sent';
-  if (status === 'interview_completed') return 'interview_completed';
-  if (status === 'outreach_sent') return 'outreach_sent';
-  return 'general';
-};
-
-export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
-  opportunity,
-  onStatusUpdate
+export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({ 
+  opportunityId, 
+  currentStatus 
 }) => {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showReflection, setShowReflection] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState<OpportunityStatus | null>(null);
-  const [reflectionType, setReflectionType] = useState<'application_sent' | 'interview_completed' | 'outreach_sent' | 'general'>('general');
+  const [error, setError] = useState<string | null>(null);
   
-  const nextStatuses = getNextStatuses(opportunity.status);
-  
-  const handleStatusSelect = async (newStatus: OpportunityStatus) => {
-    // Check if we should prompt for reflection
-    if (shouldPromptReflection(newStatus)) {
-      setPendingStatus(newStatus);
-      setReflectionType(getReflectionType(newStatus));
-      setShowReflection(true);
-      return;
+  // Define status groups and their options
+  const statusGroups = [
+    {
+      label: 'Discovery',
+      statuses: [
+        { value: 'identified', label: 'Identified' },
+        { value: 'researching', label: 'Researching' }
+      ]
+    },
+    {
+      label: 'Evaluation',
+      statuses: [
+        { value: 'evaluating', label: 'Evaluating' },
+        { value: 'evaluated_positive', label: 'Evaluated Positive' },
+        { value: 'evaluated_negative', label: 'Evaluated Negative' }
+      ]
+    },
+    {
+      label: 'Application',
+      statuses: [
+        { value: 'application_drafting', label: 'Drafting Application' },
+        { value: 'application_ready', label: 'Application Ready' },
+        { value: 'applied', label: 'Applied' }
+      ]
+    },
+    {
+      label: 'Follow-up',
+      statuses: [
+        { value: 'outreach_planned', label: 'Outreach Planned' },
+        { value: 'outreach_sent', label: 'Outreach Sent' },
+        { value: 'follow_up_needed', label: 'Follow-up Needed' },
+        { value: 'follow_up_sent', label: 'Follow-up Sent' }
+      ]
+    },
+    {
+      label: 'Interview',
+      statuses: [
+        { value: 'interview_scheduled', label: 'Interview Scheduled' },
+        { value: 'interview_completed', label: 'Interview Completed' }
+      ]
+    },
+    {
+      label: 'Decision',
+      statuses: [
+        { value: 'offer_received', label: 'Offer Received' },
+        { value: 'negotiating', label: 'Negotiating' },
+        { value: 'accepted', label: 'Accepted' },
+        { value: 'rejected_by_them', label: 'Rejected by Them' },
+        { value: 'declined_by_me', label: 'Declined by Me' }
+      ]
+    },
+    {
+      label: 'Other',
+      statuses: [
+        { value: 'on_hold', label: 'On Hold' },
+        { value: 'archived', label: 'Archived' }
+      ]
     }
-    
-    // Otherwise, update status directly
-    await updateStatus(newStatus);
-  };
+  ];
   
-  const updateStatus = async (newStatus: OpportunityStatus) => {
+  const handleStatusUpdate = async (newStatus: string) => {
+    if (newStatus === currentStatus) return;
+    
     setIsUpdating(true);
+    setError(null);
     
     try {
-      const response = await fetch('/api/orion/opportunity/update-status', {
+      const response = await fetch(`/api/orion/opportunity/update-status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          opportunityId: opportunity.id,
+          opportunityId,
           status: newStatus
         })
       });
       
       const data = await response.json();
       
-      if (data.success) {
-        if (onStatusUpdate) {
-          onStatusUpdate(newStatus);
-        }
-      } else {
-        console.error('Error updating status:', data.error);
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to update status');
       }
-    } catch (error) {
-      console.error('Error updating status:', error);
+      
+      // Reload the page to reflect the changes
+      window.location.reload();
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
+      console.error('Error updating opportunity status:', err);
     } finally {
       setIsUpdating(false);
-      setPendingStatus(null);
     }
   };
   
-  const handleReflectionComplete = () => {
-    // After reflection is saved, update the status
-    if (pendingStatus) {
-      updateStatus(pendingStatus);
-    }
-    setShowReflection(false);
-  };
-
+  // Find the current status label
+  const currentStatusLabel = statusGroups
+    .flatMap(group => group.statuses)
+    .find(status => status.value === currentStatus)?.label || 'Unknown Status';
+  
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="bg-blue-900/20 hover:bg-blue-900/30 text-blue-300"
-            disabled={isUpdating || nextStatuses.length === 0}
-          >
+          <Button variant="secondary" className="bg-gray-700 hover:bg-gray-600">
             {isUpdating ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                Updating...
+              </>
             ) : (
               <>
-                Update Status <ChevronDown className="ml-2 h-4 w-4" />
+                Status: {currentStatusLabel}
+                <ChevronDown className="h-4 w-4 ml-1" />
               </>
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-gray-800 border-gray-700 text-gray-200">
-          {nextStatuses.map((item) => (
-            <DropdownMenuItem
-              key={item.status}
-              onClick={() => handleStatusSelect(item.status)}
-              className="cursor-pointer hover:bg-gray-700"
-            >
-              {item.label}
-            </DropdownMenuItem>
+        <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-gray-200">
+          <DropdownMenuLabel>Update Status</DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-gray-700" />
+          
+          {statusGroups.map((group, groupIndex) => (
+            <React.Fragment key={group.label}>
+              {groupIndex > 0 && <DropdownMenuSeparator className="bg-gray-700" />}
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-xs text-gray-400">{group.label}</DropdownMenuLabel>
+                {group.statuses.map(status => (
+                  <DropdownMenuItem
+                    key={status.value}
+                    className={`cursor-pointer ${status.value === currentStatus ? 'bg-gray-700' : ''}`}
+                    disabled={isUpdating || status.value === currentStatus}
+                    onClick={() => handleStatusUpdate(status.value)}
+                  >
+                    {status.label}
+                    {status.value === currentStatus && (
+                      <span className="ml-auto text-xs text-gray-400">(Current)</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </React.Fragment>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
       
-      {opportunity && showReflection && (
-        <JournalReflectionDialog
-          isOpen={showReflection}
-          setIsOpen={(isOpen) => {
-            setShowReflection(isOpen);
-            if (!isOpen && pendingStatus) {
-              // If dialog is closed without saving, still update the status
-              updateStatus(pendingStatus);
-            }
-          }}
-          opportunity={opportunity}
-          actionType={reflectionType}
-        />
+      {error && (
+        <div className="mt-2 text-sm text-red-400">
+          {error}
+        </div>
       )}
     </>
   );

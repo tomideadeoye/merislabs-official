@@ -12,8 +12,8 @@ import { CognitiveDistortionAnalysisForm } from './cbt/CognitiveDistortionAnalys
 
 // Common emotions for autocomplete
 const commonEmotions = [
-  "Joy", "Sadness", "Anger", "Fear", "Surprise", "Disgust", 
-  "Anxiety", "Frustration", "Calm", "Content", "Overwhelmed", 
+  "Joy", "Sadness", "Anger", "Fear", "Surprise", "Disgust",
+  "Anxiety", "Frustration", "Calm", "Content", "Overwhelmed",
   "Stressed", "Relief", "Excitement", "Gratitude", "Hope"
 ];
 
@@ -25,7 +25,7 @@ interface EmotionalLogFormProps {
   className?: string;
 }
 
-export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({ 
+export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
   onLogSaved,
   initialPrimaryEmotion = '',
   initialContextualNote = '',
@@ -41,7 +41,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
   const [copingMechanisms, setCopingMechanisms] = useState<string>('');
   const [contextualNote, setContextualNote] = useState<string>(initialContextualNote);
   const [cbtData, setCbtData] = useState<CognitiveDistortionAnalysisData | undefined>(undefined);
-  
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -55,16 +55,16 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Allow submission if either primary emotion or automatic thought is provided
     if (!primaryEmotion.trim() && (!cbtData || !cbtData.automaticThought)) {
       setFeedback({ type: 'error', message: "Primary emotion or automatic thought is required." });
       return;
     }
-    
+
     setIsLoading(true);
     setFeedback(null);
-    
+
     try {
       const payload: LogEmotionRequestBody = {
         primaryEmotion: primaryEmotion.trim() || "N/A (Distortion Analysis)",
@@ -78,7 +78,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         relatedJournalSourceId,
         cognitiveDistortionAnalysis: (cbtData && cbtData.automaticThought) ? cbtData : undefined
       };
-      
+
       const response = await fetch('/api/orion/emotions/log', {
         method: 'POST',
         headers: {
@@ -86,12 +86,12 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         },
         body: JSON.stringify(payload)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setFeedback({ type: 'success', message: "Entry logged successfully!" });
-        
+
         // Reset form
         setPrimaryEmotion('');
         setSecondaryEmotions('');
@@ -102,7 +102,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         setCopingMechanisms('');
         setContextualNote('');
         setCbtData(undefined);
-        
+
         if (onLogSaved) {
           onLogSaved();
         }
@@ -136,7 +136,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
             ))}
           </datalist>
         </div>
-        
+
         <div>
           <Label htmlFor="intensity" className="text-gray-300">Intensity (1-10)</Label>
           <Input
@@ -155,7 +155,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           </div>
         </div>
       </div>
-      
+
       <div>
         <Label htmlFor="secondaryEmotions" className="text-gray-300">Secondary Emotions (comma-separated)</Label>
         <Input
@@ -166,7 +166,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
       </div>
-      
+
       <div>
         <Label htmlFor="triggers" className="text-gray-300">Triggers (comma-separated)</Label>
         <Input
@@ -177,7 +177,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
       </div>
-      
+
       <div>
         <Label htmlFor="physicalSensations" className="text-gray-300">Physical Sensations (comma-separated)</Label>
         <Input
@@ -188,7 +188,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
       </div>
-      
+
       <div>
         <Label htmlFor="accompanyingThoughts" className="text-gray-300">Accompanying Thoughts</Label>
         <Textarea
@@ -208,7 +208,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
       </div>
-      
+
       <div>
         <Label htmlFor="copingMechanisms" className="text-gray-300">Coping Mechanisms Used (comma-separated)</Label>
         <Input
@@ -219,7 +219,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
       </div>
-      
+
       <div>
         <Label htmlFor="contextualNote" className="text-gray-300">Additional Context</Label>
         <Textarea
@@ -230,7 +230,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
       </div>
-      
+
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="cbt-analysis" className="border-b-0">
           <AccordionTrigger className="text-sm font-medium text-purple-300 hover:text-purple-200 py-2 [&[data-state=open]>svg]:text-purple-300">
@@ -238,17 +238,17 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
             Cognitive Distortion Analysis
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-0">
-            <CognitiveDistortionAnalysisForm 
-              initialData={cbtData} 
-              onAnalysisChange={handleCbtDataChange} 
+            <CognitiveDistortionAnalysisForm
+              initialData={cbtData}
+              onAnalysisChange={handleCbtDataChange}
             />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      
-      <Button 
-        type="submit" 
-        disabled={isLoading || (!primaryEmotion.trim() && (!cbtData || !cbtData.automaticThought))} 
+
+      <Button
+        type="submit"
+        disabled={isLoading || (!primaryEmotion.trim() && (!cbtData || !cbtData.automaticThought))}
         className="bg-emerald-600 hover:bg-emerald-700 w-full"
       >
         {isLoading ? (
@@ -263,14 +263,14 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           </>
         )}
       </Button>
-      
+
       {feedback && (
         <div className={`p-3 rounded-md flex items-center ${
-          feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' 
+          feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
                                    : 'bg-red-900/30 border border-red-700 text-red-300'
         }`}>
-          {feedback.type === 'success' ? 
-            <CheckCircle className="h-5 w-5 mr-2" /> : 
+          {feedback.type === 'success' ?
+            <CheckCircle className="h-5 w-5 mr-2" /> :
             <AlertTriangle className="h-5 w-5 mr-2" />
           }
           {feedback.message}

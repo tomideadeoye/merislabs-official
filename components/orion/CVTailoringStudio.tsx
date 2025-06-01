@@ -52,6 +52,7 @@ export function CVTailoringStudio({
   const [selectedTemplate, setSelectedTemplate] = useState('Standard');
   const [editingComponentId, setEditingComponentId] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Load components on mount
   useEffect(() => {
@@ -107,10 +108,9 @@ export function CVTailoringStudio({
 
   const saveEditing = () => {
     if (editingComponentId) {
-      setTailoredContentMap(prev => ({
-        ...prev,
-        [editingComponentId]: editedContent
-      }));
+      const updatedMap = {...tailoredContentMap};
+      updatedMap[editingComponentId] = editedContent;
+      setTailoredContentMap(updatedMap);
       setEditingComponentId(null);
     }
   };
@@ -122,15 +122,22 @@ export function CVTailoringStudio({
 
   // Handle CV assembly
   const handleAssembleCV = async () => {
-    await assembleSelectedComponents(selectedTemplate, headerInfo);
+    await assembleSelectedComponents(selectedTemplate as "Standard" | "Modern" | "Compact", headerInfo);
     setActiveTab('preview');
+  };
+
+  // Handle error
+  const handleError = (error: any, message: string) => {
+    console.error(`${message}:`, error);
+    setErrorMessage(`${message}: ${error.message || 'Unknown error'}`);
+    setTimeout(() => setErrorMessage(null), 5000);
   };
 
   return (
     <div className="space-y-4">
-      {error && (
+      {(error || errorMessage) && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-          <span className="block sm:inline">{error}</span>
+          <span className="block sm:inline">{error || errorMessage}</span>
           <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={clearError}>
             <X className="h-5 w-5" />
           </span>
@@ -317,7 +324,7 @@ export function CVTailoringStudio({
                       <SelectContent>
                         <SelectItem value="Standard">Standard</SelectItem>
                         <SelectItem value="Modern">Modern</SelectItem>
-                        <SelectItem value="Academic">Academic</SelectItem>
+                        <SelectItem value="Compact">Compact</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

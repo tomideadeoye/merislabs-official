@@ -1,54 +1,27 @@
-'use client';
-
 import { useState, useCallback } from 'react';
 import { 
-  CVComponent, 
   fetchCVComponents, 
   suggestCVComponents, 
   rephraseComponent, 
-  tailorSummary, 
-  assembleCV 
+  tailorSummary,
+  assembleCV,
+  CVComponent 
 } from '@/lib/cv';
 
-export interface UseCVTailoringResult {
-  // State
-  components: CVComponent[];
-  suggestedComponentIds: string[];
-  selectedComponentIds: string[];
-  tailoredContentMap: Record<string, string>;
-  assembledCV: string;
-  isLoading: boolean;
-  error: string | null;
-  
-  // Actions
-  fetchComponents: () => Promise<void>;
-  suggestComponents: (jdAnalysis: string, jobTitle: string, companyName: string) => Promise<void>;
-  selectComponent: (componentId: string) => void;
-  deselectComponent: (componentId: string) => void;
-  rephraseSelectedComponent: (componentId: string, jdAnalysis: string, webResearchContext?: string) => Promise<void>;
-  tailorSummaryComponent: (componentId: string, jdAnalysis: string, webResearchContext?: string) => Promise<void>;
-  assembleSelectedComponents: (templateName: string, headerInfo: string) => Promise<void>;
-  
-  // Helpers
-  getComponentById: (componentId: string) => CVComponent | undefined;
-  isComponentSelected: (componentId: string) => boolean;
-  clearError: () => void;
-}
-
-export function useCVTailoring(): UseCVTailoringResult {
+export function useCVTailoring() {
   const [components, setComponents] = useState<CVComponent[]>([]);
   const [suggestedComponentIds, setSuggestedComponentIds] = useState<string[]>([]);
   const [selectedComponentIds, setSelectedComponentIds] = useState<string[]>([]);
   const [tailoredContentMap, setTailoredContentMap] = useState<Record<string, string>>({});
   const [assembledCV, setAssembledCV] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
+  // Fetch all CV components
   const fetchComponents = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    
     try {
+      setIsLoading(true);
+      setError(null);
       const fetchedComponents = await fetchCVComponents();
       setComponents(fetchedComponents);
     } catch (err: any) {
@@ -57,32 +30,38 @@ export function useCVTailoring(): UseCVTailoringResult {
       setIsLoading(false);
     }
   }, []);
-  
-  const suggestComponents = useCallback(async (
-    jdAnalysis: string,
-    jobTitle: string,
-    companyName: string
-  ) => {
-    setIsLoading(true);
-    setError(null);
-    
+
+  // Suggest components based on JD analysis
+  const suggestComponents = useCallback(async (jdAnalysis: string, jobTitle: string, companyName: string) => {
     try {
+      setIsLoading(true);
+      setError(null);
       const result = await suggestCVComponents(jdAnalysis, jobTitle, companyName);
       
       if (result.success && result.suggested_component_ids) {
         setSuggestedComponentIds(result.suggested_component_ids);
+        
         // Auto-select suggested components
-        setSelectedComponentIds(result.suggested_component_ids);
+        setSelectedComponentIds(prevSelected => {
+          const newSelected = [...prevSelected];
+          result.suggested_component_ids?.forEach(id => {
+            if (!newSelected.includes(id)) {
+              newSelected.push(id);
+            }
+          });
+          return newSelected;
+        });
       } else {
-        setError(result.error || 'Failed to suggest CV components');
+        setError(result.error || 'Failed to suggest components');
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to suggest CV components');
+      setError(err.message || 'Failed to suggest components');
     } finally {
       setIsLoading(false);
     }
   }, []);
-  
+
+  // Select a component
   const selectComponent = useCallback((componentId: string) => {
     setSelectedComponentIds(prev => {
       if (prev.includes(componentId)) {
@@ -91,20 +70,17 @@ export function useCVTailoring(): UseCVTailoringResult {
       return [...prev, componentId];
     });
   }, []);
-  
+
+  // Deselect a component
   const deselectComponent = useCallback((componentId: string) => {
     setSelectedComponentIds(prev => prev.filter(id => id !== componentId));
   }, []);
-  
-  const rephraseSelectedComponent = useCallback(async (
-    componentId: string,
-    jdAnalysis: string,
-    webResearchContext?: string
-  ) => {
-    setIsLoading(true);
-    setError(null);
-    
+
+  // Rephrase a component
+  const rephraseSelectedComponent = useCallback(async (componentId: string, jdAnalysis: string, webResearchContext?: string) => {
     try {
+      setIsLoading(true);
+      setError(null);
       const result = await rephraseComponent(componentId, jdAnalysis, webResearchContext);
       
       if (result.success && result.rephrased_content) {
@@ -121,16 +97,12 @@ export function useCVTailoring(): UseCVTailoringResult {
       setIsLoading(false);
     }
   }, []);
-  
-  const tailorSummaryComponent = useCallback(async (
-    componentId: string,
-    jdAnalysis: string,
-    webResearchContext?: string
-  ) => {
-    setIsLoading(true);
-    setError(null);
-    
+
+  // Tailor a summary component
+  const tailorSummaryComponent = useCallback(async (componentId: string, jdAnalysis: string, webResearchContext?: string) => {
     try {
+      setIsLoading(true);
+      setError(null);
       const result = await tailorSummary(componentId, jdAnalysis, webResearchContext);
       
       if (result.success && result.tailored_content) {
@@ -147,21 +119,18 @@ export function useCVTailoring(): UseCVTailoringResult {
       setIsLoading(false);
     }
   }, []);
-  
-  const assembleSelectedComponents = useCallback(async (
-    templateName: string,
-    headerInfo: string
-  ) => {
-    setIsLoading(true);
-    setError(null);
-    
+
+  // Assemble the CV
+  const assembleSelectedComponents = useCallback(async (templateName: "Standard" | "Modern" | "Compact", headerInfo: string) => {
     try {
-      const result = await assembleCV(
-        selectedComponentIds,
-        templateName,
-        headerInfo,
-        tailoredContentMap
-      );
+      if (selectedComponentIds.length === 0) {
+        setError('No components selected');
+        return;
+      }
+      
+      setIsLoading(true);
+      setError(null);
+      const result = await assembleCV(selectedComponentIds, templateName, headerInfo, tailoredContentMap);
       
       if (result.success && result.assembled_cv) {
         setAssembledCV(result.assembled_cv);
@@ -174,30 +143,31 @@ export function useCVTailoring(): UseCVTailoringResult {
       setIsLoading(false);
     }
   }, [selectedComponentIds, tailoredContentMap]);
-  
-  const getComponentById = useCallback((componentId: string) => {
-    return components.find(c => c.unique_id === componentId);
+
+  // Helper to get a component by ID
+  const getComponentById = useCallback((id: string) => {
+    return components.find(c => c.unique_id === id);
   }, [components]);
-  
-  const isComponentSelected = useCallback((componentId: string) => {
-    return selectedComponentIds.includes(componentId);
+
+  // Check if a component is selected
+  const isComponentSelected = useCallback((id: string) => {
+    return selectedComponentIds.includes(id);
   }, [selectedComponentIds]);
-  
+
+  // Clear error
   const clearError = useCallback(() => {
     setError(null);
   }, []);
-  
+
   return {
-    // State
     components,
     suggestedComponentIds,
     selectedComponentIds,
     tailoredContentMap,
+    setTailoredContentMap,
     assembledCV,
     isLoading,
     error,
-    
-    // Actions
     fetchComponents,
     suggestComponents,
     selectComponent,
@@ -205,8 +175,6 @@ export function useCVTailoring(): UseCVTailoringResult {
     rephraseSelectedComponent,
     tailorSummaryComponent,
     assembleSelectedComponents,
-    
-    // Helpers
     getComponentById,
     isComponentSelected,
     clearError
