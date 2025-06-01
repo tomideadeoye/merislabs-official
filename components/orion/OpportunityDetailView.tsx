@@ -1,611 +1,276 @@
+'use client';
 
+import React from 'react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { 
+  FileText, 
+  Search, 
+  FileEdit, 
+  Mail, 
+  Users, 
+  Calendar,
+  ExternalLink
+} from 'lucide-react';
 
-
-
-
-
-
-
-
-
-
-
-
-
-import React, { useState } from 'react';
-import { Opportunity } from '@/types/opportunity';
-import { useOpportunityMemory } from '@/hooks/useOpportunityMemory';
-
-// Define proper interfaces for the component props
 interface OpportunityDetailViewProps {
-
-  opportunity: Opportunity;
-  onUpdate?: (opportunity: Opportunity) => void;
-}
-
-
-
-
-
-
-
-
-
-
-
-// Define interfaces for the data structures
-interface Tag {
-  id: string;
-  name: string;
-  color?: string;
-}
-
-
-interface Evaluation {
-  id: string;
-  score: number;
-  notes: string;
-  createdAt: string;
-}
-
-
-
-
-
-interface Highlight {
-  id: string;
-  text: string;
-  type: string;
-  createdAt: string;
-}
-
-
-
-
-interface Draft {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: string;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-interface Contact {
-  id: string;
-  name: string;
-  email: string;
-  role?: string;
-}
-
-
-
-
-
-interface Message {
-  id: string;
-  content: string;
-  sender: string;
-  timestamp: string;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-interface StatusUpdate {
-  id: string;
-  status: string;
-  timestamp: string;
-  notes?: string;
-}
-
-
-
-
-
-
-
-
-// Define proper props for CreateHabiticaTaskDialog
-interface CreateHabiticaTaskDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  opportunityId: string;
-  taskType: string;
-}
-
-
-
-
-
-
-// Mock component for CreateHabiticaTaskDialog
-const CreateHabiticaTaskDialog: React.FC<CreateHabiticaTaskDialogProps> = ({
-  isOpen,
-  onOpenChange,
-  opportunityId,
-  taskType
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg">
-        <h2>Create Habitica Task</h2>
-        <p>Opportunity: {opportunityId}</p>
-        <p>Task Type: {taskType}</p>
-        <button onClick={() => onOpenChange(false)}>Close</button>
-      </div>
-
-
-    </div>
-  );
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
-  opportunity,
-  onUpdate
-}) => {
-  const { memories, addMemory, removeMemory } = useOpportunityMemory(opportunity.id);
-  const [showHabiticaDialog, setShowHabiticaDialog] = useState(false);
-  const [habiticaTaskType, setHabiticaTaskType] = useState('');
-
-
-
-  // Mock data - replace with actual data from props or API
-  const tags: Tag[] = opportunity.tags?.map((tag, index) => ({
-    id: `tag_${index}`,
-    name: tag,
-    color: 'blue'
-  })) || [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const evaluations: Evaluation[] = opportunity.evaluations || [];
-  const highlights: Highlight[] = opportunity.highlights || [];
-  const drafts: Draft[] = opportunity.drafts || [];
-  const contacts: Contact[] = opportunity.contacts || [];
-  const messages: Message[] = opportunity.messages || [];
-  const statusHistory: StatusUpdate[] = opportunity.statusHistory || [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const handleCreateHabiticaTask = (taskType: string) => {
-    setHabiticaTaskType(taskType);
-    setShowHabiticaDialog(true);
+  opportunity: {
+    id: string;
+    title: string;
+    company: string;
+    status: string;
+    jdText?: string;
+    jdAnalysis?: string;
+    companyUrl?: string;
+    tailoredCV?: string;
+    coverLetter?: string;
+    createdAt: string;
+    updatedAt: string;
   };
+}
 
-
-
-
-
-
-
-
+export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProps) {
   return (
-    <div className="opportunity-detail-view">
-      <div className="header">
-        <h1>{opportunity.title}</h1>
-        <p>{opportunity.description}</p>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">{opportunity.title}</h1>
+          <p className="text-gray-500">{opportunity.company}</p>
+        </div>
+        <Badge variant={opportunity.status === 'Applied' ? 'success' : 'default'}>
+          {opportunity.status}
+        </Badge>
       </div>
-
-
-
-
-
-
-
-
-
-
-      {/* Tags Section */}
-      <div className="tags-section">
-        <h3>Tags</h3>
-        {tags.map((tag: Tag, index: number) => (
-          <span key={tag.id} className="tag">
-            {tag.name}
-          </span>
-        ))}
-      </div>
-
-
-
-
-
-
-
-
-      {/* Evaluations Section */}
-      <div className="evaluations-section">
-        <h3>Evaluations</h3>
-        {evaluations.map((evaluation: Evaluation, index: number) => (
-          <div key={evaluation.id} className="evaluation">
-            <span>Score: {evaluation.score}</span>
-            <p>{evaluation.notes}</p>
-          </div>
-        ))}
-      </div>
-
-
-
-
-
-
-
-
-      {/* Highlights Section */}
-      <div className="highlights-section">
-        <h3>Highlights</h3>
-        {highlights.map((highlight: Highlight, index: number) => (
-          <div key={highlight.id} className="highlight">
-            <p>{highlight.text}</p>
-            <span>{highlight.type}</span>
-          </div>
-        ))}
-      </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      {/* Drafts Section */}
-      <div className="drafts-section">
-        <h3>Drafts</h3>
-        {drafts.map((draft: Draft, index: number) => (
-          <div key={draft.id} className="draft">
-            <h4>{draft.title}</h4>
-            <p>{draft.content}</p>
-          </div>
-        ))}
-      </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      {/* Contacts Section */}
-      <div className="contacts-section">
-        <h3>Contacts</h3>
-        {contacts.map((contact: Contact, index: number) => (
-          <div key={contact.id} className="contact">
-            <span>{contact.name}</span>
-            <span>{contact.email}</span>
-            {contact.role && <span>{contact.role}</span>}
-          </div>
-        ))}
-        {messages.map((message: Message, mIndex: number) => (
-          <div key={message.id} className="message">
-            <span>{message.sender}</span>
-            <p>{message.content}</p>
-            <span>{message.timestamp}</span>
-          </div>
-        ))}
-      </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      {/* Status History Section */}
-      <div className="status-section">
-        <h3>Status History</h3>
-        {statusHistory.map((status: StatusUpdate, index: number) => (
-          <div key={status.id} className="status-update">
-            <span>{status.status}</span>
-            <span>{status.timestamp}</span>
-            {status.notes && <p>{status.notes}</p>}
-          </div>
-        ))}
-      </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      {/* Habitica Task Creation Buttons */}
-      <div className="habitica-actions">
-        <button onClick={() => handleCreateHabiticaTask('research')}>
-          Create Research Task
-        </button>
-        <button onClick={() => handleCreateHabiticaTask('followup')}>
-          Create Follow-up Task
-        </button>
-        <button onClick={() => handleCreateHabiticaTask('proposal')}>
-          Create Proposal Task
-        </button>
-      </div>
-
-
-      {/* Habitica Task Dialog */}
-      <CreateHabiticaTaskDialog
-
-
-
-
-        isOpen={showHabiticaDialog}
-        onOpenChange={(open: boolean) => setShowHabiticaDialog(open)}
-        opportunityId={opportunity.id}
-        taskType={habiticaTaskType}
-      />
-
-
-
-
-
-
-
-
-
-
-
-
+      
+      <Tabs defaultValue="overview">
+        <TabsList className="grid grid-cols-6 mb-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analyze">Analyze</TabsTrigger>
+          <TabsTrigger value="cv">CV</TabsTrigger>
+          <TabsTrigger value="application">Application</TabsTrigger>
+          <TabsTrigger value="networking">Networking</TabsTrigger>
+          <TabsTrigger value="tracking">Tracking</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview">
+          <Card>
+            <CardHeader>
+              <CardTitle>Opportunity Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-medium mb-2">Details</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      <span className="text-sm">Created: {new Date(opportunity.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    {opportunity.companyUrl && (
+                      <div className="flex items-center">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        <a 
+                          href={opportunity.companyUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          Company Website
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-medium mb-2">Application Progress</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <Search className="h-4 w-4 mr-2" />
+                      <span className="text-sm">
+                        JD Analysis: {opportunity.jdAnalysis ? 'Complete' : 'Not started'}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <FileText className="h-4 w-4 mr-2" />
+                      <span className="text-sm">
+                        CV Tailoring: {opportunity.tailoredCV ? 'Complete' : 'Not started'}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <FileEdit className="h-4 w-4 mr-2" />
+                      <span className="text-sm">
+                        Cover Letter: {opportunity.coverLetter ? 'Complete' : 'Not started'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <h3 className="font-medium mb-2">Job Description</h3>
+                <div className="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+                  <p className="text-sm whitespace-pre-wrap">
+                    {opportunity.jdText || 'No job description available.'}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex flex-wrap gap-2">
+                <Link href={`/opportunity/${opportunity.id}/analyze`}>
+                  <Button variant="outline" size="sm">
+                    <Search className="h-4 w-4 mr-2" />
+                    Analyze JD
+                  </Button>
+                </Link>
+                <Link href={`/opportunity/${opportunity.id}/cv-tailoring`}>
+                  <Button variant="outline" size="sm">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Tailor CV
+                  </Button>
+                </Link>
+                <Link href={`/opportunity/${opportunity.id}/application`}>
+                  <Button variant="outline" size="sm">
+                    <FileEdit className="h-4 w-4 mr-2" />
+                    Draft Application
+                  </Button>
+                </Link>
+                <Link href={`/opportunity/${opportunity.id}/networking`}>
+                  <Button variant="outline" size="sm">
+                    <Users className="h-4 w-4 mr-2" />
+                    Find Contacts
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="analyze">
+          <Card>
+            <CardHeader>
+              <CardTitle>Job Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <p>Analyze the job description to identify key requirements, skills, and company information.</p>
+              </div>
+              
+              <Link href={`/opportunity/${opportunity.id}/analyze`}>
+                <Button>
+                  <Search className="h-4 w-4 mr-2" />
+                  Go to Analysis
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="cv">
+          <Card>
+            <CardHeader>
+              <CardTitle>CV Tailoring</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <p>Tailor your CV to match the job requirements using AI-powered component selection and rephrasing.</p>
+              </div>
+              
+              <Link href={`/opportunity/${opportunity.id}/cv-tailoring`}>
+                <Button>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Go to CV Tailoring Studio
+                </Button>
+              </Link>
+              
+              {opportunity.tailoredCV && (
+                <div className="mt-4">
+                  <h3 className="font-medium mb-2">Tailored CV Preview</h3>
+                  <div className="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+                    <p className="text-sm whitespace-pre-wrap">
+                      {opportunity.tailoredCV.substring(0, 300)}...
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="application">
+          <Card>
+            <CardHeader>
+              <CardTitle>Application Materials</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <p>Draft cover letters and application emails tailored to the job and company.</p>
+              </div>
+              
+              <Link href={`/opportunity/${opportunity.id}/application`}>
+                <Button>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Draft Application
+                </Button>
+              </Link>
+              
+              {opportunity.coverLetter && (
+                <div className="mt-4">
+                  <h3 className="font-medium mb-2">Cover Letter Preview</h3>
+                  <div className="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+                    <p className="text-sm whitespace-pre-wrap">
+                      {opportunity.coverLetter.substring(0, 300)}...
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="networking">
+          <Card>
+            <CardHeader>
+              <CardTitle>Networking & Outreach</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <p>Find and connect with potential stakeholders at the company.</p>
+              </div>
+              
+              <Link href={`/opportunity/${opportunity.id}/networking`}>
+                <Button>
+                  <Users className="h-4 w-4 mr-2" />
+                  Find Contacts
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="tracking">
+          <Card>
+            <CardHeader>
+              <CardTitle>Application Tracking</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <p>Track the status of your application and schedule follow-ups.</p>
+              </div>
+              
+              <Link href={`/opportunity/${opportunity.id}/tracking`}>
+                <Button>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Track Application
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
-};
-
-export default OpportunityDetailView;
+}

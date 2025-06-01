@@ -6,24 +6,24 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
-import { 
-  Loader2, 
-  AlertTriangle, 
-  CheckCircle, 
-  BarChart2, 
-  AlertCircle, 
-  ArrowRightCircle, 
+import {
+  Loader2,
+  AlertTriangle,
+  CheckCircle,
+  BarChart2,
+  AlertCircle,
+  ArrowRightCircle,
   Info,
   ListTodo
 } from 'lucide-react';
-import { OpportunityDetails, EvaluationOutput } from '@/types/opportunity';
+import type { OpportunityDetails, EvaluationResult, EvaluationOutput } from '@/types/opportunity';
 import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
 
 interface OpportunityEvaluatorProps {
@@ -35,27 +35,27 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   const [description, setDescription] = useState<string>("");
   const [type, setType] = useState<'job' | 'education' | 'project' | 'other'>('job');
   const [url, setUrl] = useState<string>("");
-  
-  const [evaluation, setEvaluation] = useState<EvaluationOutput | { rawOutput?: string } | null>(null);
+
+  const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Habitica task dialog state
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState<boolean>(false);
   const [selectedStep, setSelectedStep] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim() || !description.trim()) {
       setError("Opportunity title and description are required.");
       return;
     }
-    
+
     setIsLoading(true);
     setError(null);
     setEvaluation(null);
-    
+
     try {
       const response = await fetch('/api/orion/opportunity/evaluate', {
         method: 'POST',
@@ -69,15 +69,16 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           url: url || undefined
         } as OpportunityDetails)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
-        setEvaluation(data.evaluation);
+        setEvaluation(data.evaluation as EvaluationOutput);
         if (data.warning) {
           console.warn(data.warning);
         }
       } else {
+        setEvaluation({ rawOutput: data.error || 'Failed to evaluate opportunity' });
         throw new Error(data.error || 'Failed to evaluate opportunity');
       }
     } catch (err: any) {
@@ -89,27 +90,35 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   };
 
   const renderRiskReward = (rrAnalysis: EvaluationOutput['riskRewardAnalysis']) => {
-    if (!rrAnalysis) return null;
-    
+    if (!rrAnalysis) {
+      return null;
+    }
+
     const entries = Object.entries(rrAnalysis).filter(([_, value]) => value);
     if (entries.length === 0) return <p className="text-sm text-gray-400">No risk/reward analysis available</p>;
-    
+
     return (
       <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
         {entries.map(([key, value], index) => (
           <li key={index}>
             <strong className="text-gray-200 capitalize">
               {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
-            </strong> {value}
+            </strong>{' '}
+            {typeof value === 'string' || typeof value === 'number' ? value : JSON.stringify(value)}
           </li>
         ))}
       </ul>
     );
   };
-  
+
   const handleCreateTask = (step: string) => {
     setSelectedStep(step);
     setIsTaskDialogOpen(true);
+  };
+
+  // Type guard for successful evaluation
+  const isEvaluationSuccess = (result: EvaluationResult | null): result is EvaluationOutput => {
+    return !!result && 'fitScorePercentage' in result;
   };
 
   return (
@@ -137,7 +146,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="type" className="text-gray-300">Opportunity Type *</Label>
               <Select value={type} onValueChange={(value: any) => setType(value)}>
@@ -152,7 +161,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="url" className="text-gray-300">URL (Optional)</Label>
               <Input
@@ -164,7 +173,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 className="bg-gray-700 border-gray-600 text-gray-200"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="description" className="text-gray-300">Description / Details *</Label>
               <Textarea
@@ -176,10 +185,10 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 required
               />
             </div>
-            
-            <Button 
-              type="submit" 
-              disabled={isLoading || !title.trim() || !description.trim()} 
+
+            <Button
+              type="submit"
+              disabled={isLoading || !title.trim() || !description.trim()}
               className="bg-amber-600 hover:bg-amber-700 w-full"
             >
               {isLoading ? (
@@ -197,22 +206,22 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           </form>
         </CardContent>
       </Card>
-      
+
       {isLoading && (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
           <span className="ml-2 text-gray-400">Analyzing opportunity against your profile and goals...</span>
         </div>
       )}
-      
+
       {error && !isLoading && (
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-start">
           <AlertTriangle className="h-5 w-5 mr-2 mt-0.5" />
           <p>{error}</p>
         </div>
       )}
-      
-      {evaluation && !('rawOutput' in evaluation) && (
+
+      {evaluation && isEvaluationSuccess(evaluation) && (
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-xl text-amber-400">Evaluation Results: {title}</CardTitle>
@@ -224,24 +233,24 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
             <div>
               <Label className="text-gray-300 font-medium">Overall Fit Score:</Label>
               <p className={`text-2xl font-bold ${
-                evaluation.fitScorePercentage >= 75 ? 'text-green-400' : 
-                evaluation.fitScorePercentage >= 50 ? 'text-amber-400' : 
+                evaluation.fitScorePercentage >= 75 ? 'text-green-400' :
+                evaluation.fitScorePercentage >= 50 ? 'text-amber-400' :
                 'text-red-400'
               }`}>
                 {evaluation.fitScorePercentage}%
               </p>
             </div>
-            
+
             <div>
               <Label className="text-gray-300 font-medium">Recommendation:</Label>
               <p className="text-lg font-medium text-blue-400">{evaluation.recommendation}</p>
             </div>
-            
+
             <div>
               <Label className="text-gray-300 font-medium">Reasoning:</Label>
               <p className="text-gray-300">{evaluation.reasoning}</p>
             </div>
-            
+
             {evaluation.alignmentHighlights && evaluation.alignmentHighlights.length > 0 && (
               <div>
                 <Label className="text-gray-300 font-medium flex items-center">
@@ -249,13 +258,13 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                   Alignment Highlights:
                 </Label>
                 <ul className="list-disc list-inside pl-4 text-sm text-gray-300 space-y-1">
-                  {evaluation.alignmentHighlights.map((highlight, index) => (
+                  {evaluation.alignmentHighlights.map((highlight: string, index: number) => (
                     <li key={index}>{highlight}</li>
                   ))}
                 </ul>
               </div>
             )}
-            
+
             {evaluation.gapAnalysis && evaluation.gapAnalysis.length > 0 && (
               <div>
                 <Label className="text-gray-300 font-medium flex items-center">
@@ -263,13 +272,13 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                   Gap Analysis:
                 </Label>
                 <ul className="list-disc list-inside pl-4 text-sm text-gray-300 space-y-1">
-                  {evaluation.gapAnalysis.map((gap, index) => (
+                  {evaluation.gapAnalysis.map((gap: string, index: number) => (
                     <li key={index}>{gap}</li>
                   ))}
                 </ul>
               </div>
             )}
-            
+
             {evaluation.riskRewardAnalysis && (
               <div>
                 <Label className="text-gray-300 font-medium flex items-center">
@@ -279,7 +288,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 {renderRiskReward(evaluation.riskRewardAnalysis)}
               </div>
             )}
-            
+
             {evaluation.suggestedNextSteps && evaluation.suggestedNextSteps.length > 0 && (
               <div>
                 <Label className="text-gray-300 font-medium flex items-center">
@@ -287,7 +296,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                   Suggested Next Steps:
                 </Label>
                 <ul className="list-disc list-inside pl-4 text-sm text-gray-300 space-y-1">
-                  {evaluation.suggestedNextSteps.map((step, index) => (
+                  {evaluation.suggestedNextSteps.map((step: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <span className="flex-1">{step}</span>
                       <Button
@@ -307,8 +316,8 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           </CardContent>
         </Card>
       )}
-      
-      {evaluation && 'rawOutput' in evaluation && (
+
+      {evaluation && !isEvaluationSuccess(evaluation) && 'rawOutput' in evaluation && (
         <Card className="bg-yellow-900/30 border border-yellow-700">
           <CardHeader>
             <CardTitle className="text-yellow-400 flex items-center">
@@ -326,7 +335,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           </CardContent>
         </Card>
       )}
-      
+
       <CreateHabiticaTaskDialog
         isOpen={isTaskDialogOpen}
         setIsOpen={setIsTaskDialogOpen}

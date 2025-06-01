@@ -1,61 +1,83 @@
-import { NextRequest, NextResponse } from "next/server";
-import { QdrantClient } from "@qdrant/js-client-rest";
-import { 
-  QDRANT_HOST, 
-  QDRANT_PORT, 
-  ORION_MEMORY_COLLECTION_NAME 
-} from "@/lib/orion_config";
+import { NextRequest, NextResponse } from 'next/server';
+import { QdrantClient } from '@qdrant/js-client-rest';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+
+// Initialize Qdrant client
+const qdrantClient = new QdrantClient({ 
+  url: process.env.QDRANT_URL || 'http://localhost:6333'
+});
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      points, 
+    const {
+      points,
       collectionName = ORION_MEMORY_COLLECTION_NAME
     } = body;
 
     if (!points || !Array.isArray(points) || points.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "Invalid 'points' parameter. Expected a non-empty array of points." },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Points array is required and cannot be empty.' }, { status: 400 });
     }
 
-    console.log(`Upserting ${points.length} points to collection '${collectionName}'`);
-    
-    // Initialize the Qdrant client
-    const client = new QdrantClient({
-      url: `http://${QDRANT_HOST}:${QDRANT_PORT}`
+    // Validate each point has the required fields
+    for (const point of points) {
+      if (!point.id || !point.vector || !Array.isArray(point.vector)) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Each point must have an id and a vector array.' 
+        }, { status: 400 });
+      }
+    }
+
+    console.log(`[UPSERT_API] Upserting ${points.length} points to collection: ${collectionName}`);
+
+    // Ensure the collection exists
+    try {
+      const collections = await qdrantClient.getCollections();
+      const collectionExists = collections.collections.some(c => c.name === collectionName);
+      
+      if (!collectionExists) {
+        console.log(`[UPSERT_API] Collection ${collectionName} does not exist. Creating...`);
+        
+        // Get vector dimension from the first point
+        const vectorSize = points[0].vector.length;
+        
+        await qdrantClient.createCollection(collectionName, {
+          vectors: {
+            size: vectorSize,
+            distance: 'Cosine'
+          }
+        });
+        
+        console.log(`[UPSERT_API] Collection ${collectionName} created successfully.`);
+      }
+    } catch (error) {
+      console.error(`[UPSERT_API] Error checking/creating collection:`, error);
+      // Continue anyway, as the collection might exist despite the error
+    }
+
+    // Upsert the points
+    const upsertResult = await qdrantClient.upsert(collectionName, {
+      points: points.map(point => ({
+        id: point.id,
+        vector: point.vector,
+        payload: point.payload || {}
+      }))
     });
 
-    // Format points for Qdrant
-    const qdrantPoints = points.map(p => ({
-      id: p.id,
-      vector: p.vector,
-      payload: p.payload
-    }));
+    console.log(`[UPSERT_API] Upsert successful. Operation ID: ${upsertResult.operation_id}`);
 
-    // Perform the upsert operation
-    const result = await client.upsert(collectionName, {
-      wait: true,
-      points: qdrantPoints
-    });
-
-    console.log(`Successfully upserted ${points.length} points to collection '${collectionName}'.`);
     return NextResponse.json({ 
       success: true, 
-      message: `Successfully upserted ${points.length} points.`,
-      result
+      message: 'Points upserted successfully!',
+      operation_id: upsertResult.operation_id,
+      status: upsertResult.status
     });
 
   } catch (error: any) {
-    console.error("Upsert error:", error);
+    console.error('[UPSERT_API_ERROR]', error.message, error.stack);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: "Failed to upsert points to memory.", 
-        details: error.message || String(error)
-      },
+      { success: false, error: 'Failed to upsert points.', details: error.message || "Unknown error" },
       { status: 500 }
     );
   }

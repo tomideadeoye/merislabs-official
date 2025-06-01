@@ -1,4 +1,4 @@
-import type { Opportunity, OpportunityStatus, OpportunityType } from '../types/opportunity';
+import type { OpportunityStatus, OpportunityType } from '../types/opportunity';
 
 // Test opportunities
 const opportunities: Array<{
@@ -104,12 +104,11 @@ async function testOpportunityEvaluation() {
 
       const evalData = await evalResponse.json();
 
-      // Validate evaluation response structure
       if (!evalData.success || !evalData.evaluation) {
         throw new Error(`Invalid evaluation response: ${JSON.stringify(evalData)}`);
       }
 
-      const evaluation = evalData.evaluation;
+      const { evaluation } = evalData;
 
       // Log evaluation results
       console.log('\nEvaluation Results:');

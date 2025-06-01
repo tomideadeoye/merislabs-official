@@ -17,14 +17,14 @@ interface JournalEntryFormProps {
 
 // Predefined mood options
 const moodOptions = [
-    "Happy", "Excited", "Grateful", "Calm", "Content", 
-    "Neutral", "Tired", "Anxious", "Stressed", "Sad", 
+    "Happy", "Excited", "Grateful", "Calm", "Content",
+    "Neutral", "Tired", "Anxious", "Stressed", "Sad",
     "Frustrated", "Angry", "Reflective", "Motivated", "Inspired"
 ];
 
 // Predefined tag options
 const tagOptions = [
-    "work", "personal", "health", "relationships", "career", 
+    "work", "personal", "health", "relationships", "career",
     "learning", "goals", "challenges", "achievements", "ideas",
     "project_alpha", "project_beta", "finance", "travel", "family"
 ];
@@ -76,7 +76,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
                 setJournalText("");
                 setMood("");
                 setTags("");
-                
+
                 // Notify parent component about the new entry
                 if (onEntrySaved) {
                     onEntrySaved(data.sourceId, data.reflection);
@@ -141,24 +141,24 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
                             <Command className="bg-gray-800">
                                 <CommandInput placeholder="Search moods..." className="bg-gray-800 text-gray-200" />
                                 <CommandList className="bg-gray-800">
-                                    <CommandEmpty>No mood found.</CommandEmpty>
+                                    <CommandEmpty>No matching moods found.</CommandEmpty>
                                     <CommandGroup>
-                                        {moodOptions.map((option) => (
+                                        {moodOptions.map((moodOption) => (
                                             <CommandItem
-                                                key={option}
+                                                key={moodOption}
                                                 onSelect={() => {
-                                                    setMood(option);
+                                                    setMood(moodOption);
                                                     setMoodOpen(false);
                                                 }}
-                                                className="text-gray-200 hover:bg-gray-700"
+                                                className="cursor-pointer hover:bg-gray-700"
                                             >
                                                 <Check
                                                     className={cn(
                                                         "mr-2 h-4 w-4",
-                                                        mood === option ? "opacity-100" : "opacity-0"
+                                                        mood === moodOption ? "opacity-100" : "opacity-0"
                                                     )}
                                                 />
-                                                {option}
+                                                {moodOption}
                                             </CommandItem>
                                         ))}
                                     </CommandGroup>
@@ -177,7 +177,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
                             type="text"
                             value={tags}
                             onChange={(e) => setTags(e.target.value)}
-                            placeholder="Select or type tags..."
+                            placeholder="Type or select tags..."
                             className="w-full bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500 rounded-md p-2 pr-10"
                             disabled={isSaving}
                             onClick={() => setTagsOpen(true)}
@@ -197,22 +197,36 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
                             <Command className="bg-gray-800">
                                 <CommandInput placeholder="Search tags..." className="bg-gray-800 text-gray-200" />
                                 <CommandList className="bg-gray-800">
-                                    <CommandEmpty>No tag found.</CommandEmpty>
+                                    <CommandEmpty>No matching tags found.</CommandEmpty>
                                     <CommandGroup>
-                                        {tagOptions.map((option) => (
+                                        {tagOptions.map((tagOption) => (
                                             <CommandItem
-                                                key={option}
+                                                key={tagOption}
                                                 onSelect={() => {
-                                                    const currentTags = tags.split(',').map(t => t.trim()).filter(Boolean);
-                                                    if (!currentTags.includes(option)) {
-                                                        const newTags = [...currentTags, option].join(', ');
-                                                        setTags(newTags);
+                                                    const currentTags = tags
+                                                        .split(',')
+                                                        .map((t) => t.trim())
+                                                        .filter(Boolean);
+                                                    if (!currentTags.includes(tagOption)) {
+                                                        setTags(
+                                                            currentTags.length > 0
+                                                                ? `${tags}, ${tagOption}`
+                                                                : tagOption
+                                                        );
                                                     }
                                                     setTagsOpen(false);
                                                 }}
-                                                className="text-gray-200 hover:bg-gray-700"
+                                                className="cursor-pointer hover:bg-gray-700"
                                             >
-                                                {option}
+                                                <Check
+                                                    className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        tags.split(',').map(t => t.trim()).includes(tagOption)
+                                                            ? "opacity-100"
+                                                            : "opacity-0"
+                                                    )}
+                                                />
+                                                {tagOption}
                                             </CommandItem>
                                         ))}
                                     </CommandGroup>
@@ -223,16 +237,26 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
                 </div>
             </div>
 
-            <div className="flex items-center justify-between">
-                <Button type="submit" disabled={isSaving || !journalText?.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
-                    {isSaving ? 'Saving Entry...' : 'Save Journal Entry'}
-                </Button>
-                {feedbackMessage && (
-                    <p className={`text-sm ${isError ? 'text-red-400' : 'text-green-400'}`}>
-                        {feedbackMessage}
-                    </p>
-                )}
-            </div>
+            {feedbackMessage && (
+                <div
+                    className={cn(
+                        "p-3 rounded-md text-sm",
+                        isError
+                            ? "bg-red-900/50 text-red-200 border border-red-800"
+                            : "bg-green-900/50 text-green-200 border border-green-800"
+                    )}
+                >
+                    {feedbackMessage}
+                </div>
+            )}
+
+            <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isSaving}
+            >
+                {isSaving ? "Saving..." : "Save Journal Entry"}
+            </Button>
         </form>
     );
 };

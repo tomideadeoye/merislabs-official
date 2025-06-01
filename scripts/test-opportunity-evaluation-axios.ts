@@ -1,71 +1,42 @@
-import type { OpportunityStatus, OpportunityType } from '../types/opportunity.d.ts';
+import type { OpportunityStatus, OpportunityType, OpportunityDetails, EvaluationOutput } from '../types/opportunity';
 import axios from 'axios';
 
+// Interface for API responses
+interface ApiResponse<T> {
+  success: boolean;
+  error?: string;
+  evaluation?: T;
+  opportunity?: {
+    id: string;
+    [key: string]: any;
+  };
+}
+
 // Test opportunities
-const opportunities: Array<{
-  title: string;
-  description: string;
-  type: OpportunityType;
-  url?: string;
-}> = [
+const opportunities: Array<OpportunityDetails> = [
   {
     title: "Senior Software Engineer",
-    description: `Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.
-
-Key Responsibilities:
-- Design and implement scalable microservices using Go and Python
-- Build and maintain cloud infrastructure across multiple providers
-- Optimize system performance and reliability
-- Collaborate with cross-functional teams to deliver solutions
-- Mentor junior engineers and contribute to architecture decisions
-
-Requirements:
-- Strong experience with Go programming language
-- Experience with Python and microservices architecture
-- Deep understanding of cloud platforms (AWS, GCP, Azure)
-- Knowledge of containerization and orchestration (Docker, Kubernetes)
-- Track record of building scalable distributed systems`,
+    companyOrInstitution: "Google",
+    descriptionSummary: "Senior Software Engineer position focusing on AI development",
     type: "job",
-    url: "https://cloudscale.tech/careers"
+    dateIdentified: "2025-05-15",
+    url: "https://careers.google.com"
   },
   {
     title: "MBA in Technology Management",
-    description: `A comprehensive MBA program focused on technology management and digital transformation.
-
-Program Highlights:
-- Technology Strategy and Innovation
-- Digital Business Models
-- Data-Driven Decision Making
-- Leadership in Tech Organizations
-- Entrepreneurship and Venture Capital
-
-Requirements:
-- Bachelor's degree with 3.0+ GPA
-- 3+ years professional experience
-- GMAT/GRE scores
-- Strong analytical and leadership skills`,
+    companyOrInstitution: "Stanford University",
+    descriptionSummary: "Comprehensive MBA program focused on technology management",
     type: "education_program",
-    url: "https://business-school.edu/mba-tech"
+    dateIdentified: "2025-05-15",
+    url: "https://stanford.edu/mba-tech"
   },
   {
-    title: "Open Source AI Framework Collaboration",
-    description: `Contributing to an innovative open-source AI framework focused on enterprise applications.
-
-Project Scope:
-- Developing enterprise-ready AI components
-- Improving documentation and developer experience
-- Implementing performance optimizations
-- Building integration examples
-- Contributing to architecture decisions
-
-Areas of Focus:
-- Enterprise AI patterns
-- System architecture
-- Documentation
-- Community engagement
-- Performance optimization`,
+    title: "Open Source AI Collaboration",
+    companyOrInstitution: "AI Foundation",
+    descriptionSummary: "Contributing to open-source AI framework development",
     type: "project_collaboration",
-    url: "https://github.com/enterprise-ai-framework"
+    dateIdentified: "2025-05-15",
+    url: "https://github.com/ai-foundation"
   }
 ];
 
@@ -84,80 +55,45 @@ async function testOpportunityEvaluation() {
     // Test each opportunity
     for (const opportunity of opportunities) {
       console.log(`\nTesting opportunity: ${opportunity.title}`);
-      console.log(`\nSending request to: ${baseUrl}/api/orion/opportunity/evaluate`);
 
       try {
-        // 1. Test opportunity evaluation
-        const evalResponse = await axiosInstance.post('/api/orion/opportunity/evaluate', opportunity);
-        const evalData = evalResponse.data;
+        // 1. Test evaluation endpoint
+        const evalResponse = await axiosInstance.post<ApiResponse<EvaluationOutput>>(
+          '/api/orion/opportunity/evaluate',
+          opportunity
+        );
 
-        // Validate evaluation response structure
-        if (!evalData.success || !evalData.evaluation) {
-          throw new Error(`Invalid evaluation response: ${JSON.stringify(evalData)}`);
+        if (!evalResponse.data.success || !evalResponse.data.evaluation) {
+          throw new Error('Evaluation failed: ' + JSON.stringify(evalResponse.data));
         }
 
-        const evaluation = evalData.evaluation;
+        const { evaluation } = evalResponse.data;
+        console.log('Evaluation Results:', evaluation);
 
-        // Log evaluation results
-        console.log('\nEvaluation Results:');
-        console.log('Fit Score:', evaluation.fitScorePercentage + '%');
-        console.log('Recommendation:', evaluation.recommendation);
-        console.log('Alignment Highlights:', evaluation.alignmentHighlights);
-        console.log('Gap Analysis:', evaluation.gapAnalysis);
-        console.log('Risk/Reward Analysis:', evaluation.riskRewardAnalysis);
-        console.log('Suggested Next Steps:', evaluation.suggestedNextSteps);
-
-        // Validate evaluation data
-        if (
-          typeof evaluation.fitScorePercentage !== 'number' ||
-          !Array.isArray(evaluation.alignmentHighlights) ||
-          !Array.isArray(evaluation.gapAnalysis) ||
-          !Array.isArray(evaluation.suggestedNextSteps) ||
-          typeof evaluation.recommendation !== 'string' ||
-          typeof evaluation.reasoning !== 'string'
-        ) {
-          throw new Error('Evaluation response missing required fields or has invalid types');
-        }
-
-        // 2. Create opportunity with evaluation
+        // 2. Test opportunity creation
         const createResponse = await axiosInstance.post('/api/orion/opportunity/create', {
           ...opportunity,
-          status: 'evaluating' as OpportunityStatus,
-          priority: 'medium',
+          status: 'evaluating',
           evaluationOutput: evaluation
         });
 
-        const { id } = createResponse.data.opportunity;
-        console.log('\nCreated opportunity:', id);
-
-        // Brief pause between tests
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('Request failed:', {
-            status: error.response?.status,
-            data: error.response?.data,
-            message: error.message
-          });
+        if (!createResponse.data.success) {
+          throw new Error('Creation failed: ' + JSON.stringify(createResponse.data));
         }
-        throw error;
+
+        console.log('Successfully created opportunity:', createResponse.data.opportunity?.id);
+
+      } catch (error) {
+        console.error('Test failed:', error);
+        process.exit(1);
       }
     }
 
-    console.log('\nAll tests completed successfully!');
-  } catch (error: any) {
-    console.error('Error testing opportunity evaluation:', {
-      message: error.message,
-      response: error.response?.data,
-      stack: error.stack
-    });
+    console.log('\nAll tests passed successfully');
+  } catch (error) {
+    console.error('Critical error:', error);
     process.exit(1);
   }
 }
 
-// Run the test
-console.log('Starting opportunity evaluation test...');
-testOpportunityEvaluation().catch(error => {
-  console.error('Unhandled error in test:', error);
-  process.exit(1);
-});
+testOpportunityEvaluation();

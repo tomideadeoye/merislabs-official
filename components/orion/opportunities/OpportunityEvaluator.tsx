@@ -18,22 +18,22 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   const [description, setDescription] = useState<string>('');
   const [type, setType] = useState<'job' | 'education_program' | 'project_collaboration' | 'funding' | 'other'>('job');
   const [url, setUrl] = useState<string>('');
-  
+
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
   const [evaluation, setEvaluation] = useState<EvaluationOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim() || !description.trim()) {
       setError('Title and description are required.');
       return;
     }
-    
+
     setIsEvaluating(true);
     setError(null);
-    
+
     try {
       const opportunityDetails: OpportunityDetails = {
         title: title.trim(),
@@ -41,7 +41,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         type: type,
         url: url.trim() || undefined
       };
-      
+
       const response = await fetch('/api/orion/opportunity/evaluate', {
         method: 'POST',
         headers: {
@@ -49,9 +49,9 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         },
         body: JSON.stringify(opportunityDetails)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setEvaluation(data.evaluation);
       } else {
@@ -64,7 +64,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
       setIsEvaluating(false);
     }
   };
-  
+
   return (
     <div className={className}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -81,13 +81,13 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="type" className="text-gray-300">Type</Label>
               <select
                 id="type"
                 value={type}
-                onChange={(e) => setType(e.target.value)}
+                onChange={(e) => setType(e.target.value as OpportunityDetails['type'])}
                 className="w-full rounded-md bg-gray-700 border-gray-600 text-gray-200 p-2"
               >
                 <option value="job">Job</option>
@@ -97,7 +97,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 <option value="other">Other</option>
               </select>
             </div>
-            
+
             <div>
               <Label htmlFor="url" className="text-gray-300">URL (Optional)</Label>
               <Input
@@ -108,7 +108,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 className="bg-gray-700 border-gray-600 text-gray-200"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="description" className="text-gray-300">Description *</Label>
               <Textarea
@@ -120,10 +120,10 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 required
               />
             </div>
-            
-            <Button 
-              type="submit" 
-              disabled={isEvaluating || !title.trim() || !description.trim()} 
+
+            <Button
+              type="submit"
+              disabled={isEvaluating || !title.trim() || !description.trim()}
               className="bg-blue-600 hover:bg-blue-700 w-full"
             >
               {isEvaluating ? (
@@ -138,7 +138,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 </>
               )}
             </Button>
-            
+
             {error && (
               <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
                 <AlertCircle className="h-5 w-5 mr-2" />
@@ -147,7 +147,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
             )}
           </form>
         </div>
-        
+
         <div>
           {evaluation ? (
             <Card className="bg-gray-800 border-gray-700">
@@ -162,7 +162,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Overall Fit Score</h3>
                   <div className="flex items-center">
                     <div className="w-full bg-gray-700 rounded-full h-4">
-                      <div 
+                      <div
                         className={`h-4 rounded-full ${
                           evaluation.fitScorePercentage >= 75 ? 'bg-green-500' :
                           evaluation.fitScorePercentage >= 50 ? 'bg-yellow-500' :
@@ -176,17 +176,17 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                     </span>
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Recommendation</h3>
                   <p className="text-blue-400">{evaluation.recommendation}</p>
                 </div>
-                
+
                 <div>
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Reasoning</h3>
                   <p className="text-gray-300">{evaluation.reasoning}</p>
                 </div>
-                
+
                 {evaluation.alignmentHighlights && evaluation.alignmentHighlights.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
@@ -200,7 +200,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                     </ul>
                   </div>
                 )}
-                
+
                 {evaluation.gapAnalysis && evaluation.gapAnalysis.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
@@ -214,7 +214,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                     </ul>
                   </div>
                 )}
-                
+
                 {evaluation.suggestedNextSteps && evaluation.suggestedNextSteps.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-300 mb-1">Suggested Next Steps</h3>
