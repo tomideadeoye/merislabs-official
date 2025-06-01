@@ -30,6 +30,8 @@ import { NarrativeAlignmentSection } from '../opportunities/NarrativeAlignmentSe
 import { CreateHabiticaTaskButton } from '../opportunities/CreateHabiticaTaskButton';
 import { JournalReflectionDialog } from '../opportunities/JournalReflectionDialog';
 import { StatusUpdateButton } from '../opportunities/StatusUpdateButton';
+import { PastOpportunitiesSection } from '../opportunities/PastOpportunitiesSection';
+import { LessonsLearnedSection } from '../opportunities/LessonsLearnedSection';
 import { DraftApplicationButton } from '../opportunities/application/DraftApplicationButton';
 import { FindStakeholdersButton } from '../opportunities/networking/FindStakeholdersButton';
 
@@ -626,6 +628,12 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           {evaluation && (
             <NarrativeAlignmentSection opportunity={opportunity} evaluation={evaluation} />
           )}
+          
+          {/* Past Opportunities Section */}
+          <PastOpportunitiesSection opportunity={opportunity} />
+          
+          {/* Lessons Learned Section */}
+          <LessonsLearnedSection opportunity={opportunity} />
           
           {/* Application Drafts Section */}
           <Card className="bg-gray-800 border-gray-700">
