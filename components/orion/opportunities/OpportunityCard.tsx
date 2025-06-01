@@ -27,6 +27,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
     router.push(`/admin/opportunity-pipeline/${opportunity.id}`);
   };
   
+  const handleEvaluate = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
+    router.push(`/admin/opportunity-pipeline/${opportunity.id}?action=evaluate`);
+  };
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'identified':

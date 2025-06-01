@@ -6,10 +6,10 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
   // Define public paths that don't require authentication
-  const isPublicPath = path === "/signin" || path === "/signup" || path === "/reset-password";
+  const isPublicPath = path === "/signin" || path === "/signup" || path === "/reset-password" || path === "/login";
   
   // Define API paths that need authentication
-  const isProtectedApiPath = path.startsWith("/api/orion/");
+  const isProtectedApiPath = path.startsWith("/api/orion/") && !path.startsWith("/api/orion/llm/test");
   
   // Define admin paths that need authentication
   const isAdminPath = path.startsWith("/admin");
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
   if (isAdminPath) {
     if (!session) {
       // Redirect to login page with return URL
-      const url = new URL("/signin", request.url);
+      const url = new URL("/login", request.url);
       url.searchParams.set("callbackUrl", encodeURI(request.url));
       return NextResponse.redirect(url);
     }
@@ -63,6 +63,7 @@ export const config = {
     "/api/orion/:path*",
     "/signin",
     "/signup",
+    "/login",
     "/reset-password"
   ],
 };

@@ -39,6 +39,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
     if (!reflection && !isLoadingReflection) {
       checkForExistingReflection();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkForExistingReflection = async () => {
@@ -205,7 +206,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
 
       const data = await response.json();
       if (data.success && data.results && data.results.length > 0) {
-        const reflections = data.results.map(result => ({
+        const reflections = data.results.map((result: any) => ({
           text: result.payload.text,
           taskText: result.payload.original_task_text || "Unknown task",
           timestamp: result.payload.timestamp
@@ -226,7 +227,9 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
 
   // Extract potential task from reflection
   const extractTaskSuggestion = (reflectionText: string | null): string | null => {
-    if (!reflectionText) return null;
+    if (!reflectionText) {
+      return null;
+    }
     
     // Look for common task suggestion patterns in the reflection
     const patterns = [
@@ -338,7 +341,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
             ) : (
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-green-400">Action Reflections:</h4>
-                {actionReflections.map((reflection, index) => (
+                {actionReflections.map((reflection: ActionReflection, index: number) => (
                   <div key={index} className="p-3 bg-gray-700/30 rounded-md border border-green-800/50">
                     <div className="flex items-center mb-2">
                       <ListTodo className="h-3 w-3 mr-1 text-green-400" />
@@ -364,7 +367,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
                 Tags:
             </h4>
             <div className="flex flex-wrap gap-1">
-              {payload.tags.filter(tag => tag !== "journal" && tag !== "journal_entry").map((tag, index) => (
+              {payload.tags.filter(tag => tag !== "journal" && tag !== "journal_entry").map((tag: string, index: number) => (
                 <Badge key={index} variant="outline" className="text-xs border-sky-500 text-sky-300">
                   {tag}
                 </Badge>
