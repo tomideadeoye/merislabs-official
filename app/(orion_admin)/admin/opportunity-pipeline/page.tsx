@@ -1,126 +1,125 @@
 "use client";
 
-import React, { useState } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { PageNames } from "@/app_state";
-import { BriefcaseBusiness, PlusCircle } from "lucide-react";
-import { useOpportunities, OpportunityFilters } from '@/hooks/useOpportunities';
-import { OpportunityList } from '@/components/orion/opportunities/OpportunityList';
-import { OpportunityFilters as OpportunityFiltersComponent } from '@/components/orion/opportunities/OpportunityFilters';
-import { AddOpportunityForm } from '@/components/orion/opportunities/AddOpportunityForm';
-import { OpportunityEvaluator } from '@/components/orion/OpportunityEvaluator';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSessionState } from '@/hooks/useSessionState';
-import { SessionStateKeys } from "@/app_state";
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  RefreshCw,
+  LayoutGrid
+} from 'lucide-react';
+import { OpportunityList } from '@/components/orion/opportunities/OpportunityList';
+import { OpportunityFilters } from '@/components/orion/opportunities/OpportunityFilters';
+import { useOpportunities } from '@/hooks/useOpportunities';
 
 export default function OpportunityPipelinePage() {
-  const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
-  const [filters, setFilters] = useState<OpportunityFilters>({});
-  const [sort, setSort] = useState<string>('lastStatusUpdate');
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [sortBy, setSortBy] = useState('lastStatusUpdate');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [activeView, setActiveView] = useState<string>('list');
-  const [activeTab, setActiveTab] = useState<string>('opportunities');
-  const [refreshKey, setRefreshKey] = useState(0);
   
   const { 
     opportunities, 
     isLoading, 
     error, 
     refetchOpportunities 
-  } = useOpportunities(filters, sort);
-
-  const handleOpportunityAdded = () => {
-    setShowAddForm(false);
-    setRefreshKey(prev => prev + 1); // Trigger re-fetch in OpportunityList
+  } = useOpportunities(filters, sortBy, sortOrder);
+  
+  const handleFilterChange = (newFilters: any) => {
+    setFilters(newFilters);
   };
+  
+  const filteredOpportunities = searchTerm 
+    ? opportunities.filter(opp => 
+        opp.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        opp.companyOrInstitution.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : opportunities;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={PageNames.PIPELINE}
-        icon={<BriefcaseBusiness className="h-7 w-7" />}
-        description="Track, evaluate, and manage your career, educational, and project opportunities."
-        showMemoryStatus={true}
-        memoryInitialized={memoryInitialized}
-      />
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-200">Opportunity Pipeline</h1>
+        
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push('/admin/opportunity-pipeline/kanban')}
+          >
+            <LayoutGrid className="mr-2 h-4 w-4" />
+            Kanban View
+          </Button>
+          
+          <Button
+            onClick={() => router.push('/admin/opportunity/new')}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            New Opportunity
+          </Button>
+        </div>
+      </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="bg-gray-700 border-gray-600">
-          <TabsTrigger value="opportunities" className="data-[state=active]:bg-blue-600">
-            Opportunity Tracker
-          </TabsTrigger>
-          <TabsTrigger value="evaluator" className="data-[state=active]:bg-amber-600">
-            Opportunity Evaluator
-          </TabsTrigger>
-        </TabsList>
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Search opportunities..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-gray-700 border-gray-600 text-gray-200"
+          />
+        </div>
         
-        <TabsContent value="opportunities" className="mt-4 space-y-6">
-          <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-            <div className="flex justify-between items-center mb-4">
-              <TabsList className="bg-gray-700 border-gray-600">
-                <TabsTrigger value="list" className="data-[state=active]:bg-blue-600">
-                  List View
-                </TabsTrigger>
-                <TabsTrigger value="kanban" className="data-[state=active]:bg-purple-600">
-                  Kanban View
-                </TabsTrigger>
-              </TabsList>
-              
-              <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
-                <DialogTrigger asChild>
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Opportunity
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[500px] bg-gray-800 border-gray-700 text-gray-200">
-                  <DialogHeader>
-                    <DialogTitle className="text-green-400">Log New Opportunity</DialogTitle>
-                  </DialogHeader>
-                  <AddOpportunityForm 
-                    onSuccess={handleOpportunityAdded} 
-                    onCancel={() => setShowAddForm(false)} 
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-            
-            <div className="mb-6">
-              <OpportunityFiltersComponent 
-                filters={filters} 
-                setFilters={setFilters} 
-                sort={sort} 
-                setSort={setSort}
-                sortOrder={sortOrder}
-                setSortOrder={setSortOrder}
-              />
-            </div>
-            
-            <TabsContent value="list" className="mt-0">
-              <OpportunityList 
-                key={refreshKey}
-                opportunities={opportunities} 
-                isLoading={isLoading} 
-                error={error} 
-                refetchOpportunities={refetchOpportunities} 
-              />
-            </TabsContent>
-            
-            <TabsContent value="kanban" className="mt-0">
-              <div className="bg-gray-800 border border-gray-700 rounded-md p-6 text-center">
-                <p className="text-gray-400">Kanban view coming soon!</p>
-                <p className="text-xs text-gray-500 mt-2">This view will display opportunities organized by status.</p>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </TabsContent>
+        <Button
+          variant="outline"
+          onClick={() => setShowFilters(!showFilters)}
+          className="min-w-[100px]"
+        >
+          <Filter className="mr-2 h-4 w-4" />
+          Filters
+        </Button>
         
-        <TabsContent value="evaluator" className="mt-4">
-          <OpportunityEvaluator />
-        </TabsContent>
-      </Tabs>
+        <Button
+          variant="outline"
+          onClick={refetchOpportunities}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <RefreshCw className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+      
+      {showFilters && (
+        <div className="mb-6">
+          <OpportunityFilters 
+            onFilterChange={handleFilterChange}
+            onSortChange={(sortBy, sortOrder) => {
+              setSortBy(sortBy);
+              setSortOrder(sortOrder as 'asc' | 'desc');
+            }}
+          />
+        </div>
+      )}
+      
+      {error && (
+        <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md mb-6">
+          {error}
+        </div>
+      )}
+      
+      <OpportunityList 
+        opportunities={filteredOpportunities} 
+        isLoading={isLoading} 
+      />
     </div>
   );
 }
