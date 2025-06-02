@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
@@ -26,7 +27,7 @@ export async function POST(
 
     // Here you would typically store the CV in your database
     // For now, we'll just return success
-    
+
     // Example database operation:
     // await db.opportunity.update({
     //   where: { id: opportunityId },
@@ -51,7 +52,7 @@ export async function GET(
   { params }: { params: { opportunityId: string } }
 ) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
@@ -63,13 +64,13 @@ export async function GET(
 
     // Here you would typically fetch the CV from your database
     // For now, we'll just return a placeholder
-    
+
     // Example database operation:
     // const opportunity = await db.opportunity.findUnique({
     //   where: { id: opportunityId },
     //   select: { tailoredCV: true }
     // });
-    
+
     // if (!opportunity || !opportunity.tailoredCV) {
     //   return NextResponse.json(
     //     { success: false, error: 'No CV found for this opportunity' },

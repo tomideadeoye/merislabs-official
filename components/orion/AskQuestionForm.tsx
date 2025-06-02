@@ -26,7 +26,7 @@ export const AskQuestionForm: React.FC = () => {
   const [answer, setAnswer] = useSessionState(SessionStateKeys.ASK_Q_ANSWER, "");
   const [isProcessing, setIsProcessing] = useSessionState(SessionStateKeys.ASK_Q_PROCESSING, false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Client-side only state for button disabled status to prevent hydration mismatch
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
@@ -232,7 +232,7 @@ export const AskQuestionForm: React.FC = () => {
 
       {answer && (
         <div className="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-md">
-          <h3 className="text-lg font-medium text-blue-400 mb-2">Orion's Answer:</h3>
+          <h3 className="text-lg font-medium text-blue-400 mb-2">Orion&apos;s Answer:</h3>
           <div className="text-gray-300 whitespace-pre-wrap">{answer}</div>
 
           {filtersApplied && (

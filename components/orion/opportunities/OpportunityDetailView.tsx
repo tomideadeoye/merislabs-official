@@ -25,7 +25,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
   onDelete
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'identified': return 'bg-gray-500';
@@ -59,7 +59,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
-  
+
   const formatType = (type: string): string => {
     return type
       .split('_')
@@ -74,17 +74,17 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
           <h1 className="text-2xl font-bold text-gray-100">{opportunity.title}</h1>
           <p className="text-lg text-gray-300 mt-1">{opportunity.companyOrInstitution}</p>
         </div>
-        
+
         <div className="flex items-center space-x-2">
-          <StatusUpdateButton opportunityId={opportunity.id} currentStatus={opportunity.status} />
-          
+          <StatusUpdateButton opportunityId={opportunity.id} currentStatus={opportunity.status || ''} />
+
           {onEdit && (
             <Button variant="outline" size="sm" onClick={onEdit} className="border-gray-600">
               <Edit className="h-4 w-4 mr-1" />
               Edit
             </Button>
           )}
-          
+
           {onDelete && (
             <Button variant="destructive" size="sm" onClick={onDelete}>
               <Trash2 className="h-4 w-4 mr-1" />
@@ -93,23 +93,27 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
           )}
         </div>
       </div>
-      
+
       <div className="flex flex-wrap gap-2">
-        <Badge className={`${getStatusColor(opportunity.status)} text-white`}>
-          {formatStatus(opportunity.status)}
-        </Badge>
-        
+        {opportunity.status ? (
+          <Badge className={`${getStatusColor(opportunity.status)} text-white`}>
+            {formatStatus(opportunity.status)}
+          </Badge>
+        ) : (
+          <Badge className="bg-gray-500 text-white">Unknown</Badge>
+        )}
+
         <Badge variant="outline" className="border-gray-600 text-gray-300">
           {formatType(opportunity.type)}
         </Badge>
-        
+
         {opportunity.tags && opportunity.tags.map(tag => (
           <Badge key={tag} variant="secondary" className="bg-gray-700 text-gray-300">
             {tag}
           </Badge>
         ))}
       </div>
-      
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="bg-gray-800 border-gray-700">
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -118,7 +122,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
           <TabsTrigger value="stakeholders">Stakeholders</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-6">
@@ -136,7 +140,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                   )}
                 </CardContent>
               </Card>
-              
+
               {evaluation && (
                 <Card className="bg-gray-800 border-gray-700">
                   <CardHeader className="flex flex-row items-center justify-between">
@@ -153,14 +157,14 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                       <div>
                         <h4 className="text-sm font-medium text-gray-400 mb-1">Fit Score</h4>
                         <div className="w-full bg-gray-700 rounded-full h-2.5">
-                          <div 
-                            className="bg-blue-600 h-2.5 rounded-full" 
+                          <div
+                            className="bg-blue-600 h-2.5 rounded-full"
                             style={{ width: `${evaluation.fitScorePercentage}%` }}
                           ></div>
                         </div>
                         <p className="text-right text-sm text-gray-400 mt-1">{evaluation.fitScorePercentage}%</p>
                       </div>
-                      
+
                       <div>
                         <h4 className="text-sm font-medium text-gray-400 mb-1">Recommendation</h4>
                         <p className="text-gray-200">{evaluation.recommendation}</p>
@@ -170,7 +174,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                 </Card>
               )}
             </div>
-            
+
             <div className="space-y-6">
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
@@ -181,13 +185,19 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                     <h4 className="text-sm font-medium text-gray-400 mb-1">Date Identified</h4>
                     <p className="text-gray-300 flex items-center">
                       <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                      {format(new Date(opportunity.dateIdentified), 'PPP')}
-                      <span className="text-gray-500 text-sm ml-2">
-                        ({formatDistanceToNow(new Date(opportunity.dateIdentified))} ago)
-                      </span>
+                      {opportunity.dateIdentified ? (
+                        <>
+                          {format(new Date(opportunity.dateIdentified), 'PPP')}
+                          <span className="text-gray-500 text-sm ml-2">
+                            ({formatDistanceToNow(new Date(opportunity.dateIdentified))} ago)
+                          </span>
+                        </>
+                      ) : (
+                        <span>Unknown date</span>
+                      )}
                     </p>
                   </div>
-                  
+
                   {opportunity.nextActionDate && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Next Action Date</h4>
@@ -196,14 +206,14 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                       </p>
                     </div>
                   )}
-                  
+
                   {opportunity.priority && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Priority</h4>
-                      <Badge 
+                      <Badge
                         className={
-                          opportunity.priority === 'high' ? 'bg-red-500' : 
-                          opportunity.priority === 'medium' ? 'bg-yellow-500' : 
+                          opportunity.priority === 'high' ? 'bg-red-500' :
+                          opportunity.priority === 'medium' ? 'bg-yellow-500' :
                           'bg-blue-500'
                         }
                       >
@@ -211,13 +221,13 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                       </Badge>
                     </div>
                   )}
-                  
+
                   {opportunity.sourceURL && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Source</h4>
-                      <a 
-                        href={opportunity.sourceURL} 
-                        target="_blank" 
+                      <a
+                        href={opportunity.sourceURL}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-400 hover:text-blue-300 flex items-center"
                       >
@@ -228,7 +238,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                   )}
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-gray-200">Actions</CardTitle>
@@ -240,21 +250,21 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                       {evaluation ? 'Re-evaluate' : 'Evaluate'} Opportunity
                     </Link>
                   </Button>
-                  
+
                   <Button variant="outline" className="w-full border-gray-600 justify-start" asChild>
                     <Link href={`/admin/opportunity-pipeline/${opportunity.id}/draft`}>
                       <FileText className="h-4 w-4 mr-2" />
                       Draft Application
                     </Link>
                   </Button>
-                  
+
                   <Button variant="outline" className="w-full border-gray-600 justify-start" asChild>
                     <Link href={`/admin/opportunity-pipeline/${opportunity.id}/stakeholders`}>
                       <Users className="h-4 w-4 mr-2" />
                       Manage Stakeholders
                     </Link>
                   </Button>
-                  
+
                   <Button variant="outline" className="w-full border-gray-600 justify-start" asChild>
                     <Link href={`/admin/opportunity-pipeline/${opportunity.id}/notes`}>
                       <MessageSquare className="h-4 w-4 mr-2" />
@@ -266,7 +276,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
             </div>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="evaluation" className="mt-6">
           {evaluation ? (
             <Card className="bg-gray-800 border-gray-700">
@@ -275,24 +285,24 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                   <div>
                     <h3 className="text-lg font-medium text-gray-200 mb-2">Fit Score</h3>
                     <div className="w-full bg-gray-700 rounded-full h-2.5 mb-4">
-                      <div 
-                        className="bg-blue-600 h-2.5 rounded-full" 
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
                         style={{ width: `${evaluation.fitScorePercentage}%` }}
                       ></div>
                     </div>
                     <p className="text-right text-sm text-gray-400">{evaluation.fitScorePercentage}%</p>
                   </div>
-                  
+
                   <div>
                     <h3 className="text-lg font-medium text-gray-200 mb-2">Recommendation</h3>
                     <p className="text-gray-300">{evaluation.recommendation}</p>
                   </div>
-                  
+
                   <div>
                     <h3 className="text-lg font-medium text-gray-200 mb-2">Reasoning</h3>
                     <p className="text-gray-300 whitespace-pre-wrap">{evaluation.reasoning}</p>
                   </div>
-                  
+
                   {evaluation.alignmentHighlights && evaluation.alignmentHighlights.length > 0 && (
                     <div>
                       <h3 className="text-lg font-medium text-gray-200 mb-2">Alignment Highlights</h3>
@@ -303,7 +313,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                       </ul>
                     </div>
                   )}
-                  
+
                   {evaluation.gapAnalysis && evaluation.gapAnalysis.length > 0 && (
                     <div>
                       <h3 className="text-lg font-medium text-gray-200 mb-2">Gap Analysis</h3>
@@ -314,7 +324,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                       </ul>
                     </div>
                   )}
-                  
+
                   {evaluation.riskRewardAnalysis && (
                     <div>
                       <h3 className="text-lg font-medium text-gray-200 mb-2">Risk/Reward Analysis</h3>
@@ -325,28 +335,28 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                             <p className="text-gray-300">{evaluation.riskRewardAnalysis.potentialRewards}</p>
                           </div>
                         )}
-                        
+
                         {evaluation.riskRewardAnalysis.potentialRisks && (
                           <div className="bg-gray-700 p-4 rounded-md">
                             <h4 className="font-medium text-gray-200 mb-2">Potential Risks</h4>
                             <p className="text-gray-300">{evaluation.riskRewardAnalysis.potentialRisks}</p>
                           </div>
                         )}
-                        
+
                         {evaluation.riskRewardAnalysis.timeInvestment && (
                           <div className="bg-gray-700 p-4 rounded-md">
                             <h4 className="font-medium text-gray-200 mb-2">Time Investment</h4>
                             <p className="text-gray-300">{evaluation.riskRewardAnalysis.timeInvestment}</p>
                           </div>
                         )}
-                        
+
                         {evaluation.riskRewardAnalysis.financialConsiderations && (
                           <div className="bg-gray-700 p-4 rounded-md">
                             <h4 className="font-medium text-gray-200 mb-2">Financial Considerations</h4>
                             <p className="text-gray-300">{evaluation.riskRewardAnalysis.financialConsiderations}</p>
                           </div>
                         )}
-                        
+
                         {evaluation.riskRewardAnalysis.careerImpact && (
                           <div className="bg-gray-700 p-4 rounded-md">
                             <h4 className="font-medium text-gray-200 mb-2">Career Impact</h4>
@@ -356,7 +366,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                       </div>
                     </div>
                   )}
-                  
+
                   {evaluation.suggestedNextSteps && evaluation.suggestedNextSteps.length > 0 && (
                     <div>
                       <h3 className="text-lg font-medium text-gray-200 mb-2">Suggested Next Steps</h3>
@@ -376,22 +386,22 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
             </div>
           )}
         </TabsContent>
-        
+
         <TabsContent value="applications" className="mt-6">
           <div className="text-center py-12 text-gray-400">
-            Application drafts will appear here. Click "Draft Application" to create one.
+              Application drafts will appear here. Click "Draft Application" to create one.
           </div>
         </TabsContent>
-        
+
         <TabsContent value="stakeholders" className="mt-6">
           <div className="text-center py-12 text-gray-400">
-            Stakeholders will appear here. Click "Manage Stakeholders" to add contacts.
+              Stakeholders will appear here. Click "Manage Stakeholders" to add contacts.
           </div>
         </TabsContent>
-        
+
         <TabsContent value="notes" className="mt-6">
           <div className="text-center py-12 text-gray-400">
-            Notes will appear here. Click "Add Notes" to create one.
+              Notes will appear here. Click "Add Notes" to create one.
           </div>
         </TabsContent>
       </Tabs>

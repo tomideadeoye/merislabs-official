@@ -17,7 +17,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
   const [patterns, setPatterns] = useState<IdentifiedPattern[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filter states
   const [limit, setLimit] = useState<number>(30);
   const [types, setTypes] = useState<string>("journal_entry,journal_reflection");
@@ -25,7 +25,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [customQuery, setCustomQuery] = useState<string>("");
-  
+
   // Habitica task dialog state
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState<boolean>(false);
   const [selectedInsight, setSelectedInsight] = useState<string>("");
@@ -35,7 +35,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
     setIsLoading(true);
     setError(null);
     setPatterns([]);
-    
+
     try {
       const response = await fetch('/api/orion/insights/analyze-patterns', {
         method: 'POST',
@@ -51,9 +51,9 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
           customQuery: customQuery || undefined
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setPatterns(data.patterns || []);
         if ((data.patterns || []).length === 0) {
@@ -73,7 +73,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
       setIsLoading(false);
     }
   };
-  
+
   const handleCreateTask = (insight: string, theme: string) => {
     setSelectedInsight(insight);
     setSelectedTheme(theme);
@@ -117,7 +117,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="tags" className="text-gray-300">Tags (comma-separated)</Label>
@@ -140,7 +140,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="dateFrom" className="text-gray-300">From Date (optional)</Label>
@@ -163,10 +163,10 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
               />
             </div>
           </div>
-          
-          <Button 
-            onClick={handleAnalyzePatterns} 
-            disabled={isLoading} 
+
+          <Button
+            onClick={handleAnalyzePatterns}
+            disabled={isLoading}
             className="bg-purple-600 hover:bg-purple-700 w-full"
           >
             {isLoading ? (
@@ -183,21 +183,21 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
           </Button>
         </CardContent>
       </Card>
-      
+
       {isLoading && (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
           <span className="ml-2 text-gray-400">Analyzing patterns in your memories...</span>
         </div>
       )}
-      
+
       {error && !isLoading && (
         <div className="bg-yellow-900/30 border border-yellow-700 text-yellow-300 p-4 rounded-md flex items-start">
           <Info className="h-5 w-5 mr-2 mt-0.5" />
           <p>{error}</p>
         </div>
       )}
-      
+
       {patterns.length > 0 && !isLoading && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-200">Identified Patterns & Insights:</h3>
@@ -213,7 +213,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-300">{pattern.description}</p>
-                
+
                 {pattern.supportingMemoryIds && pattern.supportingMemoryIds.length > 0 && (
                   <div className="text-sm text-gray-400">
                     <p className="font-medium mb-1">Supporting Memories:</p>
@@ -227,7 +227,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
                     </ul>
                   </div>
                 )}
-                
+
                 {pattern.actionableInsight && (
                   <div className="mt-2 pt-2 border-t border-gray-700 flex items-start">
                     <Lightbulb className="h-5 w-5 mr-2 text-yellow-500 flex-shrink-0 mt-0.5" />
@@ -239,7 +239,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleCreateTask(pattern.actionableInsight, pattern.theme)}
+                          onClick={() => handleCreateTask(pattern.actionableInsight!, pattern.theme)}
                           className="ml-2 text-xs flex items-center bg-gray-700 hover:bg-gray-600 text-blue-300"
                         >
                           <ListTodo className="mr-1 h-3 w-3" />
@@ -254,7 +254,7 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
           ))}
         </div>
       )}
-      
+
       <CreateHabiticaTaskDialog
         isOpen={isTaskDialogOpen}
         setIsOpen={setIsTaskDialogOpen}

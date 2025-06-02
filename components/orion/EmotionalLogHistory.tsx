@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,7 +15,7 @@ interface EmotionalLogHistoryProps {
   limit?: number;
 }
 
-export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({ 
+export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
   className,
   limit = 10
 }) => {
@@ -27,27 +27,23 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
   const [emotion, setEmotion] = useState<string>('');
   const [showDistortionAnalysisOnly, setShowDistortionAnalysisOnly] = useState<boolean>(false);
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Build query parameters
       const params = new URLSearchParams();
       params.append('limit', limit.toString());
-      
+
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
       if (emotion) params.append('emotion', emotion);
       if (showDistortionAnalysisOnly) params.append('hasDistortionAnalysis', 'true');
-      
+
       const response = await fetch(`/api/orion/emotions/history?${params.toString()}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setLogs(data.logs);
       } else {
@@ -59,7 +55,11 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [startDate, endDate, emotion, showDistortionAnalysisOnly, limit]);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +92,7 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
               className="bg-gray-700 border-gray-600 text-gray-200"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="endDate" className="text-gray-300">End Date</Label>
             <Input
@@ -103,7 +103,7 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
               className="bg-gray-700 border-gray-600 text-gray-200"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="emotion" className="text-gray-300">Emotion</Label>
             <Input
@@ -115,10 +115,10 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
             />
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Switch 
+            <Switch
               id="show-distortions"
               checked={showDistortionAnalysisOnly}
               onCheckedChange={setShowDistortionAnalysisOnly}
@@ -128,11 +128,11 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
               Show only entries with cognitive distortion analysis
             </Label>
           </div>
-          
+
           <div className="flex justify-end space-x-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => {
                 setStartDate('');
                 setEndDate('');
@@ -143,18 +143,18 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
             >
               Clear Filters
             </Button>
-            
-            <Button 
-              type="submit" 
+
+            <Button
+              type="submit"
               className="bg-emerald-600 hover:bg-emerald-700"
             >
               <Search className="mr-2 h-4 w-4" />
               Search
             </Button>
-            
-            <Button 
-              type="button" 
-              variant="outline" 
+
+            <Button
+              type="button"
+              variant="outline"
               onClick={fetchLogs}
               className="bg-gray-700 hover:bg-gray-600"
             >
@@ -163,7 +163,7 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
           </div>
         </div>
       </form>
-      
+
       {isLoading ? (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
@@ -201,42 +201,42 @@ export const EmotionalLogHistory: React.FC<EmotionalLogHistoryProps> = ({
                         <span className="ml-2 text-sm text-gray-400">Intensity: {log.intensity}/10</span>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center text-sm text-gray-400">
                       <Calendar className="h-4 w-4 mr-1" />
                       <span>{formatDate(log.timestamp)}</span>
                     </div>
                   </div>
                 </div>
-                
+
                 {log.secondaryEmotions && log.secondaryEmotions.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-400">Secondary Emotions:</p>
                     <p className="text-sm text-gray-300">{log.secondaryEmotions.join(', ')}</p>
                   </div>
                 )}
-                
+
                 {log.triggers && log.triggers.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-400">Triggers:</p>
                     <p className="text-sm text-gray-300">{log.triggers.join(', ')}</p>
                   </div>
                 )}
-                
+
                 {log.accompanyingThoughts && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-400">Thoughts:</p>
                     <p className="text-sm text-gray-300">{log.accompanyingThoughts}</p>
                   </div>
                 )}
-                
+
                 {log.contextualNote && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-400">Context:</p>
                     <p className="text-sm text-gray-300">{log.contextualNote}</p>
                   </div>
                 )}
-                
+
                 {log.cognitiveDistortionAnalysis && (
                   <CognitiveDistortionDisplay data={log.cognitiveDistortionAnalysis} />
                 )}

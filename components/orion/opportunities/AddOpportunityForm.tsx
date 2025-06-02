@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Loader2, X } from 'lucide-react';
-import { OpportunityCreatePayload } from '@/types/opportunity';
+import { OpportunityCreatePayload, OpportunityNotionInput } from '@/types/orion';
 
 interface AddOpportunityFormProps {
   isOpen: boolean;
@@ -16,8 +16,8 @@ interface AddOpportunityFormProps {
   onSuccess?: (opportunityId: string) => void;
 }
 
-export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ 
-  isOpen, 
+export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
+  isOpen,
   onClose,
   onSuccess
 }) => {
@@ -25,59 +25,73 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
     title: '',
     companyOrInstitution: '',
     type: 'job',
-    status: 'identified',
+    status: 'Not Started',
     descriptionSummary: '',
+    description: '',
     sourceURL: '',
     tags: []
   });
-  
+
   const [tagsInput, setTagsInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: OpportunityCreatePayload) => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: OpportunityCreatePayload) => ({ ...prev, [name]: value }));
   };
-  
+
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTagsInput(e.target.value);
     const tags = e.target.value.split(',').map(tag => tag.trim()).filter(Boolean);
-    setFormData(prev => ({ ...prev, tags }));
+    setFormData((prev: OpportunityCreatePayload) => ({ ...prev, tags }));
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-    
+
+    const notionPayload: OpportunityNotionInput = {
+      title: formData.title,
+      company: formData.companyOrInstitution || '',
+      type: formData.type,
+      status: formData.status,
+      description: formData.description,
+      url: formData.sourceURL,
+      tags: [],
+      dateIdentified: new Date().toISOString(),
+      priority: 'medium',
+      nextActionDate: undefined,
+    };
+
     try {
-      const response = await fetch('/api/orion/opportunity/create', {
+      const response = await fetch('/api/orion/notion/opportunity/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(notionPayload)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.opportunity) {
         if (onSuccess) {
           onSuccess(data.opportunity.id);
         }
         onClose();
-        // Reset form
         setFormData({
           title: '',
           companyOrInstitution: '',
           type: 'job',
-          status: 'identified',
+          status: 'Not Started',
           descriptionSummary: '',
+          description: '',
           sourceURL: '',
           tags: []
         });
@@ -92,14 +106,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-gray-800 text-gray-200 border-gray-700 max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Add New Opportunity</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
@@ -113,7 +127,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="companyOrInstitution">Company / Institution *</Label>
             <Input
@@ -126,12 +140,12 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               required
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type *</Label>
-              <Select 
-                value={formData.type} 
+              <Select
+                value={formData.type}
                 onValueChange={(value) => handleSelectChange('type', value)}
               >
                 <SelectTrigger id="type" className="bg-gray-700 border-gray-600 text-gray-200">
@@ -146,25 +160,29 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
-              <Select 
-                value={formData.status} 
+              <Select
+                value={formData.status}
                 onValueChange={(value) => handleSelectChange('status', value)}
               >
                 <SelectTrigger id="status" className="bg-gray-700 border-gray-600 text-gray-200">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                  <SelectItem value="identified">Identified</SelectItem>
-                  <SelectItem value="researching">Researching</SelectItem>
-                  <SelectItem value="evaluating">Evaluating</SelectItem>
+                  <SelectItem value="Not Started">Not Started</SelectItem>
+                  <SelectItem value="In progress">In progress</SelectItem>
+                  <SelectItem value="Applied">Applied</SelectItem>
+                  <SelectItem value="Interview">Interview</SelectItem>
+                  <SelectItem value="Complete">Complete</SelectItem>
+                  <SelectItem value="Offer">Offer</SelectItem>
+                  <SelectItem value="Rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="descriptionSummary">Description</Label>
             <Textarea
@@ -176,7 +194,20 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               className="bg-gray-700 border-gray-600 text-gray-200 min-h-[100px]"
             />
           </div>
-          
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Full Description *</Label>
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Full description of the opportunity"
+              className="bg-gray-700 border-gray-600 text-gray-200 min-h-[100px]"
+              required
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="sourceURL">Source URL</Label>
             <Input
@@ -188,7 +219,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               className="bg-gray-700 border-gray-600 text-gray-200"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="tags">Tags (comma-separated)</Label>
             <Input
@@ -200,25 +231,25 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               className="bg-gray-700 border-gray-600 text-gray-200"
             />
           </div>
-          
+
           {error && (
             <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md text-sm">
               {error}
             </div>
           )}
-          
+
           <DialogFooter className="pt-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
               className="border-gray-600 text-gray-300 hover:bg-gray-700"
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700"
               disabled={isSubmitting}
             >

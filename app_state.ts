@@ -41,6 +41,9 @@ export const getDefaultSessionState = (): Partial<OrionSessionState> => ({
   [SessionStateKeys.USER_NAME]: "Architect",
   [SessionStateKeys.CREWAI_AVAILABLE]: false,
   [SessionStateKeys.PIPELINE_STATE]: {
+    currentStep: '',
+    completedSteps: [],
+    data: {},
     current_opportunity: null,
     evaluation_result: null,
     stakeholders: null,
@@ -48,7 +51,7 @@ export const getDefaultSessionState = (): Partial<OrionSessionState> => ({
     communications: {},
     customization_suggestions: null,
     web_context: null,
-  },
+  } as PipelineState,
   [SessionStateKeys.PIPELINE_STEP]: "input",
   [SessionStateKeys.MODEL_APPROACH_PIPELINE]: "Single Model with Fallbacks",
   [SessionStateKeys.ENABLED_STEPS_PIPELINE]: {
@@ -125,7 +128,10 @@ class SessionStateManager {
       } else if (storedValue !== null && this.stateCache[key] === undefined) {
         try {
           this.stateCache[key] = JSON.parse(storedValue);
-        } catch {}
+        } catch (error) {
+          console.warn(`Failed to parse stored value for key ${key}:`, error);
+          window.localStorage.removeItem(key);
+        }
       } else if (
         this.stateCache[key] === undefined &&
         defaultValue !== undefined
@@ -154,7 +160,10 @@ class SessionStateManager {
             if (storedValue !== null) {
               try {
                 this.stateCache[key] = JSON.parse(storedValue);
-              } catch {}
+              } catch (error) {
+                console.warn(`Failed to parse stored value for key ${key}:`, error);
+                window.localStorage.removeItem(key);
+              }
             }
           }
         }
@@ -198,7 +207,10 @@ class SessionStateManager {
         const parsed = JSON.parse(storedValue);
         this.stateCache[key] = parsed;
         return parsed;
-      } catch {}
+      } catch (error) {
+        console.warn(`Failed to parse stored value for key ${key}:`, error);
+        window.localStorage.removeItem(key);
+      }
     }
     const defaultValue =
       explicitDefault !== undefined
@@ -206,6 +218,24 @@ class SessionStateManager {
         : getDefaultSessionValue(key);
     if (defaultValue !== undefined) this.stateCache[key] = defaultValue;
     return defaultValue as OrionSessionState[K];
+  }
+
+  // Clear oldest entries to free up localStorage space
+  private clearOldEntries(): void {
+    // Simple implementation to remove non-critical data
+    try {
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const key = window.localStorage.key(i);
+        if (key &&
+            key !== "session_state_initialized" &&
+            key !== SessionStateKeys.MEMORY_INITIALIZED &&
+            key !== SessionStateKeys.USER_NAME) {
+          window.localStorage.removeItem(key);
+        }
+      }
+    } catch (error) {
+      console.error("Error clearing old entries:", error);
+    }
   }
 
   public setState<K extends SessionStateKeys>(
@@ -217,6 +247,11 @@ class SessionStateManager {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
+      if (error instanceof DOMException && error.code === 22) {
+        // Handle quota exceeded
+        console.warn('localStorage quota exceeded, clearing old entries');
+        this.clearOldEntries();
+      }
       console.error(
         `SessionManager: Error setting localStorage for ${key}:`,
         error

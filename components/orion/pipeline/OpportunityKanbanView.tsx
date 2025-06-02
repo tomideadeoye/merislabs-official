@@ -29,59 +29,60 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
   onStatusChange
 }) => {
   const router = useRouter();
-  
+
   // Group opportunities by status
   const getOpportunitiesByStatus = () => {
     const grouped: Record<string, Opportunity[]> = {};
-    
+
     // Initialize all columns with empty arrays
     columns.forEach(column => {
       grouped[column.id] = [];
     });
-    
+
     // Add opportunities to their respective columns
     opportunities.forEach(opportunity => {
-      if (grouped[opportunity.status]) {
-        grouped[opportunity.status].push(opportunity);
+      const statusKey = opportunity.status || 'identified'; // Use fallback if status is undefined
+      if (grouped[statusKey]) {
+        grouped[statusKey].push(opportunity);
       } else {
-        // If status doesn't match our columns, add to identified as fallback
+        // This else case might be redundant now, but keeping it for safety
         grouped['identified'].push(opportunity);
       }
     });
-    
+
     return grouped;
   };
-  
+
   const [opportunitiesByStatus, setOpportunitiesByStatus] = useState<Record<string, Opportunity[]>>(
     getOpportunitiesByStatus()
   );
-  
+
   // Handle drag end event
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
-    
+
     // If there's no destination or the item was dropped back in its original position
-    if (!destination || 
-        (destination.droppableId === source.droppableId && 
+    if (!destination ||
+        (destination.droppableId === source.droppableId &&
          destination.index === source.index)) {
       return;
     }
-    
+
     // Find the moved opportunity
     const opportunity = opportunitiesByStatus[source.droppableId].find(
       opp => opp.id === draggableId
     );
-    
+
     if (!opportunity) return;
-    
+
     // Create a new state object
     const newState = { ...opportunitiesByStatus };
-    
+
     // Remove from source
     newState[source.droppableId] = newState[source.droppableId].filter(
       opp => opp.id !== draggableId
     );
-    
+
     // Add to destination
     const newStatus = destination.droppableId as OpportunityStatus;
     newState[newStatus] = [
@@ -89,19 +90,19 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
       { ...opportunity, status: newStatus },
       ...newState[newStatus].slice(destination.index)
     ];
-    
+
     setOpportunitiesByStatus(newState);
-    
+
     // Call the callback if provided
     if (onStatusChange) {
       onStatusChange(draggableId, newStatus);
     }
   };
-  
+
   const handleOpportunityClick = (opportunityId: string) => {
     router.push(`/admin/opportunity-pipeline/${opportunityId}`);
   };
-  
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex overflow-x-auto pb-4 space-x-4">
@@ -113,7 +114,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                 {opportunitiesByStatus[column.id]?.length || 0} opportunities
               </div>
             </div>
-            
+
             <Droppable droppableId={column.id}>
               {(provided) => (
                 <div
@@ -122,9 +123,9 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                   className="bg-gray-800/50 rounded-b-md min-h-[500px] p-2"
                 >
                   {opportunitiesByStatus[column.id]?.map((opportunity, index) => (
-                    <Draggable 
-                      key={opportunity.id} 
-                      draggableId={opportunity.id} 
+                    <Draggable
+                      key={opportunity.id}
+                      draggableId={opportunity.id}
                       index={index}
                     >
                       {(provided) => (
@@ -138,11 +139,11 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                           <Card className="bg-gray-700 border-gray-600 p-3 hover:border-gray-500 cursor-pointer">
                             <h4 className="font-medium text-gray-200 mb-1">{opportunity.title}</h4>
                             <p className="text-xs text-gray-400 mb-2">{opportunity.companyOrInstitution}</p>
-                            
+
                             <div className="flex flex-wrap gap-1">
                               {opportunity.priority && (
-                                <Badge 
-                                  variant="outline" 
+                                <Badge
+                                  variant="outline"
                                   className={
                                     opportunity.priority === 'high' ? 'bg-red-900/30 text-red-300 border-red-700' :
                                     opportunity.priority === 'medium' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-700' :
@@ -152,7 +153,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                                   {opportunity.priority}
                                 </Badge>
                               )}
-                              
+
                               {opportunity.relatedEvaluationId && (
                                 <Badge variant="outline" className="bg-blue-900/20 text-blue-300 border-blue-700/50">
                                   Evaluated

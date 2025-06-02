@@ -1,4 +1,3 @@
-
 export const metadata = {
   title: "MerisLabs",
   description: "End-to-end software development for businesses.",
@@ -15,8 +14,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function Home() {
   return (
-
-
     <main className="container mx-auto py-12"> <Hero />
       <Features />
       <Zigzag />
@@ -31,7 +28,7 @@ export default function Home() {
             <CardDescription>Write and view journal entries</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">Record your thoughts and reflections in a journal that's stored in memory.</p>
+            <p className="mb-4">Record your thoughts and reflections in a journal that&apos;s stored in memory.</p>
             <Link href="/journal">
               <Button>Open Journal</Button>
             </Link>

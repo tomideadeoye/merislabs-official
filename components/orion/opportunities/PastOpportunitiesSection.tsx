@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,15 +25,9 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
   const [isLoading, setIsLoading] = useState(false);
   const [similarOpportunities, setSimilarOpportunities] = useState<SimilarOpportunity[]>([]);
 
-  useEffect(() => {
-    if (opportunity) {
-      fetchSimilarOpportunities();
-    }
-  }, [opportunity.id]);
-
-  const fetchSimilarOpportunities = async () => {
+  const fetchSimilarOpportunities = useCallback(async () => {
     setIsLoading(true);
-    
+
     try {
       // Search for similar opportunities in memory
       const response = await fetch('/api/orion/memory/search', {
@@ -66,9 +60,9 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
           minScore: 0.6
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.results && data.results.length > 0) {
         // Transform the results into a more usable format
         const opportunities = data.results.map((item: any) => ({
@@ -80,7 +74,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
           date: item.payload.timestamp || 'Unknown Date',
           outcome: item.payload.outcome || undefined
         }));
-        
+
         setSimilarOpportunities(opportunities);
       }
     } catch (error) {
@@ -88,7 +82,13 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [opportunity]);
+
+  useEffect(() => {
+    if (opportunity) {
+      fetchSimilarOpportunities();
+    }
+  }, [opportunity, fetchSimilarOpportunities]);
 
   const getStatusColor = (status: string) => {
     if (status.includes('accepted') || status.includes('offer')) {
@@ -109,7 +109,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
           <History className="mr-2 h-5 w-5 text-amber-400" />
           Similar Past Opportunities
         </CardTitle>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -125,7 +125,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
           Refresh
         </Button>
       </CardHeader>
-      
+
       <CardContent>
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
@@ -140,21 +140,21 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
                     <h3 className="font-medium text-gray-200">{item.title}</h3>
                     <p className="text-sm text-gray-400">{item.company}</p>
                     <div className="flex items-center mt-1 space-x-2">
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className={getStatusColor(item.status)}
                       >
                         {item.status.replace(/_/g, ' ')}
                       </Badge>
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className="bg-amber-900/30 text-amber-300 border-amber-700"
                       >
                         {item.similarity}% similar
                       </Badge>
                     </div>
                   </div>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -169,7 +169,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 </div>
-                
+
                 {item.outcome && (
                   <div className="mt-2 text-sm">
                     <span className="text-gray-400">Outcome: </span>

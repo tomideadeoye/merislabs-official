@@ -1,37 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { db } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const { opportunityId } = params;
-    
+
     // Get the opportunity to find the application material IDs
     const getOpportunityStmt = db.prepare(`
       SELECT applicationMaterialIds FROM opportunities WHERE id = ?
     `);
-    
+
     const opportunity = getOpportunityStmt.get(opportunityId);
-    
+
     if (!opportunity || !opportunity.applicationMaterialIds) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'No application drafts found for this opportunity.' 
+      return NextResponse.json({
+        success: false,
+        error: 'No application drafts found for this opportunity.'
       }, { status: 404 });
     }
-    
+
     // For now, we'll return mock data
     // In a real implementation, you would fetch the drafts from your memory store
     // using the applicationMaterialIds
-    
+
     const mockDrafts = [
       `Dear Hiring Team at CloudScale Technologies,
 
@@ -90,20 +91,20 @@ I would welcome the opportunity to discuss how my system architecture expertise 
 Sincerely,
 Tomide Adeoye`
     ];
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       drafts: mockDrafts,
       draftIds: JSON.parse(opportunity.applicationMaterialIds)
     });
-    
+
   } catch (error: any) {
     console.error('[OPPORTUNITY_DRAFTS_GET_API_ERROR]', error);
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to fetch application drafts.', 
-      details: error.message 
+
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to fetch application drafts.',
+      details: error.message
     }, { status: 500 });
   }
 }

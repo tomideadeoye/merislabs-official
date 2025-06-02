@@ -14,7 +14,7 @@ export default function JournalPage() {
 
   useEffect(() => {
     // Load journal entries when the page loads
-    findByType(MEMORY_TYPES.JOURNAL_ENTRY, 10);
+    findByType(MEMORY_TYPES.JOURNAL, 10);
   }, [findByType]);
 
   return (

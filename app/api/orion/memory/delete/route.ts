@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { ORION_MEMORY_COLLECTION_NAME } from "@/lib/orion_config";
 import axios from "axios";
 
@@ -8,7 +9,7 @@ import axios from "axios";
  */
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
   }

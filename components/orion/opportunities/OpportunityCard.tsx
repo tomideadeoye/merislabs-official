@@ -52,24 +52,30 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
       <CardContent className="pt-4">
         <div className="flex justify-between items-start">
           <h3 className="text-lg font-medium text-gray-200 line-clamp-2">{opportunity.title}</h3>
-          <Badge className={`${getStatusColor(opportunity.status)} text-white`}>
-            {formatStatus(opportunity.status)}
-          </Badge>
+          {opportunity.status ? (
+            <Badge className={`${getStatusColor(opportunity.status)} text-white`}>
+              {formatStatus(opportunity.status)}
+            </Badge>
+          ) : (
+            <Badge className="bg-gray-500 text-white">Unknown</Badge>
+          )}
         </div>
-        
+
         <p className="text-sm text-gray-300 mt-2">
           {opportunity.companyOrInstitution || 'Unknown organization'}
         </p>
-        
+
         <p className="text-sm text-gray-400 mt-2 line-clamp-2">
           {opportunity.descriptionSummary || 'No description available'}
         </p>
-        
+
         <div className="flex items-center mt-3 text-xs text-gray-500">
           <Calendar className="h-3 w-3 mr-1" />
-          <span>Added {formatDistanceToNow(new Date(opportunity.dateIdentified))} ago</span>
+          <span>
+            Added {opportunity.dateIdentified ? formatDistanceToNow(new Date(opportunity.dateIdentified)) + ' ago' : 'Unknown date'}
+          </span>
         </div>
-        
+
         {opportunity.relatedEvaluationId && (
           <div className="flex items-center mt-2 text-xs text-blue-400">
             <BarChart2 className="h-3 w-3 mr-1" />
@@ -77,19 +83,19 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
           </div>
         )}
       </CardContent>
-      
+
       <CardFooter className="pt-0 flex justify-between">
-        <Link 
+        <Link
           href={`/admin/opportunity-pipeline/${opportunity.id}`}
           className="text-xs text-blue-400 hover:text-blue-300"
         >
           View details
         </Link>
-        
+
         {opportunity.sourceURL && (
-          <a 
-            href={opportunity.sourceURL} 
-            target="_blank" 
+          <a
+            href={opportunity.sourceURL}
+            target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-gray-400 hover:text-gray-300 flex items-center"
           >

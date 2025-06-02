@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
-import { 
-  FileText, 
-  FileEdit, 
-  Search, 
-  Users, 
-  Calendar, 
+import {
+  FileText,
+  FileEdit,
+  Search,
+  Users,
+  Calendar,
   ExternalLink,
   Download
 } from 'lucide-react';
@@ -26,11 +26,11 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
           <h1 className="text-2xl font-bold">{opportunity.title}</h1>
           <p className="text-gray-500">{opportunity.company}</p>
         </div>
-        <Badge variant={opportunity.status === 'Applied' ? 'success' : 'default'}>
+        <Badge variant={opportunity.status === 'applied' ? 'success' : 'default'}>
           {opportunity.status}
         </Badge>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-2">
           <CardHeader>
@@ -44,12 +44,12 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <p className="text-gray-500">No description available.</p>
               )}
             </div>
-            
+
             {opportunity.url && (
               <div className="mt-4">
-                <a 
-                  href={opportunity.url} 
-                  target="_blank" 
+                <a
+                  href={opportunity.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:text-blue-700 flex items-center"
                 >
@@ -60,7 +60,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
             )}
           </CardContent>
         </Card>
-        
+
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -76,28 +76,28 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                   </div>
                 </div>
               )}
-              
+
               {opportunity.location && (
                 <div>
                   <p className="text-sm font-medium">Location</p>
                   <p className="text-sm text-gray-500">{opportunity.location}</p>
                 </div>
               )}
-              
+
               {opportunity.salary && (
                 <div>
                   <p className="text-sm font-medium">Salary</p>
                   <p className="text-sm text-gray-500">{opportunity.salary}</p>
                 </div>
               )}
-              
+
               {opportunity.contact && (
                 <div>
                   <p className="text-sm font-medium">Contact</p>
                   <p className="text-sm text-gray-500">{opportunity.contact}</p>
                 </div>
               )}
-              
+
               {opportunity.tags && opportunity.tags.length > 0 && (
                 <div>
                   <p className="text-sm font-medium mb-1">Tags</p>
@@ -112,7 +112,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
               )}
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Actions</CardTitle>
@@ -130,7 +130,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                     </Button>
                   </div>
                 )}
-                
+
                 <div className="mt-6 flex flex-wrap gap-2">
                   <Link href={`/opportunity/${opportunity.id}/analyze`}>
                     <Button variant="outline" size="sm">
@@ -162,7 +162,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
           </Card>
         </div>
       </div>
-      
+
       {opportunity.notes && (
         <Card>
           <CardHeader>

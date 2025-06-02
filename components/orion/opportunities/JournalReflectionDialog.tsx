@@ -58,9 +58,9 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
           text: reflectionText,
           sourceId: `reflection_${opportunity.id}_${Date.now()}`,
           tags: [
-            'reflection', 
-            'opportunity_reflection', 
-            opportunity.companyOrInstitution.toLowerCase().replace(/\s+/g, '_'),
+            'reflection',
+            'opportunity_reflection',
+            (opportunity.companyOrInstitution || 'no_company').toLowerCase().replace(/\s+/g, '_'),
             actionType
           ]
         })
@@ -70,7 +70,7 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
 
       if (data.success) {
         setFeedback({ type: 'success', message: "Reflection saved successfully!" });
-        
+
         // Clear the form and close the dialog after a short delay
         setTimeout(() => {
           setReflectionText('');
@@ -102,7 +102,7 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
 
         <div className="space-y-4 py-2">
           <p className="text-sm text-gray-300">{getPromptText()}</p>
-          
+
           <Textarea
             value={reflectionText}
             onChange={(e) => setReflectionText(e.target.value)}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,15 +20,9 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
   const [narrativeContent, setNarrativeContent] = useState<string>('');
   const [narrativeHighlights, setNarrativeHighlights] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (opportunity && evaluation) {
-      fetchNarrativeAlignment();
-    }
-  }, [opportunity.id, evaluation]);
-
-  const fetchNarrativeAlignment = async () => {
+  const fetchNarrativeAlignment = useCallback(async () => {
     setIsLoading(true);
-    
+
     try {
       // First, search for relevant narrative entries in memory
       const memoryResponse = await fetch('/api/orion/memory/search', {
@@ -52,13 +46,13 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           }
         })
       });
-      
+
       const memoryData = await memoryResponse.json();
-      
+
       if (memoryData.success && memoryData.results && memoryData.results.length > 0) {
         // Extract narrative content from memory results
         const narrativePoints = memoryData.results.map((item: any) => item.payload.text);
-        
+
         // Generate narrative alignment using LLM
         const alignmentResponse = await fetch('/api/orion/llm', {
           method: 'POST',
@@ -69,19 +63,19 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
             requestType: 'NARRATIVE_ALIGNMENT',
             primaryContext: `
               Based on the following opportunity and evaluation, extract 3-5 key narrative points from Tomide's existing narrative statements that would be most effective for this specific opportunity.
-              
+
               Opportunity: ${opportunity.title} at ${opportunity.companyOrInstitution}
               ${opportunity.descriptionSummary ? `Description: ${opportunity.descriptionSummary}` : ''}
-              
+
               Evaluation Highlights:
               ${evaluation?.alignmentHighlights?.join('\n') || 'No specific highlights available.'}
-              
+
               Gap Analysis:
               ${evaluation?.gapAnalysis?.join('\n') || 'No specific gaps identified.'}
-              
+
               Existing Narrative Statements:
               ${narrativePoints.join('\n\n')}
-              
+
               Please provide:
               1. A concise paragraph (3-5 sentences) that aligns Tomide's narrative with this specific opportunity
               2. A list of 3-5 key narrative points that should be emphasized in application materials
@@ -90,27 +84,27 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
             maxTokens: 800
           })
         });
-        
+
         const alignmentData = await alignmentResponse.json();
-        
+
         if (alignmentData.success && alignmentData.content) {
           // Parse the response to extract the narrative content and highlights
           const content = alignmentData.content;
-          
+
           // Extract the paragraph (everything before any numbered list)
-          const paragraphMatch = content.match(/^(.*?)(?=\d\.|\n\d\.|\n\n\d\.|\n- |\n\n- )/s);
+          const paragraphMatch = content.match(/^(.*?)(?=\d\.|\n\d\.|\n\n\d\.|\n- |\n\n- )/);
           if (paragraphMatch && paragraphMatch[1]) {
             setNarrativeContent(paragraphMatch[1].trim());
           } else {
             setNarrativeContent(content);
           }
-          
+
           // Extract the highlights (numbered list or bullet points)
           const highlightsMatch = content.match(/(?:\d\.|-)(.+?)(?=\d\.|$|-|$)/g);
           if (highlightsMatch) {
             setNarrativeHighlights(
-              highlightsMatch.map(h => h.replace(/^\d\.|-\s*/, '').trim())
-                .filter(h => h.length > 0)
+              highlightsMatch.map((h: string) => h.replace(/^\d\.|-\s*/, '').trim())
+                .filter((h: string) => h.length > 0)
             );
           }
         }
@@ -120,7 +114,13 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [opportunity, evaluation]);
+
+  useEffect(() => {
+    if (opportunity && evaluation) {
+      fetchNarrativeAlignment();
+    }
+  }, [opportunity, evaluation, fetchNarrativeAlignment]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -138,7 +138,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           <BookText className="mr-2 h-5 w-5 text-indigo-400" />
           Narrative Alignment
         </CardTitle>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -154,7 +154,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           Refresh
         </Button>
       </CardHeader>
-      
+
       <CardContent>
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
@@ -176,7 +176,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
                 </Button>
               </div>
             </div>
-            
+
             {narrativeHighlights.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-300 mb-2">Key Points to Emphasize</h3>
@@ -192,7 +192,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
                 </div>
               </div>
             )}
-            
+
             <div className="pt-2">
               <Button
                 variant="outline"

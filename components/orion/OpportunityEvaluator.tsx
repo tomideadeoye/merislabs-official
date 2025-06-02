@@ -23,7 +23,7 @@ import {
   Info,
   ListTodo
 } from 'lucide-react';
-import type { OpportunityDetails, EvaluationResult, EvaluationOutput } from '@/types/opportunity';
+import type { OpportunityDetails, EvaluationOutput } from '@/types/opportunity';
 import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
 
 interface OpportunityEvaluatorProps {
@@ -36,7 +36,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   const [type, setType] = useState<'job' | 'education' | 'project' | 'other'>('job');
   const [url, setUrl] = useState<string>("");
 
-  const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
+  const [evaluation, setEvaluation] = useState<EvaluationOutput | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,16 +74,18 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
 
       if (data.success) {
         setEvaluation(data.evaluation as EvaluationOutput);
+        setError(null);
         if (data.warning) {
           console.warn(data.warning);
         }
       } else {
-        setEvaluation({ rawOutput: data.error || 'Failed to evaluate opportunity' });
-        throw new Error(data.error || 'Failed to evaluate opportunity');
+        setEvaluation(null);
+        setError(data.error || 'Failed to evaluate opportunity.');
       }
     } catch (err: any) {
       console.error('Error evaluating opportunity:', err);
-      setError(err.message || 'An unexpected error occurred');
+      setEvaluation(null);
+      setError(err.message || 'An unexpected error occurred.');
     } finally {
       setIsLoading(false);
     }
@@ -117,9 +119,14 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   };
 
   // Type guard for successful evaluation
-  const isEvaluationSuccess = (result: EvaluationResult | null): result is EvaluationOutput => {
+  const isEvaluationSuccess = (result: EvaluationOutput | null): result is EvaluationOutput => {
     return !!result && 'fitScorePercentage' in result;
   };
+
+  // Determine raw output content if available
+  const rawOutputContent = (evaluation && 'rawOutput' in evaluation && typeof evaluation.rawOutput === 'string')
+    ? evaluation.rawOutput
+    : null;
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -207,21 +214,17 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         </CardContent>
       </Card>
 
-      {isLoading && (
+      {isLoading ? (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
-          <span className="ml-2 text-gray-400">Analyzing opportunity against your profile and goals...</span>
+          <span className="ml-2 text-gray-400">Evaluating...</span>
         </div>
-      )}
-
-      {error && !isLoading && (
-        <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-start">
-          <AlertTriangle className="h-5 w-5 mr-2 mt-0.5" />
-          <p>{error}</p>
+      ) : error ? (
+        <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
+          <AlertTriangle className="h-5 w-5 mr-2" />
+          {error}
         </div>
-      )}
-
-      {evaluation && isEvaluationSuccess(evaluation) && (
+      ) : isEvaluationSuccess(evaluation) ? (
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-xl text-amber-400">Evaluation Results: {title}</CardTitle>
@@ -315,23 +318,23 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
             )}
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {evaluation && !isEvaluationSuccess(evaluation) && 'rawOutput' in evaluation && (
+      {rawOutputContent && (
         <Card className="bg-yellow-900/30 border border-yellow-700">
           <CardHeader>
             <CardTitle className="text-yellow-400 flex items-center">
-              <Info className="mr-2 h-5 w-5" />
-              Raw Evaluation Output
+              <Info className="h-4 w-4 mr-2 text-blue-400" />
+              Raw Output (for debugging)
             </CardTitle>
             <CardDescription className="text-gray-400">
               The evaluation output could not be parsed as structured data
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <pre className="whitespace-pre-wrap text-sm text-gray-300 bg-gray-700/50 p-4 rounded-md">
-              {evaluation.rawOutput}
-            </pre>
+            <div className="text-sm font-mono text-gray-400 bg-gray-700 p-3 rounded-md overflow-x-auto">
+              {rawOutputContent}
+            </div>
           </CardContent>
         </Card>
       )}

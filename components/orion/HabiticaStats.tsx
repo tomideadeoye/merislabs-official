@@ -22,11 +22,11 @@ export const HabiticaStats: React.FC<HabiticaStatsProps> = ({ className }) => {
   const fetchStats = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/habitica/user');
       const data = await response.json();
-      
+
       if (data.success) {
         setStats(data.userStats);
       } else {
@@ -78,10 +78,10 @@ export const HabiticaStats: React.FC<HabiticaStatsProps> = ({ className }) => {
     <Card className={`bg-gray-800 border-gray-700 ${className}`}>
       <CardContent className="p-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-purple-400">{username}'s Stats</h3>
+          <h3 className="text-lg font-medium text-purple-400">{username}&apos;s Stats</h3>
           <div className="text-gray-300">Level {lvl}</div>
         </div>
-        
+
         <div className="space-y-4">
           {/* Health */}
           <div className="space-y-1">
@@ -94,7 +94,7 @@ export const HabiticaStats: React.FC<HabiticaStatsProps> = ({ className }) => {
             </div>
             <Progress value={(hp / maxHealth) * 100} className="h-2 bg-gray-700" indicatorClassName="bg-red-500" />
           </div>
-          
+
           {/* Mana */}
           <div className="space-y-1">
             <div className="flex justify-between items-center">
@@ -106,7 +106,7 @@ export const HabiticaStats: React.FC<HabiticaStatsProps> = ({ className }) => {
             </div>
             <Progress value={(mp / maxMP) * 100} className="h-2 bg-gray-700" indicatorClassName="bg-blue-500" />
           </div>
-          
+
           {/* Experience */}
           <div className="space-y-1">
             <div className="flex justify-between items-center">
@@ -118,7 +118,7 @@ export const HabiticaStats: React.FC<HabiticaStatsProps> = ({ className }) => {
             </div>
             <Progress value={(exp / toNextLevel) * 100} className="h-2 bg-gray-700" indicatorClassName="bg-yellow-500" />
           </div>
-          
+
           {/* Gold */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">

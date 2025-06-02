@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,15 +25,11 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
   const [isGenerating, setIsGenerating] = useState(false);
   const [lessons, setLessons] = useState<LessonLearned[]>([]);
 
-  useEffect(() => {
-    if (opportunity) {
-      fetchLessonsLearned();
-    }
-  }, [opportunity.id]);
 
-  const fetchLessonsLearned = async () => {
+
+  const fetchLessonsLearned = useCallback(async () => {
     setIsLoading(true);
-    
+
     try {
       // Search for reflections and lessons in memory
       const response = await fetch('/api/orion/memory/search', {
@@ -70,9 +66,9 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           minScore: 0.5
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.results && data.results.length > 0) {
         // Transform the results into a more usable format
         const lessonsLearned = data.results.map((item: any) => ({
@@ -83,7 +79,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           tags: item.payload.tags || [],
           relevance: Math.round(item.score * 100)
         }));
-        
+
         setLessons(lessonsLearned);
       }
     } catch (error) {
@@ -91,11 +87,17 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [opportunity]);
+
+  useEffect(() => {
+    if (opportunity) {
+      fetchLessonsLearned();
+    }
+  }, [opportunity, fetchLessonsLearned]);
 
   const generateLessonsLearned = async () => {
     setIsGenerating(true);
-    
+
     try {
       // First, get all reflections from memory
       const reflectionsResponse = await fetch('/api/orion/memory/search', {
@@ -125,13 +127,13 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           }
         })
       });
-      
+
       const reflectionsData = await reflectionsResponse.json();
-      
+
       if (reflectionsData.success && reflectionsData.results && reflectionsData.results.length > 0) {
         // Extract the text from the reflections
         const reflectionTexts = reflectionsData.results.map((item: any) => item.payload.text).join('\n\n');
-        
+
         // Use LLM to generate lessons learned
         const llmResponse = await fetch('/api/orion/llm', {
           method: 'POST',
@@ -142,14 +144,14 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
             requestType: 'LESSONS_LEARNED_SYNTHESIS',
             primaryContext: `
               Based on the following reflections and past experiences, extract 3-5 key lessons learned that would be relevant to the current opportunity:
-              
+
               Current Opportunity: ${opportunity.title} at ${opportunity.companyOrInstitution}
               Type: ${opportunity.type}
               Tags: ${opportunity.tags?.join(', ') || 'None'}
-              
+
               Past Reflections:
               ${reflectionTexts}
-              
+
               Please provide:
               1. 3-5 specific lessons learned that are relevant to this opportunity
               2. For each lesson, include a brief explanation of why it's important
@@ -159,9 +161,9 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
             maxTokens: 1000
           })
         });
-        
+
         const llmData = await llmResponse.json();
-        
+
         if (llmData.success && llmData.content) {
           // Save the generated lessons to memory
           const saveResponse = await fetch('/api/orion/memory/add-memory', {
@@ -182,7 +184,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
               }
             })
           });
-          
+
           // Parse the lessons from the LLM response
           const lessonsArray = llmData.content
             .split('\n\n')
@@ -195,7 +197,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
               tags: ['lessons_learned', 'generated'],
               relevance: 95 - index * 5 // Decreasing relevance for each lesson
             }));
-          
+
           setLessons(lessonsArray);
         }
       }
@@ -218,7 +220,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           <Lightbulb className="mr-2 h-5 w-5 text-yellow-400" />
           Lessons Learned
         </CardTitle>
-        
+
         <div className="flex space-x-2">
           <Button
             variant="outline"
@@ -234,7 +236,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
             )}
             Refresh
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -251,7 +253,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {isLoading || isGenerating ? (
           <div className="flex justify-center items-center py-8">
@@ -269,28 +271,28 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
-                
+
                 <p className="text-gray-200 pr-8">{lesson.content}</p>
-                
+
                 <div className="flex flex-wrap gap-1 mt-2">
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant="outline"
                     className="bg-yellow-900/30 text-yellow-300 border-yellow-700"
                   >
                     {lesson.relevance}% relevant
                   </Badge>
-                  
+
                   {lesson.tags.slice(0, 3).map((tag, tagIndex) => (
-                    <Badge 
+                    <Badge
                       key={tagIndex}
-                      variant="outline" 
+                      variant="outline"
                       className="bg-gray-600 text-gray-300"
                     >
                       {tag}
                     </Badge>
                   ))}
                 </div>
-                
+
                 <p className="text-xs text-gray-400 mt-2">
                   Source: {lesson.source} • {new Date(lesson.date).toLocaleDateString()}
                 </p>

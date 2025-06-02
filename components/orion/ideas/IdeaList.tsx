@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,30 +30,20 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
   const [filteredIdeas, setFilteredIdeas] = useState<Idea[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filters
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [tagFilter, setTagFilter] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
-  // Fetch ideas on mount
-  useEffect(() => {
-    fetchIdeas();
-  }, []);
-  
-  // Apply filters when ideas or filters change
-  useEffect(() => {
-    applyFilters();
-  }, [ideas, statusFilter, tagFilter, searchQuery]);
-  
-  const fetchIdeas = async () => {
+
+  const fetchIdeas = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/ideas');
       const data = await response.json();
-      
+
       if (data.success) {
         setIdeas(data.ideas || []);
       } else {
@@ -65,39 +55,49 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-  
-  const applyFilters = () => {
+  }, []);
+
+  const applyFilters = useCallback(() => {
     let result = [...ideas];
-    
+
     // Apply status filter
     if (statusFilter !== 'all') {
       result = result.filter(idea => idea.status === statusFilter);
     }
-    
+
     // Apply tag filter
     if (tagFilter) {
-      result = result.filter(idea => 
+      result = result.filter(idea =>
         idea.tags?.some(tag => tag.toLowerCase().includes(tagFilter.toLowerCase()))
       );
     }
-    
+
     // Apply search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(idea => 
-        idea.title.toLowerCase().includes(query) || 
+      result = result.filter(idea =>
+        idea.title.toLowerCase().includes(query) ||
         idea.briefDescription?.toLowerCase().includes(query)
       );
     }
-    
+
     setFilteredIdeas(result);
-  };
-  
+  }, [ideas, statusFilter, tagFilter, searchQuery]);
+
+  // Fetch ideas on mount
+  useEffect(() => {
+    fetchIdeas();
+  }, [fetchIdeas]);
+
+  // Apply filters when ideas or filters change
+  useEffect(() => {
+    applyFilters();
+  }, [ideas, statusFilter, tagFilter, searchQuery, applyFilters]);
+
   const handleRefresh = () => {
     fetchIdeas();
   };
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -106,7 +106,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-center">
@@ -115,7 +115,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
       </div>
     );
   }
-  
+
   return (
     <div className={className}>
       <div className="flex justify-between items-center mb-4">
@@ -124,28 +124,28 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
           Your Ideas
           <Badge className="ml-2 bg-gray-700 text-gray-300">{ideas.length}</Badge>
         </h3>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
+
+        <Button
+          variant="outline"
+          size="sm"
           onClick={handleRefresh}
           className="text-gray-300 border-gray-600"
         >
           <Loader2 className="h-4 w-4" />
         </Button>
       </div>
-      
+
       {/* Filters */}
       <div className="bg-gray-800 border border-gray-700 rounded-md p-3 mb-4">
         <div className="flex items-center mb-2">
           <Filter className="h-4 w-4 mr-2 text-gray-400" />
           <span className="text-sm font-medium text-gray-300">Filters</span>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <div>
-            <Select 
-              value={statusFilter} 
+            <Select
+              value={statusFilter}
               onValueChange={setStatusFilter}
             >
               <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
@@ -161,7 +161,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Input
               placeholder="Filter by tag"
@@ -170,7 +170,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
               className="bg-gray-700 border-gray-600 text-gray-200"
             />
           </div>
-          
+
           <div>
             <Input
               placeholder="Search ideas"
@@ -181,7 +181,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Ideas List */}
       {filteredIdeas.length === 0 ? (
         <div className="text-center py-8 text-gray-400">
@@ -203,19 +203,19 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
                       {statusConfig[idea.status].label}
                     </Badge>
                   </div>
-                  
+
                   {idea.briefDescription && (
                     <p className="text-sm text-gray-400 mt-2 line-clamp-2">
                       {idea.briefDescription}
                     </p>
                   )}
-                  
+
                   <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-700">
                     <div className="flex items-center text-xs text-gray-500">
                       <Clock className="h-3 w-3 mr-1" />
                       {new Date(idea.updatedAt).toLocaleDateString()}
                     </div>
-                    
+
                     {idea.tags && idea.tags.length > 0 && (
                       <div className="flex items-center">
                         <Tag className="h-3 w-3 mr-1 text-gray-500" />

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 // Default stakeholder roles for networking
 const DEFAULT_STAKEHOLDER_ROLES = [
@@ -37,10 +38,9 @@ interface Stakeholder {
 }
 
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -49,23 +49,23 @@ export async function POST(request: NextRequest) {
 
     // Basic validation
     if (!query) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Search query is required." 
+      return NextResponse.json({
+        success: false,
+        error: "Search query is required."
       }, { status: 400 });
     }
 
     // Find stakeholders
     const stakeholders = await findPotentialStakeholders(query, roles);
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       stakeholders
     });
 
   } catch (error: any) {
     console.error('[STAKEHOLDER_SEARCH_API_ERROR]', error);
-    
+
     return NextResponse.json({
       success: false,
       error: 'Failed to search for stakeholders.',
@@ -79,26 +79,26 @@ export async function POST(request: NextRequest) {
  * This is a simplified implementation based on the Python version
  */
 async function findPotentialStakeholders(
-  query: string, 
+  query: string,
   roles?: string[]
 ): Promise<Stakeholder[]> {
   // Get company info
   const companyInfo = await getCompanyInfo(query);
-  
+
   if (!companyInfo) {
     return [];
   }
-  
+
   // Use provided roles or default roles
   const searchRoles = roles && roles.length > 0 ? roles : DEFAULT_STAKEHOLDER_ROLES;
-  
+
   // Search for stakeholders for each role
-  const stakeholdersPromises = searchRoles.map(role => 
+  const stakeholdersPromises = searchRoles.map(role =>
     searchLinkedInProfiles(query, role)
   );
-  
+
   const stakeholdersArrays = await Promise.all(stakeholdersPromises);
-  
+
   // Flatten and enrich with company info
   let stakeholders = stakeholdersArrays.flat().map(stakeholder => ({
     ...stakeholder,
@@ -106,7 +106,7 @@ async function findPotentialStakeholders(
     company_description: companyInfo.description,
     company_website: companyInfo.website
   }));
-  
+
   // Remove duplicates based on LinkedIn URL
   const seen = new Set();
   stakeholders = stakeholders.filter(s => {
@@ -116,13 +116,13 @@ async function findPotentialStakeholders(
     seen.add(s.linkedin_url);
     return true;
   });
-  
+
   // Generate potential email addresses
   stakeholders = stakeholders.map(stakeholder => {
     const email = generateEmail(stakeholder);
     return { ...stakeholder, email };
   });
-  
+
   return stakeholders;
 }
 
@@ -174,7 +174,7 @@ function generateEmail(stakeholder: Stakeholder): string | undefined {
 
     const name = stakeholder.name.toLowerCase().split(' ');
     const domain = stakeholder.company_website.split('//')[1]?.split('/')[0].replace('www.', '');
-    
+
     if (!domain || name.length < 2) {
       return undefined;
     }

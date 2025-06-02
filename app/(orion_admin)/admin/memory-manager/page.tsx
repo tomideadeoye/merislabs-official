@@ -95,7 +95,7 @@ export default function MemoryManagerFeaturePage() {
       <PageHeader
         title={PageNames.MEMORY_MANAGER}
         icon={<DatabaseZap className="h-7 w-7" />}
-        description="Search, view, and manage Orion's knowledge base."
+        description="Search, view, and manage Orion&apos;s knowledge base."
         showMemoryStatus={true}
         memoryInitialized={memoryInitialized}
       />
@@ -105,7 +105,7 @@ export default function MemoryManagerFeaturePage() {
         <CardHeader>
           <CardTitle className="text-xl text-green-400 flex items-center">
             <PlusCircle className="mr-2 h-6 w-6"/>
-            Add New Item to Orion's Memory
+            Add New Item to Orion&apos;s Memory
           </CardTitle>
           <CardDescription className="text-gray-400">
             Capture any thought, note, or piece of information.
@@ -121,7 +121,7 @@ export default function MemoryManagerFeaturePage() {
         <CardHeader>
           <CardTitle className="text-xl text-blue-400 flex items-center">
             <Search className="mr-2 h-6 w-6"/>
-            Search Orion's Memory
+            Search Orion&apos;s Memory
           </CardTitle>
           <CardDescription className="text-gray-400">
             Query the knowledge base using semantic search and filters.

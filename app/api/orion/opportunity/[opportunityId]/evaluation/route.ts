@@ -1,78 +1,124 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
-import { db } from '@/lib/database';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
+import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
+// Assuming profile data and web context are accessible server-side, maybe from a service or context
+// import { getUserProfile } from '@/lib/user_service'; // Placeholder
+// import { getWebResearchContext } from '@/lib/opportunity_service'; // Placeholder
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { EvaluationOutput } from '@/types/opportunity';
 
-export async function GET(
+export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ) {
-  const session = await auth();
+  // Check authentication
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
+  const opportunityId = params.opportunityId;
+
+  if (!opportunityId) {
+    return NextResponse.json({ success: false, error: 'Opportunity ID is required.' }, { status: 400 });
+  }
+
   try {
-    const { opportunityId } = params;
-    
-    // Get the opportunity to find the related evaluation ID
-    const getOpportunityStmt = db.prepare(`
-      SELECT relatedEvaluationId FROM opportunities WHERE id = ?
-    `);
-    
-    const opportunity = getOpportunityStmt.get(opportunityId);
-    
-    if (!opportunity || !opportunity.relatedEvaluationId) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'No evaluation found for this opportunity.' 
-      }, { status: 404 });
+    // Fetch opportunity details
+    const opportunityResult = await fetchOpportunityByIdFromNotion(opportunityId);
+
+    // Refined check for successful opportunity fetch
+    if (!opportunityResult || !opportunityResult.success) {
+      // Safely access error message when success is false
+      const errorMsg = opportunityResult && opportunityResult.success === false ? opportunityResult.error : 'Failed to fetch opportunity details from Notion.';
+      return NextResponse.json({ success: false, error: errorMsg }, { status: 500 });
     }
-    
-    // For now, we'll return mock data
-    // In a real implementation, you would fetch the evaluation from your memory store
-    // using the relatedEvaluationId
-    
-    const mockEvaluation: EvaluationOutput = {
-      fitScorePercentage: 85,
-      recommendation: "This opportunity is a strong match for your skills and career goals. Consider applying with a tailored application highlighting your system architecture experience.",
-      reasoning: "The role aligns well with your technical background and offers growth in areas you've expressed interest in.",
-      alignmentHighlights: [
-        "Strong match for your backend development experience",
-        "Company culture emphasizes collaboration and innovation, which aligns with your values",
-        "Role offers opportunity to work with cloud technologies you're familiar with",
-        "Compensation range meets your expectations"
-      ],
-      gapAnalysis: [
-        "Role requires Go programming language, which isn't in your current skill set",
-        "Consider highlighting your ability to quickly learn new programming languages"
-      ],
-      riskRewardAnalysis: {
-        potentialRewards: "Growth opportunity in cloud infrastructure, which aligns with your career goals",
-        potentialRisks: "New technology stack may require significant ramp-up time",
-        careerImpact: "Positive step toward your goal of becoming a technical architect"
-      },
-      suggestedNextSteps: [
-        "Tailor your resume to highlight relevant backend and cloud experience",
-        "Research the company's products more deeply",
-        "Prepare examples of your system design experience for interviews",
-        "Connect with current employees to learn more about the company culture"
-      ]
-    };
-    
-    return NextResponse.json({ 
-      success: true, 
-      evaluation: mockEvaluation,
-      evaluationId: opportunity.relatedEvaluationId
-    });
-    
+
+    const opportunity = opportunityResult.opportunity; // Now TypeScript should know opportunity exists
+
+    // TODO: Fetch user profile data server-side
+    const profileData = "User profile data placeholder"; // Replace with actual fetch
+
+    // Integrate web research by calling the new proxy API route
+    let webResearchContext = "";
+    try {
+        const searchResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Include necessary headers, e.g., Authorization if the internal API is protected
+                 // 'Authorization': request.headers.get('Authorization'), // Pass down user's auth
+            },
+            // Construct the query for the Python backend based on the opportunity
+            body: JSON.stringify({
+                query: `${opportunity.title} ${opportunity.company} company overview, mission, values, recent news`,
+                type: 'web', // Specify web search
+                count: 5, // Request top 5 results
+            }),
+        });
+
+        if (!searchResponse.ok) {
+             console.error('[EVAL_API] Failed to call internal research proxy:', searchResponse.status, searchResponse.statusText);
+             // Decide how to handle this error: either stop or continue without web context
+             // For now, we'll log and continue with empty context
+        } else {
+            const searchData = await searchResponse.json();
+            if (searchData.success && searchData.results) {
+                 // Format the search results into a string context for the LLM
+                 webResearchContext = searchData.results.map((result: any, index: number) =>
+                    `Source ${index + 1}: ${result.url || 'N/A'}\nTitle: ${result.title || 'N/A'}\nSnippet: ${result.snippet || 'No snippet'}`
+                 ).join('\n\n---\n\n');
+                 console.log('[EVAL_API] Successfully fetched web research context.');
+            } else {
+                console.warn('[EVAL_API] Research proxy returned success: false or no results.', searchData);
+            }
+        }
+
+    } catch (researchError: any) {
+        console.error('[EVAL_API] Error calling internal research proxy:', researchError);
+        // Continue with empty context
+    }
+
+    // Construct the prompt for LLM evaluation
+    const evaluationPrompt = `
+Evaluate the following job opportunity against the provided user profile.\n\nJob Title: ${opportunity.title}\nCompany: ${opportunity.company}\n\nJob Description:\n${opportunity.description || 'No description provided.'}\n\nUser Profile:\n${profileData}\n\nWeb Research Context (if available and relevant):\n${webResearchContext || 'No relevant web research context found.'}\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile and JD?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD.\n6. A brief explanation for the overall score.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`;
+
+    const llmResponse = await generateLLMResponse(
+      REQUEST_TYPES.OPPORTUNITY_EVALUATION,
+      evaluationPrompt,
+      // Consider passing profileContext and system_prompt_override if needed
+      // { profileContext: profileData, system_prompt_override: "You are an expert career evaluator..." }
+    );
+
+    if (!llmResponse.success || !llmResponse.content) {
+      return NextResponse.json({ success: false, error: llmResponse.error || 'LLM failed to generate evaluation.' }, { status: 500 });
+    }
+
+    // Attempt to parse the LLM response as JSON
+    let evaluation: EvaluationOutput;
+    try {
+      evaluation = JSON.parse(llmResponse.content) as EvaluationOutput;
+      // Basic validation to ensure parsed object matches expected structure
+      if (typeof evaluation.fitScorePercentage !== 'number' || typeof evaluation.recommendation !== 'string') {
+           throw new Error('Parsed evaluation data has incorrect structure.');
+      }
+
+    } catch (parseError: any) {
+      console.error('Failed to parse LLM evaluation response:', llmResponse.content, parseError);
+      // Return the raw content if parsing fails, or a specific error
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to parse LLM evaluation response.',
+        rawContent: llmResponse.content // Provide raw content for debugging
+      }, { status: 500 });
+    }
+
+    // TODO: Optionally save the evaluation results, e.g., to Notion or memory
+
+    return NextResponse.json({ success: true, evaluation });
   } catch (error: any) {
-    console.error('[OPPORTUNITY_EVALUATION_GET_API_ERROR]', error);
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to fetch evaluation.', 
-      details: error.message 
-    }, { status: 500 });
+    console.error('Error in POST /api/orion/opportunity/[opportunityId]/evaluation:', error);
+    return NextResponse.json({ success: false, error: error.message || 'An unexpected error occurred during evaluation.' }, { status: 500 });
   }
 }

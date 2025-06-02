@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
   }
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     });
 
     const embeddingData = await embeddingResponse.json();
-    
+
     if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length === 0) {
       console.error("[JOURNAL_SAVE_API] Failed to generate embeddings:", embeddingData.error);
       throw new Error(embeddingData.error || 'Failed to generate embeddings for journal entry.');
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Prepare the MemoryPoint for Qdrant
     const sourceId = `journal_${journalEntryTimestamp.replace(/[:.]/g, '-')}_${uuidv4().substring(0, 8)}`;
-    
+
     const memoryPayload = {
       text: text,
       source_id: sourceId,
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
       vector: embeddingVector,
       payload: memoryPayload,
     };
-    
+
     console.log(`[JOURNAL_SAVE_API] Preparing to upsert journal entry with ID: ${memoryPoint.id} and source_id: ${sourceId}`);
 
     // 3. Upsert the MemoryPoint into Qdrant
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
     });
 
     const upsertData = await upsertResponse.json();
-    
+
     if (!upsertData.success) {
       console.error("[JOURNAL_SAVE_API] Failed to upsert journal entry to Qdrant:", upsertData.error);
       throw new Error(upsertData.error || 'Failed to save journal entry to memory.');
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
       });
 
       const reflectionData = await reflectionResponse.json();
-      
+
       if (reflectionData.success && reflectionData.content) {
         // Store the reflection in memory
         const reflectionSourceId = `reflection_${sourceId}`;
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
         });
 
         const reflectionEmbeddingData = await reflectionEmbeddingResponse.json();
-        
+
         if (reflectionEmbeddingData.success && reflectionEmbeddingData.embeddings && reflectionEmbeddingData.embeddings.length > 0) {
           const reflectionPoint = {
             id: uuidv4(),
@@ -159,11 +160,11 @@ export async function POST(request: NextRequest) {
           });
 
           console.log(`[JOURNAL_SAVE_API] Reflection saved to memory. Source ID: ${reflectionSourceId}`);
-          
+
           // Return the journal entry ID and reflection
-          return NextResponse.json({ 
-            success: true, 
-            message: 'Journal entry saved successfully!', 
+          return NextResponse.json({
+            success: true,
+            message: 'Journal entry saved successfully!',
             sourceId: sourceId,
             reflection: reflectionData.content
           });
@@ -175,10 +176,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Return success even if reflection failed
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Journal entry saved successfully!', 
-      sourceId: sourceId 
+    return NextResponse.json({
+      success: true,
+      message: 'Journal entry saved successfully!',
+      sourceId: sourceId
     });
 
   } catch (error: any) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Righteous } from "next/font/google";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocalStorage } from "react-use";
 
 const inter = Righteous({
@@ -10,12 +10,12 @@ const inter = Righteous({
 });
 
 export default function WallPaper() {
-  const quotes = [
+  const quotes = useMemo(() => [
     {
       text: "To thine own self be === true",
     },
     {
-      text: `You can succeed despite a lot of odds because most people can't be intentional or create frameworks to bind their decisions`,
+      text: `You can succeed despite a lot of odds because most people can&apos;t be intentional or create frameworks to bind their decisions`,
     },
     {
       text: `These.... like right now, not later, are the days of your entire LIFE. How did you choose to spend it?`,
@@ -23,7 +23,7 @@ export default function WallPaper() {
     {
       text: `Follow your gut, your gut is very very TRUE`,
     },
-  ];
+  ], []);
 
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [backgroundImage, setBackgroundImage] = useState("");
@@ -31,7 +31,7 @@ export default function WallPaper() {
 
   useEffect(() => {
     setQuote(quotes[quoteIndex].text);
-  }, [quoteIndex]);
+  }, [quoteIndex, quotes, setQuote]);
 
   const handleNextQuote = () => {
     setQuoteIndex((prevIndex) => (prevIndex + 1) % quotes.length);
