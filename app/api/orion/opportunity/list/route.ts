@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       {
         id: '1',
         title: 'Senior Software Engineer',
-        companyOrInstitution: 'CloudScale Technologies',
+        company: 'CloudScale Technologies',
         type: 'job',
         status: 'evaluating',
         dateIdentified: '2023-05-15',
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       {
         id: '2',
         title: 'Product Manager',
-        companyOrInstitution: 'InnovateTech',
+        company: 'InnovateTech',
         type: 'job',
         status: 'application_ready',
         dateIdentified: '2023-05-10',
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       {
         id: '3',
         title: 'MBA Program',
-        companyOrInstitution: 'Stanford Graduate School of Business',
+        company: 'Stanford Graduate School of Business',
         type: 'education_program',
         status: 'researching',
         dateIdentified: '2023-04-20',
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       {
         id: '4',
         title: 'Open Source Collaboration',
-        companyOrInstitution: 'TechForGood Foundation',
+        company: 'TechForGood Foundation',
         type: 'project_collaboration',
         status: 'applied',
         dateIdentified: '2023-05-01',
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       {
         id: '5',
         title: 'Tech Lead',
-        companyOrInstitution: 'FinanceFlow',
+        company: 'FinanceFlow',
         type: 'job',
         status: 'interview_scheduled',
         dateIdentified: '2023-04-15',

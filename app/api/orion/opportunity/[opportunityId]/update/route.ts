@@ -45,9 +45,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     // Basic fields
     if (body.title !== undefined) updateFields.title = body.title;
-    if (body.companyOrInstitution !== undefined) updateFields.companyOrInstitution = body.companyOrInstitution;
+    if (body.company !== undefined) updateFields.company = body.company;
     if (body.type !== undefined) updateFields.type = body.type;
-    if (body.descriptionSummary !== undefined) updateFields.descriptionSummary = body.descriptionSummary;
+    if (body.content !== undefined) updateFields.content = body.content;
     if (body.sourceURL !== undefined) updateFields.sourceURL = body.sourceURL;
     if (body.status !== undefined) updateFields.status = body.status;
     if (body.priority !== undefined) updateFields.priority = body.priority;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { ScoredMemoryPoint, QdrantFilter } from '@/types/orion';
+import type { ScoredMemoryPoint, QdrantFilter, JournalEntryNotionInput } from '@/types/orion';
 import { JournalEntryDisplay } from './JournalEntryDisplay';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle } from 'lucide-react';
@@ -12,7 +12,7 @@ interface JournalListProps {
 }
 
 export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) => {
-  const [entries, setEntries] = useState<ScoredMemoryPoint[]>([]);
+  const [entries, setEntries] = useState<JournalEntryNotionInput[]>([]);
   const [reflections, setReflections] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,45 +22,26 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
   const fetchJournalEntries = useCallback(async (currentOffset: number, limit: number) => {
     setIsLoading(true);
     setError(null);
+    setHasMore(false);
     try {
-      // Construct filter for journal entries
-      const filter: QdrantFilter = {
-        must: [
-          {
-            key: "type",
-            match: { value: "journal_entry" },
-          },
-        ],
-      };
-
-      const response = await fetch('/api/orion/memory/search', {
-        method: 'POST',
+      const response = await fetch('/api/orion/journal/list', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          queryText: "*",
-          collectionName: ORION_MEMORY_COLLECTION_NAME,
-          limit: limit,
-          filter: filter,
-        })
       });
 
       const data = await response.json();
 
       if (data.success) {
-        const newEntries: ScoredMemoryPoint[] = data.results || [];
-        // Sort by timestamp descending
-        newEntries.sort((a, b) => new Date(b.payload.timestamp).getTime() - new Date(a.payload.timestamp).getTime());
-        
-        setEntries(prev => currentOffset === 0 ? newEntries : [...prev, ...newEntries]);
-        setOffset(currentOffset + newEntries.length);
-        setHasMore(newEntries.length === limit);
-        
-        // Fetch reflections for new entries
+        const newEntries: JournalEntryNotionInput[] = data.journalEntries || [];
+        newEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        setEntries(newEntries);
+
         fetchReflectionsForEntries(newEntries);
       } else {
-        throw new Error(data.error || 'Failed to fetch journal entries.');
+        throw new Error(data.error || 'Failed to fetch journal entries from Notion.');
       }
     } catch (err: any) {
       console.error("Error fetching journal entries:", err);
@@ -71,12 +52,12 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
     }
   }, []);
 
-  const fetchReflectionsForEntries = async (entries: ScoredMemoryPoint[]) => {
+  const fetchReflectionsForEntries = async (entries: JournalEntryNotionInput[]) => {
     try {
-      // Get all source_ids
-      const sourceIds = entries.map(entry => entry.payload.source_id);
-      
-      // Fetch all reflections in one batch
+      const notionPageIds = entries.map(entry => entry.notionPageId).filter(Boolean);
+
+      if (notionPageIds.length === 0) return;
+
       const response = await fetch('/api/orion/memory/search', {
         method: 'POST',
         headers: {
@@ -86,24 +67,24 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
           queryText: "*",
           filter: {
             must: [
-              { key: "type", match: { value: "journal_reflection" } }
+              { key: "type", match: { value: "journal_reflection" } },
+              { key: "payload.original_entry_id", match: { any_text: notionPageIds } },
             ]
           },
-          limit: 100 // Adjust as needed
+          limit: 100
         })
       });
 
       const data = await response.json();
-      
+
       if (data.success && data.results) {
-        // Create a map of original_entry_id to reflection text
         const newReflections: Record<string, string> = {};
         data.results.forEach((reflection: ScoredMemoryPoint) => {
-          if (reflection.payload.original_entry_id && sourceIds.includes(reflection.payload.original_entry_id)) {
+          if (reflection.payload.original_entry_id && notionPageIds.includes(reflection.payload.original_entry_id)) {
             newReflections[reflection.payload.original_entry_id] = reflection.payload.text;
           }
         });
-        
+
         setReflections(prev => ({ ...prev, ...newReflections }));
       }
     } catch (error) {
@@ -114,12 +95,6 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
   useEffect(() => {
     fetchJournalEntries(0, initialLimit);
   }, [fetchJournalEntries, initialLimit]);
-
-  const handleLoadMore = () => {
-    if (hasMore && !isLoading) {
-      fetchJournalEntries(offset, initialLimit);
-    }
-  };
 
   if (isLoading && entries.length === 0) {
     return (
@@ -150,26 +125,12 @@ export const JournalList: React.FC<JournalListProps> = ({ initialLimit = 5 }) =>
     <div className="mt-8 space-y-4">
       <h2 className="text-xl font-semibold text-gray-200 border-b border-gray-700 pb-2">Past Entries</h2>
       {entries.map((entry) => (
-        <JournalEntryDisplay 
-          key={entry.id} 
-          entry={entry} 
-          initialReflection={reflections[entry.payload.source_id]}
+        <JournalEntryDisplay
+          key={entry.notionPageId}
+          entry={entry}
+          initialReflection={reflections[entry.notionPageId!]}
         />
       ))}
-      {hasMore && (
-        <div className="text-center mt-6">
-          <Button onClick={handleLoadMore} disabled={isLoading} variant="outline" className="bg-gray-700 hover:bg-gray-600">
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Load More Entries
-          </Button>
-        </div>
-      )}
-      {!hasMore && entries.length > 0 && (
-        <p className="text-center text-sm text-gray-600 mt-6">No more entries to load.</p>
-      )}
-      {error && entries.length > 0 && (
-        <p className="text-center text-sm text-red-400 mt-4">Error loading more entries: {error}</p>
-      )}
     </div>
   );
 };

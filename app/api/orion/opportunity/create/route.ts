@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       opportunity: {
         id: mockId,
         title: body.title,
-        companyOrInstitution: body.companyOrInstitution,
+        company: body.companyOrInstitution,
         type: body.type,
         status: body.status,
         dateIdentified: currentDate,

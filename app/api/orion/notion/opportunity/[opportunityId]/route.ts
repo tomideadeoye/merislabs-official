@@ -6,26 +6,28 @@ export async function PATCH(
     request: Request,
     { params }: { params: { opportunityId: string } }
 ) {
-    try {
-        const { opportunityId } = params;
-        const updateData = await request.json();
+    const { opportunityId } = params;
+    console.log('[PATCH /api/orion/notion/opportunity/[opportunityId]] Received opportunityId:', opportunityId);
 
-        if (!opportunityId) {
-            return NextResponse.json({ success: false, error: 'Opportunity ID is required' }, { status: 400 });
-        }
+    if (!opportunityId) {
+        return NextResponse.json({ success: false, error: 'Opportunity ID is required' }, { status: 400 });
+    }
 
-        // Validate updateData against Partial<OpportunityNotionInput> if necessary
+    // Validate updateData against Partial<OpportunityNotionInput> if necessary
 
-        const updatedOpportunity = await updateNotionOpportunity(opportunityId, updateData);
+    const updateData = await request.json();
+    const updatedOpportunity = await updateNotionOpportunity(opportunityId, updateData);
 
-        if (updatedOpportunity) {
-            return NextResponse.json({ success: true, opportunity: updatedOpportunity });
-        } else {
-            return NextResponse.json({ success: false, error: 'Failed to update opportunity in Notion' }, { status: 500 });
-        }
-    } catch (error: any) {
-        console.error(`Error in Update Opportunity API route for ID ${params.opportunityId}:`, error);
-        return NextResponse.json({ success: false, error: error.message || 'An unexpected error occurred' }, { status: 500 });
+    console.log('[PATCH /api/orion/notion/opportunity/[opportunityId]] Result of updateNotionOpportunity:', updatedOpportunity);
+
+    if (updatedOpportunity) {
+        const successResponse = NextResponse.json({ success: true, opportunity: updatedOpportunity });
+        console.log('[PATCH /api/orion/notion/opportunity/[opportunityId]] Sending success response:', successResponse);
+        return successResponse;
+    } else {
+        const errorResponse = NextResponse.json({ success: false, error: 'Failed to update opportunity in Notion' }, { status: 500 });
+        console.log('[PATCH /api/orion/notion/opportunity/[opportunityId]] Sending error response:', errorResponse);
+        return errorResponse;
     }
 }
 
@@ -34,22 +36,29 @@ export async function GET(
     { params }: { params: { opportunityId: string } }
 ) {
     const { opportunityId } = params;
+    console.log(`[GET /api/orion/notion/opportunity/${opportunityId}] Received request for opportunity ID:`, opportunityId);
 
     if (!opportunityId) {
+        console.error(`[GET /api/orion/notion/opportunity/${opportunityId}] Opportunity ID is missing.`);
         return NextResponse.json({ success: false, error: 'Opportunity ID is required.' }, { status: 400 });
     }
 
     try {
-        const opportunity = await fetchOpportunityByIdFromNotion(opportunityId);
+        console.log(`[GET /api/orion/notion/opportunity/${opportunityId}] Calling fetchOpportunityByIdFromNotion...`);
+        const fetchResult = await fetchOpportunityByIdFromNotion(opportunityId);
+        console.log(`[GET /api/orion/notion/opportunity/${opportunityId}] Raw Notion API response:`, JSON.stringify(fetchResult, null, 2));
 
-        if (opportunity) {
-            return NextResponse.json({ success: true, opportunity });
+        if (fetchResult.success) {
+            console.log(`[GET /api/orion/notion/opportunity/${opportunityId}] Successfully fetched opportunity.`, fetchResult.opportunity.id);
+            return NextResponse.json({ success: true, opportunity: fetchResult.opportunity });
         } else {
-            return NextResponse.json({ success: false, error: 'Opportunity not found or could not be fetched.' }, { status: 404 });
+            console.warn(`[GET /api/orion/notion/opportunity/${opportunityId}] fetchOpportunityByIdFromNotion returned success: false. Error:`, fetchResult.error);
+            const status = fetchResult.error.includes('not found') ? 404 : 500;
+            return NextResponse.json({ success: false, error: fetchResult.error }, { status });
         }
 
     } catch (error: any) {
-        console.error(`Error in GET /api/orion/notion/opportunity/${opportunityId}:`, error);
+        console.error(`[GET /api/orion/notion/opportunity/${opportunityId}] Uncaught error during fetch:`, error);
         return NextResponse.json({ success: false, error: error.message || 'An unexpected error occurred.' }, { status: 500 });
     }
 }

@@ -138,7 +138,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                         >
                           <Card className="bg-gray-700 border-gray-600 p-3 hover:border-gray-500 cursor-pointer">
                             <h4 className="font-medium text-gray-200 mb-1">{opportunity.title}</h4>
-                            <p className="text-xs text-gray-400 mb-2">{opportunity.companyOrInstitution}</p>
+                            <p className="text-xs text-gray-400 mb-2">{opportunity.company}</p>
 
                             <div className="flex flex-wrap gap-1">
                               {opportunity.priority && (

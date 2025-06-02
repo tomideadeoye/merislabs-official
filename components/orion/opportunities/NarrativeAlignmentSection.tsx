@@ -31,7 +31,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: `Narrative statements, value propositions, or personal brand elements relevant to ${opportunity.title} at ${opportunity.companyOrInstitution}`,
+          query: `Narrative statements, value propositions, or personal brand elements relevant to ${opportunity.title} at ${opportunity.company}`,
           collectionName: 'orion_memory',
           limit: 5,
           filter: {
@@ -64,8 +64,8 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
             primaryContext: `
               Based on the following opportunity and evaluation, extract 3-5 key narrative points from Tomide's existing narrative statements that would be most effective for this specific opportunity.
 
-              Opportunity: ${opportunity.title} at ${opportunity.companyOrInstitution}
-              ${opportunity.descriptionSummary ? `Description: ${opportunity.descriptionSummary}` : ''}
+              Opportunity: ${opportunity.title} at ${opportunity.company}
+              ${opportunity.content ? `Description: ${opportunity.content}` : ''}
 
               Evaluation Highlights:
               ${evaluation?.alignmentHighlights?.join('\n') || 'No specific highlights available.'}

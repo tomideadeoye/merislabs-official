@@ -22,28 +22,28 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
   const handleGenerateDrafts = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Fetch user profile data
       const profileResponse = await fetch('/api/orion/profile');
       const profileData = await profileResponse.json();
-      
+
       if (!profileData.success) {
         throw new Error(profileData.error || 'Failed to fetch profile data');
       }
-      
+
       // Prepare request for draft application
       const requestBody = {
         opportunity: {
           title: opportunity.title,
-          company: opportunity.companyOrInstitution,
-          description: opportunity.descriptionSummary || '',
+          company: opportunity.company,
+          description: opportunity.content || '',
           tags: opportunity.tags || []
         },
         applicantProfile: profileData.profile,
         numberOfDrafts: 3
       };
-      
+
       // Call the draft application API
       const response = await fetch('/api/orion/opportunity/draft-application', {
         method: 'POST',
@@ -52,9 +52,9 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
         },
         body: JSON.stringify(requestBody)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.drafts) {
         setDrafts(data.drafts);
       } else {
@@ -81,27 +81,27 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
 
   return (
     <>
-      <Button 
+      <Button
         onClick={() => setIsOpen(true)}
         className="bg-blue-600 hover:bg-blue-700"
       >
         <FileText className="mr-2 h-4 w-4" /> Draft Application
       </Button>
-      
+
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
           <DialogHeader>
             <DialogTitle className="text-blue-400">
-              Draft Application for {opportunity.title} at {opportunity.companyOrInstitution}
+              Draft Application for {opportunity.title} at {opportunity.company}
             </DialogTitle>
           </DialogHeader>
-          
+
           {!drafts.length && !isLoading && !error && (
             <div className="py-6 text-center">
               <p className="mb-4 text-gray-300">
                 Generate personalized application drafts for this opportunity based on your profile.
               </p>
-              <Button 
+              <Button
                 onClick={handleGenerateDrafts}
                 className="bg-green-600 hover:bg-green-700"
               >
@@ -109,7 +109,7 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
               </Button>
             </div>
           )}
-          
+
           {isLoading && (
             <div className="py-10 text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-400" />
@@ -117,11 +117,11 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
               <p className="text-xs text-gray-500 mt-2">This may take a moment as we craft multiple unique drafts.</p>
             </div>
           )}
-          
+
           {error && (
             <div className="py-6 text-center">
               <p className="text-red-400 mb-4">{error}</p>
-              <Button 
+              <Button
                 onClick={handleGenerateDrafts}
                 className="bg-green-600 hover:bg-green-700"
               >
@@ -129,13 +129,13 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
               </Button>
             </div>
           )}
-          
+
           {drafts.length > 0 && (
             <div className="space-y-4">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="bg-gray-700 border-gray-600">
                   {drafts.map((_, index) => (
-                    <TabsTrigger 
+                    <TabsTrigger
                       key={`draft-${index + 1}`}
                       value={`draft-${index + 1}`}
                       className="data-[state=active]:bg-blue-600"
@@ -144,10 +144,10 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
                     </TabsTrigger>
                   ))}
                 </TabsList>
-                
+
                 {drafts.map((draft, index) => (
-                  <TabsContent 
-                    key={`draft-${index + 1}`} 
+                  <TabsContent
+                    key={`draft-${index + 1}`}
                     value={`draft-${index + 1}`}
                     className="mt-4"
                   >
@@ -160,12 +160,12 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
-                      
+
                       <div className="whitespace-pre-wrap text-gray-200 pr-8">
                         {draft}
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-between items-center mt-4">
                       <Badge className="bg-blue-600">Draft {index + 1}</Badge>
                       <Button
@@ -179,9 +179,9 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
                   </TabsContent>
                 ))}
               </Tabs>
-              
+
               <div className="pt-2 text-center">
-                <Button 
+                <Button
                   onClick={handleGenerateDrafts}
                   variant="outline"
                   className="text-gray-300 border-gray-600"

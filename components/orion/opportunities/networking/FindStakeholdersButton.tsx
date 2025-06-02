@@ -31,7 +31,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
   const handleFindStakeholders = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Call the find stakeholders API
       const response = await fetch('/api/orion/networking/find-stakeholders', {
@@ -40,14 +40,14 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          company: opportunity.companyOrInstitution,
+          company: opportunity.company,
           role: opportunity.title,
           count: 5
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.stakeholders) {
         setStakeholders(data.stakeholders);
       } else {
@@ -78,27 +78,27 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
 
   return (
     <>
-      <Button 
+      <Button
         onClick={() => setIsOpen(true)}
         className="bg-purple-600 hover:bg-purple-700"
       >
         <Users className="mr-2 h-4 w-4" /> Find Stakeholders
       </Button>
-      
+
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
           <DialogHeader>
             <DialogTitle className="text-purple-400">
-              Find Key Stakeholders at {opportunity.companyOrInstitution}
+              Find Key Stakeholders at {opportunity.company}
             </DialogTitle>
           </DialogHeader>
-          
+
           {!stakeholders.length && !isLoading && !error && (
             <div className="py-6 text-center">
               <p className="mb-4 text-gray-300">
-                Find key stakeholders at {opportunity.companyOrInstitution} who might be relevant for this opportunity.
+                Find key stakeholders at {opportunity.company} who might be relevant for this opportunity.
               </p>
-              <Button 
+              <Button
                 onClick={handleFindStakeholders}
                 className="bg-green-600 hover:bg-green-700"
               >
@@ -106,7 +106,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
               </Button>
             </div>
           )}
-          
+
           {isLoading && (
             <div className="py-10 text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-400" />
@@ -114,11 +114,11 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
               <p className="text-xs text-gray-500 mt-2">This may take a moment as we search for relevant contacts.</p>
             </div>
           )}
-          
+
           {error && (
             <div className="py-6 text-center">
               <p className="text-red-400 mb-4">{error}</p>
-              <Button 
+              <Button
                 onClick={handleFindStakeholders}
                 className="bg-green-600 hover:bg-green-700"
               >
@@ -126,7 +126,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
               </Button>
             </div>
           )}
-          
+
           {stakeholders.length > 0 && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
@@ -137,7 +137,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
                         <div>
                           <h3 className="text-gray-200 font-medium">{stakeholder.name}</h3>
                           <p className="text-gray-400 text-sm">{stakeholder.role} at {stakeholder.company}</p>
-                          
+
                           {stakeholder.email && (
                             <div className="flex items-center mt-1 text-gray-300 text-sm">
                               <Mail className="h-3.5 w-3.5 mr-1.5 text-gray-400" />
@@ -152,11 +152,11 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
                               </Button>
                             </div>
                           )}
-                          
+
                           {stakeholder.linkedin_url && (
-                            <a 
-                              href={stakeholder.linkedin_url} 
-                              target="_blank" 
+                            <a
+                              href={stakeholder.linkedin_url}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-400 hover:text-blue-300 text-sm mt-1 inline-block"
                             >
@@ -164,7 +164,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
                             </a>
                           )}
                         </div>
-                        
+
                         <Button
                           size="sm"
                           className="bg-purple-600 hover:bg-purple-700"
@@ -177,9 +177,9 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
                   </Card>
                 ))}
               </div>
-              
+
               <div className="pt-2 text-center">
-                <Button 
+                <Button
                   onClick={handleFindStakeholders}
                   variant="outline"
                   className="text-gray-300 border-gray-600"
@@ -191,7 +191,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           )}
         </DialogContent>
       </Dialog>
-      
+
       {selectedStakeholder && (
         <GenerateOutreachDialog
           isOpen={showOutreachDialog}

@@ -62,11 +62,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
         </div>
 
         <p className="text-sm text-gray-300 mt-2">
-          {opportunity.companyOrInstitution || 'Unknown organization'}
+          {opportunity.company || 'Unknown organization'}
         </p>
 
         <p className="text-sm text-gray-400 mt-2 line-clamp-2">
-          {opportunity.descriptionSummary || 'No description available'}
+          {opportunity.content || 'No description available'}
         </p>
 
         <div className="flex items-center mt-3 text-xs text-gray-500">

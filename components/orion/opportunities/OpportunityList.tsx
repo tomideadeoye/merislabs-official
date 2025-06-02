@@ -107,8 +107,8 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
 
         const matchesSearch = searchTerm === '' ||
           opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (opp.companyOrInstitution?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-          (opp.descriptionSummary?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+          (opp.company?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+          (opp.content?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
         const matchesStatus = statusFilter === FILTERS.STATUS.ALL || opp.status === statusFilter;
         const matchesType = typeFilter === FILTERS.TYPE.ALL || opp.type === typeFilter;
@@ -118,17 +118,17 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
       .sort((a, b) => {
         switch (sortBy) {
           case FILTERS.SORT.DATE_ASC:
-            return new Date(a.dateIdentified || '').getTime() - new Date(b.dateIdentified || '').getTime();
+            return new Date(a.createdAt || '').getTime() - new Date(b.createdAt || '').getTime();
           case FILTERS.SORT.DATE_DESC:
-            return new Date(b.dateIdentified || '').getTime() - new Date(a.dateIdentified || '').getTime();
+            return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
           case FILTERS.SORT.TITLE_ASC:
             return a.title.localeCompare(b.title);
           case FILTERS.SORT.TITLE_DESC:
             return b.title.localeCompare(a.title);
           case FILTERS.SORT.COMPANY_ASC:
-            return (a.companyOrInstitution || '').localeCompare(b.companyOrInstitution || '');
+            return (a.company || '').localeCompare(b.company || '');
           case FILTERS.SORT.COMPANY_DESC:
-            return (b.companyOrInstitution || '').localeCompare(a.companyOrInstitution || '');
+            return (b.company || '').localeCompare(a.company || '');
           default:
             return 0;
         }

@@ -28,13 +28,13 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
   const getPromptText = () => {
     switch (actionType) {
       case 'application_sent':
-        return `Reflect on your application to ${opportunity.title} at ${opportunity.companyOrInstitution}. How do you feel about your application? What strengths did you highlight? Any concerns?`;
+        return `Reflect on your application to ${opportunity.title} at ${opportunity.company}. How do you feel about your application? What strengths did you highlight? Any concerns?`;
       case 'interview_completed':
-        return `Reflect on your interview for ${opportunity.title} at ${opportunity.companyOrInstitution}. What went well? What could have gone better? What did you learn?`;
+        return `Reflect on your interview for ${opportunity.title} at ${opportunity.company}. What went well? What could have gone better? What did you learn?`;
       case 'outreach_sent':
-        return `Reflect on your outreach for ${opportunity.title} at ${opportunity.companyOrInstitution}. What was your approach? What response do you hope for?`;
+        return `Reflect on your outreach for ${opportunity.title} at ${opportunity.company}. What was your approach? What response do you hope for?`;
       default:
-        return `Reflect on this opportunity (${opportunity.title} at ${opportunity.companyOrInstitution}). What are your thoughts, feelings, or insights?`;
+        return `Reflect on this opportunity (${opportunity.title} at ${opportunity.company}). What are your thoughts, feelings, or insights?`;
     }
   };
 
@@ -60,7 +60,7 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
           tags: [
             'reflection',
             'opportunity_reflection',
-            (opportunity.companyOrInstitution || 'no_company').toLowerCase().replace(/\s+/g, '_'),
+            (opportunity.company || 'no_company').toLowerCase().replace(/\s+/g, '_'),
             actionType
           ]
         })

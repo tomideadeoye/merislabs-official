@@ -8,7 +8,7 @@ const mockOpportunities: Record<string, Opportunity> = {
   '1': {
     id: '1',
     title: 'Senior Software Engineer',
-    companyOrInstitution: 'CloudScale Technologies',
+    company: 'CloudScale Technologies',
     type: 'job',
     status: 'evaluating',
     dateIdentified: '2023-05-15',
@@ -23,7 +23,7 @@ const mockOpportunities: Record<string, Opportunity> = {
   '2': {
     id: '2',
     title: 'Product Manager',
-    companyOrInstitution: 'InnovateTech',
+    company: 'InnovateTech',
     type: 'job',
     status: 'application_ready',
     dateIdentified: '2023-05-10',
@@ -36,7 +36,7 @@ const mockOpportunities: Record<string, Opportunity> = {
   '3': {
     id: '3',
     title: 'MBA Program',
-    companyOrInstitution: 'Stanford Graduate School of Business',
+    company: 'Stanford Graduate School of Business',
     type: 'education_program',
     status: 'researching',
     dateIdentified: '2023-04-20',
@@ -51,7 +51,7 @@ const mockOpportunities: Record<string, Opportunity> = {
   '4': {
     id: '4',
     title: 'Open Source Collaboration',
-    companyOrInstitution: 'TechForGood Foundation',
+    company: 'TechForGood Foundation',
     type: 'project_collaboration',
     status: 'applied',
     dateIdentified: '2023-05-01',
@@ -64,7 +64,7 @@ const mockOpportunities: Record<string, Opportunity> = {
   '5': {
     id: '5',
     title: 'Tech Lead',
-    companyOrInstitution: 'FinanceFlow',
+    company: 'FinanceFlow',
     type: 'job',
     status: 'interview_scheduled',
     dateIdentified: '2023-04-15',

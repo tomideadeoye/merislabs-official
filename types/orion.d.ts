@@ -337,7 +337,8 @@ export interface JournalEntryNotionInput {
   title: string;
   date: Date;
   content: string;
-  // Add other potential properties if your Notion integration uses them
+  contentType: string;
+  notionPageId?: string;
   mood?: string;
   tags?: string[];
 }
@@ -368,6 +369,7 @@ export interface CVComponentShared {
   component_name: string;
   component_type: string;
   content_primary: string;
+  contentType?: string;
   keywords?: string[];
   associated_company_institution?: string;
   start_date?: string;
@@ -417,7 +419,7 @@ export interface OpportunityNotionOutputShared {
     company: string;
     status: string | null;
     url: string | null;
-    last_edited_time: Date;
+    last_edited_time?: Date | string | null;
     description?: string | null;
     type?: string | null;
     priority?: string | null;

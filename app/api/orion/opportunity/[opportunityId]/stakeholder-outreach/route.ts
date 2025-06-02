@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
-import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
+import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/orion_llm';
+import { fetchOpportunityByIdFromNotion, fetchContactsFromNotion } from '@/lib/notion_service';
+import { fetchUserProfile } from '@/lib/profile_service';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 // Assuming types for request body and response are defined
 // import { StakeholderOutreachRequestBody, StakeholderOutreachResponseBody } from '@/types/opportunity';
+import type { MemoryPayload, ContactShared } from '@/types/orion';
 
 /**
  * API route for identifying stakeholders and drafting outreach messages for a specific opportunity using LLM.
@@ -38,33 +40,86 @@ export async function POST(
 
     const opportunity = opportunityResult.opportunity;
 
-    // TODO: Fetch user profile data server-side if needed for stakeholder identification
-    const profileData = "User profile data placeholder"; // Replace with actual fetch or remove if not necessary
+    // Fetch user profile data
+    const profileData = await fetchUserProfile();
+    const profileContext = profileData ?
+      `User Profile Details:\nSkills: ${profileData.skills || 'N/A'}\nExperience: ${profileData.experience || 'N/A'}\nBackground: ${profileData.background || 'N/A'}\nPersonality: ${profileData.personality || 'N/A'}` :
+      "User profile data not available.";
+
+    // Fetch relevant memories for stakeholder outreach
+    let memoryResults: MemoryPayload[] = [];
+    try {
+      const memoryResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `Stakeholder and networking context for ${opportunity.title} at ${opportunity.company}`,
+          limit: 5,
+        }),
+      });
+
+      if (memoryResponse.ok) {
+        const memoryData = await memoryResponse.json();
+        if (memoryData.success && memoryData.results) {
+          memoryResults = memoryData.results;
+          console.log('[OUTREACH_API] Successfully fetched memory results.', memoryResults.length);
+        } else {
+           console.warn('[OUTREACH_API] Memory search proxy returned success: false or no results.', memoryData);
+        }
+      } else {
+         console.error('[OUTREACH_API] Failed to call internal memory search proxy:', memoryResponse.status, memoryResponse.statusText);
+      }
+    } catch (memoryError: any) {
+       console.error('[OUTREACH_API] Error calling internal memory search proxy:', memoryError);
+    }
+
+    // Fetch contacts from Notion
+    let contacts: ContactShared[] = [];
+    try {
+        const contactsResult = await fetchContactsFromNotion();
+        if (contactsResult.success) {
+            contacts = contactsResult.contacts;
+            console.log('[OUTREACH_API] Successfully fetched contacts.', contacts.length);
+        } else {
+            console.warn('[OUTREACH_API] Failed to fetch contacts:', contactsResult.error);
+        }
+    } catch (contactError: any) {
+        console.error('[OUTREACH_API] Error fetching contacts:', contactError);
+    }
 
     // --- Stakeholder Identification ---
-    const identificationPrompt = `
-Identify potential key stakeholders (e.g., hiring manager, recruiters, relevant team members) for the following job opportunity based on the provided job description and company name.
+    const identificationPromptContent = `
+Identify potential key stakeholders (e.g., hiring manager, recruiters, relevant team members) for the following job opportunity based on the provided job description and company name. Also consider the user's profile, any relevant memories, AND relevant contacts from their network.
 
 Job Title: ${opportunity.title}
 Company: ${opportunity.company}
 Job Description:
-${opportunity.description || 'No description provided.'}
-
-User Profile:
-${profileData}
+${opportunity.content || 'No description provided.'}
 
 Instructions:
-List potential roles or names of people involved in the hiring process or team. If specific names are not available, suggest relevant roles to look for. Provide the output as a simple list.
+List potential roles or names of people involved in the hiring process or team. **Specifically, review the provided contacts list and identify any individuals who work at the company or in a relevant role. Prioritize listing these existing contacts if they are relevant.** If specific names are not available in the contacts, suggest relevant roles to look for. Provide the output as a simple list.
 
 Provide ONLY the list of stakeholders, without any introductory or concluding remarks.
 `;
 
+    const identificationMessages = constructLlmMessages({
+      requestType: REQUEST_TYPES.ASK_QUESTION,
+      primaryContext: identificationPromptContent,
+      profileContext: profileContext,
+      memoryResults: memoryResults,
+      contacts: contacts,
+    });
+
     console.log('[STAKEHOLDER_OUTREACH_API] Sending stakeholder identification prompt to LLM...');
 
     const identificationResponse = await generateLLMResponse(
-      REQUEST_TYPES.ASK_QUESTION, // Or a more specific type if available
-      identificationPrompt,
-      { temperature: 0.5, max_tokens: 300 }
+      REQUEST_TYPES.ASK_QUESTION,
+      undefined,
+      {
+        messages: identificationMessages,
+        temperature: 0.5,
+        max_tokens: 300
+      } as any
     );
 
     let identifiedStakeholders: string | null = null;
@@ -77,16 +132,13 @@ Provide ONLY the list of stakeholders, without any introductory or concluding re
     }
 
     // --- Outreach Message Drafting ---
-    const outreachDraftingPrompt = `
-Draft initial outreach messages (e.g., LinkedIn connection request, introductory email) for potential stakeholders related to the following job opportunity.
+    const outreachDraftingPromptContent = `
+Draft initial outreach messages (e.g., LinkedIn connection request, introductory email) for potential stakeholders related to the following job opportunity. Leverage the user's profile, relevant memories, identified stakeholders, AND relevant contacts.
 
 Job Title: ${opportunity.title}
 Company: ${opportunity.company}
 Job Description:
 ${opportunity.description || 'No description provided.'}
-
-User Profile:
-${profileData}
 
 ${identifiedStakeholders ? `Potential Stakeholders identified:
 ${identifiedStakeholders}
@@ -96,17 +148,29 @@ ${/* tailoredCVContent ? `Tailored CV Content:\n${tailoredCVContent}\n\n` : '' *
 ${/* draftApplicationContent ? `Draft Application Content:\n${draftApplicationContent}\n\n` : '' */''}
 
 Instructions:
-Draft concise and professional messages suitable for initial contact. Include options for different platforms (e.g., LinkedIn, email). Tailor the message to express interest in the specific role and highlight relevant qualifications from the user profile. Encourage a brief conversation. Provide different message options.
+Draft concise and professional messages suitable for initial contact. Include options for different platforms (e.g., LinkedIn, email). Tailor the message to express interest in the specific role and highlight relevant qualifications from the user profile and memories. **Use information from the provided contacts list (like name, company, role) to personalize the messages if a connection to an identified stakeholder is found.** Encourage a brief conversation. Provide different message options.
 
 Provide ONLY the draft messages, clearly labeled for their intended use.
 `;
+
+    const outreachMessages = constructLlmMessages({
+      requestType: REQUEST_TYPES.DRAFT_COMMUNICATION,
+      primaryContext: outreachDraftingPromptContent,
+      profileContext: profileContext,
+      memoryResults: memoryResults,
+      contacts: contacts,
+    });
 
     console.log('[STAKEHOLDER_OUTREACH_API] Sending outreach message drafting prompt to LLM...');
 
     const outreachDraftingResponse = await generateLLMResponse(
       REQUEST_TYPES.DRAFT_COMMUNICATION,
-      outreachDraftingPrompt,
-      { temperature: 0.7, max_tokens: 800 }
+      undefined,
+      {
+        messages: outreachMessages,
+        temperature: 0.7,
+        max_tokens: 1000
+      } as any
     );
 
     let draftOutreachMessages: string | null = null;
