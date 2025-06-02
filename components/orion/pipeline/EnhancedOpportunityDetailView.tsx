@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
@@ -144,7 +144,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
         },
         body: JSON.stringify({
           title: opportunity.title,
-          description: opportunity.descriptionSummary || '',
+          content: opportunity.content || '',
           type: opportunity.type,
           url: opportunity.sourceURL
         })
@@ -188,8 +188,8 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
         body: JSON.stringify({
           opportunity: {
             title: opportunity.title,
-            company: opportunity.companyOrInstitution,
-            description: opportunity.descriptionSummary || '',
+            company: opportunity.company,
+            content: opportunity.content || '',
           },
           evaluationSummary: evaluation,
           numberOfDrafts: 3
@@ -232,7 +232,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          company: opportunity.companyOrInstitution,
+          company: opportunity.company,
           roles: ['Engineering Manager', 'Recruiter', 'CTO']
         })
       });
@@ -277,11 +277,11 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
         body: JSON.stringify({
           text: content,
           sourceId: `${type}_${opportunityId}_${Date.now()}`,
-          tags: [type, 'opportunity', opportunity?.companyOrInstitution?.toLowerCase().replace(/\s+/g, '_')],
+          tags: [type, 'opportunity', opportunity?.company?.toLowerCase().replace(/\s+/g, '_')],
           metadata: {
             type,
             opportunityId,
-            company: opportunity?.companyOrInstitution,
+            company: opportunity?.company,
             title: opportunity?.title,
             timestamp: new Date().toISOString()
           }
@@ -384,13 +384,13 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
               <CardTitle className="text-xl">{opportunity.title}</CardTitle>
-              <CardDescription className="text-gray-400">{opportunity.companyOrInstitution}</CardDescription>
+              <p className="text-gray-400">{opportunity.company}</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {opportunity.descriptionSummary && (
+              {opportunity.content && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-300 mb-1">Description</h3>
-                  <p className="text-sm text-gray-400">{opportunity.descriptionSummary}</p>
+                  <h3 className="text-sm font-medium text-gray-300 mb-1">content</h3>
+                  <p className="text-sm text-gray-400">{opportunity.content}</p>
                 </div>
               )}
 

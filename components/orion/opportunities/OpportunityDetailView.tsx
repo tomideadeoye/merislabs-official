@@ -16,13 +16,15 @@ interface OpportunityDetailViewProps {
   evaluation?: EvaluationOutput;
   onEdit?: () => void;
   onDelete?: () => void;
+  opportunityId: string;
 }
 
 export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
   opportunity,
   evaluation,
   onEdit,
-  onDelete
+  onDelete,
+  opportunityId
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -60,7 +62,10 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
       .join(' ');
   };
 
-  const formatType = (type: string): string => {
+  const formatType = (type: string | null | undefined): string => {
+    if (!type) {
+      return 'Unknown Type'; // Or return ''; or handle as appropriate
+    }
     return type
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -72,7 +77,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold text-gray-100">{opportunity.title}</h1>
-          <p className="text-lg text-gray-300 mt-1">{opportunity.companyOrInstitution}</p>
+          <p className="text-lg text-gray-300 mt-1">{opportunity.company}</p>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -126,20 +131,18 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
         <TabsContent value="overview" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-6">
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-gray-200">Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {opportunity.descriptionSummary ? (
+              {opportunity.content && (
+                <Card className="bg-gray-800 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-gray-200">Description</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <div className="text-gray-300 whitespace-pre-wrap">
-                      {opportunity.descriptionSummary}
+                      {opportunity.content}
                     </div>
-                  ) : (
-                    <p className="text-gray-500 italic">No description available</p>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
 
               {evaluation && (
                 <Card className="bg-gray-800 border-gray-700">

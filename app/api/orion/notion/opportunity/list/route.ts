@@ -5,6 +5,7 @@ export async function GET() {
   try {
     console.log('Attempting to fetch opportunities from Notion...');
     const opportunities = await listOpportunitiesFromNotion();
+    console.log('Raw Notion API response for opportunities:', JSON.stringify(opportunities, null, 2));
     console.log(`Successfully fetched ${opportunities.length} opportunities.`);
     return NextResponse.json({ success: true, opportunities });
   } catch (error: any) {

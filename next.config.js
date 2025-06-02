@@ -10,6 +10,9 @@ const nextConfig = {
   compiler: {
     styledComponents: true
   },
+  images: {
+    domains: ['d2dzik4ii1e1u6.cloudfront.net', 'res.cloudinary.com'],
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

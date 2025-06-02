@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import type { ScoredMemoryPoint } from '@/types/orion';
+import type { ScoredMemoryPoint, JournalEntryNotionInput } from '@/types/orion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Tag, Smile, MessageSquare, ChevronDown, ChevronUp, ListTodo, BookOpen } from 'lucide-react';
@@ -12,7 +12,7 @@ import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/app_state';
 
 interface JournalEntryDisplayProps {
-  entry: ScoredMemoryPoint;
+  entry: JournalEntryNotionInput;
   initialReflection?: string;
 }
 
@@ -23,8 +23,11 @@ interface ActionReflection {
 }
 
 export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry, initialReflection }) => {
-  const { payload, score } = entry;
-  const entryDate = new Date(payload.timestamp);
+  if (!entry) {
+    return null;
+  }
+  const { content, date, mood, tags, notionPageId } = entry;
+  const entryDate = new Date(date);
   const [showReflection, setShowReflection] = useState(!!initialReflection);
   const [reflection, setReflection] = useState<string | null>(initialReflection || null);
   const [isLoadingReflection, setIsLoadingReflection] = useState(false);
@@ -36,15 +39,17 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
 
   // Check for reflection when component mounts if not provided initially
   useEffect(() => {
-    if (!reflection && !isLoadingReflection) {
+    if (!reflection && !isLoadingReflection && notionPageId) {
       checkForExistingReflection();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reflection, isLoadingReflection, notionPageId]);
 
   const checkForExistingReflection = async () => {
+    if (!notionPageId) return;
+
     try {
-      // Search for reflection with the original_entry_id matching this entry's source_id
+      // Search for reflection with the original_entry_id matching this entry's notionPageId
       const response = await fetch('/api/orion/memory/search', {
         method: 'POST',
         headers: {
@@ -55,7 +60,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
           filter: {
             must: [
               { key: "type", match: { value: "journal_reflection" } },
-              { key: "original_entry_id", match: { value: payload.source_id } }
+              { key: "original_entry_id", match: { value: notionPageId } }
             ]
           },
           limit: 1
@@ -78,9 +83,15 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
       return;
     }
 
+    if (!notionPageId) {
+      setReflection("Cannot generate reflection: Missing entry ID.");
+      setShowReflection(true);
+      return;
+    }
+
     setIsLoadingReflection(true);
     try {
-      // Search for reflection with the original_entry_id matching this entry's source_id
+      // Search for reflection with the original_entry_id matching this entry's notionPageId
       const response = await fetch('/api/orion/memory/search', {
         method: 'POST',
         headers: {
@@ -91,7 +102,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
           filter: {
             must: [
               { key: "type", match: { value: "journal_reflection" } },
-              { key: "original_entry_id", match: { value: payload.source_id } }
+              { key: "original_entry_id", match: { value: notionPageId } }
             ]
           },
           limit: 1
@@ -111,8 +122,8 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
           },
           body: JSON.stringify({
             requestType: "JOURNAL_REFLECTION",
-            primaryContext: `Analyze the following journal entry and provide thoughtful insights, patterns, and reflections. Be supportive, insightful, and help the user gain deeper understanding of their thoughts and feelings:\n\n${payload.text}`,
-            mood: payload.mood || undefined,
+            primaryContext: `Analyze the following journal entry and provide thoughtful insights, patterns, and reflections. Be supportive, insightful, and help the user gain deeper understanding of their thoughts and feelings:\n\n${content}`,
+            mood: mood || undefined,
             temperature: 0.7,
             maxTokens: 500
           })
@@ -122,17 +133,17 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
         if (llmData.success && llmData.content) {
           setReflection(llmData.content);
           setShowReflection(true);
-          
+
           // Store the reflection in memory
-          const reflectionSourceId = `reflection_${payload.source_id}`;
+          const reflectionSourceId = `reflection_${notionPageId}`;
           const reflectionPayload = {
             text: llmData.content,
             source_id: reflectionSourceId,
-            original_entry_id: payload.source_id,
+            original_entry_id: notionPageId,
             timestamp: new Date().toISOString(),
             indexed_at: new Date().toISOString(),
             type: "journal_reflection",
-            tags: ["reflection", "journal_reflection", ...(payload.tags || [])],
+            tags: ["reflection", "journal_reflection", ...(tags || [])],
           };
 
           // Generate embedding for the reflection
@@ -184,6 +195,14 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
       return;
     }
 
+    if (!notionPageId) {
+      console.warn("Cannot fetch action reflections: Missing entry ID.");
+      setActionReflections([]);
+      setShowActionReflections(true);
+      setIsLoadingActionReflections(false);
+      return;
+    }
+
     setIsLoadingActionReflections(true);
     try {
       // Search for action reflections related to this journal entry
@@ -197,7 +216,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
           filter: {
             must: [
               { key: "type", match: { value: "action_reflection" } },
-              { key: "related_orion_source_id", match: { value: payload.source_id } }
+              { key: "payload.original_entry_id", match: { value: notionPageId } }
             ]
           },
           limit: 10
@@ -230,7 +249,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
     if (!reflectionText) {
       return null;
     }
-    
+
     // Look for common task suggestion patterns in the reflection
     const patterns = [
       /you could (try|consider) (to )?([\w\s]+)/i,
@@ -241,7 +260,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
       /action item: ([\w\s]+)/i,
       /task: ([\w\s]+)/i
     ];
-    
+
     for (const pattern of patterns) {
       const match = reflectionText.match(pattern);
       if (match) {
@@ -250,7 +269,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
         return suggestion.charAt(0).toUpperCase() + suggestion.slice(1);
       }
     }
-    
+
     return null;
   };
 
@@ -269,24 +288,36 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
             <CalendarDays className="mr-1 h-3 w-3" />
             {entryDate.toLocaleDateString()} ({entryDate.toLocaleTimeString()})
           </span>
-          {payload.mood && (
+          {mood && (
             <span className="flex items-center">
                 <Smile className="mr-1 h-3 w-3" />
-                Mood: <Badge variant="secondary" className="ml-1 bg-gray-700 text-gray-300">{payload.mood}</Badge>
+                Mood: <Badge variant="secondary" className="ml-1 bg-gray-700 text-gray-300">{mood}</Badge>
             </span>
           )}
-          <span>Score: {score.toFixed(4)}</span>
+          {tags && tags.length > 0 && (
+            <span className="flex items-center">
+              <Tag className="mr-1 h-3 w-3" />
+              Tags:
+              <div className="flex flex-wrap gap-1">
+                {tags.map((tag: string, index: number) => (
+                  <Badge key={index} variant="outline" className="text-xs border-sky-500 text-sky-300">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <pre className="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed font-sans">
-          {payload.text}
-        </pre>
-        
+        <div className="text-gray-300 whitespace-pre-wrap break-words">
+          {content}
+        </div>
+
         <div className="mt-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="text-xs flex items-center bg-gray-700 hover:bg-gray-600 text-gray-300"
             onClick={fetchReflection}
             disabled={isLoadingReflection}
@@ -300,7 +331,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
             )}
           </Button>
         </div>
-        
+
         {showReflection && reflection && (
           <div className="mt-3 p-3 bg-gray-700/50 rounded-md border border-gray-600">
             <div className="flex justify-between items-start">
@@ -312,13 +343,13 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
             <p className="text-sm text-gray-300 whitespace-pre-wrap">{reflection}</p>
           </div>
         )}
-        
+
         {/* Action Reflections Section */}
         {hasHabiticaCredentials && (
           <div className="mt-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="text-xs flex items-center bg-gray-700 hover:bg-gray-600 text-green-300"
               onClick={fetchActionReflections}
               disabled={isLoadingActionReflections}
@@ -333,7 +364,7 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
             </Button>
           </div>
         )}
-        
+
         {showActionReflections && (
           <div className="mt-3">
             {actionReflections.length === 0 ? (
@@ -357,22 +388,6 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
                 ))}
               </div>
             )}
-          </div>
-        )}
-        
-        {payload.tags && payload.tags.filter(tag => tag !== "journal" && tag !== "journal_entry").length > 0 && (
-          <div className="mt-3 pt-3 border-t border-gray-700/50">
-            <h4 className="text-xs font-semibold text-gray-500 mb-1 flex items-center">
-                <Tag className="mr-1 h-3 w-3" />
-                Tags:
-            </h4>
-            <div className="flex flex-wrap gap-1">
-              {payload.tags.filter(tag => tag !== "journal" && tag !== "journal_entry").map((tag: string, index: number) => (
-                <Badge key={index} variant="outline" className="text-xs border-sky-500 text-sky-300">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
           </div>
         )}
       </CardContent>

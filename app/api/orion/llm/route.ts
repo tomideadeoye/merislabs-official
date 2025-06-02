@@ -24,7 +24,7 @@ async function makeApiRequest(url: string, data: any, headers: Record<string, st
 }
 
 // Helper function to get API key and endpoint for a model
-function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: string, deploymentId?: string, apiVersion?: string } {
+function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: string, deploymentId?: string, apiVersion?: string, apiBase?: string } {
   // Extract provider and model name
   const parts = modelId.split('/');
   const provider = parts[0];
@@ -68,20 +68,21 @@ function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: st
     apiKey,
     endpoint,
     deploymentId: modelConfig.deploymentId || undefined,
-    apiVersion: modelConfig.apiVersion || undefined
+    apiVersion: modelConfig.apiVersion || undefined,
+    apiBase: modelConfig.apiBase || undefined
   };
 }
 
 // Helper function to call external LLM API
 async function callExternalLLM(model: string, messages: any[], temperature: number, maxTokens?: number) {
-  const { apiKey, endpoint, deploymentId, apiVersion } = getModelConfig(model);
+  const { apiKey, endpoint, deploymentId, apiVersion, apiBase } = getModelConfig(model);
 
   if (!apiKey) {
     throw new Error(`API key not found for model ${model}`);
   }
 
   // Extract provider from model ID
-  const [provider] = model.split('/');
+  const [provider, ...modelParts] = model.split('/');
 
   try {
     // Implement provider-specific API calls
@@ -129,7 +130,130 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         };
       }
 
-      // Add other provider implementations as needed
+      case 'openrouter': {
+        // OpenRouter API call
+        const url = apiBase || 'https://openrouter.ai/api/v1/chat/completions';
+        const modelName = modelParts.join('/');
+        console.log(`Calling OpenRouter API with model ${modelName}`);
+
+        const response = await makeApiRequest(url, {
+          model: modelName,
+          messages,
+          temperature,
+          max_tokens: maxTokens || 1000
+        }, {
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': 'https://orion.merislabs.com',
+          'X-Title': 'Orion AI System'
+        });
+
+        return {
+          success: true,
+          content: response.choices[0].message.content,
+          model: model
+        };
+      }
+
+      case 'gemini': {
+        // Google Gemini API call
+        const modelName = model.replace('gemini/', '');
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+        console.log(`Calling Gemini API with model ${modelName}`);
+        
+        // Convert messages to Gemini format
+        const geminiMessages = messages.map(msg => ({
+          role: msg.role === 'system' ? 'user' : msg.role,
+          parts: [{ text: msg.content }]
+        }));
+        
+        const response = await makeApiRequest(url, {
+          contents: geminiMessages,
+          generationConfig: {
+            temperature,
+            maxOutputTokens: maxTokens || 1000
+          }
+        }, {
+          'x-goog-api-key': apiKey
+        });
+        
+        return {
+          success: true,
+          content: response.candidates[0].content.parts[0].text,
+          model: model
+        };
+      }
+
+      case 'mistral': {
+        // Mistral API call
+        const url = 'https://api.mistral.ai/v1/chat/completions';
+        const modelName = model.replace('mistral/', '');
+        console.log(`Calling Mistral API with model ${modelName}`);
+
+        const response = await makeApiRequest(url, {
+          model: modelName,
+          messages,
+          temperature,
+          max_tokens: maxTokens || 1000
+        }, {
+          'Authorization': `Bearer ${apiKey}`
+        });
+
+        return {
+          success: true,
+          content: response.choices[0].message.content,
+          model: model
+        };
+      }
+
+      case 'cohere': {
+        // Cohere API call
+        const url = 'https://api.cohere.ai/v1/chat';
+        const modelName = model.replace('cohere/', '');
+        console.log(`Calling Cohere API with model ${modelName}`);
+        
+        // Convert messages to Cohere format
+        const cohereMessages = messages.map(msg => ({
+          role: msg.role,
+          message: msg.content
+        }));
+        
+        const response = await makeApiRequest(url, {
+          model: modelName,
+          chat_history: cohereMessages,
+          temperature,
+          max_tokens: maxTokens || 1000
+        }, {
+          'Authorization': `Bearer ${apiKey}`
+        });
+        
+        return {
+          success: true,
+          content: response.text,
+          model: model
+        };
+      }
+
+      case 'together_ai': {
+        // Together AI API call
+        const url = 'https://api.together.xyz/v1/completions';
+        const modelName = modelParts.join('/');
+        console.log(`Calling Together AI API with model ${modelName}`);
+        
+        const response = await makeApiRequest(url, {
+          model: modelName,
+          prompt: messages.map(m => `${m.role}: ${m.content}`).join('\n'),
+          temperature,
+          max_tokens: maxTokens || 1000
+        }, {
+          'Authorization': `Bearer ${apiKey}`
+        });
+        
+        return {
+          success: true,
+          content: response.choices[0].text,
+          model: model
+        };
+      }
 
       default:
         throw new Error(`Provider ${provider} not implemented for model ${model}`);

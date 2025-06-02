@@ -23,10 +23,10 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<OpportunityCreatePayload>({
     title: '',
-    companyOrInstitution: '',
+    company: '',
     type: 'job',
     status: 'Not Started',
-    descriptionSummary: '',
+    content: '',
     description: '',
     sourceURL: '',
     tags: []
@@ -87,10 +87,10 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
         onClose();
         setFormData({
           title: '',
-          companyOrInstitution: '',
+          company: '',
           type: 'job',
           status: 'Not Started',
-          descriptionSummary: '',
+          content: '',
           description: '',
           sourceURL: '',
           tags: []
@@ -184,11 +184,11 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descriptionSummary">Description</Label>
+            <Label htmlFor="content">Description</Label>
             <Textarea
-              id="descriptionSummary"
-              name="descriptionSummary"
-              value={formData.descriptionSummary}
+              id="content"
+              name="content"
+              value={formData.content}
               onChange={handleChange}
               placeholder="Brief description of the opportunity"
               className="bg-gray-700 border-gray-600 text-gray-200 min-h-[100px]"

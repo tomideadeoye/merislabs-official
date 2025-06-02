@@ -36,16 +36,16 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
   const handleGenerateOutreach = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Fetch user profile data
       const profileResponse = await fetch('/api/orion/profile');
       const profileData = await profileResponse.json();
-      
+
       if (!profileData.success) {
         throw new Error(profileData.error || 'Failed to fetch profile data');
       }
-      
+
       // Call the generate outreach API
       const response = await fetch('/api/orion/networking/generate-outreach', {
         method: 'POST',
@@ -54,15 +54,15 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
         },
         body: JSON.stringify({
           stakeholder: stakeholder,
-          context: `This outreach is regarding the ${opportunity.title} position at ${opportunity.companyOrInstitution}.`,
+          context: `This outreach is regarding the ${opportunity.title} position at ${opportunity.company}.`,
           profileData: profileData.profile,
-          additionalInfo: opportunity.descriptionSummary,
+          additionalInfo: opportunity.content,
           jobTitle: opportunity.title
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.emailDraft) {
         setOutreachContent(data.emailDraft);
       } else {
@@ -89,10 +89,10 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
   // Extract LinkedIn message and Email message from the content
   const parseOutreachContent = () => {
     if (!outreachContent) return { linkedin: '', email: '' };
-    
+
     const linkedinMatch = outreachContent.match(/LinkedIn Connection Request:([\s\S]*?)(?=Email Outreach:|$)/i);
     const emailMatch = outreachContent.match(/Email Outreach:([\s\S]*?)$/i);
-    
+
     return {
       linkedin: linkedinMatch ? linkedinMatch[1].trim() : '',
       email: emailMatch ? emailMatch[1].trim() : ''
@@ -109,13 +109,13 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
             Draft Outreach to {stakeholder.name}
           </DialogTitle>
         </DialogHeader>
-        
+
         {!outreachContent && !isLoading && !error && (
           <div className="py-6 text-center">
             <p className="mb-4 text-gray-300">
               Generate personalized outreach messages for {stakeholder.name} ({stakeholder.role} at {stakeholder.company}).
             </p>
-            <Button 
+            <Button
               onClick={handleGenerateOutreach}
               className="bg-green-600 hover:bg-green-700"
             >
@@ -123,7 +123,7 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
             </Button>
           </div>
         )}
-        
+
         {isLoading && (
           <div className="py-10 text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-400" />
@@ -131,11 +131,11 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
             <p className="text-xs text-gray-500 mt-2">This may take a moment as we craft tailored messages.</p>
           </div>
         )}
-        
+
         {error && (
           <div className="py-6 text-center">
             <p className="text-red-400 mb-4">{error}</p>
-            <Button 
+            <Button
               onClick={handleGenerateOutreach}
               className="bg-green-600 hover:bg-green-700"
             >
@@ -143,19 +143,19 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
             </Button>
           </div>
         )}
-        
+
         {outreachContent && (
           <div className="space-y-4">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="bg-gray-700 border-gray-600">
-                <TabsTrigger 
+                <TabsTrigger
                   value="linkedin"
                   className="data-[state=active]:bg-blue-600"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   LinkedIn Message
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="email"
                   className="data-[state=active]:bg-purple-600"
                 >
@@ -163,7 +163,7 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
                   Email
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="linkedin" className="mt-4">
                 <div className="relative bg-gray-700 p-4 rounded-md border border-gray-600">
                   <Button
@@ -174,12 +174,12 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
-                  
+
                   <div className="whitespace-pre-wrap text-gray-200 pr-8">
                     {linkedin}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between items-center mt-4">
                   <p className="text-xs text-gray-400">
                     LinkedIn connection requests have a 300 character limit
@@ -193,7 +193,7 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
                   </Button>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="email" className="mt-4">
                 <div className="relative bg-gray-700 p-4 rounded-md border border-gray-600">
                   <Button
@@ -204,12 +204,12 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
-                  
+
                   <div className="whitespace-pre-wrap text-gray-200 pr-8">
                     {email}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end items-center mt-4">
                   <Button
                     onClick={() => copyToClipboard(email)}
@@ -221,9 +221,9 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
                 </div>
               </TabsContent>
             </Tabs>
-            
+
             <div className="pt-2 text-center">
-              <Button 
+              <Button
                 onClick={handleGenerateOutreach}
                 variant="outline"
                 className="text-gray-300 border-gray-600"

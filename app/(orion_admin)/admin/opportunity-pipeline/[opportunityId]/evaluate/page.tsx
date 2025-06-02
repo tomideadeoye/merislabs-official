@@ -161,8 +161,8 @@ export default function EvaluateOpportunityPage() {
         <CardContent className="text-gray-300 space-y-2">
           <p><strong>Job Title:</strong> {opportunity.title}</p>
           <p><strong>Company:</strong> {opportunity.companyOrInstitution}</p>
-          {opportunity.descriptionSummary && (
-            <p><strong>Summary:</strong> {opportunity.descriptionSummary.substring(0, 200)}...</p>
+          {opportunity.content && (
+            <p><strong>Summary:</strong> {opportunity.content.substring(0, 200)}...</p>
           )}
           {opportunity.sourceURL && (
              <p><strong>Source:</strong> <a href={opportunity.sourceURL} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{opportunity.sourceURL}</a></p>

@@ -4,7 +4,7 @@ import type { OpportunityDetails, EvaluationOutput, OpportunityType } from '../t
 const opportunities: OpportunityDetails[] = [
   {
     title: "Senior Software Engineer",
-    description: `Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.
+    content: `Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.
 
 Key Responsibilities:
 - Design and implement scalable microservices using Go and Python
@@ -24,7 +24,7 @@ Requirements:
   },
   {
     title: "MBA in Technology Management",
-    description: `A comprehensive MBA program focused on technology management and digital transformation.
+    content: `A comprehensive MBA program focused on technology management and digital transformation.
 
 Program Highlights:
 - Technology Strategy and Innovation
@@ -43,7 +43,7 @@ Requirements:
   },
   {
     title: "Open Source AI Framework Collaboration",
-    description: `Contributing to an innovative open-source AI framework focused on enterprise applications.
+    content: `Contributing to an innovative open-source AI framework focused on enterprise applications.
 
 Project Scope:
 - Developing enterprise-ready AI components

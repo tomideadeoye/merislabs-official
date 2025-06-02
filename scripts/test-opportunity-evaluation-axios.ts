@@ -16,27 +16,24 @@ interface ApiResponse<T> {
 const opportunities: Array<OpportunityDetails> = [
   {
     title: "Senior Software Engineer",
-    companyOrInstitution: "Google",
-    descriptionSummary: "Senior Software Engineer position focusing on AI development",
-    description: "Senior Software Engineer position focusing on AI development",
+    company: "Google",
+    content: "Senior Software Engineer position focusing on AI development",
     type: "job",
     dateIdentified: "2025-05-15",
     url: "https://careers.google.com"
   },
   {
     title: "MBA in Technology Management",
-    companyOrInstitution: "Stanford University",
-    descriptionSummary: "Comprehensive MBA program focused on technology management",
-    description: "Comprehensive MBA program focused on technology management",
+    company: "Stanford University",
+    content: "Comprehensive MBA program focused on technology management",
     type: "education_program",
     dateIdentified: "2025-05-15",
     url: "https://stanford.edu/mba-tech"
   },
   {
     title: "Open Source AI Collaboration",
-    companyOrInstitution: "AI Foundation",
-    descriptionSummary: "Contributing to open-source AI framework development",
-    description: "Contributing to open-source AI framework development",
+    company: "AI Foundation",
+    content: "Contributing to open-source AI framework development",
     type: "project_collaboration",
     dateIdentified: "2025-05-15",
     url: "https://github.com/ai-foundation"

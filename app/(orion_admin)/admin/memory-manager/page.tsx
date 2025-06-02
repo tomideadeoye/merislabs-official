@@ -213,7 +213,18 @@ export default function MemoryManagerFeaturePage() {
           <ScrollArea className="h-[calc(100vh-25rem)] md:h-[calc(100vh-20rem)]">
             <div className="space-y-4 pr-3">
               {searchResults.map((result) => (
-                <JournalEntryDisplay key={result.id} entry={result} />
+                <JournalEntryDisplay
+                  key={result.id}
+                  entry={{
+                    title: "",
+                    date: new Date(result.payload.timestamp),
+                    content: result.payload.text,
+                    contentType: "Journal",
+                    notionPageId: result.payload.source_id,
+                    mood: result.payload.mood,
+                    tags: result.payload.tags,
+                  }}
+                />
               ))}
             </div>
           </ScrollArea>

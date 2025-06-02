@@ -4,7 +4,7 @@ import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { PYTHON_API_URL } from '@/lib/orion_config'; // Import Python API URL
 
 /**
- * API route to proxy web research requests to the Python backend.
+ * API route to proxy web research and scraping requests to the Python backend.
  */
 export async function POST(request: NextRequest) {
   // Check authentication
@@ -14,31 +14,43 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { query, type = 'web', count } = await request.json(); // Accept query, type (web/local), and count
+    const { query, type = 'web', count, url } = await request.json(); // Accept query, type, count, and url
 
-    if (!query) {
-      return NextResponse.json({ success: false, error: 'Search query is required.' }, { status: 400 });
+    let pythonBackendUrl: string;
+    let requestBody: any = {};
+
+    if (type === 'scrape') {
+      if (!url) {
+        return NextResponse.json({ success: false, error: 'URL is required for scrape type.' }, { status: 400 });
+      }
+      // Assuming the Python backend has a /scrape endpoint that accepts a URL
+      pythonBackendUrl = `${PYTHON_API_URL}/scrape`;
+      requestBody = { url };
+      console.log(`[RESEARCH_PROXY] Proxying scraping request to Python backend: ${pythonBackendUrl}`);
+
+    } else { // Default to web/local search
+      if (!query) {
+        return NextResponse.json({ success: false, error: 'Search query is required for web/local search.' }, { status: 400 });
+      }
+      // Construct the URL for the Python backend's search endpoint
+      pythonBackendUrl = `${PYTHON_API_URL}/search/${type}`;
+      requestBody = { query, count };
+      console.log(`[RESEARCH_PROXY] Proxying search request to Python backend: ${pythonBackendUrl}`);
     }
 
-    // Construct the URL for the Python backend's search endpoint
-    // Assuming the Python backend has an endpoint like /search/web or /search/local
-    const pythonSearchUrl = `${PYTHON_API_URL}/search/${type}`;
-
-    console.log(`[RESEARCH_PROXY] Proxying search request to Python backend: ${pythonSearchUrl}`);
-
     // Forward the request to the Python backend
-    const pythonResponse = await fetch(pythonSearchUrl, {
+    const pythonResponse = await fetch(pythonBackendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         // Add any necessary headers for the Python backend, e.g., API key
         // 'X-API-Key': process.env.PYTHON_BACKEND_API_KEY,
       },
-      body: JSON.stringify({ query, count }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!pythonResponse.ok) {
-      console.error('[RESEARCH_PROXY] Python backend search failed:', pythonResponse.status, pythonResponse.statusText);
+      console.error('[RESEARCH_PROXY] Python backend failed:', pythonResponse.status, pythonResponse.statusText);
       try {
         const errorBody = await pythonResponse.json();
         return NextResponse.json({ success: false, error: errorBody.detail || `Python backend error: ${pythonResponse.statusText}` }, { status: pythonResponse.status });
@@ -54,6 +66,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('[RESEARCH_PROXY_ERROR]', error);
-    return NextResponse.json({ success: false, error: error.message || 'An unexpected error occurred during web research proxy.' }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message || 'An unexpected error occurred during web research/scraping proxy.' }, { status: 500 });
   }
 }

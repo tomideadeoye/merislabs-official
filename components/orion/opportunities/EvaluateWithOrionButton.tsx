@@ -30,7 +30,7 @@ export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = (
         },
         body: JSON.stringify({
           title: opportunity.title,
-          description: opportunity.descriptionSummary || '',
+          description: opportunity.content || '',
           type: opportunity.type,
           url: opportunity.sourceURL
         })

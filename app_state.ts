@@ -216,7 +216,9 @@ class SessionStateManager {
       explicitDefault !== undefined
         ? explicitDefault
         : getDefaultSessionValue(key);
-    if (defaultValue !== undefined) this.stateCache[key] = defaultValue;
+    if (defaultValue !== undefined) {
+      this.stateCache[key] = defaultValue;
+    }
     return defaultValue as OrionSessionState[K];
   }
 

@@ -38,7 +38,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: `${opportunity.title} ${opportunity.companyOrInstitution} ${opportunity.type} ${opportunity.tags?.join(' ') || ''}`,
+          query: `${opportunity.title} ${opportunity.company} ${opportunity.type} ${opportunity.tags?.join(' ') || ''}`,
           collectionName: 'orion_memory',
           limit: 10,
           filter: {
@@ -145,7 +145,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
             primaryContext: `
               Based on the following reflections and past experiences, extract 3-5 key lessons learned that would be relevant to the current opportunity:
 
-              Current Opportunity: ${opportunity.title} at ${opportunity.companyOrInstitution}
+              Current Opportunity: ${opportunity.title} at ${opportunity.company}
               Type: ${opportunity.type}
               Tags: ${opportunity.tags?.join(', ') || 'None'}
 
@@ -178,7 +178,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
               metadata: {
                 type: 'lessons_learned',
                 opportunityId: opportunity.id,
-                company: opportunity.companyOrInstitution,
+                company: opportunity.company,
                 title: opportunity.title,
                 timestamp: new Date().toISOString()
               }

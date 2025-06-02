@@ -12,13 +12,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Opportunity } from '@/types/opportunity';
+import { Opportunity, EvaluationOutput } from '@/types/opportunity';
 
 interface OpportunityDetailViewProps {
   opportunity: Opportunity;
+  evaluation?: EvaluationOutput;
+  opportunityId?: string;
 }
 
-export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProps) {
+export function OpportunityDetailView({ opportunity, evaluation, opportunityId }: OpportunityDetailViewProps) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -38,8 +40,8 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert">
-              {opportunity.description ? (
-                <div dangerouslySetInnerHTML={{ __html: opportunity.description }} />
+              {opportunity.content ? (
+                <div dangerouslySetInnerHTML={{ __html: opportunity.content }} />
               ) : (
                 <p className="text-gray-500">No description available.</p>
               )}

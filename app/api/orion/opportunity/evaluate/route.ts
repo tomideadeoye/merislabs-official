@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const opportunityDetails: OpportunityDetails = await req.json();
 
     // Validate required fields
-    if (!opportunityDetails.title || !opportunityDetails.description || !opportunityDetails.type) {
+    if (!opportunityDetails.title || !opportunityDetails.content || !opportunityDetails.type) {
       return NextResponse.json({
         success: false,
         error: 'Missing required opportunity details: title, description, and type.'

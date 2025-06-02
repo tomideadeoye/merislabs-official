@@ -222,7 +222,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                                     {item.title}
                                   </h4>
                                   <p className="text-xs text-gray-400 mt-1">
-                                    {item.companyOrInstitution}
+                                    {item.company}
                                   </p>
                                 </Link>
                               </CardContent>

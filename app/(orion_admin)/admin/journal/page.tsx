@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Clock, ListTodo } from 'lucide-react';
 import { JournalList } from '@/components/orion/JournalList';
-import type { ScoredMemoryPoint } from '@/types/orion';
+import type { JournalEntryNotionInput } from '@/types/orion';
 
 export default function JournalPage() {
   const [journalText, setJournalText] = useSessionState(SessionStateKeys.JOURNAL_TEXT, "");
@@ -20,7 +20,7 @@ export default function JournalPage() {
   const [reflection, setReflection] = useSessionState(SessionStateKeys.JOURNAL_REFLECTION, null);
   const [showSaveForm, setShowSaveForm] = useSessionState(SessionStateKeys.JOURNAL_SHOW_SAVE_FORM, false);
   const [activeTab, setActiveTab] = useState<string>("new");
-  const [lastSavedEntry, setLastSavedEntry] = useState<ScoredMemoryPoint | null>(null);
+  const [lastSavedEntry, setLastSavedEntry] = useState<JournalEntryNotionInput | null>(null);
   const [lastReflection, setLastReflection] = useState<string | null>(null);
 
   const handleEntrySaved = async (entryId: string, reflectionText?: string) => {
