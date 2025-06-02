@@ -16,7 +16,7 @@ interface HabiticaTaskFormProps {
   className?: string;
 }
 
-export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({ 
+export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
   onTaskCreated,
   className
 }) => {
@@ -27,27 +27,27 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  
+
   const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!taskText.trim()) {
       setError("Task text is required");
       return;
     }
-    
+
     if (!habiticaUserId || !habiticaApiToken) {
       setError("Habitica credentials not set");
       return;
     }
-    
+
     setIsCreating(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       const taskParams: HabiticaTaskCreationParams = {
         text: taskText.trim(),
@@ -55,7 +55,7 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
         notes: taskNotes.trim() || undefined,
         priority: taskPriority
       };
-      
+
       const response = await fetch('/api/orion/habitica/tasks/create', {
         method: 'POST',
         headers: {
@@ -67,16 +67,16 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
           task: taskParams
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setSuccess(true);
         setTaskText("");
         setTaskNotes("");
         setTaskType('todo');
         setTaskPriority(1);
-        
+
         if (onTaskCreated) {
           onTaskCreated();
         }
@@ -90,14 +90,14 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
       setIsCreating(false);
     }
   };
-  
+
   const priorityLabels = {
     0.1: 'Trivial',
     1: 'Easy',
     1.5: 'Medium',
     2: 'Hard'
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className={`space-y-4 ${className}`}>
       <div>
@@ -112,7 +112,7 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
           required
         />
       </div>
-      
+
       <div>
         <Label htmlFor="taskNotes" className="text-gray-300">Notes (Optional)</Label>
         <Textarea
@@ -124,12 +124,12 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
           disabled={isCreating}
         />
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="taskType" className="text-gray-300">Task Type</Label>
-          <Select 
-            value={taskType} 
+          <Select
+            value={taskType}
             onValueChange={(value: any) => setTaskType(value)}
             disabled={isCreating}
           >
@@ -142,12 +142,12 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
             </SelectContent>
           </Select>
         </div>
-        
+
         <div>
           <Label htmlFor="taskPriority" className="text-gray-300">Priority</Label>
-          <Select 
-            value={taskPriority.toString()} 
-            onValueChange={(value: any) => setTaskPriority(parseFloat(value))}
+          <Select
+            value={taskPriority.toString()}
+            onValueChange={(value: string) => setTaskPriority(parseFloat(value) as 0.1 | 1 | 1.5 | 2)}
             disabled={isCreating}
           >
             <SelectTrigger id="taskPriority" className="bg-gray-700 border-gray-600 text-gray-200">
@@ -162,10 +162,10 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
           </Select>
         </div>
       </div>
-      
-      <Button 
-        type="submit" 
-        disabled={isCreating || !taskText.trim() || !habiticaUserId || !habiticaApiToken} 
+
+      <Button
+        type="submit"
+        disabled={isCreating || !taskText.trim() || !habiticaUserId || !habiticaApiToken}
         className="bg-blue-600 hover:bg-blue-700 w-full"
       >
         {isCreating ? (
@@ -180,14 +180,14 @@ export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({
           </>
         )}
       </Button>
-      
+
       {error && (
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2" />
           {error}
         </div>
       )}
-      
+
       {success && (
         <div className="bg-green-900/30 border border-green-700 text-green-300 p-3 rounded-md flex items-center">
           <CheckCircle className="h-5 w-5 mr-2" />

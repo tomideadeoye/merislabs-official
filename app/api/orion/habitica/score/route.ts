@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { scoreTask } from '@/lib/habitica_client';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
   }
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { taskId, direction, userId, apiToken } = body;
-    
+
     if (!taskId || !direction) {
       return NextResponse.json({ success: false, error: 'Task ID and direction are required.' }, { status: 400 });
     }
@@ -21,9 +22,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Direction must be "up" or "down".' }, { status: 400 });
     }
 
-    // Score the task in Habitica
-    const result = await scoreTask(taskId, direction, userId, apiToken);
-    
+    // Score task using the shared client
+    // Note: This uses the client configured with environment variables, not the provided userId/apiToken
+    const result = await scoreTask(taskId, direction);
+
     return NextResponse.json({ success: true, result });
   } catch (error: any) {
     console.error('[HABITICA_SCORE_API_ERROR]', error.message);

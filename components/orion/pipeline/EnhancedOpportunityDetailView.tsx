@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Opportunity, EvaluationOutput } from '@/types/opportunity';
-import { 
-  ArrowLeft, 
-  BarChart2, 
-  FileText, 
-  Users, 
-  RefreshCw, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  BarChart2,
+  FileText,
+  Users,
+  RefreshCw,
+  CheckCircle,
   AlertCircle,
   Copy,
   Save,
@@ -52,89 +52,90 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
   const [showReflectionDialog, setShowReflectionDialog] = useState<boolean>(false);
   const [reflectionType, setReflectionType] = useState<'application_sent' | 'interview_completed' | 'outreach_sent' | 'general'>('general');
 
-  // Fetch opportunity data
-  useEffect(() => {
-    const fetchOpportunityData = async () => {
-      try {
-        const response = await fetch(`/api/orion/opportunity/${opportunityId}`);
-        const data = await response.json();
-        
-        if (data.success) {
-          setOpportunity(data.opportunity);
-          
-          // If there's an evaluation ID, fetch the evaluation
-          if (data.opportunity.relatedEvaluationId) {
-            fetchEvaluation();
-          }
-          
-          // Fetch application drafts if they exist
-          if (data.opportunity.applicationMaterialIds) {
-            fetchApplicationDrafts();
-          }
-          
-          // Fetch stakeholders if they exist
-          if (data.opportunity.stakeholderContactIds) {
-            fetchStakeholders();
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching opportunity:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchOpportunityData();
-  }, [opportunityId]);
-
   // Fetch evaluation data
-  const fetchEvaluation = async () => {
+  const fetchEvaluation = useCallback(async () => {
     try {
       const response = await fetch(`/api/orion/opportunity/${opportunityId}/evaluation`);
       const data = await response.json();
-      
+
       if (data.success) {
         setEvaluation(data.evaluation);
       }
     } catch (error) {
       console.error("Error fetching evaluation:", error);
     }
-  };
+  }, [opportunityId]);
 
   // Fetch application drafts
-  const fetchApplicationDrafts = async () => {
+  const fetchApplicationDrafts = useCallback(async () => {
     try {
       const response = await fetch(`/api/orion/opportunity/${opportunityId}/drafts`);
       const data = await response.json();
-      
+
       if (data.success) {
         setApplicationDrafts(data.drafts);
       }
     } catch (error) {
       console.error("Error fetching application drafts:", error);
     }
-  };
+  }, [opportunityId]);
 
   // Fetch stakeholders
-  const fetchStakeholders = async () => {
+  const fetchStakeholders = useCallback(async () => {
     try {
       const response = await fetch(`/api/orion/opportunity/${opportunityId}/stakeholders`);
       const data = await response.json();
-      
+
       if (data.success) {
         setStakeholders(data.stakeholders);
       }
     } catch (error) {
       console.error("Error fetching stakeholders:", error);
     }
-  };
+  }, [opportunityId]);
+
+  // Fetch opportunity data
+  const fetchOpportunityData = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/orion/opportunity/${opportunityId}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setOpportunity(data.opportunity);
+
+        // If there's an evaluation ID, fetch the evaluation
+        if (data.opportunity.relatedEvaluationId) {
+          fetchEvaluation();
+        }
+
+        // Fetch application drafts if they exist
+        if (data.opportunity.applicationMaterialIds) {
+          fetchApplicationDrafts();
+        }
+
+        // Fetch stakeholders if they exist
+        if (data.opportunity.stakeholderContactIds) {
+          fetchStakeholders();
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching opportunity:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [opportunityId, fetchEvaluation, fetchApplicationDrafts, fetchStakeholders]);
+
+  // Fetch opportunity data
+  useEffect(() => {
+    fetchOpportunityData();
+  }, [opportunityId, fetchOpportunityData]);
 
   // Run evaluation
   const handleEvaluate = async () => {
     if (!opportunity) return;
-    
+
     setIsEvaluating(true);
-    
+
     try {
       const response = await fetch('/api/orion/opportunity/evaluate', {
         method: 'POST',
@@ -148,12 +149,12 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           url: opportunity.sourceURL
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setEvaluation(data.evaluation);
-        
+
         // Update opportunity with evaluation ID
         await fetch(`/api/orion/opportunity/${opportunityId}`, {
           method: 'PATCH',
@@ -175,9 +176,9 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
   // Draft application
   const handleDraftApplication = async () => {
     if (!opportunity) return;
-    
+
     setIsDraftingApplication(true);
-    
+
     try {
       const response = await fetch('/api/orion/opportunity/draft-application', {
         method: 'POST',
@@ -194,12 +195,12 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           numberOfDrafts: 3
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setApplicationDrafts(data.drafts);
-        
+
         // Update opportunity with application draft IDs
         await fetch(`/api/orion/opportunity/${opportunityId}`, {
           method: 'PATCH',
@@ -221,9 +222,9 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
   // Search stakeholders
   const handleSearchStakeholders = async () => {
     if (!opportunity) return;
-    
+
     setIsSearchingStakeholders(true);
-    
+
     try {
       const response = await fetch('/api/orion/networking/stakeholder-search', {
         method: 'POST',
@@ -235,12 +236,12 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           roles: ['Engineering Manager', 'Recruiter', 'CTO']
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setStakeholders(data.stakeholders);
-        
+
         // Update opportunity with stakeholder IDs
         await fetch(`/api/orion/opportunity/${opportunityId}`, {
           method: 'PATCH',
@@ -286,7 +287,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           }
         })
       });
-      
+
       // Could add a toast notification here
     } catch (error) {
       console.error("Error saving to memory:", error);
@@ -311,8 +312,8 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
     return (
       <div className="text-center py-8">
         <p className="text-gray-400">Opportunity not found.</p>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="mt-4"
           onClick={() => router.push('/admin/opportunity-pipeline')}
         >
@@ -327,26 +328,26 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push('/admin/opportunity-pipeline')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Opportunities
           </Button>
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             onClick={() => router.push('/admin/opportunity-pipeline/kanban')}
           >
             <LayoutGrid className="mr-2 h-4 w-4" />
             Kanban View
           </Button>
         </div>
-        
+
         <div className="flex items-center space-x-2">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={
               opportunity.status === 'applied' ? 'bg-green-900/30 text-green-300 border-green-700' :
               opportunity.status === 'interview_scheduled' ? 'bg-blue-900/30 text-blue-300 border-blue-700' :
@@ -354,12 +355,12 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
               'bg-gray-900/30 text-gray-300 border-gray-700'
             }
           >
-            {opportunity.status.replace(/_/g, ' ')}
+            {opportunity.status?.replace(/_/g, ' ') || 'Unknown Status'}
           </Badge>
-          
+
           {opportunity.priority && (
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={
                 opportunity.priority === 'high' ? 'bg-red-900/30 text-red-300 border-red-700' :
                 opportunity.priority === 'medium' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-700' :
@@ -369,22 +370,14 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
               {opportunity.priority} priority
             </Badge>
           )}
-          
-          <StatusUpdateButton 
-            opportunity={opportunity} 
-            onStatusUpdate={(newStatus) => {
-              if (opportunity) {
-                setOpportunity({
-                  ...opportunity,
-                  status: newStatus,
-                  lastStatusUpdate: new Date().toISOString()
-                });
-              }
-            }}
+
+          <StatusUpdateButton
+            opportunityId={opportunity.id!}
+            currentStatus={opportunity.status || ''}
           />
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Overview & Actions */}
         <div className="lg:col-span-1 space-y-6">
@@ -400,13 +393,13 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                   <p className="text-sm text-gray-400">{opportunity.descriptionSummary}</p>
                 </div>
               )}
-              
+
               {opportunity.sourceURL && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Source</h3>
-                  <a 
-                    href={opportunity.sourceURL} 
-                    target="_blank" 
+                  <a
+                    href={opportunity.sourceURL}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-blue-400 hover:text-blue-300"
                   >
@@ -414,7 +407,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                   </a>
                 </div>
               )}
-              
+
               {opportunity.dateIdentified && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Date Identified</h3>
@@ -424,7 +417,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                   </div>
                 </div>
               )}
-              
+
               {opportunity.nextActionDate && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Next Action Date</h3>
@@ -434,7 +427,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                   </div>
                 </div>
               )}
-              
+
               {opportunity.tags && opportunity.tags.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Tags</h3>
@@ -449,7 +442,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
               )}
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
               <CardTitle className="text-md">Quick Actions</CardTitle>
@@ -457,15 +450,15 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
             <CardContent className="space-y-2">
               {/* Evaluate with Orion Button */}
               {!evaluation ? (
-                <EvaluateWithOrionButton 
+                <EvaluateWithOrionButton
                   opportunity={opportunity}
                   onEvaluationComplete={(evaluationId) => {
                     fetchEvaluation();
                   }}
                 />
               ) : (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start bg-blue-900/20 hover:bg-blue-900/30 text-blue-300"
                   onClick={handleEvaluate}
                   disabled={isEvaluating}
@@ -478,22 +471,22 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                   Re-evaluate Opportunity
                 </Button>
               )}
-              
+
               {/* Draft Application Button */}
               <DraftApplicationButton opportunity={opportunity} />
-              
+
               {/* Find Stakeholders Button */}
               <FindStakeholdersButton opportunity={opportunity} />
-              
+
               {/* Create Habitica Task Button */}
-              <CreateHabiticaTaskButton 
+              <CreateHabiticaTaskButton
                 opportunity={opportunity}
                 className="w-full justify-start bg-amber-900/20 hover:bg-amber-900/30 text-amber-300"
               />
-              
+
               {/* Journal Reflection Button */}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start bg-indigo-900/20 hover:bg-indigo-900/30 text-indigo-300"
                 onClick={() => openReflectionDialog('general')}
               >
@@ -503,7 +496,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Right Column - Core Workflow */}
         <div className="lg:col-span-2 space-y-6">
           {/* Evaluation Results Section */}
@@ -513,9 +506,9 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                 <BarChart2 className="mr-2 h-5 w-5 text-blue-400" />
                 Opportunity Evaluation
               </CardTitle>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleEvaluate}
                 disabled={isEvaluating}
@@ -529,7 +522,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                 Re-evaluate
               </Button>
             </CardHeader>
-            
+
             <CardContent>
               {evaluation ? (
                 <div className="space-y-4">
@@ -537,7 +530,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                     <h3 className="text-sm font-medium text-gray-300 mb-1">Overall Fit Score</h3>
                     <div className="flex items-center">
                       <div className="w-full bg-gray-700 rounded-full h-4">
-                        <div 
+                        <div
                           className={`h-4 rounded-full ${
                             evaluation.fitScorePercentage >= 75 ? 'bg-green-500' :
                             evaluation.fitScorePercentage >= 50 ? 'bg-yellow-500' :
@@ -551,12 +544,12 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                       </span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h3 className="text-sm font-medium text-gray-300 mb-1">Recommendation</h3>
                     <p className="text-blue-400">{evaluation.recommendation}</p>
                   </div>
-                  
+
                   {evaluation.alignmentHighlights && evaluation.alignmentHighlights.length > 0 && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
@@ -570,7 +563,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                       </ul>
                     </div>
                   )}
-                  
+
                   {evaluation.gapAnalysis && evaluation.gapAnalysis.length > 0 && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-300 mb-1 flex items-center">
@@ -584,7 +577,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                       </ul>
                     </div>
                   )}
-                  
+
                   {evaluation.suggestedNextSteps && evaluation.suggestedNextSteps.length > 0 && (
                     <div>
                       <div className="flex justify-between items-center mb-1">
@@ -613,7 +606,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
               ) : (
                 <div className="text-center py-6">
                   <p className="text-gray-400">No evaluation data available.</p>
-                  <EvaluateWithOrionButton 
+                  <EvaluateWithOrionButton
                     opportunity={opportunity}
                     onEvaluationComplete={(evaluationId) => {
                       fetchEvaluation();
@@ -623,18 +616,18 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
               )}
             </CardContent>
           </Card>
-          
+
           {/* Narrative Alignment Section - Only show if evaluation exists */}
           {evaluation && (
             <NarrativeAlignmentSection opportunity={opportunity} evaluation={evaluation} />
           )}
-          
+
           {/* Past Opportunities Section */}
           <PastOpportunitiesSection opportunity={opportunity} />
-          
+
           {/* Lessons Learned Section */}
           <LessonsLearnedSection opportunity={opportunity} />
-          
+
           {/* Application Drafts Section */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -642,10 +635,10 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                 <FileText className="mr-2 h-5 w-5 text-green-400" />
                 Application Drafts
               </CardTitle>
-              
+
               <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => openReflectionDialog('application_sent')}
                   className="bg-indigo-900/20 hover:bg-indigo-900/30 text-indigo-300"
@@ -653,9 +646,9 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                   <BookOpen className="mr-2 h-4 w-4" />
                   Reflect
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handleDraftApplication}
                   disabled={isDraftingApplication}
@@ -670,7 +663,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                 </Button>
               </div>
             </CardHeader>
-            
+
             <CardContent>
               {applicationDrafts.length > 0 ? (
                 <Tabs defaultValue="draft0">
@@ -681,27 +674,27 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                       </TabsTrigger>
                     ))}
                   </TabsList>
-                  
+
                   {applicationDrafts.map((draft, index) => (
                     <TabsContent key={index} value={`draft${index}`}>
                       <div className="relative">
-                        <Textarea 
-                          value={draft} 
-                          readOnly 
+                        <Textarea
+                          value={draft}
+                          readOnly
                           className="min-h-[300px] bg-gray-700 border-gray-600 text-gray-200"
                         />
                         <div className="absolute top-2 right-2 flex space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => copyToClipboard(draft)}
                             className="bg-gray-800/70 hover:bg-gray-700"
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => saveToMemory(draft, 'application_draft')}
                             className="bg-gray-800/70 hover:bg-gray-700"
                           >
@@ -720,7 +713,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
               )}
             </CardContent>
           </Card>
-          
+
           {/* Stakeholder Outreach Section */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -728,10 +721,10 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                 <Users className="mr-2 h-5 w-5 text-purple-400" />
                 Stakeholder Outreach
               </CardTitle>
-              
+
               <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => openReflectionDialog('outreach_sent')}
                   className="bg-indigo-900/20 hover:bg-indigo-900/30 text-indigo-300"
@@ -739,9 +732,9 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                   <BookOpen className="mr-2 h-4 w-4" />
                   Reflect
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handleSearchStakeholders}
                   disabled={isSearchingStakeholders}
@@ -756,7 +749,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                 </Button>
               </div>
             </CardHeader>
-            
+
             <CardContent>
               {stakeholders.length > 0 ? (
                 <div className="space-y-4">
@@ -768,8 +761,8 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
                             <h3 className="font-medium text-gray-200">{stakeholder.name}</h3>
                             <p className="text-sm text-gray-400">{stakeholder.role} at {stakeholder.company}</p>
                           </div>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             className="bg-purple-900/20 hover:bg-purple-900/30 text-purple-300"
                           >
@@ -790,7 +783,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           </Card>
         </div>
       </div>
-      
+
       {/* Journal Reflection Dialog */}
       {opportunity && (
         <JournalReflectionDialog

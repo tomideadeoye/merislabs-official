@@ -37,10 +37,10 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
       setFeedback({ type: 'error', message: "Reflection text cannot be empty if you choose to save."});
       return;
     }
-    
+
     setIsSaving(true);
     setFeedback(null);
-    
+
     try {
       const payload = {
         habiticaTaskId,
@@ -50,7 +50,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
         reflectionText: reflectionText,
         timestamp: new Date().toISOString(),
       };
-      
+
       const response = await fetch('/api/orion/reflection/on-action', {
         method: 'POST',
         headers: {
@@ -58,14 +58,14 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
         },
         body: JSON.stringify(payload)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setFeedback({ type: 'success', message: "Reflection saved to Orion's Memory!"});
-        
+
         if (onReflectionSaved) onReflectionSaved();
-        
+
         setTimeout(() => {
           setIsOpen(false);
           setReflectionText(""); // Clear for next time
@@ -95,12 +95,12 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
             <MessageCircle className="mr-2 h-5 w-5" /> Reflect on Action Completed
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            You've completed: <strong className="text-gray-300">"{completedTaskText}"</strong>.
+            You&apos;ve completed: <strong className="text-gray-300">&quot;{completedTaskText}&quot;</strong>.
             {orionSourceModule && <span className="block text-xs"> (Origin: {orionSourceModule})</span>}
             Take a moment to capture your thoughts on this action.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="py-4 space-y-2">
           <Label htmlFor="actionReflectionText" className="text-gray-300">Your Reflection:</Label>
           <Textarea
@@ -112,7 +112,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
             className="min-h-[150px] bg-gray-700 border-gray-600 text-gray-200"
           />
         </div>
-        
+
         {feedback && (
           <div className={`p-3 rounded-md flex items-center ${
             feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' : 'bg-red-900/30 border border-red-700 text-red-300'
@@ -125,19 +125,19 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
             {feedback.message}
           </div>
         )}
-        
+
         <DialogFooter className="sm:justify-between">
-          <Button 
-            onClick={() => { setIsOpen(false); setReflectionText(""); setFeedback(null); }} 
-            variant="ghost" 
+          <Button
+            onClick={() => { setIsOpen(false); setReflectionText(""); setFeedback(null); }}
+            variant="ghost"
             className="text-gray-400 hover:text-gray-200"
           >
             Skip Reflection
           </Button>
-          
-          <Button 
-            onClick={handleSubmitReflection} 
-            disabled={isSaving || !reflectionText.trim()} 
+
+          <Button
+            onClick={handleSubmitReflection}
+            disabled={isSaving || !reflectionText.trim()}
             className="bg-green-600 hover:bg-green-700"
           >
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

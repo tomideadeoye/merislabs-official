@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 interface FeedbackPayload {
   componentId: string;
@@ -11,7 +12,7 @@ interface FeedbackPayload {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const payload: FeedbackPayload = await request.json();
-    
+
     if (!payload.componentId || !payload.opportunityId || !payload.rating) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
     // In a real implementation, this would store the feedback in a database
     // For now, we'll just log it and return success
     console.log('CV Tailoring Feedback:', payload);
-    
+
     // Example database operation:
     // await db.cvFeedback.create({
     //   data: {

@@ -11,9 +11,9 @@ import { Loader2, AlertTriangle, CheckCircle, Database, FolderOpen } from 'lucid
 
 export default function LocalFilesPage() {
   const [selectedFile, setSelectedFile] = useState<string>('');
-  const [indexingStatus, setIndexingStatus] = useState<{ 
-    isLoading: boolean; 
-    error: string | null; 
+  const [indexingStatus, setIndexingStatus] = useState<{
+    isLoading: boolean;
+    error: string | null;
     success: string | null;
     details: any[] | null;
   }>({
@@ -34,7 +34,7 @@ export default function LocalFilesPage() {
       success: null,
       details: null
     });
-    
+
     try {
       const response = await fetch('/api/orion/local-fs/index-path', {
         method: 'POST',
@@ -43,9 +43,9 @@ export default function LocalFilesPage() {
         },
         body: JSON.stringify({ pathToIndex: filePath })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setIndexingStatus({
           isLoading: false,
@@ -74,7 +74,7 @@ export default function LocalFilesPage() {
       success: null,
       details: null
     });
-    
+
     try {
       const response = await fetch('/api/orion/local-fs/index-path', {
         method: 'POST',
@@ -83,9 +83,9 @@ export default function LocalFilesPage() {
         },
         body: JSON.stringify({ pathToIndex: dirPath })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setIndexingStatus({
           isLoading: false,
@@ -118,7 +118,7 @@ export default function LocalFilesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
           <FileExplorer onFileSelect={handleFileSelect} />
-          
+
           {selectedFile && (
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader className="pb-2">
@@ -127,12 +127,12 @@ export default function LocalFilesPage() {
                   Index to Memory
                 </CardTitle>
                 <CardDescription className="text-gray-400">
-                  Add selected file or directory to Orion's memory for search and analysis.
+                  Add selected file or directory to Orion&apos;s memory for search and analysis.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex space-x-2">
-                  <Button 
+                  <Button
                     onClick={() => handleIndexFile(selectedFile)}
                     disabled={indexingStatus.isLoading}
                     className="bg-blue-600 hover:bg-blue-700"
@@ -140,8 +140,8 @@ export default function LocalFilesPage() {
                     <Database className="mr-2 h-4 w-4" />
                     Index Selected File
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     onClick={() => handleIndexDirectory(selectedFile)}
                     disabled={indexingStatus.isLoading}
                     className="bg-blue-600 hover:bg-blue-700"
@@ -150,28 +150,28 @@ export default function LocalFilesPage() {
                     Index Directory
                   </Button>
                 </div>
-                
+
                 {indexingStatus.isLoading && (
                   <div className="flex items-center text-gray-400">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     Indexing in progress...
                   </div>
                 )}
-                
+
                 {indexingStatus.error && (
                   <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
                     <AlertTriangle className="h-5 w-5 mr-2" />
                     {indexingStatus.error}
                   </div>
                 )}
-                
+
                 {indexingStatus.success && (
                   <div className="bg-green-900/30 border border-green-700 text-green-300 p-3 rounded-md flex items-center">
                     <CheckCircle className="h-5 w-5 mr-2" />
                     {indexingStatus.success}
                   </div>
                 )}
-                
+
                 {indexingStatus.details && indexingStatus.details.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-400 mb-2">Indexing Details:</p>
@@ -191,9 +191,9 @@ export default function LocalFilesPage() {
             </Card>
           )}
         </div>
-        
-        <FileViewer 
-          filePath={selectedFile} 
+
+        <FileViewer
+          filePath={selectedFile}
           onIndexFile={handleIndexFile}
         />
       </div>

@@ -12,7 +12,7 @@ import { AlertCircle } from "lucide-react";
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+  const callbackUrl = searchParams ? searchParams.get("callbackUrl") || "/admin" : "/admin";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

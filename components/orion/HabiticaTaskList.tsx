@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/hooks/useSessionState';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,112 +14,94 @@ import type { HabiticaTask } from '@/types/habitica';
 import { ActionReflectionDialog } from './tasks/ActionReflectionDialog';
 
 interface HabiticaTaskListProps {
+  type: 'todos' | 'dailys';
   className?: string;
 }
 
-interface TaskWithOrigin extends HabiticaTask {
-  orionOrigin?: {
-    orionSourceModule: string;
-    orionSourceReferenceId: string;
-    createdAt: string;
-  };
-}
+// Basic utility function to check if a date is in the past
+const isPastDue = (dateString: string | null | undefined): boolean => {
+  if (!dateString) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+  const taskDate = new Date(dateString);
+  return taskDate < today;
+};
 
-export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ className }) => {
-  const [todos, setTodos] = useState<TaskWithOrigin[]>([]);
-  const [dailies, setDailies] = useState<TaskWithOrigin[]>([]);
+export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({
+  type,
+  className
+}) => {
+  const [tasks, setTasks] = useState<HabiticaTask[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('todos');
-  
+
   // Reflection dialog state
   const [showReflectionDialog, setShowReflectionDialog] = useState<boolean>(false);
-  const [taskForReflection, setTaskForReflection] = useState<TaskWithOrigin | null>(null);
-  
+  const [taskForReflection, setTaskForReflection] = useState<HabiticaTask | null>(null);
+
   const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
-  
-  useEffect(() => {
-    fetchTasks();
-  }, [habiticaUserId, habiticaApiToken]);
-  
-  const fetchTasks = async () => {
+
+  // Fetch tasks from API
+  const fetchTasks = useCallback(async () => {
     if (!habiticaUserId || !habiticaApiToken) {
       setError("Habitica credentials not set");
       setIsLoading(false);
       return;
     }
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      // Fetch todos
-      const todosResponse = await fetch('/api/orion/habitica/tasks', {
+      const response = await fetch('/api/orion/habitica/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
-          userId: habiticaUserId, 
-          apiToken: habiticaApiToken,
-          type: 'todos'
-        })
+        body: JSON.stringify({ userId: habiticaUserId, apiToken: habiticaApiToken, type })
       });
-      
-      const todosData = await todosResponse.json();
-      
-      if (!todosData.success) {
-        throw new Error(todosData.error || 'Failed to fetch todos');
-      }
-      
-      // Fetch dailies
-      const dailiesResponse = await fetch('/api/orion/habitica/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          userId: habiticaUserId, 
-          apiToken: habiticaApiToken,
-          type: 'dailys'
-        })
-      });
-      
-      const dailiesData = await dailiesResponse.json();
-      
-      if (!dailiesData.success) {
-        throw new Error(dailiesData.error || 'Failed to fetch dailies');
-      }
-      
-      // Sort todos by completed status
-      const sortedTodos = [...todosData.tasks].sort((a, b) => {
-        if (a.completed === b.completed) return 0;
-        return a.completed ? 1 : -1;
-      });
-      
-      // Sort dailies by completed status and due status
-      const sortedDailies = [...dailiesData.tasks].sort((a, b) => {
-        if (a.completed === b.completed) {
-          if (a.isDue === b.isDue) return 0;
-          return a.isDue ? -1 : 1;
+
+      const data = await response.json();
+
+      if (data.success) {
+        const sortedTasks = data.data[type] || [];
+
+        if (type === 'todos') {
+          sortedTasks.sort((a: HabiticaTask, b: HabiticaTask) => {
+            if (a.completed === b.completed) return 0;
+            return a.completed ? 1 : -1;
+          });
+        } else if (type === 'dailys') {
+          sortedTasks.sort((a: HabiticaTask, b: HabiticaTask) => {
+            if (a.completed === b.completed) {
+              if (isPastDue(a.date) === isPastDue(b.date)) return 0;
+              return isPastDue(a.date) ? -1 : 1; // Past due first
+            }
+            return a.completed ? 1 : -1; // Uncompleted first
+          });
         }
-        return a.completed ? 1 : -1;
-      });
-      
-      setTodos(sortedTodos);
-      setDailies(sortedDailies);
+
+        setTasks(sortedTasks);
+      } else {
+        throw new Error(data.error || `Failed to fetch ${type} tasks`);
+      }
     } catch (err: any) {
-      console.error('Error fetching Habitica tasks:', err);
+      console.error(`Error fetching ${type} tasks:`, err);
       setError(err.message || 'An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
-  };
-  
-  const handleTaskToggle = async (task: TaskWithOrigin) => {
+  }, [habiticaUserId, habiticaApiToken, type]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  const handleTaskToggle = async (task: HabiticaTask) => {
     if (!habiticaUserId || !habiticaApiToken) return;
-    
+
     try {
       const response = await fetch('/api/orion/habitica/tasks/score', {
         method: 'POST',
@@ -133,27 +115,30 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ className })
           direction: task.completed ? 'down' : 'up'
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Update local state
         if (task.type === 'todo') {
-          setTodos(todos.map(t => 
+          setTasks(tasks.map(t =>
             t._id === task._id ? { ...t, completed: !t.completed } : t
           ));
         } else if (task.type === 'daily') {
-          setDailies(dailies.map(d => 
+          setTasks(tasks.map(d =>
             d._id === task._id ? { ...d, completed: !d.completed } : d
           ));
         }
-        
+
         // If task was just completed (not uncompleted) and has Orion origin, trigger reflection
         if (!task.completed && task.orionOrigin) {
           console.log("Task completed, preparing for reflection:", task);
           setTaskForReflection(task);
           setShowReflectionDialog(true);
         }
+
+        // Re-fetch tasks to update the list
+        fetchTasks();
       } else {
         throw new Error(data.error || 'Failed to update task');
       }
@@ -162,7 +147,13 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ className })
       alert(`Error: ${err.message || 'Failed to update task'}`);
     }
   };
-  
+
+  const handleRefreshTasks = () => {
+    fetchTasks();
+  };
+
+  const title = type === 'todos' ? 'Todos' : 'Dailies';
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-4">
@@ -171,7 +162,7 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ className })
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-center">
@@ -180,10 +171,10 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ className })
       </div>
     );
   }
-  
-  const renderTask = (task: TaskWithOrigin, isCompleted: boolean) => (
-    <Card 
-      key={task._id} 
+
+  const renderTask = (task: HabiticaTask, isCompleted: boolean) => (
+    <Card
+      key={task._id}
       className={`bg-gray-750 border-gray-700 ${isCompleted ? 'opacity-60' : ''}`}
     >
       <CardContent className="p-3">
@@ -205,10 +196,10 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ className })
             <CheckCircle className="h-4 w-4 text-green-400 ml-2" />
           )}
         </div>
-        
+
         {task.orionOrigin && (
           <div className="mt-2 pt-2 border-t border-gray-600/50 flex items-center">
-            <Link 
+            <Link
               href={getOrionSourceUrl(task.orionOrigin.orionSourceModule, task.orionOrigin.orionSourceReferenceId)}
               className="text-xs text-sky-400 hover:underline flex items-center"
               title={`Created from ${task.orionOrigin.orionSourceModule} on ${new Date(task.orionOrigin.createdAt).toLocaleDateString()}`}
@@ -221,98 +212,64 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ className })
       </CardContent>
     </Card>
   );
-  
+
   return (
-    <div className={className}>
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium text-gray-200">Your Tasks</h3>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={fetchTasks}
-          className="text-gray-300 border-gray-600"
+    <Card className={`bg-gray-800 border-gray-700 ${className}`}>
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        <CardTitle className="text-lg flex items-center">
+          {title}
+        </CardTitle>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefreshTasks}
+          disabled={isLoading}
+          className="bg-gray-700 hover:bg-gray-600"
         >
-          <RefreshCw className="h-4 w-4" />
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="mr-2 h-4 w-4" />
+          )}
+          Refresh
         </Button>
-      </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-gray-700 border-gray-600">
-          <TabsTrigger 
-            value="todos" 
-            className="data-[state=active]:bg-blue-600"
-          >
-            To-Dos
-          </TabsTrigger>
-          <TabsTrigger 
-            value="dailies" 
-            className="data-[state=active]:bg-purple-600"
-          >
-            Dailies
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="todos" className="mt-4 space-y-2">
-          {todos.length === 0 ? (
-            <p className="text-gray-400 text-center py-4">No to-dos found</p>
-          ) : (
-            todos.map(task => renderTask(task, task.completed))
-          )}
-        </TabsContent>
-        
-        <TabsContent value="dailies" className="mt-4 space-y-2">
-          {dailies.length === 0 ? (
-            <p className="text-gray-400 text-center py-4">No dailies found</p>
-          ) : (
-            dailies.map(task => (
-              <Card 
-                key={task._id} 
-                className={`bg-gray-750 border-gray-700 ${
-                  task.completed ? 'opacity-60' : task.isDue ? '' : 'opacity-80'
-                }`}
-              >
-                <CardContent className="p-3 flex items-center">
-                  <Checkbox
-                    checked={task.completed}
-                    onCheckedChange={() => handleTaskToggle(task)}
-                    className="mr-3"
-                  />
-                  <div className="flex-1">
-                    <p className={`text-sm ${task.completed ? 'text-gray-400 line-through' : 'text-gray-200'}`}>
-                      {task.text}
-                    </p>
-                    {task.notes && (
-                      <p className="text-xs text-gray-400 mt-1">{task.notes}</p>
-                    )}
-                  </div>
-                  {task.completed ? (
-                    <CheckCircle className="h-4 w-4 text-green-400 ml-2" />
-                  ) : !task.isDue ? (
-                    <span className="text-xs text-gray-400 ml-2">Not due</span>
-                  ) : null}
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
-      </Tabs>
-      
-      {/* Action Reflection Dialog */}
-      {taskForReflection && taskForReflection.orionOrigin && (
-        <ActionReflectionDialog
-          isOpen={showReflectionDialog}
-          setIsOpen={setShowReflectionDialog}
-          completedTaskText={taskForReflection.text}
-          habiticaTaskId={taskForReflection._id || ''}
-          orionSourceModule={taskForReflection.orionOrigin.orionSourceModule}
-          orionSourceReferenceId={taskForReflection.orionOrigin.orionSourceReferenceId}
-          onReflectionSaved={() => {
-            console.log(`Reflection saved for task: ${taskForReflection.text}`);
-            // Optionally refresh tasks to show reflection status
-            fetchTasks();
-          }}
-        />
-      )}
-    </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+          </div>
+        ) : error ? (
+          <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
+            {error}
+          </div>
+        ) : tasks.length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-gray-400">No {type} found.</p>
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {tasks.map((task) => (
+              <li key={task._id} className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => handleTaskToggle(task)}
+                  className="form-checkbox h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded"
+                />
+                <div className="flex-1">
+                  <p className={
+                    `text-gray-200 ${(task.completed || (type === 'dailys' && !isPastDue(task.date))) ? '' : 'text-red-400 font-semibold'}`
+                  }>
+                    {task.text}
+                  </p>
+                  {task.notes && <p className="text-xs text-gray-400 mt-1">{task.notes}</p>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 };

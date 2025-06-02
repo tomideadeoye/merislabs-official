@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/ui/page-header';
 import { Briefcase } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/apiClient';
 
 export default function OpportunityPipelinePage() {
   const [activeView, setActiveView] = useState('list');
@@ -21,15 +20,19 @@ export default function OpportunityPipelinePage() {
 
   const fetchOpportunities = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const res = await apiClient.get('/api/orion/opportunities');
-      if (res.data.success) {
-        setOpportunities(res.data.opportunities);
+      const response = await fetch('/api/orion/notion/opportunity/list');
+      const data = await response.json();
+
+      if (data.success) {
+        setOpportunities(data.opportunities);
       } else {
-        setError(res.data.error || 'Failed to load opportunities');
+        setError(data.error || 'Failed to load opportunities from Notion');
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setError(err instanceof Error ? err.message : 'An unknown error occurred fetching opportunities');
+      console.error('Fetch Opportunities Error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +47,7 @@ export default function OpportunityPipelinePage() {
   };
 
   const handleAddSuccess = (opportunityId: string) => {
-    router.push(`/admin/opportunity-pipeline/${opportunityId}`);
+    setIsAddFormOpen(false);
     fetchOpportunities();
   };
 
@@ -73,7 +76,10 @@ export default function OpportunityPipelinePage() {
         </TabsContent>
 
         <TabsContent value="kanban" className="mt-6">
-          <OpportunityKanbanView />
+          <OpportunityKanbanView
+             opportunities={opportunities}
+             refetchOpportunities={fetchOpportunities}
+          />
         </TabsContent>
       </Tabs>
 

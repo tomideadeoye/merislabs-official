@@ -10,20 +10,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Loader2, FileText, Edit, Check, X, RefreshCw } from 'lucide-react';
+import { Loader2, FileText, Edit, Check, X, RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface CVTailoringStudioProps {
-  jdAnalysis: string;
   jobTitle: string;
   companyName: string;
+  jobDescription: string;
   webResearchContext?: string;
   onCVAssembled?: (cv: string) => void;
 }
 
 export function CVTailoringStudio({
-  jdAnalysis,
   jobTitle,
   companyName,
+  jobDescription,
   webResearchContext = '',
   onCVAssembled
 }: CVTailoringStudioProps) {
@@ -44,7 +44,8 @@ export function CVTailoringStudio({
     assembleSelectedComponents,
     getComponentById,
     isComponentSelected,
-    clearError
+    clearError,
+    setTailoredContentMap
   } = useCVTailoring();
 
   const [activeTab, setActiveTab] = useState('select');
@@ -54,17 +55,63 @@ export function CVTailoringStudio({
   const [editedContent, setEditedContent] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Load components on mount
+  // Add state for fetched JD analysis
+  const [fetchedJdAnalysis, setFetchedJdAnalysis] = useState<string | null>(null);
+  const [isAnalyzingJd, setIsAnalyzingJd] = useState<boolean>(false);
+  const [jdAnalysisError, setJdAnalysisError] = useState<string | null>(null);
+
+  // Fetch components on mount
   useEffect(() => {
     fetchComponents();
   }, [fetchComponents]);
 
-  // Suggest components when JD analysis is available
+  // Fetch JD analysis when jobTitle, companyName, or jobDescription change
   useEffect(() => {
-    if (jdAnalysis && components.length > 0) {
-      suggestComponents(jdAnalysis, jobTitle, companyName);
+    const analyzeJd = async () => {
+      if (!jobDescription) return; // Only analyze if job description is available
+
+      setIsAnalyzingJd(true);
+      setJdAnalysisError(null);
+      try {
+        const response = await fetch('/api/orion/llm/jd-analysis', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            job_description: jobDescription,
+            opportunity_title: jobTitle,
+            company_name: companyName,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.success && data.analysis) {
+          setFetchedJdAnalysis(data.analysis);
+        } else {
+          setJdAnalysisError(data.error || 'Failed to analyze job description.');
+        }
+      } catch (err: any) {
+        setJdAnalysisError(err.message || 'An unexpected error occurred during JD analysis.');
+      } finally {
+        setIsAnalyzingJd(false);
+      }
+    };
+
+    analyzeJd();
+  }, [jobDescription, jobTitle, companyName]); // Depend on relevant props
+
+  // Suggest components when JD analysis is available and components are loaded
+  useEffect(() => {
+    // Use fetchedJdAnalysis instead of jdAnalysis prop
+    if (fetchedJdAnalysis && components.length > 0) {
+      suggestComponents(fetchedJdAnalysis, jobTitle, companyName);
+    } else if (!isAnalyzingJd && !fetchedJdAnalysis && jobDescription) {
+       // If analysis failed but JD is present, maybe show an error or disable suggestion
+       // For now, suggestComponents won't run, effectively waiting or being disabled.
+       // You might want to add a visual indicator for JD analysis failure.
     }
-  }, [jdAnalysis, jobTitle, companyName, components, suggestComponents]);
+  }, [fetchedJdAnalysis, jobTitle, companyName, components, suggestComponents, isAnalyzingJd, jobDescription]); // Add fetchedJdAnalysis and isAnalyzingJd to dependencies
 
   // Notify parent when CV is assembled
   useEffect(() => {
@@ -82,8 +129,7 @@ export function CVTailoringStudio({
     componentsByType[component.component_type].push(component);
   });
 
-  // Handle component selection toggle
-  const handleComponentToggle = (componentId: string, checked: boolean) => {
+  const handleComponentSelectionToggle = (componentId: string, checked: boolean) => {
     if (checked) {
       selectComponent(componentId);
     } else {
@@ -91,17 +137,16 @@ export function CVTailoringStudio({
     }
   };
 
-  // Handle component rephrasing
   const handleRephraseComponent = async (component: CVComponent) => {
+    // Use fetchedJdAnalysis instead of jdAnalysis prop
     if (component.component_type === 'Profile Summary') {
-      await tailorSummaryComponent(component.unique_id, jdAnalysis, webResearchContext);
+      await tailorSummaryComponent(component.unique_id, fetchedJdAnalysis!, webResearchContext);
     } else {
-      await rephraseSelectedComponent(component.unique_id, jdAnalysis, webResearchContext);
+      await rephraseSelectedComponent(component.unique_id, fetchedJdAnalysis!, webResearchContext);
     }
   };
 
-  // Handle manual editing of component content
-  const startEditing = (component: CVComponent) => {
+  const manualStartEditingComponenentContent = (component: CVComponent) => {
     setEditingComponentId(component.unique_id);
     setEditedContent(tailoredContentMap[component.unique_id] || component.content_primary);
   };
@@ -120,13 +165,11 @@ export function CVTailoringStudio({
     setEditedContent('');
   };
 
-  // Handle CV assembly
   const handleAssembleCV = async () => {
     await assembleSelectedComponents(selectedTemplate as "Standard" | "Modern" | "Compact", headerInfo);
     setActiveTab('preview');
   };
 
-  // Handle error
   const handleError = (error: any, message: string) => {
     console.error(`${message}:`, error);
     setErrorMessage(`${message}: ${error.message || 'Unknown error'}`);
@@ -161,15 +204,27 @@ export function CVTailoringStudio({
                 <p className="text-sm text-gray-500 mb-2">
                   Select the components to include in your tailored CV. Suggested components based on the job description are pre-selected.
                 </p>
-                <Button 
-                  onClick={() => suggestComponents(jdAnalysis, jobTitle, companyName)}
-                  disabled={isLoading}
-                  variant="outline"
-                  size="sm"
-                >
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                  Re-suggest Components
-                </Button>
+                {isAnalyzingJd ? (
+                  <div className="flex items-center text-blue-400">
+                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                     Analyzing Job Description...
+                  </div>
+                ) : jdAnalysisError ? (
+                   <div className="text-red-500 text-sm">
+                      <AlertTriangle className="inline mr-1 h-4 w-4" />
+                      {jdAnalysisError}
+                   </div>
+                ) : (
+                   <Button
+                    onClick={() => suggestComponents(fetchedJdAnalysis!, jobTitle, companyName)}
+                    disabled={isLoading}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                    Re-suggest Components
+                  </Button>
+                )}
               </div>
 
               {Object.entries(componentsByType).map(([type, typeComponents]) => (
@@ -178,10 +233,10 @@ export function CVTailoringStudio({
                   <div className="space-y-2">
                     {typeComponents.map(component => (
                       <div key={component.unique_id} className="flex items-start space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={component.unique_id}
                           checked={isComponentSelected(component.unique_id)}
-                          onCheckedChange={(checked) => handleComponentToggle(component.unique_id, checked === true)}
+                          onCheckedChange={(checked) => handleComponentSelectionToggle(component.unique_id, checked === true)}
                         />
                         <div className="grid gap-1.5 leading-none">
                           <label
@@ -225,7 +280,7 @@ export function CVTailoringStudio({
               {selectedComponentIds.map(id => {
                 const component = getComponentById(id);
                 if (!component) return null;
-                
+
                 const isTailored = !!tailoredContentMap[id];
                 const displayContent = tailoredContentMap[id] || component.content_primary;
                 const isEditing = editingComponentId === id;
@@ -237,8 +292,8 @@ export function CVTailoringStudio({
                       <div className="flex space-x-2">
                         {!isEditing ? (
                           <>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleRephraseComponent(component)}
                               disabled={isLoading}
@@ -246,10 +301,10 @@ export function CVTailoringStudio({
                               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                               AI Tailor
                             </Button>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
-                              onClick={() => startEditing(component)}
+                              onClick={() => manualStartEditingComponenentContent(component)}
                             >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
@@ -257,16 +312,16 @@ export function CVTailoringStudio({
                           </>
                         ) : (
                           <>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={saveEditing}
                             >
                               <Check className="mr-2 h-4 w-4" />
                               Save
                             </Button>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={cancelEditing}
                             >
@@ -277,7 +332,7 @@ export function CVTailoringStudio({
                         )}
                       </div>
                     </div>
-                    
+
                     {isEditing ? (
                       <Textarea
                         value={editedContent}
@@ -337,9 +392,9 @@ export function CVTailoringStudio({
                     />
                   </div>
                 </div>
-                
-                <Button 
-                  onClick={handleAssembleCV} 
+
+                <Button
+                  onClick={handleAssembleCV}
                   disabled={isLoading || selectedComponentIds.length === 0}
                   className="mb-4"
                 >
@@ -359,9 +414,9 @@ export function CVTailoringStudio({
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  Click "Assemble CV" to generate your tailored CV
-                </div>
+<div className="text-center py-8 text-gray-500">
+  Click "Assemble CV" to generate your tailored CV
+</div>
               )}
 
               <div className="mt-4 flex justify-between">
@@ -369,19 +424,19 @@ export function CVTailoringStudio({
                   Back
                 </Button>
                 <div className="space-x-2">
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={() => {
                       if (assembledCV) {
                         navigator.clipboard.writeText(assembledCV);
-                        alert('CV copied to clipboard!');
+                        alert("CV copied to clipboard!");
                       }
                     }}
                     disabled={!assembledCV}
                   >
                     Copy to Clipboard
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => {
                       if (assembledCV && onCVAssembled) {
                         onCVAssembled(assembledCV);

@@ -1,5 +1,4 @@
 import type { OpportunityDetails, EvaluationOutput, OpportunityType } from '../types/opportunity.d';
-import { auth } from '../auth';
 
 // Test opportunities
 const opportunities: OpportunityDetails[] = [
@@ -65,15 +64,7 @@ Areas of Focus:
 ];
 
 async function testOpportunityEvaluation() {
-  // Get mocked auth session
-  const session = await auth();
-
   try {
-    // Get mock auth session token
-    if (!session?.user) {
-      throw new Error('Failed to get authenticated session');
-    }
-
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
     // Test each opportunity

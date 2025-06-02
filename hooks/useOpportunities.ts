@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Opportunity } from '@/types/opportunity';
 
 export interface OpportunityFilters {
@@ -9,33 +9,33 @@ export interface OpportunityFilters {
 }
 
 export function useOpportunities(
-  filters: OpportunityFilters = {}, 
+  filters: OpportunityFilters = {},
   sortBy: string = 'lastStatusUpdate',
   sortOrder: 'asc' | 'desc' = 'desc'
 ) {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const fetchOpportunities = async () => {
+
+  const fetchOpportunities = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Build query string from filters
       const params = new URLSearchParams();
-      
+
       if (filters.status) params.append('status', filters.status);
       if (filters.type) params.append('type', filters.type);
       if (filters.tag) params.append('tag', filters.tag);
       if (filters.priority) params.append('priority', filters.priority);
-      
+
       params.append('sortBy', sortBy);
       params.append('sortOrder', sortOrder);
-      
+
       const response = await fetch(`/api/orion/opportunity/list?${params.toString()}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setOpportunities(data.opportunities);
       } else {
@@ -48,12 +48,12 @@ export function useOpportunities(
     } finally {
       setIsLoading(false);
     }
-  };
-  
+  }, [filters.status, filters.type, filters.tag, filters.priority, sortBy, sortOrder]);
+
   useEffect(() => {
     fetchOpportunities();
-  }, [JSON.stringify(filters), sortBy, sortOrder]);
-  
+  }, [fetchOpportunities]);
+
   return {
     opportunities,
     isLoading,

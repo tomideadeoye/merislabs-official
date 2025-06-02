@@ -1,12 +1,15 @@
 import { useState, useCallback } from 'react';
-import { 
-  fetchCVComponents, 
-  suggestCVComponents, 
-  rephraseComponent, 
+import {
+  fetchCVComponents,
+  suggestCVComponents,
+  rephraseComponent,
   tailorSummary,
   assembleCV,
-  CVComponent 
+  CVComponent
 } from '@/lib/cv';
+
+// Import the specific Notion fetching function for CV components
+import { fetchCVComponentsFromNotion } from '@/lib/notion_service';
 
 export function useCVTailoring() {
   const [components, setComponents] = useState<CVComponent[]>([]);
@@ -22,8 +25,15 @@ export function useCVTailoring() {
     try {
       setIsLoading(true);
       setError(null);
-      const fetchedComponents = await fetchCVComponents();
-      setComponents(fetchedComponents);
+      // Use the Notion service function directly
+      const componentsResult = await fetchCVComponentsFromNotion();
+
+      if (componentsResult.success) {
+        // Map CVComponentShared to CVComponent if necessary, or update CVComponent type
+        setComponents(componentsResult.components as CVComponent[]); // Assuming types are compatible for now
+      } else {
+        setError(componentsResult.error || 'Failed to fetch CV components from Notion');
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch CV components');
     } finally {
@@ -37,10 +47,10 @@ export function useCVTailoring() {
       setIsLoading(true);
       setError(null);
       const result = await suggestCVComponents(jdAnalysis, jobTitle, companyName);
-      
+
       if (result.success && result.suggested_component_ids) {
         setSuggestedComponentIds(result.suggested_component_ids);
-        
+
         // Auto-select suggested components
         setSelectedComponentIds(prevSelected => {
           const newSelected = [...prevSelected];
@@ -82,7 +92,7 @@ export function useCVTailoring() {
       setIsLoading(true);
       setError(null);
       const result = await rephraseComponent(componentId, jdAnalysis, webResearchContext);
-      
+
       if (result.success && result.rephrased_content) {
         setTailoredContentMap(prev => ({
           ...prev,
@@ -104,7 +114,7 @@ export function useCVTailoring() {
       setIsLoading(true);
       setError(null);
       const result = await tailorSummary(componentId, jdAnalysis, webResearchContext);
-      
+
       if (result.success && result.tailored_content) {
         setTailoredContentMap(prev => ({
           ...prev,
@@ -127,11 +137,11 @@ export function useCVTailoring() {
         setError('No components selected');
         return;
       }
-      
+
       setIsLoading(true);
       setError(null);
       const result = await assembleCV(selectedComponentIds, templateName, headerInfo, tailoredContentMap);
-      
+
       if (result.success && result.assembled_cv) {
         setAssembledCV(result.assembled_cv);
       } else {

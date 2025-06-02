@@ -10,11 +10,11 @@ import {
 import { toast } from "react-hot-toast";
 
 interface DraftCommunicationFormProps {
-  profileData?: string | null; // Accept null as well as undefined
+  profileData?: string | null;
   memoryAvailable?: boolean;
 }
 
-export function DraftCommunicationForm({ profileData, memoryAvailable }: DraftCommunicationFormProps) {
+function DraftCommunicationForm({ profileData, memoryAvailable }: DraftCommunicationFormProps) {
   const [askQuestion, setAskQuestion] = useState("");
   const [askAnswer, setAskAnswer] = useState("");
   const [askProcessing, setAskProcessing] = useState(false);
@@ -198,3 +198,5 @@ export function DraftCommunicationForm({ profileData, memoryAvailable }: DraftCo
     </div>
   );
 }
+
+export default DraftCommunicationForm;

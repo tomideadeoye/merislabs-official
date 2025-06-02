@@ -14,7 +14,10 @@ export default function ResetPassword() {
           {/* Page header */}
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
             <h1 className="h1 mb-4">Forgot your password?</h1>
-            <p className="text-xl text-gray-400">We'll email you instructions on how to reset it.</p>
+            <p className="text-xl text-gray-400">We&apos;ll email you instructions on how to reset it.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+              Enter the email address you used to register and we&apos;ll send you a link to reset your password.
+            </p>
           </div>
 
           {/* Form */}

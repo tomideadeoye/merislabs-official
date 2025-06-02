@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib/orion_config';
 
 interface StakeholderSearchRequestBody {
@@ -20,7 +21,7 @@ interface Stakeholder {
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
@@ -31,16 +32,16 @@ export async function POST(request: NextRequest) {
 
     // Basic validation
     if (!company || !roles || roles.length === 0) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Company name and roles are required." 
+      return NextResponse.json({
+        success: false,
+        error: "Company name and roles are required."
       }, { status: 400 });
     }
 
     // Mock stakeholder search for now - in a real implementation, this would use an API or web scraping
     // This simulates the find_potential_stakeholders_async function from the Python code
     const stakeholders: Stakeholder[] = await findPotentialStakeholders(company, roles);
-    
+
     // Generate outreach drafts for each stakeholder
     const outreachDrafts = await Promise.all(
       stakeholders.map(async (stakeholder) => {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
           profileData || '',
           webContext || ''
         );
-        
+
         return {
           stakeholder,
           draft
@@ -59,14 +60,14 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       stakeholders: outreachDrafts
     });
 
   } catch (error: any) {
     console.error('[STAKEHOLDER_SEARCH_API_ERROR]', error);
-    
+
     return NextResponse.json({
       success: false,
       error: 'Failed to search for stakeholders.',
@@ -95,16 +96,16 @@ async function findPotentialStakeholders(company: string, roles: string[]): Prom
       email: `hiring@${company.toLowerCase().replace(/\\s+/g, '')}.com`
     }
   ];
-  
+
   // Filter by roles if specified
   if (roles.length > 0) {
-    return mockStakeholders.filter(s => 
-      roles.some(role => 
+    return mockStakeholders.filter(s =>
+      roles.some(role =>
         s.role.toLowerCase().includes(role.toLowerCase())
       )
     );
   }
-  
+
   return mockStakeholders;
 }
 

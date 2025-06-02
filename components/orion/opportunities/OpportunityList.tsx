@@ -1,31 +1,77 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { OpportunityCard } from './OpportunityCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Plus, Search, Filter } from 'lucide-react';
-import { OpportunityDetails as Opportunity } from '@/types/opportunity';
+import { OpportunityDetails as OpportunityDetailsType, OpportunityDetails, Opportunity } from '@/types/opportunity';
+
+// Constants for opportunity filters and sorting
+const FILTERS = {
+  STATUS: {
+    ALL: 'all',
+    IDENTIFIED: 'identified',
+    RESEARCHING: 'researching',
+    EVALUATING: 'evaluating',
+    EVALUATED_POSITIVE: 'evaluated_positive',
+    EVALUATED_NEGATIVE: 'evaluated_negative',
+    APPLICATION_DRAFTING: 'application_drafting',
+    APPLICATION_READY: 'application_ready',
+    APPLIED: 'applied',
+    INTERVIEW_SCHEDULED: 'interview_scheduled',
+    OFFER_RECEIVED: 'offer_received'
+  },
+  TYPE: {
+    ALL: 'all',
+    JOB: 'job',
+    EDUCATION: 'education_program',
+    PROJECT: 'project_collaboration',
+    FUNDING: 'funding',
+    OTHER: 'other'
+  },
+  SORT: {
+    DATE_DESC: 'dateDesc',
+    DATE_ASC: 'dateAsc',
+    TITLE_ASC: 'titleAsc',
+    TITLE_DESC: 'titleDesc',
+    COMPANY_ASC: 'companyAsc',
+    COMPANY_DESC: 'companyDesc'
+  }
+};
 
 interface OpportunityListProps {
-  opportunities: Opportunity[];
-  isLoading: boolean;
-  error: string | null;
-  refetchOpportunities: () => Promise<void>;
+  opportunities?: OpportunityDetailsType[];
+  isLoading?: boolean;
+  error?: string | null;
   onAddNew?: () => void;
+  refetchOpportunities?: () => Promise<void>;
 }
 
-export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) => {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+export const OpportunityList: React.FC<OpportunityListProps> = ({
+  opportunities: propOpportunities,
+  isLoading: propIsLoading,
+  error: propError,
+  onAddNew
+}) => {
+  const [opportunities, setOpportunities] = useState<OpportunityDetailsType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('dateDesc');
+  const [statusFilter, setStatusFilter] = useState(FILTERS.STATUS.ALL);
+  const [typeFilter, setTypeFilter] = useState(FILTERS.TYPE.ALL);
+  const [sortBy, setSortBy] = useState(FILTERS.SORT.DATE_DESC);
 
   useEffect(() => {
+    // Use props if provided, otherwise fetch from API
+    if (propOpportunities) {
+      setOpportunities(propOpportunities);
+      setLoading(typeof propIsLoading === 'boolean' ? propIsLoading : false);
+      setError(typeof propError === 'string' ? propError : null);
+      return;
+    }
+
     const fetchOpportunities = async () => {
       try {
         setLoading(true);
@@ -51,38 +97,43 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) =>
     };
 
     fetchOpportunities();
-  }, []);
+  }, [propOpportunities, propIsLoading, propError]);
 
-  const filteredOpportunities = opportunities
-    .filter(opp => {
-      const matchesSearch = searchTerm === '' ||
-        opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        opp.companyOrInstitution?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (opp.descriptionSummary && opp.descriptionSummary.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredOpportunities = useMemo(() => {
+    return opportunities
+      .filter(opp => {
+        // Filter out items without id
+        if (!opp.id) return false;
 
-      const matchesStatus = statusFilter === 'all' || opp.status === statusFilter;
-      const [matchesType] = typeFilter === 'all' || opp.type === typeFilter;
+        const matchesSearch = searchTerm === '' ||
+          opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (opp.companyOrInstitution?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+          (opp.descriptionSummary?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
-      return matchesSearch && matchesStatus && matchesType;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'dateAsc':
-          return new Date(a.dateIdentified).getTime() - new Date(b.dateIdentified).getTime();
-        case 'dateDesc':
-          return new Date(b.dateIdentified).getTime() - new Date(a.dateIdentified).getTime();
-        case 'titleAsc':
-          return a.title.localeCompare(b.title);
-        case 'titleDesc':
-          return b.title.localeCompare(a.title);
-        case 'companyAsc':
-          return (a.companyOrInstitution || '').localeCompare(b.companyOrInstitution || '');
-        case 'companyDesc':
-          return (b.companyOrInstitution || '').localeCompare(a.companyOrInstitution || '');
-        default:
-          return 0;
-      }
-    });
+        const matchesStatus = statusFilter === FILTERS.STATUS.ALL || opp.status === statusFilter;
+        const matchesType = typeFilter === FILTERS.TYPE.ALL || opp.type === typeFilter;
+
+        return matchesSearch && matchesStatus && matchesType;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case FILTERS.SORT.DATE_ASC:
+            return new Date(a.dateIdentified || '').getTime() - new Date(b.dateIdentified || '').getTime();
+          case FILTERS.SORT.DATE_DESC:
+            return new Date(b.dateIdentified || '').getTime() - new Date(a.dateIdentified || '').getTime();
+          case FILTERS.SORT.TITLE_ASC:
+            return a.title.localeCompare(b.title);
+          case FILTERS.SORT.TITLE_DESC:
+            return b.title.localeCompare(a.title);
+          case FILTERS.SORT.COMPANY_ASC:
+            return (a.companyOrInstitution || '').localeCompare(b.companyOrInstitution || '');
+          case FILTERS.SORT.COMPANY_DESC:
+            return (b.companyOrInstitution || '').localeCompare(a.companyOrInstitution || '');
+          default:
+            return 0;
+        }
+      });
+  }, [opportunities, searchTerm, statusFilter, typeFilter, sortBy]);
 
   return (
     <div className="space-y-4">
@@ -113,17 +164,17 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) =>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="identified">Identified</SelectItem>
-                <SelectItem value="researching">Researching</SelectItem>
-                <SelectItem value="evaluating">Evaluating</SelectItem>
-                <SelectItem value="evaluated_positive">Positive Evaluation</SelectItem>
-                <SelectItem value="evaluated_negative">Negative Evaluation</SelectItem>
-                <SelectItem value="application_drafting">Drafting Application</SelectItem>
-                <SelectItem value="application_ready">Application Ready</SelectItem>
-                <SelectItem value="applied">Applied</SelectItem>
-                <SelectItem value="interview_scheduled">Interview Scheduled</SelectItem>
-                <SelectItem value="offer_received">Offer Received</SelectItem>
+                <SelectItem value={FILTERS.STATUS.ALL}>All Statuses</SelectItem>
+                <SelectItem value={FILTERS.STATUS.IDENTIFIED}>Identified</SelectItem>
+                <SelectItem value={FILTERS.STATUS.RESEARCHING}>Researching</SelectItem>
+                <SelectItem value={FILTERS.STATUS.EVALUATING}>Evaluating</SelectItem>
+                <SelectItem value={FILTERS.STATUS.EVALUATED_POSITIVE}>Positive Evaluation</SelectItem>
+                <SelectItem value={FILTERS.STATUS.EVALUATED_NEGATIVE}>Negative Evaluation</SelectItem>
+                <SelectItem value={FILTERS.STATUS.APPLICATION_DRAFTING}>Drafting Application</SelectItem>
+                <SelectItem value={FILTERS.STATUS.APPLICATION_READY}>Application Ready</SelectItem>
+                <SelectItem value={FILTERS.STATUS.APPLIED}>Applied</SelectItem>
+                <SelectItem value={FILTERS.STATUS.INTERVIEW_SCHEDULED}>Interview Scheduled</SelectItem>
+                <SelectItem value={FILTERS.STATUS.OFFER_RECEIVED}>Offer Received</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -135,12 +186,12 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) =>
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="job">Job</SelectItem>
-                <SelectItem value="education_program">Education</SelectItem>
-                <SelectItem value="project_collaboration">Project</SelectItem>
-                <SelectItem value="funding">Funding</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value={FILTERS.TYPE.ALL}>All Types</SelectItem>
+                <SelectItem value={FILTERS.TYPE.JOB}>Job</SelectItem>
+                <SelectItem value={FILTERS.TYPE.EDUCATION}>Education</SelectItem>
+                <SelectItem value={FILTERS.TYPE.PROJECT}>Project</SelectItem>
+                <SelectItem value={FILTERS.TYPE.FUNDING}>Funding</SelectItem>
+                <SelectItem value={FILTERS.TYPE.OTHER}>Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -151,12 +202,12 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) =>
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                <SelectItem value="dateDesc">Newest First</SelectItem>
-                <SelectItem value="dateAsc">Oldest First</SelectItem>
-                <SelectItem value="titleAsc">Title (A-Z)</SelectItem>
-                <SelectItem value="titleDesc">Title (Z-A)</SelectItem>
-                <SelectItem value="companyAsc">Company (A-Z)</SelectItem>
-                <SelectItem value="companyDesc">Company (Z-A)</SelectItem>
+                <SelectItem value={FILTERS.SORT.DATE_DESC}>Newest First</SelectItem>
+                <SelectItem value={FILTERS.SORT.DATE_ASC}>Oldest First</SelectItem>
+                <SelectItem value={FILTERS.SORT.TITLE_ASC}>Title (A-Z)</SelectItem>
+                <SelectItem value={FILTERS.SORT.TITLE_DESC}>Title (Z-A)</SelectItem>
+                <SelectItem value={FILTERS.SORT.COMPANY_ASC}>Company (A-Z)</SelectItem>
+                <SelectItem value={FILTERS.SORT.COMPANY_DESC}>Company (Z-A)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -174,15 +225,18 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) =>
         </div>
       ) : filteredOpportunities.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
-          {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' ?
+          {searchTerm || statusFilter !== FILTERS.STATUS.ALL || typeFilter !== FILTERS.TYPE.ALL ?
             'No opportunities match your filters.' :
             'No opportunities found. Add your first one!'}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredOpportunities.map(opportunity => (
-            <OpportunityCard key={opportunity.id} opportunity={opportunity} />
-          ))}
+          {filteredOpportunities
+            .filter((opportunity): opportunity is OpportunityDetails & { id: string } => typeof opportunity.id === 'string')
+            .map((opportunity) => {
+              const safeOpportunity: Opportunity = { ...opportunity, id: opportunity.id };
+              return <OpportunityCard key={safeOpportunity.id} opportunity={safeOpportunity} />;
+            })}
         </div>
       )}
 

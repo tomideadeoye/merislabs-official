@@ -49,10 +49,10 @@ export default function Zigzag() {
                   )}
 
                   {project.image && (
-                    <img
+                    <Image
                       src={`/images/${project.image}`}
                       alt={project.name}
-                      width="auto"
+                      width={600}
                       height={400}
                       className="object-contain rounded-2xl px-4 self-center"
                       style={{
@@ -105,8 +105,8 @@ export default function Zigzag() {
                         ))}
                     </ul>
                     <div className="flex gap-2 mt-6">
-                      {project.links?.map((link, index) => (
-                        <Link className="hover:underline" href={link[1]}>
+{project.links?.map((link, index) => (
+  <Link key={index} className="hover:underline" href={link[1]}>
                           {link[0].toLowerCase()}
                         </Link>
                       ))}

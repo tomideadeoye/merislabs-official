@@ -204,8 +204,8 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
               });
             }
           }}
-          placeholder="What thoughts were going through your mind?"
-          className="bg-gray-700 border-gray-600 text-gray-200"
+          placeholder="What&apos;s on your mind today?"
+          className="min-h-[100px] bg-gray-700 border-gray-600 text-gray-200"
         />
       </div>
 

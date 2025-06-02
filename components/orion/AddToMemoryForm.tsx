@@ -25,7 +25,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!text || !text.trim()) {
       setFeedback({ type: 'error', message: "Text content cannot be empty." });
       return;
@@ -37,7 +37,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
     try {
       // Generate a source ID if not provided
       const finalSourceId = sourceId && sourceId.trim() ? sourceId.trim() : `${type}_${new Date().toISOString().replace(/[:.]/g, '-')}_${uuidv4().substring(0, 8)}`;
-      
+
       // 1. Generate embeddings for the text
       const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
         method: 'POST',
@@ -50,17 +50,17 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
       });
 
       const embeddingData = await embeddingResponse.json();
-      
+
       if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length === 0) {
         throw new Error(embeddingData.error || 'Failed to generate embeddings.');
       }
 
       const embeddingVector = embeddingData.embeddings[0];
-      
+
       // 2. Prepare the memory point
       const currentISOTime = new Date().toISOString();
-      const tagsArray = tags ? tags.split(',').map(tag => tag.trim().toLowerCase()).filter(Boolean) : [];
-      
+      const tagsArray = tags ? tags.split(',').map((tag: string) => tag.trim().toLowerCase()).filter(Boolean) : [];
+
       const memoryPayload = {
         text: text,
         source_id: finalSourceId,
@@ -75,7 +75,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
         vector: embeddingVector,
         payload: memoryPayload,
       };
-      
+
       // 3. Upsert the memory point into Qdrant
       const upsertResponse = await fetch('/api/orion/memory/upsert', {
         method: 'POST',
@@ -89,7 +89,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
       });
 
       const upsertData = await upsertResponse.json();
-      
+
       if (!upsertData.success) {
         throw new Error(upsertData.error || 'Failed to save to memory.');
       }
@@ -99,7 +99,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
       setText("");
       setSourceId("");
       setTags("");
-      
+
       if (onMemoryAdded) {
         onMemoryAdded();
       }
@@ -138,7 +138,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
           disabled={isSaving}
         />
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <Label htmlFor="type" className="block text-sm font-medium text-gray-300 mb-1">
@@ -154,7 +154,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
             {typeOptions.map(option => (
               <option key={option} value={option}>{option.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>
             ))}
-            <option value="custom">Custom Type...</option> 
+            <option value="custom">Custom Type...</option>
           </select>
           {type === "custom" && (
              <Input
@@ -166,7 +166,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
             />
           )}
         </div>
-        
+
         <div>
           <Label htmlFor="sourceId" className="block text-sm font-medium text-gray-300 mb-1">
             Source ID / Prefix (Optional):
@@ -181,7 +181,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
             disabled={isSaving}
           />
         </div>
-        
+
         <div>
           <Label htmlFor="tags" className="block text-sm font-medium text-gray-300 mb-1">
             Tags (Comma-separated):
@@ -197,11 +197,11 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
           />
         </div>
       </div>
-      
+
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <Button 
-          type="submit" 
-          disabled={isSaving || !text?.trim()} 
+        <Button
+          type="submit"
+          disabled={isSaving || !text?.trim()}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5"
         >
           {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4"/>}
@@ -211,7 +211,7 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({ onMemoryAdded 
 
       {feedback && (
         <div className={`mt-4 p-3 rounded-md text-sm flex items-start ${
-            feedback.type === 'success' ? 'bg-green-800/30 border border-green-600 text-green-300' 
+            feedback.type === 'success' ? 'bg-green-800/30 border border-green-600 text-green-300'
                                      : 'bg-red-800/30 border border-red-600 text-red-300'
         }`}>
             {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" /> : <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0" />}

@@ -1,3 +1,9 @@
+/* Import additional styles first */
+@import 'css/additional-styles/utility-patterns.css';
+@import 'css/additional-styles/range-slider.css';
+@import 'css/additional-styles/toggle-switch.css';
+@import 'css/additional-styles/theme.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -90,11 +96,7 @@
   }
 }
 
-/* Additional styles */
-@import 'additional-styles/utility-patterns.css';
-@import 'additional-styles/range-slider.css';
-@import 'additional-styles/toggle-switch.css';
-@import 'additional-styles/theme.css';
+/* Move imports to the top to fix CSS order issues */
 
 /* Additional Tailwind directives: https://tailwindcss.com/docs/functions-and-directives/#responsive */
 @layer utilities {

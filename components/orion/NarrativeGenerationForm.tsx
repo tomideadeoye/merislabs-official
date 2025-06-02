@@ -8,12 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, AlertTriangle, FileText } from 'lucide-react';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
 import type { NarrativeType } from '@/types/narrative-clarity';
 
@@ -21,32 +21,34 @@ interface NarrativeGenerationFormProps {
   onNarrativeGenerated: (content: string, title: string) => void;
 }
 
-export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = ({ 
-  onNarrativeGenerated 
+export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = ({
+  onNarrativeGenerated
 }) => {
-  const [narrativeType, setNarrativeType] = useSessionState<NarrativeType>(
-    SessionStateKeys.NARRATIVE_TYPE, 
+  const [narrativeType, setNarrativeType] = useSessionState<
+    SessionStateKeys.NARRATIVE_TYPE
+  >(
+    SessionStateKeys.NARRATIVE_TYPE,
     'personal_bio'
   );
   const [tone, setTone] = useSessionState(SessionStateKeys.NARRATIVE_TONE, 'professional');
   const [length, setLength] = useSessionState(SessionStateKeys.NARRATIVE_LENGTH, 'standard');
   const [additionalContext, setAdditionalContext] = useSessionState(SessionStateKeys.NARRATIVE_CONTEXT, '');
   const [specificRequirements, setSpecificRequirements] = useSessionState(SessionStateKeys.NARRATIVE_REQUIREMENTS, '');
-  
+
   const [isGenerating, setIsGenerating] = useSessionState(SessionStateKeys.NARRATIVE_GENERATING, false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!narrativeType) {
       setError("Narrative type is required.");
       return;
     }
-    
+
     setIsGenerating(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/narrative/generate', {
         method: 'POST',
@@ -61,9 +63,9 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
           specificRequirements: specificRequirements || undefined
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.narrative) {
         onNarrativeGenerated(data.narrative.content, data.narrative.suggestedTitle);
       } else {
@@ -115,8 +117,8 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="narrativeType" className="text-gray-300">Narrative Type *</Label>
-            <Select 
-              value={narrativeType} 
+            <Select
+              value={narrativeType}
               onValueChange={(value) => setNarrativeType(value as NarrativeType)}
               disabled={isGenerating}
             >
@@ -130,12 +132,12 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="tone" className="text-gray-300">Tone</Label>
-              <Select 
-                value={tone} 
+              <Select
+                value={tone}
                 onValueChange={setTone}
                 disabled={isGenerating}
               >
@@ -149,11 +151,11 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="length" className="text-gray-300">Length</Label>
-              <Select 
-                value={length} 
+              <Select
+                value={length}
                 onValueChange={setLength}
                 disabled={isGenerating}
               >
@@ -168,7 +170,7 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
               </Select>
             </div>
           </div>
-          
+
           <div>
             <Label htmlFor="additionalContext" className="text-gray-300">Additional Context (Optional)</Label>
             <Textarea
@@ -180,7 +182,7 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
               disabled={isGenerating}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="specificRequirements" className="text-gray-300">Specific Requirements (Optional)</Label>
             <Textarea
@@ -192,17 +194,17 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
               disabled={isGenerating}
             />
           </div>
-          
+
           {error && (
             <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
               <AlertTriangle className="h-5 w-5 mr-2" />
               {error}
             </div>
           )}
-          
-          <Button 
-            type="submit" 
-            disabled={isGenerating || !narrativeType} 
+
+          <Button
+            type="submit"
+            disabled={isGenerating || !narrativeType}
             className="bg-blue-600 hover:bg-blue-700 w-full"
           >
             {isGenerating ? (

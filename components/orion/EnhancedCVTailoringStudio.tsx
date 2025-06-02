@@ -14,14 +14,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Loader2, 
-  FileText, 
-  Edit, 
-  Check, 
-  X, 
-  RefreshCw, 
-  Download, 
+import {
+  Loader2,
+  FileText,
+  Edit,
+  Check,
+  X,
+  RefreshCw,
+  Download,
   MoveVertical,
   AlertCircle,
   CheckCircle,
@@ -99,14 +99,14 @@ export function EnhancedCVTailoringStudio({
 
   // Update tailoring progress
   useEffect(() => {
-    if (selectedComponentIds.size === 0) {
+    if (selectedComponentIds.length === 0) {
       setTailoringProgress(0);
     } else {
-      const tailoredCount = Object.keys(tailoredContentMap).filter(id => 
-        selectedComponentIds.has(id)
+      const tailoredCount = Object.keys(tailoredContentMap).filter(id =>
+        selectedComponentIds.includes(id)
       ).length;
-      
-      setTailoringProgress(Math.round((tailoredCount / selectedComponentIds.size) * 100));
+
+      setTailoringProgress(Math.round((tailoredCount / selectedComponentIds.length) * 100));
     }
   }, [selectedComponentIds, tailoredContentMap]);
 
@@ -173,11 +173,11 @@ export function EnhancedCVTailoringStudio({
   // Handle drag and drop reordering
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
-    
+
     const items = Array.from(orderedComponentIds);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-    
+
     setOrderedComponentIds(items);
   };
 
@@ -191,13 +191,13 @@ export function EnhancedCVTailoringStudio({
   // Handle export
   const handleExport = async () => {
     if (!assembledCV) return;
-    
+
     setIsExporting(true);
-    
+
     try {
       let blob: Blob;
       let filename: string;
-      
+
       if (exportFormat === 'pdf') {
         blob = await generatePDF(assembledCV, selectedTemplate);
         filename = generatePDFFilename(jobTitle);
@@ -214,13 +214,13 @@ export function EnhancedCVTailoringStudio({
             .replace(/\*(.*?)\*/g, '$1')     // Italic
             .replace(/\*\*\*(.*?)\*\*\*/g, '$1'); // Bold italic
         }
-        
-        blob = new Blob([content], { 
-          type: exportFormat === 'plain' ? 'text/plain' : 'text/markdown' 
+
+        blob = new Blob([content], {
+          type: exportFormat === 'plain' ? 'text/plain' : 'text/markdown'
         });
         filename = `cv_${jobTitle.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.${exportFormat === 'plain' ? 'txt' : 'md'}`;
       }
-      
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -240,14 +240,14 @@ export function EnhancedCVTailoringStudio({
   const getTailoringQualityIndicator = (componentId: string) => {
     const originalContent = getComponentById(componentId)?.content_primary || '';
     const tailoredContent = tailoredContentMap[componentId] || '';
-    
+
     if (!tailoredContent) return 'none';
-    
+
     // Simple heuristic: check if content is significantly different
     const originalWords = originalContent.split(/\s+/).length;
     const tailoredWords = tailoredContent.split(/\s+/).length;
     const wordDiff = Math.abs(tailoredWords - originalWords) / originalWords;
-    
+
     if (wordDiff < 0.1) return 'low';
     if (wordDiff < 0.3) return 'medium';
     return 'high';
@@ -256,13 +256,13 @@ export function EnhancedCVTailoringStudio({
   // Submit feedback for a tailored component
   const submitFeedback = async (componentId: string, rating: 'positive' | 'negative') => {
     if (!opportunityId) return;
-    
+
     try {
       const component = getComponentById(componentId);
       if (!component) return;
-      
+
       const tailoredContent = tailoredContentMap[componentId] || '';
-      
+
       const response = await fetch('/api/orion/cv/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -273,9 +273,9 @@ export function EnhancedCVTailoringStudio({
           rating
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setFeedbackSubmitted(prev => ({
           ...prev,
@@ -324,7 +324,7 @@ export function EnhancedCVTailoringStudio({
                 <p className="text-sm text-gray-500 mb-2">
                   Select the components to include in your tailored CV. Suggested components based on the job description are pre-selected.
                 </p>
-                <Button 
+                <Button
                   onClick={() => suggestComponents(jdAnalysis, jobTitle, companyName)}
                   disabled={isLoading}
                   variant="outline"
@@ -341,7 +341,7 @@ export function EnhancedCVTailoringStudio({
                   <div className="space-y-2">
                     {typeComponents.map(component => (
                       <div key={component.unique_id} className="flex items-start space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={component.unique_id}
                           checked={isComponentSelected(component.unique_id)}
                           onCheckedChange={(checked) => handleComponentToggle(component.unique_id, checked === true)}
@@ -366,7 +366,7 @@ export function EnhancedCVTailoringStudio({
                 </div>
               ))}
 
-              <Button onClick={() => setActiveTab('tailor')} disabled={selectedComponentIds.size === 0}>
+              <Button onClick={() => setActiveTab('tailor')} disabled={selectedComponentIds.length === 0}>
                 Next: Tailor Content
               </Button>
             </CardContent>
@@ -402,12 +402,12 @@ export function EnhancedCVTailoringStudio({
                       {orderedComponentIds.map((id, index) => {
                         const component = getComponentById(id);
                         if (!component) return null;
-                        
+
                         const isTailored = !!tailoredContentMap[id];
                         const displayContent = tailoredContentMap[id] || component.content_primary;
                         const isEditing = editingComponentId === id;
                         const tailoringQuality = getTailoringQualityIndicator(id);
-                        
+
                         return (
                           <Draggable key={id} draggableId={id} index={index}>
                             {(provided) => (
@@ -448,8 +448,8 @@ export function EnhancedCVTailoringStudio({
                                   <div className="flex space-x-2">
                                     {!isEditing ? (
                                       <>
-                                        <Button 
-                                          variant="outline" 
+                                        <Button
+                                          variant="outline"
                                           size="sm"
                                           onClick={() => handleRephraseComponent(component)}
                                           disabled={isLoading}
@@ -457,8 +457,8 @@ export function EnhancedCVTailoringStudio({
                                           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                                           AI Tailor
                                         </Button>
-                                        <Button 
-                                          variant="outline" 
+                                        <Button
+                                          variant="outline"
                                           size="sm"
                                           onClick={() => startEditing(component)}
                                         >
@@ -468,16 +468,16 @@ export function EnhancedCVTailoringStudio({
                                       </>
                                     ) : (
                                       <>
-                                        <Button 
-                                          variant="outline" 
+                                        <Button
+                                          variant="outline"
                                           size="sm"
                                           onClick={saveEditing}
                                         >
                                           <Check className="mr-2 h-4 w-4" />
                                           Save
                                         </Button>
-                                        <Button 
-                                          variant="outline" 
+                                        <Button
+                                          variant="outline"
                                           size="sm"
                                           onClick={cancelEditing}
                                         >
@@ -488,7 +488,7 @@ export function EnhancedCVTailoringStudio({
                                     )}
                                   </div>
                                 </div>
-                                
+
                                 {isEditing ? (
                                   <Textarea
                                     value={editedContent}
@@ -501,22 +501,22 @@ export function EnhancedCVTailoringStudio({
                                     {displayContent}
                                   </div>
                                 )}
-                                
+
                                 {/* Feedback buttons */}
                                 {isTailored && opportunityId && !feedbackSubmitted[id] && !isEditing && (
                                   <div className="mt-2 flex items-center">
                                     <span className="text-xs text-gray-500 mr-2">Was this tailoring helpful?</span>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
                                       className="h-8 px-2"
                                       onClick={() => submitFeedback(id, 'positive')}
                                     >
                                       <ThumbsUp className="h-4 w-4 text-green-500" />
                                     </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
                                       className="h-8 px-2"
                                       onClick={() => submitFeedback(id, 'negative')}
                                     >
@@ -524,7 +524,7 @@ export function EnhancedCVTailoringStudio({
                                     </Button>
                                   </div>
                                 )}
-                                
+
                                 {feedbackSubmitted[id] && (
                                   <div className="mt-2">
                                     <span className="text-xs text-gray-500">Thank you for your feedback!</span>
@@ -545,7 +545,7 @@ export function EnhancedCVTailoringStudio({
                 <Button variant="outline" onClick={() => setActiveTab('select')}>
                   Back
                 </Button>
-                <Button onClick={handleAssembleCV} disabled={isLoading || selectedComponentIds.size === 0}>
+                <Button onClick={handleAssembleCV} disabled={isLoading || selectedComponentIds.length === 0}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
                   Assemble CV
                 </Button>
@@ -584,10 +584,10 @@ export function EnhancedCVTailoringStudio({
                     />
                   </div>
                 </div>
-                
-                <Button 
-                  onClick={handleAssembleCV} 
-                  disabled={isLoading || selectedComponentIds.size === 0}
+
+                <Button
+                  onClick={handleAssembleCV}
+                  disabled={isLoading || selectedComponentIds.length === 0}
                   className="mb-4"
                 >
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
@@ -627,19 +627,19 @@ export function EnhancedCVTailoringStudio({
                       <SelectItem value="word">Word Document</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={() => {
                       if (assembledCV) {
                         navigator.clipboard.writeText(assembledCV);
-                        alert('CV copied to clipboard!');
+                        alert("CV copied to clipboard!");
                       }
                     }}
                     disabled={!assembledCV}
                   >
                     Copy to Clipboard
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleExport}
                     disabled={!assembledCV || isExporting}
                   >

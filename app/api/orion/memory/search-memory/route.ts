@@ -36,12 +36,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Search memory
-    const results = await searchMemory(
+    const results = await searchMemory({
       query,
       limit,
-      parsedFilter,
-      collectionName || ORION_MEMORY_COLLECTION_NAME
-    );
+      filter: parsedFilter,
+      collectionName: collectionName || ORION_MEMORY_COLLECTION_NAME,
+    });
 
     return NextResponse.json({
       success: true,

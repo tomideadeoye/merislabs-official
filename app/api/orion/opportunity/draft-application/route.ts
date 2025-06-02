@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import type {
   DraftApplicationRequestBody,
   DraftApplicationResponseBody
@@ -148,7 +149,7 @@ function parseDraftsFromLLMResponse(llmContent: string): string[] {
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }

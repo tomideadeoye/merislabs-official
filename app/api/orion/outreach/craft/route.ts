@@ -5,6 +5,7 @@ import { TOMIDES_PROFILE_DATA } from '@/lib/constants';
 import { searchMemory } from '@/lib/orion_memory';
 import { generateLLMResponse } from '@/lib/orion_llm';
 import { OutreachRequest, OutreachResponse } from '@/types/strategic-outreach';
+import type { ScoredMemoryPoint, GenerateLLMResponse } from '@/types/orion';
 
 /**
  * API route for crafting strategic outreach content
@@ -13,26 +14,26 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as OutreachRequest;
     const { personaId, opportunityDetails, goal, communicationType, tone, additionalContext } = body;
-    
+
     // Validate required fields
     if (!personaId || !opportunityDetails || !goal || !communicationType) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Missing required fields' 
+      return NextResponse.json({
+        success: false,
+        error: 'Missing required fields'
       }, { status: 400 });
     }
-    
+
     // Get the persona
     const persona = await getPersonaById(personaId);
     if (!persona) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Persona not found' 
+      return NextResponse.json({
+        success: false,
+        error: 'Persona not found'
       }, { status: 404 });
     }
-    
+
     // Get relevant memories
-    const relevantMemories = await searchMemory({
+    const relevantMemoriesResponse = await searchMemory({
       query: `${persona.name} ${persona.company || ''} ${opportunityDetails} ${goal}`,
       limit: 5,
       filter: {
@@ -41,7 +42,9 @@ export async function POST(req: NextRequest) {
         ]
       }
     });
-    
+
+    const relevantMemories = relevantMemoriesResponse.results || [];
+
     // Get profile data
     let profileData = '';
     try {
@@ -50,7 +53,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       console.error('Error fetching profile data:', error);
     }
-    
+
     // Construct prompt for LLM
     const prompt = `
 # Strategic Outreach Content Generation
@@ -80,7 +83,7 @@ ${tone || 'professional'}
 
 ${additionalContext ? `## Additional Context\n${additionalContext}` : ''}
 
-${relevantMemories.length > 0 ? `## Relevant Achievements and Experiences\n${relevantMemories.map(m => `- ${m.payload.text}`).join('\n')}` : ''}
+${relevantMemories.length > 0 ? `## Relevant Achievements and Experiences\n${relevantMemories.map((m: ScoredMemoryPoint) => `- ${m.payload.text}`).join('\n')}` : ''}
 
 ## Task
 Craft a personalized ${communicationType} to ${persona.name} that:
@@ -96,40 +99,42 @@ Write the complete ${communicationType} content, ready to send.
 `;
 
     // Generate outreach content using LLM
-    const llmResponse = await generateLLMResponse({
-      requestType: 'strategic_outreach',
-      primaryContext: prompt,
-      profileContext: profileData,
-      temperature: 0.7,
-      maxTokens: 1500
-    });
-    
+    const llmResponse: GenerateLLMResponse = await generateLLMResponse(
+      'strategic_outreach', // requestType
+      prompt, // primaryContext
+      { // options
+        profileContext: profileData,
+        temperature: 0.7,
+        max_tokens: 1500
+      }
+    );
+
     if (!llmResponse.success || !llmResponse.content) {
-      return NextResponse.json({ 
-        success: false, 
-        error: llmResponse.error || 'Failed to generate outreach content' 
+      return NextResponse.json({
+        success: false,
+        error: llmResponse.error || 'Failed to generate outreach content'
       }, { status: 500 });
     }
-    
+
     // Create outreach response
     const outreach: OutreachResponse = {
       id: uuidv4(),
       personaId,
       draft: llmResponse.content,
-      relevantMemories: relevantMemories.map(m => ({ id: m.id, text: m.payload.text })),
+      relevantMemories: relevantMemories.map((m: ScoredMemoryPoint) => ({ id: m.id, text: m.payload.text })),
       createdAt: new Date().toISOString()
     };
-    
-    return NextResponse.json({ 
-      success: true, 
-      outreach 
+
+    return NextResponse.json({
+      success: true,
+      outreach
     });
-    
+
   } catch (error: any) {
     console.error('Error in outreach/craft route:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'An unexpected error occurred' 
+    return NextResponse.json({
+      success: false,
+      error: error.message || 'An unexpected error occurred'
     }, { status: 500 });
   }
 }

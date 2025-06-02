@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { DRAFT_COMMUNICATION_REQUEST_TYPE } from '@/lib/orion_config';
 
 interface OutreachRequestBody {
@@ -47,7 +48,7 @@ For email outreach:
 You excel at helping professionals initiate conversations that lead to meaningful relationships rather than transactional exchanges.`;
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
@@ -58,9 +59,9 @@ export async function POST(request: NextRequest) {
 
     // Basic validation
     if (!stakeholder || !stakeholder.name || !stakeholder.company) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Stakeholder information is required." 
+      return NextResponse.json({
+        success: false,
+        error: "Stakeholder information is required."
       }, { status: 400 });
     }
 
@@ -74,14 +75,14 @@ export async function POST(request: NextRequest) {
       companyResearch
     );
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       emailDraft
     });
 
   } catch (error: any) {
     console.error('[OUTREACH_EMAIL_API_ERROR]', error);
-    
+
     return NextResponse.json({
       success: false,
       error: 'Failed to generate outreach email.',
@@ -106,7 +107,7 @@ async function generateOutreachEmail(
     const hasJobInterest = !!jobTitle;
     const hasEmail = !!stakeholder.email;
     const personInfo = stakeholder.person_snippet || '';
-    
+
     // Extract potential conversation starters from available information
     let conversationStarters = '';
     if (personInfo) {
@@ -128,8 +129,8 @@ Create personalized outreach messages to connect with ${stakeholder.name}, who i
 ${personInfo ? `- Profile Information: ${personInfo.substring(0, 300)}` : ''}
 
 ## OUTREACH PURPOSE
-${hasJobInterest 
-  ? `Primary purpose: Professional networking related to the ${jobTitle} position at their company.` 
+${hasJobInterest
+  ? `Primary purpose: Professional networking related to the ${jobTitle} position at their company.`
   : 'Primary purpose: Building a professional connection for industry networking.'}
 ${additionalInfo ? `\nAdditional context: ${additionalInfo}` : ''}
 

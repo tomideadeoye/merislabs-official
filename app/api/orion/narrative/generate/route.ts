@@ -5,6 +5,7 @@ import { searchMemory } from '@/lib/orion_memory';
 import { generateLLMResponse } from '@/lib/orion_llm';
 import { getCareerMilestones, getValueProposition } from '@/lib/narrative_service';
 import { NarrativeGenerationRequest, NarrativeGenerationResponse } from '@/types/narrative-clarity';
+import type { ScoredMemoryPoint } from '@/types/orion';
 
 /**
  * API route for generating narrative content
@@ -12,50 +13,52 @@ import { NarrativeGenerationRequest, NarrativeGenerationResponse } from '@/types
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as NarrativeGenerationRequest;
-    const { 
-      narrativeType, 
-      valueProposition: valuePropositionInput, 
+    const {
+      narrativeType,
+      valueProposition: valuePropositionInput,
       careerMilestones: careerMilestonesInput,
-      tone = 'professional', 
+      tone = 'professional',
       length = 'standard',
       additionalContext,
       specificRequirements
     } = body;
-    
+
     // Validate required fields
     if (!narrativeType) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Narrative type is required' 
+      return NextResponse.json({
+        success: false,
+        error: 'Narrative type is required'
       }, { status: 400 });
     }
-    
+
     // Get value proposition and career milestones if not provided
     let valueProposition = valuePropositionInput;
     let careerMilestones = careerMilestonesInput;
-    
+
     if (!valueProposition) {
       const storedValueProp = await getValueProposition();
       if (storedValueProp) {
         valueProposition = storedValueProp;
       }
     }
-    
+
     if (!careerMilestones || careerMilestones.length === 0) {
       careerMilestones = await getCareerMilestones();
     }
-    
+
     // Get relevant memories
-    const relevantMemories = await searchMemory(
-      `${narrativeType} ${valueProposition?.valueStatement || ''} career achievements professional strengths`,
-      5,
-      {
+    const searchResults = await searchMemory({
+      query: `${narrativeType} ${valueProposition?.valueStatement || ''} career achievements professional strengths`,
+      limit: 5,
+      filter: {
         must: [
           { key: 'payload.tags', match: { value: 'achievement' } }
         ]
       }
-    );
-    
+    });
+
+    const relevantMemories = searchResults.results || [];
+
     // Get profile data
     let profileData = '';
     try {
@@ -64,7 +67,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       console.error('Error fetching profile data:', error);
     }
-    
+
     // Construct prompt for LLM
     const prompt = `
 # Narrative Clarity Studio: Generate ${narrativeType.replace(/_/g, ' ')}
@@ -80,7 +83,7 @@ ${valueProposition ? `
 ` : 'No value proposition data available.'}
 
 ## Career Milestones
-${careerMilestones && careerMilestones.length > 0 ? 
+${careerMilestones && careerMilestones.length > 0 ?
   careerMilestones.sort((a, b) => a.order - b.order).map(milestone => `
 ### ${milestone.title} ${milestone.organization ? `at ${milestone.organization}` : ''}
 ${milestone.startDate ? `${milestone.startDate} - ${milestone.endDate || 'Present'}` : ''}
@@ -95,7 +98,7 @@ Impact: ${milestone.impact}
   : 'No career milestone data available.'
 }
 
-${relevantMemories.length > 0 ? `## Relevant Achievements and Experiences\n${relevantMemories.map(m => `- ${m.payload.text}`).join('\n')}` : ''}
+${relevantMemories.length > 0 ? `## Relevant Achievements and Experiences\n${relevantMemories.map((m: ScoredMemoryPoint) => `- ${m.payload.text}`).join('\n')}` : ''}
 
 ${additionalContext ? `## Additional Context\n${additionalContext}` : ''}
 
@@ -122,18 +125,18 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
         max_tokens: 2000
       }
     );
-    
-    if (!llmResponse) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Failed to generate narrative content' 
+
+    if (!llmResponse.success || !llmResponse.content) {
+      return NextResponse.json({
+        success: false,
+        error: llmResponse.error || 'Failed to generate narrative content'
       }, { status: 500 });
     }
-    
+
     // Extract title from content (assuming the LLM includes a title at the beginning)
-    let content = llmResponse;
+    let content = llmResponse.content;
     let suggestedTitle = '';
-    
+
     // Try to extract title from the first line if it looks like a title
     const lines = content.split('\n');
     if (lines[0] && (lines[0].startsWith('# ') || lines[0].startsWith('Title: '))) {
@@ -147,27 +150,27 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
     }
-    
+
     // Create narrative response
     const narrativeResponse: NarrativeGenerationResponse = {
       id: uuidv4(),
       narrativeType,
       content,
       suggestedTitle,
-      relevantMemories: relevantMemories.map(m => ({ id: m.id, text: m.payload.text })),
+      relevantMemories: relevantMemories.map((m: ScoredMemoryPoint) => ({ id: m.id, text: m.payload.text })),
       createdAt: new Date().toISOString()
     };
-    
-    return NextResponse.json({ 
-      success: true, 
-      narrative: narrativeResponse 
+
+    return NextResponse.json({
+      success: true,
+      narrative: narrativeResponse
     });
-    
+
   } catch (error: any) {
     console.error('Error in narrative/generate route:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'An unexpected error occurred' 
+    return NextResponse.json({
+      success: false,
+      error: error.message || 'An unexpected error occurred'
     }, { status: 500 });
   }
 }

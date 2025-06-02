@@ -36,7 +36,7 @@ export default function EmotionalTrackerPage() {
             History
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="log" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -45,7 +45,7 @@ export default function EmotionalTrackerPage() {
                 Log Your Emotion
               </CardTitle>
               <CardDescription className="text-gray-400">
-                Record how you're feeling to build awareness and track patterns over time.
+                Record how you&apos;re feeling to build awareness and track patterns over time.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -53,7 +53,7 @@ export default function EmotionalTrackerPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="history" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>

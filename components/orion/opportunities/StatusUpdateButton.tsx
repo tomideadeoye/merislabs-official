@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -14,17 +14,20 @@ import {
 import { ChevronDown, Loader2 } from 'lucide-react';
 
 interface StatusUpdateButtonProps {
-  opportunityId: string;
+  opportunityId: string; // This should be the Notion page ID
   currentStatus: string;
+  // Add a prop to signal a successful update to the parent, if needed
+  onStatusUpdated?: () => void;
 }
 
-export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({ 
-  opportunityId, 
-  currentStatus 
+export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
+  opportunityId,
+  currentStatus,
+  onStatusUpdated // Added prop
 }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Define status groups and their options
   const statusGroups = [
     {
@@ -84,33 +87,41 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
       ]
     }
   ];
-  
+
   const handleStatusUpdate = async (newStatus: string) => {
     if (newStatus === currentStatus) return;
-    
+
     setIsUpdating(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`/api/orion/opportunity/update-status`, {
-        method: 'POST',
+      // Updated API endpoint to use the new Notion-specific route with ID
+      const response = await fetch(`/api/orion/notion/opportunity/${opportunityId}`, {
+        method: 'PATCH', // Changed method to PATCH
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          opportunityId,
-          status: newStatus
+          status: newStatus // Send only the updated status
+          // Add other fields here if updating more than just status
         })
       });
-      
+
       const data = await response.json();
-      
-      if (!data.success) {
+
+      if (data.success) {
+        // Status updated successfully
+        console.log('Opportunity status updated successfully:', data.opportunity);
+        // Call the parent callback if provided
+        if (onStatusUpdated) {
+          onStatusUpdated();
+        }
+        // Instead of reloading, the parent component using this hook
+        // should ideally re-fetch opportunities or update its state.
+        // Removing window.location.reload();
+      } else {
         throw new Error(data.error || 'Failed to update status');
       }
-      
-      // Reload the page to reflect the changes
-      window.location.reload();
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
       console.error('Error updating opportunity status:', err);
@@ -118,12 +129,12 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
       setIsUpdating(false);
     }
   };
-  
+
   // Find the current status label
   const currentStatusLabel = statusGroups
     .flatMap(group => group.statuses)
     .find(status => status.value === currentStatus)?.label || 'Unknown Status';
-  
+
   return (
     <>
       <DropdownMenu>
@@ -145,7 +156,7 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
         <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-gray-200">
           <DropdownMenuLabel>Update Status</DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-gray-700" />
-          
+
           {statusGroups.map((group, groupIndex) => (
             <React.Fragment key={group.label}>
               {groupIndex > 0 && <DropdownMenuSeparator className="bg-gray-700" />}
@@ -169,7 +180,7 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      
+
       {error && (
         <div className="mt-2 text-sm text-red-400">
           {error}

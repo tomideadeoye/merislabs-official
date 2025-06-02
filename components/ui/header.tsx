@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 import MobileMenu from "./mobile-menu";
 import { usePathname } from "next/navigation";
@@ -31,9 +32,11 @@ export default function Header() {
           <div className="shrink-0 mr-4">
             {/* Logo */}
             <Link href="/" className="block" aria-label="Cruip">
-              <img
+              <Image
                 className="h-12 w-auto"
                 src="/images/merislabswhite.png"
+                width={48}
+                height={48}
                 alt="Workflow"
               />
             </Link>

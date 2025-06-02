@@ -15,10 +15,10 @@ const getTodayDateString = () => new Date().toISOString().split('T')[0];
 export const EveningRoutine: React.FC = () => {
   // Session state
   const [eveningRoutineCompleted, setEveningRoutineCompleted] = useSessionState(
-    SessionStateKeys.ROUTINES_EVENING_COMPLETED, 
+    SessionStateKeys.ROUTINES_EVENING_COMPLETED,
     false
   );
-  
+
   // Local state
   const [moodLogged, setMoodLogged] = useState<boolean>(false);
   const [completedTasks, setCompletedTasks] = useState<any[]>([]);
@@ -37,7 +37,7 @@ export const EveningRoutine: React.FC = () => {
   const fetchCompletedTasks = async () => {
     setIsLoadingTasks(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/habitica/tasks', {
         method: 'POST',
@@ -46,9 +46,9 @@ export const EveningRoutine: React.FC = () => {
         },
         body: JSON.stringify({ type: 'completedTodos' })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Get tasks completed today
         const today = getTodayDateString();
@@ -56,7 +56,7 @@ export const EveningRoutine: React.FC = () => {
           if (!task.dateCompleted) return false;
           return task.dateCompleted.startsWith(today);
         });
-        
+
         setCompletedTasks(todaysTasks);
       } else {
         throw new Error(data.error || 'Failed to fetch completed tasks');
@@ -72,7 +72,7 @@ export const EveningRoutine: React.FC = () => {
   // Generate reflection prompt
   const generateReflectionPrompt = async () => {
     setIsLoadingPrompt(true);
-    
+
     try {
       const response = await fetch('/api/orion/llm', {
         method: 'POST',
@@ -86,9 +86,9 @@ export const EveningRoutine: React.FC = () => {
           maxTokens: 100
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.content) {
         setReflectionPrompt(data.content);
       } else {
@@ -117,7 +117,7 @@ export const EveningRoutine: React.FC = () => {
           <ListChecks className="mr-2 h-5 w-5 text-green-400" />
           Tasks Completed Today:
         </h3>
-        
+
         {isLoadingTasks ? (
           <div className="flex items-center text-gray-400">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -126,7 +126,7 @@ export const EveningRoutine: React.FC = () => {
         ) : error ? (
           <div className="text-red-400 text-sm">{error}</div>
         ) : completedTasks.length === 0 ? (
-          <p className="text-gray-400">No tasks completed today. That's okay, tomorrow is a new day!</p>
+          <p className="text-gray-400">No tasks completed today. That&apos;s okay, tomorrow is a new day!</p>
         ) : (
           <ul className="space-y-1">
             {completedTasks.map(task => (
@@ -138,14 +138,14 @@ export const EveningRoutine: React.FC = () => {
           </ul>
         )}
       </section>
-      
+
       {/* Reflection Prompt Section */}
       <section>
         <h3 className="text-lg font-medium text-gray-300 mb-2 flex items-center">
           <Moon className="mr-2 h-5 w-5 text-purple-400" />
           Evening Reflection:
         </h3>
-        
+
         {isLoadingPrompt ? (
           <div className="flex items-center text-gray-400">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -158,17 +158,17 @@ export const EveningRoutine: React.FC = () => {
         ) : (
           <p className="text-gray-400">What went well today, and what are you grateful for?</p>
         )}
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          asChild 
+
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
           className="mt-3 text-purple-400 border-purple-600 hover:bg-purple-700/30"
         >
           <Link href="/admin/journal">Open Journal to Reflect</Link>
         </Button>
       </section>
-      
+
       {/* Mood Logging Section */}
       {!moodLogged ? (
         <section>
@@ -176,7 +176,7 @@ export const EveningRoutine: React.FC = () => {
             <BookOpen className="mr-2 h-5 w-5 text-blue-400" />
             How are you feeling this evening?
           </h3>
-          <EmotionalLogForm 
+          <EmotionalLogForm
             onLogSaved={handleMoodLogged}
             initialContextualNote={`Evening check-in ${getTodayDateString()}`}
           />

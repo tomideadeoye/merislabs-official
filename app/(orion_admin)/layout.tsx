@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { PageNames, SessionStateKeys, PageNameValue, initializeClientSession } from "@/app_state";
 import { useSessionState } from "@/hooks/useSessionState";
 import { cn } from "@/lib/utils";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@/lib/apiClient";
 
 import {
   LayoutDashboard,

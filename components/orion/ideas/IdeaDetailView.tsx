@@ -32,17 +32,17 @@ const statusConfig: Record<IdeaStatus, { label: string; color: string }> = {
   'completed': { label: 'Completed', color: 'bg-emerald-500' }
 };
 
-export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({ 
+export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
   ideaId,
   className
 }) => {
   const router = useRouter();
-  
+
   const [idea, setIdea] = useState<Idea | null>(null);
   const [logs, setLogs] = useState<IdeaLog[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Edit state
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editTitle, setEditTitle] = useState<string>("");
@@ -50,15 +50,15 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
   const [editStatus, setEditStatus] = useState<IdeaStatus>("raw_spark");
   const [editTags, setEditTags] = useState<string>("");
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  
+
   // Note state
   const [newNote, setNewNote] = useState<string>("");
   const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
-  
+
   // Brainstorm state
   const [isBrainstorming, setIsBrainstorming] = useState<boolean>(false);
   const [brainstormPrompt, setBrainstormPrompt] = useState<string>("");
-  
+
   // Habitica integration state
   const [showHabiticaDialog, setShowHabiticaDialog] = useState<boolean>(false);
   const [habiticaTaskText, setHabiticaTaskText] = useState<string>("");
@@ -66,27 +66,22 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
   const [habiticaTaskPriority, setHabiticaTaskPriority] = useState<number>(1);
   const [isSendingToHabitica, setIsSendingToHabitica] = useState<boolean>(false);
   const [habiticaError, setHabiticaError] = useState<string | null>(null);
-  
+
   const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
-  
-  // Fetch idea on mount
-  useEffect(() => {
-    fetchIdea();
-  }, [ideaId]);
-  
-  const fetchIdea = async () => {
+
+  const fetchIdea = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(`/api/orion/ideas/${ideaId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setIdea(data.idea);
         setLogs(data.logs || []);
-        
+
         // Initialize edit state
         setEditTitle(data.idea.title);
         setEditDescription(data.idea.briefDescription || "");
@@ -101,21 +96,26 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
-  
+  }, [ideaId]);
+
+  // Fetch idea on mount
+  useEffect(() => {
+    fetchIdea();
+  }, [ideaId, fetchIdea]);
+
   const handleSaveChanges = async () => {
     if (!idea) return;
-    
+
     setIsSaving(true);
     setError(null);
-    
+
     try {
       // Process tags
       const tagArray = editTags
         .split(',')
         .map(tag => tag.trim())
         .filter(Boolean);
-      
+
       const response = await fetch(`/api/orion/ideas/${ideaId}`, {
         method: 'PUT',
         headers: {
@@ -128,9 +128,9 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           tags: tagArray
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setIdea(data.idea);
         setIsEditing(false);
@@ -145,13 +145,13 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       setIsSaving(false);
     }
   };
-  
+
   const handleAddNote = async () => {
     if (!idea || !newNote.trim()) return;
-    
+
     setIsAddingNote(true);
     setError(null);
-    
+
     try {
       const response = await fetch(`/api/orion/ideas/${ideaId}`, {
         method: 'PUT',
@@ -162,9 +162,9 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           note: newNote.trim()
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setNewNote("");
         fetchIdea(); // Refresh to get updated logs
@@ -178,13 +178,13 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       setIsAddingNote(false);
     }
   };
-  
+
   const handleBrainstorm = async () => {
     if (!idea) return;
-    
+
     setIsBrainstorming(true);
     setError(null);
-    
+
     try {
       const response = await fetch(`/api/orion/ideas/${ideaId}/brainstorm`, {
         method: 'POST',
@@ -195,9 +195,9 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           prompt: brainstormPrompt
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setBrainstormPrompt("");
         fetchIdea(); // Refresh to get updated logs
@@ -211,17 +211,17 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       setIsBrainstorming(false);
     }
   };
-  
+
   const handleOpenHabiticaDialog = useCallback(() => {
     if (!idea) return;
-    
+
     setHabiticaTaskText(`Action item for: ${idea.title}`);
     setHabiticaTaskNotes(`From Orion Idea Incubator: ${idea.title}\nRef: /admin/idea-incubator/${idea.id}\n\n${idea.briefDescription || ''}`);
     setHabiticaTaskPriority(1);
     setHabiticaError(null);
     setShowHabiticaDialog(true);
   }, [idea]);
-  
+
   const handleSendToHabitica = useCallback(async () => {
     if (!idea) return;
     if (!habiticaTaskText.trim()) {
@@ -232,10 +232,10 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       setHabiticaError("Habitica credentials not set. Please set them in the Habitica page.");
       return;
     }
-    
+
     setIsSendingToHabitica(true);
     setHabiticaError(null);
-    
+
     try {
       const response = await fetch('/api/orion/habitica/todo', {
         method: 'POST',
@@ -252,9 +252,9 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           }
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         alert(`Task "${habiticaTaskText}" added to Habitica!`);
         setShowHabiticaDialog(false);
@@ -268,7 +268,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       setIsSendingToHabitica(false);
     }
   }, [habiticaTaskText, habiticaTaskNotes, habiticaTaskPriority, habiticaUserId, habiticaApiToken, idea]);
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -277,7 +277,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-center">
@@ -286,13 +286,13 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       </div>
     );
   }
-  
+
   if (!idea) {
     return (
       <div className="text-center py-8 text-gray-400">
         <p>Idea not found.</p>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="mt-4 text-gray-300 border-gray-600"
           onClick={() => router.push('/admin/idea-incubator')}
         >
@@ -302,12 +302,12 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       </div>
     );
   }
-  
+
   return (
     <div className={className}>
       <div className="flex justify-between items-center mb-4">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           onClick={() => router.push('/admin/idea-incubator')}
           className="text-gray-300 border-gray-600"
@@ -315,12 +315,12 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Ideas
         </Button>
-        
+
         <div className="flex space-x-2">
           {!isEditing ? (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleOpenHabiticaDialog}
                 className="text-sky-400 border-sky-600"
@@ -328,9 +328,9 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                 <SendToBack className="mr-2 h-4 w-4" />
                 Send to Habitica
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setIsEditing(true)}
                 className="text-blue-400 border-blue-600"
@@ -340,8 +340,8 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
             </>
           ) : (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setIsEditing(false)}
                 className="text-gray-300 border-gray-600"
@@ -349,9 +349,9 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               >
                 Cancel
               </Button>
-              
-              <Button 
-                variant="default" 
+
+              <Button
+                variant="default"
                 size="sm"
                 onClick={handleSaveChanges}
                 disabled={isSaving}
@@ -370,7 +370,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           )}
         </div>
       </div>
-      
+
       {/* Idea Details */}
       <Card className="bg-gray-800 border-gray-700 mb-6">
         <CardHeader className="pb-2">
@@ -382,7 +382,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                     <Lightbulb className="mr-2 h-5 w-5 text-yellow-400" />
                     {idea.title}
                   </CardTitle>
-                  
+
                   <Badge className={`mt-2 ${statusConfig[idea.status].color} text-white`}>
                     {statusConfig[idea.status].label}
                   </Badge>
@@ -399,11 +399,11 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                       disabled={isSaving}
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="status" className="text-gray-400 text-sm">Status</Label>
-                    <Select 
-                      value={editStatus} 
+                    <Select
+                      value={editStatus}
                       onValueChange={(value: any) => setEditStatus(value)}
                       disabled={isSaving}
                     >
@@ -424,7 +424,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           {!isEditing ? (
             <>
@@ -433,7 +433,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               ) : (
                 <p className="text-gray-500 italic">No description provided.</p>
               )}
-              
+
               {idea.tags && idea.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-4">
                   {idea.tags.map((tag, index) => (
@@ -443,7 +443,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                   ))}
                 </div>
               )}
-              
+
               <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-700 text-xs text-gray-500">
                 <div>Created: {new Date(idea.createdAt).toLocaleString()}</div>
                 <div>Updated: {new Date(idea.updatedAt).toLocaleString()}</div>
@@ -462,7 +462,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                     disabled={isSaving}
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="tags" className="text-gray-400 text-sm">Tags (comma-separated)</Label>
                   <Input
@@ -478,7 +478,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           )}
         </CardContent>
       </Card>
-      
+
       {/* Tabs for Notes, History, and Brainstorming */}
       <Tabs defaultValue="notes" className="w-full">
         <TabsList className="bg-gray-700 border-gray-600">
@@ -495,7 +495,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
             Brainstorm
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="notes" className="mt-4">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-2">
@@ -513,8 +513,8 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                   className="min-h-[100px] bg-gray-700 border-gray-600 text-gray-200"
                   disabled={isAddingNote}
                 />
-                
-                <Button 
+
+                <Button
                   onClick={handleAddNote}
                   disabled={isAddingNote || !newNote.trim()}
                   className="mt-2 bg-blue-600 hover:bg-blue-700"
@@ -526,7 +526,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                   )}
                 </Button>
               </div>
-              
+
               <div className="space-y-3 mt-4">
                 {logs.filter(log => log.type === 'note').length === 0 ? (
                   <p className="text-gray-500 italic">No notes yet. Add your first note above.</p>
@@ -546,7 +546,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="history" className="mt-4">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-2">
@@ -587,7 +587,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="brainstorm" className="mt-4">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-2">
@@ -605,8 +605,8 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                   className="min-h-[100px] bg-gray-700 border-gray-600 text-gray-200"
                   disabled={isBrainstorming}
                 />
-                
-                <Button 
+
+                <Button
                   onClick={handleBrainstorm}
                   disabled={isBrainstorming}
                   className="mt-2 bg-purple-600 hover:bg-purple-700"
@@ -624,7 +624,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                   )}
                 </Button>
               </div>
-              
+
               <div className="space-y-3 mt-4">
                 {logs.filter(log => log.type === 'llm_brainstorm').length === 0 ? (
                   <p className="text-gray-500 italic">No brainstorming sessions yet. Start one above.</p>
@@ -635,7 +635,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                       <div key={log.id} className="bg-purple-900/20 border border-purple-700/50 rounded-md p-3">
                         <div className="flex items-center mb-2">
                           <Sparkles className="h-4 w-4 mr-2 text-purple-400" />
-                          <span className="text-sm font-medium text-purple-400">Orion's Brainstorming</span>
+                          <span className="text-sm font-medium text-purple-400">Orion&apos;s Brainstorming</span>
                         </div>
                         <p className="text-gray-300 whitespace-pre-wrap">{log.content}</p>
                         <div className="text-xs text-gray-500 mt-2">
@@ -649,7 +649,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
           </Card>
         </TabsContent>
       </Tabs>
-      
+
       {/* Habitica Task Creation Dialog */}
       <Dialog open={showHabiticaDialog} onOpenChange={setShowHabiticaDialog}>
         <DialogContent className="bg-gray-800 border-gray-700 text-gray-200">
@@ -659,7 +659,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               Create an actionable task in Habitica based on this idea.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div>
               <Label htmlFor="habiticaTaskText" className="text-gray-300">Task Text</Label>
@@ -670,7 +670,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                 className="bg-gray-700 border-gray-600 text-gray-200"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="habiticaTaskNotes" className="text-gray-300">Notes (Optional)</Label>
               <Textarea
@@ -681,7 +681,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                 className="bg-gray-700 border-gray-600 text-gray-200"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="habiticaTaskPriority" className="text-gray-300">Priority</Label>
               <Select
@@ -699,7 +699,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                 </SelectContent>
               </Select>
             </div>
-            
+
             {habiticaError && (
               <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
                 <AlertTriangle className="h-5 w-5 mr-2" />
@@ -707,7 +707,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               </div>
             )}
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -716,7 +716,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
             >
               Cancel
             </Button>
-            
+
             <Button
               onClick={handleSendToHabitica}
               disabled={isSendingToHabitica || !habiticaTaskText.trim()}

@@ -16,13 +16,13 @@ export default function HabiticaPage() {
   const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
   const [refreshKey, setRefreshKey] = useState<number>(Date.now());
-  
+
   const credentialsAreSet = Boolean(habiticaUserId && habiticaApiToken);
-  
+
   const handleCredentialsUpdated = useCallback(() => {
     setRefreshKey(Date.now());
   }, []);
-  
+
   const handleTaskCreated = useCallback(() => {
     setRefreshKey(Date.now());
   }, []);
@@ -34,14 +34,14 @@ export default function HabiticaPage() {
         icon={<Rocket className="h-7 w-7" />}
         description="Connect Orion to your Habitica account to manage tasks and bridge insights with action."
       />
-      
+
       <HabiticaCredentialsForm onCredentialsSet={handleCredentialsUpdated} />
-      
+
       {credentialsAreSet ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
             <HabiticaStatsDisplay key={`stats-${refreshKey}`} />
-            
+
             <Card className="bg-gray-800 border-gray-700 mt-6">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Create New Task</CardTitle>
@@ -50,18 +50,22 @@ export default function HabiticaPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <HabiticaTaskForm 
+                <HabiticaTaskForm
                   key={`form-${refreshKey}`}
-                  onTaskCreated={handleTaskCreated} 
+                  onTaskCreated={handleTaskCreated}
                 />
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="lg:col-span-2">
             <Card className="bg-gray-800 border-gray-700">
-              <CardContent className="p-6">
-                <HabiticaTaskList key={`tasks-${refreshKey}`} />
+              <CardContent className="p-6 space-y-6">
+                {/* Render Todos List */}
+                <HabiticaTaskList key={`todos-${refreshKey}`} type="todos" />
+
+                {/* Render Dailies List */}
+                <HabiticaTaskList key={`dailies-${refreshKey}`} type="dailys" />
               </CardContent>
             </Card>
           </div>
@@ -77,7 +81,7 @@ export default function HabiticaPage() {
           <CardContent>
             <p className="text-gray-500">
               Please enter your Habitica User ID and API Token above to connect Orion to your Habitica account.
-              Once connected, you'll be able to view your stats, manage tasks, and create new to-dos.
+              Once connected, you&apos;ll be able to view your stats, manage tasks, and create new to-dos.
             </p>
           </CardContent>
         </Card>

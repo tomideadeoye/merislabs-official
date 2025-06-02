@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 interface FindStakeholdersRequestBody {
   company: string;
@@ -8,7 +9,7 @@ interface FindStakeholdersRequestBody {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -18,15 +19,15 @@ export async function POST(request: NextRequest) {
     const { company, role, count = 5 } = body;
 
     if (!company) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Company name is required.' 
+      return NextResponse.json({
+        success: false,
+        error: 'Company name is required.'
       }, { status: 400 });
     }
 
     // This is a simplified implementation that would be replaced with actual stakeholder search logic
     // In a real implementation, this would use web scraping, LinkedIn API, or other data sources
-    
+
     // Mock data for demonstration purposes
     const stakeholders = [
       {
@@ -66,18 +67,18 @@ export async function POST(request: NextRequest) {
       }
     ].slice(0, count);
 
-    return NextResponse.json({ 
-      success: true, 
-      stakeholders 
+    return NextResponse.json({
+      success: true,
+      stakeholders
     });
 
   } catch (error: any) {
     console.error('[FIND_STAKEHOLDERS_API_ERROR]', error);
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to find stakeholders.', 
-      details: error.message 
+
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to find stakeholders.',
+      details: error.message
     }, { status: 500 });
   }
 }
