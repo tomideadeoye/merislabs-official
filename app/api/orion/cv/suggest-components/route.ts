@@ -54,15 +54,15 @@ export async function POST(req: NextRequest) {
       {
         model: 'deepseek-r1',
         temperature: 0.3,
-        max_tokens: 100
+        maxTokens: 100
       }
     );
     const llmDuration = Date.now() - llmStart;
-    console.log(`[${new Date().toISOString()}] [INFO] [CV Suggest] LLM call completed in ${llmDuration}ms. Success: ${llmResponse.success}`);
+    console.log(`[${new Date().toISOString()}] [INFO] [CV Suggest] LLM call completed in ${llmDuration}ms.`);
 
-    if (llmResponse.success && llmResponse.content) {
+    if (llmResponse && typeof llmResponse === 'string') {
       // Parse the LLM's response (comma-separated IDs)
-      const suggestedIds = llmResponse.content.split(',').map(id => id.trim()).filter(Boolean);
+      const suggestedIds = llmResponse.split(',').map(id => id.trim()).filter(Boolean);
       // Validate suggested IDs against available components
       const validSuggestedIds = suggestedIds.filter(id =>
         allComponents.some((comp: CVComponentShared) => comp.unique_id === id)
@@ -72,11 +72,11 @@ export async function POST(req: NextRequest) {
       console.log(`[${new Date().toISOString()}] [INFO] [CV Suggest] Request completed in ${duration}ms.`);
       return NextResponse.json({ success: true, suggested_component_ids: validSuggestedIds });
     } else {
-      console.error(`[${new Date().toISOString()}] [ERROR] [CV Suggest] LLM failed to provide suggestions:`, llmResponse.error);
+      console.error(`[${new Date().toISOString()}] [ERROR] [CV Suggest] LLM failed to provide suggestions.`);
       const duration = Date.now() - startTime;
       return NextResponse.json({
         success: false,
-        error: llmResponse.error || 'Failed to get suggestions from LLM'
+        error: 'Failed to get suggestions from LLM'
       }, { status: 500 });
     }
   } catch (error: any) {

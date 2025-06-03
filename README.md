@@ -80,3 +80,24 @@ npm run dev
 ## Documentation
 
 For more detailed information about the memory integration, see [README-memory-integration.md](README-memory-integration.md).
+
+## Logging & Observability
+
+Orion implements full-stack, structured logging for all components:
+
+- **Python API**: Logs to `orion_python_backend/api_server.log` in JSON format, with PII redaction and correlation IDs.
+- **Next.js API**: Logs to `api_server.log` in the project root, using Pino for structured logs and redaction.
+- **Frontend**: Logs user actions, errors, and component lifecycle events. In production, logs are sent to `/api/log` and appended to `api_server.log`.
+
+### Log File Location
+- All logs are stored in `api_server.log` (project root or `orion_python_backend/`).
+
+### Log Format
+- JSON lines (one log entry per line), including timestamp, level, message, context, and correlation/session IDs.
+
+### Viewing Logs
+- Use `cat`, `less`, or any log viewer to inspect `api_server.log`.
+- For advanced analysis, import the log file into Grafana, Kibana, or similar tools.
+
+### Testing Logging
+- Run `scripts/run-all-tests.ts` to validate logging and observability across all components.
