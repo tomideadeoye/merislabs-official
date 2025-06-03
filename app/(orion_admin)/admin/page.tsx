@@ -8,14 +8,14 @@ import { SessionStateKeys } from '@/hooks/useSessionState';
 import { DashboardRoutineStatus } from '@/components/orion/DashboardRoutineStatus';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Home, 
-  BookOpen, 
-  Brain, 
-  ListChecks, 
-  BarChart2, 
-  FileText, 
-  Folder 
+import {
+  Home,
+  BookOpen,
+  Brain,
+  ListChecks,
+  BarChart2,
+  FileText,
+  Folder
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -36,7 +36,7 @@ export default function AdminDashboardPage() {
         <div className="md:col-span-2">
           <DashboardRoutineStatus />
         </div>
-        
+
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
@@ -45,10 +45,10 @@ export default function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              asChild 
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
               className="w-full justify-start text-blue-400 border-blue-600 hover:bg-blue-700/30"
             >
               <Link href="/admin/journal">
@@ -56,11 +56,11 @@ export default function AdminDashboardPage() {
                 New Journal Entry
               </Link>
             </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              asChild 
+
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
               className="w-full justify-start text-green-400 border-green-600 hover:bg-green-700/30"
             >
               <Link href="/admin/habitica">
@@ -68,11 +68,11 @@ export default function AdminDashboardPage() {
                 Manage Tasks
               </Link>
             </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              asChild 
+
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
               className="w-full justify-start text-amber-400 border-amber-600 hover:bg-amber-700/30"
             >
               <Link href="/admin/opportunity">
@@ -80,11 +80,11 @@ export default function AdminDashboardPage() {
                 Evaluate Opportunity
               </Link>
             </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              asChild 
+
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
               className="w-full justify-start text-purple-400 border-purple-600 hover:bg-purple-700/30"
             >
               <Link href="/admin/narrative">
@@ -92,11 +92,11 @@ export default function AdminDashboardPage() {
                 Narrative Studio
               </Link>
             </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              asChild 
+
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
               className="w-full justify-start text-cyan-400 border-cyan-600 hover:bg-cyan-700/30"
             >
               <Link href="/admin/local-files">
@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Additional dashboard sections can be added here */}
     </div>
   );
