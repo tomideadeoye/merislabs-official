@@ -1,0 +1,44 @@
+
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 612 792] /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Font << /F1 6 0 R >> >>
+endobj
+5 0 obj
+<< /Length 68 >>
+stream
+BT
+/F1 12 Tf
+72 720 Td
+(Standard CV Template) Tj
+72 700 Td
+(\n**TOMIDE ADEOYE**\ntomideadeoye@gmail.com | +234 818 192 7251\n\n**PROFILE SUMMARY**\n\nExperienced software engineer with expertise in React, TypeScript, and cloud services.\nStrong problem-solving skills and experience working in agile teams.\n\n**WORK EXPERIENCE**\n\n***Senior Software Engineer at TechCorp***\n- Led development of scalable web applications using React and TypeScript\n- Implemented CI/CD pipelines and microservices architecture\n- Mentored junior engineers and contributed to architecture decisions\n*TechCorp* | (2020-01-01 – 2023-01-01)\n\n***Software Engineer at StartupX***\n- Developed frontend components using React and Redux\n- Implemented responsive designs and accessibility features\n- Collaborated with cross-functional teams to deliver solutions\n*StartupX* | (2018-01-01 – 2020-01-01)\n) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 7
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
+0000000210 00000 n
+0000000251 00000 n
+0000000369 00000 n
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+436
+%%EOF
+  
