@@ -43,6 +43,7 @@ const adminNavItems: NavItem[] = [
   { href: "/admin/memory-manager", label: "Memory Explorer", icon: Brain },
   { href: "/admin/opportunity-pipeline", label: "Opportunities", icon: Briefcase },
   { href: "/admin/blocks", label: "Blocks", icon: Layers },
+  { href: "/admin/narrative-clarity-studio", label: "Narrative Clarity Studio", icon: BrainCircuit },
   { href: "/admin/draft-communication", label: "Drop an Email", icon: Mail },
   { href: "/admin/networking", label: PageNames.NETWORKING, icon: Network },
   { href: "/admin/habitica", label: PageNames.HABITICA, icon: Rocket },
