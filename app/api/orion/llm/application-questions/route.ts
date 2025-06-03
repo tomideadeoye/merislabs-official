@@ -3,7 +3,7 @@ import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { fetchUserProfile } from '@/lib/profile_service';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 import type { MemoryPayload } from '@/types/orion';
 
 // Define the response type for the Application Q&A API

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchCVComponentsFromNotion } from '@/lib/notion_service';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
 /**
  * API route for fetching CV components from Notion

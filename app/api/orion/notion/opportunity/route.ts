@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createOpportunityInNotion, OpportunityNotionPayload } from '@/lib/notion_next_service';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
 /**
  * API route for creating an opportunity in Notion

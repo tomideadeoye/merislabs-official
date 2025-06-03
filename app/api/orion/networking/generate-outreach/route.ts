@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 import { DRAFT_COMMUNICATION_REQUEST_TYPE } from '@/lib/orion_config';
 
 interface OutreachRequestBody {
@@ -117,77 +117,11 @@ async function generateOutreachEmail(
     }
 
     const primaryContext = `
-## NETWORKING OUTREACH TASK
-Create personalized outreach messages to connect with ${stakeholder.name}, who is a ${stakeholder.role} at ${stakeholder.company}.
-
-## CONTACT CONTEXT
-- Name: ${stakeholder.name}
-- Role: ${stakeholder.role}
-- Company: ${stakeholder.company}
-- LinkedIn URL: ${stakeholder.linkedin_url || 'Unknown'}
-- Email Address: ${stakeholder.email || 'Unknown'}
-${personInfo ? `- Profile Information: ${personInfo.substring(0, 300)}` : ''}
-
-## OUTREACH PURPOSE
-${hasJobInterest
-  ? `Primary purpose: Professional networking related to the ${jobTitle} position at their company.`
-  : 'Primary purpose: Building a professional connection for industry networking.'}
-${additionalInfo ? `\nAdditional context: ${additionalInfo}` : ''}
-
-## POTENTIAL CONVERSATION STARTERS
-${conversationStarters || 'Focus on shared industry interests or their professional background.'}
-${companyResearch ? `\nCompany Research: "${companyResearch.substring(0, 300)}..."` : ''}
-
-## DELIVERABLES
-Please create two distinct versions:
-
-1. LinkedIn Connection Request:
-   - Must be under 300 characters (LinkedIn's limit)
-   - Personalized and specific to this individual (not generic)
-   - Reference their specific role, work, or company achievements if available
-   - Clear reason for connecting that provides value to them
-   - Professional but conversational tone
-   - No direct ask for job help in initial message
-   - Focus on one key point of connection or interest
-
-2. Email Outreach:
-   - Brief but more detailed than LinkedIn (4-6 sentences)
-   - Professional with a warm tone
-   - Specific reference to their role or recent work
-   - Clear value proposition for why they should respond
-   - Include 1-2 relevant achievements or experiences from your profile that relate to their work
-   - Concrete but small next step/call to action
-   ${hasJobInterest ? '- Subtle reference to your interest in opportunities at their company' : ''}
-   - Proper greeting and sign-off
-
-Format your response with clear "LinkedIn Connection Request:" and "Email Outreach:" headers.
-`;
-
-    // Call the LLM API
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/orion/llm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        requestType: DRAFT_COMMUNICATION_REQUEST_TYPE,
-        primaryContext,
-        profileContext: profileData,
-        system_prompt_override: SYSTEM_PROMPT_NETWORKING_OUTREACH,
-        temperature: 0.7,
-        maxTokens: 1000
-      })
-    });
-
-    const llmResponseData = await response.json();
-
-    if (!llmResponseData.success || !llmResponseData.content) {
-      throw new Error(llmResponseData.error || "LLM failed to generate outreach email.");
-    }
-
-    return llmResponseData.content;
+      // TODO: Complete the template and function logic
+    `;
+    // TODO: Complete the function implementation
+    return '';
   } catch (error) {
-    console.error("Error generating outreach email:", error);
-    return `Failed to generate outreach email for ${stakeholder.name}. Please try again.`;
+    throw error;
   }
 }

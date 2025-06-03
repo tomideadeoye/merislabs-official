@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { authOptions } from "pages/api/auth/[...nextauth]";
 import { fetchJournalEntriesFromNotion } from '@/lib/notion_service'; // Import the fetch function
 import type { JournalEntryNotionInput } from '@/types/orion'; // Import the type
 

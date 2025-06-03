@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 import { saveJournalEntryToNotion } from '@/lib/notion_service'; // Import the Notion save function
 import type { JournalEntryNotionInput } from '@/types/orion'; // Import the type
 import { JOURNAL_REFLECTION_REQUEST_TYPE } from '@/lib/orion_config';
