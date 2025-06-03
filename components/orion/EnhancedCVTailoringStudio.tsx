@@ -240,17 +240,15 @@ export function EnhancedCVTailoringStudio({
   const getTailoringQualityIndicator = (componentId: string) => {
     const originalContent = getComponentById(componentId)?.content_primary || '';
     const tailoredContent = tailoredContentMap[componentId] || '';
-
-    if (!tailoredContent) return 'none';
-
-    // Simple heuristic: check if content is significantly different
+    if (!tailoredContent) return 'red';
+    // Heuristic: check for keyword match, length, and difference
     const originalWords = originalContent.split(/\s+/).length;
     const tailoredWords = tailoredContent.split(/\s+/).length;
-    const wordDiff = Math.abs(tailoredWords - originalWords) / originalWords;
-
-    if (wordDiff < 0.1) return 'low';
-    if (wordDiff < 0.3) return 'medium';
-    return 'high';
+    const wordDiff = Math.abs(tailoredWords - originalWords) / (originalWords || 1);
+    const hasKeywords = jdAnalysis && tailoredContent && jdAnalysis.split(/\s+/).some(word => tailoredContent.includes(word));
+    if (!hasKeywords || tailoredWords < 0.7 * originalWords) return 'red';
+    if (wordDiff < 0.15) return 'yellow';
+    return 'green';
   };
 
   // Submit feedback for a tailored component
@@ -288,6 +286,17 @@ export function EnhancedCVTailoringStudio({
       handleError(error, 'Failed to submit feedback');
     }
   };
+
+  // In the tailor tab, compute quality summary
+  const qualitySummary = orderedComponentIds.map(id => getTailoringQualityIndicator(id));
+  const greenCount = qualitySummary.filter(q => q === 'green').length;
+  const yellowCount = qualitySummary.filter(q => q === 'yellow').length;
+  const redCount = qualitySummary.filter(q => q === 'red').length;
+  const total = orderedComponentIds.length;
+  const progressGreen = total ? Math.round((greenCount / total) * 100) : 0;
+  let overallStatus = 'CV Not Ready';
+  if (redCount === 0 && yellowCount > 0) overallStatus = 'Nearly Ready';
+  if (redCount === 0 && yellowCount === 0 && greenCount === total) overallStatus = 'Submission Ready';
 
   return (
     <div className="space-y-4">
@@ -384,10 +393,22 @@ export function EnhancedCVTailoringStudio({
                   Tailor each selected component to match the job description. You can use AI to rephrase the content or edit it manually.
                 </p>
                 <div className="mt-2">
-                  <Progress value={tailoringProgress} className="h-2" />
+                  <Progress value={progressGreen} className="h-2" />
                   <p className="text-xs text-gray-500 mt-1">
-                    {tailoringProgress}% of components tailored
+                    {progressGreen}% of components are ready (green)
                   </p>
+                  <div className="flex items-center gap-4 mt-2">
+                    <span className={`text-xs font-semibold px-2 py-1 rounded ${overallStatus === 'Submission Ready' ? 'bg-green-100 text-green-700' : overallStatus === 'Nearly Ready' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{overallStatus}</span>
+                    {overallStatus === 'Submission Ready' && (
+                      <span className="text-green-700 text-xs">All components are ready! 🎉</span>
+                    )}
+                    {overallStatus === 'Nearly Ready' && (
+                      <span className="text-yellow-700 text-xs">Some components could be improved. Would you like to polish them with AI before submission?</span>
+                    )}
+                    {overallStatus === 'CV Not Ready' && (
+                      <span className="text-red-700 text-xs">Some components need improvement before you can assemble your CV.</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -424,23 +445,14 @@ export function EnhancedCVTailoringStudio({
                                     <h3 className="font-medium">{component.component_name}</h3>
                                     {isTailored && (
                                       <div className="ml-2">
-                                        {tailoringQuality === 'high' && (
-                                          <span className="flex items-center text-xs text-green-600">
-                                            <CheckCircle className="h-3 w-3 mr-1" />
-                                            High quality
-                                          </span>
+                                        {tailoringQuality === 'green' && (
+                                          <span className="flex items-center text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded">✅ Ready</span>
                                         )}
-                                        {tailoringQuality === 'medium' && (
-                                          <span className="flex items-center text-xs text-yellow-600">
-                                            <AlertCircle className="h-3 w-3 mr-1" />
-                                            Medium quality
-                                          </span>
+                                        {tailoringQuality === 'yellow' && (
+                                          <span className="flex items-center text-xs text-yellow-700 font-semibold bg-yellow-50 px-2 py-0.5 rounded">🟡 Needs Improvement</span>
                                         )}
-                                        {tailoringQuality === 'low' && (
-                                          <span className="flex items-center text-xs text-red-600">
-                                            <AlertCircle className="h-3 w-3 mr-1" />
-                                            Low quality
-                                          </span>
+                                        {tailoringQuality === 'red' && (
+                                          <span className="flex items-center text-xs text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded">🔴 Not Ready</span>
                                         )}
                                       </div>
                                     )}
@@ -545,11 +557,18 @@ export function EnhancedCVTailoringStudio({
                 <Button variant="outline" onClick={() => setActiveTab('select')}>
                   Back
                 </Button>
-                <Button onClick={handleAssembleCV} disabled={isLoading || selectedComponentIds.length === 0}>
+                <Button onClick={handleAssembleCV} disabled={isLoading || selectedComponentIds.length === 0 || redCount > 0}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
                   Assemble CV
                 </Button>
               </div>
+
+              {/* Final step prompt if all green/yellow */}
+              {redCount === 0 && total > 0 && (
+                <div className="mt-4 text-center text-lg font-semibold text-purple-700">
+                  You're one step away from a personalized, powerful CV. Shall we preview and export?
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

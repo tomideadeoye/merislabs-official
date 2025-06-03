@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "pages/api/auth/[...nextauth]";
 import { DRAFT_COMMUNICATION_REQUEST_TYPE } from '@/lib/orion_config';
+import { generateLLMResponse } from '@/lib/orion_llm';
 
 interface OutreachRequestBody {
   stakeholder: {
@@ -103,12 +104,11 @@ async function generateOutreachEmail(
   companyResearch?: string
 ): Promise<string> {
   try {
-    // Determine outreach purpose and approach
     const hasJobInterest = !!jobTitle;
     const hasEmail = !!stakeholder.email;
     const personInfo = stakeholder.person_snippet || '';
 
-    // Extract potential conversation starters from available information
+    // Build a detailed context for the LLM
     let conversationStarters = '';
     if (personInfo) {
       conversationStarters = `Based on their profile: "${personInfo.substring(0, 200)}..."`;
@@ -116,12 +116,43 @@ async function generateOutreachEmail(
       conversationStarters = `Based on company research: "${companyResearch.substring(0, 200)}..."`;
     }
 
-    const primaryContext = `
-      // TODO: Complete the template and function logic
-    `;
-    // TODO: Complete the function implementation
-    return '';
+    let platform = hasEmail ? 'Email' : 'LinkedIn';
+    let intro = `You are drafting a ${platform} outreach message to connect with ${stakeholder.name}, a ${stakeholder.role} at ${stakeholder.company}.`;
+    if (stakeholder.linkedin_url) {
+      intro += ` Their LinkedIn: ${stakeholder.linkedin_url}.`;
+    }
+    if (stakeholder.email) {
+      intro += ` Their email: ${stakeholder.email}.`;
+    }
+    if (hasJobInterest && jobTitle) {
+      intro += ` The sender is interested in the role: ${jobTitle}.`;
+    }
+
+    let contextBlock = '';
+    if (context) contextBlock += `\nContext: ${context}`;
+    if (profileData) contextBlock += `\nSender Profile: ${profileData}`;
+    if (additionalInfo) contextBlock += `\nAdditional Info: ${additionalInfo}`;
+    if (companyResearch) contextBlock += `\nCompany Research: ${companyResearch}`;
+    if (conversationStarters) contextBlock += `\n${conversationStarters}`;
+
+    const primaryContext = `${intro}\n${contextBlock}\n\nDraft a concise, authentic, and effective outreach message for this scenario. Follow the system prompt's best practices for the chosen platform.`;
+
+    // Call the LLM
+    const result = await generateLLMResponse(
+      'NETWORKING_OUTREACH',
+      primaryContext,
+      {
+        profileContext: profileData,
+        systemContext: SYSTEM_PROMPT_NETWORKING_OUTREACH,
+        model: undefined, // Use default for this request type
+        temperature: 0.7,
+        maxTokens: hasEmail ? 400 : 120 // LinkedIn is shorter
+      }
+    );
+    return result;
   } catch (error) {
     throw error;
   }
 }
+
+// TODO: Add/expand tests for this endpoint in scripts/run-all-tests.ts
