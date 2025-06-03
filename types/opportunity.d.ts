@@ -1,4 +1,4 @@
-export type OpportunityType = 'job' | 'project_collaboration' | 'education' | 'other'; // extend as needed
+export type OpportunityType = 'job' | 'education_program' | 'project_collaboration' | 'funding' | 'other';
 
 export type OpportunityStatus = 'not_started' | 'researching' | 'evaluating' | 'application_ready' | 'applied' | 'interview_scheduled' | 'offer_received' | 'rejected' | 'closed' | string;
 
@@ -18,6 +18,7 @@ export interface OpportunityNotionOutputShared {
   notion_page_id?: string;
   title: string;
   company: string;
+  companyOrInstitution?: string | null;
   content?: string | null;
   description?: string | null;
   descriptionSummary?: string | null;
@@ -40,13 +41,12 @@ export interface OpportunityNotionOutputShared {
   tailoredCV?: string | null;
   webResearchContext?: string | null;
   tags?: string[];
-  pros?: string | null;
-  cons?: string | null;
-  missingSkills?: string | null;
+  pros?: string[] | null;
+  cons?: string[] | null;
+  missingSkills?: string[] | null;
   contentType?: string | null;
   relatedEvaluationId?: string | null;
   lastStatusUpdate?: string | null;
-  companyOrInstitution?: string | null;
   last_edited_time?: string | Date | null;
 }
 
@@ -55,11 +55,13 @@ export interface OpportunityDetails {
   notion_page_id?: string;
   title: string;
   company?: string;
+  companyOrInstitution?: string;
   content: string;
   type: OpportunityType;
   status?: OpportunityStatus;
   priority?: OpportunityPriority;
   url?: string;
+  jobUrl?: string;
   sourceURL?: string;
   deadline?: string;
   location?: string;
@@ -84,21 +86,9 @@ export interface OpportunityDetails {
 
 export interface Opportunity extends OpportunityDetails {
   id: string;
-}
-
-export interface EvaluationOutput {
-  fitScorePercentage: number;
-  recommendation: string;
-  reasoning: string;
-  alignmentHighlights?: string[];
-  gapAnalysis?: string[];
-  riskRewardAnalysis?: any;
-  suggestedNextSteps?: string[];
-  rawOutput?: string;
-  pros?: string[];
-  cons?: string[];
-  missingSkills?: string[];
-  scoreExplanation?: string;
+  title: string;
+  company: string;
+  type: OpportunityType;
 }
 
 export interface OpportunityCreatePayload {

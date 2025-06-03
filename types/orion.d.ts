@@ -468,3 +468,12 @@ export interface RiskRewardAnalysis {
     rewardLevel: "Low" | "Moderate" | "High" | string;
     notes?: string;
 }
+
+export interface CVComponent {
+  id: string;
+  title: string;
+  content: string;
+  keywords: string[];
+  targetRoleTags: string[];
+  type: "CV";
+}
