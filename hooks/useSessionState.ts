@@ -4,7 +4,7 @@ import { useEffect, useCallback, useSyncExternalStore } from "react";
 import {
   initializeClientSession,
   sessionStore,
-} from "@/app_state";
+} from "../app_state";
 import type { OrionSessionState } from "@/types/orion";
 
 // Define SessionStateKeys enum here to avoid circular dependencies
@@ -19,7 +19,7 @@ export enum SessionStateKeys {
   PIPELINE_STEP = "pipeline_step",
   MODEL_APPROACH_PIPELINE = "model_approach_pipeline",
   ENABLED_STEPS_PIPELINE = "enabled_steps_pipeline",
-  
+
   // Networking
   STAKEHOLDERS_LIST_NET = "stakeholders_list_net",
   PROCESSED_STAKEHOLDERS_NET = "processed_stakeholders_net",
@@ -27,14 +27,14 @@ export enum SessionStateKeys {
   NETWORKING_ROLES = "networking_roles",
   NETWORKING_MODEL_APPROACH = "networking_model_approach",
   NETWORKING_PRIMARY_MODEL = "networking_primary_model",
-  
+
   // Ask Question
   ASK_Q_INPUT = "ask_q_input",
   ASK_Q_ANSWER = "ask_q_answer",
   ASK_Q_PROCESSING = "ask_q_processing",
   ASK_Q_MODEL_APPROACH = "ask_q_model_approach",
   ASK_Q_PRIMARY_MODEL = "ask_q_primary_model",
-  
+
   // Draft Communication
   DC_COMM_TYPE = "dc_comm_type",
   DC_CONTEXT_OR_TEMPLATE = "dc_context_or_template",
@@ -49,7 +49,7 @@ export enum SessionStateKeys {
   DC_MODEL_APPROACH = "dc_model_approach",
   DC_PRIMARY_MODEL = "dc_primary_model",
   DC_SAVE_TAGS_INPUT = "dc_save_tags_input",
-  
+
   // Journal
   JOURNAL_TEXT = "journal_text",
   JOURNAL_PROCESSING = "journal_processing",
@@ -57,47 +57,47 @@ export enum SessionStateKeys {
   JOURNAL_SHOW_SAVE_FORM = "journal_show_save_form",
   JOURNAL_MODEL_APPROACH = "journal_model_approach",
   JOURNAL_PRIMARY_MODEL = "journal_primary_model",
-  
+
   // Habitica
   HABITICA_USER_ID = "habitica_user_id",
   HABITICA_API_TOKEN = "habitica_api_token",
-  
+
   // Add to Memory
   ATM_PASTED_TEXT = "atm_pasted_text",
   ATM_SOURCE_ID = "atm_source_id",
   ATM_TAGS_INPUT = "atm_tags_input",
   ATM_SEARCH_QUERY = "atm_search_query",
   ATM_NUM_RESULTS = "atm_num_results",
-  
+
   // Memory Manager
   MM_CRUD_MODEL = "mm_crud_model",
   MM_RAW_INPUT = "mm_raw_input",
   MM_OP_RADIO = "mm_op_radio",
   MM_BROWSE_MODEL = "mm_browse_model",
-  
+
   // Routines
   ROUTINES_EXECUTION_STATUS = "routines_execution_status",
   ROUTINES_LAST_RUN = "routines_last_run",
   ROUTINES_SCRAPED_LINKS = "routines_scraped_links",
   ROUTINES_MORNING_COMPLETED = "routines_morning_completed",
   ROUTINES_EVENING_COMPLETED = "routines_evening_completed",
-  
+
   // System Improvement
   SI_FEEDBACK_TYPE = "si_feedback_type",
   SI_FEATURE_INPUT = "si_feature_input",
   SI_DESCRIPTION_INPUT = "si_description_input",
   SI_IMPROVEMENT_SUGGESTIONS = "si_improvement_suggestions",
-  
+
   // Agentic Workflow
   AGW_GOAL_INPUT = "agw_goal_input",
   AGW_APPROACH_RADIO = "agw_approach_radio",
   AGW_PRIMARY_MODEL = "agw_primary_model",
   AGW_OUTPUT_TEXT = "agw_output_text",
-  
+
   // WhatsApp Helper
   WH_TEMPLATE_INPUT = "wh_template_input",
   WH_GENERATED_RESPONSE = "wh_generated_response",
-  
+
   // Strategic Outreach Engine
   OUTREACH_OPPORTUNITY = "outreach_opportunity",
   OUTREACH_GOAL = "outreach_goal",
@@ -105,7 +105,7 @@ export enum SessionStateKeys {
   OUTREACH_TONE = "outreach_tone",
   OUTREACH_GENERATING = "outreach_generating",
   OUTREACH_DRAFT = "outreach_draft",
-  
+
   // Narrative Clarity Studio
   NARRATIVE_TYPE = "narrative_type",
   NARRATIVE_TONE = "narrative_tone",
@@ -115,11 +115,11 @@ export enum SessionStateKeys {
   NARRATIVE_GENERATING = "narrative_generating",
   NARRATIVE_CONTENT = "narrative_content",
   NARRATIVE_TITLE = "narrative_title",
-  
+
   // Mood tracking
   CURRENT_MOOD = "current_mood",
   MOOD_NOTE = "mood_note",
-  
+
   // Voice preference
   VOICE_PREFERENCE = "voice_preference"
 }
