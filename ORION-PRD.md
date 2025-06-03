@@ -3691,3 +3691,7 @@ The WhatsApp Chat Analysis feature directly enhances emotional and relational gr
 5. Creating awareness of habits and patterns that might otherwise go unnoticed
 
 This feature transforms Orion into a powerful tool for understanding and improving your digital relationships, helping you communicate more effectively and build stronger connections.
+
+
+You are the manager, focus onoimplementation
+Do what is best

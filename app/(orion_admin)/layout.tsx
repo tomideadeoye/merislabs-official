@@ -25,6 +25,10 @@ import {
   BarChart2,
   HeartPulse,
   FolderOpen,
+  Layers,
+  Mail,
+  Brain,
+  NotebookPen,
 } from "lucide-react";
 
 interface NavItem {
@@ -35,10 +39,12 @@ interface NavItem {
 
 const adminNavItems: NavItem[] = [
   { href: "/admin", label: PageNames.ADMIN_DASHBOARD, icon: LayoutDashboard },
-  { href: "/admin/draft-communication", label: PageNames.DRAFT_COMM, icon: MessageSquare },
-  { href: "/admin/journal", label: PageNames.JOURNAL, icon: BookOpenText },
+  { href: "/admin/journal", label: "Journal", icon: NotebookPen },
+  { href: "/admin/memory-manager", label: "Memory Explorer", icon: Brain },
+  { href: "/admin/opportunity-pipeline", label: "Opportunities", icon: Briefcase },
+  { href: "/admin/blocks", label: "Blocks", icon: Layers },
+  { href: "/admin/draft-communication", label: "Drop an Email", icon: Mail },
   { href: "/admin/networking", label: PageNames.NETWORKING, icon: Network },
-  { href: "/admin/opportunity-pipeline", label: PageNames.PIPELINE, icon: Briefcase },
   { href: "/admin/habitica", label: PageNames.HABITICA, icon: Rocket },
   { href: "/admin/ask-question", label: PageNames.ASK, icon: BrainCircuit },
   { href: "/admin/routines", label: PageNames.ROUTINES, icon: Repeat },
@@ -49,7 +55,6 @@ const adminNavItems: NavItem[] = [
   { href: "/admin/local-files", label: PageNames.LOCAL_FILES, icon: FolderOpen },
   { href: "/admin/idea-incubator", label: PageNames.IDEA_INCUBATOR, icon: Lightbulb },
   { href: "/admin/whatsapp-analysis", label: PageNames.WHATSAPP_ANALYSIS, icon: Users },
-  { href: "/admin/memory-manager", label: PageNames.MEMORY_MANAGER, icon: DatabaseZap },
   { href: "/admin/system-settings", label: PageNames.SYSTEM, icon: Cog },
 ];
 
