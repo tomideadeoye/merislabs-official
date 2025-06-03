@@ -17,11 +17,11 @@ export default function OpportunityKanbanPage() {
   const fetchOpportunities = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/opportunity/list');
       const data = await response.json();
-      
+
       if (data.success) {
         setOpportunities(data.opportunities);
       } else {
@@ -52,9 +52,9 @@ export default function OpportunityKanbanPage() {
           status: newStatus
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (!data.success) {
         console.error('Error updating status:', data.error);
         // Refresh to get the current state
@@ -71,17 +71,17 @@ export default function OpportunityKanbanPage() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push('/admin/opportunity-pipeline')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             List View
           </Button>
-          
+
           <h1 className="text-2xl font-bold text-gray-200">Opportunity Pipeline</h1>
         </div>
-        
+
         <div className="flex space-x-2">
           <Button
             variant="outline"
@@ -95,7 +95,7 @@ export default function OpportunityKanbanPage() {
             )}
             <span className="ml-2">Refresh</span>
           </Button>
-          
+
           <Button
             onClick={() => router.push('/admin/opportunity/new')}
           >
@@ -104,20 +104,20 @@ export default function OpportunityKanbanPage() {
           </Button>
         </div>
       </div>
-      
+
       {error && (
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md mb-6">
           {error}
         </div>
       )}
-      
+
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : (
-        <OpportunityKanbanView 
-          opportunities={opportunities} 
+        <OpportunityKanbanView
+          opportunities={opportunities}
           onStatusChange={handleStatusChange}
         />
       )}

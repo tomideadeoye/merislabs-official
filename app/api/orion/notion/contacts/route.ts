@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchContactsFromNotion } from '@/lib/notion_service';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { authOptions } from 'pages/api/auth/[...nextauth]';
 import type { ContactShared } from '@/types/orion';
 
 interface FetchContactsApiResponse {

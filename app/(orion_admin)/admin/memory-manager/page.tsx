@@ -26,6 +26,9 @@ export default function MemoryManagerFeaturePage() {
   const [limit, setLimit] = useState<number>(5);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
 
   const handleSearch = useCallback(async (event?: React.FormEvent) => {
     if (event) event.preventDefault();
@@ -88,6 +91,30 @@ export default function MemoryManagerFeaturePage() {
   const handleMemoryAdded = () => {
     // Increment refresh trigger to potentially update UI or show feedback
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleDeleteMemory = async (id: string) => {
+    setDeletingId(id);
+    setDeleteError(null);
+    setDeleteSuccess(null);
+    try {
+      const response = await fetch('/api/orion/memory/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [id] })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDeleteSuccess('Memory item deleted successfully.');
+        setSearchResults(prev => prev.filter(item => item.id !== id));
+      } else {
+        setDeleteError(data.error || 'Failed to delete memory item.');
+      }
+    } catch (err: any) {
+      setDeleteError(err.message || 'Failed to delete memory item.');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -212,22 +239,45 @@ export default function MemoryManagerFeaturePage() {
           <h3 className="text-xl font-semibold text-gray-200 mb-4">Search Results ({searchResults.length})</h3>
           <ScrollArea className="h-[calc(100vh-25rem)] md:h-[calc(100vh-20rem)]">
             <div className="space-y-4 pr-3">
-              {searchResults.map((result) => (
-                <JournalEntryDisplay
-                  key={result.id}
-                  entry={{
-                    title: "",
-                    date: new Date(result.payload.timestamp),
-                    content: result.payload.text,
-                    contentType: "Journal",
-                    notionPageId: result.payload.source_id,
-                    mood: result.payload.mood,
-                    tags: result.payload.tags,
-                  }}
-                />
-              ))}
+              {searchResults.map((result) => {
+                const memoryId = result.id || result.payload.source_id;
+                return (
+                  <div key={memoryId} className="relative group border border-gray-700 rounded-lg bg-gray-900/80 p-4">
+                    <JournalEntryDisplay
+                      entry={{
+                        title: "",
+                        date: new Date(result.payload.timestamp),
+                        content: result.payload.text,
+                        contentType: "Journal",
+                        notionPageId: result.payload.source_id,
+                        mood: result.payload.mood,
+                        tags: result.payload.tags,
+                      }}
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-4 right-4 opacity-80 group-hover:opacity-100 transition"
+                      disabled={deletingId === memoryId}
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to delete this memory item? This cannot be undone.')) {
+                          handleDeleteMemory(memoryId);
+                        }
+                      }}
+                    >
+                      {deletingId === memoryId ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete'}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </ScrollArea>
+          {deleteError && (
+            <div className="mt-4 bg-red-900/30 border border-red-700 text-red-300 px-4 py-2 rounded-md">{deleteError}</div>
+          )}
+          {deleteSuccess && (
+            <div className="mt-4 bg-green-900/30 border border-green-700 text-green-300 px-4 py-2 rounded-md">{deleteSuccess}</div>
+          )}
         </div>
       )}
     </div>

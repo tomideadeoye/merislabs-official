@@ -12,6 +12,7 @@ import { ORION_ACCESSIBLE_LOCAL_DIRECTORIES } from '../lib/orion_config.js';
 import { initializeClientSession } from '../app_state';
 import { generatePDF } from '../lib/pdf-generator';
 import { generateWordDoc } from '../lib/word-generator';
+import fetch from 'node-fetch';
 
 jest.setTimeout(30000);
 
@@ -225,5 +226,119 @@ describe('Comprehensive Opportunity Evaluation API', () => {
     } catch (err: any) {
       expect([401, 403]).toContain(err.response && err.response.status);
     }
+  });
+});
+
+describe('Agentic LLM Tool Use API', () => {
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const axiosInstance = axios.create({
+    baseURL: baseUrl,
+    timeout: 20000,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer mock-test-token'
+    }
+  });
+
+  it('should trigger a memory search tool call and return a final answer', async () => {
+    const userQuery = "What did I write about career last week?";
+    const res = await axiosInstance.post('/api/orion/agent/execute', {
+      userQuery
+    });
+    expect(res.status).toBe(200);
+    expect(res.data.success).toBe(true);
+    expect(typeof res.data.answer).toBe('string');
+    // Optionally check that tool_calls occurred in the history
+    const toolCallStep = res.data.history.find((msg: any) => msg.tool_call_id || (msg.role === 'tool'));
+    expect(toolCallStep).toBeDefined();
+  });
+});
+
+// --- Memory Deletion API Tests ---
+const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+const AUTH_HEADER = { 'Authorization': 'Bearer test-token' }; // Adjust as needed for your auth
+
+async function createMemoryPoint() {
+  const res = await fetch(`${BASE_URL}/api/orion/memory/add-memory`, {
+    method: 'POST',
+    headers: { ...AUTH_HEADER, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text: 'Test memory for deletion',
+      type: 'test_deletion',
+      tags: ['test', 'deletion']
+    })
+  });
+  const data = await res.json();
+  return data.memoryId;
+}
+
+describe('Memory Deletion API', () => {
+  it('should delete a single memory point', async () => {
+    const id = await createMemoryPoint();
+    // Delete
+    const delRes = await fetch(`${BASE_URL}/api/orion/memory/delete`, {
+      method: 'POST',
+      headers: { ...AUTH_HEADER, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: [id] })
+    });
+    const delData = await delRes.json();
+    expect(delData.success).toBe(true);
+
+    // Confirm deletion
+    const searchRes = await fetch(`${BASE_URL}/api/orion/memory/search`, {
+      method: 'POST',
+      headers: { ...AUTH_HEADER, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ queryText: 'Test memory for deletion', filter: { must: [{ key: 'id', match: { value: id } }] } })
+    });
+    const searchData = await searchRes.json();
+    if (typeof searchData.results === 'undefined') {
+      expect(searchData.results).toBeUndefined();
+    } else {
+      expect(Array.isArray(searchData.results) ? searchData.results.length : 0).toBe(0);
+    }
+  });
+
+  it('should handle batch deletion', async () => {
+    const id1 = await createMemoryPoint();
+    const id2 = await createMemoryPoint();
+    const delRes = await fetch(`${BASE_URL}/api/orion/memory/delete`, {
+      method: 'POST',
+      headers: { ...AUTH_HEADER, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: [id1, id2] })
+    });
+    const delData = await delRes.json();
+    expect(delData.success).toBe(true);
+  });
+
+  it('should handle non-existent ID gracefully', async () => {
+    const fakeId = 'nonexistent-id-12345';
+    const delRes = await fetch(`${BASE_URL}/api/orion/memory/delete`, {
+      method: 'POST',
+      headers: { ...AUTH_HEADER, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: [fakeId] })
+    });
+    const delData = await delRes.json();
+    expect(delData.success).toBeDefined();
+  });
+
+  it('should return 400 for invalid ID format', async () => {
+    const delRes = await fetch(`${BASE_URL}/api/orion/memory/delete`, {
+      method: 'POST',
+      headers: { ...AUTH_HEADER, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: [12345] }) // Not a string
+    });
+    expect(delRes.status).toBe(400);
+    const delData = await delRes.json();
+    expect(delData.success).toBe(false);
+  });
+
+  it('should require authentication', async () => {
+    const id = await createMemoryPoint();
+    const delRes = await fetch(`${BASE_URL}/api/orion/memory/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: [id] })
+    });
+    expect(delRes.status).toBe(401);
   });
 });

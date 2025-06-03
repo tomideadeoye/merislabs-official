@@ -14,12 +14,12 @@ async function makeApiRequest(url: string, data: any, headers: Record<string, st
     },
     body: JSON.stringify(data)
   });
-  
+
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`API request failed with status ${response.status}: ${errorText}`);
   }
-  
+
   return await response.json();
 }
 
@@ -29,7 +29,7 @@ function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: st
   const parts = modelId.split('/');
   const provider = parts[0];
   let modelConfig = null;
-  
+
   if (modelId.startsWith('azure')) {
     // For Azure models, find by modelId directly
     modelConfig = PROVIDER_MODEL_CONFIGS.azure.find(m => m.modelId === modelId);
@@ -49,21 +49,21 @@ function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: st
       }
     }
   }
-  
+
   if (!modelConfig) {
     console.error(`Model config not found for ${modelId}`);
     return { apiKey: null };
   }
-  
+
   // Get API key from environment variable
   const apiKey = process.env[modelConfig.apiKeyEnv] || null;
-  
+
   // For Azure, get endpoint from environment variable
   let endpoint;
   if (provider === 'azure' && modelConfig.azureEndpointEnv) {
     endpoint = process.env[modelConfig.azureEndpointEnv] || undefined;
   }
-  
+
   return {
     apiKey,
     endpoint,
@@ -74,7 +74,7 @@ function getModelConfig(modelId: string): { apiKey: string | null, endpoint?: st
 }
 
 // Helper function to call external LLM API
-async function callExternalLLM(model: string, messages: any[], temperature: number, maxTokens?: number) {
+async function callExternalLLM(model: string, messages: any[], temperature: number, maxTokens?: number, tools?: any[], tool_choice?: any) {
   const { apiKey, endpoint, deploymentId, apiVersion, apiBase } = getModelConfig(model);
 
   if (!apiKey) {
@@ -91,18 +91,20 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         // Azure OpenAI API call
         const url = `${endpoint}/openai/deployments/${deploymentId}/chat/completions?api-version=${apiVersion}`;
         console.log(`Calling Azure API at ${url}`);
-
-        const response = await makeApiRequest(url, {
+        const payload: any = {
           messages,
           temperature,
           max_tokens: maxTokens || 1000,
           stream: false
-        }, {
+        };
+        if (tools) payload.tools = tools;
+        if (tool_choice) payload.tool_choice = tool_choice;
+        const response = await makeApiRequest(url, payload, {
           'api-key': apiKey
         });
-
         return {
           success: true,
+          rawLLMResponse: response,
           content: response.choices[0].message.content,
           model: model
         };
@@ -113,18 +115,20 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         const url = 'https://api.groq.com/openai/v1/chat/completions';
         const modelName = model.replace('groq/', '');
         console.log(`Calling Groq API with model ${modelName}`);
-
-        const response = await makeApiRequest(url, {
+        const payload: any = {
           model: modelName,
           messages,
           temperature,
           max_tokens: maxTokens || 1000
-        }, {
+        };
+        if (tools) payload.tools = tools;
+        if (tool_choice) payload.tool_choice = tool_choice;
+        const response = await makeApiRequest(url, payload, {
           'Authorization': `Bearer ${apiKey}`
         });
-
         return {
           success: true,
+          rawLLMResponse: response,
           content: response.choices[0].message.content,
           model: model
         };
@@ -135,20 +139,22 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         const url = apiBase || 'https://openrouter.ai/api/v1/chat/completions';
         const modelName = modelParts.join('/');
         console.log(`Calling OpenRouter API with model ${modelName}`);
-
-        const response = await makeApiRequest(url, {
+        const payload: any = {
           model: modelName,
           messages,
           temperature,
           max_tokens: maxTokens || 1000
-        }, {
+        };
+        if (tools) payload.tools = tools;
+        if (tool_choice) payload.tool_choice = tool_choice;
+        const response = await makeApiRequest(url, payload, {
           'Authorization': `Bearer ${apiKey}`,
           'HTTP-Referer': 'https://orion.merislabs.com',
           'X-Title': 'Orion AI System'
         });
-
         return {
           success: true,
+          rawLLMResponse: response,
           content: response.choices[0].message.content,
           model: model
         };
@@ -159,13 +165,13 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         const modelName = model.replace('gemini/', '');
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
         console.log(`Calling Gemini API with model ${modelName}`);
-        
+
         // Convert messages to Gemini format
         const geminiMessages = messages.map(msg => ({
           role: msg.role === 'system' ? 'user' : msg.role,
           parts: [{ text: msg.content }]
         }));
-        
+
         const response = await makeApiRequest(url, {
           contents: geminiMessages,
           generationConfig: {
@@ -175,9 +181,10 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         }, {
           'x-goog-api-key': apiKey
         });
-        
+
         return {
           success: true,
+          rawLLMResponse: response,
           content: response.candidates[0].content.parts[0].text,
           model: model
         };
@@ -210,13 +217,13 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         const url = 'https://api.cohere.ai/v1/chat';
         const modelName = model.replace('cohere/', '');
         console.log(`Calling Cohere API with model ${modelName}`);
-        
+
         // Convert messages to Cohere format
         const cohereMessages = messages.map(msg => ({
           role: msg.role,
           message: msg.content
         }));
-        
+
         const response = await makeApiRequest(url, {
           model: modelName,
           chat_history: cohereMessages,
@@ -225,7 +232,7 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         }, {
           'Authorization': `Bearer ${apiKey}`
         });
-        
+
         return {
           success: true,
           content: response.text,
@@ -238,7 +245,7 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         const url = 'https://api.together.xyz/v1/completions';
         const modelName = modelParts.join('/');
         console.log(`Calling Together AI API with model ${modelName}`);
-        
+
         const response = await makeApiRequest(url, {
           model: modelName,
           prompt: messages.map(m => `${m.role}: ${m.content}`).join('\n'),
@@ -247,7 +254,7 @@ async function callExternalLLM(model: string, messages: any[], temperature: numb
         }, {
           'Authorization': `Bearer ${apiKey}`
         });
-        
+
         return {
           success: true,
           content: response.choices[0].text,
@@ -278,11 +285,13 @@ export async function POST(req: NextRequest) {
       profileContext,
       primaryContext,
       systemContext,
+      tools,
+      tool_choice,
     } = body;
 
     // Determine which model to use
     const modelToUse = model || getDefaultModelForRequestType(requestType);
-    
+
     // Construct messages for the LLM
     const messages = constructLlmMessages({
       requestType,
@@ -293,12 +302,14 @@ export async function POST(req: NextRequest) {
       prompt,
     });
 
-    // Call the LLM
+    // Call the LLM with tools/tool_choice if provided
     const result = await callExternalLLM(
       modelToUse,
       messages,
       temperature,
-      maxTokens || undefined
+      maxTokens || undefined,
+      tools,
+      tool_choice
     );
 
     return NextResponse.json(result);

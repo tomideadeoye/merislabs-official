@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { authOptions } from 'pages/api/auth/[...nextauth]';
 import { Client } from '@notionhq/client';
 import { NOTION_API_KEY, NOTION_DATABASE_ID } from '@/lib/orion_config';
 import type { CVComponentShared, NotionContentType } from '@/types/orion';
