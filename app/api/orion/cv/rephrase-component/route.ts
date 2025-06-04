@@ -42,23 +42,22 @@ export async function POST(req: NextRequest) {
     console.log(`Sending rephrasing prompt for component ${component_id} to LLM...`);
 
     // Call the LLM
-    const llmResponse = await generateLLMResponse(
+    try {
+      const llmContent = await generateLLMResponse(
         CV_COMPONENT_REPHRASING_REQUEST_TYPE, // Use specific request type
         prompt, // Pass the constructed prompt
         {
-            temperature: 0.7, // Moderate temperature for creative rephrasing
-            max_tokens: 500 // Adjust based on expected length of rephrased content
+          temperature: 0.7, // Moderate temperature for creative rephrasing
+          maxTokens: 500 // Adjust based on expected length of rephrased content
         }
-    );
-
-    if (llmResponse.success && llmResponse.content) {
-      return NextResponse.json({ success: true, rephrased_content: llmResponse.content });
-    } else {
-      console.error('LLM failed to rephrase component:', llmResponse.error);
+      );
+      return NextResponse.json({ success: true, rephrased_content: llmContent });
+    } catch (err: any) {
+      console.error('LLM failed to rephrase component:', err);
       return NextResponse.json({
         success: false,
-        error: llmResponse.error || 'Failed to rephrase component using LLM'
-      }, { status: llmResponse.error ? 500 : 500 });
+        error: err.message || 'Failed to rephrase component using LLM'
+      }, { status: 500 });
     }
 
   } catch (error: any) {
