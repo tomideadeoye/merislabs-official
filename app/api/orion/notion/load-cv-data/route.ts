@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from 'pages/api/auth/[...nextauth]';
+import { auth } from '@/auth';
 import { Client } from '@notionhq/client';
 import { NOTION_API_KEY, NOTION_DATABASE_ID } from '@/lib/orion_config';
 import type { CVComponentShared, NotionContentType } from '@/types/orion';
@@ -23,11 +22,10 @@ interface LoadCvDataApiResponse {
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<LoadCvDataApiResponse>> {
-  // TEMPORARILY BYPASS AUTHENTICATION FOR LOCAL TESTING - REVERT FOR PRODUCTION!
-  // const session = await getServerSession(authOptions);
-  // if (!session || !session.user) {
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
+  const session = await auth();
+  if (!session || !session.user) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
 
   if (!notion || !NOTION_DATABASE_ID) {
     return NextResponse.json({ success: false, error: 'Notion client or Database ID not configured.' }, { status: 500 });

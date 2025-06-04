@@ -36,7 +36,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: `${opportunity.title} ${opportunity.companyOrInstitution} ${opportunity.type} ${opportunity.tags?.join(' ') || ''}`,
+          query: `${opportunity.title} ${opportunity.company} ${opportunity.type} ${opportunity.tags?.join(' ') || ''}`,
           collectionName: 'orion_memory',
           limit: 5,
           filter: {

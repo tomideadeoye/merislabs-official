@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from "pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { fetchJournalEntriesFromNotion } from '@/lib/notion_service'; // Import the fetch function
 import type { JournalEntryNotionInput } from '@/types/orion'; // Import the type
 
@@ -10,27 +9,16 @@ interface FetchJournalEntriesApiResponse {
   error?: string;
 }
 
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse<FetchJournalEntriesApiResponse>> {
-  const session = await getServerSession(authOptions);
+export async function GET(request: NextRequest): Promise<NextResponse<FetchJournalEntriesApiResponse>> {
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const result = await fetchJournalEntriesFromNotion();
-
-    if (result.success) {
-      return NextResponse.json({ success: true, journalEntries: result.journalEntries });
-    } else {
-      return NextResponse.json({ success: false, error: result.error }, { status: 500 });
-    }
+    const journalEntries = await fetchJournalEntriesFromNotion();
+    return NextResponse.json({ success: true, journalEntries });
   } catch (error: any) {
-    console.error('[JOURNAL_LIST_API_ERROR]', error.message, error.stack);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch journal entries.', details: error.message || 'Unknown error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message || 'Failed to fetch journal entries' }, { status: 500 });
   }
 }

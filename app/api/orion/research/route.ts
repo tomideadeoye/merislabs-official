@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { PYTHON_API_URL } from '@/lib/orion_config'; // Import Python API URL
 
 /**
  * API route to proxy web research and scraping requests to the Python backend.
  */
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }

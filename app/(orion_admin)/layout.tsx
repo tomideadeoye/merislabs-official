@@ -28,7 +28,6 @@ import {
   Layers,
   Mail,
   Brain,
-  NotebookPen,
 } from "lucide-react";
 
 interface NavItem {
@@ -39,11 +38,12 @@ interface NavItem {
 
 const adminNavItems: NavItem[] = [
   { href: "/admin", label: PageNames.ADMIN_DASHBOARD, icon: LayoutDashboard },
-  { href: "/admin/journal", label: "Journal", icon: NotebookPen },
-  { href: "/admin/memory-manager", label: "Memory Explorer", icon: Brain },
-  { href: "/admin/opportunity-pipeline", label: "Opportunities", icon: Briefcase },
-  { href: "/admin/blocks", label: "Blocks", icon: Layers },
-  { href: "/admin/narrative-clarity-studio", label: "Narrative Clarity Studio", icon: BrainCircuit },
+  { href: "/admin/journal", label: PageNames.JOURNAL, icon: BookOpenText },
+  { href: "/admin/memory-manager", label: PageNames.MEMORY_MANAGER, icon: Brain },
+  { href: "/admin/opportunity-pipeline", label: PageNames.PIPELINE, icon: Briefcase },
+  { href: "/admin/blocks", label: "Blocks" as PageNameValue, icon: Layers },
+  { href: "/admin/narrative-clarity-studio", label: PageNames.NARRATIVE, icon: Brain },
+  { href: "/admin/draft-communication", label: PageNames.DRAFT_COMM, icon: Mail },
   { href: "/admin/draft-communication", label: "Drop an Email", icon: Mail },
   { href: "/admin/networking", label: PageNames.NETWORKING, icon: Network },
   { href: "/admin/habitica", label: PageNames.HABITICA, icon: Rocket },

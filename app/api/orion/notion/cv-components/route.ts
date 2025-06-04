@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchCVComponentsFromNotion } from '@/lib/notion_service';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
+// import { auth } from '@/auth';
 
 /**
  * API route for fetching CV components from Notion
  */
 export async function GET(request: NextRequest) {
   // TEMP: Disable authentication for local testing
-  // const session = await getServerSession(authOptions);
+  // const session = await auth();
   // if (!session || !session.user) {
   //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   // }

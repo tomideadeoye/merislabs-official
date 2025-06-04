@@ -6,11 +6,26 @@ export type OpportunityPriority = 'low' | 'medium' | 'high' | string;
 
 export interface EvaluationOutput {
   fitScorePercentage: number;
+  alignmentHighlights?: string[];
+  gapAnalysis?: string[];
+  riskRewardAnalysis?: RiskRewardAnalysis;
   recommendation: string;
-  pros: string[];
-  cons: string[];
-  missingSkills: string[];
-  scoreExplanation: string;
+  reasoning?: string;
+  suggestedNextSteps?: string[];
+  supportingContext?: string[];
+  pros?: string[];
+  cons?: string[];
+  missingSkills?: string[];
+  scoreExplanation?: string;
+  rawOutput?: string;
+}
+
+export interface RiskRewardAnalysis {
+  potentialRewards?: string;
+  potentialRisks?: string;
+  timeInvestment?: string;
+  financialConsiderations?: string;
+  careerImpact?: string;
 }
 
 export interface OpportunityNotionOutputShared {
@@ -18,9 +33,7 @@ export interface OpportunityNotionOutputShared {
   notion_page_id?: string;
   title: string;
   company: string;
-  companyOrInstitution?: string | null;
   content?: string | null;
-  description?: string | null;
   descriptionSummary?: string | null;
   type?: OpportunityType | null | string;
   status?: OpportunityStatus | null;
@@ -54,8 +67,7 @@ export interface OpportunityDetails {
   id?: string;
   notion_page_id?: string;
   title: string;
-  company?: string;
-  companyOrInstitution?: string;
+  company: string;
   content: string;
   type: OpportunityType;
   status?: OpportunityStatus;
@@ -93,9 +105,8 @@ export interface Opportunity extends OpportunityDetails {
 
 export interface OpportunityCreatePayload {
   title: string;
-  company?: string;
-  companyOrInstitution?: string;
-  description: string;
+  company: string;
+  content: string;
   descriptionSummary?: string;
   type: OpportunityType;
   status?: OpportunityStatus;
@@ -116,8 +127,7 @@ export interface OpportunityCreatePayload {
 export interface OpportunityUpdatePayload {
   title?: string;
   company?: string;
-  companyOrInstitution?: string;
-  description?: string;
+  content?: string;
   descriptionSummary?: string;
   type?: OpportunityType;
   status?: OpportunityStatus;
@@ -145,13 +155,13 @@ export interface OpportunityUpdatePayload {
 
 // Added types for Draft Application API based on usage in route.ts
 export interface DraftApplicationRequestBody {
-  opportunity: { // Using a nested structure based on usage
+  opportunity: {
     title: string;
     company: string;
-    description: string;
+    content: string;
     tags?: string[];
   };
-  applicantProfile: { // Using a nested structure based on usage
+  applicantProfile: {
     name: string;
     backgroundSummary: string;
     keySkills: string[];
@@ -159,18 +169,18 @@ export interface DraftApplicationRequestBody {
     location?: string;
     values?: string[];
   };
-  evaluationSummary?: { // Using a nested structure based on usage
+  evaluationSummary?: {
     fitScorePercentage?: number;
     alignmentHighlights?: string[];
     gapAnalysis?: string[];
     suggestedNextSteps?: string[];
   };
-  memorySnippets?: Array<{ // Based on usage, assuming an array of objects with these properties
+  memorySnippets?: Array<{
     date?: string;
     tags?: string[];
-    content: string; // Content seems to be a string
+    content: string;
   }>;
-  numberOfDrafts?: number; // Based on usage
+  numberOfDrafts?: number;
 }
 
 export interface DraftApplicationResponseBody {

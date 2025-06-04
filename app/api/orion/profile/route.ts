@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -57,18 +56,8 @@ export async function GET(request: NextRequest) {
       ]
     };
 
-    return NextResponse.json({
-      success: true,
-      profile
-    });
-
+    return NextResponse.json({ success: true, profile });
   } catch (error: any) {
-    console.error('[PROFILE_API_ERROR]', error);
-
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch profile data.',
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message || 'Failed to fetch profile' }, { status: 500 });
   }
 }

@@ -21,15 +21,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
   onClose,
   onSuccess
 }) => {
-  const [formData, setFormData] = useState<OpportunityCreatePayload>({
+  const [formData, setFormData] = useState({
     title: '',
     company: '',
     type: 'job',
     status: 'Not Started',
     content: '',
-    description: '',
     sourceURL: '',
-    tags: []
+    tags: [] as string[]
   });
 
   const [tagsInput, setTagsInput] = useState('');
@@ -38,17 +37,29 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: OpportunityCreatePayload) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      console.log('[AddOpportunityForm] handleChange', name, value, updated);
+      return updated;
+    });
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev: OpportunityCreatePayload) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      console.log('[AddOpportunityForm] handleSelectChange', name, value, updated);
+      return updated;
+    });
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTagsInput(e.target.value);
     const tags = e.target.value.split(',').map(tag => tag.trim()).filter(Boolean);
-    setFormData((prev: OpportunityCreatePayload) => ({ ...prev, tags }));
+    setFormData((prev) => {
+      const updated = { ...prev, tags };
+      console.log('[AddOpportunityForm] handleTagsChange', tags, updated);
+      return updated;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,16 +69,17 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
 
     const notionPayload: OpportunityNotionInput = {
       title: formData.title,
-      company: formData.companyOrInstitution || '',
+      company: formData.company || '',
       type: formData.type,
       status: formData.status,
-      description: formData.description,
+      content: formData.content,
       url: formData.sourceURL,
       tags: [],
       dateIdentified: new Date().toISOString(),
       priority: 'medium',
       nextActionDate: undefined,
     };
+    console.log('[AddOpportunityForm] Notion payload:', notionPayload);
 
     try {
       const response = await fetch('/api/orion/notion/opportunity/create', {
@@ -91,17 +103,17 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
           type: 'job',
           status: 'Not Started',
           content: '',
-          description: '',
           sourceURL: '',
-          tags: []
+          tags: [] as string[]
         });
+        console.log('[AddOpportunityForm] Form reset after successful submission.');
         setTagsInput('');
       } else {
         throw new Error(data.error || 'Failed to create opportunity');
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
-      console.error('Error creating opportunity:', err);
+      console.error('[AddOpportunityForm] Error creating opportunity:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -133,7 +145,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
             <Input
               id="companyOrInstitution"
               name="companyOrInstitution"
-              value={formData.companyOrInstitution}
+              value={formData.company}
               onChange={handleChange}
               placeholder="Company or institution name"
               className="bg-gray-700 border-gray-600 text-gray-200"
@@ -184,23 +196,11 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Description</Label>
-            <Textarea
-              id="content"
-              name="content"
-              value={formData.content}
-              onChange={handleChange}
-              placeholder="Brief description of the opportunity"
-              className="bg-gray-700 border-gray-600 text-gray-200 min-h-[100px]"
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="description">Full Description *</Label>
             <Textarea
               id="description"
               name="description"
-              value={formData.description}
+              value={formData.content}
               onChange={handleChange}
               placeholder="Full description of the opportunity"
               className="bg-gray-700 border-gray-600 text-gray-200 min-h-[100px]"

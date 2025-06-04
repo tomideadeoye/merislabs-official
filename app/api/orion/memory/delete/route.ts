@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { ORION_MEMORY_COLLECTION_NAME } from "@/lib/orion_config";
 import axios from "axios";
 
@@ -8,10 +7,9 @@ import axios from "axios";
  * API route to delete memory points from Qdrant
  */
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  const session = await auth();
+  if (!session || !session.user) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {

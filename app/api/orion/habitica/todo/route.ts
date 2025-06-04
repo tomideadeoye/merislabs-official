@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createTask } from '@/lib/habitica_client';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { db } from '@/lib/database';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  const session = await auth();
+  if (!session || !session.user) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {

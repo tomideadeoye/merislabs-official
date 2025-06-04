@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { saveJournalEntryToNotion } from '@/lib/notion_service'; // Import the Notion save function
 import type { JournalEntryNotionInput } from '@/types/orion'; // Import the type
 import { JOURNAL_REFLECTION_REQUEST_TYPE } from '@/lib/orion_config';
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
   }

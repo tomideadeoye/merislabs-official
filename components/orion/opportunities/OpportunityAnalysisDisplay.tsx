@@ -60,7 +60,7 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: opportunity.title,
-          description: opportunity.description ?? "",
+          content: opportunity.content ?? "",
           type: opportunity.type,
           url: opportunity.url,
         }),

@@ -378,23 +378,22 @@ export interface CVComponentShared {
 }
 
 export interface OpportunityNotionInput {
-    title: string;
-    company: string;
-    status?: string;
-    url?: string;
-    description?: string;
-    type?: string;
-    priority?: string;
-    dateIdentified?: string;
-    tags?: string[];
-    nextActionDate?: string;
+  title: string;
+  company: string;
+  status?: string;
+  url?: string;
+  content?: string;
+  type?: string;
+  priority?: string;
+  dateIdentified?: string;
+  tags?: string[];
+  nextActionDate?: string;
 }
 
 export interface OpportunityCreatePayload {
   title: string;
-  company?: string;
-  companyOrInstitution?: string;
-  description: string;
+  company: string;
+  content: string; // Main description field
   descriptionSummary?: string;
   type: OpportunityType;
   status?: OpportunityStatus;
@@ -405,7 +404,7 @@ export interface OpportunityCreatePayload {
   location?: string;
   salary?: string;
   contact?: string;
-  notes?: string; // Keep notes here for frontend form state if needed, but remove from NotionPayload
+  notes?: string;
   nextActionDate?: string;
   tags?: string[];
   relatedEvaluationId?: string;
@@ -413,20 +412,20 @@ export interface OpportunityCreatePayload {
 }
 
 export interface OpportunityNotionOutputShared {
-    notion_page_id: string;
-    id: string; // Adding id here as it seems to be used on the frontend
-    title: string;
-    company: string;
-    status: string | null;
-    url: string | null;
-    last_edited_time?: Date | string | null;
-    description?: string | null;
-    type?: string | null;
-    priority?: string | null;
-    dateIdentified?: string | null; // ISO 8601 date string
-    tags?: string[];
-    nextActionDate?: string | null; // ISO 8601 date string
-    // Add other properties as needed based on your Notion DB
+  notion_page_id: string;
+  id: string;
+  title: string;
+  company: string;
+  status: string | null;
+  url: string | null;
+  last_edited_time?: Date | string | null;
+  content?: string | null;
+  type?: string | null;
+  priority?: string | null;
+  dateIdentified?: string | null;
+  tags?: string[];
+  nextActionDate?: string | null;
+  // Add other properties as needed based on your Notion DB
 }
 
 // Helper type for mapping data to Notion API property format

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 
 interface FeedbackPayload {
   componentId: string;
@@ -12,7 +11,7 @@ interface FeedbackPayload {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },

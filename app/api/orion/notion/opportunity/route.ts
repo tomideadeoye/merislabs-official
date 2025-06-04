@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createOpportunityInNotion, OpportunityNotionPayload } from '@/lib/notion_next_service';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
+import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 
 /**
  * API route for creating an opportunity in Notion
  */
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -40,4 +40,12 @@ export async function POST(request: NextRequest) {
       error: error.message || 'Failed to create opportunity in Notion'
     }, { status: 500 });
   }
+}
+
+export async function GET(request: NextRequest) {
+  const session = await auth();
+  if (!session || !session.user) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  // ... rest of your logic ...
 }

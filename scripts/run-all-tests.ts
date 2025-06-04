@@ -11,6 +11,7 @@ import { fetchCVComponents, suggestCVComponents, rephraseComponent, assembleCV }
 import fs from "fs";
 import React from "react";
 import DecksPage from "../app/decks/page";
+import { testLucideIcons } from './test-lucide-icons';
 
 const chalk = require('chalk');
 
@@ -225,6 +226,16 @@ async function runAllTests() {
   console.log(`${colors.bright}${colors.magenta}=== ORION TEST SUITE ===${colors.reset}\n`);
 
   try {
+    // Run Lucide Icons test first for fast feedback
+    const iconsOk = await testLucideIcons();
+    if (!iconsOk) {
+      console.error('❌ Lucide icon test failed. Please fix icon imports before proceeding.');
+      return;
+    }
+
+    // Run LLM health check
+    await testLlmHealthCheck();
+
     // Run LLM integration test
     await runTest('LLM Integration', testLlmIntegration);
 
@@ -875,4 +886,28 @@ async function testLogging() {
   const updatedContent = fs.readFileSync(logFile, 'utf-8');
   if (!updatedContent.includes('Frontend test log')) throw new Error('Frontend log not delivered');
   console.log('✓ Logging tests passed');
+}
+
+async function testLlmHealthCheck() {
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  try {
+    const res = await axios.get(`${baseUrl}/api/orion/llm/health`);
+    if (!res.data.success) throw new Error('Health check endpoint did not return success');
+    const results = res.data.results;
+    let healthyCount = 0;
+    console.log('\n[LLM Health Check]');
+    for (const r of results) {
+      if (r.status === 'success') {
+        healthyCount++;
+        console.log(colors.green + `✓ ${r.model} (${r.provider}): OK` + colors.reset);
+      } else {
+        console.log(colors.red + `✗ ${r.model} (${r.provider}): FAIL - ${r.error}` + colors.reset);
+      }
+    }
+    if (healthyCount === 0) throw new Error('All LLM providers/models failed health check');
+    console.log(colors.green + `LLM Health Check: ${healthyCount} healthy model(s)` + colors.reset);
+  } catch (err: any) {
+    console.error(colors.red + '[LLM Health Check] Error:', err.message + colors.reset);
+    throw err;
+  }
 }

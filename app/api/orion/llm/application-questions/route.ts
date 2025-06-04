@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/orion_llm';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { fetchUserProfile } from '@/lib/profile_service';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import type { MemoryPayload } from '@/types/orion';
 
 // Define the response type for the Application Q&A API
@@ -21,8 +20,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ): Promise<NextResponse<ApplicationQnaApiResponse>> { // Use the defined response type
-  // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -80,9 +78,12 @@ export async function POST(
        console.error('[APP_QNA_API] Error calling internal memory search proxy:', memoryError);
     }
 
+    // Use jobUrl if available, otherwise fallback to url
+    const jobUrl = (opportunity as any).jobUrl || opportunity.url;
+
     // Construct the prompt for the LLM using all available context
     const primaryContext = `
-Opportunity Details:\nJob Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${opportunity.jobUrl ? `Job URL: ${opportunity.jobUrl}\n` : ''}\nJob Description:\n${opportunity.description || 'No description provided.'}\n
+Opportunity Details:\nJob Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content || 'No content provided.'}\n
 ${webContext ? `Additional Web Context:\n${webContext}\n\n` : ''}User's Question: ${question}
 
 Instructions:\nAnswer the user's question about this job opportunity thoroughly and accurately, using all the provided context (opportunity details, job description, your profile, relevant memories, and any web context). If the context does not contain the answer, state that you cannot answer based on the available information. Be helpful and relevant to the job application process.`;
@@ -97,9 +98,9 @@ Instructions:\nAnswer the user's question about this job opportunity thoroughly 
 
     console.log('[APP_QNA_API] Sending application question prompt to LLM...');
 
-    const llmResponse = await generateLLMResponse(
+    const llmResponseContent = await generateLLMResponse(
       REQUEST_TYPES.ASK_QUESTION,
-      undefined, // Primary context is in messages
+      '', // Use empty string for primaryContext since it's included in messages
       {
         messages: messages,
         temperature: 0.7,
@@ -107,15 +108,15 @@ Instructions:\nAnswer the user's question about this job opportunity thoroughly 
       } as any // Cast for now
     );
 
-    if (llmResponse.success && llmResponse.content) {
-      return NextResponse.json({ success: true, answer: llmResponse.content, memoryResults }); // Include memoryResults
+    if (llmResponseContent) {
+      return NextResponse.json({ success: true, answer: llmResponseContent, memoryResults }); // Include memoryResults
     } else {
-      console.error('[APP_QNA_API] LLM failed to generate answer:', llmResponse.error);
+      console.error('[APP_QNA_API] LLM failed to generate answer');
       return NextResponse.json({
         success: false,
-        error: llmResponse.error || 'Failed to generate answer using LLM',
+        error: 'Failed to generate answer using LLM',
         memoryResults: memoryResults // Include memoryResults even on failure
-      }, { status: llmResponse.error ? 500 : 500 });
+      }, { status: 500 });
     }
 
   } catch (error: any) {

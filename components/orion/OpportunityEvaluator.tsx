@@ -32,7 +32,7 @@ interface OpportunityEvaluatorProps {
 
 export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ className }) => {
   const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [content, setContent] = useState<string>("");
   const [type, setType] = useState<'job' | 'education' | 'project' | 'other'>('job');
   const [url, setUrl] = useState<string>("");
 
@@ -47,8 +47,8 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim() || !description.trim()) {
-      setError("Opportunity title and description are required.");
+    if (!title.trim() || !content.trim()) {
+      setError("Opportunity title and content are required.");
       return;
     }
 
@@ -64,7 +64,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         },
         body: JSON.stringify({
           title,
-          description,
+          content,
           type,
           url: url || undefined
         } as OpportunityDetails)
@@ -182,12 +182,12 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
             </div>
 
             <div>
-              <Label htmlFor="description" className="text-gray-300">Description / Details *</Label>
+              <Label htmlFor="content" className="text-gray-300">Content / Details *</Label>
               <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Paste job description, program details, project brief, etc."
+                id="content"
+                value={content}
+                onChange={(e) => { setContent(e.target.value); console.log('[OpportunityEvaluator] Content changed:', e.target.value); }}
+                placeholder="Paste job content, program details, project brief, etc."
                 className="min-h-[200px] bg-gray-700 border-gray-600 text-gray-200"
                 required
               />
@@ -195,7 +195,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
 
             <Button
               type="submit"
-              disabled={isLoading || !title.trim() || !description.trim()}
+              disabled={isLoading || !title.trim() || !content.trim()}
               className="bg-amber-600 hover:bg-amber-700 w-full"
             >
               {isLoading ? (
