@@ -1,1 +1,6 @@
-{\n  \"extends\": [\"next/core-web-vitals\"],\n  \"rules\": {\n    \"react/no-unescaped-entities\": \"off\"\n  }\n}
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "react/no-unescaped-entities": "off"
+  }
+}

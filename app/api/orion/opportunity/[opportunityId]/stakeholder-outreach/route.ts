@@ -14,7 +14,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ) {
-  // Check authentication
+
   const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -76,7 +76,7 @@ export async function POST(
     try {
         const contactsResult = await fetchContactsFromNotion();
         if (contactsResult.success) {
-            console.log('[OUTREACH_API] Successfully fetched contacts.', contactsResult.contacts.length);
+            console.log('[OUTREACH_API] Successfully fetched contacts.', contactsResult.contacts ? contactsResult.contacts.length : 0);
         } else {
             console.warn('[OUTREACH_API] Failed to fetch contacts:', contactsResult.error);
         }

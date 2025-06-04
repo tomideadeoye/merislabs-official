@@ -82,7 +82,7 @@ Type: ${opportunityDetails.type}
 ${opportunityDetails.url ? `URL: ${opportunityDetails.url}` : ''}
 Description:
 """
-${opportunityDetails.description}
+${opportunityDetails.content}
 """
 
 ## Evaluation Instructions:

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/auth';
 import { OpportunityCreatePayload } from '@/types/opportunity';
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -13,10 +13,10 @@ export async function POST(request: NextRequest) {
     const body: OpportunityCreatePayload = await request.json();
 
     // Basic validation
-    if (!body.title || !body.companyOrInstitution) {
+    if (!body.title || !body.company) {
       return NextResponse.json({
         success: false,
-        error: 'Title and Company/Institution are required.'
+        error: 'Title and Company are required.'
       }, { status: 400 });
     }
 
@@ -25,22 +25,24 @@ export async function POST(request: NextRequest) {
     const mockId = `opp_${Date.now()}`;
     const currentDate = new Date().toISOString();
 
+    const mockOpportunity = {
+      id: mockId,
+      title: body.title,
+      company: body.company,
+      type: body.type,
+      status: body.status,
+      dateIdentified: currentDate,
+      priority: body.priority,
+      descriptionSummary: body.descriptionSummary,
+      sourceURL: body.sourceURL,
+      tags: body.tags,
+      notes: body.notes,
+      lastStatusUpdate: currentDate
+    };
+
     return NextResponse.json({
       success: true,
-      opportunity: {
-        id: mockId,
-        title: body.title,
-        company: body.companyOrInstitution,
-        type: body.type,
-        status: body.status,
-        dateIdentified: currentDate,
-        priority: body.priority,
-        descriptionSummary: body.descriptionSummary,
-        sourceURL: body.sourceURL,
-        tags: body.tags,
-        notes: body.notes,
-        lastStatusUpdate: currentDate
-      }
+      opportunity: mockOpportunity
     });
 
   } catch (error: any) {

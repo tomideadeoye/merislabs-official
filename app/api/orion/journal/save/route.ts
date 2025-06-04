@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { auth } from '@/auth';
-import { saveJournalEntryToNotion } from '@/lib/notion_service'; // Import the Notion save function
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/auth';
+import { createJournalEntryInNotion } from '@/lib/notion_service'; // Import the Notion save function
 import type { JournalEntryNotionInput } from '@/types/orion'; // Import the type
 import { JOURNAL_REFLECTION_REQUEST_TYPE } from '@/lib/orion_config';
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session) {
     return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
   }
@@ -40,21 +41,28 @@ export async function POST(request: NextRequest) {
     // 1. Save the journal entry to Notion (if requested)
     if (saveToNotion) {
       console.log(`[JOURNAL_SAVE_API] Attempting to save journal entry to Notion...`);
-      const journalEntryData: JournalEntryNotionInput = {
+      const journalEntryData = {
         title: text.substring(0, 100) + (text.length > 100 ? '...' : ''), // Use first 100 chars as title
-        date: new Date(journalEntryTimestamp), // Convert timestamp string to Date object
+        date:
+          typeof journalEntryTimestamp === 'string'
+            ? journalEntryTimestamp
+            : (
+                journalEntryTimestamp &&
+                typeof journalEntryTimestamp === 'object' &&
+                typeof (journalEntryTimestamp as { toISOString?: unknown }).toISOString === 'function'
+              )
+              ? (journalEntryTimestamp as { toISOString: () => string }).toISOString()
+              : String(journalEntryTimestamp),
         content: text,
-        contentType: "journal_entry",         // Added contentType property
-        notionPageId: undefined,              // Will be filled after Notion save
         mood: mood,
         tags: tags,
       };
 
-      const notionResponse = await saveJournalEntryToNotion(journalEntryData);
+      const notionResponse = await createJournalEntryInNotion(journalEntryData);
 
       if (notionResponse) {
         notionSaved = true;
-        sourceId = notionResponse.id; // Get the ID from the Notion response
+        sourceId = notionResponse.entry?.notionPageId; // Get the Notion page ID from the response
         console.log(`[JOURNAL_SAVE_API] Journal entry successfully saved to Notion. Page ID: ${sourceId}`);
       } else {
         console.error("[JOURNAL_SAVE_API] Failed to save journal entry to Notion.");
@@ -102,7 +110,7 @@ export async function POST(request: NextRequest) {
         };
 
         const memoryPoint = {
-          id: uuidv4(), // Unique ID for the point in Qdrant
+          id: uuidv4(),
           vector: embeddingVector,
           payload: memoryPayload,
         };

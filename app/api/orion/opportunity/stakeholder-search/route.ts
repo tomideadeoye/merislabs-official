@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from "@/auth";
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib/orion_config';
 
 interface StakeholderSearchRequestBody {
@@ -21,7 +20,7 @@ interface Stakeholder {
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }

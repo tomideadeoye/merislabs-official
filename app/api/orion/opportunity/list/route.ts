@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
-import { Opportunity } from '@/types/opportunity';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/auth';
+import { listOpportunitiesFromNotion } from '@/lib/notion_service';
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -16,82 +16,13 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const tag = searchParams.get('tag');
     const priority = searchParams.get('priority');
-    const sortBy = searchParams.get('sortBy') || 'lastStatusUpdate';
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
+    // Notion API does not support all filters natively, so we filter after fetch
 
-    // This is a mock implementation - in a real app, this would fetch from a database
-    // Mock data for demonstration purposes
-    const mockOpportunities: Opportunity[] = [
-      {
-        id: '1',
-        title: 'Senior Software Engineer',
-        company: 'CloudScale Technologies',
-        type: 'job',
-        status: 'evaluating',
-        dateIdentified: '2023-05-15',
-        nextActionDate: '2023-05-22',
-        priority: 'high',
-        content: 'Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.',
-        sourceURL: 'https://cloudscale.tech/careers',
-        tags: ['software', 'backend', 'cloud', 'go', 'python'],
-        lastStatusUpdate: '2023-05-16T10:30:00Z'
-      },
-      {
-        id: '2',
-        title: 'Product Manager',
-        company: 'InnovateTech',
-        type: 'job',
-        status: 'application_ready',
-        dateIdentified: '2023-05-10',
-        priority: 'medium',
-        content: 'Leading product development for a SaaS platform. Focus on fintech solutions.',
-        tags: ['product', 'management', 'fintech', 'saas'],
-        lastStatusUpdate: '2023-05-14T15:45:00Z'
-      },
-      {
-        id: '3',
-        title: 'MBA Program',
-        company: 'Stanford Graduate School of Business',
-        type: 'education',
-        status: 'researching',
-        dateIdentified: '2023-04-20',
-        nextActionDate: '2023-06-01',
-        priority: 'high',
-        content: 'Full-time MBA program with focus on entrepreneurship and technology management.',
-        sourceURL: 'https://www.gsb.stanford.edu/programs/mba',
-        tags: ['education', 'mba', 'business', 'entrepreneurship'],
-        lastStatusUpdate: '2023-05-05T09:15:00Z'
-      },
-      {
-        id: '4',
-        title: 'Open Source Collaboration',
-        company: 'TechForGood Foundation',
-        type: 'project_collaboration',
-        status: 'applied',
-        dateIdentified: '2023-05-01',
-        priority: 'low',
-        content: 'Contributing to an open-source project focused on accessibility tools for education.',
-        tags: ['open-source', 'accessibility', 'education', 'javascript'],
-        lastStatusUpdate: '2023-05-12T11:20:00Z'
-      },
-      {
-        id: '5',
-        title: 'Tech Lead',
-        company: 'FinanceFlow',
-        type: 'job',
-        status: 'interview_scheduled',
-        dateIdentified: '2023-04-15',
-        nextActionDate: '2023-05-25',
-        priority: 'high',
-        content: 'Leading a team of engineers building next-gen financial analytics tools.',
-        sourceURL: 'https://financeflow.io/careers',
-        tags: ['leadership', 'fintech', 'analytics', 'team-management'],
-        lastStatusUpdate: '2023-05-18T14:10:00Z'
-      }
-    ];
+    // Fetch opportunities from Notion
+    const opportunities = await listOpportunitiesFromNotion();
 
     // Apply filters
-    let filteredOpportunities = [...mockOpportunities];
+    let filteredOpportunities = [...opportunities];
 
     if (status) {
       filteredOpportunities = filteredOpportunities.filter(opp => opp.status === status);
@@ -103,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     if (tag) {
       filteredOpportunities = filteredOpportunities.filter(opp =>
-        opp.tags?.some(t => t.toLowerCase().includes(tag.toLowerCase()))
+        opp.tags?.some((t: string) => t.toLowerCase().includes(tag.toLowerCase()))
       );
     }
 
@@ -111,19 +42,14 @@ export async function GET(request: NextRequest) {
       filteredOpportunities = filteredOpportunities.filter(opp => opp.priority === priority);
     }
 
-    // Apply sorting
+    // Optionally sort by last_edited_time or other fields
     filteredOpportunities.sort((a, b) => {
-      const aValue = a[sortBy as keyof Opportunity];
-      const bValue = b[sortBy as keyof Opportunity];
-
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortOrder === 'asc'
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-
-      return 0;
+      const aValue = a.last_edited_time instanceof Date ? a.last_edited_time.getTime() : 0;
+      const bValue = b.last_edited_time instanceof Date ? b.last_edited_time.getTime() : 0;
+      return bValue - aValue; // Descending by default
     });
+
+    console.log('[OPPORTUNITY_LIST] Returning opportunities:', filteredOpportunities);
 
     return NextResponse.json({
       success: true,

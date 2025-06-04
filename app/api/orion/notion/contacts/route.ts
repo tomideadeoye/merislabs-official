@@ -15,12 +15,12 @@ export async function GET(request: NextRequest): Promise<NextResponse<FetchConta
   }
 
   try {
-    const contacts = await fetchContactsFromNotion();
-    if (Array.isArray(contacts)) {
-      return NextResponse.json({ success: true, contacts });
+    const result = await fetchContactsFromNotion();
+    if (result.success) {
+      return NextResponse.json({ success: true, contacts: result.contacts });
     } else {
-      console.error('[CONTACTS_API] Invalid contacts data:', contacts);
-      return NextResponse.json({ success: false, error: 'Invalid contacts data.' }, { status: 500 });
+      console.error('[CONTACTS_API] Error fetching contacts:', result.error);
+      return NextResponse.json({ success: false, error: result.error }, { status: 500 });
     }
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message || 'Failed to fetch contacts' }, { status: 500 });

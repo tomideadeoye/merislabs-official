@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/auth';
 import type {
   DraftApplicationRequestBody,
   DraftApplicationResponseBody
@@ -32,14 +32,14 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
   // Determine company tone/culture based on available information
   let companyTone = "professional";
   const companyLower = opportunity.company.toLowerCase();
-  const descriptionLower = opportunity.description.toLowerCase();
+  const contentLower = opportunity.content.toLowerCase();
 
   if (
     companyLower.includes("startup") ||
-    descriptionLower.includes("startup") ||
-    descriptionLower.includes("fast-paced") ||
-    descriptionLower.includes("innovative") ||
-    descriptionLower.includes("disrupt")
+    contentLower.includes("startup") ||
+    contentLower.includes("fast-paced") ||
+    contentLower.includes("innovative") ||
+    contentLower.includes("disrupt")
   ) {
     companyTone = "dynamic and innovative";
   } else if (
@@ -47,8 +47,8 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
     companyLower.includes("bank") ||
     companyLower.includes("law") ||
     companyLower.includes("firm") ||
-    descriptionLower.includes("established") ||
-    descriptionLower.includes("leading")
+    contentLower.includes("established") ||
+    contentLower.includes("leading")
   ) {
     companyTone = "formal and established";
   }
@@ -66,9 +66,9 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
   }
 
   // Extract key requirements from job description
-  const keyRequirements = opportunity.description
+  const keyRequirements = opportunity.content
     .split(/\n|\./)
-    .filter(line =>
+    .filter((line: string) =>
       line.toLowerCase().includes("require") ||
       line.toLowerCase().includes("qualif") ||
       line.toLowerCase().includes("skill") ||
@@ -76,8 +76,8 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
       line.toLowerCase().includes("looking for")
     )
     .slice(0, 5)
-    .map(line => line.trim())
-    .filter(line => line.length > 20)
+    .map((line: string) => line.trim())
+    .filter((line: string) => line.length > 20)
     .join("\n- ");
 
   return `
@@ -87,7 +87,7 @@ I need you to craft ${numberOfDrafts} distinct, highly effective application mat
 - Position: ${opportunity.title}
 - Organization: ${opportunity.company} (appears to have a ${companyTone} culture)
 - Key Requirements:
-- ${keyRequirements || opportunity.description.substring(0, 300) + "..."}
+- ${keyRequirements || opportunity.content.substring(0, 300) + "..."}
 ${opportunity.tags && opportunity.tags.length > 0 ? `- Tags/Keywords: ${opportunity.tags.join(", ")}` : ""}
 
 ## APPLICANT PROFILE
@@ -149,9 +149,9 @@ function parseDraftsFromLLMResponse(llmContent: string): string[] {
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {

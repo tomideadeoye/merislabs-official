@@ -23,11 +23,7 @@ interface ActionReflection {
 }
 
 export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry, initialReflection }) => {
-  if (!entry) {
-    return null;
-  }
-  const { content, date, mood, tags, notionPageId } = entry;
-  const entryDate = new Date(date);
+  // All hooks must be called unconditionally at the top level
   const [showReflection, setShowReflection] = useState(!!initialReflection);
   const [reflection, setReflection] = useState<string | null>(initialReflection || null);
   const [isLoadingReflection, setIsLoadingReflection] = useState(false);
@@ -39,11 +35,17 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
 
   // Check for reflection when component mounts if not provided initially
   useEffect(() => {
-    if (!reflection && !isLoadingReflection && notionPageId) {
+    if (entry && !reflection && !isLoadingReflection && entry.notionPageId) {
       checkForExistingReflection();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reflection, isLoadingReflection, notionPageId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry, reflection, isLoadingReflection]);
+
+  if (!entry) {
+    return null;
+  }
+  const { content, date, mood, tags, notionPageId } = entry;
+  const entryDate = new Date(date);
 
   const checkForExistingReflection = async () => {
     if (!notionPageId) return;

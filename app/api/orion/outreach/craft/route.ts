@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get relevant memories
-    const relevantMemoriesResponse = await searchMemory({
+    const relevantMemoriesResponse: any = await searchMemory({
       query: `${persona.name} ${persona.company || ''} ${opportunityDetails} ${goal}`,
       limit: 5,
       filter: {
@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
         ]
       }
     });
+
+    console.log('[OUTREACH_CRAFT] relevantMemoriesResponse type:', typeof relevantMemoriesResponse, Array.isArray(relevantMemoriesResponse) ? 'array' : 'object', relevantMemoriesResponse);
 
     const relevantMemories = relevantMemoriesResponse.results || [];
 
@@ -99,36 +101,26 @@ Write the complete ${communicationType} content, ready to send.
 `;
 
     // Generate outreach content using LLM
-    const llmResponse: GenerateLLMResponse = await generateLLMResponse(
-      'strategic_outreach', // requestType
-      prompt, // primaryContext
-      { // options
-        profileContext: profileData,
-        temperature: 0.7,
-        max_tokens: 1500
-      }
-    );
-
-    if (!llmResponse.success || !llmResponse.content) {
-      return NextResponse.json({
-        success: false,
-        error: llmResponse.error || 'Failed to generate outreach content'
-      }, { status: 500 });
+    let llmContent: string;
+    try {
+      llmContent = await generateLLMResponse(
+        'OUTREACH_CRAFT',
+        prompt,
+        {
+          profileContext: profileData,
+          systemContext: '',
+          memoryResults: relevantMemories.map((m: ScoredMemoryPoint) => ({ id: m.id, text: m.payload.text })),
+          model: '',
+          temperature: 0.7,
+          maxTokens: 1500
+        }
+      );
+      console.log('[OUTREACH_CRAFT] LLM content:', llmContent);
+      return NextResponse.json({ success: true, outreachDraft: llmContent });
+    } catch (err) {
+      console.error('[OUTREACH_CRAFT] LLM error:', err);
+      return NextResponse.json({ success: false, error: (err && typeof err === 'object' && 'message' in err) ? (err as any).message : 'Failed to generate outreach draft.' }, { status: 500 });
     }
-
-    // Create outreach response
-    const outreach: OutreachResponse = {
-      id: uuidv4(),
-      personaId,
-      draft: llmResponse.content,
-      relevantMemories: relevantMemories.map((m: ScoredMemoryPoint) => ({ id: m.id, text: m.payload.text })),
-      createdAt: new Date().toISOString()
-    };
-
-    return NextResponse.json({
-      success: true,
-      outreach
-    });
 
   } catch (error: any) {
     console.error('Error in outreach/craft route:', error);

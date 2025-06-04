@@ -135,8 +135,6 @@ export interface OrionSessionState {
   narrative_generating: boolean;
   narrative_content?: string;
   narrative_title?: string;
-
-  // Add other SessionStateKeys with their types here as needed
   session_state_initialized: boolean;
   memory_initialized: boolean;
   llm_configured: boolean;
@@ -144,8 +142,8 @@ export interface OrionSessionState {
   user_name: string;
   crewai_available: boolean;
   pipeline_state: PipelineState;
-  pipeline_step: string; // Replace with a more specific type if known
-  model_approach_pipeline: string; // Replace with a more specific type if known
+  pipeline_step: string;
+  model_approach_pipeline: string;
   enabled_steps_pipeline: EnabledSteps;
 
   // Networking Keys

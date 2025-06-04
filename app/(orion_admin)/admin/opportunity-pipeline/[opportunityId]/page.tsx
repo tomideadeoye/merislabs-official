@@ -18,11 +18,17 @@ async function fetchNotionOpportunity(opportunityId: string): Promise<Opportunit
   // Convert OpportunityNotionOutputShared to Opportunity by ensuring required fields exist
   // Convert last_edited_time to string if it's a Date object to match type definition
   const rawOpportunityData = fetchResult.opportunity;
-  if (typeof rawOpportunityData.last_edited_time === 'string' || rawOpportunityData.last_edited_time instanceof Date) {
-    // valid, do nothing
-  } else {
-    rawOpportunityData.last_edited_time = null;
-  }
+if (typeof rawOpportunityData.last_edited_time === 'string') {
+  // valid, do nothing
+} else if (
+  rawOpportunityData.last_edited_time &&
+  typeof rawOpportunityData.last_edited_time === 'object' &&
+  typeof (rawOpportunityData.last_edited_time as { toISOString?: unknown }).toISOString === 'function'
+) {
+  rawOpportunityData.last_edited_time = (rawOpportunityData.last_edited_time as { toISOString: () => string }).toISOString();
+} else {
+  rawOpportunityData.last_edited_time = '';
+}
   const opportunityData: OpportunityNotionOutputShared = rawOpportunityData;
   const opportunity: Opportunity = {
     id: opportunityData.id,

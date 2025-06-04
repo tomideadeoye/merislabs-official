@@ -40,7 +40,7 @@ export async function POST(
     const opportunityResult = await fetchOpportunityByIdFromNotion(opportunityId);
 
     if (!opportunityResult.success) {
-      return NextResponse.json({ success: false, error: opportunityResult.error }, { status: 500 });
+      return NextResponse.json({ success: false, error: opportunityResult.error || 'Unknown error' }, { status: 500 });
     }
     const opportunity = opportunityResult.opportunity;
 

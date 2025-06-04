@@ -33,7 +33,12 @@ interface SaveOptionsButtonProps {
   onCopyToClipboard?: (data: any) => Promise<Omit<SaveResult, 'serviceName'>>;
 
   onProcessingStart?: () => void; // Optional: To disable parent form elements
-  onProcessingComplete: (results: SaveResult[]) => void; // Aggregated results
+  /**
+   * Callback for when all processing is complete.
+   * NOTE: This prop must only be passed from a client component, not from a server component or page.
+   * If you see a serialization error, ensure the parent is a 'use client' component.
+   */
+  onProcessingComplete?: (results: SaveResult[]) => void; // Aggregated results, optional for Next.js compatibility
 
   buttonText?: string;
   disabled?: boolean; // External disabled state
@@ -67,14 +72,14 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const getSelectedOptionsCount = () => {
+  const getSelectedOptionsCount = useCallback(() => {
     let count = 0;
     if (saveToNotion && availableOptions.notion) count++;
     if (saveToQdrant && availableOptions.qdrant) count++;
     if (saveToSQLite && availableOptions.sqlite) count++;
     if (copyToClipboard && availableOptions.clipboard) count++;
     return count;
-  };
+  }, [saveToNotion, saveToQdrant, saveToSQLite, copyToClipboard, availableOptions]);
 
   const handleProcessSelections = useCallback(async () => {
     if (getSelectedOptionsCount() === 0) {
@@ -123,7 +128,19 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
     }
 
     setIsProcessing(false);
-    onProcessingComplete(results);
+    if (typeof onProcessingComplete === 'function') {
+      onProcessingComplete(results);
+    } else {
+      // Optionally, handle results internally or log a warning
+      if (typeof window !== 'undefined') {
+        // Only warn in browser/client
+        console.warn(
+          "[SaveOptionsButton] onProcessingComplete callback not provided. " +
+          "To handle results, pass a function from a client component. " +
+          "See documentation in SaveOptionsButtonProps."
+        );
+      }
+    }
 
     const allSucceeded = results.every(r => r.success);
     const anySucceeded = results.some(r => r.success);
@@ -144,7 +161,7 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
   }, [
     data, saveToNotion, saveToQdrant, saveToSQLite, copyToClipboard,
     onSaveToNotion, onSaveToQdrant, onSaveToSQLite, onCopyToClipboard,
-    onProcessingStart, onProcessingComplete, availableOptions
+    onProcessingStart, onProcessingComplete, availableOptions, getSelectedOptionsCount
   ]);
 
   const selectedCount = getSelectedOptionsCount();
