@@ -5,7 +5,7 @@ export const BLOCK_TYPES = [
   "PROMPT_TEMPLATE",
   "GENERAL_BLOCK"
 ] as const;
-export type BlockType = "CV" | "OPPORTUNITY" | "JOURNAL" | "PROMPT";
+export type BlockType = typeof BLOCK_TYPES[number];
 
 export interface Block {
   id: string;

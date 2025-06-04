@@ -39,23 +39,22 @@ export async function POST(req: NextRequest) {
     console.log(`Sending summary tailoring prompt for component ${component_id} to LLM...`);
 
     // Call the LLM
-    const llmResponse = await generateLLMResponse(
+    try {
+      const llmContent = await generateLLMResponse(
         CV_SUMMARY_TAILORING_REQUEST_TYPE, // Use specific request type
         prompt, // Pass the constructed prompt
         {
-            temperature: 0.7, // Moderate temperature for creative tailoring
-            max_tokens: 200 // Limit response length for a concise summary
+          temperature: 0.7, // Moderate temperature for creative tailoring
+          maxTokens: 200 // Limit response length for a concise summary
         }
-    );
-
-    if (llmResponse.success && llmResponse.content) {
-      return NextResponse.json({ success: true, tailored_content: llmResponse.content });
-    } else {
-      console.error('LLM failed to tailor summary:', llmResponse.error);
+      );
+      return NextResponse.json({ success: true, tailored_content: llmContent });
+    } catch (err: any) {
+      console.error('LLM failed to tailor summary:', err);
       return NextResponse.json({
         success: false,
-        error: llmResponse.error || 'Failed to tailor summary using LLM'
-      }, { status: llmResponse.error ? 500 : 500 });
+        error: err.message || 'Failed to tailor summary using LLM'
+      }, { status: 500 });
     }
 
   } catch (error: any) {

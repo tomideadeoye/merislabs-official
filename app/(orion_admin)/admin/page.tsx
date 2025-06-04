@@ -18,7 +18,7 @@ import {
   Folder
 } from 'lucide-react';
 import Link from 'next/link';
-import { checkAllLlmApiKeys } from '../../../../lib/llm_providers';
+import { checkAllLlmApiKeys } from '../../../lib/llm_providers';
 
 export default function AdminDashboardPage() {
   const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { Client } from '@notionhq/client';
 import { NOTION_API_KEY, NOTION_DATABASE_ID } from '@/lib/orion_config';
-import type { CVComponentShared, NotionContentType } from '@/types/orion';
+import type { CVComponentShared } from '@/types/orion';
 
 // Ensure Notion client is configured
 const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
@@ -49,7 +49,7 @@ export async function POST(
         if (componentData['Component Name']) properties['Title'] = { title: [{ text: { content: componentData['Component Name'] } }] }; // Mapped to Title
         if (componentData['Component Type']) properties['Component Type'] = { select: { name: componentData['Component Type'] } };
         if (componentData['Content (Primary)']) properties['Content'] = { rich_text: [{ text: { content: componentData['Content (Primary)'] } }] }; // Mapped to Content
-        properties['Content Type'] = { select: { name: 'CV Component' as NotionContentType } }; // Content Type is always CV Component
+        properties['Content Type'] = { select: { name: 'CV Component' } }; // Content Type is always CV Component
 
         // Map optional array properties
         if (Array.isArray(componentData['Keywords']) && componentData['Keywords'].length > 0) {

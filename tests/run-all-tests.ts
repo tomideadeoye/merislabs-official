@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { OpportunityCreatePayload, OpportunityNotionInput, OpportunityNotionOutputShared } from '../types/orion';
+import fetch from 'node-fetch';
 
 describe('Sequential Thinking Prompts', () => {
   const filePath = path.join(__dirname, '../data/sequential_thinking_prompts.json');
@@ -123,5 +124,74 @@ describe('Opportunity Type Safety', () => {
     // @ts-expect-error
     expect(badOutput.cons).toBeUndefined();
     console.log('[TEST] Extraneous properties are not allowed in OpportunityNotionOutputShared.');
+  });
+});
+
+const BLOCK_API_BASE = 'http://localhost:3000/api/orion/blocks';
+const TEST_BLOCK_TYPES = [
+  'CV_SNIPPET',
+  'OPPORTUNITY_HIGHLIGHT',
+  'JOURNAL_INSIGHT',
+  'PROMPT_TEMPLATE',
+  'GENERAL_BLOCK',
+];
+
+describe('Blocks API Integration', () => {
+  let createdBlockIds: string[] = [];
+
+  TEST_BLOCK_TYPES.forEach((blockType) => {
+    it(`should create and fetch a block of type ${blockType}`, async () => {
+      const payload = {
+        type: blockType,
+        title: `Test Block ${blockType}`,
+        content: `This is a test block of type ${blockType}.`,
+        tags: ['test', blockType.toLowerCase()],
+      };
+      const createRes = await fetch(`${BLOCK_API_BASE}/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const createData = await createRes.json();
+      console.log(`[TEST] Create block (${blockType}):`, createData);
+      expect(createRes.status).toBe(200);
+      expect(createData.success).toBe(true);
+      expect(createData.block).toBeDefined();
+      expect(createData.block.type).toBe(blockType);
+      createdBlockIds.push(createData.block.id);
+
+      // Fetch by type
+      const listRes = await fetch(`${BLOCK_API_BASE}/list?type=${blockType}`);
+      const listData = await listRes.json();
+      console.log(`[TEST] List blocks (${blockType}):`, listData);
+      expect(listRes.status).toBe(200);
+      expect(listData.success).toBe(true);
+      expect(Array.isArray(listData.blocks)).toBe(true);
+      // Should find at least one block of this type
+      const found = listData.blocks.some((b: any) => b.id === createData.block.id);
+      expect(found).toBe(true);
+    });
+  });
+
+  it('should return 400 for missing type in list', async () => {
+    const res = await fetch(`${BLOCK_API_BASE}/list`);
+    const data = await res.json();
+    console.log('[TEST] List blocks missing type:', data);
+    expect(res.status).toBe(400);
+    expect(data.success).toBe(false);
+    expect(data.error).toMatch(/type/);
+  });
+
+  it('should return 500 for missing required fields in create', async () => {
+    const res = await fetch(`${BLOCK_API_BASE}/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Missing type and content' }),
+    });
+    const data = await res.json();
+    console.log('[TEST] Create block missing fields:', data);
+    expect(res.status).toBe(500);
+    expect(data.success).toBe(false);
+    expect(data.error).toBeDefined();
   });
 });
