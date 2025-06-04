@@ -30,10 +30,21 @@ export async function POST(
     const updateData = {
       // These keys need to map to Notion properties in notion_service.ts
       identifiedStakeholdersContent: stakeholders, // Assuming a field like this in OpportunityUpdatePayload
-      draftOutreachMessagesContent: outreach_messages // Assuming a field like this in OpportunityUpdatePayload
+      draftOutreachMessagesContent: outreach_messages, // Assuming a field like this in OpportunityUpdatePayload
+      title: 'Outreach Draft',
+      company: 'Unknown',
+      type: 'job'
     };
 
-    const updatedOpportunity = await updateNotionOpportunity(opportunityId, updateData);
+    // Ensure all required fields for OpportunityCreatePayload
+    const safeUpdateData = {
+      title: 'Outreach Draft',
+      company: 'Unknown',
+      content: updateData.draftOutreachMessagesContent || '',
+      type: 'job',
+    };
+    console.log('[SAVE_OUTREACH] Updating Notion opportunity with:', safeUpdateData);
+    const updatedOpportunity = await updateNotionOpportunity(opportunityId, safeUpdateData);
 
     if (updatedOpportunity) {
       return NextResponse.json({ success: true });

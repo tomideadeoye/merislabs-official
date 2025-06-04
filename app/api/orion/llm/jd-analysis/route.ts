@@ -22,24 +22,23 @@ export async function POST(req: NextRequest) {
 
     console.log('[JD_ANALYSIS_API] Sending JD analysis prompt to LLM...');
 
-    // Call the LLM
-    const llmResponse = await generateLLMResponse(
-        REQUEST_TYPES.JD_ANALYSIS, // Use the JD analysis request type
-        prompt, // Pass the constructed prompt
+    let llmContent: string;
+    try {
+      llmContent = await generateLLMResponse(
+        REQUEST_TYPES.JD_ANALYSIS,
+        prompt,
         {
-            temperature: 0.5, // Moderate temperature for factual extraction
-            max_tokens: 1000 // Allow enough tokens for a detailed analysis
+          maxTokens: 1000 // Only pass defined options
         }
-    );
-
-    if (llmResponse.success && llmResponse.content) {
-      return NextResponse.json({ success: true, analysis: llmResponse.content });
-    } else {
-      console.error('[JD_ANALYSIS_API] LLM failed to generate analysis:', llmResponse.error);
+      );
+      console.log('[JD_ANALYSIS_API] LLM content:', llmContent);
+      return NextResponse.json({ success: true, analysis: llmContent });
+    } catch (err) {
+      console.error('[JD_ANALYSIS_API] LLM error:', err);
       return NextResponse.json({
         success: false,
-        error: llmResponse.error || 'Failed to perform JD analysis using LLM'
-      }, { status: llmResponse.error ? 500 : 500 });
+        error: (err && typeof err === 'object' && 'message' in err) ? (err as any).message : 'Failed to perform JD analysis using LLM'
+      }, { status: 500 });
     }
 
   } catch (error: any) {

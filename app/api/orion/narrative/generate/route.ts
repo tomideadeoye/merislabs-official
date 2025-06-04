@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { TOMIDES_PROFILE_DATA } from '@/lib/constants';
 import { searchMemory } from '@/lib/orion_memory';
-import { generateLLMResponse } from '@/lib/orion_llm';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { getCareerMilestones, getValueProposition } from '@/lib/narrative_service';
 import { NarrativeGenerationRequest, NarrativeGenerationResponse } from '@/types/narrative-clarity';
 import type { ScoredMemoryPoint } from '@/types/orion';
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get relevant memories
-    const searchResults = await searchMemory({
+    const searchResults: any = await searchMemory({
       query: `${narrativeType} ${valueProposition?.valueStatement || ''} career achievements professional strengths`,
       limit: 5,
       filter: {
@@ -57,7 +57,14 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    const relevantMemories = searchResults.results || [];
+    console.log('[NARRATIVE_GENERATE] searchResults type:', typeof searchResults, Array.isArray(searchResults) ? 'array' : 'object', searchResults);
+
+    let relevantMemories: ScoredMemoryPoint[] = [];
+    if (Array.isArray(searchResults)) {
+      relevantMemories = searchResults;
+    } else if (searchResults && Array.isArray(searchResults.results)) {
+      relevantMemories = searchResults.results;
+    }
 
     // Get profile data
     let profileData = '';
@@ -116,25 +123,31 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
 `;
 
     // Generate narrative content using LLM
-    const llmResponse = await generateLLMResponse(
-      'narrative_generation',
-      prompt,
-      {
-        profileContext: profileData,
-        temperature: 0.7,
-        max_tokens: 2000
-      }
-    );
-
-    if (!llmResponse.success || !llmResponse.content) {
+    let llmContent: string;
+    try {
+      llmContent = await generateLLMResponse(
+        'NARRATIVE_GENERATION',
+        prompt,
+        {
+          profileContext: profileData,
+          systemContext: '',
+          memoryResults: relevantMemories,
+          model: '',
+          temperature: 0.7,
+          maxTokens: 2000
+        }
+      );
+      console.log('[NARRATIVE_GENERATE] LLM content:', llmContent);
+    } catch (err) {
+      console.error('[NARRATIVE_GENERATE] LLM error:', err);
       return NextResponse.json({
         success: false,
-        error: llmResponse.error || 'Failed to generate narrative content'
+        error: (err && typeof err === 'object' && 'message' in err) ? (err as any).message : 'Failed to generate narrative content'
       }, { status: 500 });
     }
+    let content = llmContent;
 
     // Extract title from content (assuming the LLM includes a title at the beginning)
-    let content = llmResponse.content;
     let suggestedTitle = '';
 
     // Try to extract title from the first line if it looks like a title

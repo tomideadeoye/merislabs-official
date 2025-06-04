@@ -9,6 +9,10 @@ interface FeedbackPayload {
   comments?: string;
 }
 
+export async function GET() {
+  return NextResponse.json({ success: false, error: 'Method Not Allowed' }, { status: 405 });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();

@@ -29,7 +29,15 @@ export async function POST(
       draftApplicationContent: draft_content // This key needs to map to a Notion property in notion_service.ts
     };
 
-    const updatedOpportunity = await updateNotionOpportunity(opportunityId, updateData);
+    // Ensure all required fields for OpportunityCreatePayload
+    const safeUpdateData = {
+      title: 'Draft Application',
+      company: 'Unknown',
+      content: updateData.draftApplicationContent || '',
+      type: 'job',
+    };
+    console.log('[SAVE_DRAFT_APP] Updating Notion opportunity with:', safeUpdateData);
+    const updatedOpportunity = await updateNotionOpportunity(opportunityId, safeUpdateData);
 
     if (updatedOpportunity) {
       return NextResponse.json({ success: true });

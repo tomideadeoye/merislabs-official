@@ -53,7 +53,8 @@ export async function GET(
             return NextResponse.json({ success: true, opportunity: fetchResult.opportunity });
         } else {
             console.warn(`[GET /api/orion/notion/opportunity/${opportunityId}] fetchOpportunityByIdFromNotion returned success: false. Error:`, fetchResult.error);
-            const status = fetchResult.error.includes('not found') ? 404 : 500;
+            const errorStr = typeof fetchResult.error === 'string' ? fetchResult.error : '';
+            const status = errorStr.includes('not found') ? 404 : 500;
             return NextResponse.json({ success: false, error: fetchResult.error }, { status });
         }
 

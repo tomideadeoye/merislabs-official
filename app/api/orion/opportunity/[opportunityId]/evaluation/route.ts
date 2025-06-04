@@ -36,11 +36,10 @@ export async function POST(
 
     const opportunityResult = await fetchOpportunityByIdFromNotion(opportunityId);
 
-    // Refined check for successful opportunity fetch
     if (!opportunityResult || !opportunityResult.success) {
       // Safely access error message when success is false
       const errorMsg = opportunityResult && opportunityResult.success === false ? opportunityResult.error : 'Failed to fetch opportunity details from Notion.';
-      return NextResponse.json({ success: false, error: errorMsg }, { status: 500 });
+      return NextResponse.json({ success: false, error: errorMsg || 'Unknown error' }, { status: 500 });
     }
 
     const opportunity = opportunityResult.opportunity; // Now TypeScript should know opportunity exists
@@ -204,7 +203,7 @@ export async function POST(
     // Construct the prompt for LLM evaluation using the helper function
     const messages = constructLlmMessages({
       requestType: REQUEST_TYPES.OPPORTUNITY_EVALUATION,
-      primaryContext: `Job Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content || 'No content provided.'}\n\nWeb Research and Scraped Context (if available and relevant):\n${combinedWebContext || 'No relevant web context found.'}\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile, JD, and context?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD and context.\n6. A brief explanation for the overall score, referencing the provided context.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`,
+      primaryContext: `Job Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content ?? 'No content provided.'}\n\nWeb Research and Scraped Context (if available and relevant):\n${combinedWebContext || 'No relevant web context found.'}\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile, JD, and context?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD and context.\n6. A brief explanation for the overall score, referencing the provided context.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`,
       profileContext: profileContext,
       memoryResults: memoryResults,
       // systemContext can be added here if needed
@@ -212,12 +211,13 @@ export async function POST(
 
     const llmResponseContent = await generateLLMResponse(
       REQUEST_TYPES.OPPORTUNITY_EVALUATION,
-      '', // Use empty string for primaryContext since it's included in messages
+      messages.map(m => `${m.role}: ${m.content}`).join('\n\n'),
       {
-        messages: messages,
-        temperature: 0.7, // Or adjust based on preference
-        max_tokens: 1500, // Adjust based on expected output length
-      } as any // Cast to any for now due to type mismatch in generateLLMResponse options
+        profileContext: profileContext,
+        memoryResults: memoryResults,
+        temperature: 0.7,
+        maxTokens: 1500,
+      }
     );
 
     if (!llmResponseContent) {
@@ -247,7 +247,27 @@ export async function POST(
     // Save the evaluation results to the Notion opportunity page
     try {
         console.log('[EVAL_API] Attempting to save evaluation results to Notion...');
-        const updateSuccess = await updateNotionOpportunity(opportunity.notion_page_id, evaluation);
+        // Merge existing opportunity fields with evaluation fields
+        const updatePayload = {
+            title: opportunity.title,
+            company: opportunity.company,
+            content: opportunity.content ?? '',
+            type: opportunity.type,
+            status: opportunity.status,
+            url: opportunity.url ?? undefined,
+            priority: opportunity.priority,
+            dateIdentified: opportunity.dateIdentified,
+            tags: opportunity.tags,
+            nextActionDate: opportunity.nextActionDate ?? undefined,
+            // Evaluation fields
+            fitScorePercentage: evaluation.fitScorePercentage,
+            recommendation: evaluation.recommendation,
+            pros: evaluation.pros,
+            cons: evaluation.cons,
+            missingSkills: evaluation.missingSkills,
+            scoreExplanation: evaluation.scoreExplanation,
+        };
+        const updateSuccess = await updateNotionOpportunity(opportunity.notion_page_id, updatePayload);
 
         if (!updateSuccess) {
             console.warn('[EVAL_API] Failed to save evaluation results to Notion.');

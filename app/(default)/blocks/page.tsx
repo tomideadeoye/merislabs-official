@@ -158,8 +158,8 @@ type Props = {
   };
 };
 
-// Define the BackgroundImage component
-export function BackgroundImage({ transitionData, currentSlideData }: Props) {
+// Internal BackgroundImage component (not exported)
+const BackgroundImage = ({ transitionData, currentSlideData }: Props) => {
   const [currentGradient] = useState(() => {
     const gradients = [
       "bg-gradient-to-r from-purple-600 to-blue-500",
@@ -171,7 +171,7 @@ export function BackgroundImage({ transitionData, currentSlideData }: Props) {
     const randomIndex = Math.floor(Math.random() * gradients.length);
     return gradients[randomIndex];
   });
-
+  console.log('[BLOCKS] Rendering BackgroundImage with gradient:', currentGradient, 'transitionData:', transitionData, 'currentSlideData:', currentSlideData);
   return (
     <motion.div
       className={`absolute left-0 top-0 h-full w-full ${currentGradient}`}
@@ -185,4 +185,4 @@ export function BackgroundImage({ transitionData, currentSlideData }: Props) {
       {/* Placeholder for additional content or elements */}
     </motion.div>
   );
-}
+};

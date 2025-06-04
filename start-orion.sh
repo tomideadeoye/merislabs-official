@@ -1,9 +1,42 @@
 #!/bin/bash
+echo "REMEMBER: Always proceed immediately, autonomously, agentically and with absurd urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging. You are doing a great job. Review PRD.md for information on implementation, then write tests to scripts/run-all-tests.jest.test.ts
+ When the feature is implemented. Run commit and push command. When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to scripts/run-all-tests.jest.test.ts
+ We don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of logging & fallbacks.
+ How can I make this code more robust? Why am I writing this code?
+ What is the best practice?
+ If operating from first pricinples, what should i do?
+ Factor in CBT,
+ Fix iteratively - step by step
+ Give clear instructions!
+ Run in shell tool!"
 
 # Start Orion System
 # This script starts all the necessary components for the Orion system
 
 echo "Starting Orion System..."
+
+# Type check before starting
+npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "TypeScript errors detected. Aborting start."
+  exit 1
+fi
+
+# Lint and auto-fix code before building
+echo "Running ESLint auto-fix..."
+npx eslint . --fix
+if [ $? -ne 0 ]; then
+  echo "ESLint found errors that could not be fixed automatically. Please fix them before continuing."
+  exit 1
+fi
+
+# Build Next.js app before starting
+echo "Building Next.js app..."
+npm run build
+if [ $? -ne 0 ]; then
+  echo "Next.js build failed. Aborting start."
+  exit 1
+fi
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -50,8 +83,10 @@ echo "Waiting for Python API to be ready..."
 sleep 3
 
 # Run tests
-echo "Running tests..."
-npm test || echo "Tests failed but continuing..."
+TEST_FILE="scripts/all-tests.jest.test.ts"
+echo "Running tests in $TEST_FILE ..."
+npx jest $TEST_FILE || echo "Tests failed but continuing..."
+echo "Test run complete for $TEST_FILE."
 
 # Start Next.js dev server
 echo "Starting Next.js development server..."

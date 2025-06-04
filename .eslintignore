@@ -1,0 +1,4 @@
+orion_python_backend/
+.venv/
+venv/
+node_modules/

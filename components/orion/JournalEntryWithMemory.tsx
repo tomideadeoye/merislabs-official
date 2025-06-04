@@ -40,7 +40,9 @@ export function JournalEntryWithMemory() {
       title: dataToSave.title || `Journal Entry - ${new Date(dataToSave.date).toLocaleDateString()}`,
       date: dataToSave.date instanceof Date ? dataToSave.date : new Date(dataToSave.date),
       content: dataToSave.content,
+      contentType: 'journal_entry',
     };
+    console.log('[JOURNAL_ENTRY] Constructed Notion payload:', notionPayload);
     try {
       const response = await fetch('/api/orion/notion/journal/save', {
         method: 'POST',

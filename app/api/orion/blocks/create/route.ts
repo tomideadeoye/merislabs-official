@@ -1,47 +1,98 @@
-import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
-import type { CreateBlockPayload, Block } from "@/types/blocks";
-import { generateEmbedding } from "@/lib/embedding";
-import { upsertMemoryToQdrant } from "@/lib/qdrant";
-import { MEMORY_COLLECTION_NAME } from "@/lib/constants";
+import { NextRequest, NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
+import { addMemory } from '@/lib/memory';
+import { BLOCK_TYPES, BlockType, Block, CreateBlockPayload } from '@/types/blocks';
 
-export async function POST(request: NextRequest) {
+/**
+ * POST /api/orion/blocks/create
+ * Creates a new Block (CV_SNIPPET, OPPORTUNITY_HIGHLIGHT, JOURNAL_INSIGHT, PROMPT_TEMPLATE, GENERAL_BLOCK)
+ * - Generates embedding for content
+ * - Upserts to memory system
+ * - Returns created block details
+ */
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json() as CreateBlockPayload;
-    const id = uuidv4();
+    let body: CreateBlockPayload;
+    try {
+      body = await req.json();
+    } catch (jsonErr: any) {
+      console.error('[BLOCKS_CREATE_API] Invalid JSON:', jsonErr?.message);
+      return NextResponse.json({ success: false, error: 'Invalid JSON payload' }, { status: 400 });
+    }
+    const { type, title, content, tags } = body;
+
+    // Logging request body for traceability
+    console.log('[BLOCKS_CREATE_API] Incoming payload:', JSON.stringify(body));
+
+    // Validate type
+    if (!type || !BLOCK_TYPES.includes(type)) {
+      console.error('[BLOCKS_CREATE_API] Invalid block type:', type);
+      return NextResponse.json({ success: false, error: `Invalid block type: ${type}` }, { status: 400 });
+    }
+    if (!title || !content) {
+      console.error('[BLOCKS_CREATE_API] Missing required fields:', { title, content });
+      return NextResponse.json({ success: false, error: 'Missing required fields: title or content' }, { status: 400 });
+    }
+
+    // Generate unique source_id for the block
+    const sourceId = `block_${type}_${uuidv4()}`;
     const timestamp = new Date().toISOString();
-    const embedding = await generateEmbedding(`${body.title}\n${body.content}`);
-    const memoryPayload = {
-      id,
-      text: body.content,
-      type: "BLOCK",
-      subtype: body.type,
-      title: body.title,
-      tags: body.tags || [],
-      createdAt: timestamp,
-      updatedAt: timestamp,
-      source: "BlocksModule",
-    };
-    await upsertMemoryToQdrant(MEMORY_COLLECTION_NAME, [
+
+    // Add memory (embedding + upsert)
+    const addResult = await addMemory(
+      content,
+      sourceId,
+      type,
+      tags || [],
       {
-        id,
-        vector: embedding,
-        payload: memoryPayload,
-      },
-    ]);
+        title,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }
+    );
+
+    if (!addResult.success) {
+      console.error('[BLOCKS_CREATE_API] addMemory failed:', addResult.error);
+      return NextResponse.json({ success: false, error: addResult.error || 'Failed to create block' }, { status: 500 });
+    }
+
+    // Return the created block details
     const block: Block = {
-      id,
-      type: body.type,
-      title: body.title,
-      content: body.content,
-      tags: body.tags || [],
+      id: sourceId,
+      type,
+      title,
+      content,
+      tags,
       createdAt: timestamp,
       updatedAt: timestamp,
-      metadata: { source: "BlocksModule" },
+      metadata: {},
     };
-    return NextResponse.json({ success: true, block });
+
+    console.log('[BLOCKS_CREATE_API] Block created successfully:', block);
+
+    return NextResponse.json({ success: true, block }, { status: 201 });
   } catch (error: any) {
-    console.error("[BLOCK_CREATE_ERROR]", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    // Log full error details for debugging
+    console.error('[BLOCKS_CREATE_API_ERROR]', {
+      message: error?.message,
+      stack: error?.stack,
+      error
+    });
+    // If error is a validation or client error, return 400
+    if (
+      error?.status === 400 ||
+      error?.name === 'ValidationError' ||
+      error?.message?.toLowerCase().includes('missing') ||
+      error?.message?.toLowerCase().includes('invalid')
+    ) {
+      return NextResponse.json(
+        { success: false, error: error.message || 'Validation error' },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to create block' },
+      { status: 500 }
+    );
   }
 }

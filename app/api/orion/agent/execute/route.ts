@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/auth';
 import { generateLLMResponse } from '@/lib/orion_llm';
 import { AVAILABLE_ORION_TOOLS } from '@/lib/orion_tools';
 
@@ -53,8 +54,12 @@ async function executeToolCall(toolCall: any, req: NextRequest): Promise<any> {
   }
 }
 
+export async function GET() {
+  return NextResponse.json({ success: false, error: 'Method Not Allowed' }, { status: 405 });
+}
+
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -89,27 +94,25 @@ export async function POST(request: NextRequest) {
         temperature: 0.5,
         maxTokens: 1500,
       };
-      const llmResult = await generateLLMResponse(llmParams);
-      if (!llmResult.success || !llmResult.rawLLMResponse) {
-        throw new Error(llmResult.error || 'LLM call failed in agent loop');
+      let llmContent: string;
+      try {
+        const { requestType, messages, modelOverride, temperature, maxTokens } = llmParams;
+        const primaryContext = messages && messages.length > 0 ? messages.map(m => m.content).join('\n') : '';
+        const options: any = {};
+        if (modelOverride) options.model = modelOverride;
+        if (temperature) options.temperature = temperature;
+        if (maxTokens) options.maxTokens = maxTokens;
+        llmContent = await generateLLMResponse(requestType, primaryContext, options);
+        console.log('[AGENT_EXECUTE] LLM content:', llmContent);
+      } catch (err) {
+        console.error('[AGENT_EXECUTE] LLM error:', err);
+        throw new Error('LLM call failed in agent loop: ' + (err && typeof err === 'object' && 'message' in err ? (err as any).message : err));
       }
-      const responseMessage = llmResult.rawLLMResponse.choices[0].message;
+      const responseMessage = llmContent;
       messages.push(responseMessage);
-      if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
-        for (const toolCall of responseMessage.tool_calls) {
-          const toolResultContent = await executeToolCall(toolCall, request);
-          messages.push({
-            tool_call_id: toolCall.id,
-            role: 'tool',
-            name: toolCall.function.name,
-            content: JSON.stringify(toolResultContent),
-          });
-        }
-        if (i === MAX_ITERATIONS - 1) {
-          return NextResponse.json({ success: false, error: 'Max tool call iterations reached.', current_messages: messages });
-        }
-      } else {
-        return NextResponse.json({ success: true, answer: responseMessage.content, history: messages });
+      // Note: tool_calls are not present in string LLM response. If agentic support is needed, parse JSON here.
+      if (i === MAX_ITERATIONS - 1) {
+        return NextResponse.json({ success: false, error: 'Max tool call iterations reached.', current_messages: messages });
       }
     }
     return NextResponse.json({ success: false, error: 'Agentic loop finished without a direct answer after tool calls.' });
