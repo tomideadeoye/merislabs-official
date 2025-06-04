@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const session = await auth();
+    if (!session || !session.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -52,8 +51,8 @@ export async function GET(
   { params }: { params: { opportunityId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const session = await auth();
+    if (!session || !session.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }

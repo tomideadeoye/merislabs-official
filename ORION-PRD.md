@@ -1255,3 +1255,6 @@ I want it to use mcp from server.py
 it should be able to kickstart my daily routines
 it should have a sexy voice chat for therapy sessions
 using the system to apply for jobs using my cv and drafting relevant commnunications is my priority now
+
+
+LLM, help me articulate what I’m trying to build.

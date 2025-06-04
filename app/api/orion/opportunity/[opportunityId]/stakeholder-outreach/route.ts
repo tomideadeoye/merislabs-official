@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/orion_llm';
 import { fetchOpportunityByIdFromNotion, fetchContactsFromNotion } from '@/lib/notion_service';
 import { fetchUserProfile } from '@/lib/profile_service';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 // Assuming types for request body and response are defined
 // import { StakeholderOutreachRequestBody, StakeholderOutreachResponseBody } from '@/types/opportunity';
-import type { MemoryPayload, ContactShared } from '@/types/orion';
+import type { MemoryPayload } from '@/types/orion';
 
 /**
  * API route for identifying stakeholders and drafting outreach messages for a specific opportunity using LLM.
@@ -16,7 +15,7 @@ export async function POST(
   { params }: { params: { opportunityId: string } }
 ) {
   // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -74,12 +73,10 @@ export async function POST(
     }
 
     // Fetch contacts from Notion
-    let contacts: ContactShared[] = [];
     try {
         const contactsResult = await fetchContactsFromNotion();
         if (contactsResult.success) {
-            contacts = contactsResult.contacts;
-            console.log('[OUTREACH_API] Successfully fetched contacts.', contacts.length);
+            console.log('[OUTREACH_API] Successfully fetched contacts.', contactsResult.contacts.length);
         } else {
             console.warn('[OUTREACH_API] Failed to fetch contacts:', contactsResult.error);
         }
@@ -94,7 +91,7 @@ Identify potential key stakeholders (e.g., hiring manager, recruiters, relevant 
 Job Title: ${opportunity.title}
 Company: ${opportunity.company}
 Job Description:
-${opportunity.content || 'No description provided.'}
+${opportunity.content || 'No content provided.'}
 
 Instructions:
 List potential roles or names of people involved in the hiring process or team. **Specifically, review the provided contacts list and identify any individuals who work at the company or in a relevant role. Prioritize listing these existing contacts if they are relevant.** If specific names are not available in the contacts, suggest relevant roles to look for. Provide the output as a simple list.
@@ -107,14 +104,13 @@ Provide ONLY the list of stakeholders, without any introductory or concluding re
       primaryContext: identificationPromptContent,
       profileContext: profileContext,
       memoryResults: memoryResults,
-      contacts: contacts,
     });
 
     console.log('[STAKEHOLDER_OUTREACH_API] Sending stakeholder identification prompt to LLM...');
 
     const identificationResponse = await generateLLMResponse(
       REQUEST_TYPES.ASK_QUESTION,
-      undefined,
+      '',
       {
         messages: identificationMessages,
         temperature: 0.5,
@@ -123,11 +119,11 @@ Provide ONLY the list of stakeholders, without any introductory or concluding re
     );
 
     let identifiedStakeholders: string | null = null;
-    if (identificationResponse.success && identificationResponse.content) {
-      identifiedStakeholders = identificationResponse.content;
+    if ((identificationResponse as any).success && (identificationResponse as any).content) {
+      identifiedStakeholders = (identificationResponse as any).content;
       console.log('[STAKEHOLDER_OUTREACH_API] Identified Stakeholders:\n', identifiedStakeholders);
     } else {
-      console.error('[STAKEHOLDER_OUTREACH_API] LLM failed to identify stakeholders:', identificationResponse.error);
+      console.error('[STAKEHOLDER_OUTREACH_API] LLM failed to identify stakeholders:', (identificationResponse as any).error);
       // Continue without stakeholders if identification fails
     }
 
@@ -138,7 +134,7 @@ Draft initial outreach messages (e.g., LinkedIn connection request, introductory
 Job Title: ${opportunity.title}
 Company: ${opportunity.company}
 Job Description:
-${opportunity.description || 'No description provided.'}
+${opportunity.content || 'No content provided.'}
 
 ${identifiedStakeholders ? `Potential Stakeholders identified:
 ${identifiedStakeholders}
@@ -158,14 +154,13 @@ Provide ONLY the draft messages, clearly labeled for their intended use.
       primaryContext: outreachDraftingPromptContent,
       profileContext: profileContext,
       memoryResults: memoryResults,
-      contacts: contacts,
     });
 
     console.log('[STAKEHOLDER_OUTREACH_API] Sending outreach message drafting prompt to LLM...');
 
     const outreachDraftingResponse = await generateLLMResponse(
       REQUEST_TYPES.DRAFT_COMMUNICATION,
-      undefined,
+      '',
       {
         messages: outreachMessages,
         temperature: 0.7,
@@ -174,11 +169,11 @@ Provide ONLY the draft messages, clearly labeled for their intended use.
     );
 
     let draftOutreachMessages: string | null = null;
-    if (outreachDraftingResponse.success && outreachDraftingResponse.content) {
-      draftOutreachMessages = outreachDraftingResponse.content;
+    if ((outreachDraftingResponse as any).success && (outreachDraftingResponse as any).content) {
+      draftOutreachMessages = (outreachDraftingResponse as any).content;
       console.log('[STAKEHOLDER_OUTREACH_API] Draft Outreach Messages:\n', draftOutreachMessages);
     } else {
-      console.error('[STAKEHOLDER_OUTREACH_API] LLM failed to draft outreach messages:', outreachDraftingResponse.error);
+      console.error('[STAKEHOLDER_OUTREACH_API] LLM failed to draft outreach messages:', (outreachDraftingResponse as any).error);
       // Continue without draft messages if drafting fails
     }
 

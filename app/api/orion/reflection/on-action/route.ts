@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '@/lib/database';
@@ -15,7 +14,7 @@ interface ActionReflectionRequestBody {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }

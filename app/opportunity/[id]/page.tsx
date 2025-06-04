@@ -10,18 +10,18 @@ import { OpportunityActions } from '@/components/orion/pipeline/OpportunityActio
 export default function OpportunityDetailPage() {
   const params = useParams();
   const opportunityId = params?.id as string;
-  
+
   const [opportunity, setOpportunity] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     async function fetchOpportunity() {
       try {
         setIsLoading(true);
         const response = await fetch(`/api/orion/opportunity/${opportunityId}`);
         const data = await response.json();
-        
+
         if (data.success) {
           setOpportunity(data.opportunity);
         } else {
@@ -33,12 +33,12 @@ export default function OpportunityDetailPage() {
         setIsLoading(false);
       }
     }
-    
+
     if (opportunityId) {
       fetchOpportunity();
     }
   }, [opportunityId]);
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -46,7 +46,7 @@ export default function OpportunityDetailPage() {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <Card>
@@ -59,7 +59,7 @@ export default function OpportunityDetailPage() {
       </Card>
     );
   }
-  
+
   if (!opportunity) {
     return (
       <Card>
@@ -72,7 +72,7 @@ export default function OpportunityDetailPage() {
       </Card>
     );
   }
-  
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -84,7 +84,7 @@ export default function OpportunityDetailPage() {
           {opportunity.status}
         </Badge>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-2">
           <CardHeader>
@@ -92,18 +92,24 @@ export default function OpportunityDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert">
-              {opportunity.description ? (
-                <div dangerouslySetInnerHTML={{ __html: opportunity.description }} />
+              {opportunity.content ? (
+                <>
+                  {console.log('[OpportunityDetailPage] Rendering content:', opportunity.content)}
+                  <div dangerouslySetInnerHTML={{ __html: opportunity.content }} />
+                </>
               ) : (
-                <p className="text-gray-500">No description available.</p>
+                <>
+                  {console.warn('[OpportunityDetailPage] No content available for opportunity:', opportunity)}
+                  <p className="text-gray-500">No content available.</p>
+                </>
               )}
             </div>
-            
+
             {opportunity.url && (
               <div className="mt-4">
-                <a 
-                  href={opportunity.url} 
-                  target="_blank" 
+                <a
+                  href={opportunity.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:text-blue-700 flex items-center"
                 >
@@ -114,7 +120,7 @@ export default function OpportunityDetailPage() {
             )}
           </CardContent>
         </Card>
-        
+
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -130,28 +136,28 @@ export default function OpportunityDetailPage() {
                   </div>
                 </div>
               )}
-              
+
               {opportunity.location && (
                 <div>
                   <p className="text-sm font-medium">Location</p>
                   <p className="text-sm text-gray-500">{opportunity.location}</p>
                 </div>
               )}
-              
+
               {opportunity.salary && (
                 <div>
                   <p className="text-sm font-medium">Salary</p>
                   <p className="text-sm text-gray-500">{opportunity.salary}</p>
                 </div>
               )}
-              
+
               {opportunity.contact && (
                 <div>
                   <p className="text-sm font-medium">Contact</p>
                   <p className="text-sm text-gray-500">{opportunity.contact}</p>
                 </div>
               )}
-              
+
               {opportunity.tags && opportunity.tags.length > 0 && (
                 <div>
                   <p className="text-sm font-medium mb-1">Tags</p>
@@ -166,7 +172,7 @@ export default function OpportunityDetailPage() {
               )}
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Actions</CardTitle>
@@ -177,7 +183,7 @@ export default function OpportunityDetailPage() {
           </Card>
         </div>
       </div>
-      
+
       {opportunity.notes && (
         <Card>
           <CardHeader>

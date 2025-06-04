@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateNotionOpportunity } from '@/lib/notion_service';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { auth } from '@/auth';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }

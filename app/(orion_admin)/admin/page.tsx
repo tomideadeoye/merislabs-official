@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageHeader } from "@/components/ui/page-header";
 import { PageNames } from "@/app_state";
 import { useSessionState } from '@/hooks/useSessionState';
@@ -18,9 +18,43 @@ import {
   Folder
 } from 'lucide-react';
 import Link from 'next/link';
+import { checkAllLlmApiKeys } from '../../../../lib/llm_providers';
 
 export default function AdminDashboardPage() {
   const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
+
+  // LLM Health Check State
+  const [llmHealth, setLlmHealth] = useState<any[]>([]);
+  const [llmHealthLoading, setLlmHealthLoading] = useState(true);
+  const [llmHealthError, setLlmHealthError] = useState<string | null>(null);
+
+  // LLM API Key Check State
+  const [llmApiKeys, setLlmApiKeys] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchHealth() {
+      setLlmHealthLoading(true);
+      setLlmHealthError(null);
+      try {
+        const res = await fetch('/api/orion/llm/health');
+        const data = await res.json();
+        if (data.success) {
+          setLlmHealth(data.results);
+        } else {
+          setLlmHealthError('Failed to fetch LLM health');
+        }
+      } catch (err: any) {
+        setLlmHealthError(err.message || 'Unknown error');
+      } finally {
+        setLlmHealthLoading(false);
+      }
+    }
+    fetchHealth();
+  }, []);
+
+  useEffect(() => {
+    setLlmApiKeys(checkAllLlmApiKeys());
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -31,6 +65,39 @@ export default function AdminDashboardPage() {
         showMemoryStatus={true}
         memoryInitialized={memoryInitialized}
       />
+
+      {/* LLM API Key Check Section */}
+      <section style={{ marginBottom: 16, padding: 12, border: '1px solid #eee', borderRadius: 8 }}>
+        <h2 style={{ fontWeight: 600, fontSize: 18, marginBottom: 6 }}>LLM API Key Status</h2>
+        <ul>
+          {llmApiKeys.map((k, idx) => (
+            <li key={k.modelId} style={{ color: k.present ? 'green' : 'red', marginBottom: 2 }}>
+              <b>{k.modelId}</b> ({k.provider}): {k.present ? 'API key present' : `MISSING (${k.apiKeyEnv})`}
+            </li>
+          ))}
+        </ul>
+        {llmApiKeys.some(k => !k.present) && (
+          <div style={{ color: 'red', marginTop: 8 }}>
+            <b>Warning:</b> One or more LLM API keys are missing. Add them to your .env.local and restart the server.
+          </div>
+        )}
+      </section>
+
+      {/* LLM Health Check Section */}
+      <section style={{ marginBottom: 32, padding: 16, border: '1px solid #eee', borderRadius: 8 }}>
+        <h2 style={{ fontWeight: 600, fontSize: 20, marginBottom: 8 }}>LLM Health Check</h2>
+        {llmHealthLoading && <div>Loading LLM health...</div>}
+        {llmHealthError && <div style={{ color: 'red' }}>Error: {llmHealthError}</div>}
+        {!llmHealthLoading && !llmHealthError && (
+          <ul>
+            {llmHealth.map((r, idx) => (
+              <li key={r.model} style={{ color: r.status === 'success' ? 'green' : 'red', marginBottom: 4 }}>
+                <b>{r.model}</b> ({r.provider}): {r.status === 'success' ? 'OK' : `FAIL - ${r.error}`}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">

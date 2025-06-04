@@ -15,7 +15,8 @@ interface OpportunityEvaluatorProps {
 
 export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ className }) => {
   const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const [content, setContent] = useState<string>('');
+  const [company, setCompany] = useState<string>('');
   const [type, setType] = useState<'job' | 'education_program' | 'project_collaboration' | 'funding' | 'other'>('job');
   const [url, setUrl] = useState<string>('');
 
@@ -26,8 +27,8 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim() || !description.trim()) {
-      setError('Title and description are required.');
+    if (!title.trim() || !company.trim() || !content.trim()) {
+      setError('Opportunity title, company, and content are required.');
       return;
     }
 
@@ -37,10 +38,12 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
     try {
       const opportunityDetails: OpportunityDetails = {
         title: title.trim(),
-        description: description.trim(),
+        company: company.trim(),
+        content: content.trim(),
         type: type,
         url: url.trim() || undefined
       };
+      console.log('[OpportunityEvaluator] Constructed opportunityDetails:', opportunityDetails);
 
       const response = await fetch('/api/orion/opportunity/evaluate', {
         method: 'POST',
@@ -83,6 +86,18 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
             </div>
 
             <div>
+              <Label htmlFor="company" className="text-gray-300">Company *</Label>
+              <Input
+                id="company"
+                value={company}
+                onChange={(e) => { setCompany(e.target.value); console.log('[OpportunityEvaluator] Company changed:', e.target.value); }}
+                placeholder="Enter company name"
+                className="bg-gray-700 border-gray-600 text-gray-200"
+                required
+              />
+            </div>
+
+            <div>
               <Label htmlFor="type" className="text-gray-300">Type</Label>
               <select
                 id="type"
@@ -110,12 +125,12 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
             </div>
 
             <div>
-              <Label htmlFor="description" className="text-gray-300">Description *</Label>
+              <Label htmlFor="content" className="text-gray-300">Content *</Label>
               <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Paste the job description or opportunity details here..."
+                id="content"
+                value={content}
+                onChange={(e) => { setContent(e.target.value); console.log('[OpportunityEvaluator] Content changed:', e.target.value); }}
+                placeholder="Paste the job content or opportunity details here..."
                 className="min-h-[200px] bg-gray-700 border-gray-600 text-gray-200"
                 required
               />
@@ -123,7 +138,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
 
             <Button
               type="submit"
-              disabled={isEvaluating || !title.trim() || !description.trim()}
+              disabled={isEvaluating || !title.trim() || !company.trim() || !content.trim()}
               className="bg-blue-600 hover:bg-blue-700 w-full"
             >
               {isEvaluating ? (

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from 'pages/api/auth/[...nextauth]';
+import { auth } from '@/auth';
 import { updateNotionDatabaseSchema } from '@/lib/notion_service'; // Import the update function
 
 interface UpdateSchemaRequestBody {
@@ -19,7 +18,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<UpdateSchemaApiResponse>> {
   // TEMPORARILY BYPASS AUTHENTICATION FOR LOCAL TESTING - REVERT FOR PRODUCTION!
-  // const session = await getServerSession(authOptions);
+  // const session = await auth();
   // if (!session || !session.user) {
   //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   // }

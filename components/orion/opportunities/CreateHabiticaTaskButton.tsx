@@ -28,39 +28,39 @@ export const CreateHabiticaTaskButton: React.FC<CreateHabiticaTaskButtonProps> =
   // Generate default task text based on opportunity status
   const getDefaultTaskText = (): string => {
     if (taskText) return taskText;
-    
+
     switch (opportunity.status) {
       case 'identified':
       case 'researching':
-        return `Research ${opportunity.companyOrInstitution} for ${opportunity.title} opportunity`;
+        return `Research ${opportunity.company} for ${opportunity.title} opportunity`;
       case 'evaluated_positive':
-        return `Prepare application for ${opportunity.title} at ${opportunity.companyOrInstitution}`;
+        return `Prepare application for ${opportunity.title} at ${opportunity.company}`;
       case 'application_drafting':
       case 'application_ready':
-        return `Submit application for ${opportunity.title} at ${opportunity.companyOrInstitution}`;
+        return `Submit application for ${opportunity.title} at ${opportunity.company}`;
       case 'applied':
-        return `Follow up on ${opportunity.title} application at ${opportunity.companyOrInstitution}`;
+        return `Follow up on ${opportunity.title} application at ${opportunity.company}`;
       case 'outreach_planned':
-        return `Send outreach message to stakeholders at ${opportunity.companyOrInstitution}`;
+        return `Send outreach message to stakeholders at ${opportunity.company}`;
       case 'outreach_sent':
-        return `Follow up with contacts at ${opportunity.companyOrInstitution} about ${opportunity.title}`;
+        return `Follow up with contacts at ${opportunity.company} about ${opportunity.title}`;
       case 'interview_scheduled':
-        return `Prepare for ${opportunity.title} interview at ${opportunity.companyOrInstitution}`;
+        return `Prepare for ${opportunity.title} interview at ${opportunity.company}`;
       default:
-        return `Next step for ${opportunity.title} at ${opportunity.companyOrInstitution}`;
+        return `Next step for ${opportunity.title} at ${opportunity.company}`;
     }
   };
 
   // Generate default task notes
   const getDefaultTaskNotes = (): string => {
     if (taskNotes) return taskNotes;
-    
-    let notes = `Opportunity: ${opportunity.title} at ${opportunity.companyOrInstitution}\n`;
+
+    let notes = `Opportunity: ${opportunity.title} at ${opportunity.company}\n`;
     if (opportunity.sourceURL) {
       notes += `Source: ${opportunity.sourceURL}\n`;
     }
     notes += `\nFrom Orion - Opportunity Tracker, Ref: ${opportunity.id}`;
-    
+
     return notes;
   };
 
@@ -75,7 +75,7 @@ export const CreateHabiticaTaskButton: React.FC<CreateHabiticaTaskButtonProps> =
         <CheckSquare className="mr-2 h-4 w-4" />
         Create Task
       </Button>
-      
+
       <CreateHabiticaTaskDialog
         isOpen={isDialogOpen}
         setIsOpen={setIsDialogOpen}

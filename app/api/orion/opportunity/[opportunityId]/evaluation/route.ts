@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/orion_llm';
 import { fetchOpportunityByIdFromNotion, updateNotionOpportunity } from '@/lib/notion_service';
 import { fetchUserProfile } from '@/lib/profile_service'; // Import the new profile service
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { EvaluationOutput } from '@/types/opportunity';
 import type { MemoryPayload } from '@/types/orion'; // Import MemoryPayload type
 
@@ -20,8 +19,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ): Promise<NextResponse<EvaluationApiResponse>> { // Use the defined response type
-  // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -46,6 +44,9 @@ export async function POST(
     }
 
     const opportunity = opportunityResult.opportunity; // Now TypeScript should know opportunity exists
+
+    // Use jobUrl if available, otherwise fallback to url
+    const jobUrl = (opportunity as any).jobUrl || opportunity.url;
 
     // Fetch user profile data
     const profileData = await fetchUserProfile();
@@ -124,7 +125,7 @@ export async function POST(
       }
 
       // 2. Scrape Job URL if available (always scrape job URL regardless of frontend context)
-      if (opportunity.jobUrl) {
+      if (jobUrl) {
           try {
               const scrapeResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
                   method: 'POST',
@@ -133,7 +134,7 @@ export async function POST(
                        // 'Authorization': request.headers.get('Authorization'), // Pass down user's auth
                   },
                   body: JSON.stringify({
-                      url: opportunity.jobUrl,
+                      url: jobUrl,
                       type: 'scrape', // Specify scrape type
                   }),
               });
@@ -145,7 +146,7 @@ export async function POST(
                   // Assuming the scrape endpoint returns the main text content in results
                   if (scrapeData.success && scrapeData.results) {
                        // Append scraped job URL content to frontend context
-                       combinedWebContext = combinedWebContext + '\n\n---\n\n' + `Job Posting Content (Scraped from ${opportunity.jobUrl}):\n${scrapeData.results}`;
+                       combinedWebContext = combinedWebContext + '\n\n---\n\n' + `Job Posting Content (Scraped from ${jobUrl}):\n${scrapeData.results}`;
                        console.log('[EVAL_API] Successfully scraped job URL and appended to frontend context.');
                   } else {
                       console.warn('[EVAL_API] Scrape proxy returned success: false or no results.', scrapeData);
@@ -166,7 +167,7 @@ export async function POST(
       // If frontend context was provided, log that we are using it and just scrape the job URL if available
       console.log('[EVAL_API] Using company web context provided from frontend.');
 
-       if (opportunity.jobUrl) {
+       if (jobUrl) {
           try {
               const scrapeResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
                   method: 'POST',
@@ -175,7 +176,7 @@ export async function POST(
                        // 'Authorization': request.headers.get('Authorization'), // Pass down user's auth
                   },
                   body: JSON.stringify({
-                      url: opportunity.jobUrl,
+                      url: jobUrl,
                       type: 'scrape', // Specify scrape type
                   }),
               });
@@ -187,7 +188,7 @@ export async function POST(
                   // Assuming the scrape endpoint returns the main text content in results
                   if (scrapeData.success && scrapeData.results) {
                        // Append scraped job URL content to frontend context
-                       combinedWebContext = combinedWebContext + '\n\n---\n\n' + `Job Posting Content (Scraped from ${opportunity.jobUrl}):\n${scrapeData.results}`;
+                       combinedWebContext = combinedWebContext + '\n\n---\n\n' + `Job Posting Content (Scraped from ${jobUrl}):\n${scrapeData.results}`;
                        console.log('[EVAL_API] Successfully scraped job URL and appended to frontend context.');
                   } else {
                       console.warn('[EVAL_API] Scrape proxy returned success: false or no results.', scrapeData);
@@ -200,21 +201,18 @@ export async function POST(
       }
     }
 
-
-
     // Construct the prompt for LLM evaluation using the helper function
     const messages = constructLlmMessages({
       requestType: REQUEST_TYPES.OPPORTUNITY_EVALUATION,
-      primaryContext: `Job Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${opportunity.jobUrl ? `Job URL: ${opportunity.jobUrl}\n` : ''}\nJob Description:\n${opportunity.description || 'No description provided.'}\n\nWeb Research and Scraped Context (if available and relevant):\n${combinedWebContext || 'No relevant web context found.'}\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile, JD, and context?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD and context.\n6. A brief explanation for the overall score, referencing the provided context.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`,
+      primaryContext: `Job Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content || 'No content provided.'}\n\nWeb Research and Scraped Context (if available and relevant):\n${combinedWebContext || 'No relevant web context found.'}\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile, JD, and context?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD and context.\n6. A brief explanation for the overall score, referencing the provided context.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`,
       profileContext: profileContext,
       memoryResults: memoryResults,
       // systemContext can be added here if needed
     });
 
-
-    const llmResponse = await generateLLMResponse(
+    const llmResponseContent = await generateLLMResponse(
       REQUEST_TYPES.OPPORTUNITY_EVALUATION,
-      undefined, // Primary context is now in messages
+      '', // Use empty string for primaryContext since it's included in messages
       {
         messages: messages,
         temperature: 0.7, // Or adjust based on preference
@@ -222,14 +220,14 @@ export async function POST(
       } as any // Cast to any for now due to type mismatch in generateLLMResponse options
     );
 
-    if (!llmResponse.success || !llmResponse.content) {
-      return NextResponse.json({ success: false, error: llmResponse.error || 'LLM failed to generate evaluation.' }, { status: 500 });
+    if (!llmResponseContent) {
+      return NextResponse.json({ success: false, error: 'LLM failed to generate evaluation.' }, { status: 500 });
     }
 
     // Attempt to parse the LLM response as JSON
     let evaluation: EvaluationOutput;
     try {
-      evaluation = JSON.parse(llmResponse.content) as EvaluationOutput;
+      evaluation = JSON.parse(llmResponseContent) as EvaluationOutput;
       // Basic validation to ensure parsed object matches expected structure
       if (typeof evaluation.fitScorePercentage !== 'number' || typeof evaluation.recommendation !== 'string') {
            // Add more comprehensive validation here if necessary
@@ -237,12 +235,12 @@ export async function POST(
       }
 
     } catch (parseError: any) {
-      console.error('Failed to parse LLM evaluation response:', llmResponse.content, parseError);
+      console.error('Failed to parse LLM evaluation response:', llmResponseContent, parseError);
       // Return the raw content if parsing fails, or a specific error
       return NextResponse.json({
         success: false,
         error: 'Failed to parse LLM evaluation response.',
-        rawContent: llmResponse.content // Provide raw content for debugging
+        rawContent: llmResponseContent // Provide raw content for debugging
       }, { status: 500 });
     }
 

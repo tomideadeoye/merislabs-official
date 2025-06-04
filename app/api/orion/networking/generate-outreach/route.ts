@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { DRAFT_COMMUNICATION_REQUEST_TYPE } from '@/lib/orion_config';
 import { generateLLMResponse } from '@/lib/orion_llm';
 
@@ -49,9 +48,9 @@ For email outreach:
 You excel at helping professionals initiate conversations that lead to meaningful relationships rather than transactional exchanges.`;
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {

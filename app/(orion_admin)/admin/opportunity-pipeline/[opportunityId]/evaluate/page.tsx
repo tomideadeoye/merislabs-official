@@ -138,7 +138,7 @@ export default function EvaluateOpportunityPage() {
         <PageHeader
           title={`Evaluate: ${opportunity.title}`}
           icon={<BarChart2 className="h-7 w-7" />}
-          description={`Evaluate the opportunity at ${opportunity.companyOrInstitution} against your profile.`}
+          description={`Evaluate the opportunity at ${opportunity.company} against your profile.`}
         />
         <Button variant="outline" size="sm" asChild className="border-gray-700">
           <Link href={`/admin/opportunity-pipeline/${opportunityId}`}>
@@ -160,7 +160,7 @@ export default function EvaluateOpportunityPage() {
         </CardHeader>
         <CardContent className="text-gray-300 space-y-2">
           <p><strong>Job Title:</strong> {opportunity.title}</p>
-          <p><strong>Company:</strong> {opportunity.companyOrInstitution}</p>
+          <p><strong>Company:</strong> {opportunity.company}</p>
           {opportunity.content && (
             <p><strong>Summary:</strong> {opportunity.content.substring(0, 200)}...</p>
           )}

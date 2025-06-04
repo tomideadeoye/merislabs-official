@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 import { Opportunity, OpportunityUpdatePayload } from '@/types/opportunity';
 
 // Mock database for demonstration purposes
@@ -14,8 +13,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     dateIdentified: '2023-05-15',
     nextActionDate: '2023-05-22',
     priority: 'high',
-    descriptionSummary: 'Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.',
-    description: 'Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.',
+    content: 'Backend systems role focused on Go and Python microservices. Building scalable cloud infrastructure.',
     sourceURL: 'https://cloudscale.tech/careers',
     tags: ['software', 'backend', 'cloud', 'go', 'python'],
     lastStatusUpdate: '2023-05-16T10:30:00Z'
@@ -28,8 +26,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     status: 'application_ready',
     dateIdentified: '2023-05-10',
     priority: 'medium',
-    descriptionSummary: 'Leading product development for a SaaS platform. Focus on fintech solutions.',
-    description: 'Leading product development for a SaaS platform. Focus on fintech solutions.',
+    content: 'Leading product development for a SaaS platform. Focus on fintech solutions.',
     tags: ['product', 'management', 'fintech', 'saas'],
     lastStatusUpdate: '2023-05-14T15:45:00Z'
   },
@@ -42,8 +39,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     dateIdentified: '2023-04-20',
     nextActionDate: '2023-06-01',
     priority: 'high',
-    descriptionSummary: 'Full-time MBA program with focus on entrepreneurship and technology management.',
-    description: 'Full-time MBA program with focus on entrepreneurship and technology management.',
+    content: 'Full-time MBA program with focus on entrepreneurship and technology management.',
     sourceURL: 'https://www.gsb.stanford.edu/programs/mba',
     tags: ['education', 'mba', 'business', 'entrepreneurship'],
     lastStatusUpdate: '2023-05-05T09:15:00Z'
@@ -56,8 +52,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     status: 'applied',
     dateIdentified: '2023-05-01',
     priority: 'low',
-    descriptionSummary: 'Contributing to an open-source project focused on accessibility tools for education.',
-    description: 'Contributing to an open-source project focused on accessibility tools for education.',
+    content: 'Contributing to an open-source project focused on accessibility tools for education.',
     tags: ['open-source', 'accessibility', 'education', 'javascript'],
     lastStatusUpdate: '2023-05-12T11:20:00Z'
   },
@@ -70,8 +65,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     dateIdentified: '2023-04-15',
     nextActionDate: '2023-05-25',
     priority: 'high',
-    descriptionSummary: 'Leading a team of engineers building next-gen financial analytics tools.',
-    description: 'Leading a team of engineers building next-gen financial analytics tools.',
+    content: 'Leading a team of engineers building next-gen financial analytics tools.',
     sourceURL: 'https://financeflow.io/careers',
     tags: ['leadership', 'fintech', 'analytics', 'team-management'],
     lastStatusUpdate: '2023-05-18T14:10:00Z'
@@ -82,7 +76,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -120,7 +114,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -169,7 +163,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }

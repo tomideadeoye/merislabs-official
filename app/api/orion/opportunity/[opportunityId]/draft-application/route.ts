@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/orion_llm';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { fetchUserProfile } from '@/lib/profile_service';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { auth } from '@/auth';
 // Assuming types for request body and response are defined, e.g., in types/opportunity.d.ts
 // import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/types/opportunity';
 import type { MemoryPayload } from '@/types/orion';
@@ -16,7 +15,7 @@ export async function POST(
   { params }: { params: { opportunityId: string } }
 ) {
   // Check authentication
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -106,34 +105,39 @@ export async function POST(
         }
     }
 
+    // Use jobUrl if available, otherwise fallback to url
+    const jobUrl = (opportunity as any).jobUrl || opportunity.url;
+
     // Construct the prompt for LLM application drafting using the helper function
-    const draftingPromptContent = `
-Draft application materials (e.g., cover letter content, key points for a message) for the following job opportunity, tailored to the user's profile and relevant memories.${companyWebContext ? ' Also use the provided company web context.' : ''}\n\nJob Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${opportunity.jobUrl ? `Job URL: ${opportunity.jobUrl}\n` : ''}\nJob Description:\n${opportunity.description || 'No description provided.'}\n\n${/* tailoredCVContent ? `Tailored CV Content:\n${tailoredCVContent}\n\n` : '' */''}Instructions:\nGenerate compelling content suitable for a job application. Focus on highlighting how the user's profile and relevant experiences (from profile and memories) align with the job requirements mentioned in the description. Incorporate relevant details about the company from the provided web context to show genuine interest and tailor the application further. Provide key phrases, bullet points, or a draft paragraph that can be used in a cover letter or application form. Tailor the tone to be professional and enthusiastic.\n\nProvide ONLY the draft content, without any introductory or concluding remarks.`;
+    const prompt = `Draft application materials (e.g., cover letter content, key points for a message) for the following job opportunity, tailored to the user's profile and relevant memories.${companyWebContext ? ' Also use the provided company web context.' : ''}\n\nJob Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content || 'No content provided.'}\n\n${/* tailoredCVContent ? `Tailored CV Content:\n${tailoredCVContent}\n\n` : '' */''}Instructions:\nGenerate compelling content suitable for a job application. Focus on highlighting how the user's profile and relevant experiences (from profile and memories) align with the job requirements mentioned in the content. Incorporate relevant details about the company from the provided web context to show genuine interest and tailor the application further. Provide key phrases, bullet points, or a draft paragraph that can be used in a cover letter or application form. Tailor the tone to be professional and enthusiastic.\n\nProvide ONLY the draft content, without any introductory or concluding remarks.`;
 
     const messages = constructLlmMessages({
       requestType: REQUEST_TYPES.DRAFT_COMMUNICATION,
-      primaryContext: draftingPromptContent,
+      primaryContext: prompt,
       profileContext: profileContext,
       memoryResults: memoryResults,
-      webContext: companyWebContext,
     });
 
     console.log('[DRAFT_APPLICATION_API] Sending application drafting prompt to LLM...');
 
-    const llmResponse = await generateLLMResponse(
+    const llmResponseContent = await generateLLMResponse(
       REQUEST_TYPES.DRAFT_COMMUNICATION,
-      undefined,
-      { messages, temperature: 0.7, max_tokens: 1500 } as any
+      prompt,
+      {
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 1500, // Adjust token limit for answers
+      } as any // Cast for now
     );
 
-    if (llmResponse.success && llmResponse.content) {
-      return NextResponse.json({ success: true, draft_content: llmResponse.content });
+    if (llmResponseContent) {
+      return NextResponse.json({ success: true, draft_content: llmResponseContent });
     } else {
-      console.error('[DRAFT_APPLICATION_API] LLM failed to generate draft:', llmResponse.error);
+      console.error('[DRAFT_APPLICATION_API] LLM failed to generate draft');
       return NextResponse.json({
         success: false,
-        error: llmResponse.error || 'Failed to generate application draft using LLM'
-      }, { status: llmResponse.error ? 500 : 500 });
+        error: 'Failed to generate application draft using LLM'
+      }, { status: 500 });
     }
 
   } catch (error: any) {
