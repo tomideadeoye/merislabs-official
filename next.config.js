@@ -22,6 +22,19 @@ const nextConfig = {
         tls: false,
       };
     }
+    config.module.rules.push({
+      test: /\.js$/,
+      include: [
+        /node_modules[\\/]@qdrant[\\/]js-client-rest/,
+        /node_modules[\\/]undici/
+      ],
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['next/babel'],
+        },
+      },
+    });
     return config;
   },
 }

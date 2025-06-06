@@ -1,9 +1,11 @@
 "use client";
 import DraftCommunicationForm from "@/components/orion/DraftCommunicationForm";
+import WhatsAppReplyDrafter from "@/components/orion/WhatsAppReplyDrafter";
 import { PageHeader } from "@/components/ui/page-header";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useSessionState } from "@/hooks/useSessionState";
 import { SessionStateKeys, PageNames } from "@/app_state";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Smartphone } from "lucide-react";
 
 export default function DraftCommunicationFeaturePage() {
   const [profileData] = useSessionState(SessionStateKeys.TOMIDES_PROFILE_DATA); // string | null
@@ -16,10 +18,25 @@ export default function DraftCommunicationFeaturePage() {
         icon={<MessageSquare className="h-7 w-7" />}
         description="Craft messages, generate reply options, and ask communication-related questions."
       />
-      <DraftCommunicationForm
-        profileData={profileData}
-        memoryAvailable={memoryAvailable}
-      />
+      <Tabs defaultValue="draft" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="draft">
+            <MessageSquare className="inline-block mr-1 w-4 h-4" /> Draft Communication
+          </TabsTrigger>
+          <TabsTrigger value="whatsapp">
+            <Smartphone className="inline-block mr-1 w-4 h-4" /> WhatsApp Helper
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="draft">
+          <DraftCommunicationForm
+            profileData={profileData}
+            memoryAvailable={memoryAvailable}
+          />
+        </TabsContent>
+        <TabsContent value="whatsapp">
+          <WhatsAppReplyDrafter />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

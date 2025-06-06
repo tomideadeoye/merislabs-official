@@ -1,44 +1,44 @@
-# 🌀 Orion Dev Cycle: Self-Reinforcing Circular Workflow
+# 🌀 orion dev cycle: self-reinforcing circular workflow
 
-> A circular, agent-agnostic system to debug, build, test, reflect, and branch across LLMs and dev tools (Cursor, Notion, Terminal, Streamlit, Web).
+> a circular, agent-agnostic system to debug, build, test, reflect, and branch across llms and dev tools (cursor, notion, terminal, streamlit, web).
 
 ---
 
-## 1. 🌟 Intent Clarification
+## 1. 🌟 intent clarification
 
-**Define the why. Architect the purpose. Commit to what matters.**
+define the why. architect the purpose. commit to what matters.
 
-**🧠 Fill:**
+**🧠 fill:**
 
-* Goal: `[What do I want to build or fix?]`
-* Why it matters: `[What is the core value or vision behind this?]`
-* Module or system affected: `[Which Orion subsystem?]`
-* Success state: `[How will I know it's working?]`
+* goal: `[what do i want to build or fix?]`
+* why it matters: `[what is the core value or vision behind this?]`
+* module or system affected: `[which orion subsystem?]`
+* success state: `[how will i know it's working?]`
 
-**💬 Prompts to ask the LLM:**
+**💬 prompts to ask the llm:**
 
 ```txt
-- What's the architectural intent behind [fill goal]?
-- What's the fastest way to go from concept to working prototype?
-- What assumptions do I need to surface before building [fill]?
-- How does this goal relate to my core Orion principles?
+- what's the architectural intent behind [fill goal]?
+- what's the fastest way to go from concept to working prototype?
+- what assumptions do i need to surface before building [fill]?
+- how does this goal relate to my core orion principles?
 ```
 
 ---
 
-## 2. 🧠 LLM Collaboration / Planning
+## 2. 🧠 llm collaboration / planning
 
-**Gather insights from multiple agents. Extract architecture plans.**
+gather insights from multiple agents. extract architecture plans.
 
-**🔄 Consult (choose 2–3):**
+**🔄 consult (choose 2–3):**
 
-* [ ] ChatGPT (GPT-4)
-* [ ] Claude 3
-* [ ] Gemini
-* [ ] DeepSeek / Qwen
-* [ ] Cursor's local assistant
+* [ ] chatgpt (gpt-4)
+* [ ] claude 3
+* [ ] gemini
+* [ ] deepseek / qwen
+* [ ] cursor's local assistant
 
-**💬 Model Prompt:**
+**💬 model prompt:**
 
 ```txt
 you are an ai systems strategist. i am building [fill goal] for orion.
@@ -51,26 +51,26 @@ please return:
 - one test case i might forget
 ```
 
-**📎 Decision:**
+**📎 decision:**
 
-* [ ] Go forward with best agent plan
-* [ ] Merge suggestions from multiple models
-* [ ] Cycle again if unclear or low-quality output
+* [ ] go forward with best agent plan
+* [ ] merge suggestions from multiple models
+* [ ] cycle again if unclear or low-quality output
 
 ---
 
-## 3. 🛠 Implementation in Cursor (or Editor)
+## 3. 🛠 implementation in cursor (or editor)
 
-**Build now. No delay. This is the architect's lab.**
+build now. no delay. this is the architect's lab.
 
-**🧠 Clarify before code:**
+**🧠 clarify before code:**
 
-* Component name: `[Fill here]`
-* File path: `[src/components/orion/[fill].tsx]`
-* State shape: `[What are we tracking?]`
-* Target API route: `[api/orion/[fill]]`
+* component name: `[fill here]`
+* file path: `[src/components/orion/[fill].tsx]`
+* state shape: `[what are we tracking?]`
+* target api route: `[api/orion/[fill]]`
 
-**💬 Cursor/GPT Coding Prompt:**
+**💬 cursor/gpt coding prompt:**
 
 ```txt
 build a typescript component called [fill] that:
@@ -80,7 +80,7 @@ build a typescript component called [fill] that:
 - handles error and loading
 ```
 
-**💬 Extra Prompts:**
+**💬 extra prompts:**
 
 ```txt
 - write a unit test for [fill component]
@@ -88,7 +88,7 @@ build a typescript component called [fill] that:
 - simulate api responses and show data render
 ```
 
-**💡 If building Python logic (e.g., in orion_python_backend):**
+**💡 if building python logic (e.g. in orion_python_backend):**
 
 ```txt
 write a fastapi route to [fill goal], with json input of [fill shape].
@@ -97,18 +97,18 @@ return: [fill output].
 
 ---
 
-## 4. 🧪 Debugging + Testing
+## 4. 🧪 debugging + testing
 
-**Catch breakage. Rewire logic. Log test cases.**
+catch breakage. rewire logic. log test cases.
 
-**🧠 Identify:**
+**🧠 identify:**
 
-* Symptom: `[What failed?]`
-* Location: `[File path]`
-* Trigger: `[What caused it?]`
-* Logs: `[Copy the full error here if available]`
+* symptom: `[what failed?]`
+* location: `[file path]`
+* trigger: `[what caused it?]`
+* logs: `[copy the full error here if available]`
 
-**💬 Prompts to diagnose:**
+**💬 prompts to diagnose:**
 
 ```txt
 - what causes this react error: [fill message]?
@@ -117,15 +117,15 @@ return: [fill output].
 - is this a typing issue or state sync error?
 ```
 
-**📁 Save test to:** `/tests/[feature_name].test.ts`
+**📁 save test to:** `/tests/[feature_name].test.ts`
 
 ---
 
-## 5. 🪞 Self-Reflection (Architect's Log)
+## 5. 🪞 self-reflection (architect's log)
 
-**Track what worked, what felt stuck, what's evolving in you.**
+track what worked, what felt stuck, what's evolving in you.
 
-**🧠 Questions to ask:**
+**🧠 questions to ask:**
 
 ```txt
 - what was most intuitive in this session?
@@ -134,16 +134,16 @@ return: [fill output].
 - what assumptions did i confirm or break?
 ```
 
-**📁 Save to:** `/journal/[today]-dev-reflection.md`
-**Tags:** `#flow`, `#blocker_[fill]`, `#pattern_[fill]`
+**📁 save to:** `/journal/[today]-dev-reflection.md`
+**tags:** `#flow`, `#blocker_[fill]`, `#pattern_[fill]`
 
 ---
 
-## 6. 🌱 Branch to Next
+## 6. 🌱 branch to next
 
-**Use momentum. Ask what's unlocked. Loop again.**
+use momentum. ask what's unlocked. loop again.
 
-**💬 Prompts to find the next branch:**
+**💬 prompts to find the next branch:**
 
 ```txt
 - what downstream system will need to change now?
@@ -153,65 +153,65 @@ return: [fill output].
 - where could user friction still live in this flow?
 ```
 
-**🧠 Update TODO or roadmap:**
+**🧠 update todo or roadmap:**
 
 * `/tasks/next.md`
 * `/intents/[new_feature].md`
 
-🔁 Loop back to → **Intent Clarification**
+🔁 loop back to → intent clarification
 
 ---
 
-## 🔄 Summary Cycle Flow
+## 🔄 summary cycle flow
 
 ```txt
-[1] Intent
+[1] intent
    ↓
-[2] LLM Collaboration
+[2] llm collaboration
    ↓
-[3] Implement via Cursor
+[3] implement via cursor
    ↓
-[4] Debug + Test
+[4] debug + test
    ↓
-[5] Reflect + Log
+[5] reflect + log
    ↓
-[6] Branch Next
-   ↺ Back to 1
+[6] branch next
+   ↺ back to 1
 ```
 
 ---
 
-## 🧭 ASCII Decision Tree
+## 🧭 ascii decision tree
 
 ```txt
         +---------------------+
-        |   Intent Clarified  |
+        |   intent clarified  |
         +---------------------+
                   |
           +---------------+
-          |  Multi-LLM Plan|
+          |  multi-llm plan|
           +---------------+
                   |
-         Good Plan? / \
+         good plan? / \
                   /   \
         +--------+     +-----------+
-        | Implement     | Retry or |
-        | in Cursor      | Try New |
-        |                |  Model  |
+        | implement     | retry or |
+        | in cursor      | try new |
+        |                |  model  |
         +--------+     +-----------+
                   |
             +-------------+
-            | Debug + Test|
+            | debug + test|
             +-------------+
                   |
             +-------------+
-            |  Reflect +   |
-            |  Extract Log |
+            |  reflect +   |
+            |  extract log |
             +-------------+
                   |
             +-----------------+
-            | Identify Next   |
-            | Feature/Step    |
+            | identify next   |
+            | feature/step    |
             +-----------------+
                   |
               ↻ LOOP BACK
