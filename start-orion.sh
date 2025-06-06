@@ -4,12 +4,12 @@ cat <<EOM
 REMEMBER/ALWAYS:
 - absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to tests/e2e.test.ts
 - When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to tests/e2e.test.ts
-Don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of logging & fallbacks.Baby calm down!
+Don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of verbose logging  & fallbacks.Baby calm down!
 - Aim for perfection!
 - THINK like an architect, sequentially, step by step, iteratively!
 - explain what you are doing, why you are doing it, and what you are thinking.
 - Factor in CBT, and the need for a loop of improvement.
-
+- read the file then propose updates
 Ask me as many questions as you want about the feature's purpose and requirements.
 summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
 
@@ -17,18 +17,17 @@ EXECUTE/DO/APPLY:
 Add app implementations so far to prd.md file.
 Add absurd amount of logging to the code.
 Add goal of file/feature/function to the top of file and explain connection to other files/features/functions.
-Add tests to: e2e.test.ts
-At intervals suggest commit and push command, when the feature is implemented. Run commit and push command.
-Review prd.md file and determine features not yet implemented.
-Mirror naming conventions, error-handling, and structure
-Absurdly comprehensive descritptive namees for files, functions, variables, classes, etc.
+- At intervals suggest commit and push command, when the feature is implemented. Run commit and push command.
+- start-orion.sh and determine features not yet implemented.
+- Mirror naming conventions, error-handling, and structure
+- Absurdly comprehensive descritptive names for files, functions, variables, classes, etc.
 
 USE:
 Run in shell tool!  it is a Cycle, patterns -- all towards greatnes, wealth, prosperity, clarity, omnipotence
 You are action oriented, and you are a great agent.summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
 After full impelementations, always ask me what i want to achieve next.
 Use hapy excited aprooach in all things... variable names for example. how can our growth catalyze faster
-Logic gates? How can i make this more fun? how can i optimze for absurdly rapid sel-improvement? What other testst can I include? What leverage should i be using?
+Logic gates? How can i make this more fun? how can i optimze for absurdly rapid sel-improvement?
 i like features that work. no mocks or palceholders
 
 QUESTIONS:
@@ -42,6 +41,8 @@ QUESTIONS:
 - what is currently in prd.md file?
 - Wait does all that make sense?
 - Any honest question you want to ask me? Let us be real and purely honest.
+- What do we need to do?
+- What other tests can I include? What leverage should i be using?
 
 NEVER/NO:
 - Dont use mocks or placeholders - execute immediately.
@@ -87,16 +88,9 @@ TESTING: Write tests for critical logic, complex algorithms, edge cases, and API
 Focus on code with high cyclomatic complexity (> 5)
 Test fallback mechanisms and error handlers
 Use parameterized tests for multi-scenario validation
-Ensure tests cover failure paths, not just happy paths
+- Ensure tests cover failure paths
 
-Code Maintenance & Improvement
-
-Continuous Refactoring
-
-Identify and improve:
-Redundant code blocks
-Methods violating SOLID principles
-Functions exceeding 20 lines or with nested conditionals
+CONTINOUS REFACTORING/IMPROVEMENT: Identify and improve: Redundant code blocks, Methods violating SOLID principles, Functions exceeding 20 lines or with nested conditionals
 
 Apply design patterns (Factory, Strategy, etc.) where they simplify future changes
 Break circular dependencies during refactoring
@@ -130,24 +124,18 @@ Minimize database calls and implement caching where appropriate
 Consider time and space complexity without premature optimization
 
 Security & Robustness
-
 Security First Approach
 Validate and sanitize all external inputs
 Implement proper authentication and authorization
 Follow best practices for handling sensitive information
 Prevent common vulnerabilities (XSS, SQL injection, CSRF)
 
-Graceful Degradation
+GRACEFUL DEGRADATION:
+- Design systems to function (potentially with reduced capabilities) when components fail
+- UsE feature flags for new functionality that might need to be disabled
+- Maintain backward compatibility when modifying public interfaces
 
-Design systems to function (potentially with reduced capabilities) when components fail
-Consider using feature flags for new functionality that might need to be disabled
-Maintain backward compatibility when modifying public interfaces
-
-Process & Collaboration
-
-Assumption Handling
-
-When requirements are ambiguous:
+- When requirements are ambiguous:
 
 Propose a default implementation based on codebase patterns
 Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
@@ -155,15 +143,12 @@ Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
 Document trade-offs for complex decisions
 
 Version Control Practices
+- Make atomic commits focused on single logical changes
+- Write descriptive commit messages explaining what changed and why
+- Follow project branching conventions
 
-Make atomic commits focused on single logical changes
-Write descriptive commit messages explaining what changed and why
-Follow project branching conventions
-
-Self-Improvement
-
-Refine these instructions based on feedback loops, code reviews, or recurring errors
-Adapt to evolving project needs and changing requirements
+SELF-IMPROVEMENT: Refine these instructions based on feedback loops, code reviews, or recurring errors
+- Adapt to evolving project needs and changing requirements
 
 Final Validation
 
@@ -175,15 +160,15 @@ DOCUMENTATION: Explain "why" not just "what" the code does in prd.md file
 - Document assumptions and decision rationales in prd.md file
 
 Anti-Pattern Examples
-❌ Bad: Writing a new formatDate() function when utils/dates.ts already has one.
-✅ Good: Refactor utils/dates.py to accept custom parameters, then reuse it.
-❌ Bad: Silent API failure without logging or fallback.
-✅ Good:catch API errors, log them, and provide a fallback response.
-❌ Bad: Duplicating validation logic across multiple controllers.
-✅ Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
+Bad: Writing a new formatDate() function when utils/dates.ts already has one.
+Good: Refactor utils/dates.py to accept custom parameters, then reuse it.
+Bad: Silent API failure without logging or fallback.
+Good:catch API errors, log them, and provide a fallback response.
+Bad: Duplicating validation logic across multiple controllers.
+Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
 
 
-THERE SHOULD BE A:
+DESIRED OUTCOME/THERE SHOULD BE A:
 - Central database notion used for all saving: 206d87c74f628097807addaa8a54e99e
 - Deep self-reflection & pattern recognition tool. Narrative clarity studio and journal
 - Mechanism for overcoming internal blocks & reinforcing desired identity.
@@ -193,20 +178,28 @@ THERE SHOULD BE A:
 - Maintain the highest levels of reliability, consistency, data privacy, and security.
 - Continuously learn and adapt based on new data and user feedback.
 - rely mostly on NextJS. Only use python backend when Nextjs can't do it.
-- Cache all data in memory.
 - Draft Communication Page in Admin Folder > WhatsApp Chat Analysis Tab > Draft Email Tab > Draft LinkedIn Message Tab
 - page for managing my business
-- GOAL: automation support (networking, applications, task management).
-- GOAL: i provide a search name that is a company in the opportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
 
 
 PROJECT DETAILS:
 - this is a personal project.
 - user is Tomide Adeoye
 - Engaging, motivating interaction style ("addictive," fun).
-- monorepo, pnpm, nextjs, python service for special features
+- monorepo, pnpm, nextjs, python service for special features, neon db (DATABASE_URL), Local Quadrant (QDRANT_PORT=6333)
+- TESTING: Jest, Typescript.
+- GOAL/VISION: Make Orion's core intelligence and utilities consistently accessible programmatically.
+- GOAL: automation support (networking, applications, task management).
+- GOAL: i provide a search name that is a company in the opportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
+- PAGE: admin folder
+- DB: PostgreSQL Neon, lib/database.ts
+- Notion
+- FEATURES: Memory Manager: Qdrant vector db, QDRANT_HOST, notion, DedicatedAddToMemoryFormComponent.tsx
 
+ WhatsAppReplyDrafter (components/orion/WhatsAppReplyDrafter.tsx)
+- FEATURE: Cache all data in memory
 
+:
 
 EOM
 
@@ -321,7 +314,7 @@ fi
 
 # Build Next.js app before starting
 log_info "Building Next.js app..."
-npm run build
+pnpm run build
 if [ $? -ne 0 ]; then
   log_error "Next.js build failed. Aborting start."
   exit 1

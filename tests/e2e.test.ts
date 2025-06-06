@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import { OpportunityCreatePayload, OpportunityNotionOutputShared } from '../types/opportunity';
-import fetch from 'node-fetch';
+/* NOTE: Only import fetch once! */
 import { parseNotionPageProperties } from '../lib/notion_service';
 
 describe('Sequential Thinking Prompts', () => {
@@ -39,6 +39,73 @@ describe('Sequential Thinking Prompts', () => {
     } finally {
       fs.unlinkSync(badPath);
     }
+  });
+});
+
+/**
+ * E2E API Tests: Orion Neon/Postgres Migration
+ * - Tests for /api/orion/ideas endpoint (Neon/Postgres, robust logging, all features preserved)
+ * - Add more tests for Opportunity Pipeline, CV Tailoring, and UI as components are available.
+ */
+
+describe('Orion API: Ideas Endpoint (Neon/Postgres)', () => {
+  const BASE_URL = 'http://localhost:3000/api/orion/ideas';
+
+  it('should fetch all ideas (no filters)', async () => {
+    const res = await fetch(BASE_URL);
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(Array.isArray(data.ideas)).toBe(true);
+    // Logging for debugging
+    console.info('[TEST][IDEAS][ALL]', { count: data.ideas.length });
+  });
+
+  it('should filter ideas by status', async () => {
+    const res = await fetch(`${BASE_URL}?status=active`);
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(Array.isArray(data.ideas)).toBe(true);
+    // All returned ideas should have status 'active'
+    data.ideas.forEach((idea: any) => {
+      expect(idea.status).toBe('active');
+    });
+    console.info('[TEST][IDEAS][STATUS]', { count: data.ideas.length });
+  });
+
+  it('should filter ideas by tag', async () => {
+    const res = await fetch(`${BASE_URL}?tag=test`);
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(Array.isArray(data.ideas)).toBe(true);
+    // All returned ideas should have 'test' in tags
+    data.ideas.forEach((idea: any) => {
+      expect(Array.isArray(idea.tags)).toBe(true);
+      expect(idea.tags.map((t: string) => t.toLowerCase())).toContain('test');
+    });
+    console.info('[TEST][IDEAS][TAG]', { count: data.ideas.length });
+  });
+
+  it('should handle no results gracefully', async () => {
+    const res = await fetch(`${BASE_URL}?status=nonexistent`);
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(Array.isArray(data.ideas)).toBe(true);
+    expect(data.ideas.length).toBe(0);
+    console.info('[TEST][IDEAS][NORESULTS]', { count: data.ideas.length });
+  });
+
+  it('should handle DB errors gracefully', async () => {
+    // Simulate DB error by sending malformed param (should not crash)
+    const res = await fetch(`${BASE_URL}?status=' OR 1=1; --`);
+    const data = await res.json();
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(data.success).toBe(false);
+    expect(data.error).toBeDefined();
+    console.info('[TEST][IDEAS][DBERROR]', { error: data.error });
   });
 });
 

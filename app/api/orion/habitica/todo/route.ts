@@ -1,7 +1,12 @@
+/**
+ * GOAL: Create Habitica todo via API, link to Orion source, and log all actions for traceability.
+ * Uses Neon/Postgres (pool from lib/database.ts) for cloud reliability.
+ * Related: lib/habitica_client.ts, lib/database.ts, prd.md
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { createTask } from '@/lib/habitica_client';
 import { auth } from '@/auth';
-import { db } from '@/lib/database';
+import { pool } from '@/lib/database';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
@@ -47,26 +52,24 @@ export async function POST(request: NextRequest) {
     // Store the link between Habitica task and Orion source if provided
     if (newHabiticaTask && newHabiticaTask._id && orionSourceModule && orionSourceReferenceId) {
       try {
-        const linkStmt = db.prepare(`
+        const insertQuery = `
           INSERT INTO habitica_task_links (
             id, habiticaTaskId, orionSourceModule, orionSourceReferenceId, orionTaskText, createdAt
-          ) VALUES (
-            @id, @habiticaTaskId, @orionSourceModule, @orionSourceReferenceId, @orionTaskText, @createdAt
-          )
-        `);
-
-        linkStmt.run({
-          id: uuidv4(),
-          habiticaTaskId: newHabiticaTask._id,
+          ) VALUES ($1, $2, $3, $4, $5, $6)
+        `;
+        const values = [
+          uuidv4(),
+          newHabiticaTask._id,
           orionSourceModule,
           orionSourceReferenceId,
-          orionTaskText: taskData.text,
-          createdAt: new Date().toISOString()
-        });
+          taskData.text,
+          new Date().toISOString()
+        ];
+        await pool.query(insertQuery, values);
 
-        console.log(`[HABITICA_TODO_API] Link saved for Habitica task ${newHabiticaTask._id} to Orion source ${orionSourceModule}:${orionSourceReferenceId}`);
+        console.info(`[HABITICA_TODO_API] Link saved for Habitica task ${newHabiticaTask._id} to Orion source ${orionSourceModule}:${orionSourceReferenceId}`);
       } catch (dbError: any) {
-        console.error(`[HABITICA_TODO_API] Failed to save task link to local DB: ${dbError.message}`);
+        console.error(`[HABITICA_TODO_API] Failed to save task link to Neon/Postgres: ${dbError.message}`);
         // Non-critical for task creation itself, so continue
       }
     }

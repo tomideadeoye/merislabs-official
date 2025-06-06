@@ -13,7 +13,7 @@ export interface MemoryPoint {
   type: string;
   tags?: string[];
   mood?: string;
-  [key: string]: any; // Allow additional fields
+  [key: string]: any; 
 }
 
 export interface MemorySearchFilter {
@@ -138,9 +138,11 @@ export async function findMemoriesByField(
   value: string | number | boolean,
   limit: number = 10
 ): Promise<{success: boolean, results?: ScoredMemoryPoint[], error?: string}> {
+  // Always use 'payload.' prefix for Qdrant filtering
+  const key = field.startsWith('payload.') ? field : `payload.${field}`;
   return searchMemory('*', {
     filter: {
-      must: [{ key: field, match: { value } }]
+      must: [{ key, match: { value } }]
     },
     limit
   });
@@ -153,7 +155,7 @@ export async function findMemoriesByType(
   type: string,
   limit: number = 10
 ): Promise<{success: boolean, results?: ScoredMemoryPoint[], error?: string}> {
-  return findMemoriesByField('type', type, limit);
+  return findMemoriesByField('payload.type', type, limit);
 }
 
 /**

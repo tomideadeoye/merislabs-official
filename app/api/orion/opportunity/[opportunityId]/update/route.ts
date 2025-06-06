@@ -1,6 +1,10 @@
+/**
+ * GOAL: Update opportunity details using Neon/Postgres, replacing SQLite for cloud reliability.
+ * Related: lib/database.ts, prd.md, types/opportunity.d.ts
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/auth";
-import { db } from '@/lib/database';
+import { pool } from '@/lib/database';
 import type { OpportunityUpdatePayload } from '@/types/opportunity';
 
 interface RouteParams {
@@ -27,8 +31,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if opportunity exists
-    const checkStmt = db.prepare("SELECT * FROM opportunities WHERE id = ?");
-    const existingOpp = checkStmt.get(opportunityId) as any;
+    const checkQuery = "SELECT * FROM opportunities WHERE id = $1";
+    const checkResult = await pool.query(checkQuery, [opportunityId]);
+    const existingOpp = checkResult.rows[0];
 
     if (!existingOpp) {
       return NextResponse.json({
@@ -39,7 +44,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     // Prepare update fields
     const updateFields: Record<string, any> = {
-      lastStatusUpdate: new Date().toISOString()
+      laststatusupdate: new Date().toISOString()
     };
 
     // Basic fields
@@ -47,12 +52,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (body.company !== undefined) updateFields.company = body.company;
     if (body.type !== undefined) updateFields.type = body.type;
     if (body.content !== undefined) updateFields.content = body.content;
-    if (body.sourceURL !== undefined) updateFields.sourceURL = body.sourceURL;
+    if (body.sourceURL !== undefined) updateFields.sourceurl = body.sourceURL;
     if (body.status !== undefined) updateFields.status = body.status;
     if (body.priority !== undefined) updateFields.priority = body.priority;
-    if (body.nextActionDate !== undefined) updateFields.nextActionDate = body.nextActionDate;
+    if (body.nextActionDate !== undefined) updateFields.nextactiondate = body.nextActionDate;
     if (body.notes !== undefined) updateFields.notes = body.notes;
-    if (body.relatedEvaluationId !== undefined) updateFields.relatedEvaluationId = body.relatedEvaluationId;
+    if (body.relatedEvaluationId !== undefined) updateFields.relatedevaluationid = body.relatedEvaluationId;
 
     // Handle array fields that need special processing
     if (body.tags !== undefined) {
@@ -61,8 +66,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     // Handle adding/removing from arrays
     if (body.addApplicationMaterialId || body.removeApplicationMaterialId) {
-      const currentIds = existingOpp.applicationMaterialIds ?
-        JSON.parse(existingOpp.applicationMaterialIds) : [];
+      const currentIds = existingOpp.applicationmaterialids ?
+        JSON.parse(existingOpp.applicationmaterialids) : [];
 
       if (body.addApplicationMaterialId && !currentIds.includes(body.addApplicationMaterialId)) {
         currentIds.push(body.addApplicationMaterialId);
@@ -75,12 +80,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
       }
 
-      updateFields.applicationMaterialIds = JSON.stringify(currentIds);
+      updateFields.applicationmaterialids = JSON.stringify(currentIds);
     }
 
     if (body.addStakeholderContactId || body.removeStakeholderContactId) {
-      const currentIds = existingOpp.stakeholderContactIds ?
-        JSON.parse(existingOpp.stakeholderContactIds) : [];
+      const currentIds = existingOpp.stakeholdercontactids ?
+        JSON.parse(existingOpp.stakeholdercontactids) : [];
 
       if (body.addStakeholderContactId && !currentIds.includes(body.addStakeholderContactId)) {
         currentIds.push(body.addStakeholderContactId);
@@ -93,12 +98,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
       }
 
-      updateFields.stakeholderContactIds = JSON.stringify(currentIds);
+      updateFields.stakeholdercontactids = JSON.stringify(currentIds);
     }
 
     if (body.addRelatedHabiticaTaskId || body.removeRelatedHabiticaTaskId) {
-      const currentIds = existingOpp.relatedHabiticaTaskIds ?
-        JSON.parse(existingOpp.relatedHabiticaTaskIds) : [];
+      const currentIds = existingOpp.relatedhabiticataskids ?
+        JSON.parse(existingOpp.relatedhabiticataskids) : [];
 
       if (body.addRelatedHabiticaTaskId && !currentIds.includes(body.addRelatedHabiticaTaskId)) {
         currentIds.push(body.addRelatedHabiticaTaskId);
@@ -111,28 +116,32 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
       }
 
-      updateFields.relatedHabiticaTaskIds = JSON.stringify(currentIds);
+      updateFields.relatedhabiticataskids = JSON.stringify(currentIds);
     }
 
     // Build the SQL update statement
     const setClause = Object.keys(updateFields)
-      .map(key => `${key} = @${key}`)
+      .map((key, idx) => `${key} = $${idx + 2}`)
       .join(', ');
 
-    const updateStmt = db.prepare(`UPDATE opportunities SET ${setClause} WHERE id = @id`);
-    updateStmt.run({ ...updateFields, id: opportunityId });
+    const updateQuery = `UPDATE opportunities SET ${setClause} WHERE id = $1`;
+    await pool.query(updateQuery, [
+      opportunityId,
+      ...Object.values(updateFields)
+    ]);
 
     // Fetch the updated opportunity
-    const getUpdatedStmt = db.prepare("SELECT * FROM opportunities WHERE id = ?");
-    const updatedOppRaw = getUpdatedStmt.get(opportunityId) as any;
+    const updatedQuery = "SELECT * FROM opportunities WHERE id = $1";
+    const updatedResult = await pool.query(updatedQuery, [opportunityId]);
+    const updatedOppRaw = updatedResult.rows[0];
 
     // Deserialize JSON string fields
     const updatedOpportunity = {
       ...updatedOppRaw,
       tags: updatedOppRaw.tags ? JSON.parse(updatedOppRaw.tags) : [],
-      applicationMaterialIds: updatedOppRaw.applicationMaterialIds ? JSON.parse(updatedOppRaw.applicationMaterialIds) : [],
-      stakeholderContactIds: updatedOppRaw.stakeholderContactIds ? JSON.parse(updatedOppRaw.stakeholderContactIds) : [],
-      relatedHabiticaTaskIds: updatedOppRaw.relatedHabiticaTaskIds ? JSON.parse(updatedOppRaw.relatedHabiticaTaskIds) : [],
+      applicationMaterialIds: updatedOppRaw.applicationmaterialids ? JSON.parse(updatedOppRaw.applicationmaterialids) : [],
+      stakeholderContactIds: updatedOppRaw.stakeholdercontactids ? JSON.parse(updatedOppRaw.stakeholdercontactids) : [],
+      relatedHabiticaTaskIds: updatedOppRaw.relatedhabiticataskids ? JSON.parse(updatedOppRaw.relatedhabiticataskids) : [],
     };
 
     return NextResponse.json({

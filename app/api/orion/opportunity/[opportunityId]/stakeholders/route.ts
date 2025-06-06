@@ -1,6 +1,10 @@
+/**
+ * GOAL: Fetch and manage opportunity stakeholders using Neon/Postgres, replacing SQLite for cloud reliability.
+ * Related: lib/database.ts, prd.md, types/opportunity.d.ts
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/auth";
-import { db } from '@/lib/database';
+import { pool } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
@@ -15,13 +19,11 @@ export async function GET(
     const { opportunityId } = params;
 
     // Get the opportunity to find the stakeholder contact IDs
-    const getOpportunityStmt = db.prepare(`
-      SELECT stakeholderContactIds FROM opportunities WHERE id = ?
-    `);
+    const opportunityQuery = 'SELECT stakeholderContactIds FROM opportunities WHERE id = $1';
+    const opportunityResult = await pool.query(opportunityQuery, [opportunityId]);
+    const opportunity = opportunityResult.rows[0];
 
-    const opportunity = getOpportunityStmt.get(opportunityId);
-
-    if (!opportunity || !opportunity.stakeholderContactIds) {
+    if (!opportunity || !opportunity.stakeholdercontactids) {
       return NextResponse.json({
         success: false,
         error: 'No stakeholders found for this opportunity.'
@@ -62,7 +64,7 @@ export async function GET(
     return NextResponse.json({
       success: true,
       stakeholders: mockStakeholders,
-      stakeholderIds: JSON.parse(opportunity.stakeholderContactIds)
+      stakeholderIds: JSON.parse(opportunity.stakeholdercontactids)
     });
 
   } catch (error: any) {

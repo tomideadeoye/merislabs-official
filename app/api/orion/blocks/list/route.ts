@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchMemory, MemorySearchFilter, ScoredMemoryPoint } from '@/lib/memory';
 import { BLOCK_TYPES, Block, BlockType } from '@/types/blocks';
-import { z } from 'zod';
 
 /**
  * GET /api/orion/blocks/list

@@ -1,5 +1,10 @@
+/**
+ * GOAL: Brainstorm and develop ideas using LLM, persist logs and context in Neon/Postgres, and store context in memory for future reference.
+ * Uses Neon/Postgres (pool from lib/database.ts) for cloud reliability.
+ * Related: lib/orion_config.ts, lib/database.ts, prd.md
+ */
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/database';
+import { pool } from '@/lib/database';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import type { IdeaLog } from '@/types/ideas';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,51 +19,53 @@ export async function POST(
   try {
     const { ideaId } = params;
     const { prompt } = await req.json();
-    
+
     if (!ideaId) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Idea ID is required' 
+      return NextResponse.json({
+        success: false,
+        error: 'Idea ID is required'
       }, { status: 400 });
     }
-    
+
     // Check if idea exists
-    const checkStmt = db.prepare('SELECT * FROM ideas WHERE id = ?');
-    const ideaRow = checkStmt.get(ideaId);
-    
+    const ideaQuery = 'SELECT * FROM ideas WHERE id = $1';
+    const ideaResult = await pool.query(ideaQuery, [ideaId]);
+    const ideaRow = ideaResult.rows[0];
+
     if (!ideaRow) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Idea not found' 
+      return NextResponse.json({
+        success: false,
+        error: 'Idea not found'
       }, { status: 404 });
     }
-    
+
     // Parse idea data
     const idea = {
       id: ideaRow.id,
       title: ideaRow.title,
-      briefDescription: ideaRow.briefDescription,
+      briefDescription: ideaRow.briefdescription,
       status: ideaRow.status,
-      tags: JSON.parse(ideaRow.tags || '[]'),
-      createdAt: ideaRow.createdAt,
-      updatedAt: ideaRow.updatedAt
+      tags: Array.isArray(ideaRow.tags) ? ideaRow.tags : JSON.parse(ideaRow.tags || '[]'),
+      createdAt: ideaRow.createdat,
+      updatedAt: ideaRow.updatedat
     };
-    
+
     // Fetch idea logs
-    const logsStmt = db.prepare('SELECT * FROM idea_logs WHERE ideaId = ? ORDER BY timestamp ASC');
-    const logs = logsStmt.all(ideaId);
-    
+    const logsQuery = 'SELECT * FROM idea_logs WHERE ideaId = $1 ORDER BY timestamp ASC';
+    const logsResult = await pool.query(logsQuery, [ideaId]);
+    const logs = logsResult.rows;
+
     // Construct context for LLM
     const ideaContext = `
       Title: ${idea.title}
       Description: ${idea.briefDescription || 'No description provided.'}
       Status: ${idea.status}
       Tags: ${idea.tags.join(', ') || 'No tags.'}
-      
+
       Previous notes and brainstorming:
       ${logs.map((log: any) => `[${log.type} by ${log.author} at ${new Date(log.timestamp).toLocaleString()}]:\n${log.content}`).join('\n\n')}
     `;
-    
+
     // Default prompt if not provided
     const defaultPrompt = `
       Help me brainstorm and develop this idea further. Consider:
@@ -68,7 +75,7 @@ export async function POST(
       4. Are there any related concepts or opportunities I should explore?
       5. What resources or skills might I need?
     `;
-    
+
     // Call LLM API for brainstorming
     const llmResponse = await fetch('/api/orion/llm', {
       method: 'POST',
@@ -79,11 +86,11 @@ export async function POST(
         requestType: 'IDEA_BRAINSTORM',
         primaryContext: `
           You are helping Tomide brainstorm and develop an idea. Here are the details of the idea:
-          
+
           ${ideaContext}
-          
+
           ${prompt || defaultPrompt}
-          
+
           Provide thoughtful, creative, and practical insights to help develop this idea further.
           Be specific and detailed in your suggestions, drawing on the existing context.
         `,
@@ -91,16 +98,16 @@ export async function POST(
         maxTokens: 1000
       })
     });
-    
+
     const llmData = await llmResponse.json();
-    
+
     if (!llmData.success) {
       throw new Error(llmData.error || 'Failed to generate brainstorming content');
     }
-    
+
     const brainstormContent = llmData.content;
     const now = new Date().toISOString();
-    
+
     // Save brainstorm to idea logs
     const brainstormLog: IdeaLog = {
       id: uuidv4(),
@@ -110,17 +117,21 @@ export async function POST(
       content: brainstormContent,
       author: 'Orion'
     };
-    
-    const logStmt = db.prepare(`
+
+    const logInsertQuery = `
       INSERT INTO idea_logs (
         id, ideaId, timestamp, type, content, author
-      ) VALUES (
-        @id, @ideaId, @timestamp, @type, @content, @author
-      )
-    `);
-    
-    logStmt.run(brainstormLog);
-    
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+    `;
+    await pool.query(logInsertQuery, [
+      brainstormLog.id,
+      brainstormLog.ideaId,
+      brainstormLog.timestamp,
+      brainstormLog.type,
+      brainstormLog.content,
+      brainstormLog.author
+    ]);
+
     // Store in memory for future reference
     try {
       const memoryPoint = {
@@ -135,7 +146,7 @@ export async function POST(
           tags: ['idea', 'brainstorm', ...idea.tags]
         }
       };
-      
+
       await fetch('/api/orion/memory/upsert', {
         method: 'POST',
         headers: {
@@ -150,17 +161,17 @@ export async function POST(
       console.error('Error storing brainstorm in memory:', memoryError);
       // Continue even if memory storage fails
     }
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       brainstorm: brainstormContent,
       log: brainstormLog
     });
   } catch (error: any) {
     console.error(`Error in POST /api/orion/ideas/${params.ideaId}/brainstorm:`, error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'An unexpected error occurred' 
+    return NextResponse.json({
+      success: false,
+      error: error.message || 'An unexpected error occurred'
     }, { status: 500 });
   }
 }

@@ -12,6 +12,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Loader2, Star } from 'lucide-react';
+import { AddToMemoryForm } from './DedicatedAddToMemoryFormComponent';
 
 const RELATIONSHIP_CONTEXTS = [
   { value: 'timi_girlfriend', label: 'Timi (Girlfriend)' },
@@ -38,6 +39,7 @@ export default function WhatsAppReplyDrafter() {
     explanation: string;
     rank: number;
   }[]>([]);
+  const [relevantMemories, setRelevantMemories] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +63,7 @@ export default function WhatsAppReplyDrafter() {
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Unknown error');
       setDrafts(data.drafts);
+      setRelevantMemories(data.relevantMemories || []);
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -97,13 +100,40 @@ export default function WhatsAppReplyDrafter() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="topicOrGoal">Reply Goal</Label>
+          <Label htmlFor="topicOrGoal">Reply Goal <span className="text-xs text-gray-400">(optional)</span></Label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {[
+              { label: "Friendly", value: "friendly reply" },
+              { label: "Angry", value: "angry reply" },
+              { label: "Formal", value: "formal reply" },
+              { label: "Empathetic", value: "empathetic reply" },
+              { label: "Concise", value: "concise reply" },
+              { label: "Apologetic", value: "apologetic reply" },
+              { label: "Assertive", value: "assertive reply" },
+              { label: "Humorous", value: "humorous reply" },
+              { label: "Grateful", value: "grateful reply" },
+              { label: "Boundary-setting", value: "set a boundary" },
+              { label: "Clarifying", value: "clarify" },
+              { label: "No Goal", value: "" }
+            ].map(preset => (
+              <Button
+                key={preset.label}
+                type="button"
+                variant={topicOrGoal === preset.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTopicOrGoal(preset.value)}
+                className={topicOrGoal === preset.value ? "border-blue-500" : ""}
+              >
+                {preset.label}
+              </Button>
+            ))}
+          </div>
           <Input
             id="topicOrGoal"
             value={topicOrGoal}
             onChange={e => setTopicOrGoal(e.target.value)}
             placeholder="What is your goal for this reply? (e.g., clarify, set a boundary, express gratitude)"
-            required
+            // Make optional
           />
         </div>
 
@@ -161,6 +191,16 @@ export default function WhatsAppReplyDrafter() {
         </Button>
       </form>
       {error && <div className="text-red-600 mt-4">{error}</div>}
+      {relevantMemories.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-2">Memories Considered</h3>
+          <ul className="list-disc pl-6 space-y-1 text-gray-700">
+            {relevantMemories.map((mem, i) => (
+              <li key={i} className="bg-gray-50 rounded px-2 py-1">{mem}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       {drafts.length > 0 && (
         <div className="mt-8 space-y-6">
           {drafts.map((draft, idx) => (
@@ -177,9 +217,18 @@ export default function WhatsAppReplyDrafter() {
               <CardContent>
                 <div className="whitespace-pre-line text-base mb-2">{draft.text}</div>
                 <div className="text-sm text-gray-600 italic mb-2">{draft.explanation}</div>
-                <Button variant="outline" size="sm" onClick={() => handleCopy(draft.text)}>
-                  Copy
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleCopy(draft.text)}>
+                    Copy
+                  </Button>
+                </div>
+                <div className="mt-2">
+                  <AddToMemoryForm
+                    initialText={draft.text}
+                    initialType="whatsapp_reply_sample"
+                    initialTags="whatsapp,reply"
+                  />
+                </div>
               </CardContent>
             </Card>
           ))}
