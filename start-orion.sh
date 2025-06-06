@@ -1,7 +1,8 @@
 #!/bin/bash
 # Motivational and operational echo block
 cat <<EOM
-REMEMBER: Always proceed immediately, autonomously, agentically and with absurd urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to scripts/run-all-tests.jest.test.ts
+REMEMBER:
+Always absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to scripts/run-all-tests.jest.test.ts
 When the feature is implemented. Run commit and push command. When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to scripts/run-all-tests.jest.test.ts
 We don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of logging & fallbacks.Baby calm down!
 How can I make this code more robust? Why am I writing this code?
@@ -205,9 +206,12 @@ Anti-Pattern Examples
 ❌ Bad: Duplicating validation logic across multiple controllers.
 ✅ Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
 
+Questions:
+Any honest question you want to ask me? Let us be real and purely honest
+
 EOM
 
-# Any honest question you want to ask me? Let us be real and purely honest
+#
 
 # =====================
 # Directory Tree Function
@@ -215,7 +219,7 @@ EOM
 show_project_tree() {
   log_info "Project directory structure (excluding development artifacts):"
   echo ""
-  
+
   # Check if tree command is available
   if command -v tree >/dev/null 2>&1; then
     # Use tree command with exclusions
