@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { addMemory } from '@/lib/memory';
 import { BLOCK_TYPES, BlockType, Block, CreateBlockPayload } from '@/types/blocks';
+import { z } from 'zod';
 
 /**
  * POST /api/orion/blocks/create
@@ -10,29 +11,38 @@ import { BLOCK_TYPES, BlockType, Block, CreateBlockPayload } from '@/types/block
  * - Upserts to memory system
  * - Returns created block details
  */
+
+// Zod schema for strict runtime validation
+const CreateBlockPayloadSchema = z.object({
+  type: z.string().refine((val) => BLOCK_TYPES.includes(val as BlockType), {
+    message: 'Invalid block type',
+  }),
+  title: z.string().min(1, 'Title is required'),
+  content: z.string().min(1, 'Content is required'),
+  tags: z.array(z.string()).optional(),
+}).strict(); // .strict() ensures no extraneous properties
+
 export async function POST(req: NextRequest) {
   try {
-    let body: CreateBlockPayload;
+    let body: unknown;
     try {
       body = await req.json();
     } catch (jsonErr: any) {
       console.error('[BLOCKS_CREATE_API] Invalid JSON:', jsonErr?.message);
       return NextResponse.json({ success: false, error: 'Invalid JSON payload' }, { status: 400 });
     }
-    const { type, title, content, tags } = body;
+
+    // Validate with Zod
+    const parseResult = CreateBlockPayloadSchema.safeParse(body);
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.errors.map(e => e.message).join('; ');
+      console.error('[BLOCKS_CREATE_API] Validation error:', errorMsg);
+      return NextResponse.json({ success: false, error: `Validation error: ${errorMsg}` }, { status: 400 });
+    }
+    const { type, title, content, tags } = parseResult.data;
 
     // Logging request body for traceability
-    console.log('[BLOCKS_CREATE_API] Incoming payload:', JSON.stringify(body));
-
-    // Validate type
-    if (!type || !BLOCK_TYPES.includes(type)) {
-      console.error('[BLOCKS_CREATE_API] Invalid block type:', type);
-      return NextResponse.json({ success: false, error: `Invalid block type: ${type}` }, { status: 400 });
-    }
-    if (!title || !content) {
-      console.error('[BLOCKS_CREATE_API] Missing required fields:', { title, content });
-      return NextResponse.json({ success: false, error: 'Missing required fields: title or content' }, { status: 400 });
-    }
+    console.log('[BLOCKS_CREATE_API] Incoming payload:', JSON.stringify(parseResult.data));
 
     // Generate unique source_id for the block
     const sourceId = `block_${type}_${uuidv4()}`;
@@ -59,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Return the created block details
     const block: Block = {
       id: sourceId,
-      type,
+      type: type as BlockType,
       title,
       content,
       tags,

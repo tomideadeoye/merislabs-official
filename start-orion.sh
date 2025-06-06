@@ -1,49 +1,53 @@
 #!/bin/bash
 # Motivational and operational echo block
 cat <<EOM
-REMEMBER:
-Always absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to scripts/run-all-tests.jest.test.ts
-When the feature is implemented. Run commit and push command. When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to scripts/run-all-tests.jest.test.ts
-We don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of logging & fallbacks.Baby calm down!
-How can I make this code more robust? Why am I writing this code?
-What is the best practice?
-If operating from first pricinples, what should i do?
-Factor in CBT,
-Fix iteratively - step by step
-Give clear instructions! Explain why? what were you thinking? Was the test comprehenshive? Go sequentially! What questions do you want to ask me, my love?
-Run in shell tool!  it is a Cycle, patterns -- all towards greatnes, wealth, prosperity, clarity, omnipotence
-Wait does all that make sense?
-You are action oriented, and you are a great agent.summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into run-all-tests.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
+REMEMBER/ALWAYS:
+- absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to tests/e2e.test.ts
+- When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to tests/e2e.test.ts
+Don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of logging & fallbacks.Baby calm down!
+- Aim for perfection!
+- THINK like an architect, sequentially, step by step, iteratively!
+- explain what you are doing, why you are doing it, and what you are thinking.
+- Factor in CBT, and the need for a loop of improvement.
+
+Ask me as many questions as you want about the feature's purpose and requirements.
+summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
+
+EXECUTE/DO/APPLY:
+Add app implementations so far to prd.md file.
+Add absurd amount of logging to the code.
+Add goal of file/feature/function to the top of file and explain connection to other files/features/functions.
+Add tests to: e2e.test.ts
+At intervals suggest commit and push command, when the feature is implemented. Run commit and push command.
 Review prd.md file and determine features not yet implemented.
+Mirror naming conventions, error-handling, and structure
+Absurdly comprehensive descritptive namees for files, functions, variables, classes, etc.
+
+USE:
+Run in shell tool!  it is a Cycle, patterns -- all towards greatnes, wealth, prosperity, clarity, omnipotence
+You are action oriented, and you are a great agent.summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
 After full impelementations, always ask me what i want to achieve next.
 Use hapy excited aprooach in all things... variable names for example. how can our growth catalyze faster
 Logic gates? How can i make this more fun? how can i optimze for absurdly rapid sel-improvement? What other testst can I include? What leverage should i be using?
 i like features that work. no mocks or palceholders
 
-How can I make this a loop/cycle of inevitable improvement & greatness? How can I improve the code? How can I make evertything better?
-summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into run-all-tests.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
+QUESTIONS:
+- What can I do with what i have now?
+- If operating from first pricinples, what should i do?
+- Are all errors genuinely fixed?
+- How can I make this a loop/cycle of inevitable improvement & greatness? How can I improve the code? How can I make evertything better?
+- What is the best practice?
+- How can I make this code more robust? Why am I writing this code?
+- Give clear instructions! Explain why? what were you thinking? Was the test comprehenshive? What questions do you want to ask me, my love?
+- what is currently in prd.md file?
+- Wait does all that make sense?
+- Any honest question you want to ask me? Let us be real and purely honest.
 
-Review prd.md file and determine features not yet implemented.
-Add app implementations so far to prd.md file.
-Before implementing,ask what is currently in prd.md file.
-What can I do with what i have now?
-Are all errors genuinely fixed?
+NEVER/NO:
+- Dont use mocks or placeholders - execute immediately.
+- Never delete features or components without a clear plan for replacement. suggest more robust feature implementation.
 
----
-applyTo: '**'
----
-Coding standards, domain knowledge, and preferences that AI should follow.
----
-applyTo: "**"
----
 
-## Coding standards, domain knowledge, and preferences that AI should follow.
-
-## applyTo: "\*\*"
-
-Ask me as many questions as you want about the feature's purpose and requirements
-Never delete features or components without a clear plan for replacement. sugges more robust featur implementation
-Comprehensive Coding Copilot Agent Instructions
 Core Principles & Standards
 Refer to the orion_prd.txt for the feature's purpose and requirements
 Focuse on unity of functionality and features: the code should be cohesive and work together seamlessly
@@ -52,8 +56,6 @@ Project-Specific Standards Compliance
 Follow the codebase's formatting rules, naming conventions, and architectural patterns
 Adhere to configured linting tools (Prettier, ESLint, Black, etc.)
 Respect team preferences documented in project READMEs or style guides
-
-Domain Knowledge Integration
 
 Apply business logic, industry-specific rules, and stakeholder requirements
 Ensure solutions align with real-world use cases and domain constraints
@@ -65,11 +67,7 @@ Reusability: Utilize existing functions rather than duplicating code
 Single Responsibility: Each function should do one thing well with clear purpose
 DRY Principle: Maintain a single source of truth for functionality and data
 Readability: Write self-documenting code with descriptive names and appropriate comments
-Production-Ready: Deliver complete, functional features without placeholders or dummy code
-
-Implementation Best Practices
-
-Modularity & Abstraction
+- Production-Ready: Deliver complete, functional features without placeholders or dummy code
 
 Encapsulate domain-specific logic in dedicated modules/classes
 Prefer interfaces over concrete implementations for extensibility
@@ -82,20 +80,10 @@ Design fallback mechanisms for uncertain scenarios or operations with external d
 Fallback strategies: cached data, default values, retry logic, or graceful degradation
 Never silently fail; always log issues appropriately
 
-Logging Strategy
+- Add descriptive logging at appropriate levels: DEBUG: Detailed flow tracing for development, INFO: Normal application operations, WARN: For fallback triggers or potential issues, ERROR: For recoverable failures
+- Include context (e.g., user_id, request_id) in logs for traceability
 
-Add descriptive logging at appropriate levels:
-
-DEBUG: Detailed flow tracing for development
-INFO: Normal application operations
-WARN: For fallback triggers or potential issues
-ERROR: For recoverable failures
-
-Include context (e.g., user_id, request_id) in logs for traceability
-
-Strategic Testing
-
-Write tests for critical logic, complex algorithms, edge cases, and APIs
+TESTING: Write tests for critical logic, complex algorithms, edge cases, and APIs
 Focus on code with high cyclomatic complexity (> 5)
 Test fallback mechanisms and error handlers
 Use parameterized tests for multi-scenario validation
@@ -106,7 +94,6 @@ Code Maintenance & Improvement
 Continuous Refactoring
 
 Identify and improve:
-
 Redundant code blocks
 Methods violating SOLID principles
 Functions exceeding 20 lines or with nested conditionals
@@ -120,21 +107,11 @@ Linting & Static Analysis
 Fix ALL linting errors and warnings in modified code
 Ensure new code introduces zero new violations
 Address technical debt opportunistically during implementation
-
-Dependency Management
-
-Choose dependencies carefully considering security implications
-Check for and address vulnerabilities in dependencies
 Manage resources properly (file handles, database connections, memory)
 
-System Integration & Architecture
-
-Codebase Coherence
 
 Before modifying a component:
-
-Audit similar modules for patterns
-Mirror naming conventions, error-handling, and structure
+-
 
 Cross-reference changes with related modules to maintain consistency
 Update dependent components to avoid breaking changes
@@ -194,9 +171,8 @@ Completeness Check: Ensure all requirements, edge cases, and error scenarios are
 Verify implementations against acceptance criteria in prd.md file
 Document any remaining concerns or future improvements
 
-Documentation
-Explain "why" not just "what" the code does in prd.md file
-Document assumptions and decision rationales in prd.md file
+DOCUMENTATION: Explain "why" not just "what" the code does in prd.md file
+- Document assumptions and decision rationales in prd.md file
 
 Anti-Pattern Examples
 ❌ Bad: Writing a new formatDate() function when utils/dates.ts already has one.
@@ -206,8 +182,29 @@ Anti-Pattern Examples
 ❌ Bad: Duplicating validation logic across multiple controllers.
 ✅ Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
 
-Questions:
-Any honest question you want to ask me? Let us be real and purely honest
+
+THERE SHOULD BE A:
+- Central database notion used for all saving: 206d87c74f628097807addaa8a54e99e
+- Deep self-reflection & pattern recognition tool. Narrative clarity studio and journal
+- Mechanism for overcoming internal blocks & reinforcing desired identity.
+- Centralized knowledge management & contextual recall system (Memory).
+- the ui must look amazing and fun and engaging. Provide an engaging and motivating user experience.
+- Become the primary tool for Tomide's life planning, reflection, decision support, and task management integration
+- Maintain the highest levels of reliability, consistency, data privacy, and security.
+- Continuously learn and adapt based on new data and user feedback.
+- rely mostly on NextJS. Only use python backend when Nextjs can't do it.
+- Cache all data in memory.
+- Draft Communication Page in Admin Folder > WhatsApp Chat Analysis Tab > Draft Email Tab > Draft LinkedIn Message Tab
+
+PROJECT DETAILS:
+- this is a personal project.
+- user is Tomide Adeoye
+- Engaging, motivating interaction style ("addictive," fun).
+
+- GOAL: automation support (networking, applications, task management).
+- GOAL: i provide a search name that is a company in the opportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
+
+
 
 EOM
 
@@ -373,7 +370,7 @@ log_info "Waiting for Python API to be ready..."
 sleep 3
 
 # Run tests
-TEST_FILE="scripts/all-tests.jest.test.ts"
+TEST_FILE="tests/e2e.test.ts"
 log_info "Running tests in $TEST_FILE ..."
 npx jest $TEST_FILE || log_info "Tests failed but continuing..."
 log_info "Test run complete for $TEST_FILE."

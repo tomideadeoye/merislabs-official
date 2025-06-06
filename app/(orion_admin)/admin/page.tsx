@@ -24,17 +24,22 @@ export default function AdminDashboardPage() {
   const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
 
   // Simple password protection
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
   const [passwordError, setPasswordError] = useState('');
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'orion') {
+    if (!username) {
+      setPasswordError('Username is required');
+      return;
+    }
+    if (username === 'orion' && password === 'orion') {
       setAuthenticated(true);
       setPasswordError('');
     } else {
-      setPasswordError('Incorrect password');
+      setPasswordError('Incorrect username or password');
     }
   };
 
@@ -85,7 +90,16 @@ export default function AdminDashboardPage() {
         >
           <h2 className="text-2xl font-bold mb-4">Admin Access</h2>
           <input
+            type="text"
+            autoComplete="username"
+            placeholder="Enter admin username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            className="mb-4 px-4 py-2 rounded border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
             type="password"
+            autoComplete="new-password"
             placeholder="Enter admin password"
             value={password}
             onChange={e => setPassword(e.target.value)}

@@ -6,6 +6,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useSessionState } from "@/hooks/useSessionState";
 import { SessionStateKeys, PageNames } from "@/app_state";
 import { MessageSquare, Smartphone } from "lucide-react";
+import { BarChart2 } from "lucide-react";
+import WhatsAppChatAnalysisTab from "@/components/orion/WhatsAppChatAnalysisTab";
 
 export default function DraftCommunicationFeaturePage() {
   const [profileData] = useSessionState(SessionStateKeys.TOMIDES_PROFILE_DATA); // string | null
@@ -26,6 +28,9 @@ export default function DraftCommunicationFeaturePage() {
           <TabsTrigger value="whatsapp">
             <Smartphone className="inline-block mr-1 w-4 h-4" /> WhatsApp Helper
           </TabsTrigger>
+          <TabsTrigger value="whatsapp-analysis">
+            <BarChart2 className="inline-block mr-1 w-4 h-4" /> WhatsApp Chat Analysis
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="draft">
           <DraftCommunicationForm
@@ -35,6 +40,9 @@ export default function DraftCommunicationFeaturePage() {
         </TabsContent>
         <TabsContent value="whatsapp">
           <WhatsAppReplyDrafter />
+        </TabsContent>
+        <TabsContent value="whatsapp-analysis">
+          <WhatsAppChatAnalysisTab />
         </TabsContent>
       </Tabs>
     </div>

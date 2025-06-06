@@ -2,18 +2,20 @@
 	"name": "merislabs-official",
 	"version": "0.1.0",
 	"private": true,
-	    "scripts": {
-        "dev": "bash ./start-orion.sh",
-        "stop": "bash ./stop-orion.sh",
-        "stop-force": "bash ./stop-orion.sh force",
-        "start-next": "next dev",
-        "build": "next build",
-        "start": "next start",
+	"scripts": {
+		"dev": "next dev",
+		"stop": "bash ./stop-orion.sh",
+		"stop-force": "bash ./stop-orion.sh force",
+		"start-next": "next dev",
+		"build": "next build",
+		"start": "next start",
 		"lint": "next lint",
 		"test": "jest || echo 'No tests found'",
+		"start-orion": "bash ./start-orion.sh",
 		"start-orion-win": "start-orion.bat",
 		"test-cv": "node test-cv-tailoring.js",
-		"test-llm": "node test-llm-integration.js"
+		"test-llm": "node test-llm-integration.js",
+		"test:e2e": "jest tests/e2e.test.ts"
 	},
 	"dependencies": {
 		"@headlessui/react": "^2.2.4",
@@ -78,12 +80,15 @@
 		"reactflow": "^11.11.4",
 		"tailwind-merge": "^2.1.0",
 		"tailwindcss-animate": "^1.0.7",
-		"uuid": "^9.0.1"
+		"uuid": "^9.0.1",
+		"zod": "^3.25.55"
 	},
 	"engines": {
 		"node": "^20.0.0"
 	},
 	"devDependencies": {
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/react": "^16.3.0",
 		"@types/better-sqlite3": "^7.6.8",
 		"@types/jest": "^29.5.14",
 		"@types/mocha": "^10.0.10",
@@ -93,6 +98,7 @@
 		"@types/react": "^18",
 		"@types/react-beautiful-dnd": "^13.1.7",
 		"@types/react-dom": "^18",
+		"@types/testing-library__react": "^10.0.1",
 		"@types/uuid": "^9.0.7",
 		"@typescript-eslint/eslint-plugin": "^8.33.1",
 		"autoprefixer": "^10.0.1",

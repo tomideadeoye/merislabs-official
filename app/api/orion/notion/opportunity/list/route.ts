@@ -1,13 +1,59 @@
 import { NextResponse } from 'next/server';
 import { listOpportunitiesFromNotion } from '@/lib/notion_service';
+import { z } from 'zod';
+
+const OpportunityNotionOutputSharedSchema = z.object({
+  id: z.string(),
+  notion_page_id: z.string().optional(),
+  title: z.string(),
+  company: z.string(),
+  content: z.string().nullable().optional(),
+  descriptionSummary: z.string().nullable().optional(),
+  type: z.union([z.string(), z.null()]).optional(),
+  status: z.union([z.string(), z.null()]).optional(),
+  priority: z.union([z.string(), z.null()]).optional(),
+  url: z.string().nullable().optional(),
+  jobUrl: z.string().nullable().optional(),
+  sourceURL: z.string().nullable().optional(),
+  deadline: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  salary: z.string().nullable().optional(),
+  contact: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  createdAt: z.string().nullable().optional(),
+  updatedAt: z.string().nullable().optional(),
+  dateIdentified: z.string().nullable().optional(),
+  nextActionDate: z.string().nullable().optional(),
+  evaluationOutput: z.any().nullable().optional(),
+  tailoredCV: z.string().nullable().optional(),
+  webResearchContext: z.string().nullable().optional(),
+  tags: z.array(z.string()).optional(),
+  pros: z.array(z.string()).nullable().optional(),
+  cons: z.array(z.string()).nullable().optional(),
+  missingSkills: z.array(z.string()).nullable().optional(),
+  contentType: z.string().nullable().optional(),
+  relatedEvaluationId: z.string().nullable().optional(),
+  lastStatusUpdate: z.string().nullable().optional(),
+  last_edited_time: z.union([z.string(), z.date(), z.null()]).optional(),
+});
 
 export async function GET() {
   try {
     console.log('Attempting to fetch opportunities from Notion...');
     const opportunities = await listOpportunitiesFromNotion();
-    console.log('Raw Notion API response for opportunities:', JSON.stringify(opportunities, null, 2));
-    console.log(`Successfully fetched ${opportunities.length} opportunities.`);
-    return NextResponse.json({ success: true, opportunities });
+    const validOpportunities = [];
+    const invalidOpportunities = [];
+    for (const opp of opportunities) {
+      const parseResult = OpportunityNotionOutputSharedSchema.safeParse(opp);
+      if (parseResult.success) {
+        validOpportunities.push(parseResult.data);
+      } else {
+        console.error('[OpportunityNotionOutputShared] Invalid opportunity:', opp, parseResult.error.format());
+        invalidOpportunities.push({ opp, error: parseResult.error.format() });
+      }
+    }
+    console.log(`Successfully validated ${validOpportunities.length} opportunities. Filtered out ${invalidOpportunities.length} invalid entries.`);
+    return NextResponse.json({ success: true, opportunities: validOpportunities, invalidOpportunities });
   } catch (error: any) {
     console.error('Error fetching opportunities from Notion:', error);
     return NextResponse.json(

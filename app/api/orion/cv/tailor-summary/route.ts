@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
 
     // Fetch the specific component (assuming it's the profile summary)
     const componentsResult = await fetchCVComponentsFromNotion();
-    if (!componentsResult.success) {
-         return NextResponse.json({ success: false, error: componentsResult.error }, { status: 500 });
+    if (!componentsResult.success || !componentsResult.components) {
+      return NextResponse.json({ success: false, error: componentsResult.error || 'Failed to fetch CV components' }, { status: 500 });
     }
     const summaryComponent = componentsResult.components.find((comp: CVComponentShared) => comp.unique_id === component_id && comp.component_type === 'Profile Summary');
 

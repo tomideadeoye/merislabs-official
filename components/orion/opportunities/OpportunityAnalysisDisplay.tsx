@@ -4,11 +4,47 @@
 import React, { useState, useEffect, useCallback } from "react";
 import type { EvaluationOutput, OpportunityNotionOutputShared } from "../../../types/orion";
 import { Loader2, AlertTriangle, RefreshCw, BarChartBig, CheckCircle, Lightbulb } from "lucide-react";
+import { z } from 'zod';
 
 interface OpportunityAnalysisDisplayProps {
   opportunity: OpportunityNotionOutputShared | null;
   initialEvaluation?: EvaluationOutput | { rawOutput?: string };
 }
+
+const OpportunityNotionOutputSharedSchema = z.object({
+  id: z.string(),
+  notion_page_id: z.string().optional(),
+  title: z.string(),
+  company: z.string(),
+  content: z.string().nullable().optional(),
+  descriptionSummary: z.string().nullable().optional(),
+  type: z.union([z.string(), z.null()]).optional(),
+  status: z.union([z.string(), z.null()]).optional(),
+  priority: z.union([z.string(), z.null()]).optional(),
+  url: z.string().nullable().optional(),
+  jobUrl: z.string().nullable().optional(),
+  sourceURL: z.string().nullable().optional(),
+  deadline: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  salary: z.string().nullable().optional(),
+  contact: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  createdAt: z.string().nullable().optional(),
+  updatedAt: z.string().nullable().optional(),
+  dateIdentified: z.string().nullable().optional(),
+  nextActionDate: z.string().nullable().optional(),
+  evaluationOutput: z.any().nullable().optional(),
+  tailoredCV: z.string().nullable().optional(),
+  webResearchContext: z.string().nullable().optional(),
+  tags: z.array(z.string()).optional(),
+  pros: z.array(z.string()).nullable().optional(),
+  cons: z.array(z.string()).nullable().optional(),
+  missingSkills: z.array(z.string()).nullable().optional(),
+  contentType: z.string().nullable().optional(),
+  relatedEvaluationId: z.string().nullable().optional(),
+  lastStatusUpdate: z.string().nullable().optional(),
+  last_edited_time: z.union([z.string(), z.date(), z.null()]).optional(),
+});
 
 export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProps> = ({
   opportunity,
@@ -19,6 +55,14 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (opportunity) {
+    const parseResult = OpportunityNotionOutputSharedSchema.safeParse(opportunity);
+    if (!parseResult.success) {
+      console.error('[OpportunityNotionOutputShared] Invalid data in OpportunityAnalysisDisplay:', parseResult.error.format(), opportunity);
+      throw new Error('Invalid OpportunityNotionOutputShared: ' + JSON.stringify(parseResult.error.format()));
+    }
+  }
 
   // Fetch the latest evaluation for this opportunity
   const fetchEvaluation = useCallback(async (oppId: string) => {

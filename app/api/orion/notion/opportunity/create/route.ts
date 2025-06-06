@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createOpportunityInNotion } from '@/lib/notion_service';
+import { OpportunityNotionPayloadSchema } from '@/lib/notion_next_service';
 
 export async function POST(request: Request) {
     try {
         const opportunityData = await request.json();
         // Validate opportunityData against OpportunityNotionInput type if necessary
+        const parseResult = OpportunityNotionPayloadSchema.safeParse(opportunityData);
+        if (!parseResult.success) {
+            console.error('[POST /api/orion/notion/opportunity/create] Invalid OpportunityNotionPayload:', parseResult.error.format());
+            return NextResponse.json({ success: false, error: 'Invalid OpportunityNotionPayload', details: parseResult.error.format() }, { status: 400 });
+        }
 
         const newOpportunity = await createOpportunityInNotion(opportunityData);
 
