@@ -26,11 +26,9 @@ export async function POST(req: NextRequest) {
 
     // Fetch all available CV components
     const componentsResult = await fetchCVComponentsFromNotion();
-
-    if (!componentsResult.success) {
-      return NextResponse.json({ success: false, error: componentsResult.error }, { status: 500 });
+    if (!componentsResult.success || !componentsResult.components) {
+      return NextResponse.json({ success: false, error: componentsResult.error || 'Failed to fetch CV components' }, { status: 500 });
     }
-
     const allComponents = componentsResult.components;
 
     // Filter and process selected components

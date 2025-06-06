@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { updateNotionOpportunity } from '@/lib/notion_service';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
+import { OpportunityNotionPayloadSchema } from '@/lib/notion_next_service';
 
 export async function PATCH(
     request: Request,
@@ -13,9 +14,14 @@ export async function PATCH(
         return NextResponse.json({ success: false, error: 'Opportunity ID is required' }, { status: 400 });
     }
 
-    // Validate updateData against Partial<OpportunityNotionInput> if necessary
-
     const updateData = await request.json();
+    // Validate updateData against Partial<OpportunityNotionInput> if necessary
+    const parseResult = OpportunityNotionPayloadSchema.partial().safeParse(updateData);
+    if (!parseResult.success) {
+      console.error('[PATCH /api/orion/notion/opportunity/[opportunityId]] Invalid OpportunityNotionPayload:', parseResult.error.format());
+      return NextResponse.json({ success: false, error: 'Invalid OpportunityNotionPayload', details: parseResult.error.format() }, { status: 400 });
+    }
+
     const updatedOpportunity = await updateNotionOpportunity(opportunityId, updateData);
 
     console.log('[PATCH /api/orion/notion/opportunity/[opportunityId]] Result of updateNotionOpportunity:', updatedOpportunity);

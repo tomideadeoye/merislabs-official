@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchMemory, MemorySearchFilter, ScoredMemoryPoint } from '@/lib/memory';
 import { BLOCK_TYPES, Block, BlockType } from '@/types/blocks';
+import { z } from 'zod';
 
 /**
  * GET /api/orion/blocks/list
@@ -13,6 +14,9 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type') as BlockType | null;
+    if (!type) {
+      return NextResponse.json({ success: false, error: 'type parameter is required' }, { status: 400 });
+    }
     const tagsParam = searchParams.get('tags');
     let tags: string[] = [];
     if (tagsParam) {
@@ -41,6 +45,8 @@ export async function GET(req: NextRequest) {
 
     // Search memory
     const searchResult = await searchMemory('*', { filter, limit: 50 });
+    // Debug: log raw search results
+    console.log('[BLOCKS_LIST_API] Raw search results:', JSON.stringify(searchResult.results, null, 2));
     if (!searchResult.success) {
       return NextResponse.json({ success: false, error: searchResult.error || 'Failed to list blocks' }, { status: 500 });
     }
@@ -49,23 +55,28 @@ export async function GET(req: NextRequest) {
     const isBlockType = (type: string): type is BlockType =>
       (BLOCK_TYPES as readonly string[]).includes(type);
 
-    // Map results to Block[]
-    const blocks: Block[] = (searchResult.results || [])
-      .filter((point: ScoredMemoryPoint) => isBlockType(point.payload.type))
-      .map((point: ScoredMemoryPoint) => {
-        const payload = point.payload;
-        return {
-          id: payload.source_id,
-          type: payload.type as BlockType,
-          title: payload.title,
-          content: payload.text,
-          tags: payload.tags,
-          createdAt: payload.createdAt || payload.timestamp,
-          updatedAt: payload.updatedAt || payload.timestamp,
-          metadata: payload.metadata || {},
-        };
+    // Deduplicate by source_id: only return the first chunk for each block
+    const seenSourceIds = new Set<string>();
+    const blocks: Block[] = [];
+    for (const point of (searchResult.results || [])) {
+      if (!isBlockType(point.payload.type)) continue;
+      const payload = point.payload;
+      if (seenSourceIds.has(payload.source_id)) continue;
+      seenSourceIds.add(payload.source_id);
+      blocks.push({
+        id: payload.source_id,
+        type: payload.type as BlockType,
+        title: payload.title,
+        content: payload.text,
+        tags: payload.tags,
+        createdAt: payload.createdAt || payload.timestamp,
+        updatedAt: payload.updatedAt || payload.timestamp,
+        metadata: payload.metadata || {},
       });
+    }
 
+    // Debug: log final blocks array
+    console.log('[BLOCKS_LIST_API] Final blocks array:', JSON.stringify(blocks, null, 2));
     return NextResponse.json({ success: true, blocks }, { status: 200 });
   } catch (error: any) {
     console.error('[BLOCKS_LIST_API_ERROR]', error?.message, error?.stack);

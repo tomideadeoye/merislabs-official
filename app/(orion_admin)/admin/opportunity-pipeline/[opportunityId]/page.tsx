@@ -3,12 +3,48 @@ import { OpportunityDetailView } from '@/components/orion/pipeline/OpportunityDe
 import { EvaluationOutput, Opportunity, OpportunityType, OpportunityStatus, OpportunityPriority, OpportunityNotionOutputShared } from '@/types/opportunity';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { notFound } from 'next/navigation';
+import { z } from 'zod';
 
 type Props = {
   params: {
     opportunityId: string;
   };
 };
+
+const OpportunityNotionOutputSharedSchema = z.object({
+  id: z.string(),
+  notion_page_id: z.string().optional(),
+  title: z.string(),
+  company: z.string(),
+  content: z.string().nullable().optional(),
+  descriptionSummary: z.string().nullable().optional(),
+  type: z.union([z.string(), z.null()]).optional(),
+  status: z.union([z.string(), z.null()]).optional(),
+  priority: z.union([z.string(), z.null()]).optional(),
+  url: z.string().nullable().optional(),
+  jobUrl: z.string().nullable().optional(),
+  sourceURL: z.string().nullable().optional(),
+  deadline: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  salary: z.string().nullable().optional(),
+  contact: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  createdAt: z.string().nullable().optional(),
+  updatedAt: z.string().nullable().optional(),
+  dateIdentified: z.string().nullable().optional(),
+  nextActionDate: z.string().nullable().optional(),
+  evaluationOutput: z.any().nullable().optional(),
+  tailoredCV: z.string().nullable().optional(),
+  webResearchContext: z.string().nullable().optional(),
+  tags: z.array(z.string()).optional(),
+  pros: z.array(z.string()).nullable().optional(),
+  cons: z.array(z.string()).nullable().optional(),
+  missingSkills: z.array(z.string()).nullable().optional(),
+  contentType: z.string().nullable().optional(),
+  relatedEvaluationId: z.string().nullable().optional(),
+  lastStatusUpdate: z.string().nullable().optional(),
+  last_edited_time: z.union([z.string(), z.date(), z.null()]).optional(),
+});
 
 async function fetchNotionOpportunity(opportunityId: string): Promise<Opportunity> {
   const fetchResult = await fetchOpportunityByIdFromNotion(opportunityId);
@@ -18,18 +54,13 @@ async function fetchNotionOpportunity(opportunityId: string): Promise<Opportunit
   // Convert OpportunityNotionOutputShared to Opportunity by ensuring required fields exist
   // Convert last_edited_time to string if it's a Date object to match type definition
   const rawOpportunityData = fetchResult.opportunity;
-if (typeof rawOpportunityData.last_edited_time === 'string') {
-  // valid, do nothing
-} else if (
-  rawOpportunityData.last_edited_time &&
-  typeof rawOpportunityData.last_edited_time === 'object' &&
-  typeof (rawOpportunityData.last_edited_time as { toISOString?: unknown }).toISOString === 'function'
-) {
-  rawOpportunityData.last_edited_time = (rawOpportunityData.last_edited_time as { toISOString: () => string }).toISOString();
-} else {
-  rawOpportunityData.last_edited_time = '';
-}
-  const opportunityData: OpportunityNotionOutputShared = rawOpportunityData;
+  // Validate with zod
+  const parseResult = OpportunityNotionOutputSharedSchema.safeParse(rawOpportunityData);
+  if (!parseResult.success) {
+    console.error('[OpportunityNotionOutputShared] Invalid data in fetchNotionOpportunity:', parseResult.error.format(), rawOpportunityData);
+    throw new Error('Invalid OpportunityNotionOutputShared: ' + JSON.stringify(parseResult.error.format()));
+  }
+  const opportunityData: OpportunityNotionOutputShared = parseResult.data;
   const opportunity: Opportunity = {
     id: opportunityData.id,
     notion_page_id: opportunityData.notion_page_id,

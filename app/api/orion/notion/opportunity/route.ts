@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createOpportunityInNotion, OpportunityNotionPayload } from '@/lib/notion_next_service';
+import { createOpportunityInNotion, OpportunityNotionPayload, OpportunityNotionPayloadSchema } from '@/lib/notion_next_service';
 import { auth } from '@/auth';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 
@@ -17,11 +17,14 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body = await request.json() as OpportunityNotionPayload;
 
-    // Validate required fields
-    if (!body.title || !body.company) {
+    // Validate required fields using zod
+    const parseResult = OpportunityNotionPayloadSchema.safeParse(body);
+    if (!parseResult.success) {
+      console.error('[POST /api/orion/notion/opportunity] Invalid OpportunityNotionPayload:', parseResult.error.format());
       return NextResponse.json({
         success: false,
-        error: 'Title and company are required'
+        error: 'Invalid OpportunityNotionPayload',
+        details: parseResult.error.format()
       }, { status: 400 });
     }
 

@@ -43,7 +43,7 @@ const adminNavItems: NavItem[] = [
   { href: "/admin/opportunity-pipeline", label: PageNames.PIPELINE, icon: Briefcase },
   { href: "/admin/blocks", label: "Blocks" as PageNameValue, icon: Layers },
   { href: "/admin/narrative-clarity-studio", label: "Narrative Clarity Studio" as PageNameValue, icon: Brain },
-  { href: "/admin/draft-communication", label: "Drop an Email" as PageNameValue, icon: Mail },
+  { href: "/admin/draft-communication", label: "Draft Communication" as PageNameValue, icon: Mail },
   { href: "/admin/networking", label: PageNames.NETWORKING, icon: Network },
   { href: "/admin/habitica", label: PageNames.HABITICA, icon: Rocket },
   { href: "/admin/ask-question", label: PageNames.ASK, icon: BrainCircuit },
@@ -54,7 +54,6 @@ const adminNavItems: NavItem[] = [
   { href: "/admin/emotional", label: PageNames.EMOTIONAL, icon: HeartPulse },
   { href: "/admin/local-files", label: PageNames.LOCAL_FILES, icon: FolderOpen },
   { href: "/admin/idea-incubator", label: PageNames.IDEA_INCUBATOR, icon: Lightbulb },
-  { href: "/admin/whatsapp-analysis", label: PageNames.WHATSAPP_ANALYSIS, icon: Users },
   { href: "/admin/system-settings", label: PageNames.SYSTEM, icon: Cog },
 ];
 

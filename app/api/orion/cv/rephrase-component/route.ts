@@ -21,12 +21,9 @@ export async function POST(req: NextRequest) {
     }
 
     const componentsResult = await fetchCVComponentsFromNotion();
-
-    // Check the result structure from the service function
-    if (!componentsResult.success) {
-         return NextResponse.json({ success: false, error: componentsResult.error }, { status: 500 });
+    if (!componentsResult.success || !componentsResult.components) {
+      return NextResponse.json({ success: false, error: componentsResult.error || 'Failed to fetch CV components' }, { status: 500 });
     }
-
     const componentToRephrase = componentsResult.components.find((comp: CVComponentShared) => comp.unique_id === component_id);
 
     if (!componentToRephrase) {

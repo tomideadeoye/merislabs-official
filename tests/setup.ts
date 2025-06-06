@@ -1,5 +1,7 @@
 // Jest setup file to mock HTTP requests and prevent connection errors
 
+import './e2e.test';
+
 // Mock node-fetch
 jest.mock('node-fetch', () => {
   return jest.fn().mockImplementation((url: string, options?: any) => {
@@ -12,7 +14,7 @@ jest.mock('node-fetch', () => {
       // Handle malformed JSON gracefully
       body = {};
     }
-    
+
     // Mock successful responses for API endpoints
     if (urlStr.includes('/api/orion/blocks/create')) {
       // Check for validation errors first
@@ -28,7 +30,7 @@ jest.mock('node-fetch', () => {
           })
         });
       }
-      
+
       // Check for invalid block type
       const validTypes = ['CV_SNIPPET', 'OPPORTUNITY_HIGHLIGHT', 'JOURNAL_INSIGHT', 'PROMPT_TEMPLATE', 'GENERAL_BLOCK'];
       if (!validTypes.includes(b.type)) {
@@ -41,7 +43,7 @@ jest.mock('node-fetch', () => {
           })
         });
       }
-      
+
         return Promise.resolve({
           ok: true,
           status: 200,
@@ -57,7 +59,7 @@ jest.mock('node-fetch', () => {
           })
         });
     }
-    
+
     if (urlStr.includes('/api/orion/blocks/list')) {
       if (urlStr.includes('type=')) {
         const typeMatch = urlStr.match(/type=([^&]+)/);
@@ -119,12 +121,12 @@ jest.mock('node-fetch', () => {
         });
       }
     }
-    
+
     if (urlStr.includes('/api/orion/networking/stakeholder-search')) {
       const b = body as any;
       const query = b.query || 'Unknown Company';
       const roles = b.roles || ['Unknown Role'];
-      
+
       // Return empty array for nonexistent companies
       if (query.includes('NonexistentCompany') || query.includes('UnknownCorp')) {
         return Promise.resolve({
@@ -136,7 +138,7 @@ jest.mock('node-fetch', () => {
           })
         });
       }
-      
+
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -152,13 +154,13 @@ jest.mock('node-fetch', () => {
         })
       });
     }
-    
+
     if (urlStr.includes('/api/orion/networking/generate-outreach')) {
       const b = body as any;
       const stakeholder = b.stakeholder || {};
       const jobTitle = b.jobTitle || 'role';
       const profileData = b.profileData || '';
-      
+
       // Check for missing required fields
       if (!stakeholder.name || !stakeholder.company) {
         return Promise.resolve({
@@ -170,7 +172,7 @@ jest.mock('node-fetch', () => {
           })
         });
       }
-      
+
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -181,7 +183,7 @@ jest.mock('node-fetch', () => {
         })
       });
     }
-    
+
     // Handle opportunity endpoints
     if (urlStr.includes('/api/orion/opportunity/create') || urlStr.includes('/api/orion/notion/opportunity/create')) {
       const b = body as any;
@@ -201,7 +203,7 @@ jest.mock('node-fetch', () => {
         })
       });
     }
-    
+
     if (urlStr.includes('/api/orion/opportunity/draft-application')) {
       if (method === 'GET') {
         return Promise.resolve({
@@ -253,7 +255,7 @@ jest.mock('node-fetch', () => {
         });
       }
     }
-    
+
     if (urlStr.includes('/api/orion/opportunity/find-stakeholders')) {
       return Promise.resolve({
         ok: true,
@@ -270,7 +272,7 @@ jest.mock('node-fetch', () => {
         })
       });
     }
-    
+
     // Default error response for unmocked endpoints
     return Promise.resolve({
       ok: false,
@@ -292,10 +294,10 @@ jest.mock('axios', () => {
         if (url.includes('type=')) {
           const typeMatch = url.match(/type=([^&]+)/);
           const requestedType = typeMatch ? decodeURIComponent(typeMatch[1]) : 'CV_SNIPPET';
-          return Promise.resolve({ 
-            status: 200, 
-            data: { 
-              success: true, 
+          return Promise.resolve({
+            status: 200,
+            data: {
+              success: true,
               blocks: [{
                 id: 'mock-block-id',
                 type: requestedType,
@@ -308,10 +310,10 @@ jest.mock('axios', () => {
         } else if (url.includes('tags=')) {
           const tagsMatch = url.match(/tags=([^&]+)/);
           const requestedTag = tagsMatch ? decodeURIComponent(tagsMatch[1]) : 'filtertest';
-          return Promise.resolve({ 
-            status: 200, 
-            data: { 
-              success: true, 
+          return Promise.resolve({
+            status: 200,
+            data: {
+              success: true,
               blocks: [{
                 id: 'mock-block-id',
                 type: 'CV_SNIPPET',
@@ -322,10 +324,10 @@ jest.mock('axios', () => {
             }
           });
         } else {
-          return Promise.resolve({ 
-            status: 200, 
-            data: { 
-              success: true, 
+          return Promise.resolve({
+            status: 200,
+            data: {
+              success: true,
               blocks: [
                 {
                   id: 'mock-block-1',
@@ -346,7 +348,7 @@ jest.mock('axios', () => {
           });
         }
       }
-      
+
       // Handle opportunity drafts GET requests
       if (url.includes('/api/orion/opportunity/draft-application')) {
         return Promise.resolve({
@@ -361,7 +363,7 @@ jest.mock('axios', () => {
           }
         });
       }
-      
+
       // Default fallback for other GET requests
       return Promise.resolve({ status: 200, data: { success: true, data: 'mocked' } });
     }),
@@ -378,7 +380,7 @@ jest.mock('axios', () => {
             }
           });
         }
-        
+
         // Validate block type
         const validTypes = ['CV_SNIPPET', 'OPPORTUNITY_HIGHLIGHT', 'JOURNAL_INSIGHT', 'PROMPT_TEMPLATE', 'GENERAL_BLOCK'];
         if (!validTypes.includes(data.type)) {
@@ -390,7 +392,7 @@ jest.mock('axios', () => {
             }
           });
         }
-        
+
         return Promise.resolve({
           status: 200,
           data: {
@@ -405,7 +407,7 @@ jest.mock('axios', () => {
           }
         });
       }
-      
+
       if (url.includes('/api/orion/opportunity/create') || url.includes('/api/orion/notion/opportunity/create')) {
         return Promise.resolve({
           status: 200,
@@ -422,7 +424,7 @@ jest.mock('axios', () => {
           }
         });
       }
-      
+
       if (url.includes('/api/orion/opportunity/find-stakeholders')) {
         return Promise.resolve({
           status: 200,
@@ -437,11 +439,11 @@ jest.mock('axios', () => {
           }
         });
       }
-      
+
       if (url.includes('/api/orion/networking/stakeholder-search')) {
         const query = data?.query || 'Unknown Company';
         const roles = data?.roles || ['Unknown Role'];
-        
+
         // Return empty array for nonexistent companies
         if (query.includes('NonexistentCompany') || query.includes('UnknownCorp')) {
           return Promise.resolve({
@@ -452,7 +454,7 @@ jest.mock('axios', () => {
             }
           });
         }
-        
+
         return Promise.resolve({
           status: 200,
           data: {
@@ -467,12 +469,12 @@ jest.mock('axios', () => {
           }
         });
       }
-      
+
       if (url.includes('/api/orion/networking/generate-outreach')) {
         const stakeholder = data?.stakeholder || {};
         const jobTitle = data?.jobTitle || 'role';
         const profileData = data?.profileData || '';
-        
+
         // Check for missing required fields
         if (!stakeholder.name || !stakeholder.company) {
           return Promise.resolve({
@@ -483,7 +485,7 @@ jest.mock('axios', () => {
             }
           });
         }
-        
+
         return Promise.resolve({
           status: 200,
           data: {
@@ -493,7 +495,7 @@ jest.mock('axios', () => {
           }
         });
       }
-      
+
       if (url.includes('/api/orion/opportunity/draft-application')) {
         return Promise.resolve({
           status: 200,
@@ -507,7 +509,7 @@ jest.mock('axios', () => {
           }
         });
       }
-      
+
       return Promise.resolve({ status: 200, data: { success: true, data: 'mocked' } });
     }),
     put: jest.fn().mockResolvedValue({ status: 200, data: { success: true, data: 'mocked' } }),
@@ -541,7 +543,7 @@ jest.mock('axios', () => {
     }),
     request: jest.fn().mockResolvedValue({ status: 200, data: { success: true, data: 'mocked' } }),
   };
-  
+
   return {
     default: {
       create: jest.fn(() => mockAxiosInstance),

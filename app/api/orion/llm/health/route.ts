@@ -19,7 +19,7 @@ if (!DEEPSEEK_CONFIG.apiKey || !DEEPSEEK_CONFIG.basePath) {
   console.error("- AZURE_DEEPSEEK_ENDPOINT:", !!DEEPSEEK_CONFIG.basePath);
 }
 
-export const AZURE_DEEPSEEK_CONFIG = {
+const AZURE_DEEPSEEK_CONFIG = {
   apiKey: process.env.AZURE_DEEPSEEK_API_KEY,
   basePath: "https://ai-tomideadeoyeai005753286646.services.ai.azure.com/models/chat/completions",
   apiVersion: "2024-05-01-preview"
@@ -65,7 +65,13 @@ export async function GET(req: NextRequest) {
 }
 
 async function checkDeepSeekHealth() {
-  if (!DEEPSEEK_CONFIG.apiKey || !DEEPSEEK_CONFIG.basePath) {
+  const config = {
+    apiKey: process.env.AZURE_DEEPSEEK_API_KEY,
+    basePath: process.env.AZURE_DEEPSEEK_ENDPOINT,
+    apiVersion: process.env.AZURE_DEEPSEEK_API_VERSION || "2024-05-01-preview"
+  };
+
+  if (!config.apiKey || !config.basePath) {
     return false;
   }
 
@@ -76,11 +82,11 @@ async function checkDeepSeekHealth() {
     };
 
     const response = await fetch(
-      `${DEEPSEEK_CONFIG.basePath}?api-version=${DEEPSEEK_CONFIG.apiVersion || "2024-05-01-preview"}`,
+      `${config.basePath}?api-version=${config.apiVersion}`,
       {
         method: "POST",
         headers: {
-          "api-key": DEEPSEEK_CONFIG.apiKey,
+          "api-key": config.apiKey,
           "Content-Type": "application/json"
         },
         body: JSON.stringify(testPayload)
