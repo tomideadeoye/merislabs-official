@@ -5,12 +5,16 @@ module.exports = {
   testMatch: [
     '**/lib/**/*.test.ts?(x)',
     '**/orion_python_backend/**/*.test.ts?(x)',
-    '**/scripts/**/*.test.ts?(x)'
+    '**/scripts/**/*.test.ts?(x)',
+    '**/tests/**/*.test.ts?(x)'
   ],
   transform: {
     '^.+\\.tsx?$': 'ts-jest'
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
-  }
+  },
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  clearMocks: true,
+  testTimeout: 30000
 };

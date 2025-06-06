@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await qdrantClient.createCollection(collectionName, {
       vectors: {
-        size: 1536, // OpenAI ada-002 embedding size
+        size: 384, // all-MiniLM-L6-v2 embedding size
         distance: 'Cosine'
       }
     });

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { OpportunityCreatePayload, OpportunityNotionInput, OpportunityNotionOutputShared } from '../types/orion';
 import fetch from 'node-fetch';
+import { parseNotionPageProperties } from '../lib/notion_service';
 
 describe('Sequential Thinking Prompts', () => {
   const filePath = path.join(__dirname, '../data/sequential_thinking_prompts.json');
@@ -182,7 +183,7 @@ describe('Blocks API Integration', () => {
     expect(data.error).toMatch(/type/);
   });
 
-  it('should return 500 for missing required fields in create', async () => {
+  it('should return 400 for missing required fields in create', async () => {
     const res = await fetch(`${BLOCK_API_BASE}/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -190,8 +191,91 @@ describe('Blocks API Integration', () => {
     });
     const data = await res.json();
     console.log('[TEST] Create block missing fields:', data);
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
     expect(data.success).toBe(false);
     expect(data.error).toBeDefined();
+  });
+});
+
+// --- Notion Property Parsing Tests ---
+describe('parseNotionPageProperties', () => {
+  it('should extract all fields from a well-formed Notion page', () => {
+    const mockPage = {
+      id: 'page-1',
+      properties: {
+        'Start Date': { date: { start: '2023-01-01' } },
+        'End Date': { date: { start: '2023-01-31' } },
+        'UniqueID': { rich_text: [{ plain_text: 'UID123' }] },
+        'Component Name': { title: [{ plain_text: 'ComponentX' }] },
+        'Component Type': { select: { name: 'TypeA' } },
+        'Content Primary': { rich_text: [{ plain_text: 'Primary content' }] },
+        'Keywords': { multi_select: [{ name: 'AI' }, { name: 'ML' }] },
+        'Associated Company': { rich_text: [{ plain_text: 'Acme Corp' }] },
+      }
+    };
+    const result = parseNotionPageProperties(mockPage);
+    expect(result.StartDate).toBe('2023-01-01');
+    expect(result.EndDate).toBe('2023-01-31');
+    expect(result.UniqueID).toBe('UID123');
+    expect(result.ComponentName).toBe('ComponentX');
+    expect(result.ComponentType).toBe('TypeA');
+    expect(result.ContentPrimary).toBe('Primary content');
+    expect(result.Keywords).toEqual(['AI', 'ML']);
+    expect(result.AssociatedCompany).toBe('Acme Corp');
+  });
+
+  it('should handle missing/optional fields gracefully', () => {
+    const mockPage = {
+      id: 'page-2',
+      properties: {
+        'Start Date': {},
+        'UniqueID': {},
+        'Component Name': {},
+        'Component Type': {},
+        'Content Primary': {},
+        'Keywords': {},
+        'Associated Company': {},
+      }
+    };
+    const result = parseNotionPageProperties(mockPage);
+    expect(result.StartDate).toBeNull();
+    expect(result.EndDate).toBeNull();
+    expect(result.UniqueID).toBeNull();
+    expect(result.ComponentName).toBeNull();
+    expect(result.ComponentType).toBeNull();
+    expect(result.ContentPrimary).toBeNull();
+    expect(result.Keywords).toEqual([]);
+    expect(result.AssociatedCompany).toBeNull();
+  });
+
+  it('should log and return nulls for completely invalid input', () => {
+    const result = parseNotionPageProperties(null);
+    expect(result.StartDate).toBeNull();
+    expect(result.EndDate).toBeNull();
+    expect(result.UniqueID).toBeNull();
+    expect(result.ComponentName).toBeNull();
+    expect(result.ComponentType).toBeNull();
+    expect(result.ContentPrimary).toBeNull();
+    expect(result.Keywords).toEqual([]);
+    expect(result.AssociatedCompany).toBeNull();
+  });
+
+  it('should handle extra/unexpected properties without error', () => {
+    const mockPage = {
+      id: 'page-3',
+      properties: {
+        'Start Date': { date: { start: '2023-02-01' } },
+        'Extra Field': { rich_text: [{ plain_text: 'Extra' }] },
+      }
+    };
+    const result = parseNotionPageProperties(mockPage);
+    expect(result.StartDate).toBe('2023-02-01');
+    expect(result.EndDate).toBeNull();
+    expect(result.UniqueID).toBeNull();
+    expect(result.ComponentName).toBeNull();
+    expect(result.ComponentType).toBeNull();
+    expect(result.ContentPrimary).toBeNull();
+    expect(result.Keywords).toEqual([]);
+    expect(result.AssociatedCompany).toBeNull();
   });
 });

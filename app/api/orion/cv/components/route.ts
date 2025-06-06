@@ -29,11 +29,13 @@ export async function GET() {
                 console.warn(`Page ${page.id} is missing properties.`);
                 return { notionPageId: page.id, unique_id: page.id, component_name: 'Error: Missing Properties', component_type: 'Unknown', content_primary: '', contentType: 'CV Component' };
             }
-            const props = parseNotionPageProperties(page.properties);
+            const props = parseNotionPageProperties(page);
 
+            // Logging for traceability
+            console.info('[CV_COMPONENTS] Parsed Notion properties:', { pageId: page.id, props });
 
-            const startDateProp = props['Start Date'];
-            const endDateProp = props['End Date'];
+            const startDateProp = props['StartDate'];
+            const endDateProp = props['EndDate'];
 
             return {
                 notionPageId: page.id,
