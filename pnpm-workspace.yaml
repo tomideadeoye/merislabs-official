@@ -1,2 +1,11 @@
+packages:
+  - 'app'
+  - 'components'
+  - 'hooks'
+  - 'lib'
+  - 'scripts'
+  - 'utils'
+  - 'orion_python_backend'
+
 ignoredBuiltDependencies:
   - better-sqlite3
