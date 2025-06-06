@@ -35,11 +35,11 @@ export async function GET(req: NextRequest) {
     // Build filter
     const filter: MemorySearchFilter = { must: [] };
     if (type && BLOCK_TYPES.includes(type)) {
-      filter.must!.push({ key: 'type', match: { value: type } });
+      filter.must!.push({ key: 'payload.type', match: { value: type } });
     }
     if (tags.length > 0) {
       for (const tag of tags) {
-        filter.must!.push({ key: 'tags', match: { value: tag } });
+        filter.must!.push({ key: 'payload.tags', match: { value: tag } });
       }
     }
 

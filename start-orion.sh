@@ -204,7 +204,7 @@ PROJECT DETAILS:
 - this is a personal project.
 - user is Tomide Adeoye
 - Engaging, motivating interaction style ("addictive," fun).
-
+- monorepo, pnpm, nextjs, python service for special features
 
 
 
