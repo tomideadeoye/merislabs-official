@@ -6,7 +6,7 @@ import { PageNames } from "@/app_state";
 import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/hooks/useSessionState';
 import { DashboardRoutineStatus } from '@/components/orion/DashboardRoutineStatus';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Home,
@@ -23,7 +23,21 @@ import { checkAllLlmApiKeys } from '../../../lib/llm_providers';
 export default function AdminDashboardPage() {
   const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
 
-  // LLM Health Check State
+  // Simple password protection
+  const [password, setPassword] = useState('');
+  const [authenticated, setAuthenticated] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'orion') {
+      setAuthenticated(true);
+      setPasswordError('');
+    } else {
+      setPasswordError('Incorrect password');
+    }
+  };
+
   const [llmHealth, setLlmHealth] = useState<any[]>([]);
   const [llmHealthLoading, setLlmHealthLoading] = useState(true);
   const [llmHealthError, setLlmHealthError] = useState<string | null>(null);
@@ -55,6 +69,36 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     setLlmApiKeys(checkAllLlmApiKeys());
   }, []);
+
+  if (!authenticated) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{
+          backdropFilter: 'blur(12px)',
+          background: 'rgba(20, 20, 30, 0.85)',
+        }}
+      >
+        <form
+          onSubmit={handlePasswordSubmit}
+          className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center border border-gray-300 dark:border-gray-700"
+        >
+          <h2 className="text-2xl font-bold mb-4">Admin Access</h2>
+          <input
+            type="password"
+            placeholder="Enter admin password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="mb-4 px-4 py-2 rounded border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {passwordError && (
+            <div className="text-red-500 mb-2">{passwordError}</div>
+          )}
+          <Button type="submit">Unlock</Button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -97,6 +141,50 @@ export default function AdminDashboardPage() {
             ))}
           </ul>
         )}
+      </section>
+
+      {/* Feature Cards Section (moved from home page) */}
+      <section className="container mx-auto pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Journal</CardTitle>
+              <CardDescription>Write and view journal entries</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Record your thoughts and reflections in a journal that's stored in memory.</p>
+              <Link href="/admin/journal">
+                <Button>Open Journal</Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Memory Explorer</CardTitle>
+              <CardDescription>Search and explore your memory</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Search through your memory and add new memories of different types.</p>
+              <Link href="/admin/memory-manager">
+                <Button>Explore Memory</Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Opportunities</CardTitle>
+              <CardDescription>Manage and evaluate opportunities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Track and evaluate job opportunities, projects, and more.</p>
+              <Link href="/admin/opportunity">
+                <Button>View Opportunities</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </section>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
