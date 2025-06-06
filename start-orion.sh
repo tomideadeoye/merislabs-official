@@ -195,14 +195,16 @@ THERE SHOULD BE A:
 - rely mostly on NextJS. Only use python backend when Nextjs can't do it.
 - Cache all data in memory.
 - Draft Communication Page in Admin Folder > WhatsApp Chat Analysis Tab > Draft Email Tab > Draft LinkedIn Message Tab
+- page for managing my business
+- GOAL: automation support (networking, applications, task management).
+- GOAL: i provide a search name that is a company in the opportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
+
 
 PROJECT DETAILS:
 - this is a personal project.
 - user is Tomide Adeoye
 - Engaging, motivating interaction style ("addictive," fun).
 
-- GOAL: automation support (networking, applications, task management).
-- GOAL: i provide a search name that is a company in the opportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
 
 
 
