@@ -2,16 +2,9 @@ import { Client } from '@notionhq/client';
 import { NOTION_API_KEY, NOTION_DATABASE_ID, NOTION_CONTACTS_DATABASE_ID } from './orion_config';
 import type { CVComponentShared } from '@/types/orion';
 
-// Initialize Notion client
 const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
 
-// the greate cycle of iterative improvement and development and question asking
-
-// summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into run-all-tests.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
-
-// Review orion_prd.md file and determine features not yet implemented.
-
-// it is a useCycle, patterns -- all towards greatnes and wealth
+// summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
 
 
 /**

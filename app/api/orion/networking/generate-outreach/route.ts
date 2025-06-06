@@ -154,4 +154,4 @@ async function generateOutreachEmail(
   }
 }
 
-// TODO: Add/expand tests for this endpoint in scripts/run-all-tests.ts
+// TODO: Add/expand tests for this endpoint in tests/e2e.test.ts
