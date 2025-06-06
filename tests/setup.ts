@@ -16,7 +16,9 @@ jest.mock('node-fetch', () => {
     // Mock successful responses for API endpoints
     if (urlStr.includes('/api/orion/blocks/create')) {
       // Check for validation errors first
-      if (!body.type || !body.title || !body.content) {
+      // Use type assertions to avoid TS2339 errors
+      const b = body as any;
+      if (!b.type || !b.title || !b.content) {
         return Promise.resolve({
           ok: false,
           status: 400,
@@ -29,7 +31,7 @@ jest.mock('node-fetch', () => {
       
       // Check for invalid block type
       const validTypes = ['CV_SNIPPET', 'OPPORTUNITY_HIGHLIGHT', 'JOURNAL_INSIGHT', 'PROMPT_TEMPLATE', 'GENERAL_BLOCK'];
-      if (!validTypes.includes(body.type)) {
+      if (!validTypes.includes(b.type)) {
         return Promise.resolve({
           ok: false,
           status: 400,
@@ -47,10 +49,10 @@ jest.mock('node-fetch', () => {
             success: true,
             block: {
               id: 'mock-block-id-' + Math.random().toString(36).substr(2, 9),
-              type: body.type,
-              title: body.title,
-              content: body.content,
-              tags: body.tags || []
+              type: b.type,
+              title: b.title,
+              content: b.content,
+              tags: b.tags || []
             }
           })
         });
@@ -119,8 +121,9 @@ jest.mock('node-fetch', () => {
     }
     
     if (urlStr.includes('/api/orion/networking/stakeholder-search')) {
-      const query = body.query || 'Unknown Company';
-      const roles = body.roles || ['Unknown Role'];
+      const b = body as any;
+      const query = b.query || 'Unknown Company';
+      const roles = b.roles || ['Unknown Role'];
       
       // Return empty array for nonexistent companies
       if (query.includes('NonexistentCompany') || query.includes('UnknownCorp')) {
@@ -151,9 +154,10 @@ jest.mock('node-fetch', () => {
     }
     
     if (urlStr.includes('/api/orion/networking/generate-outreach')) {
-      const stakeholder = body.stakeholder || {};
-      const jobTitle = body.jobTitle || 'role';
-      const profileData = body.profileData || '';
+      const b = body as any;
+      const stakeholder = b.stakeholder || {};
+      const jobTitle = b.jobTitle || 'role';
+      const profileData = b.profileData || '';
       
       // Check for missing required fields
       if (!stakeholder.name || !stakeholder.company) {
@@ -180,6 +184,7 @@ jest.mock('node-fetch', () => {
     
     // Handle opportunity endpoints
     if (urlStr.includes('/api/orion/opportunity/create') || urlStr.includes('/api/orion/notion/opportunity/create')) {
+      const b = body as any;
       return Promise.resolve({
         ok: true,
         status: 201,
@@ -187,11 +192,11 @@ jest.mock('node-fetch', () => {
           success: true,
           opportunity: {
             id: 'mock-opportunity-id-' + Math.random().toString(36).substr(2, 9),
-            title: body.title || 'Mock Opportunity',
-            company: body.company || 'Mock Company',
-            content: body.content || 'Mock content',
-            type: body.type || 'job',
-            status: body.status || 'not_started'
+            title: b.title || 'Mock Opportunity',
+            company: b.company || 'Mock Company',
+            content: b.content || 'Mock content',
+            type: b.type || 'job',
+            status: b.status || 'not_started'
           }
         })
       });
@@ -232,7 +237,7 @@ jest.mock('node-fetch', () => {
             success: true,
             draft: {
               id: 'draft-1',
-              content: body.content || 'Updated mock draft content',
+              content: (body as any).content || 'Updated mock draft content',
               version: 2
             }
           })
