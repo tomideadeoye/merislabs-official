@@ -2,11 +2,13 @@
 	"name": "merislabs-official",
 	"version": "0.1.0",
 	"private": true,
-	"scripts": {
-		"dev": "bash ./start-orion.sh",
-		"start-next": "next dev",
-		"build": "next build",
-		"start": "next start",
+	    "scripts": {
+        "dev": "bash ./start-orion.sh",
+        "stop": "bash ./stop-orion.sh",
+        "stop-force": "bash ./stop-orion.sh force",
+        "start-next": "next dev",
+        "build": "next build",
+        "start": "next start",
 		"lint": "next lint",
 		"test": "jest || echo 'No tests found'",
 		"start-orion-win": "start-orion.bat",
