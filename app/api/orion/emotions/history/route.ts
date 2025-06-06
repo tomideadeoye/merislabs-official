@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/database';
+import { pool } from '@/lib/database';
 import { EmotionalLogEntry } from '@/types/orion';
 
 export const dynamic = "force-dynamic";
@@ -47,9 +47,16 @@ export async function GET(req: NextRequest) {
     params.limit = limit;
     params.offset = offset;
 
-    // Execute query
-    const stmt = db.prepare(query);
-    const rows = stmt.all(params);
+    // Execute query using Postgres
+    // Convert SQLite named parameters (@param) to Postgres ($1, $2, ...)
+    const paramKeys = Object.keys(params);
+    const values = paramKeys.map((k) => params[k]);
+    let pgQuery = query;
+    paramKeys.forEach((k, i) => {
+      pgQuery = pgQuery.replaceAll(`@${k}`, `$${i + 1}`);
+    });
+
+    const { rows } = await pool.query(pgQuery, values);
 
     // Parse JSON fields
     const logs: EmotionalLogEntry[] = rows.map((row: any) => ({
@@ -69,10 +76,16 @@ export async function GET(req: NextRequest) {
                                   undefined
     }));
 
+    // Get total count for pagination
+    const countResult = await pool.query(
+      `SELECT COUNT(*) as count FROM emotional_logs`
+    );
+    const total = parseInt(countResult.rows[0]?.count || '0', 10);
+
     return NextResponse.json({
       success: true,
       logs,
-      total: db.prepare('SELECT COUNT(*) as count FROM emotional_logs').get().count
+      total
     });
 
   } catch (error: any) {

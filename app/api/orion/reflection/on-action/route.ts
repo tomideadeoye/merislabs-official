@@ -1,8 +1,12 @@
+/**
+ * GOAL: Save action reflections to Qdrant (primary) and Neon/Postgres (secondary for structured links).
+ * Related: lib/database.ts, prd.md, lib/orion_config.ts
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '@/lib/database';
+import { pool } from '@/lib/database';
 
 interface ActionReflectionRequestBody {
   habiticaTaskId: string;
@@ -30,7 +34,10 @@ export async function POST(request: NextRequest) {
       timestamp
     } = body;
 
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Received POST request with body:`, JSON.stringify(body, null, 2));
+
     if (!habiticaTaskId || !reflectionText || !timestamp || !originalTaskText) {
+      console.error(`[ACTION_REFLECTION_API][ERROR] Missing required fields: habiticaTaskId=${habiticaTaskId}, reflectionText=${reflectionText}, timestamp=${timestamp}, originalTaskText=${originalTaskText}`);
       return NextResponse.json({
         success: false,
         error: 'Missing required fields for action reflection.'
@@ -41,6 +48,7 @@ export async function POST(request: NextRequest) {
     const internalApiUrlBase = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
     // 1. Generate Embeddings for the reflection text
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Generating embeddings for reflectionText: "${reflectionText}"`);
     const embeddingResponse = await fetch(`${internalApiUrlBase}/api/orion/memory/generate-embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,15 +56,19 @@ export async function POST(request: NextRequest) {
     });
 
     const embeddingData = await embeddingResponse.json();
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Embedding response:`, JSON.stringify(embeddingData, null, 2));
 
     if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length === 0) {
+      console.error(`[ACTION_REFLECTION_API][ERROR] Failed to generate embeddings:`, embeddingData.error);
       throw new Error(embeddingData.error || 'Failed to generate embeddings for action reflection.');
     }
 
     const embeddingVector: number[] = embeddingData.embeddings[0];
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Embedding vector generated:`, embeddingVector);
 
     // 2. Prepare memory point for the Action Reflection
     const reflectionSourceId = `action_reflection_${habiticaTaskId}_${timestamp.replace(/[:.]/g, '-')}`;
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Generated reflectionSourceId: ${reflectionSourceId}`);
 
     const memoryPayload = {
       text: reflectionText,
@@ -70,11 +82,15 @@ export async function POST(request: NextRequest) {
       related_orion_source_id: orionSourceReferenceId,
     };
 
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Memory payload:`, JSON.stringify(memoryPayload, null, 2));
+
     const memoryPoint = {
       id: uuidv4(),
       vector: embeddingVector,
       payload: memoryPayload,
     };
+
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Memory point to upsert:`, JSON.stringify(memoryPoint, null, 2));
 
     // 3. Upsert the Action Reflection into memory
     const upsertResponse = await fetch(`${internalApiUrlBase}/api/orion/memory/upsert`, {
@@ -87,42 +103,42 @@ export async function POST(request: NextRequest) {
     });
 
     const upsertData = await upsertResponse.json();
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Upsert response:`, JSON.stringify(upsertData, null, 2));
 
     if (!upsertData.success) {
+      console.error(`[ACTION_REFLECTION_API][ERROR] Failed to upsert memory:`, upsertData.error);
       throw new Error(upsertData.error || 'Failed to save action reflection to memory.');
     }
 
-    // 4. Store the reflection link in the database
+    // 4. Store the reflection link in Neon/Postgres
     try {
-      const linkStmt = db.prepare(`
-        INSERT INTO habitica_task_links (
+      console.log(`[ACTION_REFLECTION_API][VERBOSE] Inserting reflection link into Neon/Postgres for habiticaTaskId: ${habiticaTaskId}`);
+      await pool.query(
+        `INSERT INTO habitica_task_links (
           id, habiticaTaskId, orionSourceModule, orionSourceReferenceId, orionTaskText, createdAt, reflectionId, reflectionText
-        ) VALUES (
-          @id, @habiticaTaskId, @orionSourceModule, @orionSourceReferenceId, @orionTaskText, @createdAt, @reflectionId, @reflectionText
-        )
-        ON CONFLICT(habiticaTaskId) DO UPDATE SET
-          reflectionId = @reflectionId,
-          reflectionText = @reflectionText
-      `);
-
-      linkStmt.run({
-        id: uuidv4(),
-        habiticaTaskId,
-        orionSourceModule: orionSourceModule || 'unknown',
-        orionSourceReferenceId: orionSourceReferenceId || 'unknown',
-        orionTaskText: originalTaskText,
-        createdAt: currentISOTime,
-        reflectionId: reflectionSourceId,
-        reflectionText: reflectionText
-      });
-
-      console.log(`[ACTION_REFLECTION_API] Reflection link saved to database for task ID: ${habiticaTaskId}`);
-    } catch (dbError: any) {
-      console.error(`[ACTION_REFLECTION_API] Failed to save reflection link to database: ${dbError.message}`);
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (habiticaTaskId) DO UPDATE SET
+          reflectionId = EXCLUDED.reflectionId,
+          reflectionText = EXCLUDED.reflectionText
+        `,
+        [
+          uuidv4(),
+          habiticaTaskId,
+          orionSourceModule || 'unknown',
+          orionSourceReferenceId || 'unknown',
+          originalTaskText,
+          currentISOTime,
+          reflectionSourceId,
+          reflectionText
+        ]
+      );
+      console.log(`[ACTION_REFLECTION_API][VERBOSE] Reflection link saved to Neon/Postgres for task ID: ${habiticaTaskId}`);
+    } catch (pgError: any) {
+      console.error(`[ACTION_REFLECTION_API][ERROR] Failed to save reflection link to Neon/Postgres: ${pgError.message}`);
       // Continue even if database update fails, as we've already saved to memory
     }
 
-    console.log(`[ACTION_REFLECTION_API] Action reflection saved. Source ID: ${reflectionSourceId}`);
+    console.log(`[ACTION_REFLECTION_API][VERBOSE] Action reflection saved. Source ID: ${reflectionSourceId}`);
 
     return NextResponse.json({
       success: true,
@@ -131,7 +147,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('[ACTION_REFLECTION_API_ERROR]', error);
+    console.error('[ACTION_REFLECTION_API_ERROR][FATAL]', error);
 
     return NextResponse.json({
       success: false,

@@ -199,7 +199,14 @@ export async function getLlmAnswerWithFallback(
     try {
       console.log(`Attempting model ${currentModel}`);
 
-      const response = await fetch('/api/orion/llm', {
+      // Use absolute URL for server-side fetch
+      const llmApiUrl =
+        typeof window === 'undefined'
+          ? (process.env.NEXTAUTH_URL
+              ? process.env.NEXTAUTH_URL.replace(/\/$/, '') + '/api/orion/llm'
+              : 'http://localhost:3000/api/orion/llm')
+          : '/api/orion/llm';
+      const response = await fetch(llmApiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -248,7 +255,14 @@ export async function generateLLMResponse(
   const modelId = model || getDefaultModelForRequestType(requestType);
 
   try {
-    const response = await fetch('/api/orion/llm', {
+    // Use absolute URL for server-side fetch
+    const llmApiUrl =
+      typeof window === 'undefined'
+        ? (process.env.NEXTAUTH_URL
+            ? process.env.NEXTAUTH_URL.replace(/\/$/, '') + '/api/orion/llm'
+            : 'http://localhost:3000/api/orion/llm')
+        : '/api/orion/llm';
+    const response = await fetch(llmApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -307,7 +321,14 @@ export async function generateLLMResponseWithTools({
 }): Promise<any> {
   const modelId = model || getDefaultModelForRequestType(requestType);
   try {
-    const response = await fetch('/api/orion/llm', {
+    // Use absolute URL for server-side fetch
+    const llmApiUrl =
+      typeof window === 'undefined'
+        ? (process.env.NEXTAUTH_URL
+            ? process.env.NEXTAUTH_URL.replace(/\/$/, '') + '/api/orion/llm'
+            : 'http://localhost:3000/api/orion/llm')
+        : '/api/orion/llm';
+    const response = await fetch(llmApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

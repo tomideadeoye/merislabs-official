@@ -11,7 +11,20 @@ const nextConfig = {
     styledComponents: true
   },
   images: {
-    domains: ['d2dzik4ii1e1u6.cloudfront.net', 'res.cloudinary.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'd2dzik4ii1e1u6.cloudfront.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {

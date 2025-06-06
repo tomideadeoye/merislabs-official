@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
         }
         const duration = Date.now() - startTime;
         console.log(`[API /draft-whatsapp-reply] [INFO] Request completed successfully in ${duration}ms.`);
-        return NextResponse.json({ success: true, drafts });
+        return NextResponse.json({ success: true, drafts, relevantMemories });
 
     } catch (error: any) {
         const duration = Date.now() - startTime;

@@ -6,6 +6,3 @@ packages:
   - 'scripts'
   - 'utils'
   - 'orion_python_backend'
-
-ignoredBuiltDependencies:
-  - better-sqlite3

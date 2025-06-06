@@ -1,6 +1,10 @@
+/**
+ * GOAL: Fetch and manage opportunity application drafts using Neon/Postgres, replacing SQLite for cloud reliability.
+ * Related: lib/database.ts, prd.md, types/opportunity.d.ts
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db } from '@/lib/database';
+import { pool } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
@@ -15,13 +19,11 @@ export async function GET(
     const { opportunityId } = params;
 
     // Get the opportunity to find the application material IDs
-    const getOpportunityStmt = db.prepare(`
-      SELECT applicationMaterialIds FROM opportunities WHERE id = ?
-    `);
+    const opportunityQuery = 'SELECT applicationMaterialIds FROM opportunities WHERE id = $1';
+    const opportunityResult = await pool.query(opportunityQuery, [opportunityId]);
+    const opportunity = opportunityResult.rows[0];
 
-    const opportunity = getOpportunityStmt.get(opportunityId);
-
-    if (!opportunity || !opportunity.applicationMaterialIds) {
+    if (!opportunity || !opportunity.applicationmaterialids) {
       return NextResponse.json({
         success: false,
         error: 'No application drafts found for this opportunity.'
@@ -94,7 +96,7 @@ Tomide Adeoye`
     return NextResponse.json({
       success: true,
       drafts: mockDrafts,
-      draftIds: JSON.parse(opportunity.applicationMaterialIds)
+      draftIds: JSON.parse(opportunity.applicationmaterialids)
     });
 
   } catch (error: any) {
