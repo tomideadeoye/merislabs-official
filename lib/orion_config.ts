@@ -2,6 +2,10 @@
  * Configuration for Orion system
  */
 
+// DEBUG: Log Notion env variables at startup for troubleshooting
+console.info('[ORION_CONFIG][DEBUG] NOTION_API_KEY:', process.env.NOTION_API_KEY ? '[SET]' : '[NOT SET]');
+console.info('[ORION_CONFIG][DEBUG] NOTION_DATABASE_ID:', process.env.NOTION_DATABASE_ID ? process.env.NOTION_DATABASE_ID : '[NOT SET]');
+
 // API URLs
 export const PYTHON_API_URL = process.env.NEXT_PUBLIC_PYTHON_API_URL || 'http://localhost:5002';
 export const QDRANT_URL = process.env.NEXT_PUBLIC_QDRANT_URL || 'http://localhost:6333';
@@ -51,7 +55,7 @@ export const ORION_ACCESSIBLE_LOCAL_DIRECTORIES = [
 
 export const NOTION_API_KEY = process.env.NOTION_API_KEY;
 export const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
-export const NOTION_CONTACTS_DATABASE_ID = process.env.NOTION_CONTACTS_DATABASE_ID;
+// ONE DATABASE ID FOR ALL NOTION DATABASES
 
 // Authorization helper function
 export async function checkAuthorization(role: string, request: Request) {

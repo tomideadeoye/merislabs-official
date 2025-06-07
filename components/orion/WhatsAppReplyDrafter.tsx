@@ -12,7 +12,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Loader2, Star } from 'lucide-react';
-import { AddToMemoryForm } from './DedicatedAddToMemoryFormComponent';
+import { DedicatedAddToMemoryFormComponent } from './DedicatedAddToMemoryFormComponent';
+import { QuadrantMemoryChunksVisualizer } from './QuadrantMemoryChunksVisualizer';
 
 const RELATIONSHIP_CONTEXTS = [
   { value: 'timi_girlfriend', label: 'Timi (Girlfriend)' },
@@ -39,7 +40,7 @@ export default function WhatsAppReplyDrafter() {
     explanation: string;
     rank: number;
   }[]>([]);
-  const [relevantMemories, setRelevantMemories] = useState<string[]>([]);
+  const [relevantMemories, setRelevantMemories] = useState<(string | { text: string; [key: string]: any })[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,14 +193,21 @@ export default function WhatsAppReplyDrafter() {
       </form>
       {error && <div className="text-red-600 mt-4">{error}</div>}
       {relevantMemories.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-2">Memories Considered</h3>
-          <ul className="list-disc pl-6 space-y-1 text-gray-700">
-            {relevantMemories.map((mem, i) => (
-              <li key={i} className="bg-gray-50 rounded px-2 py-1">{mem}</li>
-            ))}
-          </ul>
-        </div>
+        <>
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-2">Memories Considered</h3>
+            <ul className="list-disc pl-6 space-y-1 text-gray-700">
+              {relevantMemories.map((mem, i) => (
+                <li key={i} className="bg-gray-50 rounded px-2 py-1">{typeof mem === "string" ? mem : mem.text}</li>
+              ))}
+            </ul>
+          </div>
+          <QuadrantMemoryChunksVisualizer
+            chunks={relevantMemories.map(mem =>
+              typeof mem === "string" ? { text: mem } : mem
+            )}
+          />
+        </>
       )}
       {drafts.length > 0 && (
         <div className="mt-8 space-y-6">
@@ -223,7 +231,7 @@ export default function WhatsAppReplyDrafter() {
                   </Button>
                 </div>
                 <div className="mt-2">
-                  <AddToMemoryForm
+                  <DedicatedAddToMemoryFormComponent
                     initialText={draft.text}
                     initialType="whatsapp_reply_sample"
                     initialTags="whatsapp,reply"

@@ -4,9 +4,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { OpportunityCard } from './OpportunityCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Plus, Search, Filter } from 'lucide-react';
+import { Loader2, Plus, Search } from 'lucide-react';
 import { OpportunityDetails as OpportunityDetailsType, OpportunityDetails, Opportunity } from '@/types/opportunity';
+import { useOpportunityFiltersStore } from './opportunityFiltersStore';
 
 // Constants for opportunity filters and sorting
 const FILTERS = {
@@ -58,10 +58,15 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
   const [opportunities, setOpportunities] = useState<OpportunityDetailsType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const {
+    filters,
+    sort,
+    sortOrder,
+    setFilters,
+    setSort,
+    setSortOrder,
+  } = useOpportunityFiltersStore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState(FILTERS.STATUS.ALL);
-  const [typeFilter, setTypeFilter] = useState(FILTERS.TYPE.ALL);
-  const [sortBy, setSortBy] = useState(FILTERS.SORT.DATE_DESC);
 
   useEffect(() => {
     // Use props if provided, otherwise fetch from API
@@ -102,7 +107,6 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
   const filteredOpportunities = useMemo(() => {
     return opportunities
       .filter(opp => {
-        // Filter out items without id
         if (!opp.id) return false;
 
         const matchesSearch = searchTerm === '' ||
@@ -110,30 +114,47 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
           (opp.company?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
           (opp.content?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
-        const matchesStatus = statusFilter === FILTERS.STATUS.ALL || opp.status === statusFilter;
-        const matchesType = typeFilter === FILTERS.TYPE.ALL || opp.type === typeFilter;
+        const matchesStatus = !filters.status || opp.status === filters.status;
+        const matchesType = !filters.type || opp.type === filters.type;
+        const matchesPriority = !filters.priority || opp.priority === filters.priority;
+        const matchesTag = !filters.tag || (opp.tags && opp.tags.includes(filters.tag));
 
-        return matchesSearch && matchesStatus && matchesType;
+        return matchesSearch && matchesStatus && matchesType && matchesPriority && matchesTag;
       })
       .sort((a, b) => {
-        switch (sortBy) {
-          case FILTERS.SORT.DATE_ASC:
-            return new Date(a.createdAt || '').getTime() - new Date(b.createdAt || '').getTime();
-          case FILTERS.SORT.DATE_DESC:
-            return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
-          case FILTERS.SORT.TITLE_ASC:
-            return a.title.localeCompare(b.title);
-          case FILTERS.SORT.TITLE_DESC:
-            return b.title.localeCompare(a.title);
-          case FILTERS.SORT.COMPANY_ASC:
-            return (a.company || '').localeCompare(b.company || '');
-          case FILTERS.SORT.COMPANY_DESC:
-            return (b.company || '').localeCompare(a.company || '');
-          default:
-            return 0;
+        if (sort === "updatedAt") {
+          return sortOrder === "asc"
+            ? new Date(a.updatedAt || '').getTime() - new Date(b.updatedAt || '').getTime()
+            : new Date(b.updatedAt || '').getTime() - new Date(a.updatedAt || '').getTime();
         }
+        if (sort === "createdAt") {
+          return sortOrder === "asc"
+            ? new Date(a.createdAt || '').getTime() - new Date(b.createdAt || '').getTime()
+            : new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
+        }
+        if (sort === "title") {
+          return sortOrder === "asc"
+            ? a.title.localeCompare(b.title)
+            : b.title.localeCompare(a.title);
+        }
+        if (sort === "company") {
+          return sortOrder === "asc"
+            ? (a.company || '').localeCompare(b.company || '')
+            : (b.company || '').localeCompare(a.company || '');
+        }
+        if (sort === "priority") {
+          return sortOrder === "asc"
+            ? (a.priority || '').localeCompare(b.priority || '')
+            : (b.priority || '').localeCompare(a.priority || '');
+        }
+        if (sort === "nextActionDate") {
+          return sortOrder === "asc"
+            ? new Date(a.nextActionDate || '').getTime() - new Date(b.nextActionDate || '').getTime()
+            : new Date(b.nextActionDate || '').getTime() - new Date(a.nextActionDate || '').getTime();
+        }
+        return 0;
       });
-  }, [opportunities, searchTerm, statusFilter, typeFilter, sortBy]);
+  }, [opportunities, searchTerm, filters, sort, sortOrder]);
 
   return (
     <div className="space-y-4">
@@ -155,63 +176,6 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
             className="pl-8 bg-gray-700 border-gray-600 text-gray-200"
           />
         </div>
-
-        <div className="flex gap-2 flex-wrap">
-          <div className="w-40">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                <SelectItem value={FILTERS.STATUS.ALL}>All Statuses</SelectItem>
-                <SelectItem value={FILTERS.STATUS.IDENTIFIED}>Identified</SelectItem>
-                <SelectItem value={FILTERS.STATUS.RESEARCHING}>Researching</SelectItem>
-                <SelectItem value={FILTERS.STATUS.EVALUATING}>Evaluating</SelectItem>
-                <SelectItem value={FILTERS.STATUS.EVALUATED_POSITIVE}>Positive Evaluation</SelectItem>
-                <SelectItem value={FILTERS.STATUS.EVALUATED_NEGATIVE}>Negative Evaluation</SelectItem>
-                <SelectItem value={FILTERS.STATUS.APPLICATION_DRAFTING}>Drafting Application</SelectItem>
-                <SelectItem value={FILTERS.STATUS.APPLICATION_READY}>Application Ready</SelectItem>
-                <SelectItem value={FILTERS.STATUS.APPLIED}>Applied</SelectItem>
-                <SelectItem value={FILTERS.STATUS.INTERVIEW_SCHEDULED}>Interview Scheduled</SelectItem>
-                <SelectItem value={FILTERS.STATUS.OFFER_RECEIVED}>Offer Received</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="w-40">
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                <SelectItem value={FILTERS.TYPE.ALL}>All Types</SelectItem>
-                <SelectItem value={FILTERS.TYPE.JOB}>Job</SelectItem>
-                <SelectItem value={FILTERS.TYPE.EDUCATION}>Education</SelectItem>
-                <SelectItem value={FILTERS.TYPE.PROJECT}>Project</SelectItem>
-                <SelectItem value={FILTERS.TYPE.FUNDING}>Funding</SelectItem>
-                <SelectItem value={FILTERS.TYPE.OTHER}>Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="w-40">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                <SelectItem value={FILTERS.SORT.DATE_DESC}>Newest First</SelectItem>
-                <SelectItem value={FILTERS.SORT.DATE_ASC}>Oldest First</SelectItem>
-                <SelectItem value={FILTERS.SORT.TITLE_ASC}>Title (A-Z)</SelectItem>
-                <SelectItem value={FILTERS.SORT.TITLE_DESC}>Title (Z-A)</SelectItem>
-                <SelectItem value={FILTERS.SORT.COMPANY_ASC}>Company (A-Z)</SelectItem>
-                <SelectItem value={FILTERS.SORT.COMPANY_DESC}>Company (Z-A)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </div>
 
       {loading ? (
@@ -225,7 +189,7 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
         </div>
       ) : filteredOpportunities.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
-          {searchTerm || statusFilter !== FILTERS.STATUS.ALL || typeFilter !== FILTERS.TYPE.ALL ?
+          {searchTerm || filters.status || filters.type ?
             'No opportunities match your filters.' :
             'No opportunities found. Add your first one!'}
         </div>
@@ -234,7 +198,16 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
           {filteredOpportunities
             .filter((opportunity): opportunity is OpportunityDetails & { id: string } => typeof opportunity.id === 'string')
             .map((opportunity) => {
-              const safeOpportunity: Opportunity = { ...opportunity, id: opportunity.id };
+              // Ensure both company and companyOrInstitution are always present and strings
+              const company = (opportunity.company ?? (opportunity as any).companyOrInstitution ?? '') || '';
+              const companyOrInstitution = ((opportunity as any).companyOrInstitution ?? opportunity.company ?? '') || '';
+              const safeOpportunity: Opportunity = {
+                ...opportunity,
+                id: opportunity.id,
+                company,
+                companyOrInstitution
+              };
+              console.info('[OpportunityList] Rendering OpportunityCard with safeOpportunity:', { id: safeOpportunity.id, company: safeOpportunity.company, companyOrInstitution: safeOpportunity.companyOrInstitution });
               return <OpportunityCard key={safeOpportunity.id} opportunity={safeOpportunity} />;
             })}
         </div>

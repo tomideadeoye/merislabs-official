@@ -9,44 +9,45 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, AlertTriangle, CheckCircle2, Send } from 'lucide-react';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
 import type { PersonaMap } from '@/types/strategic-outreach';
+import { useOutreachGenerationStore } from './outreachGenerationStore';
 
 interface OutreachFormProps {
   persona: PersonaMap;
-  onOutreachGenerated: (draft: string) => void;
 }
 
-export const OutreachForm: React.FC<OutreachFormProps> = ({ 
-  persona,
-  onOutreachGenerated
+export const OutreachForm: React.FC<OutreachFormProps> = ({
+  persona
 }) => {
   const [opportunityDetails, setOpportunityDetails] = useSessionState(SessionStateKeys.OUTREACH_OPPORTUNITY, "");
   const [goal, setGoal] = useSessionState(SessionStateKeys.OUTREACH_GOAL, "");
   const [communicationType, setCommunicationType] = useSessionState(SessionStateKeys.OUTREACH_TYPE, "email");
   const [tone, setTone] = useSessionState(SessionStateKeys.OUTREACH_TONE, "professional");
   const [additionalContext, setAdditionalContext] = useState("");
-  
+
   const [isGenerating, setIsGenerating] = useSessionState(SessionStateKeys.OUTREACH_GENERATING, false);
   const [error, setError] = useState<string | null>(null);
 
+  const setLatestOutreach = useOutreachGenerationStore(state => state.setLatestOutreach);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!opportunityDetails.trim() || !goal.trim()) {
       setError("Opportunity details and goal are required.");
       return;
     }
-    
+
     setIsGenerating(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/outreach/craft', {
         method: 'POST',
@@ -62,11 +63,11 @@ export const OutreachForm: React.FC<OutreachFormProps> = ({
           additionalContext: additionalContext.trim() || undefined
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.outreach) {
-        onOutreachGenerated(data.outreach.draft);
+        setLatestOutreach(data.outreach.draft);
       } else {
         throw new Error(data.error || 'Failed to generate outreach content.');
       }
@@ -103,7 +104,7 @@ export const OutreachForm: React.FC<OutreachFormProps> = ({
               required
             />
           </div>
-          
+
           <div>
             <Label htmlFor="goal" className="text-gray-300">Goal of Outreach *</Label>
             <Input
@@ -116,12 +117,12 @@ export const OutreachForm: React.FC<OutreachFormProps> = ({
               required
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="communicationType" className="text-gray-300">Communication Type</Label>
-              <Select 
-                value={communicationType || "email"} 
+              <Select
+                value={communicationType || "email"}
                 onValueChange={(value) => setCommunicationType(value as any)}
                 disabled={isGenerating}
               >
@@ -136,11 +137,11 @@ export const OutreachForm: React.FC<OutreachFormProps> = ({
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="tone" className="text-gray-300">Tone</Label>
-              <Select 
-                value={tone || "professional"} 
+              <Select
+                value={tone || "professional"}
                 onValueChange={(value) => setTone(value as any)}
                 disabled={isGenerating}
               >
@@ -156,7 +157,7 @@ export const OutreachForm: React.FC<OutreachFormProps> = ({
               </Select>
             </div>
           </div>
-          
+
           <div>
             <Label htmlFor="additionalContext" className="text-gray-300">Additional Context (Optional)</Label>
             <Textarea
@@ -168,17 +169,17 @@ export const OutreachForm: React.FC<OutreachFormProps> = ({
               disabled={isGenerating}
             />
           </div>
-          
+
           {error && (
             <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
               <AlertTriangle className="h-5 w-5 mr-2" />
               {error}
             </div>
           )}
-          
-          <Button 
-            type="submit" 
-            disabled={isGenerating || !opportunityDetails?.trim() || !goal?.trim()} 
+
+          <Button
+            type="submit"
+            disabled={isGenerating || !opportunityDetails?.trim() || !goal?.trim()}
             className="bg-blue-600 hover:bg-blue-700 w-full"
           >
             {isGenerating ? (

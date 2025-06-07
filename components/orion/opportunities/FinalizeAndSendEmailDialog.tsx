@@ -8,26 +8,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2, Send, AlertTriangle } from 'lucide-react';
 import type { SendEmailParams, EmailAttachment } from '@/lib/email_service';
+import { useEmailTestDialogStore } from './emailTestDialogStore';
 
-interface FinalizeAndSendEmailDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  initialTo?: string;
-  initialSubject?: string;
-  initialHtmlBody?: string;
-  attachmentsToSend?: EmailAttachment[];
-  onEmailSent?: (messageId: string) => void;
-}
-
-export const FinalizeAndSendEmailDialog: React.FC<FinalizeAndSendEmailDialogProps> = ({
-  isOpen, 
-  setIsOpen, 
-  initialTo = "", 
-  initialSubject = "", 
-  initialHtmlBody = "", 
-  attachmentsToSend = [], 
-  onEmailSent
-}) => {
+export const FinalizeAndSendEmailDialog: React.FC = () => {
+  const {
+    isOpen,
+    close,
+    initialTo = "",
+    initialSubject = "",
+    initialHtmlBody = "",
+    onEmailSent
+  } = useEmailTestDialogStore();
+  const attachmentsToSend: any[] = [];
   const [to, setTo] = useState(initialTo);
   const [subject, setSubject] = useState(initialSubject);
   const [htmlBody, setHtmlBody] = useState(initialHtmlBody);
@@ -64,13 +56,13 @@ export const FinalizeAndSendEmailDialog: React.FC<FinalizeAndSendEmailDialogProp
         },
         body: JSON.stringify(emailData)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         alert(`Email sent successfully to ${to}!`);
         if (onEmailSent) onEmailSent(data.messageId);
-        setIsOpen(false);
+        close();
       } else {
         throw new Error(data.error || "Failed to send email.");
       }
@@ -81,11 +73,11 @@ export const FinalizeAndSendEmailDialog: React.FC<FinalizeAndSendEmailDialogProp
       setIsSending(false);
     }
   };
-  
+
   if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="sm:max-w-2xl bg-gray-800 border-gray-700 text-gray-200">
         <DialogHeader>
           <DialogTitle className="text-green-400">Compose & Send Email</DialogTitle>
@@ -117,7 +109,7 @@ export const FinalizeAndSendEmailDialog: React.FC<FinalizeAndSendEmailDialogProp
         </div>
         {error && <p className="text-sm text-red-400 flex items-center mb-2"><AlertTriangle className="mr-1.5 h-4 w-4"/>{error}</p>}
         <DialogFooter>
-          <Button onClick={() => setIsOpen(false)} variant="outline" className="text-gray-300 border-gray-600">Cancel</Button>
+          <Button onClick={close} variant="outline" className="text-gray-300 border-gray-600">Cancel</Button>
           <Button onClick={handleSend} disabled={isSending || !to || !subject || !htmlBody} className="bg-green-600 hover:bg-green-700">
             {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4"/>}
             Send Email

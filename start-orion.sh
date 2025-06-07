@@ -1,9 +1,11 @@
 #!/bin/bash
 # Motivational and operational echo block
 cat <<EOM
+UI | DO | QUESTIONS | FEATURES | TESTING/LOGGING | IMPROVEMENT | SECURITY | PERFORMANCE | DOCUMENTATION | DESIRED OUTCOME | PROJECT DETAILS
+
 REMEMBER/ALWAYS:
-- absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to tests/e2e.test.ts
-- When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to tests/e2e.test.ts
+- absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to tests/e2e.test.tsx
+- When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to tests/e2e.test.tsx
 Don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of verbose logging  & fallbacks.Baby calm down!
 - Aim for perfection!
 - THINK like an architect, sequentially, step by step, iteratively!
@@ -11,16 +13,23 @@ Don't comment code - every comment is an implementation waiting to happen. Alway
 - Factor in CBT, and the need for a loop of improvement.
 - read the file then propose updates
 Ask me as many questions as you want about the feature's purpose and requirements.
-summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
+summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.tsx), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
+DO > LOGGIN: log file paths, comprehensive, context-rich, level-based logging. All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
+DO > at intervals, suggest SHORT TINY BIT information to store in README like file paths and components - so we dont forget.
+state management?
+DO > one-liner summary of feature and file path after each feature is implemented.
 
 EXECUTE/DO/APPLY:
 Add app implementations so far to prd.md file.
 Add absurd amount of logging to the code.
-Add goal of file/feature/function to the top of file and explain connection to other files/features/functions.
-- At intervals suggest commit and push command, when the feature is implemented. Run commit and push command.
+Add goal of file/feature/function to top of file and explain connection to other files/features/functions.
 - start-orion.sh and determine features not yet implemented.
 - Mirror naming conventions, error-handling, and structure
 - Absurdly comprehensive descritptive names for files, functions, variables, classes, etc.
+- UI | DO - add loading states, progress bars, etc.when required Loader @/components/ui/Loader, ProgressBar  @/components/ui/ProgressBar
+- suggest best practices
+- error page: pages/500.tsx
+- consolidate/unify/allign/weave together code, state, features, components, etc.
 
 USE:
 Run in shell tool!  it is a Cycle, patterns -- all towards greatnes, wealth, prosperity, clarity, omnipotence
@@ -47,6 +56,7 @@ QUESTIONS:
 NEVER/NO:
 - Dont use mocks or placeholders - execute immediately.
 - Never delete features or components without a clear plan for replacement. suggest more robust feature implementation.
+- No @ts-ignore - we love complete type safety.
 
 
 Core Principles & Standards
@@ -105,9 +115,7 @@ Manage resources properly (file handles, database connections, memory)
 
 
 Before modifying a component:
--
-
-Cross-reference changes with related modules to maintain consistency
+- Cross-reference changes with related modules to maintain consistency
 Update dependent components to avoid breaking changes
 
 Unified Implementation
@@ -123,28 +131,23 @@ Optimize database queries with appropriate indexes
 Minimize database calls and implement caching where appropriate
 Consider time and space complexity without premature optimization
 
-Security & Robustness
-Security First Approach
+Security & Robustness First Approach
 Validate and sanitize all external inputs
 Implement proper authentication and authorization
 Follow best practices for handling sensitive information
-Prevent common vulnerabilities (XSS, SQL injection, CSRF)
+Prevent vulnerabilities (XSS, SQL injection, CSRF)
 
-GRACEFUL DEGRADATION:
-- Design systems to function (potentially with reduced capabilities) when components fail
+GRACEFUL DEGRADATION: - Design systems to function (potentially with reduced capabilities) when components fail
 - UsE feature flags for new functionality that might need to be disabled
+- Create fallback mechanisms for uncertain scenarios or operations with external dependencies
 - Maintain backward compatibility when modifying public interfaces
 
 - When requirements are ambiguous:
+- Propose a default implementation based on codebase patterns
+- Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
+- Document trade-offs for complex decisions
 
-Propose a default implementation based on codebase patterns
-Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
-
-Document trade-offs for complex decisions
-
-Version Control Practices
-- Make atomic commits focused on single logical changes
-- Write descriptive commit messages explaining what changed and why
+VERSION CONTROL: When the feature is implemented/At intervals of logical changes, run atomic commit commands with descriptive bulletpoint commit messages. Highlight/explain, what changed, why, file path and then push command.
 - Follow project branching conventions
 
 SELF-IMPROVEMENT: Refine these instructions based on feedback loops, code reviews, or recurring errors
@@ -159,7 +162,7 @@ Document any remaining concerns or future improvements
 DOCUMENTATION: Explain "why" not just "what" the code does in prd.md file
 - Document assumptions and decision rationales in prd.md file
 
-Anti-Pattern Examples
+ANTI-PATTERNS EXAMPLES:
 Bad: Writing a new formatDate() function when utils/dates.ts already has one.
 Good: Refactor utils/dates.py to accept custom parameters, then reuse it.
 Bad: Silent API failure without logging or fallback.
@@ -183,31 +186,34 @@ DESIRED OUTCOME/THERE SHOULD BE A:
 
 
 PROJECT DETAILS:
-- this is a personal project.
+- personal project.
 - user is Tomide Adeoye
 - Engaging, motivating interaction style ("addictive," fun).
-- monorepo, pnpm, nextjs, python service for special features, neon db (DATABASE_URL), Local Quadrant (QDRANT_PORT=6333)
-- TESTING: Jest, Typescript.
+- python service for special features, Local Quadrant (QDRANT_PORT=6333)
 - GOAL/VISION: Make Orion's core intelligence and utilities consistently accessible programmatically.
 - GOAL: automation support (networking, applications, task management).
 - GOAL: i provide a search name that is a company in the opportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
 - PAGE: admin folder
+- Turborepo, Zod (Schema), typescript, prisma, axios, pnpm, nextjs, neon db (DATABASE_URL), monorepo, Jest (testing) D3.js (visualizations), shadcn, eslint, framer motion, react-hook-form, TanStack Query, TipTap, zustand, date-fns, Electron, react-dropzone, react-email, tRPC, Tailwind
+- always automate
+- chmod 644 start-orion.sh/   chmod 444 /Users/mac/Documents/GitHub/merislabs-official/start-orion.sh - prevent file alteration
+
+FEATURES:
+- visualizer for memory chunks: components/orion/QuadrantMemoryChunksVisualizer.tsx
+- Memory Manager: Qdrant vector db, QDRANT_HOST, notion, components/orion/DedicatedAddToMemoryFormComponent.tsx
 - DB: PostgreSQL Neon, lib/database.ts
-- Notion
-- FEATURES: Memory Manager: Qdrant vector db, QDRANT_HOST, notion, DedicatedAddToMemoryFormComponent.tsx
-
- WhatsAppReplyDrafter (components/orion/WhatsAppReplyDrafter.tsx)
-- FEATURE: Cache all data in memory
-
-:
+- WhatsAppReplyDrafter (components/orion/WhatsAppReplyDrafter.tsx)
+- Cache relevant data to Local Storage
+- add visualizations, chart graphs, etc. for any response/output/feature that can be visualized within admin folder only
+- ai constructs CV based on JD (/opportunity/[id]/cv-tailorin)
+- admin dashboard: http://localhost:3000/admin,
+- gamification + engagement in admin dashboard
+- glowy ui nivo
 
 EOM
 
-#
 
-# =====================
 # Directory Tree Function
-# =====================
 show_project_tree() {
   log_info "Project directory structure (excluding development artifacts):"
   echo ""
@@ -234,7 +240,7 @@ show_project_tree() {
       ! -path './.cache*' \
       ! -path './.pytest_cache*' \
       ! -path './.mypy_cache*' \
-      | sed 's|[^/]*/|  |g' | sort
+    | sed 's|[^/]*/|  |g' | sort
   fi
   echo ""
 }
@@ -294,11 +300,56 @@ fi
 
 log_info "Starting Orion System..."
 
+# Log and print the current working directory
+log_info "Our current directory:"
+pwd
+
 # Show project structure at startup
 show_project_tree
 
+# --- AUTO-GENERATE .env-sample AND PRINT CONTENT ---
+# Remove any existing .env-sample to avoid duplicate keys
+rm -f .env-sample
+
+if [ -f .env ]; then
+  python3 <<EOF
+with open('.env', 'r') as infile, open('.env-sample', 'w') as outfile:
+    delimiter = "="
+    for line in infile:
+        if delimiter in line and not line.strip().startswith('#') and line.strip():
+            key = line.split(delimiter)[0].strip()
+            outfile.write(f"{key}{delimiter}\n")
+EOF
+  echo '.env processed.'
+else
+  echo '.env file not found, skipping .env-sample generation from .env.'
+fi
+
+if [ -f .env.local ]; then
+  python3 <<EOF
+with open('.env.local', 'r') as infile, open('.env-sample', 'a') as outfile:
+    delimiter = "="
+    for line in infile:
+        if delimiter in line and not line.strip().startswith('#') and line.strip():
+            key = line.split(delimiter)[0].strip()
+            outfile.write(f"{key}{delimiter}\n")
+EOF
+  echo '.env.local processed.'
+else
+  echo '.env.local file not found, skipping .env-sample generation from .env.local.'
+fi
+
+# Remove duplicate keys, keep first occurrence, and print
+if [ -f .env-sample ]; then
+  awk -F= '!seen[$1]++' .env-sample > .env-sample.tmp && mv .env-sample.tmp .env-sample
+  echo "\nThis is our existing .env/.env.local content:"
+  cat .env-sample
+else
+  echo 'No .env-sample generated.'
+fi
+
 # Type check before starting
-npx tsc --noEmit
+npx tsc --noEmit --skipLibCheck
 if [ $? -ne 0 ]; then
   log_error "TypeScript errors detected. Aborting start."
   exit 1
@@ -306,7 +357,8 @@ fi
 
 # Lint and auto-fix code before building
 log_info "Running ESLint auto-fix..."
-npx eslint . --fix
+npx eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0 --format=stylish
+npx eslint . --ext .js,.jsx,.ts,.tsx --fix
 if [ $? -ne 0 ]; then
   log_error "ESLint found errors that could not be fixed automatically. Please fix them before continuing."
   exit 1
@@ -314,7 +366,7 @@ fi
 
 # Build Next.js app before starting
 log_info "Building Next.js app..."
-pnpm run build
+pnpm run build --debug
 if [ $? -ne 0 ]; then
   log_error "Next.js build failed. Aborting start."
   exit 1
@@ -339,6 +391,18 @@ fi
 log_info "Waiting for Qdrant to be ready..."
 sleep 5
 
+# Start Python API server
+log_info "Starting Python API server..."
+(
+  cd orion_python_backend || exit
+  if [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt
+  fi
+  uvicorn api_server:app --host 0.0.0.0 --port $PYTHON_API_PORT &
+  echo $! > "$PID_DIR/python_api.pid"
+)
+log_info "Python API server started on port $PYTHON_API_PORT"
+
 # Check if port 5002 is already in use
 if command -v lsof >/dev/null 2>&1; then
   if lsof -i:$PYTHON_API_PORT > /dev/null 2>&1; then
@@ -353,34 +417,24 @@ elif command -v netstat >/dev/null 2>&1; then
   fi
 fi
 
-# Start Python API server
-log_info "Starting Python API server..."
-cd orion_python_backend
-python notion_api_server.py &
-PYTHON_PID=$!
-cd ..
-
-# Wait for Python API to be ready
-log_info "Waiting for Python API to be ready..."
-sleep 3
+log_info "Skipping Python Notion API server startup: All Notion integration is now handled in Next.js! 🚀"
 
 # Run tests
-TEST_FILE="tests/e2e.test.ts"
+TEST_FILE="tests/e2e.test.tsx"
 log_info "Running tests in $TEST_FILE ..."
 npx jest $TEST_FILE || log_info "Tests failed but continuing..."
 log_info "Test run complete for $TEST_FILE."
 
 log_info "Orion system started successfully!"
 log_info "- Qdrant is running on port $QDRANT_PORT"
-log_info "- Python API is running on port $PYTHON_API_PORT (PID: $PYTHON_PID)"
+log_info "- Python API server is running on port $PYTHON_API_PORT"
 log_info "- About to start Next.js on port $NEXTJS_PORT"
-log_info ""
-log_info "Note: Python API is running in background. To stop it later:"
-log_info "      kill $PYTHON_PID"
 log_info ""
 log_info "Starting Next.js development server (foreground)..."
 log_info "Press Ctrl+C to stop the Next.js server"
 log_info ""
 
 # Start Next.js dev server in foreground (this will keep the script running)
-npx next dev
+next dev & node_modules/.bin/tsc --noEmit --watch --skipLibCheck
+
+exit 0

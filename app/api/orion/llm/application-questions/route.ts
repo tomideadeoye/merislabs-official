@@ -1,3 +1,11 @@
+/**
+ * GOAL: API route for answering user questions about a specific job opportunity using all available context.
+ * - Connects to Notion (fetchOpportunityByIdFromNotion), user profile (fetchUserProfile), and memory search.
+ * - Normalizes Opportunity data to always include both company and companyOrInstitution.
+ * - Provides context-rich, traceable logging for every operation, parameter, and result.
+ * - Used by admin and user-facing UIs for Q&A about opportunities.
+ * - Related files: lib/notion_service.ts, lib/profile_service.ts, lib/orion_llm.ts, types/opportunity.d.ts
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/orion_llm';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
@@ -43,6 +51,14 @@ export async function POST(
       return NextResponse.json({ success: false, error: opportunityResult.error || 'Unknown error' }, { status: 500 });
     }
     const opportunity = opportunityResult.opportunity;
+    if (!opportunity) {
+      console.error('[APP_QNA_API] Opportunity not found for ID:', opportunityId, { user: session.user?.email });
+      return NextResponse.json({ success: false, error: 'Opportunity not found.' }, { status: 404 });
+    }
+    // Normalize company/companyOrInstitution for downstream use
+    const company = (opportunity.company ?? (opportunity as any).companyOrInstitution ?? '') || '';
+    const companyOrInstitution = ((opportunity as any).companyOrInstitution ?? opportunity.company ?? '') || '';
+    console.info('[APP_QNA_API] Normalized company fields:', { company, companyOrInstitution, opportunityId, user: session.user?.email });
 
     // Fetch user profile data
     const profileData = await fetchUserProfile();
@@ -57,7 +73,7 @@ export async function POST(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `Context for question about ${opportunity.title} at ${opportunity.company}: ${question}`, // Tailor memory query to question and opportunity
+          query: `Context for question about ${opportunity.title} at ${companyOrInstitution}: ${question}`, // Tailor memory query to question and opportunity
           limit: 5, // Adjust limit as needed
           // Optionally add filters here
         }),
@@ -83,10 +99,16 @@ export async function POST(
 
     // Construct the prompt for the LLM using all available context
     const primaryContext = `
-Opportunity Details:\nJob Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content || 'No content provided.'}\n
+Opportunity Details:
+Job Title: ${opportunity.title}
+Company: ${companyOrInstitution}
+${jobUrl ? `Job URL: ${jobUrl}\n` : ''}
+Job Content: ${opportunity.content || 'No content provided.'}
+
 ${webContext ? `Additional Web Context:\n${webContext}\n\n` : ''}User's Question: ${question}
 
-Instructions:\nAnswer the user's question about this job opportunity thoroughly and accurately, using all the provided context (opportunity details, job description, your profile, relevant memories, and any web context). If the context does not contain the answer, state that you cannot answer based on the available information. Be helpful and relevant to the job application process.`;
+Instructions:
+Answer the user's question about this job opportunity thoroughly and accurately, using all the provided context (opportunity details, job description, your profile, relevant memories, and any web context). If the context does not contain the answer, state that you cannot answer based on the available information. Be helpful and relevant to the job application process.`;
 
     const messages = constructLlmMessages({
       requestType: REQUEST_TYPES.ASK_QUESTION, // Using ASK_QUESTION type

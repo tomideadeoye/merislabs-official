@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useOpportunityBoardStore } from './opportunityBoardStore';
 
 interface KanbanColumn {
   id: string;
@@ -18,7 +19,6 @@ interface KanbanColumn {
 // Define props for the component
 interface OpportunityKanbanViewProps {
   opportunities: Opportunity[]; // Opportunities passed from parent
-  refetchOpportunities: () => Promise<void>; // Function to refetch data from parent
   isLoading?: boolean; // Optional loading state from parent
   error?: string | null; // Optional error state from parent
 }
@@ -26,15 +26,13 @@ interface OpportunityKanbanViewProps {
 // Accept props in the component function
 export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
   opportunities: parentOpportunities,
-  refetchOpportunities,
   isLoading: parentLoading,
   error: parentError
 }) => {
-  // Remove internal state for opportunities, loading, and error
-  // const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState<string | null>(null);
+  // Local error state for API/UI errors
+  const [error, setError] = useState<string | null>(null);
   const [columns, setColumns] = useState<KanbanColumn[]>([]);
+  const { setNeedsRefetch } = useOpportunityBoardStore();
 
   // Define the columns for the Kanban board
   const kanbanColumns: KanbanColumn[] = useMemo(() => [
@@ -81,6 +79,8 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
     });
 
     setColumns(newColumns);
+    setError(null); // Clear local error on new data
+    console.info('[OpportunityKanbanView] Columns updated from parent opportunities.');
   }, [parentOpportunities, kanbanColumns]);
 
   const handleDragEnd = useCallback(async (result: DropResult) => {
@@ -108,6 +108,13 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
     // Determine the new status based on the destination column
     // For simplicity, we'll use the first status in the destination column's statusValues
     const newStatus = destColumn.statusValues[0];
+
+    console.info('[OpportunityKanbanView] Drag start:', {
+      opportunityId: opportunity.id,
+      from: sourceColumn.id,
+      to: destColumn.id,
+      newStatus
+    });
 
     // Optimistic UI update (optional, remove if you prefer waiting for API response)
     const newColumns = columns.map(column => {
@@ -153,17 +160,24 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
         setColumns(revertedColumns);
 
         const errorData = await response.json(); // Attempt to get error details from response
-        throw new Error(errorData.error || 'Failed to update opportunity status in Notion');
+        setError(errorData.error || 'Failed to update opportunity status in Notion');
+        console.error('[OpportunityKanbanView] Error updating opportunity status:', errorData.error);
+        return;
       }
 
       // If API call is successful, trigger refetch in the parent component
-      refetchOpportunities();
+      console.info('[OpportunityKanbanView] Opportunity status updated successfully:', {
+        opportunityId: opportunity.id,
+        newStatus
+      });
+      setError(null);
+      setNeedsRefetch(true);
 
     } catch (err: any) {
-      console.error('Error updating opportunity status:', err);
-      // Handle error display in the UI if needed, potentially using the parentError prop
+      setError(err.message || 'Failed to update opportunity status.');
+      console.error('[OpportunityKanbanView] Error updating opportunity status:', err);
     }
-  }, [columns, kanbanColumns, parentOpportunities, refetchOpportunities]); // Add dependencies
+  }, [columns, kanbanColumns, parentOpportunities, setNeedsRefetch]); // Add dependencies
 
   // Use parent loading and error states
   if (parentLoading) {
@@ -175,10 +189,17 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
     );
   }
 
-  if (parentError) {
+  // Show parent error or local error
+  if (parentError || error) {
     return (
-      <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
-        {parentError}
+      <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-center justify-between">
+        <span>{parentError || error}</span>
+        <button
+          className="ml-4 px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800"
+          onClick={() => setError(null)}
+        >
+          Dismiss
+        </button>
       </div>
     );
   }

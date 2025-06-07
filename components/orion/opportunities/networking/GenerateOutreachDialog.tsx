@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Loader2, Copy, MessageSquare, Mail } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Opportunity } from '@/types/opportunity';
+import { useGenerateOutreachDialogStore } from './generateOutreachDialogStore';
 
 interface Stakeholder {
   name: string;
@@ -15,19 +16,19 @@ interface Stakeholder {
   email?: string;
 }
 
-interface GenerateOutreachDialogProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  stakeholder: Stakeholder;
-  opportunity: Opportunity;
-}
-
-export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
-  isOpen,
-  setIsOpen,
-  stakeholder,
-  opportunity
-}) => {
+export const GenerateOutreachDialog: React.FC = () => {
+  const {
+    isOpen,
+    close,
+    stakeholder,
+    opportunityTitle,
+    opportunityCompany,
+    onOutreachGenerated,
+  } = useGenerateOutreachDialogStore();
+  // For backward compatibility, opportunity may be undefined, so fallback to empty object
+  const opportunity = opportunityTitle && opportunityCompany
+    ? { title: opportunityTitle, company: opportunityCompany, content: '' }
+    : undefined;
   const [isLoading, setIsLoading] = useState(false);
   const [outreachContent, setOutreachContent] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +48,11 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
       }
 
       // Call the generate outreach API
+      if (!opportunity) {
+        setError('Opportunity context is missing.');
+        setIsLoading(false);
+        return;
+      }
       const response = await fetch('/api/orion/networking/generate-outreach', {
         method: 'POST',
         headers: {
@@ -54,10 +60,10 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
         },
         body: JSON.stringify({
           stakeholder: stakeholder,
-          context: `This outreach is regarding the ${opportunity.title} position at ${opportunity.company}.`,
+          context: `This outreach is regarding the ${opportunity?.title ?? ''} position at ${opportunity?.company ?? ''}.`,
           profileData: profileData.profile,
-          additionalInfo: opportunity.content,
-          jobTitle: opportunity.title
+          additionalInfo: opportunity?.content ?? '',
+          jobTitle: opportunity?.title ?? ''
         })
       });
 
@@ -101,19 +107,21 @@ export const GenerateOutreachDialog: React.FC<GenerateOutreachDialogProps> = ({
 
   const { linkedin, email } = parseOutreachContent();
 
+  if (!opportunity) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) close(); }}>
       <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
         <DialogHeader>
           <DialogTitle className="text-purple-400">
-            Draft Outreach to {stakeholder.name}
+            Draft Outreach to {stakeholder?.name}
           </DialogTitle>
         </DialogHeader>
 
         {!outreachContent && !isLoading && !error && (
           <div className="py-6 text-center">
             <p className="mb-4 text-gray-300">
-              Generate personalized outreach messages for {stakeholder.name} ({stakeholder.role} at {stakeholder.company}).
+              Generate personalized outreach messages for {stakeholder?.name} ({stakeholder?.role} at {stakeholder?.company}).
             </p>
             <Button
               onClick={handleGenerateOutreach}

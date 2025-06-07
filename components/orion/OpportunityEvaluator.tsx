@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import type { OpportunityDetails, EvaluationOutput } from '@/types/opportunity';
 import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
+import { useHabiticaTaskDialogStore } from './tasks/habiticaTaskDialogStore';
 
 interface OpportunityEvaluatorProps {
   className?: string;
@@ -113,9 +114,10 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
     );
   };
 
+  const { openDialog } = useHabiticaTaskDialogStore();
   const handleCreateTask = (step: string) => {
     setSelectedStep(step);
-    setIsTaskDialogOpen(true);
+    openDialog();
   };
 
   // Type guard for successful evaluation
@@ -340,8 +342,6 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
       )}
 
       <CreateHabiticaTaskDialog
-        isOpen={isTaskDialogOpen}
-        setIsOpen={setIsTaskDialogOpen}
         initialTaskText={selectedStep}
         initialTaskNotes={`Next step for opportunity: ${title}`}
         sourceModule="Opportunity Evaluator"

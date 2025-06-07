@@ -6,9 +6,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Loader2, Users, Copy, Mail } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { GenerateOutreachDialog } from './GenerateOutreachDialog';
+import { useFindStakeholdersDialogStore } from './findStakeholdersDialogStore';
+import { useGenerateOutreachDialogStore } from './generateOutreachDialogStore';
 import type { Opportunity } from '@/types/opportunity';
 
-interface Stakeholder {
+export interface Stakeholder {
   name: string;
   role: string;
   company: string;
@@ -21,12 +23,18 @@ interface FindStakeholdersButtonProps {
 }
 
 export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ opportunity }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    isOpen,
+    open,
+    close,
+    stakeholders,
+    setStakeholders,
+    selectedStakeholder,
+    setSelectedStakeholder,
+    setOpportunity,
+  } = useFindStakeholdersDialogStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [selectedStakeholder, setSelectedStakeholder] = useState<Stakeholder | null>(null);
-  const [showOutreachDialog, setShowOutreachDialog] = useState(false);
 
   const handleFindStakeholders = async () => {
     setIsLoading(true);
@@ -63,7 +71,14 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
 
   const handleGenerateOutreach = (stakeholder: Stakeholder) => {
     setSelectedStakeholder(stakeholder);
-    setShowOutreachDialog(true);
+    // Open GenerateOutreachDialog via its own store
+    useGenerateOutreachDialogStore.getState().close(); // Ensure closed before opening
+    useGenerateOutreachDialogStore.getState().open({
+      stakeholder,
+      opportunityTitle: opportunity.title,
+      opportunityCompany: opportunity.company,
+      onOutreachGenerated: () => {},
+    });
   };
 
   const copyToClipboard = (text: string) => {
@@ -79,13 +94,16 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
   return (
     <>
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setOpportunity(opportunity);
+          open();
+        }}
         className="bg-purple-600 hover:bg-purple-700"
       >
         <Users className="mr-2 h-4 w-4" /> Find Stakeholders
       </Button>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={(openState) => { if (!openState) close(); }}>
         <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
           <DialogHeader>
             <DialogTitle className="text-purple-400">
@@ -191,15 +209,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           )}
         </DialogContent>
       </Dialog>
-
-      {selectedStakeholder && (
-        <GenerateOutreachDialog
-          isOpen={showOutreachDialog}
-          setIsOpen={setShowOutreachDialog}
-          stakeholder={selectedStakeholder}
-          opportunity={opportunity}
-        />
-      )}
+      {/* GenerateOutreachDialog is now managed by its own store and does not need to be rendered here */}
     </>
   );
 };

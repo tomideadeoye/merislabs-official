@@ -7,8 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, Folder, File, ChevronRight, ChevronDown, Database } from 'lucide-react';
 import path from 'path';
 
+import { useFileSelectionStore } from "./fileSelectionStore";
+
+/**
+ * FileExplorer
+ * GOAL: UI for exploring and selecting files, using context for all file selection events.
+ * All file selections are logged via context for traceability and future analytics.
+ * Connects to: FileExplorerContext, file viewers, admin dashboards, engagement features.
+ */
+
 interface FileExplorerProps {
-  onFileSelect: (filePath: string) => void;
   className?: string;
 }
 
@@ -18,10 +26,10 @@ interface FileItem {
   path: string;
 }
 
-export const FileExplorer: React.FC<FileExplorerProps> = ({ 
-  onFileSelect,
+export const FileExplorer: React.FC<FileExplorerProps> = ({
   className
 }) => {
+  const setSelectedFile = useFileSelectionStore((state) => state.setSelectedFile);
   const [configuredDirs, setConfiguredDirs] = useState<string[]>([]);
   const [currentPath, setCurrentPath] = useState<string>('');
   const [contents, setContents] = useState<FileItem[]>([]);
@@ -44,14 +52,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const fetchConfiguredDirs = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/local-fs/list-configured-dirs');
       const data = await response.json();
-      
+
       if (data.success) {
         setConfiguredDirs(data.directories || []);
-        
+
         // Set first directory as current path if available
         if (data.directories && data.directories.length > 0) {
           setCurrentPath(data.directories[0]);
@@ -70,7 +78,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const fetchDirectoryContents = async (dirPath: string) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/local-fs/list-files', {
         method: 'POST',
@@ -79,9 +87,9 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         },
         body: JSON.stringify({ directoryPath: dirPath })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setContents(data.contents || []);
       } else {
@@ -109,7 +117,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   };
 
   const handleFileClick = (filePath: string) => {
-    onFileSelect(filePath);
+    setSelectedFile(filePath);
   };
 
   const renderFileTree = () => {
@@ -121,7 +129,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         </div>
       );
     }
-    
+
     if (error) {
       return (
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-start">
@@ -130,7 +138,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         </div>
       );
     }
-    
+
     if (configuredDirs.length === 0) {
       return (
         <div className="text-center py-8 text-gray-400">
@@ -138,12 +146,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         </div>
       );
     }
-    
+
     return (
       <div className="space-y-2">
         {configuredDirs.map((dir) => (
           <div key={dir} className="space-y-1">
-            <div 
+            <div
               className="flex items-center p-2 rounded-md hover:bg-gray-700 cursor-pointer"
               onClick={() => handleDirectoryClick(dir)}
             >
@@ -156,11 +164,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               <span className="text-gray-200">{path.basename(dir)}</span>
               <span className="text-xs text-gray-500 ml-2">{dir}</span>
             </div>
-            
+
             {expandedDirs.has(dir) && (
               <div className="pl-6 space-y-1">
                 {contents.map((item) => (
-                  <div 
+                  <div
                     key={item.path}
                     className={`flex items-center p-2 rounded-md ${
                       item.type === 'directory' ? 'hover:bg-gray-700 cursor-pointer' : 'hover:bg-gray-700/50 cursor-pointer'

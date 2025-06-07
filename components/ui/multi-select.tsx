@@ -6,18 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Command as CommandPrimitive } from "cmdk";
 
+import { useMultiSelectStore } from "./multiSelectStore";
+
 interface MultiSelectProps {
-  options: { label: string; value: string }[];
-  selected: string[];
-  onChange: (selected: string[]) => void;
+  id: string;
   className?: string;
   placeholder?: string;
 }
 
 export function MultiSelect({
-  options,
-  selected,
-  onChange,
+  id,
   className,
   placeholder = "Select options..."
 }: MultiSelectProps) {
@@ -25,8 +23,15 @@ export function MultiSelect({
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
 
+  const store = useMultiSelectStore(id);
+  const options = store((state) => state.options);
+  const selected = store((state) => state.selected);
+  const removeSelected = store((state) => state.removeSelected);
+  const setSelected = store((state) => state.setSelected);
+  const addSelected = store((state) => state.addSelected);
+
   const handleUnselect = (item: string) => {
-    onChange(selected.filter((i) => i !== item));
+    removeSelected(item);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -34,7 +39,7 @@ export function MultiSelect({
     if (input) {
       if (e.key === "Delete" || e.key === "Backspace") {
         if (input.value === "" && selected.length > 0) {
-          onChange(selected.slice(0, -1));
+          setSelected(selected.slice(0, -1));
         }
       }
       if (e.key === "Escape") {
@@ -104,7 +109,7 @@ export function MultiSelect({
                     }}
                     onSelect={() => {
                       setInputValue("");
-                      onChange([...selected, option.value]);
+                      addSelected(option.value);
                     }}
                     className="cursor-pointer"
                   >

@@ -5,15 +5,19 @@ import { Opportunity } from '@/types/opportunity';
 import { OpportunityList } from '@/components/orion/opportunities/OpportunityList';
 import { OpportunityKanbanView } from '@/components/orion/opportunities/OpportunityKanbanView';
 import { AddOpportunityForm } from '@/components/orion/opportunities/AddOpportunityForm';
+import { useOpportunityDialogStore } from '@/components/orion/opportunities/opportunityDialogStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/ui/page-header';
 import { Briefcase } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useOpportunities } from '@/hooks/useOpportunities';
+import { OpportunityPipelineCharts } from './OpportunityPipelineCharts';
+
+import { useOpportunityBoardStore } from '@/components/orion/opportunities/opportunityBoardStore';
 
 export default function OpportunityPipelinePage() {
   const [activeView, setActiveView] = useState('list');
-  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  // Dialog open/close state is now managed by global store
   const router = useRouter();
   const {
     opportunities,
@@ -22,12 +26,23 @@ export default function OpportunityPipelinePage() {
     refetchOpportunities
   } = useOpportunities();
 
+  // Listen for Kanban refetch flag
+  const { needsRefetch, setNeedsRefetch } = useOpportunityBoardStore();
+  React.useEffect(() => {
+    if (needsRefetch) {
+      refetchOpportunities();
+      setNeedsRefetch(false);
+    }
+  }, [needsRefetch, refetchOpportunities, setNeedsRefetch]);
+
+  const { open: openAddDialog, close: closeAddDialog } = useOpportunityDialogStore();
+
   const handleAddNew = () => {
-    setIsAddFormOpen(true);
+    openAddDialog();
   };
 
   const handleAddSuccess = (opportunityId: string) => {
-    setIsAddFormOpen(false);
+    closeAddDialog();
     refetchOpportunities();
   };
 
@@ -38,6 +53,9 @@ export default function OpportunityPipelinePage() {
         icon={<Briefcase className="h-7 w-7" />}
         description="Track and manage job applications, education programs, and project collaborations."
       />
+
+      {/* Visualization charts for admin */}
+      <OpportunityPipelineCharts opportunities={opportunities} />
 
       <Tabs defaultValue="list" value={activeView} onValueChange={setActiveView}>
         <TabsList className="bg-gray-800 border-gray-700">
@@ -58,14 +76,11 @@ export default function OpportunityPipelinePage() {
         <TabsContent value="kanban" className="mt-6">
           <OpportunityKanbanView
              opportunities={opportunities}
-             refetchOpportunities={refetchOpportunities}
           />
         </TabsContent>
       </Tabs>
 
       <AddOpportunityForm
-        isOpen={isAddFormOpen}
-        onClose={() => setIsAddFormOpen(false)}
         onSuccess={handleAddSuccess}
       />
     </div>

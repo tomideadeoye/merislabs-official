@@ -29,6 +29,7 @@ import { EvaluateWithOrionButton } from '../opportunities/EvaluateWithOrionButto
 import { NarrativeAlignmentSection } from '../opportunities/NarrativeAlignmentSection';
 import { CreateHabiticaTaskButton } from '../opportunities/CreateHabiticaTaskButton';
 import { JournalReflectionDialog } from '../opportunities/JournalReflectionDialog';
+import { useJournalReflectionDialogStore } from '../opportunities/journalReflectionDialogStore';
 import { StatusUpdateButton } from '../opportunities/StatusUpdateButton';
 import { PastOpportunitiesSection } from '../opportunities/PastOpportunitiesSection';
 import { LessonsLearnedSection } from '../opportunities/LessonsLearnedSection';
@@ -49,8 +50,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
   const [isDraftingApplication, setIsDraftingApplication] = useState<boolean>(false);
   const [isSearchingStakeholders, setIsSearchingStakeholders] = useState<boolean>(false);
-  const [showReflectionDialog, setShowReflectionDialog] = useState<boolean>(false);
-  const [reflectionType, setReflectionType] = useState<'application_sent' | 'interview_completed' | 'outreach_sent' | 'general'>('general');
+  const journalReflectionDialogStore = useJournalReflectionDialogStore();
 
   // Fetch evaluation data
   const fetchEvaluation = useCallback(async () => {
@@ -296,8 +296,10 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
 
   // Open reflection dialog
   const openReflectionDialog = (type: 'application_sent' | 'interview_completed' | 'outreach_sent' | 'general') => {
-    setReflectionType(type);
-    setShowReflectionDialog(true);
+    if (opportunity) {
+      journalReflectionDialogStore.setDialogData({ opportunity, actionType: type });
+      journalReflectionDialogStore.open();
+    }
   };
 
   if (isLoading) {
@@ -785,14 +787,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
       </div>
 
       {/* Journal Reflection Dialog */}
-      {opportunity && (
-        <JournalReflectionDialog
-          isOpen={showReflectionDialog}
-          setIsOpen={setShowReflectionDialog}
-          opportunity={opportunity}
-          actionType={reflectionType}
-        />
-      )}
+      <JournalReflectionDialog />
     </div>
   );
 };

@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { PageHeader } from "@/components/ui/page-header";
 import { PageNames } from "@/app_state";
 import { WhatsAppChatUploader } from '@/components/orion/WhatsAppChatUploader';
 import { WhatsAppChatAnalysis } from '@/components/orion/WhatsAppChatAnalysis';
 import { MessageSquare } from 'lucide-react';
+import { useWhatsAppChatUploaderStore } from '@/components/orion/whatsapp/whatsAppChatUploaderStore';
 
 export default function WhatsAppAnalysisPage() {
-  const [analysisData, setAnalysisData] = useState<any>(null);
-
-  const handleAnalysisComplete = (data: any) => {
-    setAnalysisData(data);
-  };
+  const { analysisData, success } = useWhatsAppChatUploaderStore();
 
   return (
     <div className="space-y-8">
@@ -23,9 +20,9 @@ export default function WhatsAppAnalysisPage() {
       />
 
       <div className="grid grid-cols-1 gap-8">
-        <WhatsAppChatUploader onAnalysisComplete={handleAnalysisComplete} />
-        
-        {analysisData && (
+        <WhatsAppChatUploader />
+
+        {success && analysisData && (
           <WhatsAppChatAnalysis analysisData={analysisData} />
         )}
       </div>

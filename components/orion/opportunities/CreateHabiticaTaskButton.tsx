@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CheckSquare } from 'lucide-react';
 import { Opportunity } from '@/types/opportunity';
 import { CreateHabiticaTaskDialog } from '@/components/orion/tasks/CreateHabiticaTaskDialog';
+import { useHabiticaTaskDialogStore } from '@/components/orion/tasks/habiticaTaskDialogStore';
 
 interface CreateHabiticaTaskButtonProps {
   opportunity: Opportunity;
@@ -23,7 +24,7 @@ export const CreateHabiticaTaskButton: React.FC<CreateHabiticaTaskButtonProps> =
   size = "sm",
   className = "bg-amber-900/20 hover:bg-amber-900/30 text-amber-300"
 }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { openDialog } = useHabiticaTaskDialogStore();
 
   // Generate default task text based on opportunity status
   const getDefaultTaskText = (): string => {
@@ -70,15 +71,13 @@ export const CreateHabiticaTaskButton: React.FC<CreateHabiticaTaskButtonProps> =
         variant={variant}
         size={size}
         className={className}
-        onClick={() => setIsDialogOpen(true)}
+        onClick={openDialog}
       >
         <CheckSquare className="mr-2 h-4 w-4" />
         Create Task
       </Button>
 
       <CreateHabiticaTaskDialog
-        isOpen={isDialogOpen}
-        setIsOpen={setIsDialogOpen}
         initialTaskText={getDefaultTaskText()}
         initialTaskNotes={getDefaultTaskNotes()}
         sourceModule="Opportunity Tracker"

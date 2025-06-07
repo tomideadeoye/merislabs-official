@@ -7,19 +7,21 @@ import { Loader2, FileText, Copy } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import type { Opportunity } from '@/types/opportunity';
+import { useDraftApplicationDialogStore } from './draftApplicationDialogStore';
 
 interface DraftApplicationButtonProps {
   opportunity: Opportunity;
 }
 
 export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ opportunity }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, open, close, opportunity: dialogOpportunity } = useDraftApplicationDialogStore();
   const [isLoading, setIsLoading] = useState(false);
   const [drafts, setDrafts] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('draft-1');
 
   const handleGenerateDrafts = async () => {
+    if (!dialogOpportunity) return;
     setIsLoading(true);
     setError(null);
 
@@ -35,10 +37,10 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
       // Prepare request for draft application
       const requestBody = {
         opportunity: {
-          title: opportunity.title,
-          company: opportunity.company,
-          description: opportunity.content || '',
-          tags: opportunity.tags || []
+          title: dialogOpportunity.title,
+          company: dialogOpportunity.company,
+          description: dialogOpportunity.content || '',
+          tags: dialogOpportunity.tags || []
         },
         applicantProfile: profileData.profile,
         numberOfDrafts: 3
@@ -82,19 +84,20 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
   return (
     <>
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={() => open(opportunity)}
         className="bg-blue-600 hover:bg-blue-700"
       >
         <FileText className="mr-2 h-4 w-4" /> Draft Application
       </Button>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
-          <DialogHeader>
-            <DialogTitle className="text-blue-400">
-              Draft Application for {opportunity.title} at {opportunity.company}
-            </DialogTitle>
-          </DialogHeader>
+      {dialogOpportunity && (
+        <Dialog open={isOpen} onOpenChange={(openState) => { if (!openState) close(); }}>
+          <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
+            <DialogHeader>
+              <DialogTitle className="text-blue-400">
+                Draft Application for {dialogOpportunity.title} at {dialogOpportunity.company}
+              </DialogTitle>
+            </DialogHeader>
 
           {!drafts.length && !isLoading && !error && (
             <div className="py-6 text-center">
@@ -191,8 +194,9 @@ export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ 
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

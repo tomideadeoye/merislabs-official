@@ -1,66 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchCVComponentsFromNotion } from '@/lib/notion_service';
-import { CVComponentShared } from '@/types/orion';
+import { generateLLMResponse } from '@/lib/orion_llm';
 
-/**
- * API route for assembling a CV from selected components
- */
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const { selected_component_ids, template_name, header_info, tailored_content_map } = body;
+    const { opportunity, jd, memory, profile } = await request.json();
 
-    if (!selected_component_ids || !Array.isArray(selected_component_ids) || selected_component_ids.length === 0) {
-      return NextResponse.json({
-        success: false,
-        error: 'Selected component IDs are required'
-      }, { status: 400 });
+    if (!opportunity || !jd) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields: opportunity and jd.' },
+        { status: 400 }
+      );
     }
 
-    if (!template_name) {
-      return NextResponse.json({
-        success: false,
-        error: 'Template name is required'
-      }, { status: 400 });
-    }
+    // Compose a prompt for the LLM
+    const prompt = `
+You are an expert CV writer and AI assistant. Using the following information, generate a complete, job-specific CV tailored for the opportunity. Use the most relevant details from the user's profile and memory. Structure the CV for maximum impact and clarity, and ensure it is highly relevant to the job description.
 
-    // Fetch all available CV components
-    const componentsResult = await fetchCVComponentsFromNotion();
-    if (!componentsResult.success || !componentsResult.components) {
-      return NextResponse.json({ success: false, error: componentsResult.error || 'Failed to fetch CV components' }, { status: 500 });
-    }
-    const allComponents = componentsResult.components;
+--- Job Description ---
+${jd}
 
-    // Filter and process selected components
-    const assembledContent: string[] = [];
+--- Opportunity Details ---
+Title: ${opportunity.title || 'N/A'}
+Company: ${opportunity.company || 'N/A'}
+Description: ${opportunity.description || 'N/A'}
 
-    if (header_info) {
-      assembledContent.push(header_info);
-      assembledContent.push('---'); // Separator
-    }
+--- User Profile ---
+${profile ? JSON.stringify(profile, null, 2) : 'N/A'}
 
-    selected_component_ids.forEach((componentId: string) => {
-      const component = allComponents.find((comp: CVComponentShared) => comp.unique_id === componentId);
-      if (component) {
-        // Use tailored content if available, otherwise use original content
-        const contentToUse = tailored_content_map?.[componentId] || component.content_primary;
-        if (contentToUse) {
-          assembledContent.push(`**${component.component_name}**`); // Add component name as a heading
-          assembledContent.push(contentToUse);
-          assembledContent.push(''); // Add a blank line after each component content
-        }
-      }
-    });
+--- User Memory (notes, highlights, evaluations) ---
+${Array.isArray(memory) && memory.length > 0
+  ? memory.map((m: any) => `- [${m.type}] ${m.content}`).join('\n')
+  : 'N/A'}
 
-    // Join the assembled content into a single string
-    const finalCV = assembledContent.join('\n');
+--- Instructions ---
+- Structure the CV as you see fit for this job.
+- Use markdown formatting.
+- Only include information that is relevant and impactful for this opportunity.
+- Do not include any placeholder or dummy content.
+`;
 
-    return NextResponse.json({ success: true, assembled_cv: finalCV });
-  } catch (error: any) {
-    console.error('Error in CV assembly:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred in CV assembly'
-    }, { status: 500 });
+    const llmContent = await generateLLMResponse('CV_ASSEMBLE', prompt, { temperature: 0.5, maxTokens: 1200 });
+
+    return NextResponse.json({ success: true, cv: llmContent });
+  } catch (err: any) {
+    console.error('[CV ASSEMBLE][ERROR]', err);
+    return NextResponse.json(
+      { success: false, error: err.message || 'Failed to generate tailored CV.' },
+      { status: 500 }
+    );
   }
 }

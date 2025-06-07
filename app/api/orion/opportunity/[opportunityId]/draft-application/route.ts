@@ -3,7 +3,6 @@ import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { fetchUserProfile } from '@/lib/profile_service';
 import { auth } from '@/auth';
-// Assuming types for request body and response are defined, e.g., in types/opportunity.d.ts
 // import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/types/opportunity';
 import type { MemoryPayload } from '@/types/orion';
 
@@ -37,7 +36,13 @@ export async function POST(
       return NextResponse.json({ success: false, error: opportunityResult.error }, { status: 500 });
     }
 
+    // Normalize company/companyOrInstitution for downstream use
     const opportunity = opportunityResult.opportunity;
+    if (!opportunity) {
+      return NextResponse.json({ success: false, error: 'Opportunity not found.' }, { status: 404 });
+    }
+    const company = (opportunity.company ?? (opportunity as any).companyOrInstitution ?? '') || '';
+    const companyOrInstitution = ((opportunity as any).companyOrInstitution ?? opportunity.company ?? '') || '';
 
     // Fetch user profile data
     const profileData = await fetchUserProfile();
@@ -52,7 +57,7 @@ export async function POST(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `Application drafting context for ${opportunity.title} at ${opportunity.company}`,
+          query: `Application drafting context for ${opportunity.title} at ${companyOrInstitution}`,
           limit: 7,
         }),
       });
@@ -74,13 +79,13 @@ export async function POST(
 
     // Fetch relevant company web context
     let companyWebContext: string | undefined;
-    if (opportunity.company) {
+    if (companyOrInstitution) {
         try {
             const researchResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    query: `${opportunity.company} overview`, // Search query for company overview
+                    query: `${companyOrInstitution} overview`, // Search query for company overview
                     type: 'web',
                     count: 3, // Limit number of results
                 }),
@@ -109,7 +114,7 @@ export async function POST(
     const jobUrl = (opportunity as any).jobUrl || opportunity.url;
 
     // Construct the prompt for LLM application drafting using the helper function
-    const prompt = `Draft application materials (e.g., cover letter content, key points for a message) for the following job opportunity, tailored to the user's profile and relevant memories.${companyWebContext ? ' Also use the provided company web context.' : ''}\n\nJob Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content || 'No content provided.'}\n\n${/* tailoredCVContent ? `Tailored CV Content:\n${tailoredCVContent}\n\n` : '' */''}Instructions:\nGenerate compelling content suitable for a job application. Focus on highlighting how the user's profile and relevant experiences (from profile and memories) align with the job requirements mentioned in the content. Incorporate relevant details about the company from the provided web context to show genuine interest and tailor the application further. Provide key phrases, bullet points, or a draft paragraph that can be used in a cover letter or application form. Tailor the tone to be professional and enthusiastic.\n\nProvide ONLY the draft content, without any introductory or concluding remarks.`;
+    const prompt = `Draft application materials (e.g., cover letter content, key points for a message) for the following job opportunity, tailored to the user's profile and relevant memories.${companyWebContext ? ' Also use the provided company web context.' : ''}\n\nJob Title: ${opportunity.title}\nCompany: ${companyOrInstitution}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content || 'No content provided.'}\n\n${/* tailoredCVContent ? `Tailored CV Content:\n${tailoredCVContent}\n\n` : '' */''}Instructions:\nGenerate compelling content suitable for a job application. Focus on highlighting how the user's profile and relevant experiences (from profile and memories) align with the job requirements mentioned in the content. Incorporate relevant details about the company from the provided web context to show genuine interest and tailor the application further. Provide key phrases, bullet points, or a draft paragraph that can be used in a cover letter or application form. Tailor the tone to be professional and enthusiastic.\n\nProvide ONLY the draft content, without any introductory or concluding remarks.`;
 
     const messages = constructLlmMessages({
       requestType: REQUEST_TYPES.DRAFT_COMMUNICATION,
@@ -126,7 +131,7 @@ export async function POST(
       {
         messages: messages,
         temperature: 0.7,
-        max_tokens: 1500, // Adjust token limit for answers
+        max_tokens: 1500,
       } as any // Cast for now
     );
 

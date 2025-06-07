@@ -7,25 +7,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, CheckCircle, AlertTriangle, MessageCircle } from 'lucide-react';
 
-interface ActionReflectionDialogProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  completedTaskText: string;
-  habiticaTaskId: string;
-  orionSourceModule?: string;
-  orionSourceReferenceId?: string;
-  onReflectionSaved?: () => void;
-}
+import { useActionReflectionDialogStore } from './actionReflectionDialogStore';
 
-export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
-  isOpen,
-  setIsOpen,
-  completedTaskText,
-  habiticaTaskId,
-  orionSourceModule,
-  orionSourceReferenceId,
-  onReflectionSaved,
-}) => {
+interface ActionReflectionDialogProps {}
+
+export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = () => {
+  const {
+    isOpen,
+    close,
+    completedTaskText,
+    habiticaTaskId,
+    orionSourceModule,
+    orionSourceReferenceId,
+    onReflectionSaved,
+  } = useActionReflectionDialogStore();
   const [reflectionText, setReflectionText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -67,7 +62,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
         if (onReflectionSaved) onReflectionSaved();
 
         setTimeout(() => {
-          setIsOpen(false);
+          close();
           setReflectionText(""); // Clear for next time
           setFeedback(null);
         }, 1500);
@@ -79,7 +74,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
     } finally {
       setIsSaving(false);
     }
-  }, [reflectionText, habiticaTaskId, orionSourceModule, orionSourceReferenceId, completedTaskText, setIsOpen, onReflectionSaved]);
+  }, [reflectionText, habiticaTaskId, orionSourceModule, orionSourceReferenceId, completedTaskText, onReflectionSaved, close]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -87,7 +82,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
         setFeedback(null);
         setReflectionText("");
       }
-      setIsOpen(open);
+      if (!open) close();
     }}>
       <DialogContent className="sm:max-w-lg bg-gray-800 border-gray-700 text-gray-200">
         <DialogHeader>
@@ -128,7 +123,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = ({
 
         <DialogFooter className="sm:justify-between">
           <Button
-            onClick={() => { setIsOpen(false); setReflectionText(""); setFeedback(null); }}
+            onClick={() => { close(); setReflectionText(""); setFeedback(null); }}
             variant="ghost"
             className="text-gray-400 hover:text-gray-200"
           >

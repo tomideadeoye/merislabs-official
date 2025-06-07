@@ -9,6 +9,7 @@ import { Loader2, AlertTriangle, CheckCircle, Heart, BrainCircuit } from 'lucide
 import { LogEmotionRequestBody, CognitiveDistortionAnalysisData } from '@/types/orion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CognitiveDistortionAnalysisForm } from './cbt/CognitiveDistortionAnalysisForm';
+import { CognitiveDistortionAnalysisProvider } from './cbt/CognitiveDistortionAnalysisContext';
 
 // Common emotions for autocomplete
 const commonEmotions = [
@@ -238,10 +239,11 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
             Cognitive Distortion Analysis
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-0">
-            <CognitiveDistortionAnalysisForm
-              initialData={cbtData}
-              onAnalysisChange={handleCbtDataChange}
-            />
+            <CognitiveDistortionAnalysisProvider>
+              <CognitiveDistortionAnalysisForm
+                initialData={cbtData}
+              />
+            </CognitiveDistortionAnalysisProvider>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

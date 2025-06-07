@@ -6,16 +6,19 @@ import { PageNames } from "@/app_state";
 import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/hooks/useSessionState';
 import { ValuePropositionForm } from '@/components/orion/ValuePropositionForm';
+import { ValuePropositionProvider } from '@/components/orion/ValuePropositionContext';
 import { CareerMilestoneForm } from '@/components/orion/CareerMilestoneForm';
+import { CareerMilestoneProvider } from '@/components/orion/CareerMilestoneContext';
 import { CareerMilestoneList } from '@/components/orion/CareerMilestoneList';
 import { NarrativeGenerationForm } from '@/components/orion/NarrativeGenerationForm';
+import { useNarrativeGenerationStore } from '@/components/orion/narrativeGenerationStore';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  FileText, 
-  Award, 
-  Lightbulb, 
-  Plus, 
+import {
+  FileText,
+  Award,
+  Lightbulb,
+  Plus,
   Copy,
   CheckCheck
 } from 'lucide-react';
@@ -26,25 +29,24 @@ export default function NarrativeStudioPage() {
   const [valueProposition, setValueProposition] = useState<ValueProposition | null>(null);
   const [isLoadingValueProp, setIsLoadingValueProp] = useState<boolean>(true);
   const [valuePropError, setValuePropError] = useState<string | null>(null);
-  
+
   // Career Milestones state
   const [milestones, setMilestones] = useState<CareerMilestone[]>([]);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState<boolean>(true);
   const [milestonesError, setMilestonesError] = useState<string | null>(null);
   const [showAddMilestoneForm, setShowAddMilestoneForm] = useState<boolean>(false);
   const [editingMilestone, setEditingMilestone] = useState<CareerMilestone | null>(null);
-  
+
   // Narrative Generation state
-  const [narrativeContent, setNarrativeContent] = useSessionState(SessionStateKeys.NARRATIVE_CONTENT, "");
-  const [narrativeTitle, setNarrativeTitle] = useSessionState(SessionStateKeys.NARRATIVE_TITLE, "");
+  const { latestNarrative: narrativeContent, latestTitle: narrativeTitle } = useNarrativeGenerationStore();
   const [copied, setCopied] = useState<boolean>(false);
-  
+
   // Fetch value proposition and career milestones on mount
   useEffect(() => {
     fetchValueProposition();
     fetchCareerMilestones();
   }, []);
-  
+
   // Reset copy status after 2 seconds
   useEffect(() => {
     if (copied) {
@@ -57,11 +59,11 @@ export default function NarrativeStudioPage() {
   const fetchValueProposition = async () => {
     setIsLoadingValueProp(true);
     setValuePropError(null);
-    
+
     try {
       const response = await fetch('/api/orion/narrative/value-proposition');
       const data = await response.json();
-      
+
       if (data.success) {
         setValueProposition(data.valueProposition);
       } else if (data.error !== 'Value proposition not found') {
@@ -79,11 +81,11 @@ export default function NarrativeStudioPage() {
   const fetchCareerMilestones = async () => {
     setIsLoadingMilestones(true);
     setMilestonesError(null);
-    
+
     try {
       const response = await fetch('/api/orion/narrative/milestones');
       const data = await response.json();
-      
+
       if (data.success) {
         setMilestones(data.milestones || []);
       } else {
@@ -107,9 +109,9 @@ export default function NarrativeStudioPage() {
         },
         body: JSON.stringify(data)
       });
-      
+
       const responseData = await response.json();
-      
+
       if (responseData.success) {
         setValueProposition(responseData.valueProposition);
       } else {
@@ -133,9 +135,9 @@ export default function NarrativeStudioPage() {
           },
           body: JSON.stringify(data)
         });
-        
+
         const responseData = await response.json();
-        
+
         if (responseData.success) {
           setMilestones(prev => prev.map(m => m.id === editingMilestone.id ? responseData.milestone : m));
           setEditingMilestone(null);
@@ -151,9 +153,9 @@ export default function NarrativeStudioPage() {
           },
           body: JSON.stringify(data)
         });
-        
+
         const responseData = await response.json();
-        
+
         if (responseData.success) {
           setMilestones(prev => [...prev, responseData.milestone]);
           setShowAddMilestoneForm(false);
@@ -170,17 +172,17 @@ export default function NarrativeStudioPage() {
   // Handle milestone deletion
   const handleDeleteMilestone = async (id: string) => {
     if (!confirm('Are you sure you want to delete this career milestone?')) return;
-    
+
     try {
       const response = await fetch(`/api/orion/narrative/milestones?id=${id}`, {
         method: 'DELETE'
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setMilestones(prev => prev.filter(m => m.id !== id));
-        
+
         // If the deleted milestone was being edited, clear editing state
         if (editingMilestone?.id === id) {
           setEditingMilestone(null);
@@ -198,16 +200,16 @@ export default function NarrativeStudioPage() {
   const handleReorderMilestone = async (id: string, direction: 'up' | 'down') => {
     const currentIndex = milestones.findIndex(m => m.id === id);
     if (currentIndex === -1) return;
-    
+
     const newMilestones = [...milestones];
     const milestone = newMilestones[currentIndex];
-    
+
     if (direction === 'up' && currentIndex > 0) {
       const prevMilestone = newMilestones[currentIndex - 1];
       const tempOrder = milestone.order;
       milestone.order = prevMilestone.order;
       prevMilestone.order = tempOrder;
-      
+
       try {
         await Promise.all([
           fetch(`/api/orion/narrative/milestones?id=${milestone.id}`, {
@@ -221,7 +223,7 @@ export default function NarrativeStudioPage() {
             body: JSON.stringify({ order: prevMilestone.order })
           })
         ]);
-        
+
         // Re-sort the milestones
         newMilestones.sort((a, b) => a.order - b.order);
         setMilestones(newMilestones);
@@ -234,7 +236,7 @@ export default function NarrativeStudioPage() {
       const tempOrder = milestone.order;
       milestone.order = nextMilestone.order;
       nextMilestone.order = tempOrder;
-      
+
       try {
         await Promise.all([
           fetch(`/api/orion/narrative/milestones?id=${milestone.id}`, {
@@ -248,7 +250,7 @@ export default function NarrativeStudioPage() {
             body: JSON.stringify({ order: nextMilestone.order })
           })
         ]);
-        
+
         // Re-sort the milestones
         newMilestones.sort((a, b) => a.order - b.order);
         setMilestones(newMilestones);
@@ -260,10 +262,7 @@ export default function NarrativeStudioPage() {
   };
 
   // Handle narrative generation
-  const handleNarrativeGenerated = (content: string, title: string) => {
-    setNarrativeContent(content);
-    setNarrativeTitle(title);
-  };
+  // (No longer needed: handled by global store)
 
   // Handle copy to clipboard
   const handleCopyToClipboard = () => {
@@ -294,16 +293,17 @@ export default function NarrativeStudioPage() {
             Generate Narrative
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="value-proposition" className="mt-6 space-y-6">
           {/* Value Proposition Tab Content */}
           {!isLoadingValueProp && (
-            <ValuePropositionForm 
-              initialData={valueProposition || {}}
-              onSubmit={handleValuePropSubmit}
-            />
+            <ValuePropositionProvider>
+              <ValuePropositionForm
+                initialData={valueProposition || {}}
+              />
+            </ValuePropositionProvider>
           )}
-          
+
           {isLoadingValueProp && (
             <div className="text-center py-8">
               <div className="animate-pulse space-y-2">
@@ -313,7 +313,7 @@ export default function NarrativeStudioPage() {
               </div>
             </div>
           )}
-          
+
           {valuePropError && (
             <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
               <p className="font-semibold">Error loading value proposition</p>
@@ -321,12 +321,12 @@ export default function NarrativeStudioPage() {
             </div>
           )}
         </TabsContent>
-        
+
         <TabsContent value="career-milestones" className="mt-6 space-y-6">
           {/* Career Milestones Tab Content */}
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-200">Your Career Milestones</h2>
-            <Button 
+            <Button
               onClick={() => {
                 setShowAddMilestoneForm(!showAddMilestoneForm);
                 setEditingMilestone(null);
@@ -337,45 +337,34 @@ export default function NarrativeStudioPage() {
               {showAddMilestoneForm ? 'Cancel' : 'Add Milestone'}
             </Button>
           </div>
-          
-          {/* Add/Edit Milestone Form */}
-          {(showAddMilestoneForm || editingMilestone) && (
-            <div className="mb-6">
-              <CareerMilestoneForm 
-                initialData={editingMilestone || {}}
-                onSubmit={handleMilestoneSubmit}
-                onCancel={() => {
-                  setShowAddMilestoneForm(false);
-                  setEditingMilestone(null);
-                }}
-                existingMilestonesCount={milestones.length}
-              />
-            </div>
-          )}
-          
-          {/* Milestones List */}
-          <CareerMilestoneList 
-            milestones={milestones}
-            onEdit={(milestone) => {
-              setEditingMilestone(milestone);
-              setShowAddMilestoneForm(false);
-            }}
-            onDelete={handleDeleteMilestone}
-            onReorder={handleReorderMilestone}
-            isLoading={isLoadingMilestones}
-            error={milestonesError}
-          />
+
+          {/* Add/Edit Milestone Form and Milestones List with Context */}
+          <CareerMilestoneProvider>
+            {(showAddMilestoneForm || editingMilestone) && (
+              <div className="mb-6">
+                <CareerMilestoneForm
+                  initialData={editingMilestone || {}}
+                  existingMilestonesCount={milestones.length}
+                />
+              </div>
+            )}
+
+            {/* Milestones List */}
+            <CareerMilestoneList
+              milestones={milestones}
+              isLoading={isLoadingMilestones}
+              error={milestonesError}
+            />
+          </CareerMilestoneProvider>
         </TabsContent>
-        
+
         <TabsContent value="generate-narrative" className="mt-6 space-y-6">
           {/* Generate Narrative Tab Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <NarrativeGenerationForm 
-                onNarrativeGenerated={handleNarrativeGenerated}
-              />
+              <NarrativeGenerationForm />
             </div>
-            
+
             <div className="space-y-4">
               <div className="bg-gray-800 border border-gray-700 rounded-md p-4">
                 <div className="flex justify-between items-center mb-4">
@@ -383,8 +372,8 @@ export default function NarrativeStudioPage() {
                     {narrativeTitle || "Generated Narrative"}
                   </h3>
                   {narrativeContent && (
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       className="bg-gray-700 hover:bg-gray-600"
                       onClick={handleCopyToClipboard}
@@ -403,7 +392,7 @@ export default function NarrativeStudioPage() {
                     </Button>
                   )}
                 </div>
-                
+
                 {narrativeContent ? (
                   <div className="whitespace-pre-wrap text-gray-300 bg-gray-700/50 p-4 rounded-md border border-gray-600 max-h-[600px] overflow-y-auto">
                     {narrativeContent}

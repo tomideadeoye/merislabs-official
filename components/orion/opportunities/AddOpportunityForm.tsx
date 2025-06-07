@@ -9,18 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Loader2, X } from 'lucide-react';
 import { OpportunityCreatePayload, OpportunityNotionInput } from '@/types/orion';
+import { useOpportunityDialogStore } from './opportunityDialogStore';
 
 interface AddOpportunityFormProps {
-  isOpen: boolean;
-  onClose: () => void;
   onSuccess?: (opportunityId: string) => void;
 }
 
 export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
-  isOpen,
-  onClose,
   onSuccess
 }) => {
+  const { isOpen, close } = useOpportunityDialogStore();
   const [formData, setFormData] = useState({
     title: '',
     company: '',
@@ -96,7 +94,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
         if (onSuccess) {
           onSuccess(data.opportunity.id);
         }
-        onClose();
+        close();
         setFormData({
           title: '',
           company: '',
@@ -120,7 +118,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="bg-gray-800 text-gray-200 border-gray-700 max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Add New Opportunity</DialogTitle>
@@ -242,7 +240,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={close}
               className="border-gray-600 text-gray-300 hover:bg-gray-700"
               disabled={isSubmitting}
             >

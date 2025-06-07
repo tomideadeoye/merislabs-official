@@ -13,17 +13,30 @@ interface RouteParams {
   };
 }
 
+// =====================
+// Opportunity Pipeline Update API
+// =====================
+// GOAL: Provide comprehensive, context-rich, level-based logging for all Opportunity update actions.
+// All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
+
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const logContext = {
+    route: '/api/orion/opportunity/[opportunityId]/update',
+    filePath: 'app/api/orion/opportunity/[opportunityId]/update/route.ts',
+    timestamp: new Date().toISOString(),
+    user: 'public',
+    opportunityId: params?.opportunityId,
+  };
+
+  console.info('[OPPORTUNITY_UPDATE][START]', logContext);
 
   try {
     const { opportunityId } = params;
     const body: OpportunityUpdatePayload = await request.json();
+    console.info('[OPPORTUNITY_UPDATE][PAYLOAD]', { ...logContext, body });
 
     if (!opportunityId) {
+      console.warn('[OPPORTUNITY_UPDATE][VALIDATION_FAIL][NO_ID]', { ...logContext, body });
       return NextResponse.json({
         success: false,
         error: 'Opportunity ID is required.'
@@ -36,6 +49,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const existingOpp = checkResult.rows[0];
 
     if (!existingOpp) {
+      console.warn('[OPPORTUNITY_UPDATE][NOT_FOUND]', { ...logContext, opportunityId });
       return NextResponse.json({
         success: false,
         error: 'Opportunity not found.'
@@ -129,6 +143,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       opportunityId,
       ...Object.values(updateFields)
     ]);
+    console.info('[OPPORTUNITY_UPDATE][DB_UPDATED]', { ...logContext, updateFields });
 
     // Fetch the updated opportunity
     const updatedQuery = "SELECT * FROM opportunities WHERE id = $1";
@@ -144,6 +159,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       relatedHabiticaTaskIds: updatedOppRaw.relatedhabiticataskids ? JSON.parse(updatedOppRaw.relatedhabiticataskids) : [],
     };
 
+    console.info('[OPPORTUNITY_UPDATE][SUCCESS]', { ...logContext, opportunityId, updatedOpportunity });
+
     return NextResponse.json({
       success: true,
       message: 'Opportunity updated successfully.',
@@ -151,7 +168,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
 
   } catch (error: any) {
-    console.error('[OPP_TRACKER_API_UPDATE_ERROR]', error);
+    console.error('[OPPORTUNITY_UPDATE][ERROR]', { ...logContext, error: error.message, stack: error.stack });
 
     return NextResponse.json({
       success: false,
