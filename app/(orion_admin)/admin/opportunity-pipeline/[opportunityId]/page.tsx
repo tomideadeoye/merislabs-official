@@ -16,6 +16,7 @@ const OpportunityNotionOutputSharedSchema = z.object({
   notion_page_id: z.string().optional(),
   title: z.string(),
   company: z.string(),
+  companyOrInstitution: z.string(),
   content: z.string().nullable().optional(),
   descriptionSummary: z.string().nullable().optional(),
   type: z.union([z.string(), z.null()]).optional(),
@@ -54,18 +55,25 @@ async function fetchNotionOpportunity(opportunityId: string): Promise<Opportunit
   // Convert OpportunityNotionOutputShared to Opportunity by ensuring required fields exist
   // Convert last_edited_time to string if it's a Date object to match type definition
   const rawOpportunityData = fetchResult.opportunity;
+  // Ensure both company and companyOrInstitution are present for validation
+  const normalizedOpportunityData: any = {
+    ...rawOpportunityData,
+    company: (rawOpportunityData.company ?? (rawOpportunityData as any).companyOrInstitution ?? '') || '',
+    companyOrInstitution: ((rawOpportunityData as any).companyOrInstitution ?? rawOpportunityData.company ?? '') || '',
+  };
   // Validate with zod
-  const parseResult = OpportunityNotionOutputSharedSchema.safeParse(rawOpportunityData);
+  const parseResult = OpportunityNotionOutputSharedSchema.safeParse(normalizedOpportunityData);
   if (!parseResult.success) {
     console.error('[OpportunityNotionOutputShared] Invalid data in fetchNotionOpportunity:', parseResult.error.format(), rawOpportunityData);
     throw new Error('Invalid OpportunityNotionOutputShared: ' + JSON.stringify(parseResult.error.format()));
   }
   const opportunityData: OpportunityNotionOutputShared = parseResult.data;
   const opportunity: Opportunity = {
-    id: opportunityData.id,
+    id: opportunityData.id || '',
     notion_page_id: opportunityData.notion_page_id,
-    title: opportunityData.title,
-    company: opportunityData.company,
+    title: opportunityData.title || '',
+    company: opportunityData.company || '',
+    companyOrInstitution: opportunityData.companyOrInstitution || '',
     content: opportunityData.content ?? '',
     type: (opportunityData.type ?? 'other') as OpportunityType,
     status: opportunityData.status ?? undefined,

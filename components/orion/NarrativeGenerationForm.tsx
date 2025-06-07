@@ -17,13 +17,9 @@ import {
 } from '@/components/ui/select';
 import type { NarrativeType } from '@/types/narrative-clarity';
 
-interface NarrativeGenerationFormProps {
-  onNarrativeGenerated: (content: string, title: string) => void;
-}
+import { useNarrativeGenerationStore } from './narrativeGenerationStore';
 
-export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = ({
-  onNarrativeGenerated
-}) => {
+export const NarrativeGenerationForm: React.FC = () => {
   const [narrativeType, setNarrativeType] = useSessionState<
     SessionStateKeys.NARRATIVE_TYPE
   >(
@@ -67,7 +63,7 @@ export const NarrativeGenerationForm: React.FC<NarrativeGenerationFormProps> = (
       const data = await response.json();
 
       if (data.success && data.narrative) {
-        onNarrativeGenerated(data.narrative.content, data.narrative.suggestedTitle);
+        useNarrativeGenerationStore.getState().setNarrative(data.narrative.content, data.narrative.suggestedTitle);
       } else {
         throw new Error(data.error || 'Failed to generate narrative content.');
       }

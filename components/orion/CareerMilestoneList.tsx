@@ -4,35 +4,66 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Award, 
-  Calendar, 
-  Building, 
-  Edit, 
-  Trash2, 
+import {
+  Award,
+  Calendar,
+  Building,
+  Edit,
+  Trash2,
   AlertTriangle,
   ArrowUp,
   ArrowDown
 } from 'lucide-react';
 import type { CareerMilestone } from '@/types/narrative-clarity';
+import { useCareerMilestone } from './CareerMilestoneContext';
+
+/**
+ * CareerMilestoneList
+ * GOAL: Display, edit, delete, and reorder career milestones using context-based handlers for full serializability and future gamification.
+ * All actions are logged for traceability and engagement analytics.
+ * Connects to: CareerMilestoneContext, CareerMilestoneForm, admin dashboard.
+ */
 
 interface CareerMilestoneListProps {
   milestones: CareerMilestone[];
-  onEdit: (milestone: CareerMilestone) => void;
-  onDelete: (id: string) => void;
-  onReorder?: (id: string, direction: 'up' | 'down') => void;
   isLoading?: boolean;
   error?: string | null;
 }
 
-export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({ 
-  milestones, 
-  onEdit, 
-  onDelete,
-  onReorder,
+export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({
+  milestones,
   isLoading = false,
-  error = null
+  error = null,
 }) => {
+  const context = useCareerMilestone();
+
+  // Fallbacks for context actions (for legacy/test usage)
+  const handleEdit = (milestone: CareerMilestone) => {
+    if (context && (context as any).setEditingMilestone) {
+      (context as any).setEditingMilestone(milestone);
+      console.info("[CAREER_MILESTONE_LIST][EDIT][CONTEXT]", { milestone });
+    } else {
+      console.warn("[CAREER_MILESTONE_LIST][EDIT][NO_CONTEXT]", { milestone });
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (context && (context as any).deleteMilestone) {
+      (context as any).deleteMilestone(id);
+      console.info("[CAREER_MILESTONE_LIST][DELETE][CONTEXT]", { id });
+    } else {
+      console.warn("[CAREER_MILESTONE_LIST][DELETE][NO_CONTEXT]", { id });
+    }
+  };
+
+  const handleReorder = (id: string, direction: 'up' | 'down') => {
+    if (context && (context as any).reorderMilestone) {
+      (context as any).reorderMilestone(id, direction);
+      console.info("[CAREER_MILESTONE_LIST][REORDER][CONTEXT]", { id, direction });
+    } else {
+      console.warn("[CAREER_MILESTONE_LIST][REORDER][NO_CONTEXT]", { id, direction });
+    }
+  };
   if (error) {
     return (
       <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-start">
@@ -79,7 +110,7 @@ export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({
                   <Award className="h-5 w-5 mr-2 text-purple-400" />
                   <h3 className="text-lg font-medium text-gray-200">{milestone.title}</h3>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-y-2 gap-x-4 text-sm text-gray-400">
                   {milestone.organization && (
                     <div className="flex items-center">
@@ -87,7 +118,7 @@ export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({
                       <span>{milestone.organization}</span>
                     </div>
                   )}
-                  
+
                   {milestone.startDate && (
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
@@ -95,9 +126,9 @@ export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 <p className="text-gray-300">{milestone.description}</p>
-                
+
                 <div className="mt-2">
                   <p className="text-sm font-medium text-gray-400 mb-1">Key achievements:</p>
                   <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
@@ -106,7 +137,7 @@ export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({
                     ))}
                   </ul>
                 </div>
-                
+
                 {milestone.skills && milestone.skills.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {milestone.skills.map((skill, index) => (
@@ -116,7 +147,7 @@ export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({
                     ))}
                   </div>
                 )}
-                
+
                 {milestone.impact && (
                   <div className="mt-2">
                     <p className="text-sm font-medium text-gray-400">Impact:</p>
@@ -124,44 +155,42 @@ export const CareerMilestoneList: React.FC<CareerMilestoneListProps> = ({
                   </div>
                 )}
               </div>
-              
+
               <div className="flex flex-row md:flex-col gap-2 justify-end">
-                {onReorder && (
-                  <div className="flex flex-col gap-1">
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      className="bg-gray-700 hover:bg-gray-600 text-gray-300 h-8 w-8"
-                      onClick={() => onReorder(milestone.id, 'up')}
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      className="bg-gray-700 hover:bg-gray-600 text-gray-300 h-8 w-8"
-                      onClick={() => onReorder(milestone.id, 'down')}
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-                
-                <Button 
-                  variant="outline" 
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="bg-gray-700 hover:bg-gray-600 text-gray-300 h-8 w-8"
+                    onClick={() => handleReorder(milestone.id, 'up')}
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="bg-gray-700 hover:bg-gray-600 text-gray-300 h-8 w-8"
+                    onClick={() => handleReorder(milestone.id, 'down')}
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <Button
+                  variant="outline"
                   size="sm"
                   className="bg-gray-700 hover:bg-gray-600 text-gray-300"
-                  onClick={() => onEdit(milestone)}
+                  onClick={() => handleEdit(milestone)}
                 >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
                   className="bg-red-900/30 hover:bg-red-800/50 text-red-300 border-red-700"
-                  onClick={() => onDelete(milestone.id)}
+                  onClick={() => handleDelete(milestone.id)}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
                   Delete

@@ -32,7 +32,9 @@ export interface OpportunityNotionOutputShared {
   id: string;
   notion_page_id?: string;
   title: string;
-  company: string;
+  companyOrInstitution: string;
+  /** Alias for companyOrInstitution for backward compatibility */
+  readonly company?: string;
   content?: string | null;
   descriptionSummary?: string | null;
   type?: OpportunityType | null | string;
@@ -67,7 +69,9 @@ export interface OpportunityDetails {
   id?: string;
   notion_page_id?: string;
   title: string;
-  company: string;
+  companyOrInstitution: string;
+  /** Alias for companyOrInstitution for backward compatibility */
+  readonly company?: string;
   content: string;
   type: OpportunityType;
   status?: OpportunityStatus;
@@ -99,13 +103,17 @@ export interface OpportunityDetails {
 export interface Opportunity extends OpportunityDetails {
   id: string;
   title: string;
-  company: string;
+  companyOrInstitution: string;
   type: OpportunityType;
+  /** Alias for companyOrInstitution for backward compatibility */
+  readonly company: string;
 }
 
 export interface OpportunityCreatePayload {
   title: string;
-  company: string;
+  companyOrInstitution: string;
+  /** Alias for companyOrInstitution for backward compatibility */
+  company?: string;
   content: string;
   descriptionSummary?: string;
   type: OpportunityType;
@@ -126,6 +134,8 @@ export interface OpportunityCreatePayload {
 
 export interface OpportunityUpdatePayload {
   title?: string;
+  companyOrInstitution?: string;
+  /** Alias for companyOrInstitution for backward compatibility */
   company?: string;
   content?: string;
   descriptionSummary?: string;

@@ -4,14 +4,8 @@ import Controls from "@/components/builder/Controls";
 import OtherInfo from "@/components/builder/OtherInfo";
 import { Project, projects } from "@/components/projects";
 import { AnimatePresence, motion } from "framer-motion";
-import { Righteous } from "next/font/google";
 import React, { useState } from "react";
 import { IoMdBookmark } from "react-icons/io";
-
-const inter = Righteous({
-  subsets: ["latin"],
-  weight: ["400"],
-});
 
 export type CurrentSlideData = {
   data: Project;
@@ -40,7 +34,6 @@ export default function Blocks() {
   return (
     <main
       className={`
-       ${inter.className}
         relative h-[70vh] select-none overflow-hidden text-white antialiased w-full`}
     >
       <AnimatePresence>
@@ -77,7 +70,7 @@ export default function Blocks() {
             </div>
             <div className=" col-span-6 flex h-full flex-1 flex-col justify-start p-4 md:justify-center md:p-10">
               <div className=" flex w-full gap-6">
-                {projects.map((data) => {
+                {projects.map((data, index) => {
                   return (
                     <motion.div
                       className=" relative h-52 min-w-[250px] rounded-2xl shadow-md md:h-80 md:min-w-[208px]"
@@ -96,7 +89,7 @@ export default function Blocks() {
                         damping: 20,
                         stiffness: 100,
                       }}
-                      key={data.name}
+                      key={`${data.name}-${index}`}
                     >
                       <motion.img
                         layoutId={data.img}

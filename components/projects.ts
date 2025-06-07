@@ -143,6 +143,24 @@ const projects: Project[] = [
     tag: "DUKKA: Analytics for company internal teams",
     links: [["website", "dexter.dukka.com"]],
   },
+  {
+    name: `Lexology`,
+    description: `Natural Language Processing pipelines to extract key legal concepts and trends from a vast corpus of legal documents.`,
+    image: `https://picsum.photos/144/144`,
+    tag: `Legal Tech, NLP`,
+    technologies: [`Python`, `NLTK`, `spaCy`],
+    img: `https://picsum.photos/144/144`,
+    links: [["website", "#"]],
+  },
+  {
+    name: `Meris`,
+    description: `Placeholder description.`,
+    image: `https://picsum.photos/200/200`,
+    tag: 'Placeholder',
+    technologies: ['React', 'Next.js'],
+    img: `https://picsum.photos/200/200`,
+    links: [["website", "#"]],
+  },
 ];
 
 export { projects };

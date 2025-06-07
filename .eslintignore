@@ -2,3 +2,8 @@ orion_python_backend/
 .venv/
 venv/
 node_modules/
+jest.config.js
+next.config.js
+postcss.config.js
+tailwind.config.js
+babel.config.js

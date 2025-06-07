@@ -100,4 +100,4 @@ Orion implements full-stack, structured logging for all components:
 - For advanced analysis, import the log file into Grafana, Kibana, or similar tools.
 
 ### Testing Logging
-- Run `tests/e2e.test.ts` to validate logging and observability across all components.
+- Run `tests/e2e.test.tsx` to validate logging and observability across all components.

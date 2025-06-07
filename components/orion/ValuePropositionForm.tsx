@@ -9,36 +9,44 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, CheckCircle2, Lightbulb } from 'lucide-react';
 import type { ValueProposition } from '@/types/narrative-clarity';
 
+import { useValueProposition } from "./ValuePropositionContext";
+
+/**
+ * ValuePropositionForm
+ * GOAL: UI for defining and submitting value proposition, using context for all submission events.
+ * All submissions are logged via context for traceability and future analytics.
+ * Connects to: ValuePropositionContext, admin dashboards, engagement features.
+ */
+
 interface ValuePropositionFormProps {
   initialData?: Partial<ValueProposition>;
-  onSubmit: (data: Partial<ValueProposition>) => Promise<void>;
 }
 
-export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({ 
-  initialData = {}, 
-  onSubmit 
+export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
+  initialData = {},
 }) => {
+  const { submitValueProposition } = useValueProposition();
   const [coreStrengths, setCoreStrengths] = useState(initialData.coreStrengths?.join(', ') || '');
   const [uniqueSkills, setUniqueSkills] = useState(initialData.uniqueSkills?.join(', ') || '');
   const [passions, setPassions] = useState(initialData.passions?.join(', ') || '');
   const [vision, setVision] = useState(initialData.vision || '');
   const [targetAudience, setTargetAudience] = useState(initialData.targetAudience || '');
   const [valueStatement, setValueStatement] = useState(initialData.valueStatement || '');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!valueStatement.trim()) {
       setFeedback({ type: 'error', message: 'Value statement is required.' });
       return;
     }
-    
+
     setIsSubmitting(true);
     setFeedback(null);
-    
+
     try {
       // Convert comma-separated strings to arrays
       const valuePropositionData: Partial<ValueProposition> = {
@@ -50,8 +58,8 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
         targetAudience: targetAudience || undefined,
         valueStatement: valueStatement
       };
-      
-      await onSubmit(valuePropositionData);
+
+      await submitValueProposition(valuePropositionData);
       setFeedback({ type: 'success', message: 'Value proposition saved successfully!' });
     } catch (err: any) {
       console.error('Error saving value proposition:', err);
@@ -82,7 +90,7 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="uniqueSkills" className="text-gray-300">Unique Skills (comma-separated)</Label>
             <Input
@@ -94,7 +102,7 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="passions" className="text-gray-300">Passions (comma-separated)</Label>
             <Input
@@ -106,7 +114,7 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="vision" className="text-gray-300">Vision</Label>
             <Textarea
@@ -118,7 +126,7 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="targetAudience" className="text-gray-300">Target Audience</Label>
             <Input
@@ -130,7 +138,7 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="valueStatement" className="text-gray-300">Value Statement *</Label>
             <Textarea
@@ -143,23 +151,23 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
               required
             />
           </div>
-          
+
           {feedback && (
             <div className={`p-3 rounded-md flex items-center ${
-              feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' 
+              feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
                                        : 'bg-red-900/30 border border-red-700 text-red-300'
             }`}>
-              {feedback.type === 'success' ? 
-                <CheckCircle2 className="h-5 w-5 mr-2" /> : 
+              {feedback.type === 'success' ?
+                <CheckCircle2 className="h-5 w-5 mr-2" /> :
                 <AlertTriangle className="h-5 w-5 mr-2" />
               }
               {feedback.message}
             </div>
           )}
-          
-          <Button 
-            type="submit" 
-            disabled={isSubmitting || !valueStatement.trim()} 
+
+          <Button
+            type="submit"
+            disabled={isSubmitting || !valueStatement.trim()}
             className="bg-blue-600 hover:bg-blue-700 w-full"
           >
             {isSubmitting ? (

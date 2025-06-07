@@ -8,8 +8,6 @@ import {
   CVComponent
 } from '@/lib/cv';
 
-// Import the specific Notion fetching function for CV components
-import { fetchCVComponentsFromNotion } from '@/lib/notion_service';
 
 export function useCVTailoring() {
   const [components, setComponents] = useState<CVComponent[]>([]);
@@ -25,14 +23,14 @@ export function useCVTailoring() {
     try {
       setIsLoading(true);
       setError(null);
-      // Use the Notion service function directly
-      const componentsResult = await fetchCVComponentsFromNotion();
+      // Fetch CV components from the server API route
+      const response = await fetch('/api/orion/cv-components');
+      const data = await response.json();
 
-      if (componentsResult.success) {
-        // Map CVComponentShared to CVComponent if necessary, or update CVComponent type
-        setComponents(componentsResult.components as CVComponent[]); // Assuming types are compatible for now
+      if (data.success) {
+        setComponents(data.components as CVComponent[]);
       } else {
-        setError(componentsResult.error || 'Failed to fetch CV components from Notion');
+        setError(data.error || 'Failed to fetch CV components from Notion');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch CV components');

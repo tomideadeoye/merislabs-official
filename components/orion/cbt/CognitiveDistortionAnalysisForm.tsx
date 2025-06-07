@@ -9,9 +9,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { InfoIcon } from 'lucide-react';
 
+import { useCognitiveDistortionAnalysis } from "./CognitiveDistortionAnalysisContext";
+
+/**
+ * CognitiveDistortionAnalysisForm
+ * GOAL: UI for identifying and reframing cognitive distortions, using context for all state changes.
+ * All analysis changes are logged via context for traceability and future analytics.
+ * Connects to: CognitiveDistortionAnalysisContext, CBT dashboards, engagement features.
+ */
+
 interface CognitiveDistortionAnalysisFormProps {
   initialData?: Partial<CognitiveDistortionAnalysisData>;
-  onAnalysisChange: (data: CognitiveDistortionAnalysisData) => void;
 }
 
 const distortionOptions: CognitiveDistortion[] = Object.entries(COGNITIVE_DISTORTIONS_LIST).map(([id, name]) => ({
@@ -20,12 +28,12 @@ const distortionOptions: CognitiveDistortion[] = Object.entries(COGNITIVE_DISTOR
   selected: false,
 }));
 
-export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalysisFormProps> = ({ 
-  initialData, 
-  onAnalysisChange 
+export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalysisFormProps> = ({
+  initialData,
 }) => {
+  const { setAnalysisData } = useCognitiveDistortionAnalysis();
   const [automaticThought, setAutomaticThought] = useState(initialData?.automaticThought || "");
-  const [distortions, setDistortions] = useState<CognitiveDistortion[]>(() => 
+  const [distortions, setDistortions] = useState<CognitiveDistortion[]>(() =>
     distortionOptions.map(opt => ({
       ...opt,
       selected: initialData?.identifiedDistortions?.includes(opt.name) || false
@@ -57,14 +65,14 @@ export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalys
     setDistortions(newDistortions);
     triggerChange(automaticThought, newDistortions, challengeToThought, alternativePerspective);
   };
-  
+
   const triggerChange = (
-    currentAutomaticThought: string, 
-    currentDistortions: CognitiveDistortion[], 
-    currentChallenge: string, 
+    currentAutomaticThought: string,
+    currentDistortions: CognitiveDistortion[],
+    currentChallenge: string,
     currentAlternative: string
   ) => {
-    onAnalysisChange({
+    setAnalysisData({
       automaticThought: currentAutomaticThought,
       identifiedDistortions: currentDistortions.filter(d => d.selected).map(d => d.name),
       challengeToThought: currentChallenge || undefined,
@@ -84,12 +92,12 @@ export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalys
           <Textarea
             id="automaticThought"
             value={automaticThought}
-            onChange={e => { 
-              setAutomaticThought(e.target.value); 
-              triggerChange(e.target.value, distortions, challengeToThought, alternativePerspective); 
+            onChange={e => {
+              setAutomaticThought(e.target.value);
+              triggerChange(e.target.value, distortions, challengeToThought, alternativePerspective);
             }}
             placeholder="e.g., I'm going to fail this presentation."
-            rows={2} 
+            rows={2}
             className="bg-gray-700"
           />
         </div>
@@ -120,12 +128,12 @@ export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalys
           <Textarea
             id="challengeToThought"
             value={challengeToThought}
-            onChange={e => { 
-              setChallengeToThought(e.target.value); 
-              triggerChange(automaticThought, distortions, e.target.value, alternativePerspective); 
+            onChange={e => {
+              setChallengeToThought(e.target.value);
+              triggerChange(automaticThought, distortions, e.target.value, alternativePerspective);
             }}
             placeholder="e.g., I've given good presentations before; I'm well prepared."
-            rows={3} 
+            rows={3}
             className="bg-gray-700"
           />
         </div>
@@ -134,12 +142,12 @@ export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalys
           <Textarea
             id="alternativePerspective"
             value={alternativePerspective}
-            onChange={e => { 
-              setAlternativePerspective(e.target.value); 
-              triggerChange(automaticThought, distortions, challengeToThought, e.target.value); 
+            onChange={e => {
+              setAlternativePerspective(e.target.value);
+              triggerChange(automaticThought, distortions, challengeToThought, e.target.value);
             }}
             placeholder="e.g., It's normal to be nervous, but I have the skills to do well. Even if it's not perfect, it's a learning opportunity."
-            rows={3} 
+            rows={3}
             className="bg-gray-700"
           />
         </div>

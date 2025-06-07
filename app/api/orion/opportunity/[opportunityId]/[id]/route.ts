@@ -8,6 +8,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     id: '1',
     title: 'Senior Software Engineer',
     company: 'CloudScale Technologies',
+    companyOrInstitution: 'CloudScale Technologies',
     type: 'job',
     status: 'evaluating',
     dateIdentified: '2023-05-15',
@@ -22,6 +23,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     id: '2',
     title: 'Product Manager',
     company: 'InnovateTech',
+    companyOrInstitution: 'InnovateTech',
     type: 'job',
     status: 'application_ready',
     dateIdentified: '2023-05-10',
@@ -34,6 +36,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     id: '3',
     title: 'MBA Program',
     company: 'Stanford Graduate School of Business',
+    companyOrInstitution: 'Stanford Graduate School of Business',
     type: 'education_program',
     status: 'researching',
     dateIdentified: '2023-04-20',
@@ -48,6 +51,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     id: '4',
     title: 'Open Source Collaboration',
     company: 'TechForGood Foundation',
+    companyOrInstitution: 'TechForGood Foundation',
     type: 'project_collaboration',
     status: 'applied',
     dateIdentified: '2023-05-01',
@@ -60,6 +64,7 @@ const mockOpportunities: Record<string, Opportunity> = {
     id: '5',
     title: 'Tech Lead',
     company: 'FinanceFlow',
+    companyOrInstitution: 'FinanceFlow',
     type: 'job',
     status: 'interview_scheduled',
     dateIdentified: '2023-04-15',
@@ -137,6 +142,7 @@ export async function PATCH(
     const updatedOpportunity = {
       ...opportunity,
       ...body,
+      companyOrInstitution: body.companyOrInstitution ?? body.company ?? opportunity.company ?? '',
       lastStatusUpdate: new Date().toISOString()
     };
 

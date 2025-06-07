@@ -42,16 +42,32 @@ export async function POST(
       return NextResponse.json({ success: false, error: errorMsg || 'Unknown error' }, { status: 500 });
     }
 
-    const opportunity = opportunityResult.opportunity; // Now TypeScript should know opportunity exists
-
+    const opportunity = opportunityResult.opportunity;
+    if (!opportunity) {
+      return NextResponse.json({ success: false, error: 'Opportunity not found.' }, { status: 404 });
+    }
+    // Normalize company/companyOrInstitution for downstream use
+    const company = (opportunity.company ?? (opportunity as any).companyOrInstitution ?? '') || '';
+    const companyOrInstitution = ((opportunity as any).companyOrInstitution ?? opportunity.company ?? '') || '';
     // Use jobUrl if available, otherwise fallback to url
     const jobUrl = (opportunity as any).jobUrl || opportunity.url;
 
     // Fetch user profile data
+    let profileError: string | null = null;
     const profileData = await fetchUserProfile();
-    const profileContext = profileData ?
-      `User Profile Details:\nSkills: ${profileData.skills || 'N/A'}\nExperience: ${profileData.experience || 'N/A'}\nBackground: ${profileData.background || 'N/A'}\nPersonality: ${profileData.personality || 'N/A'}` :
-      "User profile data not available.";
+    // DEBUG: Log profileData for troubleshooting
+    console.log("[EVAL_API] profileData fetched:", JSON.stringify(profileData, null, 2));
+    let profileContext = "User profile data not available.";
+    if (profileData) {
+      // Dynamically include all fields except 'source'
+      const fields = Object.entries(profileData)
+        .filter(([k]) => k !== "source")
+        .map(([k, v]) => `${k[0].toUpperCase() + k.slice(1)}: ${v || "N/A"}`)
+        .join("\n");
+      profileContext = `User Profile Details (source: ${profileData.source || "unknown"}):\n${fields}`;
+    } else {
+      profileError = "User profile data could not be loaded from Notion or local files. Check Notion API key, URL, and local fallback files.";
+    }
 
     // Fetch relevant memories
     let memoryResults: MemoryPayload[] = []; // Use MemoryPayload type
@@ -60,7 +76,7 @@ export async function POST(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `Opportunity evaluation context for ${opportunity.title} at ${opportunity.company}`, // Tailor memory query
+          query: `Opportunity evaluation context for ${opportunity.title} at ${companyOrInstitution}`, // Tailor memory query
           limit: 5, // Adjust limit as needed
           // Optionally add filters here based on opportunity details or user intent
         }),
@@ -98,7 +114,7 @@ export async function POST(
                    // 'Authorization': request.headers.get('Authorization'), // Pass down user's auth
               },
               body: JSON.stringify({
-                  query: `${opportunity.company} company overview, mission, values, recent news`,
+                  query: `${companyOrInstitution} company overview, mission, values, recent news`,
                   type: 'web', // Specify web search
                   count: 3, // Limit results to avoid excessive token usage
               }),
@@ -203,7 +219,7 @@ export async function POST(
     // Construct the prompt for LLM evaluation using the helper function
     const messages = constructLlmMessages({
       requestType: REQUEST_TYPES.OPPORTUNITY_EVALUATION,
-      primaryContext: `Job Title: ${opportunity.title}\nCompany: ${opportunity.company}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content ?? 'No content provided.'}\n\nWeb Research and Scraped Context (if available and relevant):\n${combinedWebContext || 'No relevant web context found.'}\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile, JD, and context?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD and context.\n6. A brief explanation for the overall score, referencing the provided context.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`,
+      primaryContext: `Job Title: ${opportunity.title}\nCompany: ${companyOrInstitution}\n${jobUrl ? `Job URL: ${jobUrl}\n` : ''}\nJob Content:\n${opportunity.content ?? 'No content provided.'}\n\nWeb Research and Scraped Context (if available and relevant):\n${combinedWebContext || 'No relevant web context found.'}\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile, JD, and context?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD and context.\n6. A brief explanation for the overall score, referencing the provided context.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`,
       profileContext: profileContext,
       memoryResults: memoryResults,
       // systemContext can be added here if needed
@@ -250,7 +266,8 @@ export async function POST(
         // Merge existing opportunity fields with evaluation fields
         const updatePayload = {
             title: opportunity.title,
-            company: opportunity.company,
+            company: company,
+            companyOrInstitution: companyOrInstitution,
             content: opportunity.content ?? '',
             type: opportunity.type,
             status: opportunity.status,
@@ -281,8 +298,14 @@ export async function POST(
          // Log a warning but don't block the response
     }
 
-    // Return the evaluation results and memory snippets
-    return NextResponse.json({ success: true, evaluation, memoryResults });
+    // Return the evaluation results, memory snippets, profile source, and profile error if any
+    return NextResponse.json({
+      success: true,
+      evaluation,
+      memoryResults,
+      profileSource: profileData?.source || "unknown",
+      profileError
+    });
   } catch (error: any) {
     console.error('Error in POST /api/orion/opportunity/[opportunityId]/evaluation:', error);
     return NextResponse.json({ success: false, error: error.message || 'An unexpected error occurred during evaluation.' }, { status: 500 });

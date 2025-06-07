@@ -7,6 +7,7 @@ import { useSessionState } from '@/hooks/useSessionState';
 import { PersonaForm } from '@/components/orion/PersonaForm';
 import { PersonaList } from '@/components/orion/PersonaList';
 import { OutreachForm } from '@/components/orion/OutreachForm';
+import { useOutreachGenerationStore } from '@/components/orion/outreachGenerationStore';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,8 @@ import {
   CheckCheck
 } from 'lucide-react';
 import type { PersonaMap } from '@/types/strategic-outreach';
+import { usePersonaStore } from '@/components/orion/personaStore';
+import { usePersonaFormStore } from '@/components/orion/persona/personaFormStore';
 
 export default function NetworkingHubPage() {
   // State for personas
@@ -32,8 +35,23 @@ export default function NetworkingHubPage() {
 
   // State for outreach
   const [selectedPersona, setSelectedPersona] = useState<PersonaMap | null>(null);
-  const [outreachDraft, setOutreachDraft] = useSessionState(SessionStateKeys.OUTREACH_DRAFT, "");
+
+  // Zustand persona store
+  const { selectedPersona: storeSelectedPersona, editPersona, deletePersona } = usePersonaStore();
+
+  const { latestOutreach: outreachDraft, clearLatestOutreach } = useOutreachGenerationStore();
   const [copied, setCopied] = useState<boolean>(false);
+
+  // PersonaForm store
+  const { feedback, lastSubmittedData, clearFeedback } = usePersonaFormStore();
+
+  // Sync selectedPersona with personaStore
+  useEffect(() => {
+    if (storeSelectedPersona) {
+      setSelectedPersona(storeSelectedPersona);
+      clearLatestOutreach();
+    }
+  }, [storeSelectedPersona, clearLatestOutreach]);
 
   // Fetch personas on mount
   // Fetch personas from API
@@ -71,92 +89,25 @@ export default function NetworkingHubPage() {
     }
   }, [copied]);
 
-
-  // Handle persona form submission
-  const handlePersonaSubmit = async (personaData: Partial<PersonaMap>) => {
-    try {
-      if (editingPersona?.id) {
-        // Update existing persona
-        const response = await fetch('/api/orion/personas', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            id: editingPersona.id,
-            ...personaData
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          setPersonas(prev => prev.map(p => p.id === editingPersona.id ? data.persona : p));
-          setEditingPersona(null);
-        } else {
-          throw new Error(data.error || 'Failed to update persona');
-        }
-      } else {
-        // Create new persona
-        const response = await fetch('/api/orion/personas', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(personaData)
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          setPersonas(prev => [...prev, data.persona]);
-          setShowAddForm(false);
-        } else {
-          throw new Error(data.error || 'Failed to create persona');
-        }
-      }
-    } catch (err: any) {
-      console.error('Error saving persona:', err);
-      throw err;
+  // Side effect: close form and refresh list on PersonaForm success
+  useEffect(() => {
+    if (feedback?.type === 'success') {
+      setShowAddForm(false);
+      setEditingPersona(null);
+      fetchPersonas();
+      clearFeedback();
     }
-  };
+  }, [feedback, fetchPersonas, clearFeedback]);
 
-  // Handle persona deletion
-  const handleDeletePersona = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this persona?')) return;
-
-    try {
-      const response = await fetch(`/api/orion/personas?id=${id}`, {
-        method: 'DELETE'
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setPersonas(prev => prev.filter(p => p.id !== id));
-
-        // If the deleted persona was selected, clear selection
-        if (selectedPersona?.id === id) {
-          setSelectedPersona(null);
-        }
-
-        // If the deleted persona was being edited, clear editing state
-        if (editingPersona?.id === id) {
-          setEditingPersona(null);
-        }
-      } else {
-        throw new Error(data.error || 'Failed to delete persona');
-      }
-    } catch (err: any) {
-      console.error('Error deleting persona:', err);
-      alert(`Error: ${err.message || 'Failed to delete persona'}`);
-    }
-  };
+  // Listen for persona delete action in personaStore and update local state
+  useEffect(() => {
+    // This is a placeholder for future implementation:
+    // You may want to listen for a deletePersona event and update local state accordingly.
+    // For now, deletion is handled via API and local state update.
+  }, []);
 
   // Handle outreach generation
-  const handleOutreachGenerated = (draft: string) => {
-    setOutreachDraft(draft);
-  };
+  // (No longer needed: handled by global store)
 
   // Handle copy to clipboard
   const handleCopyToClipboard = () => {
@@ -220,7 +171,6 @@ export default function NetworkingHubPage() {
             <div className="mb-6">
               <PersonaForm
                 initialData={editingPersona || {}}
-                onSubmit={handlePersonaSubmit}
                 onCancel={() => {
                   setShowAddForm(false);
                   setEditingPersona(null);
@@ -232,15 +182,6 @@ export default function NetworkingHubPage() {
           {/* Personas List */}
           <PersonaList
             personas={personas}
-            onEdit={(persona) => {
-              setEditingPersona(persona);
-              setShowAddForm(false);
-            }}
-            onDelete={handleDeletePersona}
-            onSelect={(persona) => {
-              setSelectedPersona(persona);
-              setOutreachDraft("");
-            }}
             isLoading={isLoadingPersonas}
             error={personasError}
           />
@@ -253,7 +194,6 @@ export default function NetworkingHubPage() {
               <div>
                 <OutreachForm
                   persona={selectedPersona}
-                  onOutreachGenerated={handleOutreachGenerated}
                 />
               </div>
 

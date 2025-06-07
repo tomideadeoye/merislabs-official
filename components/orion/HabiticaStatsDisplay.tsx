@@ -1,89 +1,30 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useSessionState } from '@/hooks/useSessionState';
-import { SessionStateKeys } from '@/hooks/useSessionState';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertTriangle, UserCircle } from 'lucide-react';
+import { UserCircle } from 'lucide-react';
 import type { HabiticaUserStats } from '@/types/habitica';
 
 interface HabiticaStatsDisplayProps {
+  stats: HabiticaUserStats;
   className?: string;
 }
 
-export const HabiticaStatsDisplay: React.FC<HabiticaStatsDisplayProps> = ({ className }) => {
-  const [stats, setStats] = useState<HabiticaUserStats | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
-  const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
-
-  useEffect(() => {
-    async function fetchStats() {
-      if (!habiticaUserId || !habiticaApiToken) {
-        setError("Habitica credentials not set");
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch('/api/orion/habitica/stats', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ userId: habiticaUserId, apiToken: habiticaApiToken })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          setStats(data.data);
-        } else {
-          throw new Error(data.error || 'Failed to fetch Habitica stats');
-        }
-      } catch (err: any) {
-        console.error('Error fetching Habitica stats:', err);
-        setError(err.message || 'An unexpected error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchStats();
-  }, [habiticaUserId, habiticaApiToken]);
-
-  if (isLoading) {
+export const HabiticaStatsDisplay: React.FC<HabiticaStatsDisplayProps> = ({ stats, className }) => {
+  if (!stats || !stats.stats) {
     return (
-      <div className="flex items-center justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
-        <span className="ml-2 text-gray-400">Loading Habitica stats...</span>
-      </div>
+      <Card className={`bg-gray-800 border-gray-700 ${className}`}>
+        <CardHeader>
+          <CardTitle>Habitica Stats</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Loading stats...</p>
+        </CardContent>
+      </Card>
     );
   }
-
-  if (error) {
-    return (
-      <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-center">
-        <AlertTriangle className="h-5 w-5 mr-2" />
-        {error}
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return (
-      <div className="text-gray-400 p-4">
-        No stats available. Please check your Habitica credentials.
-      </div>
-    );
-  }
-
   const userStats = stats.stats;
   const userName = stats.profile?.name || 'Habitica User';
 

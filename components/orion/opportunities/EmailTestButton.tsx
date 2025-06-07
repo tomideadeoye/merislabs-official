@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FinalizeAndSendEmailDialog } from './FinalizeAndSendEmailDialog';
+import { useEmailTestDialogStore } from './emailTestDialogStore';
 import { Mail } from 'lucide-react';
 
 export const EmailTestButton: React.FC = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+  const openDialog = useEmailTestDialogStore((state) => state.open);
+
   const sampleHtmlEmail = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #4a5568;">Test Email from Orion</h2>
@@ -21,27 +22,26 @@ export const EmailTestButton: React.FC = () => {
       </p>
     </div>
   `;
-  
+
   return (
     <>
-      <Button 
-        onClick={() => setIsDialogOpen(true)}
+      <Button
+        onClick={() =>
+          openDialog({
+            initialTo: "",
+            initialSubject: "Test Email from Orion",
+            initialHtmlBody: sampleHtmlEmail,
+            onEmailSent: (messageId) => {
+              console.log('Email sent successfully with message ID:', messageId);
+            },
+          })
+        }
         className="bg-blue-600 hover:bg-blue-700"
       >
         <Mail className="mr-2 h-4 w-4" />
         Test Email Sending
       </Button>
-      
-      <FinalizeAndSendEmailDialog
-        isOpen={isDialogOpen}
-        setIsOpen={setIsDialogOpen}
-        initialTo=""
-        initialSubject="Test Email from Orion"
-        initialHtmlBody={sampleHtmlEmail}
-        onEmailSent={(messageId) => {
-          console.log('Email sent successfully with message ID:', messageId);
-        }}
-      />
+      <FinalizeAndSendEmailDialog />
     </>
   );
 };

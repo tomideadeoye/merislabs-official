@@ -11,7 +11,7 @@ import { Loader2, AlertTriangle, CheckCircle, Brain } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 
-interface AddToMemoryFormProps {
+interface DedicatedAddToMemoryFormProps {
   onMemoryAdded?: () => void;
   initialText?: string;
   initialType?: string;
@@ -19,7 +19,7 @@ interface AddToMemoryFormProps {
   initialSourceId?: string;
 }
 
-export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
+export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFormProps> = ({
   onMemoryAdded,
   initialText = "",
   initialType = "general_note",
@@ -32,6 +32,11 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
   const [type, setType] = useState<string>(initialType);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Checklist state for destinations
+  const [saveToVectorDB, setSaveToVectorDB] = useState(true);
+  const [saveToNotion, setSaveToNotion] = useState(false);
+  const [saveToPostgres, setSaveToPostgres] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,24 +53,44 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
       // Generate a source ID if not provided
       const finalSourceId = sourceId && sourceId.trim() ? sourceId.trim() : `${type}_${new Date().toISOString().replace(/[:.]/g, '-')}_${uuidv4().substring(0, 8)}`;
 
-      // 1. Generate embeddings for the text
-      const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          texts: [text]
-        })
-      });
+      // Prepare the save destinations
+      const destinations = {
+        vectorDB: saveToVectorDB,
+        notion: saveToNotion,
+        postgres: saveToPostgres
+      };
 
-      const embeddingData = await embeddingResponse.json();
+      // 1. Generate embeddings for the text (only if saving to vector DB)
+      let embeddingVector = null;
+      if (saveToVectorDB) {
+        const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            texts: [text]
+          })
+        });
 
-      if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length === 0) {
-        throw new Error(embeddingData.error || 'Failed to generate embeddings.');
+        const embeddingData = await embeddingResponse.json();
+
+        // New robust error handling for per-text results
+        if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length === 0) {
+          // If results array is present, show detailed errors
+          if (embeddingData.results && Array.isArray(embeddingData.results)) {
+            const failed = embeddingData.results.filter((r: any) => !r.embedding);
+            const errorList = failed.map((f: any) => `• "${f.text.substring(0, 50)}..." — ${f.error || 'Unknown error'}`).join('\n');
+            throw new Error(
+              `Failed to generate embeddings for the following text(s):\n${errorList}`
+            );
+          }
+          throw new Error(embeddingData.error || 'Failed to generate embeddings.');
+        }
+
+        // If some succeeded, use the first embedding
+        embeddingVector = embeddingData.embeddings[0];
       }
-
-      const embeddingVector = embeddingData.embeddings[0];
 
       // 2. Prepare the memory point
       const currentISOTime = new Date().toISOString();
@@ -80,32 +105,81 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
         tags: [type, ...tagsArray],
       };
 
-      const memoryPoint = {
-        id: uuidv4(),
-        vector: embeddingVector,
-        payload: memoryPayload,
-      };
+      // 3. Save to selected destinations
+      let vectorDBResult = null, notionResult = null, postgresResult = null;
 
-      // 3. Upsert the memory point into Qdrant
-      const upsertResponse = await fetch('/api/orion/memory/upsert', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          points: [memoryPoint],
-          collectionName: ORION_MEMORY_COLLECTION_NAME
-        })
-      });
+      if (saveToVectorDB) {
+        const memoryPoint = {
+          id: uuidv4(),
+          vector: embeddingVector,
+          payload: memoryPayload,
+        };
 
-      const upsertData = await upsertResponse.json();
+        const upsertResponse = await fetch('/api/orion/memory/upsert', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            points: [memoryPoint],
+            collectionName: ORION_MEMORY_COLLECTION_NAME
+          })
+        });
 
-      if (!upsertData.success) {
-        throw new Error(upsertData.error || 'Failed to save to memory.');
+        vectorDBResult = await upsertResponse.json();
+        if (!vectorDBResult.success) {
+          throw new Error(vectorDBResult.error || 'Failed to save to vector DB.');
+        }
+      }
+
+      if (saveToNotion) {
+        // Example: call a Notion API route (implement as needed)
+        const notionResponse = await fetch('/api/orion/memory/save-to-notion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text,
+            sourceId: finalSourceId,
+            type,
+            tags: tagsArray,
+            timestamp: currentISOTime
+          })
+        });
+        notionResult = await notionResponse.json();
+        if (!notionResult.success) {
+          throw new Error(notionResult.error || 'Failed to save to Notion.');
+        }
+      }
+
+      if (saveToPostgres) {
+        // Example: call a Postgres API route (implement as needed)
+        const pgResponse = await fetch('/api/orion/memory/save-to-postgres', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text,
+            sourceId: finalSourceId,
+            type,
+            tags: tagsArray,
+            timestamp: currentISOTime
+          })
+        });
+        postgresResult = await pgResponse.json();
+        if (!postgresResult.success) {
+          throw new Error(postgresResult.error || 'Failed to save to Postgres.');
+        }
       }
 
       // Success
-      setFeedback({ type: 'success', message: `Successfully added to memory with ID: ${finalSourceId}` });
+      setFeedback({ type: 'success', message: `Successfully added to: ${[
+        saveToVectorDB ? 'Vector DB' : null,
+        saveToNotion ? 'Notion' : null,
+        saveToPostgres ? 'Postgres' : null
+      ].filter(Boolean).join(', ')}` });
       setText("");
       setSourceId("");
       setTags("");
@@ -205,6 +279,41 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
             className="w-full bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
             disabled={isSaving}
           />
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <Label className="block text-sm font-medium text-gray-300 mb-1">
+          Save to:
+        </Label>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={saveToVectorDB}
+              onChange={() => setSaveToVectorDB(v => !v)}
+              disabled={isSaving}
+            />
+            <span>Vector DB</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={saveToNotion}
+              onChange={() => setSaveToNotion(v => !v)}
+              disabled={isSaving}
+            />
+            <span>Notion</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={saveToPostgres}
+              onChange={() => setSaveToPostgres(v => !v)}
+              disabled={isSaving}
+            />
+            <span>Postgres</span>
+          </label>
         </div>
       </div>
 

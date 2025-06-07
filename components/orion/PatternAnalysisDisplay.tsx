@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, AlertTriangle, CheckCircle2, Lightbulb, Brain, Info, ListTodo } from 'lucide-react';
 import { IdentifiedPattern } from '@/types/insights';
 import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
+import { useHabiticaTaskDialogStore } from './tasks/habiticaTaskDialogStore';
 
 interface PatternAnalysisDisplayProps {
   className?: string;
@@ -74,10 +75,11 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
     }
   };
 
+  const { openDialog } = useHabiticaTaskDialogStore();
   const handleCreateTask = (insight: string, theme: string) => {
     setSelectedInsight(insight);
     setSelectedTheme(theme);
-    setIsTaskDialogOpen(true);
+    openDialog();
   };
 
   return (
@@ -256,8 +258,6 @@ export const PatternAnalysisDisplay: React.FC<PatternAnalysisDisplayProps> = ({ 
       )}
 
       <CreateHabiticaTaskDialog
-        isOpen={isTaskDialogOpen}
-        setIsOpen={setIsTaskDialogOpen}
         initialTaskText={selectedInsight}
         initialTaskNotes={`From Pattern Analysis: ${selectedTheme}`}
         sourceModule="Pattern Tracker"

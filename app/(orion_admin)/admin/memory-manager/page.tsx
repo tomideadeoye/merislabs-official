@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/types/orion';
 import { JournalEntryDisplay } from '@/components/orion/JournalEntryDisplay';
-import { AddToMemoryForm } from '@/components/orion/DedicatedAddToMemoryFormComponent';
+import { DedicatedAddToMemoryFormComponent } from '@/components/orion/DedicatedAddToMemoryFormComponent';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
@@ -139,7 +139,7 @@ export default function MemoryManagerFeaturePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <AddToMemoryForm onMemoryAdded={handleMemoryAdded} />
+          <DedicatedAddToMemoryFormComponent onMemoryAdded={handleMemoryAdded} />
         </CardContent>
       </Card>
 

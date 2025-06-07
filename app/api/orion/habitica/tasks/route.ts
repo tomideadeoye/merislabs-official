@@ -18,7 +18,11 @@ export async function POST(req: NextRequest) {
 
     const { userId, apiToken, type } = await req.json();
 
-    if (!userId || !apiToken) {
+    // Use env vars if not provided
+    const finalUserId = userId || process.env.HABITICA_USER_ID;
+    const finalApiToken = apiToken || process.env.HABITICA_API_TOKEN;
+
+    if (!finalUserId || !finalApiToken) {
       console.warn('[HABITICA_TASKS][VALIDATION_FAIL] Missing userId or apiToken.', { ...logContext });
       return NextResponse.json({
         success: false,
@@ -26,42 +30,60 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Fetch tasks using the shared client (env credentials)
-    let tasks: HabiticaTask[] = [];
+    // Fetch all tasks using the shared client
+    let allTasks: HabiticaTask[] = [];
     try {
-      tasks = await getTasks();
-      console.info('[HABITICA_TASKS][FETCHED]', { count: tasks.length, ...logContext });
+      allTasks = await getTasks(finalUserId, finalApiToken);
+      console.info('[HABITICA_TASKS][FETCHED]', { count: allTasks.length, ...logContext });
     } catch (fetchErr) {
       console.error('[HABITICA_TASKS][ERROR_FETCHING]', { fetchErr, ...logContext });
       throw fetchErr;
     }
 
-    // Augment tasks with origin information from Postgres
-    const augmentedTasks = await Promise.all(tasks.map(async (task: HabiticaTask) => {
-      if (!task._id) return task;
-      try {
-        const res = await pool.query(
-          'SELECT orionSourceModule, orionSourceReferenceId, createdAt FROM habitica_task_links WHERE habiticaTaskId = $1',
-          [task._id]
-        );
-        if (res.rows.length > 0) {
-          return {
-            ...task,
-            orionOrigin: res.rows[0]
-          };
-        }
-        return task;
-      } catch (dbError: any) {
-        console.error('[HABITICA_TASKS][DB][ERROR_FETCHING_ORIGIN]', { taskId: task._id, dbError });
-        return task; // Return original task if DB error
-      }
-    }));
+    // Filter by type if requested, else return all types
+    const todos = allTasks.filter(t => t.type === 'todo');
+    const dailys = allTasks.filter(t => t.type === 'daily');
+    const habits = allTasks.filter(t => t.type === 'habit');
+    const rewards = allTasks.filter(t => t.type === 'reward');
 
-    console.info('[HABITICA_TASKS][SUCCESS]', { count: augmentedTasks.length, ...logContext });
+    // Augment tasks with origin information from Postgres
+    const augment = async (tasks: HabiticaTask[]) => {
+      return Promise.all(tasks.map(async (task: HabiticaTask) => {
+        if (!task._id) return task;
+        try {
+          const res = await pool.query(
+            'SELECT orionSourceModule, orionSourceReferenceId, createdAt FROM habitica_task_links WHERE habiticaTaskId = $1',
+            [task._id]
+          );
+          if (res.rows.length > 0) {
+            return {
+              ...task,
+              orionOrigin: res.rows[0]
+            };
+          }
+          return task;
+        } catch (dbError: any) {
+          console.error('[HABITICA_TASKS][DB][ERROR_FETCHING_ORIGIN]', { taskId: task._id, dbError });
+          return task; // Return original task if DB error
+        }
+      }));
+    };
+
+    const [augTodos, augDailys, augHabits, augRewards] = await Promise.all([
+      augment(todos),
+      augment(dailys),
+      augment(habits),
+      augment(rewards)
+    ]);
+
+    console.info('[HABITICA_TASKS][SUCCESS]', { ...logContext });
 
     return NextResponse.json({
       success: true,
-      tasks: augmentedTasks
+      todos: augTodos,
+      dailys: augDailys,
+      habits: augHabits,
+      rewards: augRewards
     });
   } catch (error: any) {
     console.error('[HABITICA_TASKS][ERROR]', { ...logContext, error });

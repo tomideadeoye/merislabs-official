@@ -4,35 +4,32 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  User, 
-  Building, 
-  Briefcase, 
-  Tag, 
-  Edit, 
-  Trash2, 
+import {
+  User,
+  Building,
+  Briefcase,
+  Tag,
+  Edit,
+  Trash2,
   Search,
   AlertTriangle
 } from 'lucide-react';
 import type { PersonaMap } from '@/types/strategic-outreach';
 
+import { usePersonaStore } from "./personaStore";
+
 interface PersonaListProps {
   personas: PersonaMap[];
-  onEdit: (persona: PersonaMap) => void;
-  onDelete: (id: string) => void;
-  onSelect: (persona: PersonaMap) => void;
   isLoading?: boolean;
   error?: string | null;
 }
 
-export const PersonaList: React.FC<PersonaListProps> = ({ 
-  personas, 
-  onEdit, 
-  onDelete, 
-  onSelect,
+export const PersonaList: React.FC<PersonaListProps> = ({
+  personas,
   isLoading = false,
   error = null
 }) => {
+  const { selectPersona, editPersona, deletePersona } = usePersonaStore();
   if (error) {
     return (
       <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-start">
@@ -76,7 +73,7 @@ export const PersonaList: React.FC<PersonaListProps> = ({
                   <User className="h-5 w-5 mr-2 text-blue-400" />
                   <h3 className="text-lg font-medium text-gray-200">{persona.name}</h3>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-y-2 gap-x-4 text-sm text-gray-400">
                   {persona.company && (
                     <div className="flex items-center">
@@ -84,14 +81,14 @@ export const PersonaList: React.FC<PersonaListProps> = ({
                       <span>{persona.company}</span>
                     </div>
                   )}
-                  
+
                   {persona.role && (
                     <div className="flex items-center">
                       <Briefcase className="h-4 w-4 mr-1" />
                       <span>{persona.role}</span>
                     </div>
                   )}
-                  
+
                   {persona.industry && (
                     <div className="flex items-center">
                       <Tag className="h-4 w-4 mr-1" />
@@ -99,7 +96,7 @@ export const PersonaList: React.FC<PersonaListProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 {persona.tags && persona.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {persona.tags.map((tag, index) => (
@@ -110,33 +107,33 @@ export const PersonaList: React.FC<PersonaListProps> = ({
                   </div>
                 )}
               </div>
-              
+
               <div className="flex flex-row md:flex-col gap-2 justify-end">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 border-blue-700"
-                  onClick={() => onSelect(persona)}
+                  onClick={() => selectPersona(persona)}
                 >
                   <Search className="h-4 w-4 mr-1" />
                   Select
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
                   className="bg-gray-700 hover:bg-gray-600 text-gray-300"
-                  onClick={() => onEdit(persona)}
+                  onClick={() => editPersona(persona)}
                 >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
                   className="bg-red-900/30 hover:bg-red-800/50 text-red-300 border-red-700"
-                  onClick={() => onDelete(persona.id)}
+                  onClick={() => deletePersona(persona.id)}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
                   Delete

@@ -1,10 +1,14 @@
+/**
+ * GOAL: API route for identifying stakeholders and drafting outreach messages for a specific opportunity using LLM.
+ * - Ensures all Opportunity objects include both company and companyOrInstitution.
+ * - Adds context-rich, traceable logging for every operation, parameter, and result.
+ * - Related files: lib/notion_service.ts, lib/profile_service.ts, lib/orion_llm.ts, types/opportunity.d.ts
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponse, REQUEST_TYPES, constructLlmMessages } from '@/lib/orion_llm';
 import { fetchOpportunityByIdFromNotion, fetchContactsFromNotion } from '@/lib/notion_service';
 import { fetchUserProfile } from '@/lib/profile_service';
 import { auth } from '@/auth';
-// Assuming types for request body and response are defined
-// import { StakeholderOutreachRequestBody, StakeholderOutreachResponseBody } from '@/types/opportunity';
 import type { MemoryPayload } from '@/types/orion';
 
 /**
@@ -38,6 +42,14 @@ export async function POST(
     }
 
     const opportunity = opportunityResult.opportunity;
+    if (!opportunity) {
+      console.error('[STAKEHOLDER_OUTREACH_API] Opportunity not found for ID:', opportunityId, { user: session.user?.email });
+      return NextResponse.json({ success: false, error: 'Opportunity not found.' }, { status: 404 });
+    }
+    // Normalize company/companyOrInstitution for downstream use
+    const company = (opportunity.company ?? (opportunity as any).companyOrInstitution ?? '') || '';
+    const companyOrInstitution = ((opportunity as any).companyOrInstitution ?? opportunity.company ?? '') || '';
+    console.info('[STAKEHOLDER_OUTREACH_API] Normalized company fields:', { company, companyOrInstitution, opportunityId, user: session.user?.email });
 
     // Fetch user profile data
     const profileData = await fetchUserProfile();
@@ -52,7 +64,7 @@ export async function POST(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `Stakeholder and networking context for ${opportunity.title} at ${opportunity.company}`,
+          query: `Stakeholder and networking context for ${opportunity.title} at ${companyOrInstitution}`,
           limit: 5,
         }),
       });
@@ -89,7 +101,7 @@ export async function POST(
 Identify potential key stakeholders (e.g., hiring manager, recruiters, relevant team members) for the following job opportunity based on the provided job description and company name. Also consider the user's profile, any relevant memories, AND relevant contacts from their network.
 
 Job Title: ${opportunity.title}
-Company: ${opportunity.company}
+Company: ${companyOrInstitution}
 Job Description:
 ${opportunity.content || 'No content provided.'}
 
@@ -132,7 +144,7 @@ Provide ONLY the list of stakeholders, without any introductory or concluding re
 Draft initial outreach messages (e.g., LinkedIn connection request, introductory email) for potential stakeholders related to the following job opportunity. Leverage the user's profile, relevant memories, identified stakeholders, AND relevant contacts.
 
 Job Title: ${opportunity.title}
-Company: ${opportunity.company}
+Company: ${companyOrInstitution}
 Job Description:
 ${opportunity.content || 'No content provided.'}
 

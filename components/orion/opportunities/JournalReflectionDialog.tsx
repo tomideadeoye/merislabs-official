@@ -6,23 +6,21 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, BookOpen, Save } from 'lucide-react';
 import { Opportunity } from '@/types/opportunity';
+import { useJournalReflectionDialogStore } from './journalReflectionDialogStore';
 
-interface JournalReflectionDialogProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  opportunity: Opportunity;
-  actionType?: 'application_sent' | 'interview_completed' | 'outreach_sent' | 'general';
-}
+interface JournalReflectionDialogProps {}
 
-export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = ({
-  isOpen,
-  setIsOpen,
-  opportunity,
-  actionType = 'general'
-}) => {
+export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = () => {
+  const {
+    isOpen,
+    close,
+    opportunity,
+    actionType = 'general'
+  } = useJournalReflectionDialogStore();
   const [reflectionText, setReflectionText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  if (!opportunity) return null;
 
   // Generate a prompt based on the action type
   const getPromptText = () => {
@@ -74,7 +72,7 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
         // Clear the form and close the dialog after a short delay
         setTimeout(() => {
           setReflectionText('');
-          setIsOpen(false);
+          close();
           setFeedback(null);
         }, 1500);
       } else {
@@ -89,7 +87,7 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="bg-gray-800 border-gray-700 text-gray-200">
         <DialogHeader>
           <DialogTitle className="text-indigo-400 flex items-center">
@@ -122,7 +120,7 @@ export const JournalReflectionDialog: React.FC<JournalReflectionDialogProps> = (
 
         <DialogFooter>
           <Button
-            onClick={() => setIsOpen(false)}
+            onClick={close}
             variant="outline"
             className="text-gray-300 border-gray-600"
             disabled={isSaving}

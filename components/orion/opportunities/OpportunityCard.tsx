@@ -13,6 +13,9 @@ interface OpportunityCardProps {
 }
 
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity }) => {
+  console.log('[OpportunityCard][RENDER]', { opportunity });
+  console.log('[OpportunityCard][COMPANY]', opportunity.companyOrInstitution);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'identified': return 'bg-gray-500';
@@ -62,7 +65,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
         </div>
 
         <p className="text-sm text-gray-300 mt-2">
-          {opportunity.company || 'Unknown organization'}
+          {opportunity.companyOrInstitution && (
+            <span>{opportunity.companyOrInstitution}</span>
+          )}
         </p>
 
         <p className="text-sm text-gray-400 mt-2 line-clamp-2">

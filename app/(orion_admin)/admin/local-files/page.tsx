@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useFileSelectionStore } from '@/components/orion/fileSelectionStore';
 import { PageHeader } from "@/components/ui/page-header";
 import { PageNames } from "@/app_state";
 import { FileExplorer } from '@/components/orion/FileExplorer';
@@ -10,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, AlertTriangle, CheckCircle, Database, FolderOpen } from 'lucide-react';
 
 export default function LocalFilesPage() {
-  const [selectedFile, setSelectedFile] = useState<string>('');
+  const selectedFile = useFileSelectionStore((state) => state.selectedFile);
+  const clearSelectedFile = useFileSelectionStore((state) => state.clearSelectedFile);
   const [indexingStatus, setIndexingStatus] = useState<{
     isLoading: boolean;
     error: string | null;
@@ -23,9 +25,7 @@ export default function LocalFilesPage() {
     details: null
   });
 
-  const handleFileSelect = (filePath: string) => {
-    setSelectedFile(filePath);
-  };
+  // No longer needed: file selection is handled by Zustand store
 
   const handleIndexFile = async (filePath: string) => {
     setIndexingStatus({
@@ -117,7 +117,7 @@ export default function LocalFilesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <FileExplorer onFileSelect={handleFileSelect} />
+          <FileExplorer />
 
           {selectedFile && (
             <Card className="bg-gray-800 border-gray-700">
@@ -133,8 +133,8 @@ export default function LocalFilesPage() {
               <CardContent className="space-y-4">
                 <div className="flex space-x-2">
                   <Button
-                    onClick={() => handleIndexFile(selectedFile)}
-                    disabled={indexingStatus.isLoading}
+                    onClick={() => selectedFile && handleIndexFile(selectedFile)}
+                    disabled={indexingStatus.isLoading || !selectedFile}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
                     <Database className="mr-2 h-4 w-4" />
@@ -142,8 +142,8 @@ export default function LocalFilesPage() {
                   </Button>
 
                   <Button
-                    onClick={() => handleIndexDirectory(selectedFile)}
-                    disabled={indexingStatus.isLoading}
+                    onClick={() => selectedFile && handleIndexDirectory(selectedFile)}
+                    disabled={indexingStatus.isLoading || !selectedFile}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
                     <FolderOpen className="mr-2 h-4 w-4" />
@@ -176,7 +176,7 @@ export default function LocalFilesPage() {
                   <div className="mt-2">
                     <p className="text-sm text-gray-400 mb-2">Indexing Details:</p>
                     <div className="max-h-[200px] overflow-y-auto bg-gray-700/50 p-2 rounded-md">
-                      {indexingStatus.details.map((detail, index) => (
+                      {indexingStatus.details.map((detail: any, index: number) => (
                         <div key={index} className="text-xs text-gray-300 mb-1">
                           <span className={detail.success ? 'text-green-400' : 'text-red-400'}>
                             {detail.success ? '✓' : '✗'}
@@ -193,7 +193,7 @@ export default function LocalFilesPage() {
         </div>
 
         <FileViewer
-          filePath={selectedFile}
+          filePath={selectedFile || ""}
           onIndexFile={handleIndexFile}
         />
       </div>

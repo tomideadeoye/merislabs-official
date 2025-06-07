@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Opportunity, EvaluationOutput } from '@/types/opportunity';
+import { StakeholderOutreach } from './StakeholderOutreach';
 
 interface OpportunityDetailViewProps {
   opportunity: Opportunity;
@@ -203,14 +204,10 @@ export function OpportunityDetailView({ opportunity, evaluation, opportunityId }
         </TabsContent>
 
         <TabsContent value="networking">
-          <Card>
-            <CardHeader>
-              <CardTitle>Networking</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-400">Contacts and outreach tools will appear here.</p>
-            </CardContent>
-          </Card>
+          <StakeholderOutreach
+            opportunityId={opportunity.id}
+            companyName={opportunity.company}
+          />
         </TabsContent>
 
         <TabsContent value="notes">

@@ -130,8 +130,10 @@ export function EnhancedCVTailoringStudio({
   const handleComponentToggle = (componentId: string, checked: boolean) => {
     if (checked) {
       selectComponent(componentId);
+      console.log('Component selected:', componentId, 'Current selected:', selectedComponentIds);
     } else {
       deselectComponent(componentId);
+      console.log('Component deselected:', componentId, 'Current selected:', selectedComponentIds);
     }
   };
 
@@ -375,7 +377,10 @@ export function EnhancedCVTailoringStudio({
                 </div>
               ))}
 
-              <Button onClick={() => setActiveTab('tailor')} disabled={selectedComponentIds.length === 0}>
+              <Button onClick={() => {
+                console.log('Switching to tailor tab. Selected:', selectedComponentIds);
+                setActiveTab('tailor');
+              }} disabled={selectedComponentIds.length === 0}>
                 Next: Tailor Content
               </Button>
             </CardContent>

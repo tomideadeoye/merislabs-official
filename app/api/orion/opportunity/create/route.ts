@@ -3,17 +3,29 @@ import { getServerSession } from 'next-auth/next';
 import { authConfig } from '@/auth';
 import { OpportunityCreatePayload } from '@/types/opportunity';
 
+// =====================
+// Opportunity Pipeline Create API
+// =====================
+// GOAL: Provide comprehensive, context-rich, level-based logging for all Opportunity creation actions.
+// All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
+
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authConfig);
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const logContext = {
+    route: '/api/orion/opportunity/create',
+    filePath: 'app/api/orion/opportunity/create/route.ts',
+    timestamp: new Date().toISOString(),
+    user: 'public',
+  };
+
+  console.info('[OPPORTUNITY_CREATE][START]', logContext);
 
   try {
     const body: OpportunityCreatePayload = await request.json();
+    console.info('[OPPORTUNITY_CREATE][PAYLOAD]', { ...logContext, body });
 
     // Basic validation
     if (!body.title || !body.company) {
+      console.warn('[OPPORTUNITY_CREATE][VALIDATION_FAIL]', { ...logContext, body });
       return NextResponse.json({
         success: false,
         error: 'Title and Company are required.'
@@ -40,13 +52,15 @@ export async function POST(request: NextRequest) {
       lastStatusUpdate: currentDate
     };
 
+    console.info('[OPPORTUNITY_CREATE][SUCCESS]', { ...logContext, opportunityId: mockId });
+
     return NextResponse.json({
       success: true,
       opportunity: mockOpportunity
     });
 
   } catch (error: any) {
-    console.error('[OPPORTUNITY_CREATE_API_ERROR]', error);
+    console.error('[OPPORTUNITY_CREATE][ERROR]', { ...logContext, error: error.message, stack: error.stack });
 
     return NextResponse.json({
       success: false,

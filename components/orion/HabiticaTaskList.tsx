@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { getOrionSourceUrl } from '@/lib/utils';
 import type { HabiticaTask } from '@/types/habitica';
 import { ActionReflectionDialog } from './tasks/ActionReflectionDialog';
+import { useActionReflectionDialogStore } from './tasks/actionReflectionDialogStore';
 
 interface HabiticaTaskListProps {
   type: 'todos' | 'dailys';
@@ -36,9 +37,7 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('todos');
 
-  // Reflection dialog state
-  const [showReflectionDialog, setShowReflectionDialog] = useState<boolean>(false);
-  const [taskForReflection, setTaskForReflection] = useState<HabiticaTask | null>(null);
+  const actionReflectionDialogStore = useActionReflectionDialogStore();
 
   const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
@@ -132,9 +131,14 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({
 
         // If task was just completed (not uncompleted) and has Orion origin, trigger reflection
         if (!task.completed && task.orionOrigin) {
-          console.log("Task completed, preparing for reflection:", task);
-          setTaskForReflection(task);
-          setShowReflectionDialog(true);
+          actionReflectionDialogStore.setDialogData({
+            completedTaskText: task.text,
+            habiticaTaskId: task._id,
+            orionSourceModule: task.orionOrigin.orionSourceModule,
+            orionSourceReferenceId: task.orionOrigin.orionSourceReferenceId,
+            onReflectionSaved: fetchTasks,
+          });
+          actionReflectionDialogStore.open();
         }
 
         // Re-fetch tasks to update the list
@@ -214,7 +218,9 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({
   );
 
   return (
-    <Card className={`bg-gray-800 border-gray-700 ${className}`}>
+    <>
+      <ActionReflectionDialog />
+      <Card className={`bg-gray-800 border-gray-700 ${className}`}>
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center">
           {title}
@@ -271,5 +277,6 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({
         )}
       </CardContent>
     </Card>
+    </>
   );
 };

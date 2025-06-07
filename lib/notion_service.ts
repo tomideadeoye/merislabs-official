@@ -1,18 +1,29 @@
 import { Client } from '@notionhq/client';
-import { NOTION_API_KEY, NOTION_DATABASE_ID, NOTION_CONTACTS_DATABASE_ID } from './orion_config';
+import { NOTION_API_KEY, NOTION_DATABASE_ID } from './orion_config';
 import type { CVComponentShared } from '@/types/orion';
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+
+// DEBUG: Log imported Notion config values at module load
+console.info('[NOTION_SERVICE][DEBUG] Imported NOTION_API_KEY:', NOTION_API_KEY ? '[SET]' : '[NOT SET]');
+console.info('[NOTION_SERVICE][DEBUG] Imported NOTION_DATABASE_ID:', NOTION_DATABASE_ID ? NOTION_DATABASE_ID : '[NOT SET]');
 
 const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
 
-// summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
-
+// =====================
+// Orion Notion Service
+// =====================
+// GOAL: Provide robust, context-rich, and level-based logging for all Notion operations.
+// This file is the single source of truth for Notion integration in Orion.
+// All Notion-related features (journal, contacts, CV, opportunities) depend on these functions.
+// All logs include operation, parameters, and results for traceability and rapid debugging.
 
 /**
  * Fetch journal entries from Notion database
  */
 export async function fetchJournalEntriesFromNotion() {
+  console.info('[NOTION][fetchJournalEntriesFromNotion][START]');
   if (!notion || !NOTION_DATABASE_ID) {
-    console.warn('Notion client or database ID not configured');
+    console.warn('[NOTION][fetchJournalEntriesFromNotion][WARN] Notion client or database ID not configured');
     return { success: false, error: 'Notion client not configured' };
   }
 
@@ -62,9 +73,10 @@ export async function fetchJournalEntriesFromNotion() {
       };
     });
 
+    console.info('[NOTION][fetchJournalEntriesFromNotion][SUCCESS]', { count: journalEntries.length });
     return { success: true, journalEntries };
   } catch (error: any) {
-    console.error('Error fetching journal entries from Notion:', error);
+    console.error('[NOTION][fetchJournalEntriesFromNotion][ERROR]', { error: error.message, stack: error.stack });
     return { success: false, error: error.message || 'Failed to fetch journal entries from Notion' };
   }
 }
@@ -73,14 +85,15 @@ export async function fetchJournalEntriesFromNotion() {
  * Fetch contacts from Notion database
  */
 export async function fetchContactsFromNotion() {
-  if (!notion || !NOTION_CONTACTS_DATABASE_ID) {
-    console.warn('Notion client or contacts database ID not configured');
+  console.info('[NOTION][fetchContactsFromNotion][START]');
+  if (!notion || !NOTION_DATABASE_ID) {
+    console.warn('[NOTION][fetchContactsFromNotion][WARN] Notion client or contacts database ID not configured');
     return { success: false, error: 'Notion client or contacts database not configured' };
   }
 
   try {
     const response = await notion.databases.query({
-      database_id: NOTION_CONTACTS_DATABASE_ID,
+      database_id: NOTION_DATABASE_ID,
       sorts: [
         {
           property: 'Name',
@@ -125,9 +138,10 @@ export async function fetchContactsFromNotion() {
       };
     });
 
+    console.info('[NOTION][fetchContactsFromNotion][SUCCESS]', { count: contacts.length });
     return { success: true, contacts };
   } catch (error: any) {
-    console.error('Error fetching contacts from Notion:', error);
+    console.error('[NOTION][fetchContactsFromNotion][ERROR]', { error: error.message, stack: error.stack });
     return { success: false, error: error.message || 'Failed to fetch contacts from Notion' };
   }
 }
@@ -142,8 +156,9 @@ export async function createJournalEntryInNotion(entry: {
   mood?: string;
   tags?: string[];
 }) {
+  console.info('[NOTION][createJournalEntryInNotion][START]', { entry });
   if (!notion || !NOTION_DATABASE_ID) {
-    console.warn('Notion client or database ID not configured');
+    console.warn('[NOTION][createJournalEntryInNotion][WARN] Notion client or database ID not configured');
     return { success: false, error: 'Notion client not configured' };
   }
 
@@ -197,6 +212,7 @@ export async function createJournalEntryInNotion(entry: {
       properties,
     });
 
+    console.info('[NOTION][createJournalEntryInNotion][SUCCESS]', { entryId: response.id });
     return {
       success: true,
       entryId: response.id,
@@ -206,7 +222,7 @@ export async function createJournalEntryInNotion(entry: {
       }
     };
   } catch (error: any) {
-    console.error('Error creating journal entry in Notion:', error);
+    console.error('[NOTION][createJournalEntryInNotion][ERROR]', { error: error.message, stack: error.stack });
     return { success: false, error: error.message || 'Failed to create journal entry in Notion' };
   }
 }
@@ -219,65 +235,117 @@ export async function createJournalEntryInNotion(entry: {
  * TODO: Stub for fetchCVComponentsFromNotion. Implement actual Notion logic.
  */
 export async function fetchCVComponentsFromNotion() {
+  // Always use the main Notion DB for CV components (per user requirements)
+  console.info('[NOTION][fetchCVComponentsFromNotion][START]', { database_id: NOTION_DATABASE_ID });
   if (!notion || !NOTION_DATABASE_ID) {
-    console.error('[fetchCVComponentsFromNotion] Notion client or database ID not configured.');
-    return { success: false, error: 'Notion client or database ID not configured.' };
+    console.error('[NOTION][fetchCVComponentsFromNotion][ERROR] Notion client or main database ID not configured.');
+    console.error('[NOTION][fetchCVComponentsFromNotion][DEBUG] NOTION_API_KEY:', NOTION_API_KEY ? '[SET]' : '[NOT SET]');
+    console.error('[NOTION][fetchCVComponentsFromNotion][DEBUG] NOTION_DATABASE_ID:', NOTION_DATABASE_ID ? NOTION_DATABASE_ID : '[NOT SET]');
+    return { success: false, error: 'Notion client or main database ID not configured.' };
   }
   try {
     const response = await notion.databases.query({ database_id: NOTION_DATABASE_ID });
+    console.info('[NOTION][fetchCVComponentsFromNotion][DEBUG] response.results.length:', response.results.length);
+    // DEBUG: Log all property keys for the first page
+    if (response.results.length > 0) {
+      const firstResult = response.results[0];
+      if ('properties' in firstResult) {
+        // [LOG][DEBUG] Accessing properties of first Notion result
+        const firstProps = firstResult.properties;
+        console.info('[NOTION][fetchCVComponentsFromNotion][DEBUG] First page property keys:', Object.keys(firstProps));
+        // Also log the full property object for inspection
+        console.info('[NOTION][fetchCVComponentsFromNotion][DEBUG] First page full properties:', JSON.stringify(firstProps, null, 2));
+      } else {
+        console.error('[NOTION_SERVICE][ERROR] First result does not have properties', { firstResult });
+        throw new Error('First Notion result does not have properties');
+      }
+    }
     const components: CVComponentShared[] = response.results.map((page: any) => {
       const props = page.properties || {};
       return {
         notionPageId: page.id,
-        unique_id: props.UniqueID?.rich_text?.[0]?.plain_text || page.id,
-        component_name: props['Component Name']?.title?.[0]?.plain_text || 'Untitled Component',
+        unique_id: props['Unique ID']?.rich_text?.[0]?.plain_text || page.id,
+        component_name: props.Title?.title?.[0]?.plain_text || 'Untitled Component',
         component_type: props['Component Type']?.select?.name || 'Uncategorized',
-        content_primary: props['Content (Primary)']?.rich_text?.[0]?.plain_text || '',
+        content_primary: props.Content?.rich_text?.[0]?.plain_text || '',
         contentType: 'CV Component',
         keywords: (props.Keywords?.multi_select || []).map((k: any) => k.name),
-        associated_company_institution: props['Associated Company/Institution']?.rich_text?.[0]?.plain_text || '',
+        associated_company_institution: props.companyOrInstitution?.rich_text?.[0]?.plain_text || '',
         start_date: props['Start Date']?.date?.start || undefined,
         end_date: props['End Date']?.date?.start || undefined,
+        tags: (props.Tags?.multi_select || []).map((k: any) => k.name),
       };
     });
+    console.info('[NOTION][fetchCVComponentsFromNotion][SUCCESS]', { count: components.length });
     return { success: true, components };
   } catch (error: any) {
-    console.error('[fetchCVComponentsFromNotion] Error:', error.message, error.stack);
+    console.error('[NOTION][fetchCVComponentsFromNotion][ERROR]', { error: error.message, stack: error.stack });
     return { success: false, error: error.message || 'Failed to fetch CV components from Notion.' };
   }
 }
 
 /**
- * TODO: Stub for fetchOpportunityByIdFromNotion. Implement actual Notion logic.
+ * Fetch a single opportunity by Notion page ID, map all relevant fields, and add extensive logging.
+ * This will replace the stub and ensure the actual opportunity is shown instead of the stub.
  */
 export async function fetchOpportunityByIdFromNotion(id: string) {
-  console.warn('[NOTION_SERVICE] fetchOpportunityByIdFromNotion is a stub. Implement this function.');
-  return {
-    success: true,
-    error: null,
-    opportunity: {
-      notion_page_id: id,
-      id: id,
-      title: 'Stub Opportunity',
-      company: 'Stub Company',
-      status: 'Open',
-      url: '',
-      last_edited_time: new Date().toISOString(),
-      content: '',
-      type: 'Full-Time',
-      priority: 'Normal',
-      dateIdentified: new Date().toISOString(),
-      tags: [],
-      nextActionDate: new Date().toISOString(),
+  console.info('[NOTION][fetchOpportunityByIdFromNotion][START]', { id });
+  if (!notion || !NOTION_DATABASE_ID) {
+    console.error('[NOTION][fetchOpportunityByIdFromNotion][ERROR] Notion client or Database ID not configured.');
+    return { success: false, error: 'Notion client or Database ID not configured.' };
+  }
+  try {
+    const response = await notion.pages.retrieve({ page_id: id });
+    console.info('[NOTION][fetchOpportunityByIdFromNotion][RAW_RESPONSE]', JSON.stringify(response, null, 2));
+    if ((response as PageObjectResponse).object !== 'page') {
+      console.error('[NOTION][fetchOpportunityByIdFromNotion][ERROR] Not a full page object', { id, response });
+      return { success: false, error: 'Notion did not return a full page object.' };
     }
-  };
+    const page = response as PageObjectResponse;
+    const properties = page.properties;
+    console.info('[NOTION][fetchOpportunityByIdFromNotion][PAGE_PROPERTIES]', { pageId: page.id, properties });
+    const company = (properties.companyOrInstitution && properties.companyOrInstitution.type === 'rich_text') ? properties.companyOrInstitution.rich_text[0]?.plain_text || '' : '';
+    if (!company) {
+      console.warn('[NOTION][fetchOpportunityByIdFromNotion][MISSING_COMPANY]', { pageId: page.id, properties });
+    }
+    const title = (properties.Title && properties.Title.type === 'title') ? properties.Title.title[0]?.plain_text || 'Untitled Opportunity' : 'Untitled Opportunity';
+    const status = (properties.Status && properties.Status.type === 'status') ? properties.Status.status?.name || null : null;
+    const url = (properties.URL && properties.URL.type === 'url') ? properties.URL.url || null : null;
+    const content = (properties.Content && properties.Content.type === 'rich_text') ? properties.Content.rich_text.map((t: any) => t.plain_text).join('') || null : null;
+    const type = (properties['Job Type'] && properties['Job Type'].type === 'select') ? properties['Job Type'].select?.name || null : null;
+    const priority = (properties.Priority && properties.Priority.type === 'select') ? properties.Priority.select?.name || null : null;
+    const dateIdentified = (properties['Date Identified'] && properties['Date Identified'].type === 'date') ? properties['Date Identified'].date?.start || null : null;
+    const tags = (properties.Tags && properties.Tags.type === 'multi_select') ? properties.Tags.multi_select.map((tag: any) => tag.name) || [] : [];
+    const nextActionDate = (properties['Next Action Date'] && properties['Next Action Date'].type === 'date') ? properties['Next Action Date'].date?.start || null : null;
+    const opportunity = {
+      notion_page_id: page.id,
+      id: page.id,
+      title,
+      company,
+      status,
+      url,
+      last_edited_time: page.last_edited_time ? new Date(page.last_edited_time) : new Date(),
+      content,
+      type,
+      priority,
+      dateIdentified,
+      tags,
+      nextActionDate,
+    };
+    console.info('[NOTION][fetchOpportunityByIdFromNotion][MAPPED_OPPORTUNITY]', JSON.stringify(opportunity, null, 2));
+    return { success: true, opportunity };
+  } catch (error: any) {
+    const errorMsg = `[NOTION][fetchOpportunityByIdFromNotion][ERROR] ${error.body || error.message}`;
+    console.error(errorMsg, { stack: error.stack });
+    return { success: false, error: error.message || 'Failed to fetch opportunity from Notion.' };
+  }
 }
 
 /**
  * TODO: Stub for updateNotionOpportunity. Implement actual Notion logic.
  */
 export async function updateNotionOpportunity(id: string, data: any) {
-  console.warn('[NOTION_SERVICE] updateNotionOpportunity is a stub. Implement this function.');
+  console.warn('[NOTION][updateNotionOpportunity][STUB] Not implemented.', { id, data });
   return {
     success: true,
     error: null,
@@ -300,16 +368,13 @@ export async function updateNotionOpportunity(id: string, data: any) {
 }
 
 /**
- * TODO: Stub for parseNotionPageProperties. Implement actual Notion logic.
- */
-/**
  * Robustly parses Notion page properties for CV components, opportunities, etc.
  * Logs all actions and fallbacks for traceability.
  * Returns a normalized object with all expected fields.
  */
 export function parseNotionPageProperties(page: any) {
   if (!page || !page.properties) {
-    console.error('[NOTION_SERVICE] parseNotionPageProperties: Invalid page object', { page });
+    console.error('[NOTION][parseNotionPageProperties][ERROR] Invalid page object', { page });
     return {
       StartDate: null,
       EndDate: null,
@@ -338,14 +403,14 @@ export function parseNotionPageProperties(page: any) {
   };
 
   // Logging for traceability and debugging
-  console.info('[NOTION_SERVICE] parseNotionPageProperties: Parsed properties', { result, pageId: page.id });
+  console.debug('[NOTION][parseNotionPageProperties][DEBUG] Parsed properties', { result, pageId: page.id });
 
   // Fallbacks and warnings for missing critical fields
   if (!result.UniqueID) {
-    console.warn('[NOTION_SERVICE] parseNotionPageProperties: UniqueID missing', { pageId: page.id });
+    console.warn('[NOTION][parseNotionPageProperties][WARN] UniqueID missing', { pageId: page.id });
   }
   if (!result.ComponentName) {
-    console.warn('[NOTION_SERVICE] parseNotionPageProperties: ComponentName missing', { pageId: page.id });
+    console.warn('[NOTION][parseNotionPageProperties][WARN] ComponentName missing', { pageId: page.id });
   }
 
   return result;
@@ -355,7 +420,7 @@ export function parseNotionPageProperties(page: any) {
  * TODO: Stub for createOpportunityInNotion. Implement actual Notion logic.
  */
 export async function createOpportunityInNotion(data: any) {
-  console.warn('[NOTION_SERVICE] createOpportunityInNotion is a stub. Implement this function.');
+  console.warn('[NOTION][createOpportunityInNotion][STUB] Not implemented.', { data });
   return {
     success: true,
     error: null,
@@ -381,7 +446,7 @@ export async function createOpportunityInNotion(data: any) {
  * TODO: Stub for saveJournalEntryToNotion. Implement actual Notion logic.
  */
 export async function saveJournalEntryToNotion(entry: any) {
-  console.warn('[NOTION_SERVICE] saveJournalEntryToNotion is a stub. Implement this function.');
+  console.warn('[NOTION][saveJournalEntryToNotion][STUB] Not implemented.', { entry });
   return {
     success: true,
     error: undefined,
@@ -396,7 +461,7 @@ export async function saveJournalEntryToNotion(entry: any) {
  * TODO: Stub for updateNotionDatabaseSchema. Implement actual Notion logic.
  */
 export async function updateNotionDatabaseSchema(databaseId: string, properties: any) {
-  console.warn('[NOTION_SERVICE] updateNotionDatabaseSchema is a stub. Implement this function.');
+  console.warn('[NOTION][updateNotionDatabaseSchema][STUB] Not implemented.', { databaseId, properties });
   return {
     success: true,
     error: undefined,
@@ -408,8 +473,9 @@ export async function updateNotionDatabaseSchema(databaseId: string, properties:
 }
 
 export async function listOpportunitiesFromNotion() {
+  console.info('[NOTION][listOpportunitiesFromNotion][START]');
   if (!notion || !NOTION_DATABASE_ID) {
-    console.error("Notion client or Database ID not configured.");
+    console.error('[NOTION][listOpportunitiesFromNotion][ERROR] Notion client or Database ID not configured.');
     return [];
   }
   try {
@@ -421,19 +487,25 @@ export async function listOpportunitiesFromNotion() {
       },
       sorts: [
         {
-          property: 'Last Edited',
+          timestamp: 'last_edited_time',
           direction: 'descending',
         },
       ],
     });
+    console.info('[NOTION][listOpportunitiesFromNotion][RAW_RESPONSE]', JSON.stringify(response, null, 2));
 
-    return response.results.map((page: any) => {
+    const opportunities = response.results.map((page: any) => {
       const properties = page.properties;
+      console.info('[NOTION][listOpportunitiesFromNotion][PAGE_PROPERTIES]', { pageId: page.id, properties });
+      const company = properties.companyOrInstitution?.rich_text?.[0]?.plain_text || '';
+      if (!company) {
+        console.warn('[NOTION][listOpportunitiesFromNotion][MISSING_COMPANY]', { pageId: page.id, properties });
+      }
       return {
         notion_page_id: page.id,
         id: page.id,
         title: properties.Title?.title?.[0]?.plain_text || 'Untitled Opportunity',
-        company: properties.Company?.rich_text?.[0]?.plain_text || '',
+        company,
         status: properties.Status?.status?.name || null,
         url: properties.URL?.url || null,
         last_edited_time: page.last_edited_time ? new Date(page.last_edited_time) : new Date(),
@@ -445,9 +517,12 @@ export async function listOpportunitiesFromNotion() {
         nextActionDate: properties['Next Action Date']?.date?.start || null,
       };
     });
+
+    console.info('[NOTION][listOpportunitiesFromNotion][MAPPED_OPPORTUNITIES]', JSON.stringify(opportunities, null, 2));
+    return opportunities;
   } catch (error: any) {
-    const errorMsg = `Error listing opportunities from Notion: ${error.body || error.message}`;
-    console.error(errorMsg);
+    const errorMsg = `[NOTION][listOpportunitiesFromNotion][ERROR] ${error.body || error.message}`;
+    console.error(errorMsg, { stack: error.stack });
     return [];
   }
 }

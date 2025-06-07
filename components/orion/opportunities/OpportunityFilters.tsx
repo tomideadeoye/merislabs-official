@@ -25,44 +25,41 @@ import type {
   OpportunityPriority
 } from '@/types/opportunity';
 
-interface OpportunityFiltersProps {
-  filters: Partial<OpportunityDetails> & { tag?: string };
-  sort: keyof OpportunityDetails;
-  sortOrder: 'asc' | 'desc';
-  onFilterChangeAction: (filters: Partial<OpportunityDetails> & { tag?: string }) => void;
-  onSortChangeAction: (sortBy: keyof OpportunityDetails, sortOrder: 'asc' | 'desc') => void;
-}
+import { useOpportunityFiltersStore } from './opportunityFiltersStore';
 
-export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
-  filters,
-  sort,
-  sortOrder,
-  onFilterChangeAction,
-  onSortChangeAction
-}) => {
+export const OpportunityFilters: React.FC = () => {
+  const {
+    filters,
+    sort,
+    sortOrder,
+    setFilters,
+    setSort,
+    setSortOrder,
+    clearFilters,
+  } = useOpportunityFiltersStore();
   const [tagInput, setTagInput] = useState<string>(filters.tag || '');
 
   const handleStatusChange = (value: string) => {
     const status = value === 'all' ? undefined : (value as OpportunityStatus);
     const newFilters = { ...filters, status };
-    onFilterChangeAction(newFilters);
+    setFilters(newFilters);
   };
 
   const handleTypeChange = (value: string) => {
     const type = value === 'all' ? undefined : (value as OpportunityType);
     const newFilters = { ...filters, type };
-    onFilterChangeAction(newFilters);
+    setFilters(newFilters);
   };
 
   const handlePriorityChange = (value: string) => {
     const priority = value === 'all' ? undefined : (value as OpportunityPriority);
     const newFilters = { ...filters, priority };
-    onFilterChangeAction(newFilters);
+    setFilters(newFilters);
   };
 
   const handleTagSearch = () => {
     const newFilters = { ...filters, tag: tagInput || undefined };
-    onFilterChangeAction(newFilters);
+    setFilters(newFilters);
   };
 
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -72,16 +69,16 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
   };
 
   const handleSortChange = (value: string) => {
-    onSortChangeAction(value as keyof OpportunityDetails, sortOrder);
+    setSort(value as keyof OpportunityDetails);
   };
 
   const toggleSortOrder = () => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    onSortChangeAction(sort, newOrder);
+    setSortOrder(newOrder);
   };
 
-  const clearFilters = () => {
-    onFilterChangeAction({});
+  const handleClearFilters = () => {
+    clearFilters();
     setTagInput('');
   };
 
@@ -99,7 +96,7 @@ export const OpportunityFilters: React.FC<OpportunityFiltersProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={clearFilters}
+            onClick={handleClearFilters}
             className="text-gray-400 hover:text-gray-300"
           >
             <X className="mr-1 h-4 w-4" />

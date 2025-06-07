@@ -9,19 +9,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, CheckCircle2, Award, Plus, Trash2 } from 'lucide-react';
 import type { CareerMilestone } from '@/types/narrative-clarity';
 
+/**
+ * CareerMilestoneForm
+ * GOAL: Absurdly engaging, gamified, and robust form for adding/editing career milestones.
+ * Uses context-based handlers for submit/cancel to ensure serializable props and enable future gamification.
+ * Connects to: CareerMilestoneContext, CareerMilestoneList, admin dashboard, engagement features.
+ * All actions and state changes are logged with full context for traceability and rapid improvement.
+ */
+
+import { useCareerMilestone } from "./CareerMilestoneContext";
+
 interface CareerMilestoneFormProps {
   initialData?: Partial<CareerMilestone>;
-  onSubmit: (data: Partial<CareerMilestone>) => Promise<void>;
-  onCancel?: () => void;
   existingMilestonesCount?: number;
 }
 
-export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({ 
-  initialData = {}, 
-  onSubmit,
-  onCancel,
-  existingMilestonesCount = 0
+export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
+  initialData = {},
+  existingMilestonesCount = 0,
 }) => {
+  const {
+    submitMilestone,
+    cancelMilestone,
+    isSubmitting,
+    feedback,
+    setFeedback,
+  } = useCareerMilestone();
   const [title, setTitle] = useState(initialData.title || '');
   const [organization, setOrganization] = useState(initialData.organization || '');
   const [startDate, setStartDate] = useState(initialData.startDate || '');
@@ -31,62 +44,58 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
   const [achievements, setAchievements] = useState<string[]>(initialData.achievements || ['']);
   const [impact, setImpact] = useState(initialData.impact || '');
   const [order, setOrder] = useState(initialData.order !== undefined ? initialData.order : existingMilestonesCount);
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // All state changes are logged for traceability
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    console.info("[CAREER_MILESTONE_FORM][SUBMIT][ATTEMPT]", {
+      title,
+      description,
+      achievements,
+      user: "Tomide",
+    });
+
     if (!title.trim() || !description.trim()) {
-      setFeedback({ type: 'error', message: 'Title and description are required.' });
+      setFeedback({ type: "error", message: "Title and description are required." });
+      console.warn("[CAREER_MILESTONE_FORM][VALIDATION][FAIL]", { title, description });
       return;
     }
-    
-    // Filter out empty achievements
-    const filteredAchievements = achievements.filter(a => a.trim());
+
+    const filteredAchievements = achievements.filter((a) => a.trim());
     if (filteredAchievements.length === 0) {
-      setFeedback({ type: 'error', message: 'At least one achievement is required.' });
+      setFeedback({ type: "error", message: "At least one achievement is required." });
+      console.warn("[CAREER_MILESTONE_FORM][VALIDATION][FAIL][ACHIEVEMENTS]", { achievements });
       return;
     }
-    
-    setIsSubmitting(true);
-    setFeedback(null);
-    
-    try {
-      const milestoneData: Partial<CareerMilestone> = {
-        ...initialData,
-        title,
-        organization: organization || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-        description,
-        skills: skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [],
-        achievements: filteredAchievements,
-        impact,
-        order
-      };
-      
-      await onSubmit(milestoneData);
-      setFeedback({ type: 'success', message: 'Career milestone saved successfully!' });
-      
-      // Reset form if it's a new milestone (no initialData.id)
-      if (!initialData.id) {
-        setTitle('');
-        setOrganization('');
-        setStartDate('');
-        setEndDate('');
-        setDescription('');
-        setSkills('');
-        setAchievements(['']);
-        setImpact('');
-        setOrder(existingMilestonesCount + 1);
-      }
-    } catch (err: any) {
-      console.error('Error saving career milestone:', err);
-      setFeedback({ type: 'error', message: err.message || 'Failed to save career milestone.' });
-    } finally {
-      setIsSubmitting(false);
+
+    const milestoneData: Partial<CareerMilestone> = {
+      ...initialData,
+      title,
+      organization: organization || undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      description,
+      skills: skills ? skills.split(",").map((s) => s.trim()).filter(Boolean) : [],
+      achievements: filteredAchievements,
+      impact,
+      order,
+    };
+
+    await submitMilestone(milestoneData);
+
+    // Reset form if it's a new milestone (no initialData.id)
+    if (!initialData.id) {
+      setTitle("");
+      setOrganization("");
+      setStartDate("");
+      setEndDate("");
+      setDescription("");
+      setSkills("");
+      setAchievements([""]);
+      setImpact("");
+      setOrder(existingMilestonesCount + 1);
+      console.info("[CAREER_MILESTONE_FORM][RESET][NEW_MILESTONE]");
     }
   };
 
@@ -130,7 +139,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="organization" className="text-gray-300">Organization</Label>
               <Input
@@ -143,7 +152,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="startDate" className="text-gray-300">Start Date</Label>
@@ -156,7 +165,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
                 disabled={isSubmitting}
               />
             </div>
-            
+
             <div>
               <Label htmlFor="endDate" className="text-gray-300">End Date</Label>
               <Input
@@ -168,7 +177,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
                 disabled={isSubmitting}
               />
             </div>
-            
+
             <div>
               <Label htmlFor="order" className="text-gray-300">Display Order</Label>
               <Input
@@ -182,7 +191,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
               />
             </div>
           </div>
-          
+
           <div>
             <Label htmlFor="description" className="text-gray-300">Description *</Label>
             <Textarea
@@ -195,7 +204,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
               required
             />
           </div>
-          
+
           <div>
             <Label className="text-gray-300">Achievements *</Label>
             {achievements.map((achievement, index) => (
@@ -207,9 +216,9 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
                   className="bg-gray-700 border-gray-600 text-gray-200"
                   disabled={isSubmitting}
                 />
-                <Button 
-                  type="button" 
-                  variant="ghost" 
+                <Button
+                  type="button"
+                  variant="ghost"
                   size="icon"
                   onClick={() => removeAchievement(index)}
                   disabled={isSubmitting || achievements.length <= 1}
@@ -219,9 +228,9 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
                 </Button>
               </div>
             ))}
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               size="sm"
               onClick={addAchievement}
               disabled={isSubmitting}
@@ -231,7 +240,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
               Add Achievement
             </Button>
           </div>
-          
+
           <div>
             <Label htmlFor="skills" className="text-gray-300">Skills (comma-separated)</Label>
             <Input
@@ -243,7 +252,7 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="impact" className="text-gray-300">Impact</Label>
             <Textarea
@@ -255,36 +264,34 @@ export const CareerMilestoneForm: React.FC<CareerMilestoneFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           {feedback && (
             <div className={`p-3 rounded-md flex items-center ${
-              feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' 
+              feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
                                        : 'bg-red-900/30 border border-red-700 text-red-300'
             }`}>
-              {feedback.type === 'success' ? 
-                <CheckCircle2 className="h-5 w-5 mr-2" /> : 
+              {feedback.type === 'success' ?
+                <CheckCircle2 className="h-5 w-5 mr-2" /> :
                 <AlertTriangle className="h-5 w-5 mr-2" />
               }
               {feedback.message}
             </div>
           )}
-          
+
           <div className="flex justify-end space-x-2">
-            {onCancel && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={onCancel}
-                disabled={isSubmitting}
-                className="bg-gray-700 hover:bg-gray-600"
-              >
-                Cancel
-              </Button>
-            )}
-            
-            <Button 
-              type="submit" 
-              disabled={isSubmitting || !title.trim() || !description.trim()} 
+            <Button
+              type="button"
+              variant="outline"
+              onClick={cancelMilestone}
+              disabled={isSubmitting}
+              className="bg-gray-700 hover:bg-gray-600"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting || !title.trim() || !description.trim()}
               className="bg-blue-600 hover:bg-blue-700"
             >
               {isSubmitting ? (

@@ -6,7 +6,7 @@ import { PageNames } from "@/app_state";
 import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/hooks/useSessionState';
 import { HabiticaCredentialsForm } from '@/components/orion/HabiticaCredentialsForm';
-import { HabiticaStatsDisplay } from '@/components/orion/HabiticaStatsDisplay';
+import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
 import { HabiticaTaskList } from '@/components/orion/HabiticaTaskList';
 import { HabiticaTaskForm } from '@/components/orion/HabiticaTaskForm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -40,7 +40,7 @@ export default function HabiticaPage() {
       {credentialsAreSet ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
-            <HabiticaStatsDisplay key={`stats-${refreshKey}`} />
+            <HabiticaStatsContainer key={`stats-${refreshKey}`} />
 
             <Card className="bg-gray-800 border-gray-700 mt-6">
               <CardHeader className="pb-2">

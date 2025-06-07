@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * GOAL: UI component for evaluating an opportunity against the user's profile and goals.
+ * - Ensures all OpportunityDetails objects include both company and companyOrInstitution.
+ * - Adds context-rich, traceable logging for every operation, parameter, and result.
+ * - Related files: app/api/orion/opportunity/evaluate/route.ts, types/opportunity.d.ts
+ */
 import React, { useState } from 'react';
 import { OpportunityDetails, EvaluationOutput } from '@/types/opportunity';
 import { Button } from '@/components/ui/button';
@@ -39,6 +45,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
       const opportunityDetails: OpportunityDetails = {
         title: title.trim(),
         company: company.trim(),
+        companyOrInstitution: company.trim(),
         content: content.trim(),
         type: type,
         url: url.trim() || undefined
