@@ -1,5 +1,7 @@
 ## [2025-06-06] Batch Migration: app/api/orion/habitica/tasks/route.ts, app/api/orion/habitica/todo/route.ts, and app/api/orion/ideas/[ideaId]/brainstorm/route.ts to Neon/Postgres
 
+LLM API Key Status and Health Check are now unified in a single, stylish, color-coded dashboard card showing all models and their real-time status.
+
 - Migrated `app/api/orion/habitica/tasks/route.ts`, `app/api/orion/habitica/todo/route.ts`, and `app/api/orion/ideas/[ideaId]/brainstorm/route.ts` to use Neon/Postgres (`pool` from `lib/database.ts`), replacing all SQLite logic.
 - Added comprehensive logging at every step, with context, error details, and operation tracing.
 - Preserved all features: Habitica task fetching, todo creation, idea brainstorming, origin info augmentation, error handling.

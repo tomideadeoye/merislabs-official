@@ -1,29 +1,29 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Turborepo/monorepo
+.turbo/
+.cache/
+pnpm-lock.yaml
+pnpm-workspace.yaml
+###########################################
+# Monorepo .gitignore (cleaned & deduplicated)
+###########################################
 
-# Local Environment
-.env*.local
+# Local environment & secrets
+.env*
 secrets/
 keys/
-.env
 
-# Dependencies
-/node_modules
-/.pnp
-.pnp.js
 
-# Build & Compilation Artifacts
-/build
-/out/
-/.next/
-*.tsbuildinfo
-.contentlayer
-*.egg-info/
+# Node.js dependencies & build
+node_modules/
+apps/**/node_modules/
+packages/**/node_modules/
+.pnp*
+
 develop-eggs/
 dist/
 downloads/
 eggs/
 .eggs/
-# lib/  (commented out as it might be too broad)
 lib64/
 parts/
 sdist/
@@ -35,60 +35,81 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Python Cache & Compiled Files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*$py.class
-*.so
-.Python
+# Build & compilation artifacts
+dist/
+build/
+out/
+.next/
+apps/**/.next/
+packages/**/dist/
+*.tsbuildinfo
+.contentlayer
 
-# Testing
+
+# Python build/cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+backend/orion_python_backend/__pycache__/
+backend/orion_python_backend/.venv/
+backend/orion_python_backend/venv/
+backend/orion_python_backend/.mypy_cache/
+backend/orion_python_backend/.pytest_cache/
+backend/orion_python_backend/*.egg-info/
+backend/orion_python_backend/.env*
+
+
+# Testing & coverage
+coverage/
 /coverage
+__snapshots__/
+
 
 # Vercel
 .vercel
 
-# Jupyter Notebook
+
+# Jupyter
 .ipynb_checkpoints/
 
+
 # Virtual environments
-venv/
-.venv/
-env/
-myenv/
-ENV/
+venv*/
+ENV*/
+env*/
 env.bak/
 env_old/
 
-# OS-specific & IDE files
+
+# IDE/editor/OS files
 .DS_Store
 Thumbs.db
 *.pem
 .idea/
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/
+*.sublime-*
 .history/
 .aider*
 
 
-# Logs and temporary files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# Logs & temp files
+logs/
 *.log
 *.tmp
 *.bak
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log
 
-# Database & Storage
-/files/
+
+# Database & storage
+data/*.db
+/data/
 chroma_db/
 qdrant_storage/
+files/
 
 # Browser drivers
 chromedriver
@@ -96,3 +117,84 @@ chromedriver
 # Project-specific folders
 superpower/
 orion_outputs/
+components.json.bak
+scripts/*.out
+
+# Node.js
+node_modules/
+
+# Build output
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env files
+.env*
+.env.*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Python backend
+backend/orion_python_backend/__pycache__/
+backend/orion_python_backend/.venv/
+backend/orion_python_backend/venv/
+backend/orion_python_backend/.mypy_cache/
+backend/orion_python_backend/.pytest_cache/
+backend/orion_python_backend/*.pyc
+backend/orion_python_backend/*.pyo
+backend/orion_python_backend/*.egg-info/
+backend/orion_python_backend/.env*
+
+# Monorepo workspace artifacts
+pnpm-lock.yaml
+lerna-debug.log
+
+
+# Misc
+*.swp
+*.generated.*
+
+# Ignore local data
+/data/
+
+# Ignore test snapshots
+__snapshots__/
+
+# Ignore output from scripts
+scripts/*.out
+
+# Ignore database files
+data/*.db
+
+# Ignore backup config
+components.json.bak
+
+# Ignore compiled Python files
+*.pyc
+*.pyo
+
+# Ignore build info
+*.tsbuildinfo
+
+# Ignore coverage
+coverage/
+
+# Ignore generated files
+*.generated.*

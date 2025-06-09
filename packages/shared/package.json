@@ -1,0 +1,25 @@
+{
+  "name": "@merislabs/shared",
+  "version": "1.0.0",
+  "main": "index.js",
+  "peerDependencies": {
+    "next-auth": "*",
+    "nodemailer": "*",
+    "react": "^18.0.0",
+    "react-hot-toast": "^2.4.1",
+    "tailwind-merge": "*",
+    "uuid": "*",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.12",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "^18.0.0",
+    "@types/uuid": "^9.0.8",
+    "@types/winston": "^2.4.4",
+    "react": "^18.0.0"
+  },
+  "exports": {
+    "./*": "./*"
+  }
+}

@@ -3,9 +3,11 @@ module.exports = {
   darkMode: ["class"],
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
-    "./lib/**/*.{js,ts,jsx,tsx}",
+    "../../packages/shared/**/*.{js,ts,jsx,tsx}",
+    "../../packages/shared/**/**/*.{js,ts,jsx,tsx}",
+    "../../apps/nextjs/app/**/*.{js,ts,jsx,tsx}",
+    "../../apps/nextjs/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
   	container: {

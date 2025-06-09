@@ -3,7 +3,7 @@
 cat <<EOM
 UI | DO | QUESTIONS | FEATURES | TESTING/LOGGING | IMPROVEMENT | SECURITY | PERFORMANCE | DOCUMENTATION | DESIRED OUTCOME | PROJECT DETAILS
 
-REMEMBER/ALWAYS:
+REMEMBER/ALWAYS/EXECUTE/DO/APPLY/NOW:
 - absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to tests/e2e.test.tsx
 - When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to tests/e2e.test.tsx
 Don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of verbose logging  & fallbacks.Baby calm down!
@@ -18,9 +18,7 @@ DO > LOGGIN: log file paths, comprehensive, context-rich, level-based logging. A
 DO > at intervals, suggest SHORT TINY BIT information to store in README like file paths and components - so we dont forget.
 state management?
 DO > one-liner summary of feature and file path after each feature is implemented.
-
-EXECUTE/DO/APPLY:
-Add app implementations so far to prd.md file.
+- Document app implementations in prd.md file.
 Add absurd amount of logging to the code.
 Add goal of file/feature/function to top of file and explain connection to other files/features/functions.
 - start-orion.sh and determine features not yet implemented.
@@ -29,7 +27,11 @@ Add goal of file/feature/function to top of file and explain connection to other
 - UI | DO - add loading states, progress bars, etc.when required Loader @/components/ui/Loader, ProgressBar  @/components/ui/ProgressBar
 - suggest best practices
 - error page: pages/500.tsx
+- use centralized color-coded, icon logger @/lib/logger
 - consolidate/unify/allign/weave together code, state, features, components, etc.
+- modularize code, state, features, components, etc. Encapsulate domain-specific logic in dedicated modules/classes
+
+UI - toast errors as fallbacks
 
 USE:
 Run in shell tool!  it is a Cycle, patterns -- all towards greatnes, wealth, prosperity, clarity, omnipotence
@@ -80,16 +82,14 @@ DRY Principle: Maintain a single source of truth for functionality and data
 Readability: Write self-documenting code with descriptive names and appropriate comments
 - Production-Ready: Deliver complete, functional features without placeholders or dummy code
 
-Encapsulate domain-specific logic in dedicated modules/classes
 Prefer interfaces over concrete implementations for extensibility
 Extract common patterns into reusable components
 
 Robust Error Handling
-
-Implement appropriate exception handling with helpful error messages
-Design fallback mechanisms for uncertain scenarios or operations with external dependencies
-Fallback strategies: cached data, default values, retry logic, or graceful degradation
-Never silently fail; always log issues appropriately
+- Implement appropriate exception handling with helpful error messages
+- Design fallback mechanisms for uncertain scenarios or operations with external dependencies
+- Fallback strategies: cached data, default values, retry logic, or graceful degradation
+- Never silently fail; always log issues appropriately
 
 - Add descriptive logging at appropriate levels: DEBUG: Detailed flow tracing for development, INFO: Normal application operations, WARN: For fallback triggers or potential issues, ERROR: For recoverable failures
 - Include context (e.g., user_id, request_id) in logs for traceability
@@ -126,10 +126,9 @@ Validate schema/type consistency in data-heavy flows
 Eliminate conflicting implementations of similar features
 
 Performance Considerations
-
-Optimize database queries with appropriate indexes
-Minimize database calls and implement caching where appropriate
-Consider time and space complexity without premature optimization
+- Optimize database queries with appropriate indexes
+- Minimize database calls and implement caching where appropriate
+- Consider time and space complexity without premature optimization
 
 Security & Robustness First Approach
 Validate and sanitize all external inputs
@@ -154,10 +153,11 @@ SELF-IMPROVEMENT: Refine these instructions based on feedback loops, code review
 - Adapt to evolving project needs and changing requirements
 
 Final Validation
-
 Completeness Check: Ensure all requirements, edge cases, and error scenarios are addressed
 Verify implementations against acceptance criteria in prd.md file
 Document any remaining concerns or future improvements
+
+No quick HACKS: solve the actual problem, not just the symptom.
 
 DOCUMENTATION: Explain "why" not just "what" the code does in prd.md file
 - Document assumptions and decision rationales in prd.md file
@@ -169,7 +169,6 @@ Bad: Silent API failure without logging or fallback.
 Good:catch API errors, log them, and provide a fallback response.
 Bad: Duplicating validation logic across multiple controllers.
 Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
-
 
 DESIRED OUTCOME/THERE SHOULD BE A:
 - Central database notion used for all saving: 206d87c74f628097807addaa8a54e99e
@@ -209,7 +208,9 @@ FEATURES:
 - admin dashboard: http://localhost:3000/admin,
 - gamification + engagement in admin dashboard
 - glowy ui nivo
-
+- Opportunity  Pipeline (dashboard loads opportunites with filter "Opportunity" from notion - not "CV Components") > Opportunity Details -> Analyze Fit/evaluation -> Opportunity CV Tailoring loads my CVs notion components using "CV Components"-> Auto generate cv to match opportunity details/content -> find key stakeholders -> generate email addresses -> button to draft personalised email for each stakeholder -> draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results -> button to draft personalised linkedin message for each stakeholder (drafts will generally use my profile context, opportunity details, web search and scrape data) -> i can edit the email draft and send it with the app including generated cv or attached cv (my choice) -> option to schedule send -> in opportunity details view, mcp server to automate all process - perhaps browser automation if the aplication/opportunity only requires sending email and cv -> if the application requires a resume, the mcp server will generate a cv based on the opportunity details and send it with the email -> if the application requires a cover letter, the mcp server will generate a cover letter based on the opportunity details and send it with the email -> CV is generated using notion fetch of filter "CV Component" which is automatically generated from the opportunity details -> generate application/opportuntiy materials tab should have questions that i can paste from application page and generate a response based on the questions using checkbox of quadrant, online profile page (from notion) in .env cached to minimze api calls (USER_PROFILE_NOTION_URL) -> response to questions can be edited after generation and components/orion/SaveOptionsButton.tsx
+- State management (zustand)- Zustand state will be unified in a single, composable, slice-based central store for maintainability and clarity.
+- read general profile data from notion page (USER_PROFILE_NOTION_URL) - it is text
 EOM
 
 
@@ -348,12 +349,20 @@ else
   echo 'No .env-sample generated.'
 fi
 
-# Type check before starting
-npx tsc --noEmit --skipLibCheck
+# Load .env file to check for NEXT_IGNORE_TYPESCRIPT_ERRORS
+if [ -f .env.local ]; then
+  export $(grep -v '^#' .env.local | xargs)
+fi
+
+# TypeScript type check (ONLY in apps/nextjs for monorepo safety)
+log_info "Running TypeScript check in apps/nextjs..."
+cd apps/nextjs || { log_error "Could not cd into apps/nextjs"; exit 1; }
+pnpm exec tsc --noEmit --skipLibCheck
 if [ $? -ne 0 ]; then
-  log_error "TypeScript errors detected. Aborting start."
+  log_error "TypeScript errors detected in apps/nextjs. Aborting start."
   exit 1
 fi
+cd ../.. # Return to monorepo root
 
 # Lint and auto-fix code before building
 log_info "Running ESLint auto-fix..."
@@ -365,12 +374,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # Build Next.js app before starting
-log_info "Building Next.js app..."
+log_info "Building Next.js app in apps/nextjs..."
+cd apps/nextjs || { log_error "Could not cd into apps/nextjs for build"; exit 1; }
 pnpm run build --debug
 if [ $? -ne 0 ]; then
-  log_error "Next.js build failed. Aborting start."
+  log_error "Next.js build failed in apps/nextjs. Aborting start."
   exit 1
 fi
+cd ../.. # Return to monorepo root
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -394,11 +405,11 @@ sleep 5
 # Start Python API server
 log_info "Starting Python API server..."
 (
-  cd orion_python_backend || exit
+  cd backend/orion_python_backend || { log_error "Could not cd into backend/orion_python_backend"; exit 1; }
   if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt
   fi
-  uvicorn api_server:app --host 0.0.0.0 --port $PYTHON_API_PORT &
+  uvicorn orion_api:app --host 0.0.0.0 --port $PYTHON_API_PORT &
   echo $! > "$PID_DIR/python_api.pid"
 )
 log_info "Python API server started on port $PYTHON_API_PORT"
@@ -419,6 +430,17 @@ fi
 
 log_info "Skipping Python Notion API server startup: All Notion integration is now handled in Next.js! 🚀"
 
+# Wait for Python API to be ready
+echo "Waiting for Python API..."
+for i in {1..10}; do
+  if curl -s http://localhost:5002/api/docs > /dev/null; then
+    echo "Python API is ready!"
+    break
+  fi
+  echo "Waiting for Python API... ($i/10)"
+  sleep 2
+done
+
 # Run tests
 TEST_FILE="tests/e2e.test.tsx"
 log_info "Running tests in $TEST_FILE ..."
@@ -435,6 +457,6 @@ log_info "Press Ctrl+C to stop the Next.js server"
 log_info ""
 
 # Start Next.js dev server in foreground (this will keep the script running)
-next dev & node_modules/.bin/tsc --noEmit --watch --skipLibCheck
+pnpm run dev
 
 exit 0

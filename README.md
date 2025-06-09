@@ -1,3 +1,40 @@
+# Meris Labs Monorepo
+
+## Monorepo Structure (Best Practice)
+
+```
+merislabs-official/
+  apps/
+    nextjs/                  # Next.js app
+    orion_chrome_extension/  # Chrome extension (future)
+    orion_mobile_app/        # Mobile app (future)
+  packages/
+    orion_python_backend/    # Python backend
+    orion_mcps/              # Microservices/plugins (future)
+    shared/                  # Shared code (future)
+  package.json               # Root (monorepo-wide tools/scripts)
+  pnpm-workspace.yaml        # Monorepo workspace config
+  README.md
+  .gitignore
+```
+
+- **apps/**: User-facing apps (web, mobile, extension)
+- **packages/**: Backends, microservices, shared code
+
+## Adding a New Project
+- Add a new folder to `apps/` (for apps) or `packages/` (for backends, shared, or microservices).
+- Update `pnpm-workspace.yaml` if needed (should already include all `apps/*` and `packages/*`).
+- Each project manages its own dependencies and config.
+
+## Running Projects
+- Next.js app: `cd apps/nextjs && pnpm dev`
+- Python backend: `cd packages/orion_python_backend && python orion_api.py`
+
+## Best Practices
+- Keep each project self-contained.
+- Use `packages/shared/` for shared code.
+- Update this README and workspace config when adding new projects.
+
 # Meris Labs Official
 
 ## Getting Started
@@ -99,5 +136,8 @@ Orion implements full-stack, structured logging for all components:
 - Use `cat`, `less`, or any log viewer to inspect `api_server.log`.
 - For advanced analysis, import the log file into Grafana, Kibana, or similar tools.
 
-### Testing Logging
-- Run `tests/e2e.test.tsx` to validate logging and observability across all components.
+### Testing Logging -  Run `tests/e2e.test.tsx` to validate logging and observability across all components.
+
+We are upgrading the "Application" tab to show real, multi-draft cards with context and modal editing—no mocks, only live data.
+Draft application API now returns all context (profile, memories, web) for full transparency in the UI.
+The Application tab now shows real, editable, context-transparent draft cards—no mocks, only live data, and all linter errors are fixed.
