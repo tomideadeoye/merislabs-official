@@ -1,25 +1,40 @@
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
-  testMatch: [
-    '**/lib/**/*.test.ts?(x)',
-    '**/orion_python_backend/**/*.test.ts?(x)',
-    '**/scripts/**/*.test.ts?(x)',
-    '**/tests/**/*.test.ts?(x)'
-  ],
-  transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.jsx?$': 'babel-jest'
-  },
+const nextJest = require('next/jest');
+
+const createJestConfig = nextJest({
+  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+  dir: './',
+});
+
+// Add any custom config to be passed to Jest
+const customJestConfig = {
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1'
+    '^@/(.*)$': '<rootDir>/$1',
+    '^canvas$': '<rootDir>/tests/mocks/canvas.js'
   },
-  setupFiles: ['dotenv/config'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  clearMocks: true,
-  testTimeout: 30000,
-  transformIgnorePatterns: [
-    "/node_modules/(?!d3|d3-.*)"
-  ]
+  testMatch: ['**/tests/**/*.test.[jt]s?(x)'],
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'app/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{js,jsx,ts,tsx}',
+    'lib/**/*.{js,jsx,ts,tsx}',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+  modulePathIgnorePatterns: ['<rootDir>/apps/nextjs/'],
+  haste: {
+    forceNodeFilesystemAPI: true,
+  },
 };
+
+// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
+module.exports = createJestConfig(customJestConfig);

@@ -4,6 +4,14 @@ import * as React from "react";
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from "@testing-library/react";
 import { OpportunityPipelineCharts } from "../app/(orion_admin)/admin/opportunity-pipeline/OpportunityPipelineCharts";
+import userEvent from '@testing-library/user-event';
+import OpportunityPipelinePage from '../app/(orion_admin)/admin/opportunity-pipeline/page';
+import { useOpportunityCentralStore } from '../components/orion/opportunities/opportunityCentralStore';
+
+// Mock the opportunity store
+jest.mock('../components/orion/opportunities/opportunityCentralStore', () => ({
+  useOpportunityCentralStore: jest.fn(),
+}));
 
 // --- Opportunity Pipeline D3 Visualization & UI Tests ---
 describe("OpportunityPipelineCharts D3 Visualizations & UI", () => {
@@ -109,6 +117,153 @@ describe("OpportunityPipelineCharts D3 Visualizations & UI", () => {
     const badData = [{ bad: "data" }] as any;
     render(<OpportunityPipelineCharts opportunities={badData} />);
     expect(screen.getByText(/error/i)).toBeInTheDocument();
+  });
+});
+
+describe('Opportunity Pipeline', () => {
+  const mockOpportunities = [
+    {
+      id: '1',
+      company: 'Test Company',
+      position: 'Software Engineer',
+      status: 'new',
+      location: 'Remote',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  const mockStore = {
+    opportunities: mockOpportunities,
+    isLoading: false,
+    error: null,
+    setOpportunities: jest.fn(),
+    addOpportunity: jest.fn(),
+    updateOpportunity: jest.fn(),
+    deleteOpportunity: jest.fn(),
+    fetchOpportunities: jest.fn(),
+  };
+
+  beforeEach(() => {
+    // Reset all mocks
+    jest.clearAllMocks();
+    (useOpportunityCentralStore as jest.Mock).mockImplementation(() => mockStore);
+  });
+
+  it('renders opportunity pipeline page', () => {
+    render(<OpportunityPipelinePage />);
+    expect(screen.getByText('Opportunity Pipeline')).toBeInTheDocument();
+  });
+
+  it('displays list of opportunities', () => {
+    render(<OpportunityPipelinePage />);
+    expect(screen.getByText('Test Company')).toBeInTheDocument();
+    expect(screen.getByText('Software Engineer')).toBeInTheDocument();
+  });
+
+  it('switches between list and kanban views', async () => {
+    render(<OpportunityPipelinePage />);
+
+    // Initially in list view
+    expect(screen.getByText('List View')).toHaveClass('bg-primary');
+
+    // Switch to kanban view
+    await userEvent.click(screen.getByText('Kanban View'));
+    expect(screen.getByText('Kanban View')).toHaveClass('bg-primary');
+  });
+
+  it('shows loading state', () => {
+    (useOpportunityCentralStore as jest.Mock).mockImplementation(() => ({
+      ...mockStore,
+      isLoading: true,
+    }));
+
+    render(<OpportunityPipelinePage />);
+    expect(screen.getByTestId('loader')).toBeInTheDocument();
+  });
+
+  it('shows error state', () => {
+    (useOpportunityCentralStore as jest.Mock).mockImplementation(() => ({
+      ...mockStore,
+      error: new Error('Failed to load opportunities'),
+    }));
+
+    render(<OpportunityPipelinePage />);
+    expect(screen.getByText('Error Loading Opportunities')).toBeInTheDocument();
+    expect(screen.getByText('Failed to load opportunities. Please try again later.')).toBeInTheDocument();
+  });
+
+  it('fetches opportunities on mount', async () => {
+    render(<OpportunityPipelinePage />);
+    await waitFor(() => {
+      expect(mockStore.fetchOpportunities).toHaveBeenCalled();
+    });
+  });
+
+  it('handles empty opportunities list', () => {
+    (useOpportunityCentralStore as jest.Mock).mockImplementation(() => ({
+      ...mockStore,
+      opportunities: [],
+    }));
+
+    render(<OpportunityPipelinePage />);
+    expect(screen.queryByText('Test Company')).not.toBeInTheDocument();
+  });
+
+  it('handles opportunity status changes', async () => {
+    render(<OpportunityPipelinePage />);
+
+    // Find and click the status dropdown
+    const statusDropdown = screen.getByRole('combobox', { name: /status/i });
+    await userEvent.click(statusDropdown);
+
+    // Select a new status
+    const newStatus = screen.getByText('applied');
+    await userEvent.click(newStatus);
+
+    // Verify the update was called
+    expect(mockStore.updateOpportunity).toHaveBeenCalledWith('1', expect.objectContaining({
+      status: 'applied',
+    }));
+  });
+
+  it('handles opportunity deletion', async () => {
+    render(<OpportunityPipelinePage />);
+
+    // Find and click the delete button
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    await userEvent.click(deleteButton);
+
+    // Confirm deletion
+    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    await userEvent.click(confirmButton);
+
+    // Verify the delete was called
+    expect(mockStore.deleteOpportunity).toHaveBeenCalledWith('1');
+  });
+
+  it('handles opportunity creation', async () => {
+    render(<OpportunityPipelinePage />);
+
+    // Find and click the add opportunity button
+    const addButton = screen.getByRole('button', { name: /add opportunity/i });
+    await userEvent.click(addButton);
+
+    // Fill in the form
+    await userEvent.type(screen.getByLabelText(/company/i), 'New Company');
+    await userEvent.type(screen.getByLabelText(/position/i), 'New Position');
+    await userEvent.type(screen.getByLabelText(/location/i), 'New Location');
+
+    // Submit the form
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    await userEvent.click(submitButton);
+
+    // Verify the add was called
+    expect(mockStore.addOpportunity).toHaveBeenCalledWith(expect.objectContaining({
+      company: 'New Company',
+      position: 'New Position',
+      location: 'New Location',
+    }));
   });
 });
 

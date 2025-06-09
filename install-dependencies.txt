@@ -1,1 +1,0 @@
-// This is a comment to indicate that you should install react-beautiful-dnd using npm or yarn:\n// npm install react-beautiful-dnd @types/react-beautiful-dnd\n// or\n// yarn add react-beautiful-dnd @types/react-beautiful-dnd

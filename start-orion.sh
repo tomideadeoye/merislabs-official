@@ -1,6 +1,36 @@
 #!/bin/bash
 # Motivational and operational echo block
 cat <<EOM
+graph TD
+    subgraph "Phase 1: Vision & Strategy (You & Orion using Cline/GPT-4.1)"
+        A[You: Define High-Level Goal in VS Code] --> B[Orion: Consults Context in NotebookLM];
+        B --> C[Orion: Provides Strategic Breakdown & Asks Preference Questions];
+        C --> D[You: Confirm Scope & Preferences];
+    end
+
+    subgraph "Phase 2: Brainstorming & Design (You & Orion using Gemini)"
+        D --> E[You: Request Creative Input or Design Options];
+        E --> F[Orion (as 'Orion Gem'): Generates Diverse Ideas & Approaches];
+        F --> G[You: Select & Refine the Chosen Approach];
+    end
+
+    subgraph "Phase 3: Implementation (You with Cursor, guided by Orion)"
+        G --> H[Orion (as PM/Architect): Provides Explicit, Comprehensive Instructions];
+        H --> I[You: Feed Instructions to Cursor];
+        I --> J[Cursor: Writes Code & Asks You Tactical Questions];
+        J --> H;
+    end
+
+    subgraph "Phase 4: Validation & Iteration (You & Orion)"
+        J --> K[Orion: Instructs You to Test the Implemented Feature];
+        K --> L[You: Run Automated Tests (Jest) & Manual E2E Tests];
+        L --> M[You & Orion: Debug & Refine Code/Prompts Collaboratively];
+        M --> N[Orion: Instructs You to Update PRD & Documentation];
+    end
+
+    N --> A;
+
+
 UI | DO | QUESTIONS | FEATURES | TESTING/LOGGING | IMPROVEMENT | SECURITY | PERFORMANCE | DOCUMENTATION | DESIRED OUTCOME | PROJECT DETAILS
 
 REMEMBER/ALWAYS/EXECUTE/DO/APPLY/NOW:

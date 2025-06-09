@@ -1,0 +1,171 @@
+---
+applyTo: "**"
+---
+
+Comprehensive Coding Copilot Agent Instructions
+Core Principles & Standards
+Refer to the orion_prd.txt for the feature's purpose and requirements
+Focuse on unity of functionality and features: the code should be cohesive and work together seamlessly
+Project-Specific Standards Compliance
+
+Follow the codebase's formatting rules, naming conventions, and architectural patterns
+Adhere to configured linting tools (Prettier, ESLint, Black, etc.)
+Respect team preferences documented in project READMEs or style guides
+
+Domain Knowledge Integration
+
+Apply business logic, industry-specific rules, and stakeholder requirements
+Ensure solutions align with real-world use cases and domain constraints
+Cross-check outputs against domain-specific requirements (e.g., financial calculations, healthcare rules)
+
+Code Quality Fundamentals
+
+Reusability: Utilize existing functions rather than duplicating code
+Single Responsibility: Each function should do one thing well with clear purpose
+DRY Principle: Maintain a single source of truth for functionality and data
+Readability: Write self-documenting code with descriptive names and appropriate comments
+Production-Ready: Deliver complete, functional features without placeholders or dummy code
+
+Implementation Best Practices
+
+Modularity & Abstraction
+
+Encapsulate domain-specific logic in dedicated modules/classes
+Prefer interfaces over concrete implementations for extensibility
+Extract common patterns into reusable components
+
+Robust Error Handling
+
+Implement appropriate exception handling with helpful error messages
+Design fallback mechanisms for uncertain scenarios or operations with external dependencies
+Fallback strategies: cached data, default values, retry logic, or graceful degradation
+Never silently fail; always log issues appropriately
+
+Logging Strategy
+
+Add descriptive logging at appropriate levels:
+
+DEBUG: Detailed flow tracing for development
+INFO: Normal application operations
+WARN: For fallback triggers or potential issues
+ERROR: For recoverable failures
+
+Include context (e.g., user_id, request_id) in logs for traceability
+
+Strategic Testing
+
+Write tests for critical logic, complex algorithms, edge cases, and APIs
+Focus on code with high cyclomatic complexity (> 5)
+Test fallback mechanisms and error handlers
+Use parameterized tests for multi-scenario validation
+Ensure tests cover failure paths, not just happy paths
+
+Code Maintenance & Improvement
+
+Continuous Refactoring
+
+Identify and improve:
+
+Redundant code blocks
+Methods violating SOLID principles
+Functions exceeding 20 lines or with nested conditionals
+
+Apply design patterns (Factory, Strategy, etc.) where they simplify future changes
+Break circular dependencies during refactoring
+Prefer explicit dependency injection over global state
+
+Linting & Static Analysis
+
+Fix ALL linting errors and warnings in modified code
+Ensure new code introduces zero new violations
+Address technical debt opportunistically during implementation
+
+Dependency Management
+
+Choose dependencies carefully considering security implications
+Check for and address vulnerabilities in dependencies
+Manage resources properly (file handles, database connections, memory)
+
+System Integration & Architecture
+
+Codebase Coherence
+
+Before modifying a component:
+
+Audit similar modules for patterns
+Mirror naming conventions, error-handling, and structure
+
+Cross-reference changes with related modules to maintain consistency
+Update dependent components to avoid breaking changes
+
+Unified Implementation
+
+Identify and deprecate outdated implementations in favor of centralized sources of truth
+Ensure cross-component interactions use stable APIs/contracts
+Validate schema/type consistency in data-heavy flows
+Eliminate conflicting implementations of similar features
+
+Performance Considerations
+
+Optimize database queries with appropriate indexes
+Minimize database calls and implement caching where appropriate
+Consider time and space complexity without premature optimization
+
+Security & Robustness
+
+Security First Approach
+
+Validate and sanitize all external inputs
+Implement proper authentication and authorization
+Follow best practices for handling sensitive information
+Prevent common vulnerabilities (XSS, SQL injection, CSRF)
+
+Graceful Degradation
+
+Design systems to function (potentially with reduced capabilities) when components fail
+Consider using feature flags for new functionality that might need to be disabled
+Maintain backward compatibility when modifying public interfaces
+
+Process & Collaboration
+
+Assumption Handling
+
+When requirements are ambiguous:
+
+Propose a default implementation based on codebase patterns
+Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
+
+Document trade-offs for complex decisions
+
+Version Control Practices
+
+Make atomic commits focused on single logical changes
+Write descriptive commit messages explaining what changed and why
+Follow project branching conventions
+
+Self-Improvement
+
+Refine these instructions based on feedback loops, code reviews, or recurring errors
+Adapt to evolving project needs and changing requirements
+
+Final Validation
+
+Completeness Check
+
+Ensure all requirements, edge cases, and error scenarios are addressed
+Verify implementations against acceptance criteria
+Document any remaining concerns or future improvements
+
+Documentation
+
+Add/update documentation for functions with non-trivial logic
+Explain "why" not just "what" the code does
+Document assumptions and decision rationales
+
+Anti-Pattern Examples
+❌ Bad: Writing a new formatDate() function when utils/dates.ts already has one.
+✅ Good: Refactor utils/dates.py to accept custom parameters, then reuse it.
+❌ Bad: Silent API failure without logging or fallback.
+✅ Good:catch API errors, log them, and provide a fallback response.
+❌ Bad: Duplicating validation logic across multiple controllers.
+✅ Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.

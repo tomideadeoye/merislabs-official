@@ -1,8 +1,3 @@
 packages:
-  - 'app'
-  - 'components'
-  - 'hooks'
-  - 'lib'
-  - 'scripts'
-  - 'utils'
-  - 'orion_python_backend'
+  - 'apps/*'
+  - 'packages/*'

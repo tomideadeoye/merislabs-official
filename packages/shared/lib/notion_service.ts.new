@@ -1,0 +1,201 @@
+import { Client } from '@notionhq/client';
+import { NOTION_API_KEY, NOTION_DATABASE_ID } from './orion_server_config';
+import type { CVComponentShared } from '@/types/orion';
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+
+let notion: Client | null = null;
+if (NOTION_API_KEY) {
+  notion = new Client({ auth: NOTION_API_KEY });
+} else {
+  console.warn('[NOTION_SERVICE] NOTION_API_KEY not found, Notion integration will be disabled.');
+}
+
+console.log(`[NOTION_SERVICE][DEBUG] Imported NOTION_API_KEY: ${NOTION_API_KEY ? 'Loaded' : '[NOT SET]'}`);
+console.log(`[NOTION_SERVICE][DEBUG] Imported NOTION_DATABASE_ID: ${NOTION_DATABASE_ID || '[NOT SET]'}`);
+
+
+export async function createOpportunityInNotion(data: any) {
+  console.info('[NOTION][createOpportunityInNotion][START]', { data });
+  if (!notion || !NOTION_DATABASE_ID) {
+    console.warn('[NOTION][createOpportunityInNotion][WARN] Notion client or database ID not configured');
+    return null;
+  }
+  try {
+    const response = await notion.pages.create({
+      parent: { database_id: NOTION_DATABASE_ID },
+      properties: {
+        'Aa Title': { title: [{ text: { content: data.title } }] },
+        'companyOrInstitution': { rich_text: [{ text: { content: data.companyOrInstitution } }] },
+        'URL': { url: data.url },
+        'Status': { select: { name: data.status || 'Not Started' } },
+        'Content': { rich_text: [{ text: { content: data.content } }] },
+        'Tags': { multi_select: data.tags.map((tag: string) => ({ name: tag })) },
+        'Date': { date: { start: data.dateIdentified || new Date().toISOString() } },
+      },
+    });
+    console.info('[NOTION][createOpportunityInNotion][SUCCESS]', { response });
+    return response;
+  } catch (error) {
+    console.error('[NOTION][createOpportunityInNotion][ERROR]', error);
+    return null;
+  }
+}
+
+export async function listOpportunitiesFromNotion(filters: any = {}) {
+  console.log('[NOTION][listOpportunitiesFromNotion][START]');
+  if (!notion || !NOTION_DATABASE_ID) {
+    console.error('[NOTION][listOpportunitiesFromNotion][ERROR] Notion client or Database ID not configured.');
+    return [];
+  }
+
+  try {
+    const response = await notion.databases.query({
+      database_id: NOTION_DATABASE_ID,
+      filter: filters.notionFilter,
+      sorts: filters.sorts,
+    });
+    console.log(`[NOTION][listOpportunitiesFromNotion][SUCCESS] Found ${response.results.length} opportunities.`);
+    return response.results;
+  } catch (error) {
+    console.error('[NOTION][listOpportunitiesFromNotion][ERROR]', error);
+    return [];
+  }
+}
+
+export async function getOpportunityDetails(pageId: string) {
+  if (!notion) {
+    console.error('Notion client not initialized');
+    return null;
+  }
+  try {
+    const response = await notion.pages.retrieve({ page_id: pageId });
+    return response;
+  } catch (error) {
+    console.error(`Failed to retrieve opportunity ${pageId}:`, error);
+    return null;
+  }
+}
+
+export async function getOpportunityContent(pageId: string) {
+  if (!notion) {
+    console.error('Notion client not initialized');
+    return null;
+  }
+  try {
+    const response = await notion.blocks.children.list({ block_id: pageId });
+    return response.results;
+  } catch (error) {
+    console.error(`Failed to retrieve content for opportunity ${pageId}:`, error);
+    return null;
+  }
+}
+
+export async function updateOpportunityStatus(pageId: string, status: string) {
+  if (!notion) {
+    console.error('Notion client not initialized');
+    return null;
+  }
+  try {
+    await notion.pages.update({
+      page_id: pageId,
+      properties: {
+        'Status': { select: { name: status } },
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error(`Failed to update status for opportunity ${pageId}:`, error);
+    return { success: false, error };
+  }
+}
+
+export async function addStakeholderToOpportunity(pageId: string, stakeholder: any) {
+  if (!notion) {
+    console.error('Notion client not initialized');
+    return null;
+  }
+  try {
+    await notion.pages.update({
+      page_id: pageId,
+      properties: {
+        'Identified Stakeholders': {
+          rich_text: [
+            {
+              text: {
+                content: stakeholder.name,
+                link: stakeholder.linkedin_url ? { url: stakeholder.linkedin_url } : undefined,
+              },
+            },
+          ],
+        },
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error(`Failed to add stakeholder to opportunity ${pageId}:`, error);
+    return { success: false, error };
+  }
+}
+
+export async function saveOutreachToNotion(pageId: string, outreach: { stakeholder: string, message: string, platform: string }) {
+  if (!notion) {
+    console.error('Notion client not initialized');
+    return null;
+  }
+
+  const content = `
+## ${outreach.platform} Outreach to ${outreach.stakeholder}
+${new Date().toISOString()}
+
+${outreach.message}
+---
+  `;
+
+  try {
+    await notion.blocks.children.append({
+      block_id: pageId,
+      children: [
+        {
+          object: 'block',
+          type: 'paragraph',
+          paragraph: {
+            rich_text: [{ type: 'text', text: { content } }],
+          },
+        },
+      ],
+    });
+    return { success: true };
+  } catch (error) {
+    console.error(`Failed to save outreach to opportunity ${pageId}:`, error);
+    return { success: false, error };
+  }
+}
+
+export const getCVComponentsFromNotion = async (databaseId: string): Promise<CVComponentShared[]> => {
+  if (!notion) {
+    console.error('Notion client is not initialized.');
+    return [];
+  }
+  try {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+    });
+
+    const components: CVComponentShared[] = response.results.map((page) => {
+      const p = page as PageObjectResponse;
+      const properties = p.properties as any;
+
+      return {
+        id: p.id,
+        component_type: properties['Component Type']?.select?.name || 'Unknown',
+        content: properties['Content']?.rich_text.map((rt: any) => rt.plain_text).join('') || '',
+        tags: properties['Tags']?.multi_select.map((tag: any) => tag.name) || [],
+        user_id: properties['UserID']?.rich_text.map((rt: any) => rt.plain_text).join('') || 'default_user',
+      };
+    });
+    return components;
+  } catch (error) {
+    console.error('Failed to get CV components from Notion:', error);
+    return [];
+  }
+};

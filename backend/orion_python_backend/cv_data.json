@@ -1,0 +1,817 @@
+[
+  {
+    "Component Name": "Profile Summary - Tech/Business Strategist (MBA/PM/BA)",
+    "Component Type": "Profile Summary",
+    "Content (Primary)": "Highly analytical professional merging 4+ years Full-Stack Software Engineering with a strong Legal foundation (LL.B) and Business Acumen (PG Cert. Tech & Management, NUTM Scholar). Proven leader driving cross-functional teams to deliver innovative solutions at the intersection of technology and law.",
+    "Keywords": ["Product Management", "Business Analysis", "Tech Strategy", "FinTech", "Legal-Tech"],
+    "Target Role Tags": ["MBA Application", "PM", "BA", "Tech Strategy"],
+    "UniqueID": "profile_summary_pm_ba_01"
+  },
+  {
+    "Component Name": "MerisLabs - AI Legal Tech Solution Lead (ASLA)",
+    "Component Type": "Work Experience (Achievement/Responsibility)",
+    "Content (Primary)": "- Led development of AI-driven legal tech solutions during the Africa Startup Law Accelerator (2024), improving contract review efficiency by 45%.",
+    "Keywords": ["AI", "Legal-Tech", "Leadership", "Innovation"],
+    "Target Role Tags": ["Product Manager (Legal-Tech)", "Tech Strategy"],
+    "Associated Company/Institution": "MerisLabs",
+    "Start Date": "2024-05-01",
+    "End Date": "2024-06-30",
+    "UniqueID": "merislabs_asla_01"
+  },
+  {
+    "Component Name": "MerisLabs - Role Overview - Founder / Technology & Product Consultant",
+    "Component Type": "Work Experience (Role Overview)",
+    "Content (Primary)": "Founder and Lead Consultant at MerisLabs since September 2020, delivering bespoke software development, strategic technology/product consulting, automation solutions, and data analytics services. Successfully managed end-to-end project lifecycles, client relationships, and solution architecture for 5+ diverse organizations across Legal-Tech, Venture Capital, Food & Beverage, and Non-Profit sectors. Drove business development and proposal creation.",
+    "Keywords": ["Founder", "Entrepreneurship", "Consulting", "Technology Strategy", "Product Strategy", "Software Development", "Automation", "Data Analytics", "Solution Architecture", "Client Management", "Project Delivery", "Business Development", "Proposal Writing", "Legal-Tech", "Venture Capital"],
+    "Target Role Tags": ["MBA Application", "Product Manager", "Business Analyst", "Tech Strategy", "Consulting", "Entrepreneurship", "Business Development Manager"],
+    "Associated Company/Institution": "MerisLabs",
+    "Start Date": "2020-09-01",
+    "UniqueID": "merislabs_role_overview_01"
+  },
+  {
+    "Component Name": "MerisLabs - AI Legal Tech Solution Development (ASLA)",
+    "Component Type": "Work Experience (Achievement/Responsibility)",
+    "Content (Primary)": "- Led development of innovative AI-driven legal tech solutions during the Africa Startup Law Accelerator (2024), focusing on integrating legal data with AWS Bedrock LLMs to solve real-world challenges.\n- Collaborated with diverse legal-tech innovators across Africa to co-develop proof-of-concepts.",
+    "Keywords": ["AI", "AWS Bedrock", "LLM", "Legal-Tech", "Data Integration", "Innovation", "Collaboration"],
+    "Target Role Tags": ["Product Manager (Legal-Tech/AI)", "Innovation Manager", "Project Manager (AI)"],
+    "Associated Company/Institution": "MerisLabs",
+    "Start Date": "2024-05-01",
+    "End Date": "2024-06-30",
+    "Quantifiable Result/Metric": "Built multiple AI legal-tech proofs-of-concept",
+    "UniqueID": "merislabs_asla_dev_01"
+  },
+  {
+    "Component Name": "MerisLabs - Compliance Web App Delivery (UNICOM)",
+    "Component Type": "Work Experience (Achievement/Responsibility)",
+    "Content (Primary)": "- Designed and deployed a custom Compliance Web Application for Jackson Etti & Edu, streamlining regulatory monitoring for Unilever Nigeria.\n- Achieved a 30% increase in user engagement and accelerated audit preparation processes.",
+    "Keywords": ["Compliance", "Web App", "RegTech", "React", "Express.js", "User Engagement", "Process Improvement"],
+    "Target Role Tags": ["Product Manager (RegTech)", "Business Analyst", "Software Engineer (Full-Stack)"],
+    "Associated Company/Institution": "MerisLabs",
+    "Quantifiable Result/Metric": "30% engagement uplift",
+    "UniqueID": "merislabs_jee_unicom_01"
+  },
+  {
+    "Component Name": "MerisLabs - PropTech MVP Delivery & Search Optimization (Experi)",
+    "Component Type": "Work Experience (Achievement/Responsibility)",
+    "Content (Primary)": "- Delivered 'Experi,' a PropTech MVP for Hiyalo using Next.js, tRPC, Drizzle ORM, Clerk, and Algolia.\n- Implemented Algolia search integration, achieving 10× faster search performance and enhanced user experience with Google Maps API.",
+    "Keywords": ["PropTech", "MVP", "Next.js", "tRPC", "Algolia", "UX", "Search Optimization"],
+    "Target Role Tags": ["Technical Product Manager", "Frontend Engineer", "Software Architect"],
+    "Associated Company/Institution": "MerisLabs",
+    "Quantifiable Result/Metric": "10× faster search",
+    "UniqueID": "merislabs_hiyalo_experi_01"
+  },
+  {
+    "Component Name": "MerisLabs - FinTech Startup Consulting & GTM Strategy",
+    "Component Type": "Work Experience (Achievement/Responsibility)",
+    "Content (Primary)": "- Advised pre-seed FinTech startups on financial modeling, investor pitch decks, and go-to-market strategies using Python (Pandas) and React visualizations.\n- Supported successful fundraising rounds and GTM launches.",
+    "Keywords": ["FinTech", "Financial Modeling", "GTM Strategy", "Python", "Business Strategy", "Fundraising"],
+    "Target Role Tags": ["Strategy Consultant", "Business Analyst", "Product Manager (FinTech)"],
+    "Associated Company/Institution": "MerisLabs",
+    "UniqueID": "merislabs_fintech_consulting_01"
+  },
+  {
+    "Component Name": "MerisLabs - Lead Software Architect & Full-Stack Developer",
+    "Component Type": "Work Experience (Role Focus)",
+    "Content (Primary)": "- Acted as lead architect and full-stack developer across MerisLabs projects using TypeScript, Python, Next.js/React, Node.js, and Django.\n- Designed scalable architectures and ensured alignment with client objectives.",
+    "Keywords": ["Software Architecture", "TypeScript", "Python", "Next.js", "Django", "Technical Leadership"],
+    "Target Role Tags": ["Software Architect", "Tech Lead", "Full-Stack Developer"],
+    "Associated Company/Institution": "MerisLabs",
+    "UniqueID": "merislabs_tech_lead_focus_01"
+  },
+  {
+    "Component Name": "MerisLabs - Business Development & Client Acquisition",
+    "Component Type": "Work Experience (Role Focus)",
+    "Content (Primary)": "- Spearheaded all client acquisition and business development for MerisLabs, crafting proposals and pitch decks that secured contracts with 5+ organizations.\n- Built and maintained client relationships to drive repeat engagements.",
+    "Keywords": ["Business Development", "Client Acquisition", "Proposal Writing", "Pitch Decks", "Negotiation"],
+    "Target Role Tags": ["Business Development Manager", "Sales Director", "Founder"],
+		"Quantifiable Result/Metric": "5+ organizations served; Led AI Legal Tech solution development",
+		"UniqueID": "merislabs_role_overview_01"
+	},
+	{
+		"Component Name": "MerisLabs - AI Legal Tech Solution Lead (ASLA)",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Led development of AI-driven legal tech solutions during the Africa Startup Law Accelerator (2024), focusing on practical integration of legal data with AI tools (AWS Bedrock, LLMs) to address real-world legal challenges in the African context.\n- Collaborated with legal tech innovators across Africa.",
+		"Keywords": [
+			"AI",
+			"Legal-Tech",
+			"Leadership",
+			"Innovation",
+			"Solution Development",
+			"AWS Bedrock",
+			"LLM",
+			"Data Integration",
+			"Africa Startup Law Accelerator"
+		],
+		"Target Role Tags": [
+			"Product Manager (Legal-Tech)",
+			"Tech Strategy",
+			"Innovation Management"
+		],
+		"Associated Company/Institution": "MerisLabs",
+		"Start Date": "2024-05-01",
+		"End Date": "2024-06-30",
+		"UniqueID": "merislabs_asla_01"
+	},
+	{
+		"Component Name": "MerisLabs - Custom Web App Development (Jackson Etti & Edu)",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Designed and developed a custom Compliance Web Application (UNICOM) for leading law firm Jackson Etti & Edu, streamlining their client's (Unilever Nigeria) regulatory compliance monitoring.\n- Resulted in a **30% increase in user engagement** with the compliance knowledge base and improved efficiency in legal audits.",
+		"Keywords": [
+			"Web Application Development",
+			"Legal-Tech",
+			"Compliance",
+			"User Engagement",
+			"React",
+			"ExpressJS",
+			"Client Project"
+		],
+		"Target Role Tags": [
+			"Product Manager (Legal-Tech)",
+			"Project Manager",
+			"BA (Legal/Compliance)",
+			"Software Engineer"
+		],
+		"Associated Company/Institution": "MerisLabs (Client: Jackson Etti & Edu)",
+		"Quantifiable Result/Metric": "30% user engagement increase",
+		"UniqueID": "merislabs_jee_unicom_01"
+	},
+	{
+		"Component Name": "MerisLabs - PropTech MVP Delivery (Experi for Hiyalo)",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Delivered PropTech Minimum Viable Product \"Experi\" for Hiyalo client, a web application for property requests and listings.\n- Engineered solution featuring **10x faster search capabilities (Algolia integration)**, secure user authentication (Clerk), and enhanced location-based UX via Google Maps API integration, built on the T3 Stack (Next.js, tRPC, Drizzle ORM).",
+		"Keywords": [
+			"PropTech",
+			"MVP",
+			"Product Delivery",
+			"Search Optimization",
+			"Algolia",
+			"Next.js",
+			"T3 Stack",
+			"API Integration",
+			"User Experience"
+		],
+		"Target Role Tags": [
+			"Product Manager",
+			"Technical Product Manager",
+			"Project Manager",
+			"Software Engineer"
+		],
+		"Associated Company/Institution": "MerisLabs (Client: Hiyalo)",
+		"Quantifiable Result/Metric": "10x faster search",
+		"UniqueID": "merislabs_hiyalo_experi_01"
+	},
+	{
+		"Component Name": "MerisLabs - FinTech Startup Consulting (Fundraising & GTM)",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Developed comprehensive financial models, data extraction/visualization tools (Python, Pandas, Plotly, Chart.js), and go-to-market (GTM) strategies supporting successful pre-seed fundraising rounds for multiple FinTech startup clients.",
+		"Keywords": [
+			"FinTech",
+			"Startups",
+			"Financial Modeling",
+			"GTM Strategy",
+			"Consulting",
+			"Fundraising",
+			"Data Visualization",
+			"Python",
+			"Pandas"
+		],
+		"Target Role Tags": [
+			"Business Analyst (FinTech)",
+			"Strategy Consultant",
+			"Product Manager (FinTech)",
+			"MBA Application",
+			"Financial Analyst"
+		],
+		"Associated Company/Institution": "MerisLabs",
+		"UniqueID": "merislabs_fintech_consulting_01"
+	},
+	{
+		"Component Name": "QorePay - Role Overview - Founding Engineer / Analyst",
+		"Component Type": "Work Experience (Role Overview)",
+		"Content (Primary)": "Founding Engineer at QorePay, a fast-growing FinTech startup. Led backend development and significantly contributed to frontend for the core payment application. Functionally involved in business analysis, process design, vendor selection, API strategy, and cross-regional team coordination to deliver a scalable payment gateway.",
+		"Keywords": [
+			"Founding Engineer",
+			"FinTech",
+			"Payments",
+			"Full-Stack Development",
+			"Business Analysis",
+			"Process Leadership",
+			"API Strategy",
+			"AWS",
+			"Node.js",
+			"React"
+		],
+		"Target Role Tags": [
+			"Product Manager (FinTech)",
+			"Technical Product Manager",
+			"Business Analyst (FinTech)",
+			"MBA Application",
+			"Software Engineer (Lead)"
+		],
+		"Associated Company/Institution": "QorePay Technologies",
+		"Start Date": "2023-06-01",
+		"End Date": "2024-09-01",
+		"UniqueID": "qorepay_role_overview_01"
+	},
+	{
+		"Component Name": "QorePay - Accelerated MVP Launch & TTM Reduction",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Spearheaded backend development (Node.js) and contributed to frontend (React/Next.js) for the core payment application MVP, accelerating launch to **3 months (slashing estimated time-to-market by 50%)** through agile process leadership.",
+		"Keywords": [
+			"MVP",
+			"Product Launch",
+			"Time-to-Market",
+			"Agile",
+			"Process Leadership",
+			"FinTech",
+			"Node.js",
+			"React",
+			"Project Management"
+		],
+		"Target Role Tags": ["Product Manager", "Project Manager", "Tech Lead"],
+		"Associated Company/Institution": "QorePay Technologies",
+		"Quantifiable Result/Metric": "50% faster TTM",
+		"UniqueID": "qorepay_mvp_launch_01"
+	},
+	{
+		"Component Name": "QorePay - FinTech API Integration & Vendor Analysis Strategy",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Led analysis, selection, and integration of 5+ third-party FinTech APIs (Paystack, Klasha, SarePay) and 2 ERP systems, designing robust API connectors and **reducing integration development time by 30%**.\n- Conducted comprehensive API research and vendor due diligence on KYC/AML and payment processing solutions, improving user details validation accuracy by **15%** and ensuring robust compliance.",
+		"Keywords": [
+			"API Integration",
+			"API Strategy",
+			"FinTech",
+			"Vendor Management",
+			"Due Diligence",
+			"KYC/AML",
+			"Compliance",
+			"Process Improvement",
+			"Business Analysis"
+		],
+		"Target Role Tags": [
+			"Product Manager (FinTech)",
+			"Business Analyst (FinTech)",
+			"Tech Strategy",
+			"Compliance Tech",
+			"Solutions Architect"
+		],
+		"Associated Company/Institution": "QorePay Technologies",
+		"Quantifiable Result/Metric": "30% integration time reduction; 15% validation accuracy improvement",
+		"UniqueID": "qorepay_api_integration_01"
+	},
+	{
+		"Component Name": "QorePay - Financial Modeling for Cost Optimization & Pricing",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Built financial models analyzing payment gateway transaction costs across 5+ providers, identifying **over 30% potential annualized savings**.\n- Developed data-driven, tiered pricing models based on transaction volume analysis, informing strategy that supported an approximate **25% average revenue increase per merchant**.",
+		"Keywords": [
+			"Financial Modeling",
+			"Cost Optimization",
+			"Pricing Strategy",
+			"Revenue Growth",
+			"FinTech Analytics",
+			"Data Analysis",
+			"Business Intelligence"
+		],
+		"Target Role Tags": [
+			"Business Analyst (FinTech)",
+			"Product Manager (FinTech)",
+			"Strategy",
+			"Financial Analyst"
+		],
+		"Associated Company/Institution": "QorePay Technologies",
+		"Quantifiable Result/Metric": ">30% cost savings identified; ~25% avg. revenue increase supported",
+		"UniqueID": "qorepay_financial_modeling_01"
+	},
+	{
+		"Component Name": "QorePay - Workflow Automation & Operational Efficiency",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Designed and implemented automated workflows for email marketing (SendGrid, AWS SES, MailChimp, Klaviyo) and CRM/Customer Support (Zoho CRM, FreshDesk, Zendesk), **reducing operational expenditure by approximately 80%** through strategic tool selection and process optimization.",
+		"Keywords": [
+			"Workflow Automation",
+			"Process Optimization",
+			"Operational Efficiency",
+			"Cost Reduction",
+			"CRM Integration",
+			"Marketing Automation",
+			"API Integration"
+		],
+		"Target Role Tags": [
+			"Business Analyst",
+			"Operations Management",
+			"Process Improvement",
+			"Product Operations",
+			"Tech Consultant"
+		],
+		"Associated Company/Institution": "QorePay Technologies",
+		"Quantifiable Result/Metric": "~80% OpEx reduction",
+		"UniqueID": "qorepay_workflow_automation_01"
+	},
+	{
+		"Component Name": "Dukka - Dexter Analytics Platform & User Impact",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- Led frontend development of 'Dexter,' an analytics platform (React/Django) visualizing key metrics for **80k+ merchants**, improving data accuracy by **40%** and enabling data-driven business decisions.",
+		"Keywords": [
+			"Data Analytics",
+			"Dashboard Development",
+			"Frontend Development",
+			"React",
+			"Django",
+			"User Acquisition Insights",
+			"Data Accuracy",
+			"Business Intelligence"
+		],
+		"Target Role Tags": [
+			"Product Manager (Analytics)",
+			"Business Analyst",
+			"Data Visualization",
+			"Software Engineer (Frontend)"
+		],
+		"Associated Company/Institution": "Dukka",
+		"Start Date": "2022-04-01",
+		"End Date": "2023-06-30",
+		"Quantifiable Result/Metric": "80k+ merchants impacted; 40% data accuracy improvement",
+		"UniqueID": "dukka_dexter_01"
+	},
+    {
+      "Component Name": "Dukka - User Retention Analysis & Product Strategy",
+      "Component Type": "Work Experience (Achievement/Responsibility)",
+      "Content (Primary)": "- Developed Python scripts analyzing user retention, identifying a feature linked to **~60% customer attrition**, directly informing critical product strategy pivots to improve user retention.",
+      "Keywords": [
+        "Data Analysis",
+        "Python",
+        "User Retention",
+        "Churn Analysis",
+        "Product Strategy",
+        "FinTech",
+        "Problem Solving"
+      ],
+      "Target Role Tags": [
+        "Product Manager",
+        "Business Analyst",
+        "Data Analyst",
+        "Product Strategy"
+      ],
+      "Associated Company/Institution": "Dukka",
+      "Quantifiable Result/Metric": "Identified driver for ~60% attrition",
+      "UniqueID": "dukka_retention_analysis_01"
+    },
+    {
+      "Component Name": "Dukka - Mobile App Feature Development (Bookkeeping & Payments)",
+      "Component Type": "Work Experience (Achievement/Responsibility)",
+      "Content (Primary)": "- Developed core features for a cross-platform SME bookkeeping and payments mobile app using Flutter, including invoicing workflow, expense tracking, and secure payment integration.",
+      "Keywords": ["Flutter", "Mobile Development", "Invoicing", "Expense Tracking", "Payments", "SME Tools"],
+      "Target Role Tags": ["Mobile Product Manager", "Software Engineer (Mobile)", "Technical Product Manager"],
+      "Associated Company/Institution": "Dukka",
+      "UniqueID": "dukka_mobile_feature_01"
+    },
+    {
+      "Component Name": "Dukka - Architectural Contribution (Monolith to Microservices)",
+      "Component Type": "Work Experience (Achievement/Responsibility)",
+      "Content (Primary)": "- Led transition from a monolithic codebase to a microservices architecture, defining service boundaries, implementing containerization with Docker, and enabling scalable deployment pipelines.",
+      "Keywords": ["Microservices", "Architecture", "Docker", "Containerization", "Scalability", "CI/CD"],
+      "Target Role Tags": ["Software Architect", "DevOps Engineer", "Tech Lead"],
+      "Associated Company/Institution": "Dukka",
+      "UniqueID": "dukka_microservices_01"
+    },
+    {
+      "Component Name": "Dukka - Full-Stack Product Engineering Focus",
+      "Component Type": "Work Experience (Role Focus)",
+      "Content (Primary)": "- As Full-Stack Product Engineer, designed and implemented end-to-end features for Dukka’s platform using React for frontend and Django REST framework for backend, ensuring seamless user experiences and reliable APIs.",
+      "Keywords": ["Full-Stack Development", "React", "Django", "REST API", "User Experience", "Product Engineering"],
+      "Target Role Tags": ["Full-Stack Developer", "Product Engineer", "Software Engineer"],
+      "Associated Company/Institution": "Dukka",
+        "UniqueID": "dukka_fullstack_product_01"
+    },
+	{
+		"Component Name": "SCRF - DeFi Research & Publication Impact",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- As Technical Research Fellow, analyzed 5+ technical papers on Solidity, DeFi business models, & Ethereum risks. Published insights on SCRF platform; DeFi paper ranked in **top 5% for user engagement**.\n- Evaluated economic models & financial risks in DeFi protocols for institutional investors.",
+		"Keywords": [
+			"Blockchain Research",
+			"DeFi Analysis",
+			"Technical Writing",
+			"Publication",
+			"Ethereum",
+			"Smart Contracts",
+			"Risk Assessment (Crypto)"
+		],
+		"Target Role Tags": [
+			"Research Analyst (Crypto/Web3)",
+			"Financial Analyst (DeFi)",
+			"Content Strategist (Tech)",
+			"VC/PE Analyst (Blockchain)"
+		],
+		"Associated Company/Institution": "Smart Contract Research Forum (SCRF)",
+		"Start Date": "2021-10-01",
+		"End Date": "2022-03-31",
+		"Quantifiable Result/Metric": "Top 5% user engagement for publication",
+		"UniqueID": "scrf_defi_research_01"
+	},
+	{
+		"Component Name": "Anchoria - Investment Research & Sales Support",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- As Research Analyst at Anchoria Asset Management (VFD Group), developed DCF models and comprehensive business proposals supporting **N10M+ in Fixed Income/FX sales**.\n- Managed key aspects of Investor Relations, liaising with the Executive Director.",
+		"Keywords": [
+			"Investment Research",
+			"Financial Analysis",
+			"DCF Modeling",
+			"Investor Relations",
+			"Sales Support",
+			"Pitch Decks"
+		],
+		"Target Role Tags": [
+			"Financial Analyst",
+			"Investment Analyst",
+			"Business Analyst (Finance)",
+			"VC/PE (Entry)",
+			"MBA Application"
+		],
+		"Associated Company/Institution": "Anchoria Asset Management (VFD Group)",
+		"Start Date": "2020-01-01",
+		"End Date": "2020-09-30",
+		"UniqueID": "anchoria_investment_research_01"
+	},
+	{
+		"Component Name": "NICArb - Digital Strategy & E-Learning Initiative",
+		"Component Type": "Work Experience (Achievement/Responsibility)",
+		"Content (Primary)": "- As Content Strategist for NICArb, defined digital content strategy, designed key training presentations & fundraising decks, managed website content, and **initiated the development of their e-learning platform**.",
+		"Keywords": [
+			"Digital Strategy",
+			"Content Strategy",
+			"E-Learning",
+			"Platform Development",
+			"Product Conceptualization",
+			"Presentation Design"
+		],
+		"Target Role Tags": [
+			"Project Manager",
+			"Product Manager (EdTech)",
+			"Content Strategist",
+			"Business Development (Non-Profit)"
+		],
+		"Associated Company/Institution": "Nigerian Institute of Chartered Arbitrators (NICArb)",
+		"Start Date": "2020-09-01",
+		"End Date": "2021-09-30",
+		"UniqueID": "nicarb_digital_strategy_01"
+	},
+	{
+		"Component Name": "NUTM - PG Diploma & VerifyPro Leadership",
+		"Component Type": "Education",
+		"Content (Primary)": "**Postgraduate Diploma in Technology, Management & Design (NUTM Scholar).**\n- Intensive program: Product Management (Ope Bukola), Data Analytics (Python financial tools), Business Strategy (Maurizio Caio), Digital Transformation (Soumitra Dutta, Dean Oxford Saïd).\n- **Co-Founder & Tech Lead, VerifyPro:** Led 4-person team developing prop-tech MVP (React, Firebase, Python) mapping geospatial data to land titles. **Finalist, NUTM Startup Pitch.**",
+		"Keywords": [
+			"Product Management",
+			"Data Analytics",
+			"Business Strategy",
+			"Leadership",
+			"Entrepreneurship",
+			"MVP Development",
+			"PropTech",
+			"NUTM"
+		],
+		"Target Role Tags": [
+			"MBA Application",
+			"Product Manager",
+			"Business Analyst",
+			"Tech Strategy",
+			"Entrepreneurship"
+		],
+		"Associated Company/Institution": "Nigerian University of Technology & Management (NUTM)",
+		"Start Date": "2021-09-01",
+		"End Date": "2022-08-31",
+		"UniqueID": "nutm_pgd_01"
+	},
+	{
+		"Component Name": "OAU - LL.B & Tax Club Leadership",
+		"Component Type": "Education",
+		"Content (Primary)": "**LL.B Bachelor of Laws (Second Class Upper Division).**\n- Dissertation: Emerging Technology and its regulatory implications in Africa. Focus: Financial Compliance, Taxation, Corporate Law.\n- **President, The Tax Club OAU (150+ members):** Led strategy, secured Big Four sponsorships (PwC, KPMG, Deloitte), managed national conference (TAX180, 500+ attendees), & CSR programs. **Winner, CFA Ethics Challenge & Joint Tax Board Debate (Team).**",
+		"Keywords": [
+			"Law",
+			"Legal Research",
+			"Analysis",
+			"Compliance",
+			"Regulation",
+			"FinTech Law",
+			"Leadership",
+			"Strategy",
+			"Stakeholder Management",
+			"Event Management",
+			"Fundraising"
+		],
+		"Target Role Tags": [
+			"MBA Application",
+			"Product Manager (Legal-Tech/FinTech)",
+			"Business Analyst (Compliance)",
+			"Consulting",
+			"Law Practice (Conceptual)"
+		],
+		"Associated Company/Institution": "Obafemi Awolowo University (OAU)",
+		"Start Date": "2016-01-01",
+		"End Date": "2020-12-31",
+		"UniqueID": "oau_llb_01"
+	},
+	{
+		"Component Name": "Skills - Business & Product Strategy",
+		"Component Type": "Skill Cluster",
+		"Content (Primary)": "Business Analysis, Product Management (Lifecycle, Roadmapping, PRDs), Project Management (Agile/Scrum), Stakeholder Management, Requirements Gathering, Process Analysis & Optimization, Market Research, GTM Strategy, Competitive Analysis, Technical Documentation, Pitch Deck Design, Financial Modeling (Conceptual).",
+		"Keywords": [
+			"Business Analysis",
+			"Product Management",
+			"Project Management",
+			"Agile",
+			"Scrum",
+			"Stakeholder Management",
+			"Requirements Elicitation",
+			"Process Improvement",
+			"Market Analysis",
+			"Strategy Formulation",
+			"Financial Acumen"
+		],
+		"Target Role Tags": [
+			"Product Manager",
+			"Business Analyst",
+			"Project Manager",
+			"MBA Application",
+			"Tech Strategy",
+			"Consulting"
+		],
+		"UniqueID": "skills_business_product_01"
+	},
+	{
+		"Component Name": "Skills - Core Technical (Full-Stack & Cloud)",
+		"Component Type": "Skill Cluster",
+		"Content (Primary)": "TypeScript, JavaScript (ES7+), Python, Node.js (Express.js), Next.js (React), Django, SQL (PostgreSQL, MongoDB), Flutter (Basic), HTML/CSS, REST APIs, Git, AWS (EC2, S3, SES), Firebase, Docker (Basic), Vercel, CI/CD Concepts, Azure AI Studio.",
+		"Keywords": [
+			"TypeScript",
+			"JavaScript",
+			"Python",
+			"Node.js",
+			"React",
+			"Next.js",
+			"Django",
+			"SQL",
+			"PostgreSQL",
+			"MongoDB",
+			"Flutter",
+			"HTML",
+			"CSS",
+			"REST API",
+			"Git",
+			"AWS",
+			"Firebase",
+			"Docker"
+		],
+		"Target Role Tags": [
+			"Software Engineer",
+			"Full-Stack Developer",
+			"Backend Engineer",
+			"Frontend Engineer",
+			"Technical Product Manager",
+			"Solutions Architect"
+		],
+		"UniqueID": "skills_technical_core_01"
+	},
+	{
+		"Component Name": "Skills - Data, Tools & AI",
+		"Component Type": "Skill Cluster",
+		"Content (Primary)": "Data Analysis & Visualization (Pandas, NumPy, Matplotlib, Power BI, Excel), Web Scraping (Selenium, Scrapy), LLM Integration, Prompt Engineering, LangChain (Conceptual), Jira, Trello, Confluence, Notion, Figma, Postman, Various FinTech/CRM/Marketing APIs.",
+		"Keywords": [
+			"Data Analysis",
+			"Data Visualization",
+			"Pandas",
+			"Power BI",
+			"Web Scraping",
+			"Selenium",
+			"LLM",
+			"Prompt Engineering",
+			"Jira",
+			"Agile Tools",
+			"API Integration"
+		],
+		"Target Role Tags": [
+			"Data Analyst",
+			"Business Analyst",
+			"Product Manager",
+			"Technical Product Manager"
+		],
+		"UniqueID": "skills_data_tools_ai_01"
+	},
+	{
+		"Component Name": "Leadership - VerifyPro & Tax Club OAU",
+		"Component Type": "Leadership",
+		"Content (Primary)": "- **Co-founder & Tech Lead, VerifyPro (NUTM):** Led a 4-person cross-functional team in developing a prop-tech MVP from concept to functional prototype; presented to industry mentors and was a finalist in the NUTM Startup Pitch competition.\n- **President, The Tax Club, OAU:** Directed strategy and operations for a 150+ member organization, managing budgets, securing sponsorships from Big Four firms, organizing national-level conferences (TAX180 with 500+ attendees), and leading teams to win national debate competitions (CFA Ethics, JTB).",
+		"Keywords": [
+			"Leadership",
+			"Team Management",
+			"Entrepreneurship",
+			"Startup",
+			"Product Development",
+			"Strategy",
+			"Fundraising",
+			"Event Management",
+			"Public Speaking",
+			"Stakeholder Relations"
+		],
+		"Target Role Tags": [
+			"MBA Application",
+			"Product Manager",
+			"Project Manager",
+			"Leadership Roles",
+			"Consulting"
+		],
+		"UniqueID": "leadership_verifypro_ttc_01"
+	},
+	{
+		"Component Name": "Awards - Academic & Competition Highlights",
+		"Component Type": "Award/Recognition",
+		"Content (Primary)": "- Winner (Team), CFA Ethics Challenge (National, 2018)\n- Winner (Team), Joint Tax Board National Tax Debate (2017)\n- 1st Runner Up, Bain & Company Pitch Case Challenge (Digital Transformation in Banking, 2019)\n- Federal Government of Nigeria Scholarship Award (Undergraduate Merit)\n- Best Graduating Student, Ascending A’Level College (2015)",
+		"Keywords": [
+			"Competition Winner",
+			"Public Speaking",
+			"Ethics",
+			"Taxation",
+			"Strategy",
+			"Case Competition",
+			"Academic Excellence"
+		],
+		"Target Role Tags": ["MBA Application", "General Achievement"],
+      "UniqueID": "awards_academic_competition_01"
+    },
+    {
+      "Component Name": "Award - CFA Ethics Challenge Winner",
+      "Component Type": "Award/Recognition",
+      "Content (Primary)": "Winner (Team), CFA Ethics Challenge (National, 2018)",
+      "Keywords": ["Ethics", "Case Competition", "Teamwork", "Public Speaking"],
+      "Target Role Tags": ["MBA Application", "Leadership"],
+      "UniqueID": "awards_cfa_ethics_challenge_01"
+    },
+    {
+      "Component Name": "Award - Joint Tax Board National Tax Debate Winner",
+      "Component Type": "Award/Recognition",
+      "Content (Primary)": "Winner (Team), Joint Tax Board National Tax Debate (2017)",
+      "Keywords": ["Debate", "Taxation", "Public Speaking"],
+      "Target Role Tags": ["MBA Application", "Leadership"],
+      "UniqueID": "awards_jtb_national_tax_debate_01"
+    },
+    {
+      "Component Name": "Award - Bain & Company Pitch Case Challenge Runner Up",
+      "Component Type": "Award/Recognition",
+      "Content (Primary)": "1st Runner Up, Bain & Company Pitch Case Challenge (Digital Transformation in Banking, 2019)",
+      "Keywords": ["Pitch Challenge", "Presentation", "Strategy"],
+      "Target Role Tags": ["Consulting", "MBA Application"],
+      "UniqueID": "awards_bain_pitch_case_01"
+    },
+    {
+      "Component Name": "Award - Federal Government Scholarship",
+      "Component Type": "Award/Recognition",
+      "Content (Primary)": "Federal Government of Nigeria Scholarship Award (Undergraduate Merit)",
+      "Keywords": ["Scholarship", "Academic Excellence"],
+      "Target Role Tags": ["MBA Application", "Academic"],
+      "UniqueID": "awards_fgn_scholarship_01"
+    },
+    {
+      "Component Name": "Award - Best Graduating Student",
+      "Component Type": "Award/Recognition",
+      "Content (Primary)": "Best Graduating Student, Ascending A’Level College (2015)",
+      "Keywords": ["Academic Excellence", "Graduation Honor"],
+      "Target Role Tags": ["MBA Application", "Academic"],
+      "UniqueID": "awards_best_grad_student_01"
+    },
+	{
+		"Component Name": "Certifications & Fellowships - Key Highlights",
+		"Component Type": "Award/Recognition",
+		"Content (Primary)": "- Africa Startup Law Accelerator (AI & Legal Data, 2024)\n- IBM Enterprise Design Thinking Practitioner\n- Pluralsight: Building Data Analytics Solutions\n- Multiple Tech Fellowships including FileCoin Foundation (dWeb StackShift), DIP Software Engineering, Imagine Foundation.",
+		"Keywords": [
+			"AI",
+			"Legal-Tech",
+			"Design Thinking",
+			"Data Analytics",
+			"Blockchain",
+			"Software Engineering",
+			"Continuous Learning"
+		],
+		"Target Role Tags": [
+			"Tech Roles",
+			"Product Management",
+			"Business Analysis",
+			"MBA Application"
+		],
+        "UniqueID": "certs_fellowships_highlights_01"
+    },
+    {
+      "Component Name": "QorePay - Reconciliation & Incident Response Improvement",
+      "Component Type": "Work Experience (Achievement/Responsibility)",
+      "Content (Primary)": "- Developed reconciliation dashboards and built real-time payment failure alerts using Slack APIs & Vercel Cron Jobs, contributing to ~40% reduction in month-end closing time and improved incident response.",
+      "Keywords": ["Data Reconciliation","Incident Management","Slack API","Cron Jobs","Automation","FinTech Operations","Business Intelligence"],
+      "Target Role Tags": ["Operations Analyst","Business Analyst (Operations)","Technical Product Manager","Systems Analyst","Data Analyst"],
+      "Associated Company/Institution": "QorePay Technologies",
+      "Quantifiable Result/Metric": "40% closing time reduction",
+      "UniqueID": "qorepay_reconciliation_01"
+    },
+    {
+      "Component Name": "QorePay - Team Coordination & Technical Documentation",
+      "Component Type": "Work Experience (Achievement/Responsibility)",
+      "Content (Primary)": "- Coordinated cross-regional development teams and authored Postman API documentation to enable seamless integration for internal and external developers.",
+      "Keywords": ["Team Coordination","API Documentation","Cross-Functional","Agile","Developer Experience"],
+      "Target Role Tags": ["Project Manager","Technical Product Manager","Lead Developer","Scrum Master"],
+      "Associated Company/Institution": "QorePay Technologies",
+      "UniqueID": "qorepay_coordination_docs_01"
+    },
+    {
+      "Component Name": "QorePay - Core Backend Systems Engineering Focus",
+      "Component Type": "Work Experience (Role Focus)",
+      "Content (Primary)": "- Architected and developed core backend microservices for the QorePay payment gateway using Node.js, Express, and PostgreSQL, ensuring high performance and reliability under peak loads.",
+      "Keywords": ["Microservices","Node.js","Express","PostgreSQL","Backend Engineering","Scalability","Performance Optimization"],
+      "Target Role Tags": ["Backend Engineer","Software Architect","Tech Lead","Solutions Architect"],
+      "UniqueID": "qorepay_backend_focus_01"
+    },
+    {
+      "Component Name": "QorePay - Frontend & UX Development Focus",
+      "Component Type": "Work Experience (Role Focus)",
+      "Content (Primary)": "- Designed and implemented responsive, accessible frontend interfaces for QorePay’s payment application using React and Next.js, improving user engagement and interface performance.",
+      "Keywords": ["Frontend Development","React","Next.js","UX","Responsive Design","Accessibility","Performance"],
+      "Target Role Tags": ["Frontend Engineer","UI/UX Engineer","Technical Product Manager"],
+      "UniqueID": "qorepay_frontend_focus_01"
+    },
+    {
+      "Component Name": "QorePay - Business Analysis & Process Optimization Focus",
+      "Component Type": "Work Experience (Role Focus)",
+      "Content (Primary)": "- Mapped and optimized core payment processes, documented requirements, and streamlined workflows to reduce transaction errors by 20%.",
+      "Keywords": ["Business Analysis","Process Optimization","Requirements Gathering","Workflow Design","Error Reduction"],
+      "Target Role Tags": ["Business Analyst","Process Improvement","Product Operations"],
+      "UniqueID": "qorepay_process_focus_01"
+    },
+    {
+      "Component Name": "QorePay - Strategic API & Partnership Integration Focus",
+      "Component Type": "Work Experience (Role Focus)",
+      "Content (Primary)": "- Defined API strategy and led partnership integrations with Paystack and Klasha, establishing SLAs and developer SDKs to support third-party integrations.",
+      "Keywords": ["API Strategy","Partnership","SDK","SLAs","Integration","Paystack","Klasha"],
+      "Target Role Tags": ["Solutions Architect","Integration Engineer","Technical Product Manager"],
+      "UniqueID": "qorepay_api_partnerships_01"
+    },
+    {
+      "Component Name": "Skills - Business & Product Strategy",
+      "Component Type": "Skill Cluster",
+      "Content (Primary)": "Business Analysis, Product Management (Lifecycle, Roadmapping, PRDs), Project Management (Agile/Scrum), Stakeholder Management, Requirements Gathering, Process Analysis & Optimization, Market Research, GTM Strategy, Competitive Analysis, Technical Documentation, Pitch Deck Design, Financial Modeling.",
+      "Keywords": ["Business Analysis", "Product Management", "Project Management", "Agile", "Scrum", "Stakeholder Management", "Requirements Gathering", "Process Analysis", "GTM Strategy", "Competitive Analysis", "Technical Documentation", "Financial Modeling"],
+      "Target Role Tags": ["Product Manager", "Business Analyst", "Project Manager", "Consulting", "MBA Application"],
+      "UniqueID": "skills_business_product_01"
+    },
+    {
+      "Component Name": "Skills - Core Technical (Full-Stack & Cloud)",
+      "Component Type": "Skill Cluster",
+      "Content (Primary)": "TypeScript, JavaScript (ES7+), Python, Node.js (Express.js), Next.js (React), Django, SQL (PostgreSQL, MongoDB), Flutter, HTML/CSS, REST APIs, Git, AWS (EC2, S3, SES), Firebase, Docker, Vercel, CI/CD, Azure AI Studio.",
+      "Keywords": ["TypeScript", "JavaScript", "Python", "Node.js", "React", "Next.js", "Django", "PostgreSQL", "MongoDB", "Flutter", "HTML", "CSS", "REST API", "Git", "AWS", "Firebase", "Docker", "Vercel", "CI/CD", "Azure AI Studio"],
+      "Target Role Tags": ["Software Engineer", "Full-Stack Developer", "Backend Engineer", "Frontend Engineer", "Technical Product Manager", "Solutions Architect"],
+      "UniqueID": "skills_technical_core_01"
+    },
+    {
+      "Component Name": "Skills - Data, Tools & AI",
+      "Component Type": "Skill Cluster",
+      "Content (Primary)": "Data Analysis & Visualization (Pandas, NumPy, Matplotlib, Power BI, Excel), Web Scraping (Selenium, Scrapy), LLM Integration & Prompt Engineering, LangChain concepts, Jira, Trello, Confluence, Notion, Figma, Postman.",
+      "Keywords": ["Data Analysis", "Data Visualization", "Pandas", "NumPy", "Matplotlib", "Power BI", "Excel", "Web Scraping", "Selenium", "Scrapy", "LLM", "Prompt Engineering", "LangChain", "Jira", "Trello", "Confluence", "Notion", "Figma", "Postman"],
+      "Target Role Tags": ["Data Analyst", "Business Analyst", "Product Manager", "Technical Product Manager"],
+      "UniqueID": "skills_data_tools_ai_01"
+    },
+    {
+      "Component Name": "Publication - DeFi Business Models Survey (SCRF)",
+      "Component Type": "Publication/Writing",
+      "Content (Primary)": "- *A Short Survey on Business Models of DeFi Protocols.* Published on Smart Contract Research Forum. Analyzed revenue strategies and risks for investors in decentralized finance.",
+      "Keywords": ["DeFi", "Business Models", "Blockchain Research", "Investment Analysis", "Publication"],
+      "Target Role Tags": ["Research Analyst (Blockchain)", "Financial Analyst (DeFi)", "VC/PE Analyst", "Technical Writer"],
+      "Associated Company/Institution": "Smart Contract Research Forum (SCRF)",
+      "UniqueID": "publication_defi_models_01"
+    },
+    {
+      "Component Name": "Publication - Ethereum Arbitrageurs Analysis",
+      "Component Type": "Publication/Writing",
+      "Content (Primary)": "- *An Empirical Analysis of Ethereum Arbitrageurs.* Published on SCRF blog. Examined arbitrage opportunities, execution patterns, and profitability across decentralized exchanges.",
+      "Keywords": ["Ethereum", "Arbitrage", "DeFi", "Empirical Study", "Blockchain Analysis"],
+      "Target Role Tags": ["Research Analyst (Blockchain)", "Quantitative Analyst", "Financial Analyst"],
+      "Associated Company/Institution": "Smart Contract Research Forum (SCRF)",
+      "UniqueID": "publication_eth_arbitrage_01"
+    },
+    {
+      "Component Name": "Publication - Prompt Engineering & Web Scraping Techniques",
+      "Component Type": "Publication/Writing",
+      "Content (Primary)": "- *Leveraging LLMs for Data Extraction: Novel Prompt Engineering & Web Scraping Approaches.* Published on personal blog.",
+      "Keywords": ["LLM", "Prompt Engineering", "Web Scraping", "Selenium", "Scrapy", "Data Extraction"],
+      "Target Role Tags": ["Technical Writer", "Data Engineer", "AI Developer"],
+      "UniqueID": "publication_prompt_webscrape_01"
+    },
+    {
+      "Component Name": "Personal Drive - Solving Real-World Problems",
+      "Component Type": "Bio/Pitch",
+      "Content (Primary)": "Driven to solve real-world problems in the startup, tech, and finance sectors—leveraging my diverse background in law, full-stack software engineering, and business management to create innovative, scalable solutions and drive business success.",
+      "Keywords": ["Problem Solving", "Innovation", "Multidisciplinary", "Impact-Driven"],
+      "Target Role Tags": ["MBA Application", "Cover Letter", "Interviews"],
+      "UniqueID": "personal_drive_problem_solver_01"
+    },
+    {
+      "Component Name": "Entrepreneurial Philosophy - Massive Actions",
+      "Component Type": "Bio/Pitch",
+      "Content (Primary)": "Personal Philosophy: \"Massive Actions > Overplanning.\" Focus on execution, launching MVPs, and proactive networking to build capital and recurring revenue streams while avoiding procrastination.",
+      "Keywords": ["Entrepreneurship", "Execution", "Lean Startup", "MVP"],
+      "Target Role Tags": ["Entrepreneurship", "Mentorship", "Innovation"],
+      "UniqueID": "philosophy_massive_action_01"
+    }
+]

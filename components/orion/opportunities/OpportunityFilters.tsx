@@ -23,20 +23,18 @@ import type {
   OpportunityType,
   OpportunityStatus,
   OpportunityPriority
-} from '@/types/opportunity';
+} from '@shared/types/opportunity';
 
-import { useOpportunityFiltersStore } from './opportunityFiltersStore';
+import { useOpportunityCentralStore } from './opportunityCentralStore';
 
 export const OpportunityFilters: React.FC = () => {
-  const {
-    filters,
-    sort,
-    sortOrder,
-    setFilters,
-    setSort,
-    setSortOrder,
-    clearFilters,
-  } = useOpportunityFiltersStore();
+  const filters = useOpportunityCentralStore((state: any) => state.filters);
+  const sort = useOpportunityCentralStore((state: any) => state.sort);
+  const sortOrder = useOpportunityCentralStore((state: any) => state.sortOrder);
+  const setFilters = useOpportunityCentralStore((state: any) => state.setFilters);
+  const setSort = useOpportunityCentralStore((state: any) => state.setSort);
+  const setSortOrder = useOpportunityCentralStore((state: any) => state.setSortOrder);
+  const clearFilters = useOpportunityCentralStore((state: any) => state.clearFilters);
   const [tagInput, setTagInput] = useState<string>(filters.tag || '');
 
   const handleStatusChange = (value: string) => {

@@ -1,0 +1,71 @@
+{
+  "mcpServers": {
+    "github.com/mendableai/firecrawl-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "fc-YOUR_API_KEY"
+      }
+    },
+    "github.com/github/github-mcp-server": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
+      },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "filesystem": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--mount",
+        "type=bind,src=/Users/mac/Documents/GitHub/profile-index,dst=/projects/workspace",
+        "mcp/filesystem",
+        "/projects"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "github.com/AgentDeskAI/browser-tools-mcp": {
+      "command": "npx",
+      "args": ["-y", "@agentdeskai/browser-tools-mcp@latest"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "github.com/zcaceres/fetch-mcp": {
+      "command": "node",
+      "args": [
+        "mcp_servers/github.com/zcaceres/fetch-mcp/dist/index.js"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "github.com/modelcontextprotocol/servers/tree/main/src/filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/mac/Documents/GitHub/merislabs-official"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

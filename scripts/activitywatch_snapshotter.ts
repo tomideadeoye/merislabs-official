@@ -8,9 +8,9 @@
  * - Designed for cron or serverless scheduling
  */
 
-import { ActivityWatchService } from "../lib/activitywatch_service";
-import { ActivityWatchProcessor } from "../lib/activitywatch_processor";
-import { ActivityWatchStorage } from "../lib/activitywatch_storage";
+import { ActivityWatchService } from "@shared/lib/activitywatch_service";
+import { ActivityWatchProcessor } from "@shared/lib/activitywatch_processor";
+import { ActivityWatchStorage } from "@shared/lib/activitywatch_storage";
 
 const USER_ID = process.env.AW_USER_ID || "user123"; // Set via env or default
 

@@ -1,0 +1,424 @@
+Tomide Adeoye’s Profile
+
+1. Website: [merislabs.com](https://merislabs.com/)
+2. Name: Tomide Adeoye
+3. GitHub: [github.com/tomideadeoye](https://github.com/tomideadeoye)
+4. LinkTree: [linktr.ee/tomideadeoye](https://linktr.ee/tomideadeoye)
+5. LinkedIn: [linkedin.com/in/tomide-adeoye-828604129](https://www.linkedin.com/in/tomide-adeoye-828604129)
+6. Substack: [tomideadeoye.substack.com/](https://tomideadeoye.substack.com/)
+7. SlideShare: https://www.slideshare.net/TomideAdeoye
+8. Mobile: +2348181927251
+9. Email: tomideadeoye@gmail.com
+10. LinkTree: [linktr.ee/tomideadeoye](http://linktr.ee/tomideadeoye)
+11. Language: English (Native)
+12. Location: Lagos, Nigeria
+13. Medium: https://medium.com/@tomideadeoye
+14. Discord: Tomide Adeoye#3387
+15. MerisLabs Linkedin: [linkedin.com/company/meris-labs/about/](https://www.linkedin.com/company/meris-labs/about/)
+16. Bio Pitch: [bit.ly/tomide-bio](https://bit.ly/tomide-bio)
+17. Youtube: [youtube.com/watch?v=mm_LoV_tFZE&ab_channel=MerisLabs](https://www.youtube.com/watch?v=mm_LoV_tFZE&ab_channel=MerisLabs)
+
+**BIO PITCH**
+
+I am Tomide Adeoye, a software engineer with a robust background in business from the Nigerian University of Technology and Management (NUTM). With over 4 years of experience in software development, consulting, and research, I specialize in building end-to-end applications that solve real-world problems through innovative use of software and data.
+
+Throughout my career, I’ve worked with leading organizations such as PwC, KPMG, the Smart Contract Research Forum, Providus, VFD, and various startups across all stages of their lifecycle. These experiences have honed my expertise in strategy, management, and analytics, allowing me to identify and address critical blind spots in business operations.
+
+My technical skill set includes data analytics, Python programming, investment research, and design. I’ve applied these skills to develop impactful products, including a bookkeeping mobile app, compliance software, and a payment startup landing page. Currently, I write full-stack TypeScript applications at QorePay and lead development projects at my own dev shop, MerisLabs.
+
+My diverse background in law, finance, and technology has equipped me with a unique perspective that fuels my passion for startups and problem-solving. I am driven by the belief that creativity thrives at the intersection of multiple disciplines, and I am eager to leverage my skills in engineering, finance, legal, and consulting to help businesses achieve their goals.
+
+Let’s work together to elevate your startup to the next level!
+
+I am **Tomide Adeoye**, a passionate software engineer and entrepreneur with over **4 years of experience** in software development, consulting, and research. My journey began at the **Nigerian University of Technology and Management (NUTM)**, where I merged my love for technology with a robust business acumen. This unique blend has empowered me to build **end-to-end applications** that address real-world challenges through innovative software and data solutions.
+
+### **What Drives Me**
+
+My diverse background in **law**, **finance**, and **technology** fuels my passion for startups and problem-solving. I believe that **creativity thrives at the intersection of multiple disciplines**, and I am committed to leveraging my expertise to help businesses achieve their goals. My entrepreneurial spirit is driven by a desire to create impactful solutions that address real-world problems, particularly in the **startup, tech, and finance sectors**.
+
+**FUN FACTS / INTERESTS**
+
+I love to play tennis, eat, debate in public, and build software.
+
+**FULL STACK DEVELOPER (NextJS | React | NodeJS)**
+
+Full-stack developer with expertise in JavaScript and Python frameworks. Highly skilled in software development, research, and product development. Motivated by the opportunity to utilize my expertise and academic background in Technology Management to create impactful software solutions for real-world issues.
+
+## **WORK EXPERIENCE**
+
+**QorePay Technologies** | FinTech Fullstack Developer | June 2022 – present | NodeJS, React
+
+- Sped up development of the company’s payment application by integrating multiple third-party fintech APIs (Paystack, Klasha, SarePay) and two ERP systems using reducing time-to-market by 30%.
+- Conducted API research on KYC, AML, and payment processing, leading to a 15% improvement in user details validation and ensuring robust compliance.
+- Streamlined email notifications and marketing campaigns by integrating SendGrid, AWS SES, MailChimp, and Klaviyo within the company NodeJS applications, resulting in timely and personalized communication.
+- Integrated Zoho CRM, FreshDesk, and Zendesk for customer information management and support ticketing, reducing operational costs by 80% through having determined the most cost-effective solution for our usecase.
+- Improved team collaboration by automating task management and performance tracking using Vercel cron jobs with Slack and Trello APIs, enhancing task coordination and real-time updates upon completion.
+- **Improved Incident Response:** Integrated Slack APIs to communicate payment failures, achieving a moderate increase in response time to critical payment failures.
+- Coordinated cross-regional developers in Eastern Europe and West Africa for the development of cascading payment options and point-of-sale terminals
+- Provided technology consulting for some clients, recommending system architecture, developing tailored technology solutions, and setting up custom payment gateways to meet specific business needs.
+- Deployed applications on AWS, configuring EC2 instances and S3 storage for scalable and secure infrastructure.
+- Authored detailed Postman documentation for backend APIs, covering endpoints, request/response formats, and authentication protocols to ensure smooth API integration for developers.
+
+**MERIS LABS** | Software Developer | June 2020 - present | NextJS, React, Firebase
+
+- Consulted on software design for **5+ organizations**, including the development of the Nigerian Institute of Chartered Arbitrators' e-learning platform and a Compliance Web Application for Jackson Etti and Edu, leading to a **30%** increase in user engagement.
+- Created data visualizations and insight reports that simplified complex research information, improving decision-making processes for clients by **25%**.
+- Designed compelling data visualizations and insight reports for multiple organizations to simplify research information effectively.
+- Assisted businesses in analytics, engineering, and research roles to automate processes, standardize investor update documents, find leads for investors, and scrape data from websites and media to monitor user sentiments.
+- Led the development of AI-driven legal tech solutions during the Africa Startup Law Accelerator, focusing on the integration of legal data with AI tools.
+
+**Dukka**: Fullstack Developer | Django | April 2022 - June 2023 (1y 3months) | Lagos State, Nigeria
+
+- Extracted and analyzed customer, sales agent, and merchant data from the company’s database to visualize acquisition, activity, LTV, churn, and other key metrics, leading to the development of Dexter, a React/Django analytics dashboard and referral system that drove the acquisition of 80,000+ merchants and 100+ sales agents.
+- Built two new products using Django and React frameworks, reducing time-to-market by 30% by identifying development efficiencies and using agile project management principles.
+- Developed Python modules reading and interpreting data from multiple services to assess retention & effectiveness of the company sales program.
+- Developed cross-platform mobile applications with Flutter expanding Dukka’s functionality and user engagement.
+
+[**SMART CONTRACT RESEARCH FORUM**](https://www.scrf.io/) | IT Research | Canada Research Fellow | October 2021 – January 2022 | Python, Selenium
+
+- Reviewed and analyzed technical research papers and proposals on Solidity, the business model of DeFi platforms, vulnerability countermeasures in Ethereum applications, transaction ordering dependence, and Oracle manipulation attacks.
+- Leveraged data analysis skills to help the company track top-performing research across its website.
+- Maintained and enhanced research data through means such as visualizations and more.
+    
+    Publications:
+    
+    - [A survey of DeFi business models](https://www.smartcontractresearch.org/t/research-summary-a-short-survey-on-business-models-of-decentralized-finance-defi-protocols/1947)
+    - [Investigating Arbitrageurs](https://www.smartcontractresearch.org/t/research-summary-investigating-arbitrageurs-and-oracle-manipulators-in-ethereum/2105?u=twan) and Oracle Manipulators in Ethereum
+
+**The Nigerian Institute of Chartered Arbitrators (NICArb)** | Content Strategist | January 2021 - September 2021 (9 months) | Lagos, Nigeria |
+
+- Responsible for the maintenance of the organisation's website and content.
+- Drafted tutorial materials (content and visuals) for the organization's arbitration school. Designed all the institute’s arbitration presentations and fundraising decks.
+
+**Anchoria Asset Management:** Research (January 2020 - September 2020)
+
+- Wrote and designed comprehensive business proposals that effectively supported the company sales team, driving client acquisition and retention.
+- Sold 10 million Naira worth of Fixed Income funds.
+- Coordinated the design and drafting of weekly reports and market updates, providing valuable insights that informed strategic decision-making.
+- Worked closely with the Executive Director, Niyi Adenubi, in investor relations, where I played a key role in managing relationships with existing and potential investors.
+
+**ProvidusBank:** Research (March 2019 - April 2019)
+
+- Researched contingent liabilities, documented title deeds.
+
+**KPMG Nigeria:** Research (August 2018 - September 2018)
+
+- Assisted in developing organizational structure for Rite Foods.
+
+**PwC Nigeria:** Research Internship (April 2018 - May 2018)
+
+- Obtained tax clearance certificates, FIRS restructuring approval for GE subsidiaries.
+
+**Banwo & Ighodalo:** Research Internship (February 2018)
+
+## **EDUCATION**
+
+**Nigerian University of Technology Management** | Sep 2021 - Aug 2022 | 1 year Post Graduate Diploma, Technology, Management and Design
+
+- Courses: Python programming, data analytics, business strategy, and product development
+- Activities: Led the a 4 person team in the development of VerifyPro (verifypro.netlify.app), a startup focused on combating fraud in Nigerian land registration by using React, Firebase, Python, and web scraping technologies to verify land title documents by mapping Geo-Spatial data in the form of coordinates to property title on a map-based dashboard. I also had effective communication and coordination with industry stakeholders. Alongside 59 scholars selected across Africa, I gained skills in data engineering, business strategy, and product development from industry leaders like Maurizio Caio (Tlcom Capital), Efosa Ojomo(HBS), Femi Longe (CCHub), and Soumitra Dutta ( Dean Said Business School Oxford). I developed projects analyzing stocks, sourcing funding, and predicting real estate prices..This experience provided a holistic perspective on building and scaling products through design, coding, and business strategy.
+- Skills: Python · Negotiation · Operations Management · Business Strategy · Data Analytics, Product Management
+
+**Obafemi Awolowo University** | 2016 - 2020 | LL.B Second Class Upper Division
+
+- President Tax Club, Winner CFA Ethic Challenge, 1st Runner Up - Bain & Company Pitch Case Challenge
+- Activities: Led the Tax Club, a 150-member student tax advocacy group, organizing international conferences, seminars, and debates. Under my leadership, the club won awards like the Joint Tax Board Debate, significantly boosting its reputation and membership. Secured funding from PwC, KPMG, and Deloitte, enabling educational campaigns, including at Unity Secondary School, Osogbo. This role showcased my ability to strategically plan, manage stakeholders, and execute impactful projects. I wrote my undergraduate dissertation on Blockchain Technology and its regulatory implications in the African context.
+    
+    **The Tax Club:**
+    
+    LinkedIn: https://www.linkedin.com/in/the-tax-club-oau-20b997139/Campaigns: https://www.linkedin.com/showcase/tax-walk-19'/about/
+    
+    - Led the development of the Tax Club OAU website ([taxcluboau.com.ng](http://taxcluboau.com.ng/)) and mobile app, both built from scratch and now available on Google Playstore.
+    - Spearheaded the organization of TAX180, an event attended by over 500 people, securing sponsorship from The Big Four, law firms, and tax consulting firms.
+    - Organized a tax awareness walk in partnership with the Osun State Internal Revenue Service, effectively raising community awareness on key tax issues.
+    - Directed a CSR program in collaboration with KPMG Tax, resulting in donations to Unity School Osogbo and tuition funding for underprivileged students.
+    - Facilitated three tax seminars with speakers from Deloitte, the Nigerian Tax Research Network, and other leading organizations, enhancing participants' understanding of taxation.
+    - Conducted three capacity-building workshops focused on essential tools like Microsoft PowerPoint, Excel, and G-Suite, significantly improving members' technical skills.
+    - Increased membership and prestige of The Tax Club, leading to awards like the Joint Tax Board Debate and CFA Ethics Challenge, and secured internships for members at firms such as PwC, KPMG, and ICTD.
+    - Promoted interdisciplinary collaboration by organizing events that brought together students from various fields, fostering an exchange of ideas and enhancing the educational impact of the club.
+    - Advocated for inclusive leadership by integrating former election competitors into the management team, improving workload distribution and reducing burnout despite initial resistance from the executive team.
+
+Ascending College:  Cambridge A' levels · (2014 - 2015)
+
+Our Lady & St Francis Catholic College:  WAEC · (2009 - 2014)
+
+**SKILLS**
+
+- **Front-End:** HTML, JavaScript, React
+- **Back-End:** Node JS, Django, RabbitMQ, SQL, PostgreSQL, MongoDB
+- **Testing & Scraping:** Scrapy, Selenium, Jest
+- **Cloud & AI Tools**: AWS Bedrock, Large Language Models (LLMs), Legal Data Integration
+- **Data & Business Tools:** Project management (Trello, Jira, Confluence, Notion), Presentation (PowerBI), Databases (Airtable, Excel), Pandas
+
+**PROJECTS**
+
+**Front-End:**
+
+- **Merislabs.com:** NextJS gallery for previous projects.
+- **PitchR**:
+    - **Description**: Provides advisory services for startups to grow their businesses.
+    - **Technologies**: NextJS
+    - **Link**: [www.pitchr.africa](http://www.pitchr.africa/)
+    - **Video**: [www.user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4](http://www.user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4)
+- **QTF Energy Solutions**:
+    - **Description**: Company website with Slack integration for demo requests.
+    - **Technologies**: NextJS, Slack APIs, SendGrid
+    - **Link**: [www.qtfenergy.com](http://www.qtfenergy.com/)
+- **JUICE SPEND**:
+    - **Description**: A beta website for a crypto payment startup helping African businesses make global payments with local currency.
+    - **Technologies**: React, Material UI
+    - **Link**: [www.tomidejuiceui.netlify.app](http://www.tomidejuiceui.netlify.app/)
+    - **Video**: [www.user-images.githubusercontent.com/55337742/211080250-419b92a5-7ef0-423a-be4a-2e0658dca314.mov](http://www.user-images.githubusercontent.com/55337742/211080250-419b92a5-7ef0-423a-be4a-2e0658dca314.mov)
+- **WhatsApp Math Solver:** Used the Google Math library to create a math problem solver that can solve a variety of math problems.
+- **Crypto Candle Stick Chart:**
+    - **Description**: A candlestick chart for visualizing cryptocurrency price movements using real-time data.
+    - **Technologies**: React, Binance API, Apex Charts
+    - **Link**: [www.sisyphus-tomide.vercel.app](http://www.sisyphus-tomide.vercel.app/)
+    - **Video**: [www.user-images.githubusercontent.com/55337742/241746561-b4bbc74e-9729-4285-bf09-e1d830ed323e.mp4](http://www.user-images.githubusercontent.com/55337742/241746561-b4bbc74e-9729-4285-bf09-e1d830ed323e.mp4)
+- **UNICOM**
+    - **Description:** Developed for Jackson, Etti & Edu, this application ensures regulatory compliance for Unilever Nigeria PLC, focusing on legal audits and compliance monitoring across various business functions, particularly in Unilever’s Agbara warehouses.
+    - **Technologies:** ExpressJS, React
+    - Live Application: [https://unicom-report-official.vercel.app/home](http://www.unicomreport.netlify.app/)
+    - Demo Video: [www.user-images.githubusercontent.com/55337742/241769519-0da29dbd-d2e7-49e0-a463-bd074a7c4e11.mp4](http://www.user-images.githubusercontent.com/55337742/241769519-0da29dbd-d2e7-49e0-a463-bd074a7c4e11.mp4)
+
+**Full-Stack:**
+
+- **QorePay Payment Gateway**:
+    - **Description**: A payment app that allows users to send and receive money globally, pay bills, buy airtime, and make transfers to bank accounts.
+    - **Technologies**: ExpressJS, React/NextJS, AWS
+    - **Link**: [www.qorepay.com](http://www.qorepay.com/)
+    - **Video**: [www.user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4](http://www.user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4)
+- **EXPERI by Hiyalo**:
+    - **Description**: A web app to search and list properties. I utilized Google Maps APIs to enable location-based search functionalities in a rental search application, enhancing the user experience with geographic data.
+    - **Technologies**: NextJS, tRPC, Drizzle ORM, T3 Stack, Clerk Auth
+    - **Link**: [www.experi-nine.vercel.app](http://www.experi-nine.vercel.app/)
+- **Dukka Mobile App** (Flutter, Django)**:** Developed a mobile bookkeeping and payments app using Flutter - https://play.google.com/store/apps/details?id=com.dukka.dukka
+- **DEXTER**:
+    - **Description**: Analyzes company user signups, churn, and more for informed business decisions.
+    - **Technologies**: Django, Python, React
+    - **Link**: dexter.dukka.com
+- **VerifyPro:**
+    - Description: web app to verify land title documents
+    - Technologies: React, Firebase, Python, Selenium
+    - Link: [verifypro.netlify.app/](https://verifypro.netlify.app/)
+- **VC Copilot:** Developed an investment memo generator using Python, Selenium, and GPT-3.
+- **Email Generator:** Developed a scraper that autogenerates the details and contact of key stakeholders in any given company.
+- **CyberStream**:
+    - **Description**: A web app to explore IMDB movie details or integrate using a JavaScript SDK package.
+    - **Technologies**: Electron, React, Tsup Bundler
+    - **Link**: [www.cyberstream.vercel.app](http://www.cyberstream.vercel.app/)
+    - **NPM Package**: [www.npmjs.com/package/cyber-stream-sdk](http://www.npmjs.com/package/cyber-stream-sdk)
+
+**PUBLICATIONS**
+
+- **Web Scraping:** Web scraping PropertyPro for Lagos House Prices
+- **DeFi:** A Short Survey on Business Models of DeFi Protocols
+- **Ethereum:** Investigating Arbitrageurs & Oracle Manipulators on Ethereum
+- **APIs:** The cool thing about APIs: a Picsart case study
+- **Startup:** How Artificial Intelligence (AI) Fights Fraud in Fintech.
+
+**TRAINING & CERTIFICATIONS**
+
+- Imagine Foundation Fellow, DIP Software Engineering Fellowship
+- YDev Programming Academy, PwC Data Academy, (CompTIA A+)
+- Cisco Academy, Udacity SQL Nanodegree program
+- Web3Bridge Academy,
+- Serenze Global Tech Program
+- Encode x Solana Rust Bootcamp
+- Encode Generative AI Foundation Bootcamp
+- DIP Software Engineering Fellowship (mobile, frontend, and backend engineering)
+- dWeb StackShift Fellowship by FileCoin Foundation
+- **Africa Startup Law Accelerator 2024** | May 2024 – June 2024
+    
+    Selected for this six-week program focused on integrating AI and legal data for innovative solutions in legal tech. Gained hands-on experience with the Laws.Africa Content API and AWS Bedrock Knowledge Base, developing AI-driven legal tech solutions. Collaborated with legal tech innovators across Africa to address legal data challenges using AI.
+    
+
+**AWARDS LEADERSHIP & VOLUNTEERING**
+
+- Finalist - Nigerian University of Technology Management Startup Pitch
+- Research Fellow at the Smart Contract Research Forum
+- Recipient of the Serenze Global Technology Scholarship
+- Recipient of the NUTM Scholars Program Scholarship
+- Winner - CFA Ethics Challenge, Winner - Joint Tax Board Debate
+- 1st Runner Up - Bain & Company Pitch Case Challenge
+- President - The Tax Club
+- Founder - VerifyPro
+
+**Certifications:**
+
+- Enterprise Design Thinking Practitioner, AWS Machine Learning / AI, Networking Academy Learn-A-Thon 2021, CompTIA A+, Microeconomics and Accounting Fundamentals
+
+**Honors-Awards:**
+
+- Best Graduating Student 2014/2015 set Ascending A’Level College
+- Federal Government of Nigeria Scholarship Award
+- Winning Team; The Joint Tax Board Debate
+- Winning Team; The CFA Ethics Challenge 2018
+- 1st Runner Up - The International Centre for Tax and Development (ICTD) Debate
+
+**Publications:**
+
+- A Short Survey on Business Models of Decentralized Finance (DeFi) Protocols.
+- A source code based classification of Ethereum Smart Contracts
+- Review: A Formal Specification for Legally Binding DAOs.
+- Investigating Arbitrageurs and Oracle Manipulators in Ethereum
+
+**Volunteering:**
+
+- Ran marketing campaigns with CRM tools like MailChimp for email marketing.
+- Organized events with an attendance of over 500 people for the Nigerian Institute of Chartered Arbitrators (NICArb).
+- Content Strategist for NICArb, drafting tutorial materials and designing arbitration presentations and pitches.
+
+**What are two personality traits you have that former teammates do not like about you?**
+
+- Urgency and Frankness.
+
+**Describe your most significant experience relating to entrepreneurship.**
+
+One of my most significant entrepreneurial experiences was leading the development of VerifyPro, a project during my time at the Nigerian University of Technology and Management (NUTM). VerifyPro aimed to combat real estate fraud in Nigeria by providing a platform for individuals to verify the authenticity of property titles.
+
+This project was a collaborative effort between myself and four other team members, with each of us taking on different roles such as software development, marketing, and operations. I led the software development, creating a non-relational database and a map-based dashboard using React and Firebase to map geospatial data to property titles. This project was well-received by our industry mentors and showcased my ability to lead a team, coordinate with industry stakeholders, and develop innovative solutions to real-world problems.
+
+**Tell us about a time you led a team, what was your biggest success factor?**
+
+As the CTO of a prop-tech startup, I led a team of four in developing VerifyPro, a platform designed to map geospatial data to property titles in Nigeria. One of the key success factors was effective communication and coordination with industry stakeholders, which included government officials and real estate professionals.
+
+I also focused on inspiring my team to think creatively and providing guidance to build their confidence and skills. By fostering an environment of collaboration and open communication, we were able to successfully develop a product that addressed a significant issue in the Nigerian real estate market. Our ability to work together efficiently and stay focused on our goals was crucial to our success.
+
+**Describe one common mistake you think too many tech startup founders make while building companies.**
+
+One common mistake many tech startup founders make is failing to validate their ideas as soon as possible. It is essential to achieve market acceptance early in the development process, which can be accomplished through market research and launching minimum viable products (MVPs).
+
+In my last startup, I made the mistake of spending too much time perfecting the technology instead of rolling out an MVP and iterating based on market feedback. This delayed our ability to understand our customers’ needs and adapt our product accordingly. Learning from this experience, I now prioritize early validation and rapid iteration to ensure that the product meets market demands effectively.
+
+**Describe one problem you hope to solve with tech and software.**
+
+I am incredibly excited about the potential of using technology and software to revolutionize the venture capital industry. One major problem I hope to solve is the time-consuming process of assessing the quality of ideas for investment.
+
+By implementing AI-generated investment memos and shared pipelines across multiple venture capital firms, we can streamline the evaluation process and make quicker, more informed investment decisions. This approach would make it easier for funds to access information from startups, conduct due diligence efficiently, and ultimately result in more successful investments and a thriving tech ecosystem.
+
+**What do you think would be your biggest challenge in trying to tackle this problem with your software?**
+
+One of the biggest challenges in tackling this problem with software is competition. The venture capital space is a high-priority target for many startups, so scaling the solution quickly to maintain a first-mover advantage is crucial.
+
+To address this, I plan to solidify relationships with venture capital funds and increase the switching cost for funds by adding more features to the product. These features will be designed to enhance the user experience and make the solution indispensable to VC firms. Additionally, ensuring the security and reliability of the AI-generated insights will be essential to gain and maintain trust from users.
+
+**How would you monetize this solution?**
+
+I believe a subscription-based service could be a viable way to generate revenue from this idea. By offering VC firms access to the platform for a fee, we could provide them with custom reports, advanced due diligence capabilities, and integration with other tools and services.
+
+There is also potential to expand the platform to include other users and revenue streams, such as charging startups for access to improve their chances of securing funding. Providing additional value-added services, such as market analysis and trend prediction, could further enhance the platform’s appeal and profitability.
+
+**Describe an important and out-of-the-ordinary achievement in your life.**
+
+An important and out-of-the-ordinary achievement in my life is my journey from a non-STEM background to becoming a software engineer with a deep understanding of the tech industry.
+
+I have gone the extra mile to learn and improve my skills, enabling me to develop products that solve real-world problems. This transition has allowed me to work with several organizations in different capacities, such as KPMG, PwC, Smart Contract Research Forum, Providus, and VFD.
+
+I have collaborated with various businesses to build innovative products like VerifyPro and Dexter Dashboard, and I have utilized my skills in data engineering to assist small businesses in automating processes. Through my initiatives, I have provided valuable insights to companies, organizations, and startups, making a positive impact on the world.
+
+**Describe a situation where you failed in achieving your goal. What did you learn from it?**
+
+Building VerifyPro was a situation where I failed to achieve my goal of starting a successful business in the Nigerian land registration space. One of the key challenges was the need to have buy-in from the government to release data on ownership of title documents.
+
+I learned the importance of understanding the problem and conducting thorough user research before diving into development. I also realized the significance of communication with stakeholders, developing a strong team, and understanding the regulatory environment. Furthermore, I learned the importance of having the right resources and expertise to tackle the problem effectively. Lastly, I learned that hard work, perseverance, and resilience are crucial in overcoming obstacles and achieving success.
+
+## **What does your current 5-year plan look like?**
+
+**1 . Skill Development and Certification**
+
+- I plan to deepen my expertise in software engineering and data science, with a focus on completing my AWS Developer Certification.
+- I will continue to build on my blockchain development experience, particularly in Blockchain and DeFi research.
+
+**2. Professional Growth and Collaboration**
+
+- I aim to collaborate with diverse startups and organizations, both within Nigeria and internationally, to drive innovation in product development, analytics, and strategy.
+- Expanding my leadership and management capabilities is a priority, with the goal of mentoring emerging talent in the tech industry and fostering a community of developers and data scientists across Africa.
+
+**3. Entrepreneurship and Legal Pursuits**
+
+- I will launch startups focused on the legal industry and education sector, addressing key challenges within these fields.
+- Following this, I intend to attend the Nigerian Law School to obtain the Nigerian equivalent of a JD, ultimately establishing a law firm dedicated to the tech industry and pioneering smart legal contracts in Nigeria.
+
+## **What has changed since?**
+
+Since my time at NUTM, I have developed my data engineering skills and applied this knowledge to real-world projects, such as stock analysis, sourcing funding opportunities for NGOs, and predicting Nigerian real estate prices. I worked with industry mentors to formulate strategies for product development.
+
+At the Smart Contract Research Forum (SCRF) in Canada, I gained valuable experience as a Research Fellow, reviewing academic papers, identifying the best industry applications, and writing on business models of decentralized finance platforms. I wrote several technical research papers on blockchain technology, including topics such as the business model of DeFi platforms, Ethereum vulnerabilities, and vulnerability countermeasures to Transaction Ordering Dependence and oracle manipulation attacks.
+
+My time at Web3Bridge exposed me to the requirements of building on different blockchains through my blockchain development learning, which has been a valuable experience for me.
+
+**What motivates you to pursue venture capital in Africa?**
+
+I am passionate about technology venture capital in Sub-Saharan Africa because I believe that the region has immense potential to create innovative solutions to the world’s most pressing problems. My experience in software engineering, consulting, and research has equipped me with the skills to develop, manage, and analyze products that solve real-world problems. I have a deep understanding of the African context and its regulatory implications, which I believe is essential for any venture capital firm in the region.
+
+I am also excited by the prospect of working with startups across all stages of their lifecycle. My experience in investment research, consulting, and legal has given me the ability to actively work with investors and create organizational management structures for startups. My diverse background and unique set of skills make me a highly qualified candidate to function in multiple facets of a startup.
+
+I am eager to deploy my expertise in engineering, finance, legal, and consulting to help businesses achieve their goals and succeed in their respective industries. I am confident that my passion for startups and problem-solving, as well as my readiness to tackle compelling business issues, will be of great value to any venture capital firm in Sub-Saharan Africa.
+
+**How has your diverse background contributed to your success?**
+
+My diverse background in software engineering, business, and data analytics has provided me with a unique skill set that has been instrumental in my success. I have a wealth of experience in many facets of product development and marketing, and I have utilized my data engineering and business skills in several commercial scenarios, such as building products like Dexter Dashboard and VerifyPro.
+
+My leadership roles have involved liaising with industry stakeholders in banking and government, which has given me valuable insights into the business challenges faced by various industries. Additionally, my experience in organizations like PwC, KPMG, Smart Contract Research Forum, Providus, VFD, and startups across all stages of their lifecycle has given me a unique blend of skills that allow me to excel in strategy, management, and analytics.
+
+Overall, my diverse background and unique set of skills have enabled me to make meaningful contributions to the organizations I have worked with, and I am eager to continue leveraging my expertise to help businesses achieve their goals and succeed in their respective industries.
+
+### **Professional Overview**
+
+**Research & Analytics**
+
+- **Data-Driven Insights:** Leveraging advanced data analytics tools to extract meaningful insights from databases, helping businesses make data-driven decisions. This includes analyzing customer retention and churn rates, identifying drivers of customer churn, understanding seasonal sales trends, and evaluating the performance of products and services.
+- **Key Business Questions Addressed:**
+    - Retention & churn rates
+    - Drivers of customer churn
+    - Seasonal sales trends
+    - Popular products/services
+    - Underperforming business areas
+    - Impact of market changes on sales & revenue
+    - Growth opportunities
+    - Customer segment behavior and preferences
+- **Research Capabilities:** Building automated tools for competitor tracking, investor identification, lead generation, and content creation on technical subjects.
+
+**Design**
+
+- **Business-Oriented Design Services:** Offering specialized design services tailored for businesses and startups. This includes creating impactful presentations, pitch decks, reports, and visualizations that effectively communicate ideas and strategies.
+
+**Software Development & Automation**
+
+- **End-to-End Application Development:** Expertise in developing mobile, web, and desktop applications tailored to specific business needs. Services also include creating custom software solutions and no-code integrations.
+- **Automation & Scripting:** Automating repetitive tasks such as data entry, data extraction, and research through custom scripts. Additionally, offering AI-driven solutions for fraud prevention and price monitoring.
+
+**Strategy & Consulting**
+
+- **Research & Strategy Consulting:** Providing strategic consulting services that combine research, data analytics, and expert design to drive business success. This includes designing research reports, strategy decks, and customized solutions for businesses.
+- **Business Needs Analysis:** Deep understanding of business needs, offering solutions like mobile applications, custom software, automation tools, and lean operational strategies.
+
+### **Entrepreneurial Experience**
+
+- **Versatile Problem-Solving:** Experience in helping brands like Jackson Etti and Edu, 1504 Restaurant, and Microtraction to develop customized solutions, including decks, reports, presentations, web pages, and automation tools. This experience has fostered strong entrepreneurial skills and the ability to adapt to various business challenges.
+- **Biggest Accomplishment:** Gaining admission to the Nigerian University of Technology and Management (NUTM) is a significant professional milestone. This program enables the pursuit of an interdisciplinary career, focusing on making a meaningful impact in Africa through software and public policy.
+
+### **Inspirations & Personal Insights**
+
+- **Inspiration from Kwamena Afful:** Kwamena Afful’s diverse experience across compliance, management consulting, and venture capital has inspired a commitment to supporting and scaling tech startups in Africa. His leadership at Pave Investments, which handles over 90 seed investments per year globally, positions him as a key figure in the African tech ecosystem.
+- **Common Startup Mistakes:** A frequent mistake made by tech startup founders is failing to validate their ideas early through market research and the rapid launch of a minimum viable product (MVP). This mistake was personally experienced, underscoring the importance of market feedback in product development.
+
+### **Personal Background & Future Aspirations**
+
+- **Family Inspiration:** Both parents were pioneers in their families, being the first university-educated individuals. Their journey has inspired a commitment to lifting others through education and leadership, particularly in initiatives that have a multiplier effect.
+- **Commitment to Education:** A strong commitment to education in Nigeria, with future aspirations to establish non-profit educational institutions. Belief in the ripple effect of educational contributions motivates ongoing efforts to pay it forward.
+
+### **References**
+
+**Reference 1**
+
+- **Name**: Timileyin Idowu
+- **Email**: itimileyin47@gmail.com
+- **Relationship**: Past Co-founder - VerifyPro
+
+**Reference 2**
+
+- **Name**: Fasilat Ransome-Kuti
+- **Email**: fransomekuti@gmail.com
+- **Relationship**: Past Boss - PwC

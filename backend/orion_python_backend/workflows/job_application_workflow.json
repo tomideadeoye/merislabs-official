@@ -1,0 +1,117 @@
+{
+	"name": "Orion Job Application Workflow",
+	"nodes": [
+		{
+			"name": "Daily Application Review",
+			"type": "schedule",
+			"parameters": {
+				"rule": "0 9 * * 1-5"
+			}
+		},
+		{
+			"name": "Get Active Applications",
+			"type": "httpRequest",
+			"parameters": {
+				"url": "http://localhost:8000/api/active-applications",
+				"method": "GET"
+			}
+		},
+		{
+			"name": "Process Each Application",
+			"type": "splitInBatches",
+			"parameters": {
+				"batchSize": 1
+			}
+		},
+		{
+			"name": "Check Follow-up Required",
+			"type": "function",
+			"parameters": {
+				"code": `
+                const item = $input.item;
+                const lastActivityDate = new Date(item.lastActivityDate);
+                const today = new Date();
+                const daysSinceActivity = Math.floor((today - lastActivityDate) / (1000 * 60 * 60 * 24));
+
+                if (item.status === 'Applied' && daysSinceActivity >= 7) {
+                    return { followUpNeeded: true };
+                }
+                return { followUpNeeded: false };
+                `
+			}
+		},
+		{
+			"name": "Create Follow-up Task",
+			"type": "httpRequest",
+			"parameters": {
+				"url": "http://localhost:8000/api/create-followup-task",
+				"method": "POST"
+			}
+		},
+		{
+			"name": "Send Slack Notification",
+			"type": "slack",
+			"parameters": {
+				"channel": "job-applications",
+				"text": "Time to follow up on {{$node.processEachApplication.item.company}} application!"
+			}
+		}
+	],
+	"connections": {
+		"Daily Application Review": {
+			"main": [
+				[
+					{
+						"node": "Get Active Applications",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Get Active Applications": {
+			"main": [
+				[
+					{
+						"node": "Process Each Application",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Process Each Application": {
+			"main": [
+				[
+					{
+						"node": "Check Follow-up Required",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Check Follow-up Required": {
+			"main": [
+				[
+					{
+						"node": "Create Follow-up Task",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Create Follow-up Task": {
+			"main": [
+				[
+					{
+						"node": "Send Slack Notification",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	}
+}
