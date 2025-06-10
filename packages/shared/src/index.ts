@@ -1,5 +1,5 @@
+// Export all shared hooks, types, and utilities
+export * from './hooks/useOpportunities';
+export * from './hooks/useOpportunityDialogStore';
+export * from './types/opportunity';
 export * from './lib/logger';
-export * from './lib/utils';
-export * from './lib/database';
-export * from './hooks/useUserProfile';
-export * from './auth';

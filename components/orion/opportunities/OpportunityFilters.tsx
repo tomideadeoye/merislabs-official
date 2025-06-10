@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
+import { Select, Input, Button } from '@repo/ui';
 import {
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@repo/ui/select';
-import { Input } from '@repo/ui/input';
-import { Button } from '@repo/ui/button';
+} from '@repo/ui';
 import {
   Filter,
   SortAsc,

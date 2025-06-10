@@ -62,7 +62,6 @@ export function MultiSelect({
             return (
               <Badge
                 key={item}
-                variant="secondary"
                 className="bg-gray-700 hover:bg-gray-600 text-gray-200"
               >
                 {option?.label || item}

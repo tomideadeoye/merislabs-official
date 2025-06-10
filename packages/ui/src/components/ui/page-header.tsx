@@ -19,12 +19,12 @@ export function PageHeader({
 }: PageHeaderProps) {
   // Use state to handle client-side rendering
   const [isClient, setIsClient] = useState(false);
-  
+
   // Only update the state after component mounts on client
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
+
   return (
     <header className="mb-6 flex items-center space-x-4">
       <div className="text-blue-400">{icon}</div>
@@ -35,7 +35,7 @@ export function PageHeader({
           <p
             className={`mt-1 text-sm ${
               // Only show dynamic styling on client-side to prevent hydration mismatch
-              isClient 
+              isClient
                 ? (memoryInitialized ? "text-green-400" : "text-yellow-400")
                 : "text-gray-400" // Neutral color for server rendering
             }`}

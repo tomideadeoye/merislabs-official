@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@repo/ui/button';
+import { Button } from '@repo/ui';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@repo/ui';
 import { Loader2, Users, Copy, Mail } from 'lucide-react';
 import { GenerateOutreachDialog } from './GenerateOutreachDialog';

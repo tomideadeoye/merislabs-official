@@ -67,8 +67,6 @@ export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = (
 
   return (
     <Button
-      variant="outline"
-      size="sm"
       className="bg-blue-900/20 hover:bg-blue-900/30 text-blue-300"
       onClick={handleEvaluate}
       disabled={isEvaluating}

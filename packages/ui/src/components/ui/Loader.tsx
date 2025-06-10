@@ -1,15 +1,8 @@
-/**
- * Loader Component
- * GOAL: Visually engaging loader for async operations, with robust logging for traceability.
- * Used throughout the Orion UI for loading states.
- * All usage is logged for debugging and performance monitoring.
- */
-
-import * as React from "react"
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
+import * as React from "react";
 
 interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  size?: "sm" | "md" | "lg"
+  size?: "sm" | "md" | "lg";
 }
 
 export function Loader({ className, size = "md", ...props }: LoaderProps) {
@@ -28,5 +21,5 @@ export function Loader({ className, size = "md", ...props }: LoaderProps) {
     >
       <span className="sr-only">Loading...</span>
     </div>
-  )
+  );
 }

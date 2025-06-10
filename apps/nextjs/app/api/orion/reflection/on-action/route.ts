@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@shared/auth';
 import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
-import { query, sql } from '@shared/lib/database';
+import { query } from '@shared/lib/database';
 
 interface ActionReflectionRequestBody {
   habiticaTaskId: string;

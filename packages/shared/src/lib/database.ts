@@ -1,7 +1,13 @@
 import { neon } from '@neondatabase/serverless';
 import { logger } from './logger';
 
-const sql = neon(process.env.DATABASE_URL!);
+export const sql = neon(process.env.DATABASE_URL!);
+
+// Add explicit type for query results
+export interface QueryResult<T = any> {
+  rows: T[];
+  length: number;
+}
 
 export async function query<T = any>(
   query: string,

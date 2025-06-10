@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@repo/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/card';
-import { Badge } from '@repo/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs';
+import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
 import { Calendar, ExternalLink, Edit, Trash2, BarChart2, FileText, MessageSquare, Users } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
