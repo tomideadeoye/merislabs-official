@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -29,10 +25,5 @@
       }
     ]
   },
-  "exclude": [
-    "node_modules",
-    ".turbo",
-    "dist",
-    "build"
-  ]
+  "exclude": ["node_modules", ".turbo", "dist", "build"]
 }

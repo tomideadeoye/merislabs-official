@@ -1,11 +1,8 @@
 "use client";
 
-// Imports updated to use @repo/ui barrel exports
-
 import React, { useState } from 'react';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@repo/ui';
 import { Loader2, Users, Copy, Mail } from 'lucide-react';
-import { GenerateOutreachDialog } from './GenerateOutreachDialog';
 import { useOpportunityCentralStore } from '../opportunityCentralStore';
 import type { Opportunity } from '@shared/types/opportunity';
 
@@ -22,9 +19,9 @@ interface FindStakeholdersButtonProps {
 }
 
 export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ opportunity }) => {
-  const isOpen = useOpportunityCentralStore((state: any) => state.isOpen);
-  const open = useOpportunityCentralStore((state: any) => state.open);
-  const close = useOpportunityCentralStore((state: any) => state.close);
+  const isOpen = useOpportunityCentralStore((state: any) => state.isStakeholderDialogOpen);
+  const open = useOpportunityCentralStore((state: any) => state.openStakeholderDialog);
+  const close = useOpportunityCentralStore((state: any) => state.closeStakeholderDialog);
   const stakeholders = useOpportunityCentralStore((state: any) => state.stakeholders);
   const setStakeholders = useOpportunityCentralStore((state: any) => state.setStakeholders);
   const selectedStakeholder = useOpportunityCentralStore((state: any) => state.selectedStakeholder);
@@ -38,7 +35,6 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
     setError(null);
 
     try {
-      // Call the find stakeholders API
       const response = await fetch('/api/orion/networking/find-stakeholders', {
         method: 'POST',
         headers: {
@@ -60,7 +56,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
       }
     } catch (err: any) {
       console.error('Error finding stakeholders:', err);
-      setError(err.message || 'An error occurred while finding stakeholders');
+      setError(err.message || 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -68,24 +64,10 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
 
   const handleGenerateOutreach = (stakeholder: Stakeholder) => {
     setSelectedStakeholder(stakeholder);
-    // Open GenerateOutreachDialog via its own store
-    (useOpportunityCentralStore.getState() as any).closeOutreachDialog(); // Ensure closed before opening
-    (useOpportunityCentralStore.getState() as any).openOutreachDialog({
-      stakeholder,
-      opportunityTitle: opportunity.title,
-      opportunityCompany: opportunity.company,
-      onOutreachGenerated: () => {},
-    });
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        console.log('Copied to clipboard');
-      })
-      .catch(err => {
-        console.error('Failed to copy text: ', err);
-      });
+    navigator.clipboard.writeText(text);
   };
 
   return (
@@ -206,7 +188,6 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           )}
         </DialogContent>
       </Dialog>
-      {/* GenerateOutreachDialog is now managed by its own store and does not need to be rendered here */}
     </>
   );
 };

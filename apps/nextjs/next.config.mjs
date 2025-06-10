@@ -6,11 +6,11 @@ const nextConfig = {
         poll: 1000,
         ignored: [
           "**/.git/**",
-          "**/node_modules/**",
+          "**/node_modules/**", // Corrected this line
           "**/.next/**",
           "**/dist/**",
           "**/.turbo/**",
-        ]
+        ],
       };
     }
     return config;

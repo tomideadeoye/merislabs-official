@@ -1,12 +1,13 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "@/components/ui/theme-provider";
+import { ThemeProvider } from "@repo/ui";
 import { MemoryProvider } from "@/components/orion/MemoryProvider";
 import { Toaster } from "react-hot-toast";
+import { logger } from "@shared/lib/logger";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  console.info("[Providers] Initializing global providers: SessionProvider, ThemeProvider, MemoryProvider, Toaster");
+  logger.info("[Providers] Initializing global providers: SessionProvider, ThemeProvider, MemoryProvider, Toaster");
   return (
     <SessionProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

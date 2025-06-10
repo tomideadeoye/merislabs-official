@@ -7,11 +7,11 @@ import { callSequentialThinking } from '@shared/lib/orion_tools';
 import { checkAllLlmApiKeys } from '@shared/lib/llm_providers';
 import { CheckCircle, XCircle, HelpCircle } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui';
-import { ValuePropositionForm } from '@/components/orion/ValuePropositionForm';
-import { CareerMilestoneForm } from '@/components/orion/CareerMilestoneForm';
-import { CareerMilestoneList } from '@/components/orion/CareerMilestoneList';
-import { NarrativeGenerationForm } from '@/components/orion/NarrativeGenerationForm';
-import { CareerMilestoneProvider } from '@/components/orion/CareerMilestoneContext';
+import { ValuePropositionForm } from '../ValuePropositionForm';
+import { CareerMilestoneForm } from '../CareerMilestoneForm';
+import { CareerMilestoneList } from '../CareerMilestoneList';
+import { NarrativeGenerationForm } from '../NarrativeGenerationForm';
+import { CareerMilestoneProvider } from '../CareerMilestoneContext';
 import type { CareerMilestone } from '@shared/types/narrative-clarity';
 
 const initialNodes: Node[] = [];
