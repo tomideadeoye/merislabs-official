@@ -3,11 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button, Textarea, Input, Label, Checkbox } from '@repo/ui';
 import { Loader2, ChevronDown, ChevronUp, Filter, Brain } from 'lucide-react';
 // Import directly from the file
 import { ASK_QUESTION_REQUEST_TYPE } from '@shared/lib/orion_config';

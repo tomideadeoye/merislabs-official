@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, Button, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input } from '@shared/ui';
+import { Card, CardContent, Button, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input } from '@repo/ui';
 import { Loader2, AlertTriangle, Lightbulb, Clock, Tag, Filter } from 'lucide-react';
 import Link from 'next/link';
 import type { Idea, IdeaStatus } from '@shared/types/ideas';
@@ -162,7 +162,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
             <Input
               placeholder="Filter by tag"
               value={tagFilter}
-              onChange={(e) => setTagFilter(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagFilter(e.target.value)}
               className="bg-gray-700 border-gray-600 text-gray-200"
             />
           </div>
@@ -171,7 +171,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
             <Input
               placeholder="Search ideas"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               className="bg-gray-700 border-gray-600 text-gray-200"
             />
           </div>

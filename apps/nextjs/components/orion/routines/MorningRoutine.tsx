@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
 import { EmotionalLogForm } from '@/components/orion/EmotionalLogForm';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button, Checkbox } from '@repo/ui';
 import { Loader2, CheckCircle, Brain, ListChecks, Sparkles } from 'lucide-react';
 import { THOUGHT_FOR_THE_DAY_REQUEST_TYPE } from '@shared/lib/orion_config';
 import Link from 'next/link';
@@ -18,10 +17,10 @@ export const MorningRoutine: React.FC = () => {
   const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
   const [morningRoutineCompleted, setMorningRoutineCompleted] = useSessionState(
-    SessionStateKeys.ROUTINES_MORNING_COMPLETED, 
+    SessionStateKeys.ROUTINES_MORNING_COMPLETED,
     false
   );
-  
+
   // Local state
   const [moodLogged, setMoodLogged] = useState<boolean>(false);
   const [dailyTasks, setDailyTasks] = useState<any[]>([]);
@@ -45,7 +44,7 @@ export const MorningRoutine: React.FC = () => {
   const fetchHabiticaTasks = async () => {
     setIsLoadingTasks(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/habitica/tasks', {
         method: 'POST',
@@ -54,9 +53,9 @@ export const MorningRoutine: React.FC = () => {
         },
         body: JSON.stringify({ type: 'dailys' })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Filter for dailies that are due today
         setDailyTasks(data.tasks.filter((task: any) => !task.completed));
@@ -74,7 +73,7 @@ export const MorningRoutine: React.FC = () => {
   // Fetch thought for the day
   const fetchThoughtForDay = async () => {
     setIsLoadingThought(true);
-    
+
     try {
       const response = await fetch('/api/orion/llm', {
         method: 'POST',
@@ -88,9 +87,9 @@ export const MorningRoutine: React.FC = () => {
           maxTokens: 100
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.content) {
         setThoughtForDay(data.content);
       } else {
@@ -118,9 +117,9 @@ export const MorningRoutine: React.FC = () => {
           direction: 'up'
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Update task list
         setDailyTasks(dailyTasks.filter(task => task.id !== taskId));
@@ -136,7 +135,7 @@ export const MorningRoutine: React.FC = () => {
   // Handle mood logged
   const handleMoodLogged = () => {
     setMoodLogged(true);
-    
+
     // Check if morning routine is complete
     if (dailyTasks.length === 0 || !habiticaConfigured) {
       setMorningRoutineCompleted(true);
@@ -149,7 +148,7 @@ export const MorningRoutine: React.FC = () => {
       {!moodLogged ? (
         <section>
           <h3 className="text-lg font-medium text-gray-300 mb-2">How are you feeling this morning?</h3>
-          <EmotionalLogForm 
+          <EmotionalLogForm
             onLogSaved={handleMoodLogged}
             initialContextualNote={`Morning check-in ${getTodayDateString()}`}
           />
@@ -160,14 +159,14 @@ export const MorningRoutine: React.FC = () => {
           Morning mood logged successfully!
         </div>
       )}
-      
+
       {/* Thought for the Day Section */}
       <section>
         <h3 className="text-lg font-medium text-gray-300 mb-2 flex items-center">
           <Brain className="mr-2 h-5 w-5 text-purple-400" />
           Thought for Your Day:
         </h3>
-        
+
         {isLoadingThought ? (
           <div className="flex items-center text-gray-400">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -181,7 +180,7 @@ export const MorningRoutine: React.FC = () => {
           <p className="text-gray-400">What one small action today would move you closer to your goals?</p>
         )}
       </section>
-      
+
       {/* Habitica Tasks Section */}
       {habiticaConfigured && (
         <section>
@@ -189,7 +188,7 @@ export const MorningRoutine: React.FC = () => {
             <ListChecks className="mr-2 h-5 w-5 text-blue-400" />
             Your Key Tasks for Today:
           </h3>
-          
+
           {isLoadingTasks ? (
             <div className="flex items-center text-gray-400">
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -216,18 +215,18 @@ export const MorningRoutine: React.FC = () => {
               ))}
             </ul>
           )}
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            asChild 
+
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
             className="mt-3 text-blue-400 border-blue-600 hover:bg-blue-700/30"
           >
             <Link href="/admin/habitica">Go to Full Habitica Dashboard</Link>
           </Button>
         </section>
       )}
-      
+
       {/* Journal Link Section */}
       <section className="mt-4 pt-4 border-t border-gray-700/50">
         <Link href="/admin/journal" legacyBehavior>

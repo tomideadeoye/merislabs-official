@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { CheckSquare } from 'lucide-react';
 import { Opportunity } from '@shared/types/opportunity';
 import { CreateHabiticaTaskDialog } from '@/components/orion/tasks/CreateHabiticaTaskDialog';

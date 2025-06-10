@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@repo/ui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@repo/ui';
 import { HabiticaTaskForm } from './HabiticaTaskForm';
 import { Loader2, AlertTriangle, Plus } from 'lucide-react';
 
@@ -15,7 +15,7 @@ interface TaskCreationButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
-export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({ 
+export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({
   initialText = '',
   className,
   variant = 'default',
@@ -24,20 +24,20 @@ export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isCheckingCredentials, setIsCheckingCredentials] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, "");
   const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, "");
-  
+
   const handleClick = async () => {
     setError(null);
-    
+
     if (!habiticaUserId || !habiticaApiToken) {
       setError("Habitica credentials not set. Please set them in the Habitica page.");
       return;
     }
-    
+
     setIsCheckingCredentials(true);
-    
+
     try {
       // Verify credentials by making a test API call
       const response = await fetch('/api/orion/habitica/stats', {
@@ -47,9 +47,9 @@ export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({
         },
         body: JSON.stringify({ userId: habiticaUserId, apiToken: habiticaApiToken })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setIsDialogOpen(true);
       } else {
@@ -62,15 +62,15 @@ export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({
       setIsCheckingCredentials(false);
     }
   };
-  
+
   const handleTaskCreated = () => {
     setIsDialogOpen(false);
   };
 
   return (
     <>
-      <Button 
-        variant={variant} 
+      <Button
+        variant={variant}
         size={size}
         onClick={handleClick}
         disabled={isCheckingCredentials}
@@ -85,14 +85,14 @@ export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({
           </>
         )}
       </Button>
-      
+
       {error && (
         <div className="mt-2 bg-red-900/30 border border-red-700 text-red-300 p-2 rounded-md text-xs flex items-center">
           <AlertTriangle className="h-3 w-3 mr-1" />
           {error}
         </div>
       )}
-      
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="bg-gray-800 border-gray-700">
           <DialogHeader>
@@ -101,7 +101,7 @@ export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({
               Add a new task to your Habitica account
             </DialogDescription>
           </DialogHeader>
-          
+
           <HabiticaTaskForm onTaskCreated={handleTaskCreated} />
         </DialogContent>
       </Dialog>

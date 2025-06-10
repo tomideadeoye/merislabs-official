@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { OpportunityCard } from './OpportunityCard';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@repo/ui';
+import { Input } from '@repo/ui';
 import { Loader2, Plus, Search } from 'lucide-react';
 import { OpportunityDetails as OpportunityDetailsType, OpportunityDetails, Opportunity } from '@shared/types/opportunity';
 import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';

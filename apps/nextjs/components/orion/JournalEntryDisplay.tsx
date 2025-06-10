@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import type { ScoredMemoryPoint, JournalEntryNotionInput } from '@shared/types/orion';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Badge, Button } from '@repo/ui';
 import { CalendarDays, Tag, Smile, MessageSquare, ChevronDown, ChevronUp, ListTodo, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
 import { AddTaskFromReflection } from './AddTaskFromReflection';
 import { useSessionState } from '@shared/hooks/useSessionState';

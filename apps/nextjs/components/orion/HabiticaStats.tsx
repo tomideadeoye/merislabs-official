@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Progress } from '@shared/ui';
+import { Card, CardContent, Progress } from '@repo/ui';
 import { Loader2, Heart, Zap, Star, Coins } from 'lucide-react';
 import type { HabiticaUserStats } from '@shared/types/habitica';
 

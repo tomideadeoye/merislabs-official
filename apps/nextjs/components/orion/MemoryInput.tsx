@@ -2,10 +2,7 @@
 
 import React, { useState } from 'react';
 import { useMemory } from '@shared/hooks/useMemory';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Textarea, Input, Button, Badge } from '@repo/ui';
 import { X, Plus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -37,7 +34,7 @@ export function MemoryInput({ type, defaultTags = [], onSuccess }: MemoryInputPr
     if (text.trim()) {
       const sourceId = uuidv4();
       const success = await add(text, sourceId, type, tags);
-      
+
       if (success) {
         setText('');
         if (onSuccess) {
@@ -55,19 +52,19 @@ export function MemoryInput({ type, defaultTags = [], onSuccess }: MemoryInputPr
         onChange={(e) => setText(e.target.value)}
         className="min-h-[150px]"
       />
-      
+
       <div className="flex flex-wrap gap-2 mb-2">
         {tags.map(tag => (
           <Badge key={tag} variant="secondary" className="flex items-center gap-1">
             {tag}
-            <X 
-              className="h-3 w-3 cursor-pointer" 
+            <X
+              className="h-3 w-3 cursor-pointer"
               onClick={() => handleRemoveTag(tag)}
             />
           </Badge>
         ))}
       </div>
-      
+
       <div className="flex gap-2">
         <Input
           placeholder="Add tag..."
@@ -81,20 +78,20 @@ export function MemoryInput({ type, defaultTags = [], onSuccess }: MemoryInputPr
           }}
           className="flex-1"
         />
-        <Button 
-          type="button" 
-          variant="outline" 
+        <Button
+          type="button"
+          variant="outline"
           onClick={handleAddTag}
           disabled={!tagInput.trim()}
         >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      
+
       {error && (
         <div className="text-red-500 text-sm">{error}</div>
       )}
-      
+
       <Button type="submit" disabled={isLoading || !text.trim()}>
         {isLoading ? 'Saving...' : 'Save to Memory'}
       </Button>

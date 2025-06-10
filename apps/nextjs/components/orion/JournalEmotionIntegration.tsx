@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@shared/ui';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { EmotionalLogForm } from './EmotionalLogForm';
 import { Heart, ChevronDown, ChevronUp } from 'lucide-react';
 

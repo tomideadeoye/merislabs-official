@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button, Textarea } from '@repo/ui';
 import { Loader2, BookOpen, Save } from 'lucide-react';
 import { Opportunity } from '@shared/types/opportunity';
 import { useJournalReflectionDialogStore } from './journalReflectionDialogStore';

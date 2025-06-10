@@ -3,8 +3,7 @@
 import React from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, Button } from '@repo/ui';
 import { CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 

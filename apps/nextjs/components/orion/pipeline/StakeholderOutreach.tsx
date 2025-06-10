@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { User, Mail, Linkedin } from 'lucide-react';
 
 interface Stakeholder {

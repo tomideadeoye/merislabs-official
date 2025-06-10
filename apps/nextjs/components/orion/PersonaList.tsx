@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Button, Card, CardContent, Badge } from '@shared/ui';
+import { Button, Card, CardContent, Badge } from '@repo/ui';
 import {
   User,
   Building,

@@ -6,13 +6,14 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/components/orion/opportunities/opportunityCentralStore';
+  Button,
+  Input,
+  Textarea,
+  Label,
+} from '@repo/ui';
+import { useOpportunityCentralStore, OpportunityCentralStoreType } from './opportunityCentralStore';
 import { OpportunityNotionInput } from '@shared/types/orion';
 
 interface AddOpportunityFormProps {
@@ -150,14 +151,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="type">Type *</Label>
-                    <Input id="type" name="type" value={formData.type} onChange={handleChange} required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="status">Status *</Label>
-                    <Input id="status" name="status" value={formData.status} onChange={handleChange} required />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="type">Type *</Label>
+                <Input id="type" name="type" value={formData.type} onChange={handleChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status *</Label>
+                <Input id="status" name="status" value={formData.status} onChange={handleChange} required />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="content">Full Description *</Label>
@@ -181,14 +182,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="tags">Tags (comma-separated)</Label>
-                <Input
-                    id="tags"
-                    name="tags"
-                    value={formData.tags.join(', ')}
-                    onChange={handleTagsChange}
-                    placeholder="e.g., frontend, react, project-management"
-                />
+              <Label htmlFor="tags">Tags (comma-separated)</Label>
+              <Input
+                id="tags"
+                name="tags"
+                value={formData.tags.join(', ')}
+                onChange={handleTagsChange}
+                placeholder="e.g., frontend, react, project-management"
+              />
             </div>
 
             {error && <p className="text-red-500 text-sm">{error}</p>}

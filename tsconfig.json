@@ -19,7 +19,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./apps/nextjs/*"],
-      "@shared/*": ["./packages/shared/*"]
+      "@shared/*": ["./packages/shared/*"],
+      "@shared/types/*": ["./packages/shared/types/*"],
+      "@/types/*": ["./apps/nextjs/types/*"]
     },
     "plugins": [
       {

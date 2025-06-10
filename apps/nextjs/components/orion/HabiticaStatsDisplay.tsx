@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Progress, Label } from '@shared/ui';
+import { Card, CardContent, CardHeader, CardTitle, Progress, Label } from '@repo/ui';
 import { UserCircle } from 'lucide-react';
 import type { HabiticaUserStats } from '@shared/types/habitica';
 

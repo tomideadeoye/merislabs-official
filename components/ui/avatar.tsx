@@ -10,7 +10,7 @@
  */
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from '@repo/ui';
 import {logger} from "@shared/lib/logger"; // Centralized logger for context-rich logging
 
 export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {

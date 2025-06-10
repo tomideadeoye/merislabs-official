@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils" // updated from @/lib/utils for monorepo compatibility
 
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,

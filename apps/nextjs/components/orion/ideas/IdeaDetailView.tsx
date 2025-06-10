@@ -2,15 +2,33 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Button,
+  Input,
+  Textarea,
+  Badge,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@repo/ui';
 import { Loader2, AlertTriangle, Lightbulb, ArrowLeft, Save, MessageSquare, History, Sparkles, SendToBack } from 'lucide-react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/app_state';
@@ -394,7 +412,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                     <Input
                       id="title"
                       value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditTitle(e.target.value)}
                       className="bg-gray-700 border-gray-600 text-gray-200 mb-2"
                       disabled={isSaving}
                     />
@@ -404,7 +422,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                     <Label htmlFor="status" className="text-gray-400 text-sm">Status</Label>
                     <Select
                       value={editStatus}
-                      onValueChange={(value: any) => setEditStatus(value)}
+                      onValueChange={(value: IdeaStatus) => setEditStatus(value)}
                       disabled={isSaving}
                     >
                       <SelectTrigger id="status" className="bg-gray-700 border-gray-600 text-gray-200">
@@ -457,7 +475,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                   <Textarea
                     id="description"
                     value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditDescription(e.target.value)}
                     className="min-h-[100px] bg-gray-700 border-gray-600 text-gray-200"
                     disabled={isSaving}
                   />
@@ -468,7 +486,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                   <Input
                     id="tags"
                     value={editTags}
-                    onChange={(e) => setEditTags(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditTags(e.target.value)}
                     className="bg-gray-700 border-gray-600 text-gray-200"
                     disabled={isSaving}
                   />
@@ -508,7 +526,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               <div>
                 <Textarea
                   value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewNote(e.target.value)}
                   placeholder="Add a new note..."
                   className="min-h-[100px] bg-gray-700 border-gray-600 text-gray-200"
                   disabled={isAddingNote}
@@ -600,7 +618,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               <div>
                 <Textarea
                   value={brainstormPrompt}
-                  onChange={(e) => setBrainstormPrompt(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBrainstormPrompt(e.target.value)}
                   placeholder="Optional: Add specific questions or aspects you want Orion to focus on..."
                   className="min-h-[100px] bg-gray-700 border-gray-600 text-gray-200"
                   disabled={isBrainstorming}
@@ -666,7 +684,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               <Input
                 id="habiticaTaskText"
                 value={habiticaTaskText}
-                onChange={(e) => setHabiticaTaskText(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHabiticaTaskText(e.target.value)}
                 className="bg-gray-700 border-gray-600 text-gray-200"
               />
             </div>
@@ -676,7 +694,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               <Textarea
                 id="habiticaTaskNotes"
                 value={habiticaTaskNotes}
-                onChange={(e) => setHabiticaTaskNotes(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setHabiticaTaskNotes(e.target.value)}
                 rows={3}
                 className="bg-gray-700 border-gray-600 text-gray-200"
               />
@@ -686,7 +704,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               <Label htmlFor="habiticaTaskPriority" className="text-gray-300">Priority</Label>
               <Select
                 value={String(habiticaTaskPriority)}
-                onValueChange={(value) => setHabiticaTaskPriority(Number(value))}
+                onValueChange={(value: string) => setHabiticaTaskPriority(Number(value))}
               >
                 <SelectTrigger id="habiticaTaskPriority" className="bg-gray-700 border-gray-600 text-gray-200">
                   <SelectValue placeholder="Select priority" />

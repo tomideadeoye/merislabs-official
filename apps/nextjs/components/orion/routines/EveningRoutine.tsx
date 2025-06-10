@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
 import { EmotionalLogForm } from '@/components/orion/EmotionalLogForm';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { Loader2, CheckCircle, Moon, BookOpen, ListChecks } from 'lucide-react';
 import { DAILY_REFLECTION_REQUEST_TYPE } from '@shared/lib/orion_config';
 import Link from 'next/link';

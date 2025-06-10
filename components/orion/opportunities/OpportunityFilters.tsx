@@ -2,14 +2,13 @@
 
 import React, { useState } from 'react';
 import {
-  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from '@repo/ui/select';
+import { Input } from '@repo/ui/input';
+import { Button } from '@repo/ui/button';
 import {
   Filter,
   SortAsc,

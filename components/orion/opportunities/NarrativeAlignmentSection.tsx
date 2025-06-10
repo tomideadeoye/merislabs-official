@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@repo/ui';
 import { Loader2, BookText, Copy, RefreshCw } from 'lucide-react';
 import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
 

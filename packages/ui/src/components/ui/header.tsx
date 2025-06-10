@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar } from "./avatar";
 import MobileMenu from "./mobile-menu";
 import { usePathname } from "next/navigation";
-import { ROUTES } from "@shared/lib/routes";
-import { Button } from "@/components/ui/button";
+import { Button } from "./button";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -95,9 +94,6 @@ export default function Header({ navItems }: HeaderProps) {
           <MobileMenu />
         </div>
       </div>
-    </header>
-  );
-}
 
     </header>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { BarChart2, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Opportunity } from '@shared/types/opportunity';
@@ -11,9 +11,9 @@ interface EvaluateWithOrionButtonProps {
   onEvaluationComplete?: (evaluationId: string) => void;
 }
 
-export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = ({ 
-  opportunity, 
-  onEvaluationComplete 
+export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = ({
+  opportunity,
+  onEvaluationComplete
 }) => {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const router = useRouter();
@@ -21,7 +21,7 @@ export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = (
   const handleEvaluate = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click event
     setIsEvaluating(true);
-    
+
     try {
       const response = await fetch('/api/orion/opportunity/evaluate', {
         method: 'POST',
@@ -35,9 +35,9 @@ export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = (
           url: opportunity.sourceURL
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Update opportunity with evaluation ID
         await fetch(`/api/orion/opportunity/${opportunity.id}`, {
@@ -50,11 +50,11 @@ export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = (
             status: 'evaluated_positive'
           })
         });
-        
+
         if (onEvaluationComplete) {
           onEvaluationComplete(data.evaluationId);
         }
-        
+
         // Navigate to the opportunity detail view
         router.push(`/admin/opportunity-pipeline/${opportunity.id}`);
       }

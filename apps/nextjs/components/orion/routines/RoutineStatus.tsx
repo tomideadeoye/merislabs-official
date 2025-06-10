@@ -3,7 +3,7 @@
 import React from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@repo/ui';
 import { CheckCircle, Clock } from 'lucide-react';
 
 interface RoutineStatusProps {

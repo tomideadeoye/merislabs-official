@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Input, Label, Card, CardContent, Switch } from '@shared/ui';
+import { Button, Input, Label, Card, CardContent, Switch } from '@repo/ui';
 import { Loader2, AlertTriangle, Calendar, Search, RefreshCw, BrainCircuit } from 'lucide-react';
 import { EmotionalLogEntry } from '@shared/types/orion';
 import { CognitiveDistortionDisplay } from './cbt/CognitiveDistortionDisplay';

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { ListTodo } from 'lucide-react';
 import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
 import { useHabiticaTaskDialogStore } from './tasks/habiticaTaskDialogStore';

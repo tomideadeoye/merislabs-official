@@ -2,9 +2,7 @@
 
 import React from 'react';
 import { EvaluationOutput } from '@shared/types/opportunity';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, Progress, Badge } from '@repo/ui';
 import { Lightbulb, ThumbsUp, ThumbsDown, Star, FileText } from 'lucide-react';
 
 interface ComprehensiveAnalysisProps {

@@ -1,16 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, Textarea, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 import { Loader2, Star } from 'lucide-react';
 import { DedicatedAddToMemoryFormComponent } from './DedicatedAddToMemoryFormComponent';
 import { QuadrantMemoryChunksVisualizer } from './QuadrantMemoryChunksVisualizer';
@@ -40,7 +29,7 @@ export default function WhatsAppReplyDrafter() {
     explanation: string;
     rank: number;
   }[]>([]);
-  const [relevantMemories, setRelevantMemories] = useState<(string | { text: string; [key: string]: any })[]>([]);
+  const [relevantMemories, setRelevantMemories] = useState<(string | { text: string;[key: string]: any })[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,7 +123,7 @@ export default function WhatsAppReplyDrafter() {
             value={topicOrGoal}
             onChange={e => setTopicOrGoal(e.target.value)}
             placeholder="What is your goal for this reply? (e.g., clarify, set a boundary, express gratitude)"
-            // Make optional
+          // Make optional
           />
         </div>
 
@@ -169,7 +158,7 @@ export default function WhatsAppReplyDrafter() {
           <Textarea
             id="userProfileContext"
             value={userProfileContext}
-            onChange={e => setUserProfileContext(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserProfileContext(e.target.value)}
             placeholder="(Optional) Paste your profile context for deeper personalization."
           />
         </div>
@@ -182,7 +171,7 @@ export default function WhatsAppReplyDrafter() {
             min={1}
             max={5}
             value={numberOfDrafts}
-            onChange={e => setNumberOfDrafts(Number(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumberOfDrafts(Number(e.target.value))}
           />
         </div>
 

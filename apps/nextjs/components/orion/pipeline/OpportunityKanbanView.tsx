@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, Badge } from '@repo/ui';
 import { Opportunity, OpportunityStatus } from '@shared/types/opportunity';
 import { useRouter } from 'next/navigation';
 

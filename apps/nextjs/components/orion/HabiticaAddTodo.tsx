@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@shared/ui';
+import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle2, Plus } from 'lucide-react';
 import { HabiticaTaskCreateData } from '@shared/types/habitica';
 

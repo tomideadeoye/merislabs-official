@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
-import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@shared/ui';
+import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Key, ShieldAlert } from 'lucide-react';
 
 interface HabiticaCredentialsFormProps {

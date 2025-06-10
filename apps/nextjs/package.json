@@ -52,6 +52,7 @@
 		"@radix-ui/react-toggle-group": "^1.0.4",
 		"@radix-ui/react-tooltip": "^1.0.7",
 		"@shadcn/ui": "^0.0.4",
+		"@repo/ui": "workspace:*",
 		"aos": "^2.3.4",
 		"axios": "^1.9.0",
 		"chalk": "^4.1.2",

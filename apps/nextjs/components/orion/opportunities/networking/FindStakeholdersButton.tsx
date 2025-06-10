@@ -1,10 +1,10 @@
 "use client";
 
+// Imports updated to use @repo/ui barrel exports
+
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@repo/ui';
 import { Loader2, Users, Copy, Mail } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { GenerateOutreachDialog } from './GenerateOutreachDialog';
 import { useOpportunityCentralStore } from '../opportunityCentralStore';
 import type { Opportunity } from '@shared/types/opportunity';

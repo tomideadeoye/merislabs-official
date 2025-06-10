@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, AlertTriangle, File, Copy, Database, CheckCircle } from 'lucide-react';
 import path from 'path';
 
@@ -19,7 +18,7 @@ interface FileMetadata {
   created: string;
 }
 
-export const FileViewer: React.FC<FileViewerProps> = ({ 
+export const FileViewer: React.FC<FileViewerProps> = ({
   filePath,
   onIndexFile,
   className
@@ -42,7 +41,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({
   const fetchFileContent = async (path: string) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/local-fs/read-file', {
         method: 'POST',
@@ -51,9 +50,9 @@ export const FileViewer: React.FC<FileViewerProps> = ({
         },
         body: JSON.stringify({ filePath: path })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setContent(data.content || '');
         setMetadata(data.metadata || null);
@@ -106,8 +105,8 @@ export const FileViewer: React.FC<FileViewerProps> = ({
           </div>
           <div className="flex space-x-2">
             {content && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleCopyContent}
                 className="bg-gray-700 hover:bg-gray-600"
@@ -126,8 +125,8 @@ export const FileViewer: React.FC<FileViewerProps> = ({
               </Button>
             )}
             {onIndexFile && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleIndexFile}
                 className="bg-gray-700 hover:bg-gray-600"

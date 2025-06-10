@@ -2,16 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { 
-  FileText, 
-  Search, 
-  FileEdit, 
-  Mail, 
-  Users, 
+import { Card, CardContent, CardHeader, CardTitle, Button, Tabs, TabsContent, TabsList, TabsTrigger, Badge } from '@repo/ui';
+import {
+  FileText,
+  Search,
+  FileEdit,
+  Mail,
+  Users,
   Calendar,
   ExternalLink
 } from 'lucide-react';
@@ -44,7 +41,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
           {opportunity.status}
         </Badge>
       </div>
-      
+
       <Tabs defaultValue="overview">
         <TabsList className="grid grid-cols-6 mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -54,7 +51,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
           <TabsTrigger value="networking">Networking</TabsTrigger>
           <TabsTrigger value="tracking">Tracking</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview">
           <Card>
             <CardHeader>
@@ -72,9 +69,9 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                     {opportunity.companyUrl && (
                       <div className="flex items-center">
                         <ExternalLink className="h-4 w-4 mr-2" />
-                        <a 
-                          href={opportunity.companyUrl} 
-                          target="_blank" 
+                        <a
+                          href={opportunity.companyUrl}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:underline"
                         >
@@ -84,7 +81,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                     )}
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 className="font-medium mb-2">Application Progress</h3>
                   <div className="space-y-2">
@@ -109,7 +106,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <h3 className="font-medium mb-2">Job Description</h3>
                 <div className="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
@@ -118,7 +115,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                   </p>
                 </div>
               </div>
-              
+
               <div className="mt-6 flex flex-wrap gap-2">
                 <Link href={`/opportunity/${opportunity.id}/analyze`}>
                   <Button variant="outline" size="sm">
@@ -148,7 +145,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="analyze">
           <Card>
             <CardHeader>
@@ -158,7 +155,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
               <div className="mb-4">
                 <p>Analyze the job description to identify key requirements, skills, and company information.</p>
               </div>
-              
+
               <Link href={`/opportunity/${opportunity.id}/analyze`}>
                 <Button>
                   <Search className="h-4 w-4 mr-2" />
@@ -168,7 +165,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="cv">
           <Card>
             <CardHeader>
@@ -178,14 +175,14 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
               <div className="mb-4">
                 <p>Tailor your CV to match the job requirements using AI-powered component selection and rephrasing.</p>
               </div>
-              
+
               <Link href={`/opportunity/${opportunity.id}/cv-tailoring`}>
                 <Button>
                   <FileText className="h-4 w-4 mr-2" />
                   Go to CV Tailoring Studio
                 </Button>
               </Link>
-              
+
               {opportunity.tailoredCV && (
                 <div className="mt-4">
                   <h3 className="font-medium mb-2">Tailored CV Preview</h3>
@@ -199,7 +196,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="application">
           <Card>
             <CardHeader>
@@ -209,14 +206,14 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
               <div className="mb-4">
                 <p>Draft cover letters and application emails tailored to the job and company.</p>
               </div>
-              
+
               <Link href={`/opportunity/${opportunity.id}/application`}>
                 <Button>
                   <Mail className="h-4 w-4 mr-2" />
                   Draft Application
                 </Button>
               </Link>
-              
+
               {opportunity.coverLetter && (
                 <div className="mt-4">
                   <h3 className="font-medium mb-2">Cover Letter Preview</h3>
@@ -230,7 +227,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="networking">
           <Card>
             <CardHeader>
@@ -240,7 +237,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
               <div className="mb-4">
                 <p>Find and connect with potential stakeholders at the company.</p>
               </div>
-              
+
               <Link href={`/opportunity/${opportunity.id}/networking`}>
                 <Button>
                   <Users className="h-4 w-4 mr-2" />
@@ -250,7 +247,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="tracking">
           <Card>
             <CardHeader>
@@ -260,7 +257,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
               <div className="mb-4">
                 <p>Track the status of your application and schedule follow-ups.</p>
               </div>
-              
+
               <Link href={`/opportunity/${opportunity.id}/tracking`}>
                 <Button>
                   <Calendar className="h-4 w-4 mr-2" />

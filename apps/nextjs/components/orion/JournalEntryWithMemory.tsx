@@ -1,17 +1,12 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Textarea, Input, Badge, Label } from '@repo/ui';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
 import type { JournalEntryNotionInput, MemoryPayload, MemoryPoint, EmotionalLogEntry, LogEmotionRequestBody } from '@shared/types/orion';
 import { SaveOptionsButton, SaveResult } from '@/components/orion/SaveOptionsButton';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
-import { Label } from '@/components/ui/label';
 
 export function JournalEntryWithMemory() {
   const [text, setText] = useState('');

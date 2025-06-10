@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { DraftApplicationButton } from './application/DraftApplicationButton';
 import { FindStakeholdersButton } from './networking/FindStakeholdersButton';
 import type { Opportunity } from '@shared/types/opportunity';

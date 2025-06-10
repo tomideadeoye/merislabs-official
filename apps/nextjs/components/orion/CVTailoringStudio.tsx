@@ -7,14 +7,7 @@ import { useCVTailoring } from '@shared/hooks/useCVTailoring';
 import { CVComponent } from '@shared/lib/cv';
 import { generatePDF, generatePDFFilename } from '@shared/lib/pdf-generator';
 import { generateWordDoc, generateWordFilename } from '@shared/lib/word-generator';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
+import { Button, Card, CardContent, CardHeader, CardTitle, Tabs, TabsContent, TabsList, TabsTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Textarea, Input, Progress } from '@repo/ui';
 import {
   Loader2, FileText, Edit, Check, X, RefreshCw, Download, MoveVertical, AlertTriangle, FileOutput, ThumbsUp, ThumbsDown
 } from 'lucide-react';

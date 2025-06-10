@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Lightbulb } from 'lucide-react';
 import type { Idea } from '@shared/types/ideas';
 
@@ -14,7 +10,7 @@ interface IdeaCaptureFormProps {
   className?: string;
 }
 
-export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({ 
+export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({
   onIdeaCaptured,
   className
 }) => {
@@ -24,26 +20,26 @@ export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim()) {
       setError("Please enter a title for your idea");
       return;
     }
-    
+
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       // Process tags
       const tagArray = tags
         .split(',')
         .map(tag => tag.trim())
         .filter(Boolean);
-      
+
       const response = await fetch('/api/orion/ideas/create', {
         method: 'POST',
         headers: {
@@ -55,15 +51,15 @@ export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({
           tags: tagArray
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setSuccess(true);
         setTitle("");
         setDescription("");
         setTags("");
-        
+
         if (onIdeaCaptured && data.idea) {
           onIdeaCaptured(data.idea);
         }
@@ -103,7 +99,7 @@ export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({
               required
             />
           </div>
-          
+
           <div>
             <Label htmlFor="description" className="text-gray-300">Brief Description</Label>
             <Textarea
@@ -115,7 +111,7 @@ export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
+
           <div>
             <Label htmlFor="tags" className="text-gray-300">Tags (comma-separated)</Label>
             <Input
@@ -127,10 +123,10 @@ export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-          
-          <Button 
-            type="submit" 
-            disabled={isSubmitting || !title.trim()} 
+
+          <Button
+            type="submit"
+            disabled={isSubmitting || !title.trim()}
             className="bg-yellow-600 hover:bg-yellow-700 w-full"
           >
             {isSubmitting ? (
@@ -145,14 +141,14 @@ export const IdeaCaptureForm: React.FC<IdeaCaptureFormProps> = ({
               </>
             )}
           </Button>
-          
+
           {error && (
             <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
               <AlertTriangle className="h-5 w-5 mr-2" />
               {error}
             </div>
           )}
-          
+
           {success && (
             <div className="bg-green-900/30 border border-green-700 text-green-300 p-3 rounded-md flex items-center">
               <CheckCircle className="h-5 w-5 mr-2" />

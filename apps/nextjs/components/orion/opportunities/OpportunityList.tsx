@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { OpportunityCard } from './OpportunityCard';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button, Input } from '@repo/ui';
 import { Loader2, Plus, Search } from 'lucide-react';
 import { OpportunityDetails as OpportunityDetailsType, OpportunityDetails, Opportunity } from '@shared/types/opportunity';
-import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
+import { useOpportunityCentralStore } from 'components/orion/opportunities/opportunityCentralStore';
 
 // Constants for opportunity filters and sorting
 const FILTERS = {
@@ -171,7 +170,7 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
           <Input
             placeholder="Search opportunities..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             className="pl-8 bg-gray-700 border-gray-600 text-gray-200"
           />
         </div>

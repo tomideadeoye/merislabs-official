@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/card';
-import { Loader } from '@/hooks/components/ui/loader';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
+// TODO: Replace Loader with a @repo/ui or shared implementation if available
+// import { Loader } from '@repo/ui';
+// TODO: Replace Loader with a @repo/ui or shared implementation if available
+// import { Loader } from '@repo/ui';
+// import { Loader } from '@shared/ui';
 import { OpportunityList } from '@/components/orion/opportunities/OpportunityList';
 import { OpportunityFilters } from '@/components/orion/opportunities/OpportunityFilters';
 import { AddOpportunityForm } from '@/components/orion/opportunities/AddOpportunityForm';
 import { OpportunityKanbanView } from '@/components/orion/opportunities/OpportunityKanbanView';
 import { logger } from '@shared/lib/logger';
-import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
+import { useOpportunityCentralStore } from '../../../components/orion/opportunities/opportunityCentralStore';
 
 export default function OpportunityPipelinePage() {
   const [view, setView] = useState<'list' | 'kanban'>('list');
@@ -66,7 +70,7 @@ export default function OpportunityPipelinePage() {
 
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
-              <Loader />
+              <span className="text-gray-500">Loading...</span>
             </div>
           ) : view === 'list' ? (
             <OpportunityList opportunities={opportunities} />

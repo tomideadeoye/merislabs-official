@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@repo/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog';
 import { Loader2, Copy, MessageSquare, Mail } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs';
 import type { Opportunity } from '@shared/types/opportunity';
 import { useOpportunityCentralStore } from '../opportunityCentralStore';
 

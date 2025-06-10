@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
+import { PageHeader, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { PageNames } from "@shared/app_state";
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
 import { HabiticaCredentialsForm } from '@/components/orion/HabiticaCredentialsForm';
 import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
 import { HabiticaTaskList } from '@/components/orion/HabiticaTaskList';
-import { HabiticaTaskForm } from '../../../components/orion/HabiticaTaskForm';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { HabiticaTaskForm } from '@repo/ui';
 import { Rocket, ShieldAlert } from 'lucide-react';
 
 export default function HabiticaPage() {

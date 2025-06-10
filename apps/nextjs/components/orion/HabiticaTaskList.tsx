@@ -3,10 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/hooks/useSessionState';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, Checkbox, Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, RefreshCw, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { getOrionSourceUrl } from '@shared/lib/utils';

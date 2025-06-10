@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button, Input, Textarea, Label } from '@shared/ui';
+import {Label,  Input , Button, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Heart, BrainCircuit } from 'lucide-react';
 import { LogEmotionRequestBody, CognitiveDistortionAnalysisData } from '@shared/types/orion';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CognitiveDistortionAnalysisForm } from './cbt/CognitiveDistortionAnalysisForm';
 import { CognitiveDistortionAnalysisProvider } from './cbt/CognitiveDistortionAnalysisContext';
 
@@ -123,7 +122,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
           <Input
             id="primaryEmotion"
             value={primaryEmotion}
-            onChange={(e) => setPrimaryEmotion(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrimaryEmotion(e.target.value)}
             placeholder="e.g., Joy, Anxiety, Frustration"
             className="bg-gray-700 border-gray-600 text-gray-200"
             list="common-emotions"
@@ -143,7 +142,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
             min="1"
             max="10"
             value={intensity}
-            onChange={(e) => setIntensity(parseInt(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIntensity(parseInt(e.target.value))}
             className="bg-gray-700 border-gray-600 text-gray-200"
           />
           <div className="flex justify-between text-xs text-gray-400 mt-1">
@@ -159,7 +158,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         <Input
           id="secondaryEmotions"
           value={secondaryEmotions}
-          onChange={(e) => setSecondaryEmotions(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecondaryEmotions(e.target.value)}
           placeholder="e.g., Hope, Uncertainty, Relief"
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
@@ -170,7 +169,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         <Input
           id="triggers"
           value={triggers}
-          onChange={(e) => setTriggers(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTriggers(e.target.value)}
           placeholder="e.g., Work deadline, Conversation with friend"
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
@@ -181,7 +180,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         <Input
           id="physicalSensations"
           value={physicalSensations}
-          onChange={(e) => setPhysicalSensations(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhysicalSensations(e.target.value)}
           placeholder="e.g., Tight chest, Racing heart, Calm breathing"
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
@@ -192,7 +191,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         <Textarea
           id="accompanyingThoughts"
           value={accompanyingThoughts}
-          onChange={(e) => {
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
             setAccompanyingThoughts(e.target.value);
             // If CBT form is active, sync the automatic thought
             if (cbtData) {
@@ -212,7 +211,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         <Input
           id="copingMechanisms"
           value={copingMechanisms}
-          onChange={(e) => setCopingMechanisms(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCopingMechanisms(e.target.value)}
           placeholder="e.g., Deep breathing, Journaling, Exercise"
           className="bg-gray-700 border-gray-600 text-gray-200"
         />
@@ -223,7 +222,7 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
         <Textarea
           id="contextualNote"
           value={contextualNote}
-          onChange={(e) => setContextualNote(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContextualNote(e.target.value)}
           placeholder="Any additional details about this experience..."
           className="bg-gray-700 border-gray-600 text-gray-200"
         />

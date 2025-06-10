@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@shared/ui';
+import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle2, UserPlus, User } from 'lucide-react';
 import type { PersonaMap } from '@shared/types/strategic-outreach';
 import { usePersonaFormStore } from './persona/personaFormStore';

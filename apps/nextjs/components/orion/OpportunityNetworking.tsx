@@ -1,14 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, AlertTriangle, Users, Send, Copy, ExternalLink } from 'lucide-react';
+import { Button, Input, Card, CardContent, CardHeader, CardTitle, CardDescription, Textarea, MultiSelect } from '@repo/ui';
 import { Badge } from '@/comp.onents/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { MultiSelect } from '@/components/ui/multi-select';
 import { useMultiSelectStore } from '@/components/ui/multiSelectStore';
+import { Loader2, AlertTriangle, Users, Send, Copy, ExternalLink } from 'lucide-react';
 
 // Default stakeholder roles for networking
 const DEFAULT_STAKEHOLDER_ROLES = [

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { FinalizeAndSendEmailDialog } from './FinalizeAndSendEmailDialog';
 import { useEmailTestDialogStore } from './emailTestDialogStore';
 import { Mail } from 'lucide-react';

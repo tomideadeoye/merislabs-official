@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Label } from '@repo/ui';
 import { Loader2, Send, AlertTriangle } from 'lucide-react';
 import type { SendEmailParams, EmailAttachment } from '@shared/lib/email_service';
 import { useEmailTestDialogStore } from './emailTestDialogStore';
