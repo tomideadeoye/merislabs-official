@@ -18,7 +18,7 @@ interface HeaderProps {
   navItems: NavItem[];
 }
 
-export default function Header({ navItems }: HeaderProps) {
+export function Header({ navItems }: HeaderProps) {
   const currentPage = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);

@@ -6,18 +6,15 @@ import { OpportunityList } from '@/components/orion/opportunities/OpportunityLis
 import { OpportunityKanbanView } from '@/components/orion/opportunities/OpportunityKanbanView';
 import { AddOpportunityForm } from '@/components/orion/opportunities/AddOpportunityForm';
 import { useOpportunityDialogStore } from '@shared/hooks/useOpportunityDialogStore';
-import { Tabs, TabsContent, TabsList, TabsTrigger, PageHeader } from '@repo/ui';
-import { Briefcase, BarChart2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger, PageHeader, Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@repo/ui';
+import { Briefcase, BarChart2, XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useOpportunities } from '@shared/hooks/useOpportunities';
 import { OpportunityPipelineCharts } from './OpportunityPipelineCharts';
 import { OpportunityEvaluator } from '@/components/orion/opportunities/OpportunityEvaluator';
 
-import { useOpportunityCentralStore } from 'components/orion/opportunities/opportunityCentralStore';
+import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
 import { logger } from '@shared/lib/logger';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui';
-import { XIcon } from 'lucide-react';
-import { Button } from '@repo/ui';
 
 export default function OpportunityPipelinePage() {
   const [activeView, setActiveView] = useState('list');

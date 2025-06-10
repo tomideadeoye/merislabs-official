@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button, Input, Textarea, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 import { Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { OpportunityNotionPayload } from '@shared/lib/notion_next_service';
 
@@ -15,21 +11,21 @@ export const NotionOpportunityForm = () => {
   const [jdText, setJdText] = useState('');
   const [url, setUrl] = useState('');
   const [status, setStatus] = useState('Identified');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim() || !company.trim()) {
       setFeedback({ type: 'error', message: 'Title and company are required.' });
       return;
     }
-    
+
     setIsSubmitting(true);
     setFeedback(null);
-    
+
     try {
       const payload: OpportunityNotionPayload = {
         title: title.trim(),
@@ -38,7 +34,7 @@ export const NotionOpportunityForm = () => {
         url: url.trim() || undefined,
         status
       };
-      
+
       const response = await fetch('/api/orion/notion/opportunity', {
         method: 'POST',
         headers: {
@@ -46,12 +42,12 @@ export const NotionOpportunityForm = () => {
         },
         body: JSON.stringify(payload)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setFeedback({ type: 'success', message: 'Opportunity created in Notion successfully!' });
-        
+
         // Reset form
         setTitle('');
         setCompany('');
@@ -72,7 +68,7 @@ export const NotionOpportunityForm = () => {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-100">Create Opportunity in Notion</h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="title" className="text-gray-300">Title *</Label>
@@ -85,7 +81,7 @@ export const NotionOpportunityForm = () => {
             required
           />
         </div>
-        
+
         <div>
           <Label htmlFor="company" className="text-gray-300">Company *</Label>
           <Input
@@ -97,7 +93,7 @@ export const NotionOpportunityForm = () => {
             required
           />
         </div>
-        
+
         <div>
           <Label htmlFor="url" className="text-gray-300">URL (Optional)</Label>
           <Input
@@ -108,7 +104,7 @@ export const NotionOpportunityForm = () => {
             className="bg-gray-700 border-gray-600 text-gray-200"
           />
         </div>
-        
+
         <div>
           <Label htmlFor="status" className="text-gray-300">Status</Label>
           <Select value={status} onValueChange={setStatus}>
@@ -127,7 +123,7 @@ export const NotionOpportunityForm = () => {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div>
           <Label htmlFor="jdText" className="text-gray-300">Job Description (Optional)</Label>
           <Textarea
@@ -138,10 +134,10 @@ export const NotionOpportunityForm = () => {
             className="min-h-[150px] bg-gray-700 border-gray-600 text-gray-200"
           />
         </div>
-        
-        <Button 
-          type="submit" 
-          disabled={isSubmitting || !title.trim() || !company.trim()} 
+
+        <Button
+          type="submit"
+          disabled={isSubmitting || !title.trim() || !company.trim()}
           className="bg-blue-600 hover:bg-blue-700 w-full"
         >
           {isSubmitting ? (
@@ -155,14 +151,14 @@ export const NotionOpportunityForm = () => {
             </>
           )}
         </Button>
-        
+
         {feedback && (
           <div className={`p-3 rounded-md flex items-center ${
-            feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' 
+            feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
                                      : 'bg-red-900/30 border border-red-700 text-red-300'
           }`}>
-            {feedback.type === 'success' ? 
-              <CheckCircle className="h-5 w-5 mr-2" /> : 
+            {feedback.type === 'success' ?
+              <CheckCircle className="h-5 w-5 mr-2" /> :
               <AlertTriangle className="h-5 w-5 mr-2" />
             }
             {feedback.message}

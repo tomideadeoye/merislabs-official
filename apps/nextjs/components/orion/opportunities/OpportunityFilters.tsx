@@ -6,10 +6,10 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+  SelectValue,
+  Input,
+  Button
+} from '@repo/ui';
 import {
   Filter,
   SortAsc,

@@ -7,11 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+  Input,
+  Button,
+  Label,
+  Textarea
+} from '@repo/ui';
 import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/components/orion/opportunities/opportunityCentralStore';
 import { OpportunityNotionInput } from '@shared/types/orion';
 

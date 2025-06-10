@@ -12,8 +12,8 @@ import React, { useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsivePie } from "@nivo/pie";
 import { Opportunity } from "@shared/types/opportunity";
-import { Loader } from "@/components/ui/Loader";
-import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Loader } from '@repo/ui';
+import { ProgressBar } from "@repo/ui";
 
 // Utility: Count opportunities by a key
 function getCounts<T extends Opportunity>(opportunities: T[], key: keyof T) {

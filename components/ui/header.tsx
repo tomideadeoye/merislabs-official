@@ -5,7 +5,7 @@ import { Avatar } from "@/components/ui/avatar";
 import MobileMenu from "./mobile-menu";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@shared/lib/routes";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";

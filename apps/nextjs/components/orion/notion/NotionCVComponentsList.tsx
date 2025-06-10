@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@repo/ui';
 import { Loader2, FileText, RefreshCw } from 'lucide-react';
 import { CVComponent } from '@shared/lib/notion_next_service';
 
@@ -14,11 +13,11 @@ export const NotionCVComponentsList = () => {
   const fetchComponents = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/orion/notion/cv-components');
       const data = await response.json();
-      
+
       if (data.success) {
         setComponents(data.components);
       } else {
@@ -49,9 +48,9 @@ export const NotionCVComponentsList = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-100">CV Components from Notion</h2>
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <Button
+          variant="outline"
+          size="sm"
           onClick={fetchComponents}
           disabled={isLoading}
           className="bg-gray-700 hover:bg-gray-600"
@@ -64,7 +63,7 @@ export const NotionCVComponentsList = () => {
           <span className="ml-2">Refresh</span>
         </Button>
       </div>
-      
+
       {isLoading && components.length === 0 ? (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-blue-400" />

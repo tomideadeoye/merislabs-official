@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle2, Award, Plus, Trash2 } from 'lucide-react';
 import type { CareerMilestone } from '@shared/types/narrative-clarity';
 

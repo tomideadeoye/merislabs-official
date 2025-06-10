@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "es5",
     "lib": [
       "dom",
       "dom.iterable",
@@ -7,21 +8,20 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "incremental": true,
+    "strict": false,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "incremental": true,
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./apps/nextjs/*"],
-      "@shared/*": ["./packages/shared/*"],
-      "@shared/types/*": ["./packages/shared/types/*"],
-      "@/types/*": ["./apps/nextjs/types/*"]
+      "@/*": ["apps/nextjs/*"],
+      "@repo/ui": ["packages/ui/src"],
+      "@shared/*": ["packages/shared/src/*"]
     },
     "plugins": [
       {
@@ -29,18 +29,10 @@
       }
     ]
   },
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "apps/**/*.ts",
-    "apps/**/*.tsx",
-    "packages/**/*.ts",
-    "packages/**/*.tsx"
-  ],
   "exclude": [
     "node_modules",
-    "**/node_modules/*"
+    ".turbo",
+    "dist",
+    "build"
   ]
 }

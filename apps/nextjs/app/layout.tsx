@@ -1,14 +1,11 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './css/style.css';
-import { MemoryProvider } from '@/components/orion/MemoryProvider';
-import Header from '@repo/ui/components/ui/header';
-import { ROUTES } from '@/lib/routes';
-import { ThemeProvider } from '@/components/ui/theme-provider';
+import { Header } from '@repo/ui';
+import { ROUTES } from '@shared/lib/routes';
+import { ThemeProvider } from '@repo/ui';
 import { SessionProvider } from 'next-auth/react';
 import { Providers } from './providers';
-
-import { ROUTES } from '@/lib/routes';
 
 const inter = localFont({
   src: './fonts/Inter.woff2',

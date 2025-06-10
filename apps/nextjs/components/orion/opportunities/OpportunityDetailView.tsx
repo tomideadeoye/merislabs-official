@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
 import { Calendar, ExternalLink, Edit, Trash2, BarChart2, FileText, MessageSquare, Users } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { StatusUpdateButton } from './StatusUpdateButton';
+import { StatusUpdateButton } from '@/components/orion/opportunities/StatusUpdateButton';
 import Link from 'next/link';
 
 interface OpportunityDetailViewProps {

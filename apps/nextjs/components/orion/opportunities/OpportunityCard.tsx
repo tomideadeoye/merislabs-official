@@ -1,8 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardFooter, Badge } from '@repo/ui';
 import { Calendar, ExternalLink, BarChart2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Opportunity } from '@shared/types/opportunity';

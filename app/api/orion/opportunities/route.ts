@@ -64,7 +64,7 @@ export async function GET() {
       ORDER BY o.created_at DESC
     `);
 
-    logger.info('Successfully fetched opportunities', { count: result.rows.length });
+    logger.info('Successfully fetched opportunities', { count: result.length });
     return NextResponse.json(result.rows);
   } catch (error) {
     logger.error('Error fetching opportunities', { error });

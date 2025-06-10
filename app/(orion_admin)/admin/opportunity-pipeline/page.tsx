@@ -13,7 +13,7 @@ import { OpportunityFilters } from '@/components/orion/opportunities/Opportunity
 import { AddOpportunityForm } from '@/components/orion/opportunities/AddOpportunityForm';
 import { OpportunityKanbanView } from '@/components/orion/opportunities/OpportunityKanbanView';
 import { logger } from '@shared/lib/logger';
-import { useOpportunityCentralStore } from '../../../components/orion/opportunities/opportunityCentralStore';
+import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
 
 export default function OpportunityPipelinePage() {
   const [view, setView] = useState<'list' | 'kanban'>('list');

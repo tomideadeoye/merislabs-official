@@ -3,19 +3,8 @@
 import React, { useState } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/app_state';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle2, Send } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import type { PersonaMap } from '@shared/types/strategic-outreach';
 import { useOutreachGenerationStore } from './outreachGenerationStore';
 

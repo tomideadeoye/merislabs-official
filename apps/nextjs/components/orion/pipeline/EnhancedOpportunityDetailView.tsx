@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { Card, Button, Tabs, Textarea, Badge, Dialog, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@repo/ui';
+import { CardHeader, CardTitle } from '@/components/ui/card';
+import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
 import {
   ArrowLeft,
@@ -38,8 +36,6 @@ import { LessonsLearnedSection } from '../opportunities/LessonsLearnedSection';
 import { DraftApplicationButton } from '../opportunities/application/DraftApplicationButton';
 import { FindStakeholdersButton } from '../opportunities/networking/FindStakeholdersButton';
 import { ComprehensiveAnalysis } from '../opportunities/ComprehensiveAnalysis';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
 interface EnhancedOpportunityDetailViewProps {
   opportunityId: string;

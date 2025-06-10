@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { callSequentialThinking } from '@shared/lib/orion_tools';
 import { checkAllLlmApiKeys } from '@shared/lib/llm_providers';
 import { CheckCircle, XCircle, HelpCircle } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui';
 import { ValuePropositionForm } from '@/components/orion/ValuePropositionForm';
 import { CareerMilestoneForm } from '@/components/orion/CareerMilestoneForm';
 import { CareerMilestoneList } from '@/components/orion/CareerMilestoneList';

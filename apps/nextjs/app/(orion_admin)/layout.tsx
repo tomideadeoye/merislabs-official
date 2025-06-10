@@ -8,7 +8,7 @@ import { useSessionState } from "@shared/hooks/useSessionState";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@shared/lib/apiClient";
 import { Brain } from "lucide-react";
-import { Loader } from "@/components/ui/Loader";
+import { Loader } from '@repo/ui';
 
 import {
   LayoutDashboard,

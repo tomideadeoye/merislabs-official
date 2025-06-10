@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Opportunity } from '@shared/types/opportunity';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, Badge } from '@repo/ui';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';

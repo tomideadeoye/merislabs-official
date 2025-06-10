@@ -5,7 +5,7 @@ import { OpportunityCard } from './OpportunityCard';
 import { Button, Input } from '@repo/ui';
 import { Loader2, Plus, Search } from 'lucide-react';
 import { OpportunityDetails as OpportunityDetailsType, OpportunityDetails, Opportunity } from '@shared/types/opportunity';
-import { useOpportunityCentralStore } from 'components/orion/opportunities/opportunityCentralStore';
+import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
 
 // Constants for opportunity filters and sorting
 const FILTERS = {

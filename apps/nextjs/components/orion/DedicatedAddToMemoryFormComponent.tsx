@@ -3,10 +3,7 @@
 import React, { useState } from 'react';
 import { useSessionState } from '@shared/hooks/useSessionState';
 import { SessionStateKeys } from '@shared/app_state';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button, Textarea, Input, Label } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Brain } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
