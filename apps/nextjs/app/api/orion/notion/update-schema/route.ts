@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@shared/auth';
-import { updateNotionDatabaseSchema } from '@shared/lib/notion_service'; // Import the update function
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@repo/sharedauth";
+import { updateNotionDatabaseSchema } from "@repo/shared/notion_service"; // Import the update function
 
 interface UpdateSchemaRequestBody {
   databaseId: string;
@@ -24,23 +24,40 @@ export async function POST(
   // }
 
   try {
-    const { databaseId, properties }: UpdateSchemaRequestBody = await request.json();
+    const { databaseId, properties }: UpdateSchemaRequestBody =
+      await request.json();
 
     if (!databaseId || !properties) {
-        return NextResponse.json({ success: false, error: 'Missing databaseId or properties in request body.' }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Missing databaseId or properties in request body.",
+        },
+        { status: 400 }
+      );
     }
 
     const result = await updateNotionDatabaseSchema(databaseId, properties);
 
     if (result.success) {
-      return NextResponse.json({ success: true, message: 'Database schema updated successfully.' });
+      return NextResponse.json({
+        success: true,
+        message: "Database schema updated successfully.",
+      });
     } else {
-      return NextResponse.json({ success: false, error: result.error}, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: 500 }
+      );
     }
   } catch (error: any) {
-    console.error('[UPDATE_SCHEMA_API_ERROR]', error.message, error.stack);
+    console.error("[UPDATE_SCHEMA_API_ERROR]", error.message, error.stack);
     return NextResponse.json(
-      { success: false, error: 'Failed to update database schema.', details: error.message || 'Unknown error' },
+      {
+        success: false,
+        error: "Failed to update database schema.",
+        details: error.message || "Unknown error",
+      },
       { status: 500 }
     );
   }

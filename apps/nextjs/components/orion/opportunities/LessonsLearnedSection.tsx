@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@repo/ui';
 import { Loader2, Lightbulb, RefreshCw, Copy } from 'lucide-react';
-import { Opportunity } from '@shared/types/opportunity';
+import { OrionOpportunity } from '@repo/shared';
 
 interface LessonsLearnedProps {
-  opportunity: Opportunity;
+  OrionOpportunity: OrionOpportunity;
 }
 
 interface LessonLearned {
@@ -18,7 +18,7 @@ interface LessonLearned {
   relevance: number;
 }
 
-export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportunity }) => {
+export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ OrionOpportunity }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [lessons, setLessons] = useState<LessonLearned[]>([]);
@@ -36,7 +36,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: `${opportunity.title} ${opportunity.company} ${opportunity.type} ${opportunity.tags?.join(' ') || ''}`,
+          query: `${OrionOpportunity.title} ${OrionOpportunity.company} ${OrionOpportunity.type} ${OrionOpportunity.tags?.join(' ') || ''}`,
           collectionName: 'orion_memory',
           limit: 10,
           filter: {
@@ -85,13 +85,13 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
     } finally {
       setIsLoading(false);
     }
-  }, [opportunity]);
+  }, [OrionOpportunity]);
 
   useEffect(() => {
-    if (opportunity) {
+    if (OrionOpportunity) {
       fetchLessonsLearned();
     }
-  }, [opportunity, fetchLessonsLearned]);
+  }, [OrionOpportunity, fetchLessonsLearned]);
 
   const generateLessonsLearned = async () => {
     setIsGenerating(true);
@@ -104,7 +104,7 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: `${opportunity.type} opportunities reflections lessons`,
+          query: `${OrionOpportunity.type} opportunities reflections lessons`,
           collectionName: 'orion_memory',
           limit: 20,
           filter: {
@@ -141,17 +141,17 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
           body: JSON.stringify({
             requestType: 'LESSONS_LEARNED_SYNTHESIS',
             primaryContext: `
-              Based on the following reflections and past experiences, extract 3-5 key lessons learned that would be relevant to the current opportunity:
+              Based on the following reflections and past experiences, extract 3-5 key lessons learned that would be relevant to the current OrionOpportunity:
 
-              Current Opportunity: ${opportunity.title} at ${opportunity.company}
-              Type: ${opportunity.type}
-              Tags: ${opportunity.tags?.join(', ') || 'None'}
+              Current OrionOpportunity: ${OrionOpportunity.title} at ${OrionOpportunity.company}
+              Type: ${OrionOpportunity.type}
+              Tags: ${OrionOpportunity.tags?.join(', ') || 'None'}
 
               Past Reflections:
               ${reflectionTexts}
 
               Please provide:
-              1. 3-5 specific lessons learned that are relevant to this opportunity
+              1. 3-5 specific lessons learned that are relevant to this OrionOpportunity
               2. For each lesson, include a brief explanation of why it's important
               3. Format each lesson as a separate paragraph
             `,
@@ -171,13 +171,13 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ opportuni
             },
             body: JSON.stringify({
               text: llmData.content,
-              sourceId: `lessons_learned_${opportunity.id}_${Date.now()}`,
-              tags: ['lessons_learned', 'opportunity', opportunity.type, ...(opportunity.tags || [])],
+              sourceId: `lessons_learned_${OrionOpportunity.id}_${Date.now()}`,
+              tags: ['lessons_learned', 'OrionOpportunity', OrionOpportunity.type, ...(OrionOpportunity.tags || [])],
               metadata: {
                 type: 'lessons_learned',
-                opportunityId: opportunity.id,
-                company: opportunity.company,
-                title: opportunity.title,
+                opportunityId: OrionOpportunity.id,
+                company: OrionOpportunity.company,
+                title: OrionOpportunity.title,
                 timestamp: new Date().toISOString()
               }
             })

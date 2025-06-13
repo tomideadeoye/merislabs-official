@@ -2,9 +2,9 @@
 
 import React, { useState, useCallback } from 'react';
 import { PageHeader, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
-import { PageNames } from "@shared/app_state";
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { PageNames } from "@repo/sharedapp_state";
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { HabiticaCredentialsForm } from '@/components/orion/HabiticaCredentialsForm';
 import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
 import { HabiticaTaskList } from '@/components/orion/HabiticaTaskList';

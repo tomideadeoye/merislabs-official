@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import { CognitiveDistortionAnalysisData } from '@shared/types/orion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { CognitiveDistortionAnalysisData } from '@repo/shared';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
+import { Badge } from '@repo/ui';
 import { BrainCircuit } from 'lucide-react';
 
 interface CognitiveDistortionDisplayProps {
@@ -28,7 +28,7 @@ export const CognitiveDistortionDisplay: React.FC<CognitiveDistortionDisplayProp
           <h4 className="text-xs font-medium text-gray-400 mb-1">Automatic Thought:</h4>
           <p className="text-sm text-gray-300">{data.automaticThought}</p>
         </div>
-        
+
         {data.identifiedDistortions && data.identifiedDistortions.length > 0 && (
           <div>
             <h4 className="text-xs font-medium text-gray-400 mb-1">Identified Distortions:</h4>
@@ -41,14 +41,14 @@ export const CognitiveDistortionDisplay: React.FC<CognitiveDistortionDisplayProp
             </div>
           </div>
         )}
-        
+
         {data.challengeToThought && (
           <div>
             <h4 className="text-xs font-medium text-gray-400 mb-1">Challenge to Thought:</h4>
             <p className="text-sm text-gray-300">{data.challengeToThought}</p>
           </div>
         )}
-        
+
         {data.alternativePerspective && (
           <div>
             <h4 className="text-xs font-medium text-gray-400 mb-1">Alternative Perspective:</h4>

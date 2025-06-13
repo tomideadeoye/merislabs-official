@@ -2,8 +2,8 @@ import type {
   PipelineState,
   EnabledSteps,
   OrionSessionState,
-} from "@shared/types/orion";
-import { SessionStateKeys } from "@shared/hooks/useSessionState";
+} from "@repo/shared";
+import { SessionStateKeys } from "@repo/sharedhooks/useSessionState";
 
 export { SessionStateKeys };
 
@@ -15,7 +15,7 @@ export const PageNames = {
   DRAFT_COMM: "✍️ Draft Communication",
   ASK: "❓ Ask Question",
   JOURNAL: "📓 Journal Entry",
-  PIPELINE: "💼 Opportunity Pipeline",
+  PIPELINE: "💼 OrionOpportunity Pipeline",
   HABITICA: "🚀 Habitica Guide",
   MEMORY: "📚 Add to Memory",
   MEMORY_MANAGER: "🗄️ Memory Manager",
@@ -24,14 +24,14 @@ export const PageNames = {
   ROUTINES: "🔄 Routines",
   NARRATIVE: "📝 Narrative Studio",
   INSIGHTS: "💡 Pattern Insights",
-  OPPORTUNITY: "🧐 Opportunity Evaluator",
+  OrionOpportunity: "🧐 OrionOpportunity Evaluator",
   EMOTIONAL: "🧘 Emotional Tracker",
   LOCAL_FILES: "📂 Local Files",
   IDEA_INCUBATOR: "💡 Idea Incubator",
   ADMIN_DASHBOARD: "👑 Admin Dashboard",
 } as const;
 
-export type PageNameValue = typeof PageNames[keyof typeof PageNames];
+export type PageNameValue = (typeof PageNames)[keyof typeof PageNames];
 
 export const getDefaultSessionState = (): Partial<OrionSessionState> => ({
   [SessionStateKeys.SESSION_STATE_INITIALIZED]: false,
@@ -41,7 +41,7 @@ export const getDefaultSessionState = (): Partial<OrionSessionState> => ({
   [SessionStateKeys.USER_NAME]: "Architect",
   [SessionStateKeys.CREWAI_AVAILABLE]: false,
   [SessionStateKeys.PIPELINE_STATE]: {
-    currentStep: '',
+    currentStep: "",
     completedSteps: [],
     data: {},
     current_opportunity: null,
@@ -72,7 +72,9 @@ export const getDefaultSessionValue = <K extends SessionStateKeys>(
 ): OrionSessionState[K] | undefined => {
   const defaults = getDefaultSessionState();
   if (key in defaults) {
-    return defaults[key as keyof Partial<OrionSessionState>] as OrionSessionState[K];
+    return defaults[
+      key as keyof Partial<OrionSessionState>
+    ] as OrionSessionState[K];
   }
   return undefined;
 };
@@ -96,10 +98,14 @@ class SessionStateManager {
             try {
               const storedValue = window.localStorage.getItem(storageKey);
               if (storedValue !== null) {
-                this.stateCache[storageKey as SessionStateKeys] = JSON.parse(storedValue);
+                this.stateCache[storageKey as SessionStateKeys] =
+                  JSON.parse(storedValue);
               }
             } catch (error) {
-              console.warn(`Failed to parse stored value for key ${storageKey}:`, error);
+              console.warn(
+                `Failed to parse stored value for key ${storageKey}:`,
+                error
+              );
               // Remove corrupted data
               window.localStorage.removeItem(storageKey);
             }
@@ -161,7 +167,10 @@ class SessionStateManager {
               try {
                 this.stateCache[key] = JSON.parse(storedValue);
               } catch (error) {
-                console.warn(`Failed to parse stored value for key ${key}:`, error);
+                console.warn(
+                  `Failed to parse stored value for key ${key}:`,
+                  error
+                );
                 window.localStorage.removeItem(key);
               }
             }
@@ -176,7 +185,10 @@ class SessionStateManager {
       const key = keyAsString as SessionStateKeys;
       const defaultValue = defaults[key];
       if (defaultValue !== undefined) {
-        this.initKeyLocalStorage(key, defaultValue as OrionSessionState[typeof key]);
+        this.initKeyLocalStorage(
+          key,
+          defaultValue as OrionSessionState[typeof key]
+        );
       }
     }
     window.localStorage.setItem(
@@ -228,10 +240,12 @@ class SessionStateManager {
     try {
       for (let i = 0; i < window.localStorage.length; i++) {
         const key = window.localStorage.key(i);
-        if (key &&
-            key !== "session_state_initialized" &&
-            key !== SessionStateKeys.MEMORY_INITIALIZED &&
-            key !== SessionStateKeys.USER_NAME) {
+        if (
+          key &&
+          key !== "session_state_initialized" &&
+          key !== SessionStateKeys.MEMORY_INITIALIZED &&
+          key !== SessionStateKeys.USER_NAME
+        ) {
           window.localStorage.removeItem(key);
         }
       }
@@ -251,7 +265,7 @@ class SessionStateManager {
     } catch (error) {
       if (error instanceof DOMException && error.code === 22) {
         // Handle quota exceeded
-        console.warn('localStorage quota exceeded, clearing old entries');
+        console.warn("localStorage quota exceeded, clearing old entries");
         this.clearOldEntries();
       }
       console.error(

@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle, CardDescription, Textarea, MultiSelect } from '@repo/ui';
-import { Badge } from '@/comp.onents/ui/badge';
-import { useMultiSelectStore } from '@/components/ui/multiSelectStore';
+import { Badge } from '@repo/ui';
 import { Loader2, AlertTriangle, Users, Send, Copy, ExternalLink } from 'lucide-react';
 
 // Default stakeholder roles for networking
@@ -49,7 +48,6 @@ export const OpportunityNetworking: React.FC<OpportunityNetworkingProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>(opportunityCompany);
   const [selectedRoles, setSelectedRoles] = useState<string[]>(DEFAULT_STAKEHOLDER_ROLES.slice(0, 5));
-  const multiSelectStore = useMultiSelectStore("networking-roles");
   const [stakeholders, setStakeholders] = useState<StakeholderWithOutreach[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [isGeneratingOutreach, setIsGeneratingOutreach] = useState<boolean>(false);
@@ -144,18 +142,6 @@ export const OpportunityNetworking: React.FC<OpportunityNetworkingProps> = ({
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
-
-  React.useEffect(() => {
-    multiSelectStore.getState().setOptions(DEFAULT_STAKEHOLDER_ROLES.map(role => ({ label: role, value: role })));
-    multiSelectStore.getState().setSelected(DEFAULT_STAKEHOLDER_ROLES.slice(0, 5));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  React.useEffect(() => {
-    const unsub = multiSelectStore.subscribe((state) => setSelectedRoles(state.selected));
-    return () => unsub();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className={`space-y-6 ${className}`}>

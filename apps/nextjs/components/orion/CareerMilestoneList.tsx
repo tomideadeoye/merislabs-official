@@ -12,7 +12,7 @@ import {
   ArrowUp,
   ArrowDown
 } from 'lucide-react';
-import type { CareerMilestone } from '@shared/types/narrative-clarity';
+import type { CareerMilestone } from '@repo/shared';
 import { useCareerMilestone } from './CareerMilestoneContext';
 
 /**

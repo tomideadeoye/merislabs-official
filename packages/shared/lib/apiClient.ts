@@ -1,6 +1,13 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
-import { logger } from "./logger";
 
+// Pure client-side logger stub
+const logger = {
+  debug: (...args: any[]) => console.debug('[DEBUG]', ...args),
+  info: (...args: any[]) => console.info('[INFO]', ...args),
+  warn: (...args: any[]) => console.warn('[WARN]', ...args),
+  error: (...args: any[]) => console.error('[ERROR]', ...args),
+  success: (...args: any[]) => console.log('[SUCCESS]', ...args),
+};
 
 // Custom error types
 export class APIError extends Error {

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Key, ShieldAlert } from 'lucide-react';
 

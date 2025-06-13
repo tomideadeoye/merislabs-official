@@ -1,11 +1,11 @@
 /**
- * GOAL: Update opportunity details using Neon/Postgres, replacing SQLite for cloud reliability.
- * Related: lib/database.ts, prd.md, types/opportunity.d.ts
+ * GOAL: Update OrionOpportunity details using Neon/Postgres, replacing SQLite for cloud reliability.
+ * Related: lib/database.ts, prd.md, types/OrionOpportunity.d.ts
  */
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from "@shared/auth";
-import { query, sql } from '@shared/lib/database';
-import type { OpportunityUpdatePayload } from '@shared/types/opportunity';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@repo/sharedauth";
+import { query, sql } from "@repo/shared/database";
+import type { OpportunityUpdatePayload } from '@repo/shared';
 
 interface RouteParams {
   params: {
@@ -14,51 +14,63 @@ interface RouteParams {
 }
 
 // =====================
-// Opportunity Pipeline Update API
+// OrionOpportunity Pipeline Update API
 // =====================
-// GOAL: Provide comprehensive, context-rich, level-based logging for all Opportunity update actions.
+// GOAL: Provide comprehensive, context-rich, level-based logging for all OrionOpportunity update actions.
 // All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   const logContext = {
-    route: '/api/orion/opportunity/[opportunityId]/update',
-    filePath: 'app/api/orion/opportunity/[opportunityId]/update/route.ts',
+    route: "/api/orion/OrionOpportunity/[opportunityId]/update",
+    filePath: "app/api/orion/OrionOpportunity/[opportunityId]/update/route.ts",
     timestamp: new Date().toISOString(),
-    user: 'public',
+    user: "public",
     opportunityId: params?.opportunityId,
   };
 
-  console.info('[OPPORTUNITY_UPDATE][START]', logContext);
+  console.info("[OPPORTUNITY_UPDATE][START]", logContext);
 
   try {
     const { opportunityId } = params;
     const body: OpportunityUpdatePayload = await request.json();
-    console.info('[OPPORTUNITY_UPDATE][PAYLOAD]', { ...logContext, body });
+    console.info("[OPPORTUNITY_UPDATE][PAYLOAD]", { ...logContext, body });
 
     if (!opportunityId) {
-      console.warn('[OPPORTUNITY_UPDATE][VALIDATION_FAIL][NO_ID]', { ...logContext, body });
-      return NextResponse.json({
-        success: false,
-        error: 'Opportunity ID is required.'
-      }, { status: 400 });
+      console.warn("[OPPORTUNITY_UPDATE][VALIDATION_FAIL][NO_ID]", {
+        ...logContext,
+        body,
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "OrionOpportunity ID is required.",
+        },
+        { status: 400 }
+      );
     }
 
-    // Check if opportunity exists
+    // Check if OrionOpportunity exists
     const checkQuery = "SELECT * FROM opportunities WHERE id = $1";
     const checkResult = await query(checkQuery, [opportunityId]);
     const existingOpp = checkResult.rows[0];
 
     if (!existingOpp) {
-      console.warn('[OPPORTUNITY_UPDATE][NOT_FOUND]', { ...logContext, opportunityId });
-      return NextResponse.json({
-        success: false,
-        error: 'Opportunity not found.'
-      }, { status: 404 });
+      console.warn("[OPPORTUNITY_UPDATE][NOT_FOUND]", {
+        ...logContext,
+        opportunityId,
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "OrionOpportunity not found.",
+        },
+        { status: 404 }
+      );
     }
 
     // Prepare update fields
     const updateFields: Record<string, any> = {
-      laststatusupdate: new Date().toISOString()
+      laststatusupdate: new Date().toISOString(),
     };
 
     // Basic fields
@@ -69,9 +81,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (body.sourceURL !== undefined) updateFields.sourceurl = body.sourceURL;
     if (body.status !== undefined) updateFields.status = body.status;
     if (body.priority !== undefined) updateFields.priority = body.priority;
-    if (body.nextActionDate !== undefined) updateFields.nextactiondate = body.nextActionDate;
+    if (body.nextActionDate !== undefined)
+      updateFields.nextactiondate = body.nextActionDate;
     if (body.notes !== undefined) updateFields.notes = body.notes;
-    if (body.relatedEvaluationId !== undefined) updateFields.relatedevaluationid = body.relatedEvaluationId;
+    if (body.relatedEvaluationId !== undefined)
+      updateFields.relatedevaluationid = body.relatedEvaluationId;
 
     // Handle array fields that need special processing
     if (body.tags !== undefined) {
@@ -80,10 +94,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     // Handle adding/removing from arrays
     if (body.addApplicationMaterialId || body.removeApplicationMaterialId) {
-      const currentIds = existingOpp.applicationmaterialids ?
-        JSON.parse(existingOpp.applicationmaterialids) : [];
+      const currentIds = existingOpp.applicationmaterialids
+        ? JSON.parse(existingOpp.applicationmaterialids)
+        : [];
 
-      if (body.addApplicationMaterialId && !currentIds.includes(body.addApplicationMaterialId)) {
+      if (
+        body.addApplicationMaterialId &&
+        !currentIds.includes(body.addApplicationMaterialId)
+      ) {
         currentIds.push(body.addApplicationMaterialId);
       }
 
@@ -98,10 +116,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     if (body.addStakeholderContactId || body.removeStakeholderContactId) {
-      const currentIds = existingOpp.stakeholdercontactids ?
-        JSON.parse(existingOpp.stakeholdercontactids) : [];
+      const currentIds = existingOpp.stakeholdercontactids
+        ? JSON.parse(existingOpp.stakeholdercontactids)
+        : [];
 
-      if (body.addStakeholderContactId && !currentIds.includes(body.addStakeholderContactId)) {
+      if (
+        body.addStakeholderContactId &&
+        !currentIds.includes(body.addStakeholderContactId)
+      ) {
         currentIds.push(body.addStakeholderContactId);
       }
 
@@ -116,10 +138,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     if (body.addRelatedHabiticaTaskId || body.removeRelatedHabiticaTaskId) {
-      const currentIds = existingOpp.relatedhabiticataskids ?
-        JSON.parse(existingOpp.relatedhabiticataskids) : [];
+      const currentIds = existingOpp.relatedhabiticataskids
+        ? JSON.parse(existingOpp.relatedhabiticataskids)
+        : [];
 
-      if (body.addRelatedHabiticaTaskId && !currentIds.includes(body.addRelatedHabiticaTaskId)) {
+      if (
+        body.addRelatedHabiticaTaskId &&
+        !currentIds.includes(body.addRelatedHabiticaTaskId)
+      ) {
         currentIds.push(body.addRelatedHabiticaTaskId);
       }
 
@@ -136,16 +162,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Build the SQL update statement
     const setClause = Object.keys(updateFields)
       .map((key, idx) => `${key} = $${idx + 2}`)
-      .join(', ');
+      .join(", ");
 
     const updateQuery = `UPDATE opportunities SET ${setClause} WHERE id = $1`;
-    await query(updateQuery, [
-      opportunityId,
-      ...Object.values(updateFields)
-    ]);
-    console.info('[OPPORTUNITY_UPDATE][DB_UPDATED]', { ...logContext, updateFields });
+    await query(updateQuery, [opportunityId, ...Object.values(updateFields)]);
+    console.info("[OPPORTUNITY_UPDATE][DB_UPDATED]", {
+      ...logContext,
+      updateFields,
+    });
 
-    // Fetch the updated opportunity
+    // Fetch the updated OrionOpportunity
     const updatedQuery = "SELECT * FROM opportunities WHERE id = $1";
     const updatedResult = await query(updatedQuery, [opportunityId]);
     const updatedOppRaw = updatedResult.rows[0];
@@ -154,26 +180,42 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const updatedOpportunity = {
       ...updatedOppRaw,
       tags: updatedOppRaw.tags ? JSON.parse(updatedOppRaw.tags) : [],
-      applicationMaterialIds: updatedOppRaw.applicationmaterialids ? JSON.parse(updatedOppRaw.applicationmaterialids) : [],
-      stakeholderContactIds: updatedOppRaw.stakeholdercontactids ? JSON.parse(updatedOppRaw.stakeholdercontactids) : [],
-      relatedHabiticaTaskIds: updatedOppRaw.relatedhabiticataskids ? JSON.parse(updatedOppRaw.relatedhabiticataskids) : [],
+      applicationMaterialIds: updatedOppRaw.applicationmaterialids
+        ? JSON.parse(updatedOppRaw.applicationmaterialids)
+        : [],
+      stakeholderContactIds: updatedOppRaw.stakeholdercontactids
+        ? JSON.parse(updatedOppRaw.stakeholdercontactids)
+        : [],
+      relatedHabiticaTaskIds: updatedOppRaw.relatedhabiticataskids
+        ? JSON.parse(updatedOppRaw.relatedhabiticataskids)
+        : [],
     };
 
-    console.info('[OPPORTUNITY_UPDATE][SUCCESS]', { ...logContext, opportunityId, updatedOpportunity });
+    console.info("[OPPORTUNITY_UPDATE][SUCCESS]", {
+      ...logContext,
+      opportunityId,
+      updatedOpportunity,
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Opportunity updated successfully.',
-      opportunity: updatedOpportunity
+      message: "OrionOpportunity updated successfully.",
+      OrionOpportunity: updatedOpportunity,
+    });
+  } catch (error: any) {
+    console.error("[OPPORTUNITY_UPDATE][ERROR]", {
+      ...logContext,
+      error: error.message,
+      stack: error.stack,
     });
 
-  } catch (error: any) {
-    console.error('[OPPORTUNITY_UPDATE][ERROR]', { ...logContext, error: error.message, stack: error.stack });
-
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to update opportunity.',
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to update OrionOpportunity.",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }

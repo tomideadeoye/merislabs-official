@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle2, UserPlus, User } from 'lucide-react';
-import type { PersonaMap } from '@shared/types/strategic-outreach';
+import type { Persona } from '@repo/shared';
 import { usePersonaFormStore } from './persona/personaFormStore';
 
 interface PersonaFormProps {
-  initialData?: Partial<PersonaMap>;
+  initialData?: Partial<Persona>;
   onCancel?: () => void;
 }
 
@@ -15,16 +15,16 @@ export const PersonaForm: React.FC<PersonaFormProps> = ({
   initialData = {},
   onCancel
 }) => {
-  const [name, setName] = useState(initialData.name || '');
-  const [company, setCompany] = useState(initialData.company || '');
-  const [role, setRole] = useState(initialData.role || '');
-  const [industry, setIndustry] = useState(initialData.industry || '');
-  const [values, setValues] = useState(initialData.values?.join(', ') || '');
-  const [challenges, setChallenges] = useState(initialData.challenges?.join(', ') || '');
-  const [interests, setInterests] = useState(initialData.interests?.join(', ') || '');
-  const [valueProposition, setValueProposition] = useState(initialData.valueProposition || '');
-  const [notes, setNotes] = useState(initialData.notes || '');
-  const [tags, setTags] = useState(initialData.tags?.join(', ') || '');
+  const [name, setName] = useState(initialData?.name || '');
+  const [company, setCompany] = useState(initialData?.company || '');
+  const [role, setRole] = useState(initialData?.role || '');
+  const [industry, setIndustry] = useState(initialData?.industry || '');
+  const [values, setValues] = useState(initialData?.values?.join(', ') || '');
+  const [challenges, setChallenges] = useState(initialData?.challenges?.join(', ') || '');
+  const [interests, setInterests] = useState(initialData?.interests?.join(', ') || '');
+  const [valueProposition, setValueProposition] = useState(initialData?.valueProposition || '');
+  const [notes, setNotes] = useState(initialData?.notes || '');
+  const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
 
   const {
     isSubmitting,
@@ -63,7 +63,7 @@ export const PersonaForm: React.FC<PersonaFormProps> = ({
     clearFeedback();
 
     // Convert comma-separated strings to arrays
-    const personaData: Partial<PersonaMap> = {
+    const personaData: Partial<Persona> = {
       ...initialData,
       name,
       company: company || undefined,
@@ -225,10 +225,9 @@ export const PersonaForm: React.FC<PersonaFormProps> = ({
           </div>
 
           {feedback && (
-            <div className={`p-3 rounded-md flex items-center ${
-              feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
-                                   : 'bg-red-900/30 border border-red-700 text-red-300'
-            }`}>
+            <div className={`p-3 rounded-md flex items-center ${feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
+              : 'bg-red-900/30 border border-red-700 text-red-300'
+              }`}>
               {feedback.type === 'success' ?
                 <CheckCircle2 className="h-5 w-5 mr-2" /> :
                 <AlertTriangle className="h-5 w-5 mr-2" />

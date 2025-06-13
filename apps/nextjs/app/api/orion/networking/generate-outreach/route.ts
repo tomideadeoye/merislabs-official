@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@shared/auth';
-import { DRAFT_COMMUNICATION_REQUEST_TYPE } from '@shared/lib/orion_config';
-import { generateLLMResponse } from '@shared/lib/orion_llm';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@repo/sharedauth";
+import { DRAFT_COMMUNICATION_REQUEST_TYPE } from "@repo/shared/orion_config";
+import { generateLLMResponse } from "@repo/shared";
 
 interface OutreachRequestBody {
   stakeholder: {
@@ -50,26 +50,39 @@ You excel at helping professionals initiate conversations that lead to meaningfu
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
     const requestBody: OutreachRequestBody = await request.json();
-    const { stakeholder, context, profileData, additionalInfo, jobTitle, companyResearch } = requestBody;
+    const {
+      stakeholder,
+      context,
+      profileData,
+      additionalInfo,
+      jobTitle,
+      companyResearch,
+    } = requestBody;
 
     // Basic validation
     if (!stakeholder || !stakeholder.name || !stakeholder.company) {
-      return NextResponse.json({
-        success: false,
-        error: "Stakeholder information is required."
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Stakeholder information is required.",
+        },
+        { status: 400 }
+      );
     }
 
     // Generate outreach email
     const emailDraft = await generateOutreachEmail(
       stakeholder,
-      profileData || '',
-      context || '',
+      profileData || "",
+      context || "",
       additionalInfo,
       jobTitle,
       companyResearch
@@ -77,17 +90,19 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      emailDraft
+      emailDraft,
     });
-
   } catch (error: any) {
-    console.error('[OUTREACH_EMAIL_API_ERROR]', error);
+    console.error("[OUTREACH_EMAIL_API_ERROR]", error);
 
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to generate outreach email.',
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to generate outreach email.",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -95,7 +110,7 @@ export async function POST(request: NextRequest) {
  * Generate an outreach email for a stakeholder with enhanced prompting
  */
 async function generateOutreachEmail(
-  stakeholder: OutreachRequestBody['stakeholder'],
+  stakeholder: OutreachRequestBody["stakeholder"],
   profileData: string,
   context: string,
   additionalInfo?: string,
@@ -105,17 +120,23 @@ async function generateOutreachEmail(
   try {
     const hasJobInterest = !!jobTitle;
     const hasEmail = !!stakeholder.email;
-    const personInfo = stakeholder.person_snippet || '';
+    const personInfo = stakeholder.person_snippet || "";
 
     // Build a detailed context for the LLM
-    let conversationStarters = '';
+    let conversationStarters = "";
     if (personInfo) {
-      conversationStarters = `Based on their profile: "${personInfo.substring(0, 200)}..."`;
+      conversationStarters = `Based on their profile: "${personInfo.substring(
+        0,
+        200
+      )}..."`;
     } else if (companyResearch) {
-      conversationStarters = `Based on company research: "${companyResearch.substring(0, 200)}..."`;
+      conversationStarters = `Based on company research: "${companyResearch.substring(
+        0,
+        200
+      )}..."`;
     }
 
-    let platform = hasEmail ? 'Email' : 'LinkedIn';
+    let platform = hasEmail ? "Email" : "LinkedIn";
     let intro = `You are drafting a ${platform} outreach message to connect with ${stakeholder.name}, a ${stakeholder.role} at ${stakeholder.company}.`;
     if (stakeholder.linkedin_url) {
       intro += ` Their LinkedIn: ${stakeholder.linkedin_url}.`;
@@ -127,25 +148,26 @@ async function generateOutreachEmail(
       intro += ` The sender is interested in the role: ${jobTitle}.`;
     }
 
-    let contextBlock = '';
+    let contextBlock = "";
     if (context) contextBlock += `\nContext: ${context}`;
     if (profileData) contextBlock += `\nSender Profile: ${profileData}`;
     if (additionalInfo) contextBlock += `\nAdditional Info: ${additionalInfo}`;
-    if (companyResearch) contextBlock += `\nCompany Research: ${companyResearch}`;
+    if (companyResearch)
+      contextBlock += `\nCompany Research: ${companyResearch}`;
     if (conversationStarters) contextBlock += `\n${conversationStarters}`;
 
     const primaryContext = `${intro}\n${contextBlock}\n\nDraft a concise, authentic, and effective outreach message for this scenario. Follow the system prompt's best practices for the chosen platform.`;
 
     // Call the LLM
     const result = await generateLLMResponse(
-      'NETWORKING_OUTREACH',
+      "NETWORKING_OUTREACH",
       primaryContext,
       {
         profileContext: profileData,
         systemContext: SYSTEM_PROMPT_NETWORKING_OUTREACH,
         model: undefined, // Use default for this request type
         temperature: 0.7,
-        maxTokens: hasEmail ? 400 : 120 // LinkedIn is shorter
+        maxTokens: hasEmail ? 400 : 120, // LinkedIn is shorter
       }
     );
     return result;
@@ -153,5 +175,3 @@ async function generateOutreachEmail(
     throw error;
   }
 }
-
-// TODO: Add/expand tests for this endpoint in tests/e2e.test.ts

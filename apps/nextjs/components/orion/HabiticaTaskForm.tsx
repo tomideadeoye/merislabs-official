@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Button, Input, Textarea, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Plus } from 'lucide-react';
-import type { HabiticaTaskCreationParams } from '@shared/types/habitica';
+import type { HabiticaTaskCreationParams } from '@repo/shared/types/habitica';
 
 interface HabiticaTaskFormProps {
   onTaskCreated?: () => void;

@@ -17,7 +17,7 @@ export interface CVComponent {
   notion_page_id: string;
 }
 
-// Define types for opportunity payload and response
+// Define types for OrionOpportunity payload and response
 export interface OpportunityNotionPayload {
   title: string;
   company: string;
@@ -54,7 +54,7 @@ export async function fetchCvComponentsFromNotion(): Promise<CVComponent[]> {
 }
 
 /**
- * Create or find an opportunity in Notion via Python API
+ * Create or find an OrionOpportunity in Notion via Python API
  */
 export async function createOpportunityInNotion(payload: OpportunityNotionPayload): Promise<OpportunityNotionResponse> {
   // Validate payload using zod
@@ -64,10 +64,10 @@ export async function createOpportunityInNotion(payload: OpportunityNotionPayloa
     throw new Error('Invalid OpportunityNotionPayload: ' + JSON.stringify(parseResult.error.format()));
   }
   try {
-    const response = await axios.post(`${PYTHON_NOTION_API_BASE_URL}/opportunity`, payload);
+    const response = await axios.post(`${PYTHON_NOTION_API_BASE_URL}/OrionOpportunity`, payload);
     return response.data;
   } catch (error) {
-    console.error('Error creating opportunity in Notion:', error);
+    console.error('Error creating OrionOpportunity in Notion:', error);
     throw error;
   }
 }

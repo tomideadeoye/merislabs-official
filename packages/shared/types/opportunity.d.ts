@@ -1,3 +1,5 @@
+// CANONICAL: This file is the single source of truth for all OrionOpportunity-related types in the monorepo. Do not duplicate these types elsewhere. Update all imports to use the barrel export from packages/shared/src/index.ts.
+
 export type OpportunityType = 'job' | 'education_program' | 'project_collaboration' | 'funding' | 'other';
 
 export type OpportunityStatus = 'not_started' | 'researching' | 'evaluating' | 'application_ready' | 'applied' | 'interview_scheduled' | 'offer_received' | 'rejected' | 'closed' | string;
@@ -105,7 +107,7 @@ export interface OpportunityDetails {
   lastStatusUpdate?: string;
 }
 
-export interface Opportunity extends OpportunityDetails {
+export interface OrionOpportunity extends OpportunityDetails {
   id: string;
   title: string;
   companyOrInstitution: string;
@@ -170,7 +172,7 @@ export interface OpportunityUpdatePayload {
 
 // Added types for Draft Application API based on usage in route.ts
 export interface DraftApplicationRequestBody {
-  opportunity: {
+  OrionOpportunity: {
     title: string;
     company: string;
     content: string;

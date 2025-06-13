@@ -1,8 +1,8 @@
 /**
  * OpportunityPipelineCharts
- * GOAL: Visually rich, interactive, and fun analytics for the Opportunity Pipeline using Nivo.
+ * GOAL: Visually rich, interactive, and fun analytics for the OrionOpportunity Pipeline using Nivo.
  * Features animated Nivo bar and pie charts, robust context-rich logging, loading/progress states, motivational UI, and error handling.
- * File: app/(orion_admin)/admin/opportunity-pipeline/OpportunityPipelineCharts.tsx
+ * File: app/(orion_admin)/admin/OrionOpportunity-pipeline/OpportunityPipelineCharts.tsx
  * Related: OpportunityPipelinePage, OpportunityList, OpportunityKanbanView, Loader, ProgressBar
  */
 
@@ -11,12 +11,11 @@
 import React, { useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsivePie } from "@nivo/pie";
-import { Opportunity } from "@shared/types/opportunity";
-import { Loader } from '@repo/ui';
-import { ProgressBar } from "@repo/ui";
+import { OrionOpportunity } from '@repo/shared';
+import { Loader, Progress } from "@repo/ui";
 
 // Utility: Count opportunities by a key
-function getCounts<T extends Opportunity>(opportunities: T[], key: keyof T) {
+function getCounts<T extends OrionOpportunity>(opportunities: T[], key: keyof T) {
   const counts: Record<string, number> = {};
   for (const opp of opportunities) {
     const value = opp[key];
@@ -77,7 +76,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 const MOTIVATIONAL_QUOTES = [
-  "Every opportunity is a step closer to Avalon!",
+  "Every OrionOpportunity is a step closer to Avalon!",
   "You are the architect of your destiny.",
   "Keep building, keep growing, keep winning!",
   "Greatness is inevitable. Let's go!",
@@ -170,7 +169,7 @@ function NivoPieChart({
   );
 }
 
-export function OpportunityPipelineCharts({ opportunities }: { opportunities: Opportunity[] }) {
+export function OpportunityPipelineCharts({ opportunities }: { opportunities: OrionOpportunity[] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const quote = useMotivationalQuote();
@@ -194,7 +193,7 @@ export function OpportunityPipelineCharts({ opportunities }: { opportunities: Op
       // [LOG][INFO] Showing Loader
       return (
         <div className="bg-gray-800 border border-gray-700 rounded p-4 mb-6 flex flex-col items-center">
-          <Loader message="Loading pipeline analytics..." />
+          <Loader />
         </div>
       );
     }
@@ -283,4 +282,4 @@ export function OpportunityPipelineCharts({ opportunities }: { opportunities: Op
 }
 
 // One-liner summary for README:
-// OpportunityPipelineCharts (app/(orion_admin)/admin/opportunity-pipeline/OpportunityPipelineCharts.tsx): Nivo-powered, animated, interactive analytics for the Opportunity Pipeline with robust logging, loading states, and fun UI.
+// OpportunityPipelineCharts (app/(orion_admin)/admin/OrionOpportunity-pipeline/OpportunityPipelineCharts.tsx): Nivo-powered, animated, interactive analytics for the OrionOpportunity Pipeline with robust logging, loading states, and fun UI.

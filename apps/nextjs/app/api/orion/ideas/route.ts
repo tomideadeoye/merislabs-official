@@ -6,9 +6,20 @@
  * - Related: lib/database.ts (Postgres pool), types/ideas.d.ts (Idea type), prd.md (feature documentation).
  * - All features preserved, no logic lost in migration.
  */
-import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@shared/lib/database';
-import type { Idea } from '@shared/types/ideas';
+import { NextRequest } from "next/server";
+import { z } from "zod";
+import {
+  query,
+  SQLQueryBuilder,
+  handleDatabaseOperation,
+  normalizeError
+} from "@repo/shared/database";
+import {
+  createLogger,
+  validateRequest,
+  errorResponse
+} from "@repo/shared/utils";
+import type { Idea } from "@repo/shared/types/ideas";
 
 export const dynamic = "force-dynamic";
 
@@ -16,46 +27,46 @@ export const dynamic = "force-dynamic";
  * API route for fetching ideas
  */
 export async function GET(req: NextRequest) {
+  const logger = createLogger("IDEAS_GET");
   try {
-    const url = new URL(req.url);
-    const status = url.searchParams.get('status');
-    const tag = url.searchParams.get('tag');
-
-    console.info('[IDEAS][INFO] Received GET /api/orion/ideas', { status, tag });
-
-    // Build query with filters
-    let queryStr = `SELECT * FROM ideas WHERE 1=1`;
-    const params: any = {};
-
-    if (status) {
-      queryStr += ` AND status = @status`;
-      params.status = status;
-      console.debug('[IDEAS][DEBUG] Filtering by status', { status });
-    }
-
-    // Add sorting
-    queryStr += ` ORDER BY updatedAt DESC`;
-
-    // Prepare Postgres query
-    const paramKeys = Object.keys(params);
-    const values = paramKeys.map((k) => params[k]);
-    let pgQuery = queryStr;
-    paramKeys.forEach((k, i) => {
-      pgQuery = pgQuery.replaceAll(`@${k}`, `$${i + 1}`);
+    // Validate query parameters
+    const { searchParams, error } = validateRequest({
+      request: req,
+      schema: z.object({
+        status: z.enum(["raw_spark", "incubating", "active", "completed"]).optional(),
+        tag: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce.number().int().min(1).max(100).default(20)
+      })
     });
 
-    console.debug('[IDEAS][DEBUG] Final SQL Query', { pgQuery, values });
-
-    // Execute query using Postgres
-    let rows: any[] = [];
-    try {
-      const result = await query(pgQuery, values);
-      rows = result.rows;
-      console.info('[IDEAS][INFO] Query executed successfully', { rowCount: rows.length });
-    } catch (dbError: any) {
-      console.error('[IDEAS][ERROR] Database query failed', { error: dbError, pgQuery, values });
-      throw dbError;
+    if (error) {
+      logger.warn("Invalid query parameters", { error: error.errors });
+      return errorResponse(error);
     }
+
+    const { status, tag, page, limit } = searchParams;
+    logger.info("Request received", { status, tag, page, limit });
+
+    // Build parameterized query
+    const queryBuilder = new SQLQueryBuilder()
+      .select("*")
+      .from("ideas")
+      .where(status ? "status = $1" : "", status)
+      .orderBy("updatedAt DESC")
+      .paginate(page, limit);
+
+    const { query: pgQuery, params: queryParams } = queryBuilder.build();
+    logger.debug("Constructed SQL query", { pgQuery, queryParams });
+
+
+    // Execute query with error handling
+    const { rows, rowCount } = await handleDatabaseOperation({
+      query: pgQuery,
+      params: queryParams,
+      context: "fetch_ideas",
+      logger
+    });
 
     // Parse JSON fields
     const ideas: Idea[] = rows.map((row: any) => ({
@@ -63,29 +74,34 @@ export async function GET(req: NextRequest) {
       title: row.title,
       briefDescription: row.briefDescription,
       status: row.status,
-      tags: JSON.parse(row.tags || '[]'),
+      tags: JSON.parse(row.tags || "[]"),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       dueDate: row.dueDate,
-      priority: row.priority
+      priority: row.priority,
     }));
 
     // If tag filter is provided, filter in memory (since tags are stored as JSON)
     const filteredIdeas = tag
-      ? ideas.filter(idea => idea.tags?.some(t => t.toLowerCase() === tag.toLowerCase()))
+      ? ideas.filter((idea) =>
+          idea.tags?.some((t) => t.toLowerCase() === tag.toLowerCase())
+        )
       : ideas;
 
-    console.info('[IDEAS][INFO] Returning ideas', { count: filteredIdeas.length });
+    console.info("[IDEAS][INFO] Returning ideas", {
+      count: filteredIdeas.length,
+    });
 
     return NextResponse.json({
       success: true,
-      ideas: filteredIdeas
+      ideas: filteredIdeas,
     });
-  } catch (error: any) {
-    console.error('[IDEAS][ERROR] Error in GET /api/orion/ideas', { error });
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+  } catch (error: unknown) {
+    const { message, code } = normalizeError(error);
+    logger.error("Request failed", { error: message, code });
+    return errorResponse({
+      code: code || 500,
+      message: message || "Failed to fetch ideas"
+    });
   }
 }

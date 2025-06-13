@@ -3,10 +3,10 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Textarea, Input, Badge, Label } from '@repo/ui';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
-import type { JournalEntryNotionInput, MemoryPayload, MemoryPoint, EmotionalLogEntry, LogEmotionRequestBody } from '@shared/types/orion';
-import { SaveOptionsButton, SaveResult } from '@/components/orion/SaveOptionsButton';
+import type { JournalEntryNotionInput, MemoryPayload, MemoryPoint, EmotionalLogEntry, LogEmotionRequestBody } from '@repo/shared';
+import { SaveOptionsButton, SaveResult } from './SaveOptionsButton';
 import { v4 as uuidv4 } from 'uuid';
-import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
 
 export function JournalEntryWithMemory() {
   const [text, setText] = useState('');
@@ -65,13 +65,13 @@ export function JournalEntryWithMemory() {
     const entryDate = date instanceof Date ? date : new Date(date);
     const entryTimestamp = entryDate.toISOString();
 
-    const sourceId = `journal_${entryDate.toISOString().replace(/[:.-]/g, '')}_${uuidv4().substring(0,8)}`;
+    const sourceId = `journal_${entryDate.toISOString().replace(/[:.-]/g, '')}_${uuidv4().substring(0, 8)}`;
 
     try {
       const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ texts: [content] })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texts: [content] })
       });
       const embeddingData = await embeddingResponse.json();
 
@@ -94,12 +94,12 @@ export function JournalEntryWithMemory() {
       const memoryPoint: MemoryPoint = { id: uuidv4(), vector, payload: memoryPayload };
 
       const upsertResponse = await fetch('/api/orion/memory/upsert', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-              points: [memoryPoint],
-              collectionName: ORION_MEMORY_COLLECTION_NAME,
-          })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          points: [memoryPoint],
+          collectionName: ORION_MEMORY_COLLECTION_NAME,
+        })
       });
       const upsertData = await upsertResponse.json();
 
@@ -117,7 +117,7 @@ export function JournalEntryWithMemory() {
   const handleSaveToSQLiteCallback = useCallback(async (dataToSave: any): Promise<Omit<SaveResult, 'serviceName'>> => {
     const { content, title, date, metadata } = dataToSave;
     if (!metadata?.mood && (!metadata?.tags || metadata.tags.length === 0)) {
-        return { success: true, message: "No mood or tags provided, skipping SQLite log." };
+      return { success: true, message: "No mood or tags provided, skipping SQLite log." };
     }
 
     const entryDate = date instanceof Date ? date : new Date(date);
@@ -132,16 +132,16 @@ export function JournalEntryWithMemory() {
 
     try {
       const response = await fetch('/api/orion/emotions/log', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify(emotionalLogPayload)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emotionalLogPayload)
       });
       const result = await response.json();
 
       if (result.success) {
         return { success: true, message: "Logged emotion/tags to SQLite.", data: result.entry };
       }
-       console.error('SQLite Save Error:', result.error);
+      console.error('SQLite Save Error:', result.error);
       return { success: false, error: result.error || "Failed to log emotion/tags to SQLite." };
     } catch (err: any) {
       console.error('SQLite Save Exception:', err);
@@ -183,15 +183,15 @@ export function JournalEntryWithMemory() {
         setMood('');
         setTags(['journal', 'journal_entry']);
         setTagInput('');
-         setTimeout(() => setOverallSuccess(null), 5000);
+        setTimeout(() => setOverallSuccess(null), 5000);
       }
     }
     if (failedServices.length > 0) {
       setOverallError(`Failed for: ${failedServices.join(', ')}. Check console for details.`);
-        setTimeout(() => setOverallError(null), 7000);
+      setTimeout(() => setOverallError(null), 7000);
     } else if (successfulServices.length === 0) {
-         setOverallError("No actions were selected or completed.");
-          setTimeout(() => setOverallError(null), 7000);
+      setOverallError("No actions were selected or completed.");
+      setTimeout(() => setOverallError(null), 7000);
     }
   }, []);
 
@@ -200,8 +200,8 @@ export function JournalEntryWithMemory() {
     content: text.trim(),
     date: new Date(),
     metadata: {
-        mood: mood.trim() || undefined,
-        tags: tags.length > 0 ? tags : undefined,
+      mood: mood.trim() || undefined,
+      tags: tags.length > 0 ? tags : undefined,
     }
   };
 
@@ -226,37 +226,37 @@ export function JournalEntryWithMemory() {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <Label htmlFor="mood" className="text-gray-400">Mood (Optional)</Label>
-                <Input
-                    id="mood"
-                    placeholder="How are you feeling?"
-                    value={mood}
-                    onChange={(e) => setMood(e.target.value)}
-                    className="bg-gray-800 border-gray-600"
-                    disabled={isOverallSubmitting}
-                />
+              <Label htmlFor="mood" className="text-gray-400">Mood (Optional)</Label>
+              <Input
+                id="mood"
+                placeholder="How are you feeling?"
+                value={mood}
+                onChange={(e) => setMood(e.target.value)}
+                className="bg-gray-800 border-gray-600"
+                disabled={isOverallSubmitting}
+              />
             </div>
             <div>
-                <Label htmlFor="tagInput" className="text-gray-400">Tags (Optional)</Label>
-                <div className="flex gap-2">
-                    <Input
-                    id="tagInput"
-                    placeholder="Add a tag..."
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddTag();
-                        }
-                    }}
-                    className="flex-1 bg-gray-800 border-gray-600"
-                    disabled={isOverallSubmitting}
-                    />
-                    <Button type="button" variant="outline" onClick={handleAddTag} disabled={!tagInput.trim() || isOverallSubmitting} className="text-gray-300 border-gray-600 hover:bg-gray-700">
-                    Add
-                    </Button>
-                </div>
+              <Label htmlFor="tagInput" className="text-gray-400">Tags (Optional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="tagInput"
+                  placeholder="Add a tag..."
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  className="flex-1 bg-gray-800 border-gray-600"
+                  disabled={isOverallSubmitting}
+                />
+                <Button type="button" variant="outline" onClick={handleAddTag} disabled={!tagInput.trim() || isOverallSubmitting} className="text-gray-300 border-gray-600 hover:bg-gray-700">
+                  Add
+                </Button>
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap gap-1 mb-2 min-h-[24px]">
@@ -280,12 +280,12 @@ export function JournalEntryWithMemory() {
 
           {overallError && (
             <div className="text-red-400 text-sm p-2 bg-red-900/30 border border-red-700 rounded flex items-center">
-                <AlertTriangle className="h-4 w-4 mr-2"/> {overallError}
+              <AlertTriangle className="h-4 w-4 mr-2" /> {overallError}
             </div>
           )}
           {overallSuccess && (
             <div className="text-green-400 text-sm p-2 bg-green-900/30 border border-green-700 rounded flex items-center">
-                <CheckCircle className="h-4 w-4 mr-2"/> {overallSuccess}
+              <CheckCircle className="h-4 w-4 mr-2" /> {overallSuccess}
             </div>
           )}
 
@@ -300,10 +300,10 @@ export function JournalEntryWithMemory() {
             buttonText="Process Journal Entry"
             disabled={isSubmitDisabled}
             availableOptions={{
-                notion: true,
-                qdrant: true,
-                sqlite: true,
-                clipboard: true,
+              notion: true,
+              qdrant: true,
+              sqlite: true,
+              clipboard: true,
             }}
           />
         </div>

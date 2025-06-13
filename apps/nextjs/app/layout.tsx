@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './css/style.css';
 import { Header } from '@repo/ui';
-import { ROUTES } from '@shared/lib/routes';
+import { ROUTES } from '@repo/shared/lib/routes';
 import { Providers } from './providers';
-import type { NavItem } from '@shared/types/nav';
+import type { NavItem } from '@repo/shared/types/nav';
 
 const inter = localFont({
   src: './fonts/Inter.woff2',

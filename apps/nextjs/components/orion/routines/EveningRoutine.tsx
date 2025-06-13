@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
-import { EmotionalLogForm } from '@/components/orion/EmotionalLogForm';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
+import { EmotionalLogForm } from '../EmotionalLogForm';
 import { Button } from '@repo/ui';
 import { Loader2, CheckCircle, Moon, BookOpen, ListChecks } from 'lucide-react';
-import { DAILY_REFLECTION_REQUEST_TYPE } from '@shared/lib/orion_config';
+import { DAILY_REFLECTION_REQUEST_TYPE } from '@repo/shared/orion_config';
 import Link from 'next/link';
 
 // Helper to get today's date in YYYY-MM-DD format

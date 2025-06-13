@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useCallback, useSyncExternalStore } from "react";
-import {
-  initializeClientSession,
-  sessionStore,
-} from "../app_state";
-import type { OrionSessionState } from "@shared/types/orion";
+import { initializeClientSession, sessionStore } from "../app_state";
+import type { OrionSessionState } from '@repo/shared';
 
 // Define SessionStateKeys enum here to avoid circular dependencies
 export enum SessionStateKeys {
@@ -121,10 +118,13 @@ export enum SessionStateKeys {
   MOOD_NOTE = "mood_note",
 
   // Voice preference
-  VOICE_PREFERENCE = "voice_preference"
+  VOICE_PREFERENCE = "voice_preference",
 }
 
-const subscribeToLocalStorageKey = (key: SessionStateKeys, callback: () => void) => {
+const subscribeToLocalStorageKey = (
+  key: SessionStateKeys,
+  callback: () => void
+) => {
   const handleChange = (event: StorageEvent) => {
     if (event.key === key) {
       callback();

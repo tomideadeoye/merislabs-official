@@ -1,26 +1,24 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { PageNames } from "@shared/app_state";
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { PageHeader, Card, CardContent, CardHeader, CardTitle, CardDescription, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
+import { PageNames } from "@repo/sharedapp_state";
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { MorningRoutine } from '@/components/orion/routines/MorningRoutine';
 import { EveningRoutine } from '@/components/orion/routines/EveningRoutine';
 import { RoutineStatus } from '@/components/orion/routines/RoutineStatus';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Repeat, Sun, Moon } from 'lucide-react';
 
 export default function RoutinesPage() {
   // Get current time to determine default tab
   const currentHour = new Date().getHours();
   const defaultTab = currentHour >= 5 && currentHour < 16 ? 'morning' : 'evening';
-  
+
   // Session state for routine completion
   const [morningCompleted] = useSessionState(SessionStateKeys.ROUTINES_MORNING_COMPLETED, false);
   const [eveningCompleted] = useSessionState(SessionStateKeys.ROUTINES_EVENING_COMPLETED, false);
-  
+
   // Local state for active tab
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
@@ -34,8 +32,8 @@ export default function RoutinesPage() {
 
       <RoutineStatus className="mb-8" />
 
-      <Tabs 
-        value={activeTab} 
+      <Tabs
+        value={activeTab}
         onValueChange={setActiveTab}
         className="w-full"
       >
@@ -51,7 +49,7 @@ export default function RoutinesPage() {
             {eveningCompleted && <span className="ml-2 text-xs bg-green-600 text-white px-1.5 py-0.5 rounded-full">✓</span>}
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="morning" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -68,7 +66,7 @@ export default function RoutinesPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="evening" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Button, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 import { Loader2, AlertTriangle, FileText } from 'lucide-react';
-import type { NarrativeType } from '@shared/types/narrative-clarity';
+import type { NarrativeType } from '@repo/shared/types/narrative-clarity';
 
 import { useNarrativeGenerationStore } from './narrativeGenerationStore';
 

@@ -30,9 +30,9 @@ import {
   DialogFooter
 } from '@repo/ui';
 import { Loader2, AlertTriangle, Lightbulb, ArrowLeft, Save, MessageSquare, History, Sparkles, SendToBack } from 'lucide-react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/app_state';
-import type { Idea, IdeaLog, IdeaStatus } from '@shared/types/ideas';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedapp_state';
+import type { Idea, IdeaLog, IdeaStatus } from '@repo/shared';
 
 interface IdeaDetailViewProps {
   ideaId: string;
@@ -102,7 +102,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
 
         // Initialize edit state
         setEditTitle(data.idea.title);
-        setEditDescription(data.idea.briefDescription || "");
+        setEditDescription(data.idea.description || "");
         setEditStatus(data.idea.status);
         setEditTags(data.idea.tags?.join(', ') || "");
       } else {
@@ -141,7 +141,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
         },
         body: JSON.stringify({
           title: editTitle,
-          briefDescription: editDescription,
+          description: editDescription,
           status: editStatus,
           tags: tagArray
         })
@@ -234,7 +234,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
     if (!idea) return;
 
     setHabiticaTaskText(`Action item for: ${idea.title}`);
-    setHabiticaTaskNotes(`From Orion Idea Incubator: ${idea.title}\nRef: /admin/idea-incubator/${idea.id}\n\n${idea.briefDescription || ''}`);
+    setHabiticaTaskNotes(`From Orion Idea Incubator: ${idea.title}\nRef: /admin/idea-incubator/${idea.id}\n\n${idea.description || ''}`);
     setHabiticaTaskPriority(1);
     setHabiticaError(null);
     setShowHabiticaDialog(true);
@@ -321,6 +321,8 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
     );
   }
 
+  const status = idea.status as IdeaStatus | undefined;
+
   return (
     <div className={className}>
       <div className="flex justify-between items-center mb-4">
@@ -401,8 +403,8 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                     {idea.title}
                   </CardTitle>
 
-                  <Badge className={`mt-2 ${statusConfig[idea.status].color} text-white`}>
-                    {statusConfig[idea.status].label}
+                  <Badge className={`mt-2 ${status && statusConfig[status as IdeaStatus] ? statusConfig[status as IdeaStatus].color : 'bg-gray-400'} text-white`}>
+                    {status && statusConfig[status as IdeaStatus] ? statusConfig[status as IdeaStatus].label : 'Unknown'}
                   </Badge>
                 </>
               ) : (
@@ -446,8 +448,8 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
         <CardContent>
           {!isEditing ? (
             <>
-              {idea.briefDescription ? (
-                <p className="text-gray-300 whitespace-pre-wrap">{idea.briefDescription}</p>
+              {idea.description ? (
+                <p className="text-gray-300 whitespace-pre-wrap">{idea.description}</p>
               ) : (
                 <p className="text-gray-500 italic">No description provided.</p>
               )}
@@ -463,8 +465,8 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               )}
 
               <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-700 text-xs text-gray-500">
-                <div>Created: {new Date(idea.createdAt).toLocaleString()}</div>
-                <div>Updated: {new Date(idea.updatedAt).toLocaleString()}</div>
+                <div>Created: {idea.createdAt ? new Date(idea.createdAt).toLocaleString() : 'N/A'}</div>
+                <div>Updated: {idea.updatedAt ? new Date(idea.updatedAt).toLocaleString() : 'N/A'}</div>
               </div>
             </>
           ) : (
@@ -546,14 +548,14 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               </div>
 
               <div className="space-y-3 mt-4">
-                {logs.filter(log => log.type === 'note').length === 0 ? (
+                {logs.filter(log => log.action === 'note').length === 0 ? (
                   <p className="text-gray-500 italic">No notes yet. Add your first note above.</p>
                 ) : (
                   logs
-                    .filter(log => log.type === 'note')
+                    .filter(log => log.action === 'note')
                     .map(log => (
                       <div key={log.id} className="bg-gray-750 border border-gray-700 rounded-md p-3">
-                        <p className="text-gray-300 whitespace-pre-wrap">{log.content}</p>
+                        <p className="text-gray-300 whitespace-pre-wrap">{log.details}</p>
                         <div className="text-xs text-gray-500 mt-2">
                           {new Date(log.timestamp).toLocaleString()}
                         </div>
@@ -586,16 +588,16 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
                       </div>
                       <div className="flex-1 pb-4">
                         <div className="text-sm font-medium text-gray-300">
-                          {log.type === 'initial_capture' && 'Idea Captured'}
-                          {log.type === 'note' && 'Note Added'}
-                          {log.type === 'status_change' && 'Status Changed'}
-                          {log.type === 'llm_brainstorm' && 'Orion Brainstorming'}
+                          {log.action === 'initial_capture' && 'Idea Captured'}
+                          {log.action === 'note' && 'Note Added'}
+                          {log.action === 'status_change' && 'Status Changed'}
+                          {log.action === 'llm_brainstorm' && 'Orion Brainstorming'}
                         </div>
                         <div className="text-xs text-gray-500 mb-1">
-                          {new Date(log.timestamp).toLocaleString()} by {log.author}
+                          {new Date(log.timestamp).toLocaleString()}
                         </div>
                         <div className="text-sm text-gray-400 whitespace-pre-wrap">
-                          {log.content}
+                          {log.details}
                         </div>
                       </div>
                     </div>
@@ -644,18 +646,18 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               </div>
 
               <div className="space-y-3 mt-4">
-                {logs.filter(log => log.type === 'llm_brainstorm').length === 0 ? (
+                {logs.filter(log => log.action === 'llm_brainstorm').length === 0 ? (
                   <p className="text-gray-500 italic">No brainstorming sessions yet. Start one above.</p>
                 ) : (
                   logs
-                    .filter(log => log.type === 'llm_brainstorm')
+                    .filter(log => log.action === 'llm_brainstorm')
                     .map(log => (
                       <div key={log.id} className="bg-purple-900/20 border border-purple-700/50 rounded-md p-3">
                         <div className="flex items-center mb-2">
                           <Sparkles className="h-4 w-4 mr-2 text-purple-400" />
                           <span className="text-sm font-medium text-purple-400">Orion&apos;s Brainstorming</span>
                         </div>
-                        <p className="text-gray-300 whitespace-pre-wrap">{log.content}</p>
+                        <p className="text-gray-300 whitespace-pre-wrap">{log.details}</p>
                         <div className="text-xs text-gray-500 mt-2">
                           {new Date(log.timestamp).toLocaleString()}
                         </div>
@@ -671,12 +673,12 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
       {/* Habitica Task Creation Dialog */}
       <Dialog open={showHabiticaDialog} onOpenChange={setShowHabiticaDialog}>
         <DialogContent className="bg-gray-800 border-gray-700 text-gray-200">
-          <DialogHeader>
+          <div className="flex flex-col space-y-1.5 text-center sm:text-left">
             <DialogTitle className="text-sky-400">Create Habitica To-Do</DialogTitle>
             <DialogDescription className="text-gray-400">
               Create an actionable task in Habitica based on this idea.
             </DialogDescription>
-          </DialogHeader>
+          </div>
 
           <div className="grid gap-4 py-4">
             <div>
@@ -726,7 +728,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
             )}
           </div>
 
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
             <Button
               variant="outline"
               onClick={() => setShowHabiticaDialog(false)}
@@ -747,7 +749,7 @@ export const IdeaDetailView: React.FC<IdeaDetailViewProps> = ({
               )}
               Add to Habitica
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

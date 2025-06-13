@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMemory } from '@shared/hooks/useMemory';
+import { useMemory } from '@repo/sharedhooks/useMemory';
 import { Input, Button, Card, CardContent, CardHeader, CardTitle, Badge } from '@repo/ui';
 import { Search, Tag, Calendar } from 'lucide-react';
 

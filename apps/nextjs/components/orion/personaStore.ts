@@ -3,20 +3,20 @@
  * Global store for persona actions and selection in Orion admin UI.
  * Used by: PersonaList, PersonaEditor, PersonaDeleteDialog, and any component needing persona actions.
  * Features:
- * - selectedPersona: PersonaMap | null
- * - selectPersona: (persona: PersonaMap) => void
- * - editPersona: (persona: PersonaMap) => void
+ * - selectedPersona: Persona | null
+ * - selectPersona: (persona: Persona) => void
+ * - editPersona: (persona: Persona) => void
  * - deletePersona: (id: string) => void
  * - Logging for all actions
  */
 
 import { create } from "zustand";
-import type { PersonaMap } from "@shared/types/strategic-outreach";
+import type { Persona } from '@repo/shared';
 
 interface PersonaState {
-  selectedPersona: PersonaMap | null;
-  selectPersona: (persona: PersonaMap) => void;
-  editPersona: (persona: PersonaMap) => void;
+  selectedPersona: Persona | null;
+  selectPersona: (persona: Persona) => void;
+  editPersona: (persona: Persona) => void;
   deletePersona: (id: string) => void;
 }
 

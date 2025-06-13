@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, Button, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input } from '@repo/ui';
 import { Loader2, AlertTriangle, Lightbulb, Clock, Tag, Filter } from 'lucide-react';
 import Link from 'next/link';
-import type { Idea, IdeaStatus } from '@shared/types/ideas';
+import type { Idea, IdeaStatus } from '@repo/shared';
 
 interface IdeaListProps {
   className?: string;
@@ -73,7 +73,7 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
       const query = searchQuery.toLowerCase();
       result = result.filter(idea =>
         idea.title.toLowerCase().includes(query) ||
-        idea.briefDescription?.toLowerCase().includes(query)
+        idea.description?.toLowerCase().includes(query)
       );
     }
 
@@ -195,21 +195,20 @@ export const IdeaList: React.FC<IdeaListProps> = ({ className }) => {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
                     <h4 className="text-lg font-medium text-gray-200">{idea.title}</h4>
-                    <Badge className={`${statusConfig[idea.status].color} text-white`}>
-                      {statusConfig[idea.status].label}
+                    const status = idea.status as IdeaStatus | undefined;
+                    <Badge className={`${status && statusConfig[status as IdeaStatus] ? statusConfig[status as IdeaStatus].color : 'bg-gray-400'} text-white`}>
+                      {status && statusConfig[status as IdeaStatus] ? statusConfig[status as IdeaStatus].label : 'Unknown'}
                     </Badge>
                   </div>
 
-                  {idea.briefDescription && (
-                    <p className="text-sm text-gray-400 mt-2 line-clamp-2">
-                      {idea.briefDescription}
-                    </p>
+                  {idea.description && (
+                    <p className="text-gray-400 text-sm mt-1 line-clamp-2">{idea.description}</p>
                   )}
 
                   <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-700">
-                    <div className="flex items-center text-xs text-gray-500">
+                    <div className="flex items-center text-xs text-gray-500 mt-2">
                       <Clock className="h-3 w-3 mr-1" />
-                      {new Date(idea.updatedAt).toLocaleDateString()}
+                      {idea.updatedAt ? new Date(idea.updatedAt).toLocaleDateString() : 'N/A'}
                     </div>
 
                     {idea.tags && idea.tags.length > 0 && (

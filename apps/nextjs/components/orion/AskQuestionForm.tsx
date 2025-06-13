@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Button, Textarea, Input, Label, Checkbox } from '@repo/ui';
 import { Loader2, ChevronDown, ChevronUp, Filter, Brain } from 'lucide-react';
 // Import directly from the file
-import { ASK_QUESTION_REQUEST_TYPE } from '@shared/lib/orion_config';
+import { ASK_QUESTION_REQUEST_TYPE } from '@repo/shared';
 
 const MEMORY_TYPES = [
   { id: "journal_entry", label: "Journal Entries" },

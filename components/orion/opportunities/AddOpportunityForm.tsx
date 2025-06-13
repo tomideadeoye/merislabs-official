@@ -13,8 +13,8 @@ import {
   Textarea,
   Label,
 } from '@repo/ui';
-import { useOpportunityCentralStore, OpportunityCentralStoreType } from './opportunityCentralStore';
-import { OpportunityNotionInput } from '@shared/types/orion';
+import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@repo/shared';
+import type { OpportunityNotionInput, JournalEntryNotionInput, MemoryPayload, MemoryPoint, ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@repo/shared';
 
 interface AddOpportunityFormProps {
   onSuccess?: (opportunityId: string) => void;
@@ -80,7 +80,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
     };
 
     try {
-      const response = await fetch('/api/orion/notion/opportunity/create', {
+      const response = await fetch('/api/orion/notion/OrionOpportunity/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,14 +90,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create opportunity');
+        throw new Error(errorData.error || 'Failed to create OrionOpportunity');
       }
 
       const data = await response.json();
 
       if (data.success) {
         if (onSuccess) {
-          onSuccess(data.opportunity.id);
+          onSuccess(data.OrionOpportunity.id);
         }
         close();
         setFormData({
@@ -124,7 +124,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
     <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Opportunity</DialogTitle>
+          <DialogTitle>Add New OrionOpportunity</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -167,7 +167,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
-                placeholder="Full description of the opportunity"
+                placeholder="Full description of the OrionOpportunity"
                 required
               />
             </div>
@@ -197,7 +197,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
           <DialogFooter className="mt-6">
             <Button type="button" variant="outline" onClick={close}>Cancel</Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Opportunity'}
+              {isSubmitting ? 'Creating...' : 'Create OrionOpportunity'}
             </Button>
           </DialogFooter>
         </form>

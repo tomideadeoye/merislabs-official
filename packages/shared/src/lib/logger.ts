@@ -1,20 +1,10 @@
-// Simple logger utility for consistent logging across the application
-const logger = {
-  info: (message: string, data?: any) => {
-    console.info(`[INFO] ${message}`, data || '');
-  },
-  warn: (message: string, data?: any) => {
-    console.warn(`[WARN] ${message}`, data || '');
-  },
-  error: (message: string, data?: any) => {
-    console.error(`[ERROR] ${message}`, data || '');
-  },
-  debug: (message: string, data?: any) => {
-    console.debug(`[DEBUG] ${message}`, data || '');
-  },
-  success: (message: string, data?: any) => {
-    console.info(`[SUCCESS] ${message}`, data || '');
-  }
-};
+// Client-side logger stub for @repo/shared/logger
+// This file is safe to import in any client/shared code.
 
-export { logger };
+export const logger = {
+  debug: (...args: any[]) => console.debug('[DEBUG]', ...args),
+  info: (...args: any[]) => console.info('[INFO]', ...args),
+  warn: (...args: any[]) => console.warn('[WARN]', ...args),
+  error: (...args: any[]) => console.error('[ERROR]', ...args),
+  success: (...args: any[]) => console.log('[SUCCESS]', ...args),
+};

@@ -4,13 +4,51 @@ globs:
 alwaysApply: false
 ---
 ---
+description:
+globs:
+alwaysApply: true
+---
+
+### ✅ Task: Interactive Task Loop with User Feedback
+
+1. **Check if `userinput.py` exists** in the root directory.
+
+   * If it doesn't exist, create it with the following content:
+
+     ```python
+     # userinput.py
+     user_input = input("prompt: ")
+     ```
+
+2. **Main Workflow**:
+
+   * Perform your assigned tasks.
+
+   * Run:
+
+     ```bash
+     python userinput.py
+     ```
+   * The terminal should be opened in the chat window itself.
+
+   * Read the user's input.
+
+   * Based on the input, perform the next set of tasks.
+
+   * Repeat the process.
+
+3. **Exit Condition**:
+
+   * If the user enters `"stop"` when prompted, exit the loop and terminate the process.
+
+---
 applyTo: "**"
 ---
 
 ## Coding standards, domain knowledge, and preferences that AI should follow.
-summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into run-all-tests.ts), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
+summarize what we have implemented so far, the files modified, why the modifications were made, ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
 
-Review ORION-PRD.md file and determine features not yet implemented.
+Review reference.md file and determine features not yet implemented.
 
 ## applyTo: "\*\*"
 

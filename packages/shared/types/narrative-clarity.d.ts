@@ -18,9 +18,9 @@ export interface NarrativeDocument {
 /**
  * Types of narrative documents
  */
-export type NarrativeType = 
-  | 'personal_bio' 
-  | 'linkedin_summary' 
+export type NarrativeType =
+  | 'personal_bio'
+  | 'linkedin_summary'
   | 'vision_statement'
   | 'elevator_pitch'
   | 'cover_letter'
@@ -31,31 +31,31 @@ export type NarrativeType =
  * Career arc milestone
  */
 export interface CareerMilestone {
-  id: string;
-  title: string;
+  id?: string;
+  title?: string;
+  description?: string;
+  date?: string;
   organization?: string;
   startDate?: string;
   endDate?: string;
-  description: string;
-  skills: string[];
-  achievements: string[];
-  learnings: string[];
-  impact: string;
-  order: number;
+  skills?: string[];
+  impact?: string;
+  order?: number;
+  achievements?: string[];
 }
 
 /**
  * Value proposition components
  */
 export interface ValueProposition {
-  id: string;
-  coreStrengths: string[];
-  uniqueSkills: string[];
-  passions: string[];
-  vision: string;
-  targetAudience: string;
-  valueStatement: string;
-  updatedAt: string;
+  id?: string;
+  coreStrengths?: string[];
+  uniqueSkills?: string[];
+  passions?: string[];
+  vision?: string;
+  targetAudience?: string;
+  valueStatement?: string;
+  updatedAt?: string;
 }
 
 /**

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import type { ScoredMemoryPoint, JournalEntryNotionInput } from '@shared/types/orion';
+import type { ScoredMemoryPoint, JournalEntryNotionInput } from '@repo/shared';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, Badge, Button } from '@repo/ui';
 import { CalendarDays, Tag, Smile, MessageSquare, ChevronDown, ChevronUp, ListTodo, BookOpen } from 'lucide-react';
-import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
 import { AddTaskFromReflection } from './AddTaskFromReflection';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/app_state';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedapp_state';
 
 interface JournalEntryDisplayProps {
   entry: JournalEntryNotionInput;
@@ -280,8 +280,8 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
     <Card className="mb-4 bg-gray-800 border-gray-700 hover:shadow-lg hover:border-blue-600/50 transition-all duration-200">
       <CardHeader>
         <CardTitle className="text-lg text-blue-400 flex items-center">
-            <MessageSquare className="mr-2 h-5 w-5" />
-            Journal Entry
+          <MessageSquare className="mr-2 h-5 w-5" />
+          Journal Entry
         </CardTitle>
         <CardDescription className="text-xs text-gray-500 flex items-center space-x-4">
           <span className="flex items-center">
@@ -290,8 +290,8 @@ export const JournalEntryDisplay: React.FC<JournalEntryDisplayProps> = ({ entry,
           </span>
           {mood && (
             <span className="flex items-center">
-                <Smile className="mr-1 h-3 w-3" />
-                Mood: <Badge variant="secondary" className="ml-1 bg-gray-700 text-gray-300">{mood}</Badge>
+              <Smile className="mr-1 h-3 w-3" />
+              Mood: <Badge variant="secondary" className="ml-1 bg-gray-700 text-gray-300">{mood}</Badge>
             </span>
           )}
           {tags && tags.length > 0 && (

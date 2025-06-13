@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { OpportunityKanbanView } from '@/components/orion/pipeline/OpportunityKanbanView';
-import { Opportunity, OpportunityStatus } from '@shared/types/opportunity';
-import { Button } from '@/components/ui/button';
+import { OrionOpportunity } from '@repo/shared';
+import { Button } from '@repo/ui';
 import { useRouter } from 'next/navigation';
 import { Plus, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export default function OpportunityKanbanPage() {
   const router = useRouter();
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [opportunities, setOpportunities] = useState<OrionOpportunity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +19,7 @@ export default function OpportunityKanbanPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/orion/opportunity/list');
+      const response = await fetch('/api/orion/OrionOpportunity/list');
       const data = await response.json();
 
       if (data.success) {
@@ -40,9 +40,9 @@ export default function OpportunityKanbanPage() {
   }, []);
 
   // Handle status change
-  const handleStatusChange = async (opportunityId: string, newStatus: OpportunityStatus) => {
+  const handleStatusChange = async (opportunityId: string, newStatus: OrionOpportunityStatus) => {
     try {
-      const response = await fetch('/api/orion/opportunity/update-status', {
+      const response = await fetch('/api/orion/OrionOpportunity/update-status', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ export default function OpportunityKanbanPage() {
         fetchOpportunities();
       }
     } catch (err) {
-      console.error('Error updating opportunity status:', err);
+      console.error('Error updating OrionOpportunity status:', err);
       // Refresh to get the current state
       fetchOpportunities();
     }
@@ -73,13 +73,13 @@ export default function OpportunityKanbanPage() {
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"
-            onClick={() => router.push('/admin/opportunity-pipeline')}
+            onClick={() => router.push('/admin/OrionOpportunity-pipeline')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             List View
           </Button>
 
-          <h1 className="text-2xl font-bold text-gray-200">Opportunity Pipeline</h1>
+          <h1 className="text-2xl font-bold text-gray-200">OrionOpportunity Pipeline</h1>
         </div>
 
         <div className="flex space-x-2">
@@ -97,10 +97,10 @@ export default function OpportunityKanbanPage() {
           </Button>
 
           <Button
-            onClick={() => router.push('/admin/opportunity/new')}
+            onClick={() => router.push('/admin/OrionOpportunity/new')}
           >
             <Plus className="mr-2 h-4 w-4" />
-            New Opportunity
+            New OrionOpportunity
           </Button>
         </div>
       </div>

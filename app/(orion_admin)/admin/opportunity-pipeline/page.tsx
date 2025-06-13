@@ -7,17 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 // import { Loader } from '@repo/ui';
 // TODO: Replace Loader with a @repo/ui or shared implementation if available
 // import { Loader } from '@repo/ui';
-// import { Loader } from '@shared/ui';
-import { OpportunityList } from '@/components/orion/opportunities/OpportunityList';
-import { OpportunityFilters } from '@/components/orion/opportunities/OpportunityFilters';
-import { AddOpportunityForm } from '@/components/orion/opportunities/AddOpportunityForm';
-import { OpportunityKanbanView } from '@/components/orion/opportunities/OpportunityKanbanView';
-import { logger } from '@shared/lib/logger';
-import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
+// import { Loader } from '@repo/sharedui';
+import { OpportunityList, OpportunityFilters, AddOpportunityForm, OpportunityKanbanView } from '@repo/ui';
+import { logger } from '@repo/shared/logger';
+import { useOpportunities } from '@repo/sharedhooks/useOpportunities';
 
 export default function OpportunityPipelinePage() {
   const [view, setView] = useState<'list' | 'kanban'>('list');
-  const { opportunities, setOpportunities, isLoading, error } = useOpportunityCentralStore();
+  const { opportunities, isLoading, error } = useOpportunities();
 
   useEffect(() => {
     logger.info('OpportunityPipelinePage mounted', { view });
@@ -41,24 +38,22 @@ export default function OpportunityPipelinePage() {
     <div className="container mx-auto p-4 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Opportunity Pipeline</CardTitle>
+          <CardTitle>OrionOpportunity Pipeline</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center mb-4">
             <div className="flex space-x-4">
               <button
                 onClick={() => setView('list')}
-                className={`px-4 py-2 rounded ${
-                  view === 'list' ? 'bg-primary text-white' : 'bg-secondary'
-                }`}
+                className={`px-4 py-2 rounded ${view === 'list' ? 'bg-primary text-white' : 'bg-secondary'
+                  }`}
               >
                 List View
               </button>
               <button
                 onClick={() => setView('kanban')}
-                className={`px-4 py-2 rounded ${
-                  view === 'kanban' ? 'bg-primary text-white' : 'bg-secondary'
-                }`}
+                className={`px-4 py-2 rounded ${view === 'kanban' ? 'bg-primary text-white' : 'bg-secondary'
+                  }`}
               >
                 Kanban View
               </button>

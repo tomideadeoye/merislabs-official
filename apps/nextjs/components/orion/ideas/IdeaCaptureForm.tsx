@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Lightbulb } from 'lucide-react';
-import type { Idea } from '@shared/types/ideas';
+import type { Idea } from '@repo/shared';
 
 interface IdeaCaptureFormProps {
   onIdeaCaptured?: (idea: Idea) => void;

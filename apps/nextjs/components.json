@@ -11,10 +11,10 @@
     "prefix": ""
   },
   "aliases": {
-    "components": "@shared/ui/components",
-    "utils": "@shared/ui/lib/utils",
-    "ui": "@shared/ui/components/ui",
-    "lib": "@shared/ui/lib",
+    "components": "@repo/sharedui/components",
+    "utils": "@repo/sharedui/lib/utils",
+    "ui": "@repo/sharedui/components/ui",
+    "lib": "@repo/sharedui/lib",
     "hooks": "@/hooks/hooks"
   },
   "iconLibrary": "lucide"

@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Card, CardContent, Button } from '@repo/ui';
 import { CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -54,11 +54,10 @@ export const DashboardRoutineStatus: React.FC<DashboardRoutineStatusProps> = ({ 
         ) : (
           <div className="space-y-3">
             {showMorning && (
-              <div className={`p-3 rounded-md ${
-                morningCompleted
-                  ? 'bg-green-900/30 border border-green-700'
-                  : 'bg-blue-900/30 border border-blue-700'
-              }`}>
+              <div className={`p-3 rounded-md ${morningCompleted
+                ? 'bg-green-900/30 border border-green-700'
+                : 'bg-blue-900/30 border border-blue-700'
+                }`}>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     {morningCompleted ? (
@@ -90,11 +89,10 @@ export const DashboardRoutineStatus: React.FC<DashboardRoutineStatusProps> = ({ 
             )}
 
             {showEvening && (
-              <div className={`p-3 rounded-md ${
-                eveningCompleted
-                  ? 'bg-green-900/30 border border-green-700'
-                  : 'bg-purple-900/30 border border-purple-700'
-              }`}>
+              <div className={`p-3 rounded-md ${eveningCompleted
+                ? 'bg-green-900/30 border border-green-700'
+                : 'bg-purple-900/30 border border-purple-700'
+                }`}>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     {eveningCompleted ? (

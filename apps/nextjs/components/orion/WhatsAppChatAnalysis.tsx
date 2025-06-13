@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { BarChart, PieChart, MessageSquare, Lightbulb, Users } from 'lucide-react';
 
 interface WhatsAppChatAnalysisProps {

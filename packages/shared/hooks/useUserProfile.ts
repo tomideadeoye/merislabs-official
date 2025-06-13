@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { UserProfileData } from '@shared/lib/profile_service';
-import apiClient from '@shared/lib/apiClient';
-import { toast } from 'react-hot-toast';
-import { logger } from "../lib/logger";
+import { useState, useEffect } from "react";
+import { apiClient } from "@repo/shared/lib/apiClient";
+import { toast } from "react-hot-toast";
 
-const CACHE_KEY = 'userProfile';
+const CACHE_KEY = "userProfile";
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 /**
@@ -31,71 +29,75 @@ export function useUserProfile() {
         if (cachedItem) {
           const { data, timestamp } = JSON.parse(cachedItem);
           if (Date.now() - timestamp < CACHE_TTL_MS) {
-            logger.info('Loaded profile from localStorage cache', {
-              operation: 'useUserProfile',
-              timestamp: new Date().toISOString()
+            console.info("Loaded profile from localStorage cache", {
+              operation: "useUserProfile",
+              timestamp: new Date().toISOString(),
             });
             setProfile(data);
             setLoading(false);
             return;
           } else {
-            logger.info('Cache expired, will fetch from API', {
-              operation: 'useUserProfile',
-              timestamp: new Date().toISOString()
+            console.info("Cache expired, will fetch from API", {
+              operation: "useUserProfile",
+              timestamp: new Date().toISOString(),
             });
           }
         } else {
-          logger.info('No cache found, will fetch from API', {
-            operation: 'useUserProfile',
-            timestamp: new Date().toISOString()
+          console.info("No cache found, will fetch from API", {
+            operation: "useUserProfile",
+            timestamp: new Date().toISOString(),
           });
         }
 
         // Fetch from API if not in cache or cache is stale
         try {
-          logger.info('Fetching profile from /api/orion/profile', {
-            operation: 'useUserProfile',
-            timestamp: new Date().toISOString()
+          console.info("Fetching profile from /api/orion/profile", {
+            operation: "useUserProfile",
+            timestamp: new Date().toISOString(),
           });
-          const response = await apiClient.get<UserProfileData>('/api/orion/profile');
+          const response = await apiClient.get<UserProfileData>(
+            "/api/orion/profile"
+          );
           if (response.data) {
             setProfile(response.data);
             // Cache the new data
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ data: response.data, timestamp: Date.now() }));
-            logger.success('Profile cached in localStorage', {
-              operation: 'useUserProfile',
-              timestamp: new Date().toISOString()
+            localStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({ data: response.data, timestamp: Date.now() })
+            );
+            console.info("Profile cached in localStorage", {
+              operation: "useUserProfile",
+              timestamp: new Date().toISOString(),
             });
-            toast.success('Profile loaded successfully');
+            toast.success("Profile loaded successfully");
           } else {
-            const errorMsg = 'Failed to fetch profile data';
+            const errorMsg = "Failed to fetch profile data";
             setError(errorMsg);
-            logger.error(errorMsg, {
-              operation: 'useUserProfile',
-              timestamp: new Date().toISOString()
+            console.error(errorMsg, {
+              operation: "useUserProfile",
+              timestamp: new Date().toISOString(),
             });
             toast.error(errorMsg);
           }
         } catch (err: any) {
-          const errorMsg = err.message || 'An unexpected error occurred';
+          const errorMsg = err.message || "An unexpected error occurred";
           setError(errorMsg);
-          logger.error('Error fetching profile', {
-            operation: 'useUserProfile',
+          console.error("Error fetching profile", {
+            operation: "useUserProfile",
             error: errorMsg,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
           toast.error(`Failed to load profile: ${errorMsg}`);
         } finally {
           setLoading(false);
         }
-
       } catch (err: any) {
-        const errorMsg = err.message || 'An unexpected error occurred';
+        const errorMsg = err.message || "An unexpected error occurred";
         setError(errorMsg);
-        logger.error('Error in fetchAndCacheProfile', {
-          operation: 'useUserProfile',
+        console.error("Error in fetchAndCacheProfile", {
+          operation: "useUserProfile",
           error: errorMsg,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
         toast.error(`Profile error: ${errorMsg}`);
       } finally {

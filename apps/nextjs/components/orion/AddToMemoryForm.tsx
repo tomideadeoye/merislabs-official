@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/app_state';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedapp_state';
 import { Button, Textarea, Input, Label } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Brain } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
 
 interface AddToMemoryFormProps {
   onMemoryAdded?: () => void;
@@ -162,11 +162,13 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
       }
 
       // Success
-      setFeedback({ type: 'success', message: `Successfully added to: ${[
-        saveToVectorDB ? 'Vector DB' : null,
-        saveToNotion ? 'Notion' : null,
-        saveToPostgres ? 'Postgres' : null
-      ].filter(Boolean).join(', ')}` });
+      setFeedback({
+        type: 'success', message: `Successfully added to: ${[
+          saveToVectorDB ? 'Vector DB' : null,
+          saveToNotion ? 'Notion' : null,
+          saveToPostgres ? 'Postgres' : null
+        ].filter(Boolean).join(', ')}`
+      });
       setText("");
       setSourceId("");
       setTags("");
@@ -228,12 +230,12 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
             <option value="custom">Custom Type...</option>
           </select>
           {type === "custom" && (
-             <Input
-                type="text"
-                onChange={(e) => setType(e.target.value.toLowerCase().replace(/\s+/g, '_'))}
-                placeholder="Enter custom type (e.g., meeting_notes)"
-                className="mt-2 w-full bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
-                disabled={isSaving}
+            <Input
+              type="text"
+              onChange={(e) => setType(e.target.value.toLowerCase().replace(/\s+/g, '_'))}
+              placeholder="Enter custom type (e.g., meeting_notes)"
+              className="mt-2 w-full bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
+              disabled={isSaving}
             />
           )}
         </div>
@@ -310,18 +312,17 @@ export const AddToMemoryForm: React.FC<AddToMemoryFormProps> = ({
           disabled={isSaving || !text?.trim()}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5"
         >
-          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4"/>}
+          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
           {isSaving ? 'Adding to Memory...' : 'Add to Orion\'s Memory'}
         </Button>
       </div>
 
       {feedback && (
-        <div className={`mt-4 p-3 rounded-md text-sm flex items-start ${
-            feedback.type === 'success' ? 'bg-green-800/30 border border-green-600 text-green-300'
-                                     : 'bg-red-800/30 border border-red-600 text-red-300'
-        }`}>
-            {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" /> : <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0" />}
-            <p className="flex-grow">{feedback.message}</p>
+        <div className={`mt-4 p-3 rounded-md text-sm flex items-start ${feedback.type === 'success' ? 'bg-green-800/30 border border-green-600 text-green-300'
+          : 'bg-red-800/30 border border-red-600 text-red-300'
+          }`}>
+          {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" /> : <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0" />}
+          <p className="flex-grow">{feedback.message}</p>
         </div>
       )}
     </form>

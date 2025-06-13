@@ -1,18 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { PageNames } from "@shared/app_state";
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { PageHeader } from "@repo/ui";
+import { PageNames } from "@repo/sharedapp_state";
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { JournalEntryForm } from '@/components/orion/JournalEntryForm';
 import { JournalEntryDisplay } from '@/components/orion/JournalEntryDisplay';
 import { AddTaskFromReflection } from '@/components/orion/AddTaskFromReflection';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@repo/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { BookOpen, Clock, ListTodo } from 'lucide-react';
 import { JournalList } from '@/components/orion/JournalList';
-import type { JournalEntryNotionInput } from '@shared/types/orion';
+import type { JournalEntryNotionInput } from '@repo/shared';
 
 export default function JournalPage() {
   const [journalText, setJournalText] = useSessionState(SessionStateKeys.JOURNAL_TEXT, "");

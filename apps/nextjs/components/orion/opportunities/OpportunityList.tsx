@@ -4,9 +4,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { OpportunityCard } from './OpportunityCard';
 import { Button, Input, Loader, Badge } from '@repo/ui';
 import { Plus, Search, Loader2 } from 'lucide-react';
-import type { OpportunityDetails, Opportunity } from '@shared/types/opportunity';
-import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
-import { logger } from '@shared/lib/logger';
+import type { OrionOpportunity, OrionOpportunityDetails } from '@repo/shared';
+import { useOpportunityCentralStore } from '@repo/shared';
+import { logger } from '@repo/shared/logger';
 
 const FILTERS = {
   STATUS: {
@@ -41,7 +41,7 @@ const FILTERS = {
 };
 
 interface OpportunityListProps {
-  opportunities?: OpportunityDetails[];
+  opportunities?: OrionOpportunityDetails[];
   isLoading?: boolean;
   error?: string | null;
   onAddNew?: () => void;
@@ -54,7 +54,7 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
   error: propError,
   onAddNew
 }) => {
-  const [opportunities, setOpportunities] = useState<OpportunityDetails[]>([]);
+  const [opportunities, setOpportunities] = useState<OrionOpportunityDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const filters = useOpportunityCentralStore((state: any) => state.filters);
@@ -88,8 +88,8 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
         return matchesSearch && matchesStatus && matchesType && matchesPriority && matchesTag;
       })
       .sort((a, b) => {
-        const aValue = a[sort as keyof OpportunityDetails] ?? '';
-        const bValue = b[sort as keyof OpportunityDetails] ?? '';
+        const aValue = a[sort as keyof OrionOpportunityDetails] ?? '';
+        const bValue = b[sort as keyof OrionOpportunityDetails] ?? '';
 
         if (typeof aValue === 'string' && typeof bValue === 'string') {
           return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
@@ -140,14 +140,14 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredOpportunities.map((opportunity) => (
-            <OpportunityCard key={opportunity.id} opportunity={opportunity as Opportunity} />
+          {filteredOpportunities.map((OrionOpportunity) => (
+            <OpportunityCard key={OrionOpportunity.id} OrionOpportunity={OrionOpportunity as OrionOpportunity} />
           ))}
         </div>
       )}
 
       <div className="text-sm text-gray-500 text-right">
-        {filteredOpportunities.length} {filteredOpportunities.length === 1 ? 'opportunity' : 'opportunities'} found
+        {filteredOpportunities.length} {filteredOpportunities.length === 1 ? 'OrionOpportunity' : 'opportunities'} found
       </div>
     </div>
   );

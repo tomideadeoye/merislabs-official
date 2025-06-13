@@ -1,13 +1,12 @@
 "use client";
-import DraftCommunicationForm from "@/components/orion/DraftCommunicationForm";
-import WhatsAppReplyDrafter from "@/components/orion/WhatsAppReplyDrafter";
-import { PageHeader } from "@/components/ui/page-header";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useSessionState } from "@shared/hooks/useSessionState";
-import { SessionStateKeys, PageNames } from "@shared/app_state";
+import { DraftCommunicationForm, WhatsAppReplyDrafter } from '@repo/ui';
+import { PageHeader } from "@repo/ui";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@repo/ui";
+import { useSessionState, SessionStateKeys } from "@repo/shared/hooks/useSessionState";
+import { PageNames } from "@repo/shared/types/appState";
 import { MessageSquare, Smartphone } from "lucide-react";
 import { BarChart2 } from "lucide-react";
-import WhatsAppChatAnalysisTab from "@/components/orion/WhatsAppChatAnalysisTab";
+import { WhatsAppChatAnalysis } from "@repo/analytics/components/whatsapp-analysis";
 
 export default function DraftCommunicationFeaturePage() {
   const [profileData] = useSessionState(SessionStateKeys.TOMIDES_PROFILE_DATA); // string | null
@@ -42,7 +41,7 @@ export default function DraftCommunicationFeaturePage() {
           <WhatsAppReplyDrafter />
         </TabsContent>
         <TabsContent value="whatsapp-analysis">
-          <WhatsAppChatAnalysisTab />
+          <WhatsAppChatAnalysis />
         </TabsContent>
       </Tabs>
     </div>

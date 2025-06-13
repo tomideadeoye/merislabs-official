@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { HabiticaStatsDisplay } from './HabiticaStatsDisplay';
 import { Loader2, AlertTriangle } from 'lucide-react';
-import type { HabiticaUserStats } from '@shared/types/habitica';
+import type { HabiticaUserStats } from '@repo/shared/types/habitica';
 
 interface HabiticaStatsContainerProps {
   className?: string;

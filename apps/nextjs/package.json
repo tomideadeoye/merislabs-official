@@ -11,11 +11,10 @@
 		"start": "next start",
 		"lint": "next lint",
 		"test": "jest || echo 'No tests found'",
-		"start-orion": "bash ./start-orion.sh",
+		"start-orion": "bash ./start.sh",
 		"start-orion-win": "start-orion.bat",
 		"test-cv": "node test-cv-tailoring.js",
-		"test-llm": "node test-llm-integration.js",
-		"test:e2e": "jest tests/e2e.test.tsx"
+		"test-llm": "node test-llm-integration.js"
 	},
 	"dependencies": {
 		"@headlessui/react": "^2.2.4",
@@ -52,7 +51,7 @@
 		"@radix-ui/react-toggle-group": "^1.0.4",
 		"@radix-ui/react-tooltip": "^1.0.7",
 		"@shadcn/ui": "^0.0.4",
-		"@repo/ui": "workspace:*",
+	"@repo/ui": "workspace:*",
 		"aos": "^2.3.4",
 		"axios": "^1.9.0",
 		"chalk": "^4.1.2",
@@ -88,7 +87,7 @@
 		"winston": "^3.17.0",
 		"zod": "^3.25.56",
 		"zustand": "^5.0.5",
-		"@shared": "workspace:*"
+	"@repo/shared": "workspace:*"
 	},
 	"engines": {
 		"node": "^20.0.0"

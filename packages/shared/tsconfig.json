@@ -1,16 +1,35 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "declaration": true,
-    "declarationMap": true,
+    "composite": true,
+    "rootDir": ".",
     "outDir": "./dist",
-    "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@repo/shared/*": ["./src/*", "./lib/*", "./hooks/*", "./types/*"],
+      "@repo/sharedlib/*": ["./lib/*"],
+      "@repo/sharedhooks/*": ["./hooks/*"],
+      "@repo/sharedtypes/*": ["./types/*"],
+      "@repo/sharedapp_state": ["./app_state.ts"],
+      "@repo/sharedauth": ["./auth.ts"],
+      "@repo/sharedopportunityCentralStore": ["./opportunityCentralStore.ts"],
+      "@/lib/*": ["./lib/*"],
+      "@/types/*": ["./types/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/app_state": ["./app_state.ts"],
+      "@/auth": ["./auth.ts"],
+      "@/opportunityCentralStore": ["./opportunityCentralStore.ts"]
     }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "lib/**/*",
+    "hooks/**/*",
+    "types/**/*",
+    "app_state.ts",
+    "auth.ts",
+    "opportunityCentralStore.ts",
+    "lib/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

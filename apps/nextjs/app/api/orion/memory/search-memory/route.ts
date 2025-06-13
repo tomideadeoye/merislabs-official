@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchMemory } from "@shared/lib/orion_memory";
-import { ORION_MEMORY_COLLECTION_NAME } from "@shared/lib/orion_config";
-import type { QdrantFilter } from "@shared/types/orion";
+import { searchMemory } from "@repo/shared/orion_memory";
+import { ORION_MEMORY_COLLECTION_NAME } from "@repo/shared/orion_config";
+import type { QdrantFilter } from "@repo/shared";
 
 /**
  * API route to search the memory system
@@ -46,12 +46,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       results,
-      count: results.length
+      count: results.length,
     });
   } catch (error) {
     console.error("Memory search error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to search memory", details: String(error) },
+      {
+        success: false,
+        error: "Failed to search memory",
+        details: String(error),
+      },
       { status: 500 }
     );
   }

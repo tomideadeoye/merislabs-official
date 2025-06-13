@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { ScoredMemoryPoint, QdrantFilter, JournalEntryNotionInput } from '@shared/types/orion';
+import type { ScoredMemoryPoint, QdrantFilter, JournalEntryNotionInput } from '@repo/shared';
 import { JournalEntryDisplay } from './JournalEntryDisplay';
 import { Button } from '@repo/ui';
 import { Loader2, AlertTriangle } from 'lucide-react';
-import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
 
 interface JournalListProps {
   initialLimit?: number;

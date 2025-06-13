@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUserData } from '@shared/lib/habitica_client';
+import { NextRequest, NextResponse } from "next/server";
+import { getUserData } from "@repo/shared/habitica_client";
 
 /**
  * API route for fetching Habitica user stats
@@ -9,10 +9,13 @@ export async function POST(req: NextRequest) {
     const { userId, apiToken } = await req.json();
 
     if (!userId || !apiToken) {
-      return NextResponse.json({
-        success: false,
-        error: 'Habitica User ID and API Token are required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Habitica User ID and API Token are required",
+        },
+        { status: 400 }
+      );
     }
 
     // Fetch user data (including stats) using the shared client
@@ -21,13 +24,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: stats
+      data: stats,
     });
   } catch (error: any) {
-    console.error('Error in POST /api/orion/habitica/stats:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    console.error("Error in POST /api/orion/habitica/stats:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

@@ -1,8 +1,8 @@
-import Hero from "@/components/hero";
-import Features from "@/components/features";
-import Newsletter from "@/components/newsletter";
-import Zigzag from "@/components/zigzag";
-import Testimonials from "@/components/testimonials";
+import Hero from "../components/hero";
+import Features from "../components/features";
+import Newsletter from "../components/newsletter";
+import Zigzag from "../components/zigzag";
+import Testimonials from "../components/testimonials";
 import Link from 'next/link';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui';
 

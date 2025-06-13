@@ -88,7 +88,7 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
         const result = await onSaveToNotion(data);
         results.push({ ...result, serviceName: 'Notion' });
       } catch (err: any) {
-         results.push({ success: false, serviceName: 'Notion', error: err.message || 'Unknown error' });
+        results.push({ success: false, serviceName: 'Notion', error: err.message || 'Unknown error' });
       }
     }
     if (saveToQdrant && availableOptions.qdrant && onSaveToQdrant) {
@@ -96,7 +96,7 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
         const result = await onSaveToQdrant(data);
         results.push({ ...result, serviceName: 'Qdrant (Memory)' });
       } catch (err: any) {
-         results.push({ success: false, serviceName: 'Qdrant (Memory)', error: err.message || 'Unknown error' });
+        results.push({ success: false, serviceName: 'Qdrant (Memory)', error: err.message || 'Unknown error' });
       }
     }
     if (saveToSQLite && availableOptions.sqlite && onSaveToSQLite) {
@@ -104,16 +104,16 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
         const result = await onSaveToSQLite(data);
         results.push({ ...result, serviceName: 'SQLite (Log)' });
       } catch (err: any) {
-         results.push({ success: false, serviceName: 'SQLite (Log)', error: err.message || 'Unknown error' });
+        results.push({ success: false, serviceName: 'SQLite (Log)', error: err.message || 'Unknown error' });
       }
     }
     if (copyToClipboard && availableOptions.clipboard && onCopyToClipboard) {
-       try {
+      try {
         const result = await onCopyToClipboard(data);
         results.push({ ...result, serviceName: 'Clipboard' });
-       } catch (err: any) {
-         results.push({ success: false, serviceName: 'Clipboard', error: err.message || 'Unknown error' });
-       }
+      } catch (err: any) {
+        results.push({ success: false, serviceName: 'Clipboard', error: err.message || 'Unknown error' });
+      }
     }
 
     setIsProcessing(false);
@@ -135,14 +135,14 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
     const anySucceeded = results.some(r => r.success);
 
     if (results.length > 0) {
-        if (allSucceeded) {
-            setSuccessMessage("All selected actions completed successfully!");
-        } else if (anySucceeded) {
-            const failedServices = results.filter(r => !r.success).map(r => r.serviceName).join(', ');
-            setSuccessMessage(`Some actions completed. Failed: ${failedServices}. Check console for details.`);
-        } else {
-            setError("All selected actions failed. Check details in console or parent component.");
-        }
+      if (allSucceeded) {
+        setSuccessMessage("All selected actions completed successfully!");
+      } else if (anySucceeded) {
+        const failedServices = results.filter(r => !r.success).map(r => r.serviceName).join(', ');
+        setSuccessMessage(`Some actions completed. Failed: ${failedServices}. Check console for details.`);
+      } else {
+        setError("All selected actions failed. Check details in console or parent component.");
+      }
     }
 
     setIsDropdownOpen(false);
@@ -166,7 +166,7 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-gray-200">
             <DropdownMenuLabel className="text-gray-400">Save / Export To:</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-gray-700"/>
+            <DropdownMenuSeparator className="bg-gray-700" />
             {availableOptions.notion && onSaveToNotion && (
               <DropdownMenuCheckboxItem
                 checked={saveToNotion}
@@ -197,7 +197,7 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
                 SQLite (Structured Log)
               </DropdownMenuCheckboxItem>
             )}
-             <DropdownMenuSeparator className="bg-gray-700"/>
+            <DropdownMenuSeparator className="bg-gray-700" />
             {availableOptions.clipboard && onCopyToClipboard && (
               <DropdownMenuCheckboxItem
                 checked={copyToClipboard}
@@ -212,9 +212,9 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
         </DropdownMenu>
 
         <Button
-            onClick={handleProcessSelections}
-            disabled={disabled || isProcessing || selectedCount === 0}
-            className="flex-grow bg-blue-600 hover:bg-blue-700"
+          onClick={handleProcessSelections}
+          disabled={disabled || isProcessing || selectedCount === 0}
+          className="flex-grow bg-blue-600 hover:bg-blue-700"
         >
           {isProcessing ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -225,10 +225,10 @@ export const SaveOptionsButton: React.FC<SaveOptionsButtonProps> = ({
         </Button>
       </div>
       {error && (
-        <p className="text-xs text-red-400 flex items-center"><AlertTriangle className="h-3 w-3 mr-1"/>{error}</p>
+        <p className="text-xs text-red-400 flex items-center"><AlertTriangle className="h-3 w-3 mr-1" />{error}</p>
       )}
       {successMessage && (
-        <p className="text-xs text-green-400 flex items-center"><CheckCircle className="h-3 w-3 mr-1"/>{successMessage}</p>
+        <p className="text-xs text-green-400 flex items-center"><CheckCircle className="h-3 w-3 mr-1" />{successMessage}</p>
       )}
     </div>
   );

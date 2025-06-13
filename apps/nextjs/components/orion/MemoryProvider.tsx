@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useMemory } from '@shared/hooks/useMemory';
-import { ScoredMemoryPoint, MemorySearchOptions } from '@shared/lib/memory';
+import { useMemory } from '@repo/sharedhooks/useMemory';
+import { ScoredMemoryPoint, MemorySearchOptions } from '@repo/shared/memory';
 
 interface MemoryContextType {
   search: (query: string, options?: MemorySearchOptions) => Promise<ScoredMemoryPoint[]>;

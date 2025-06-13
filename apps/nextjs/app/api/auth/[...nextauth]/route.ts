@@ -1,1 +1,1 @@
-export { GET, POST } from "@shared/auth";
+export { GET, POST } from "@repo/sharedauth";

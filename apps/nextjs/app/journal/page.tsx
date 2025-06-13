@@ -4,9 +4,9 @@ import React from 'react';
 import { JournalEntryWithMemory } from '@/components/orion/JournalEntryWithMemory';
 import { useMemoryContext } from '@/components/orion/MemoryProvider';
 import { useEffect } from 'react';
-import { MEMORY_TYPES } from '@shared/lib/orion_config';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { MEMORY_TYPES } from '@repo/shared/orion_config';
+import { Card, CardContent } from '@repo/ui';
+import { Badge } from '@repo/ui';
 import { CalendarDays, MessageSquare, Tag } from 'lucide-react';
 
 export default function JournalPage() {

@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { ActivityWatchStorage, AnalyticsSnapshot } from "@shared/lib/activitywatch_storage";
+import { ActivityWatchStorage, AnalyticsSnapshot } from "@repo/shared/activitywatch_storage";
 
 // D3.js is imported dynamically to avoid SSR issues
 const d3 = typeof window !== "undefined" ? require("d3") : null;
@@ -30,17 +30,17 @@ const fetchSnapshots = async (user_id: string): Promise<ChartData[]> => {
 const COLORS = d3
   ? d3.schemeCategory10
   : [
-      "#1f77b4",
-      "#ff7f0e",
-      "#2ca02c",
-      "#d62728",
-      "#9467bd",
-      "#8c564b",
-      "#e377c2",
-      "#7f7f7f",
-      "#bcbd22",
-      "#17becf",
-    ];
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+  ];
 
 export default function ActivityWatchDashboard({ user_id = "user123" }) {
   const [data, setData] = useState<ChartData[]>([]);

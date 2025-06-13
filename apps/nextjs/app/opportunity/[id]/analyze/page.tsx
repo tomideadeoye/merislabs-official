@@ -2,25 +2,25 @@
 
 import React, { useState, useEffect } from "react";
 import { notFound, useParams } from "next/navigation";
-import { Opportunity, EvaluationOutput } from "@shared/types/opportunity";
-import { OpportunityPipelineCharts } from "@/app/(orion_admin)/admin/opportunity-pipeline/OpportunityPipelineCharts";
+import { OrionOpportunity } from '@repo/shared';
+import { OpportunityPipelineCharts } from "@/app/(orion_admin)/admin/OrionOpportunity-pipeline/OpportunityPipelineCharts";
 
-// Fetch a single opportunity from the API
-async function fetchOpportunity(id: string): Promise<Opportunity | null> {
+// Fetch a single OrionOpportunity from the API
+async function fetchOpportunity(id: string): Promise<OrionOpportunity | null> {
   try {
-    const res = await fetch(`/api/orion/opportunity/${id}`, { cache: "no-store" });
+    const res = await fetch(`/api/orion/OrionOpportunity/${id}`, { cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
-    return data.opportunity as Opportunity;
+    return data.OrionOpportunity as OrionOpportunity;
   } catch {
     return null;
   }
 }
 
-// Fetch evaluation/AI analysis for an opportunity
+// Fetch evaluation/AI analysis for an OrionOpportunity
 async function fetchEvaluation(id: string): Promise<EvaluationOutput | null> {
   try {
-    const res = await fetch(`/api/orion/opportunity/${id}/evaluation`, {
+    const res = await fetch(`/api/orion/OrionOpportunity/${id}/evaluation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
@@ -34,12 +34,12 @@ async function fetchEvaluation(id: string): Promise<EvaluationOutput | null> {
 }
 
 // Fetch all opportunities for pipeline analytics
-async function fetchAllOpportunities(): Promise<Opportunity[]> {
+async function fetchAllOpportunities(): Promise<OrionOpportunity[]> {
   try {
-    const res = await fetch("/api/orion/opportunity/list", { cache: "no-store" });
+    const res = await fetch("/api/orion/OrionOpportunity/list", { cache: "no-store" });
     if (!res.ok) return [];
     const data = await res.json();
-    return data.opportunities as Opportunity[];
+    return data.opportunities as OrionOpportunity[];
   } catch {
     return [];
   }
@@ -50,12 +50,12 @@ export default function AnalyzePage() {
   const id = typeof (params as any).id === "string"
     ? (params as any).id
     : Array.isArray((params as any).id)
-    ? (params as any).id[0]
-    : "";
-  const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
+      ? (params as any).id[0]
+      : "";
+  const [OrionOpportunity, setOpportunity] = useState<OrionOpportunity | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationOutput | null>(null);
   const [profileSource, setProfileSource] = useState<string | null>(null);
-  const [allOpportunities, setAllOpportunities] = useState<Opportunity[]>([]);
+  const [allOpportunities, setAllOpportunities] = useState<OrionOpportunity[]>([]);
   const [viewMode, setViewMode] = useState<"single" | "pipeline">("single");
   const [loading, setLoading] = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export default function AnalyzePage() {
   // Fetch evaluation with profile source and error
   async function fetchEvaluationWithSource(id: string) {
     try {
-      const res = await fetch(`/api/orion/opportunity/${id}/evaluation`, {
+      const res = await fetch(`/api/orion/OrionOpportunity/${id}/evaluation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -108,13 +108,13 @@ export default function AnalyzePage() {
     return <div style={{ padding: "2rem" }}>Loading analytics...</div>;
   }
 
-  if (!opportunity) {
+  if (!OrionOpportunity) {
     notFound();
   }
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>Opportunity Analysis</h1>
+      <h1>OrionOpportunity Analysis</h1>
       <div style={{ marginBottom: "1rem" }}>
         <button
           onClick={() => setViewMode("single")}
@@ -128,7 +128,7 @@ export default function AnalyzePage() {
             cursor: "pointer",
           }}
         >
-          This Opportunity
+          This OrionOpportunity
         </button>
         <button
           onClick={() => setViewMode("pipeline")}
@@ -148,28 +148,28 @@ export default function AnalyzePage() {
       {viewMode === "single" && (
         <>
           <p>
-            <strong>Opportunity ID:</strong> {opportunity.id}
+            <strong>OrionOpportunity ID:</strong> {OrionOpportunity.id}
           </p>
           <p>
-            <strong>Title:</strong> {opportunity.title}
+            <strong>Title:</strong> {OrionOpportunity.title}
           </p>
           <p>
-            <strong>Organization:</strong> {opportunity.companyOrInstitution || "N/A"}
+            <strong>Organization:</strong> {OrionOpportunity.companyOrInstitution || "N/A"}
           </p>
           <p>
-            <strong>Status:</strong> {opportunity.status}
+            <strong>Status:</strong> {OrionOpportunity.status}
           </p>
           <p>
-            <strong>Type:</strong> {opportunity.type}
+            <strong>Type:</strong> {OrionOpportunity.type}
           </p>
           <p>
-            <strong>Priority:</strong> {opportunity.priority}
+            <strong>Priority:</strong> {OrionOpportunity.priority}
           </p>
           <p>
-            <strong>Description:</strong> {opportunity.content || "No description"}
+            <strong>Description:</strong> {OrionOpportunity.content || "No description"}
           </p>
           <div style={{ margin: "2rem 0" }}>
-            <OpportunityPipelineCharts opportunities={[opportunity]} />
+            <OpportunityPipelineCharts opportunities={[OrionOpportunity]} />
           </div>
           {evaluation && (
             <div style={{ margin: "2rem 0", background: "#18181b", padding: "1rem", borderRadius: 8 }}>
@@ -241,11 +241,11 @@ export default function AnalyzePage() {
       <div style={{ marginTop: "2rem" }}>
         <h2>Suggestions for Enhanced Analytics</h2>
         <ul>
-          <li>Show opportunity status and priority trends over time (timeline chart).</li>
-          <li>Compare this opportunity to others in the pipeline (fit score, type, etc.).</li>
+          <li>Show OrionOpportunity status and priority trends over time (timeline chart).</li>
+          <li>Compare this OrionOpportunity to others in the pipeline (fit score, type, etc.).</li>
           <li>Visualize stakeholder alignment and risk as charts.</li>
           <li>Enable filtering and drill-down for related opportunities.</li>
-          <li>Display a timeline of key events and status changes for this opportunity.</li>
+          <li>Display a timeline of key events and status changes for this OrionOpportunity.</li>
           <li>Integrate evaluation/analysis results directly into the analytics view.</li>
         </ul>
       </div>

@@ -1,125 +1,154 @@
 "use client";
 
-import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { Card, Badge } from '@repo/ui';
-import { Opportunity, OpportunityStatus } from '@shared/types/opportunity';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from "react";
+import type { DropResult, DroppableProvided, DraggableProvided } from "react-beautiful-dnd";
+import { Card, Badge } from "@repo/ui"; // Assuming these are your UI components
+import type { OrionOpportunity } from "@repo/shared"; // Assuming this is your opportunity type
+import { useRouter } from "next/navigation";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
+// Kanban status types
+type KanbanStatus =
+  | "identified"
+  | "researching"
+  | "evaluating"
+  | "evaluated_positive"
+  | "application_drafting"
+  | "applied"
+  | "interview_scheduled"
+  | "offer_received";
 
 interface OpportunityKanbanViewProps {
-  opportunities: Opportunity[];
-  onStatusChange?: (opportunityId: string, newStatus: OpportunityStatus) => void;
+  opportunities: OrionOpportunity[];
+  onStatusChange?: (opportunityId: string, newStatus: KanbanStatus) => void; // Callback for when status changes via DND
 }
 
-// Define the columns/lanes for our Kanban board
-const columns: { id: OpportunityStatus; title: string }[] = [
-  { id: 'identified', title: 'Identified' },
-  { id: 'researching', title: 'Researching' },
-  { id: 'evaluating', title: 'Evaluating' },
-  { id: 'evaluated_positive', title: 'Positive Evaluation' },
-  { id: 'application_drafting', title: 'Drafting' },
-  { id: 'applied', title: 'Applied' },
-  { id: 'interview_scheduled', title: 'Interview' },
-  { id: 'offer_received', title: 'Offer' },
+// Kanban columns definition
+const columns: { id: KanbanStatus; title: string }[] = [
+  { id: "identified", title: "Identified" },
+  { id: "researching", title: "Researching" },
+  { id: "evaluating", title: "Evaluating" },
+  { id: "evaluated_positive", title: "Positive Evaluation" },
+  { id: "application_drafting", title: "Drafting Application" },
+  { id: "applied", title: "Application Submitted" },
+  { id: "interview_scheduled", title: "Interview Scheduled" },
+  { id: "offer_received", title: "Offer Received" },
 ];
 
 export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
   opportunities,
-  onStatusChange
+  onStatusChange,
 }) => {
   const router = useRouter();
 
-  // Group opportunities by status
-  const getOpportunitiesByStatus = () => {
-    const grouped: Record<string, Opportunity[]> = {};
+  // Memoized function to group opportunities by status
+  const groupOpportunitiesByStatus = useCallback(
+    (opps: OrionOpportunity[]): Record<KanbanStatus, OrionOpportunity[]> => {
+      const initialGrouped: Record<KanbanStatus, OrionOpportunity[]> = {
+        identified: [],
+        researching: [],
+        evaluating: [],
+        evaluated_positive: [],
+        application_drafting: [],
+        applied: [],
+        interview_scheduled: [],
+        offer_received: [],
+      };
 
-    // Initialize all columns with empty arrays
-    columns.forEach(column => {
-      grouped[column.id] = [];
-    });
+      // Ensure all defined KanbanStatus keys exist in initialGrouped
+      columns.forEach(column => {
+        if (!initialGrouped[column.id]) {
+          initialGrouped[column.id] = [];
+        }
+      });
 
-    // Add opportunities to their respective columns
-    opportunities.forEach(opportunity => {
-      const statusKey = opportunity.status || 'identified'; // Use fallback if status is undefined
-      if (grouped[statusKey]) {
-        grouped[statusKey].push(opportunity);
-      } else {
-        // This else case might be redundant now, but keeping it for safety
-        grouped['identified'].push(opportunity);
-      }
-    });
-
-    return grouped;
-  };
-
-  const [opportunitiesByStatus, setOpportunitiesByStatus] = useState<Record<string, Opportunity[]>>(
-    getOpportunitiesByStatus()
+      return opps.reduce((acc, opp) => {
+        const status = opp.status as KanbanStatus; // Assuming opp.status is a valid KanbanStatus
+        if (acc.hasOwnProperty(status)) {
+          acc[status].push(opp);
+        } else {
+          // Fallback for unrecognized status - good to log this
+          console.warn(
+            `Opportunity ID ${opp.id} has an unrecognized status: "${opp.status}". Assigning to 'identified'.`
+          );
+          acc.identified.push({ ...opp, status: "identified" });
+        }
+        return acc;
+      }, initialGrouped);
+    },
+    [] // No dependencies needed if logic is self-contained
   );
 
-  // Handle drag end event
+  const [opportunitiesByStatus, setOpportunitiesByStatus] = useState<
+    Record<KanbanStatus, OrionOpportunity[]>
+  >(() => groupOpportunitiesByStatus(opportunities));
+
+  // Effect to update grouped opportunities when the opportunities prop changes
+  useEffect(() => {
+    setOpportunitiesByStatus(groupOpportunitiesByStatus(opportunities));
+  }, [opportunities, groupOpportunitiesByStatus]);
+
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
-    // If there's no destination or the item was dropped back in its original position
-    if (!destination ||
-        (destination.droppableId === source.droppableId &&
-         destination.index === source.index)) {
+    // No destination or dropped in the same place
+    if (
+      !destination ||
+      (destination.droppableId === source.droppableId &&
+        destination.index === source.index)
+    ) {
       return;
     }
 
-    // Find the moved opportunity
-    const opportunity = opportunitiesByStatus[source.droppableId].find(
-      opp => opp.id === draggableId
-    );
+    const sourceColumnId = source.droppableId as KanbanStatus;
+    const destinationColumnId = destination.droppableId as KanbanStatus;
 
-    if (!opportunity) return;
+    const sourceItems = Array.from(opportunitiesByStatus[sourceColumnId]);
+    const destinationItems = (sourceColumnId === destinationColumnId)
+      ? sourceItems // If moving within the same column, use the same array reference before modification
+      : Array.from(opportunitiesByStatus[destinationColumnId]);
 
-    // Create a new state object
-    const newState = { ...opportunitiesByStatus };
 
-    // Remove from source
-    newState[source.droppableId] = newState[source.droppableId].filter(
-      opp => opp.id !== draggableId
-    );
+    const [movedItem] = sourceItems.splice(source.index, 1); // Remove from source
 
-    // Add to destination
-    const newStatus = destination.droppableId as OpportunityStatus;
-    newState[newStatus] = [
-      ...newState[newStatus].slice(0, destination.index),
-      { ...opportunity, status: newStatus },
-      ...newState[newStatus].slice(destination.index)
-    ];
+    if (!movedItem) return; // Should not happen if draggableId is valid
 
-    setOpportunitiesByStatus(newState);
+    // Update status of the moved item
+    const updatedMovedItem = { ...movedItem, status: destinationColumnId };
+    destinationItems.splice(destination.index, 0, updatedMovedItem); // Add to destination
 
-    // Call the callback if provided
+    setOpportunitiesByStatus((prev) => ({
+      ...prev,
+      [sourceColumnId]: sourceItems,
+      [destinationColumnId]: destinationItems,
+    }));
+
     if (onStatusChange) {
-      onStatusChange(draggableId, newStatus);
+      onStatusChange(draggableId, destinationColumnId);
     }
   };
 
   const handleOpportunityClick = (opportunityId: string) => {
-    router.push(`/admin/opportunity-pipeline/${opportunityId}`);
+    router.push(`/admin/OrionOpportunity-pipeline/${opportunityId}`); // Ensure this route is correct
   };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex overflow-x-auto pb-4 space-x-4">
-        {columns.map(column => (
-          <div key={column.id} className="flex-shrink-0 w-72">
-            <div className="bg-gray-800 rounded-t-md p-3 border-b border-gray-700">
-              <h3 className="font-medium text-gray-200">{column.title}</h3>
-              <div className="text-xs text-gray-400 mt-1">
+        {columns.map((column) => (
+          <div key={column.id} className="flex-shrink-0 w-72 md:w-80">
+            <div className="bg-slate-800 rounded-t-md p-3 border-b border-slate-700 sticky top-0 z-10">
+              <h3 className="font-medium text-slate-200">{column.title}</h3>
+              <div className="text-xs text-slate-400 mt-1">
                 {opportunitiesByStatus[column.id]?.length || 0} opportunities
               </div>
             </div>
-
-            <Droppable droppableId={column.id}>
-              {(provided) => (
+            <Droppable droppableId={column.id} type="OPPORTUNITY">
+              {(provided: DroppableProvided) => (
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="bg-gray-800/50 rounded-b-md min-h-[500px] p-2"
+                  className="bg-slate-800/60 rounded-b-md min-h-[calc(100vh-200px)] p-2 space-y-2 overflow-y-auto"
                 >
                   {opportunitiesByStatus[column.id]?.map((opportunity, index) => (
                     <Draggable
@@ -127,34 +156,42 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                       draggableId={opportunity.id}
                       index={index}
                     >
-                      {(provided) => (
+                      {(providedDraggable: DraggableProvided) => (
                         <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
+                          ref={providedDraggable.innerRef}
+                          {...providedDraggable.draggableProps}
+                          {...providedDraggable.dragHandleProps}
                           onClick={() => handleOpportunityClick(opportunity.id)}
                           className="mb-2"
                         >
-                          <Card className="bg-gray-700 border-gray-600 p-3 hover:border-gray-500 cursor-pointer">
-                            <h4 className="font-medium text-gray-200 mb-1">{opportunity.title}</h4>
-                            <p className="text-xs text-gray-400 mb-2">{opportunity.company}</p>
-
-                            <div className="flex flex-wrap gap-1">
+                          <Card className="bg-slate-700 border-slate-600 p-3 hover:border-slate-500 cursor-pointer shadow-md">
+                            <h4 className="font-medium text-slate-100 mb-1 text-sm">
+                              {opportunity.title}
+                            </h4>
+                            <p className="text-xs text-slate-400 mb-2">
+                              {opportunity.company}
+                            </p>
+                            <div className="flex flex-wrap gap-1 mt-1">
                               {opportunity.priority && (
                                 <Badge
                                   variant="outline"
-                                  className={
-                                    opportunity.priority === 'high' ? 'bg-red-900/30 text-red-300 border-red-700' :
-                                    opportunity.priority === 'medium' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-700' :
-                                    'bg-green-900/30 text-green-300 border-green-700'
-                                  }
+                                  className={`text-xs px-2 py-0.5 rounded-full border
+                                    ${
+                                      opportunity.priority === "high"
+                                        ? "bg-red-700/30 text-red-300 border-red-600"
+                                        : opportunity.priority === "medium"
+                                        ? "bg-yellow-600/30 text-yellow-300 border-yellow-500"
+                                        : "bg-green-700/30 text-green-300 border-green-600"
+                                    }`}
                                 >
                                   {opportunity.priority}
                                 </Badge>
                               )}
-
                               {opportunity.relatedEvaluationId && (
-                                <Badge variant="outline" className="bg-blue-900/20 text-blue-300 border-blue-700/50">
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 rounded-full border bg-sky-700/30 text-sky-300 border-sky-600"
+                                >
                                   Evaluated
                                 </Badge>
                               )}

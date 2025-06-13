@@ -2,9 +2,9 @@
 
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@repo/ui";
-import { MemoryProvider } from "@/components/orion/MemoryProvider";
+import { MemoryProvider } from "../components/orion/MemoryProvider";
 import { Toaster } from "react-hot-toast";
-import { logger } from "@shared/lib/logger";
+import { logger } from '@repo/shared';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   logger.info("[Providers] Initializing global providers: SessionProvider, ThemeProvider, MemoryProvider, Toaster");

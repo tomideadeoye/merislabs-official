@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@repo/ui';
 import { Loader2, FileText, RefreshCw } from 'lucide-react';
-import { CVComponent } from '@shared/lib/notion_next_service';
+import { CVComponent } from '@repo/shared/notion_next_service';
 
 export const NotionCVComponentsList = () => {
   const [components, setComponents] = useState<CVComponent[]>([]);

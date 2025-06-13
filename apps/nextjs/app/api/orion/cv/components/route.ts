@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getCVComponentsFromNotion } from '@shared/lib/notion_service';
+import { NextResponse } from "next/server";
+import { getCVComponentsFromNotion } from "@repo/shared/notion_service";
 
 /**
  * @fileoverview Fetches CV components from Notion.
@@ -9,15 +9,23 @@ import { getCVComponentsFromNotion } from '@shared/lib/notion_service';
  * promoting code reuse and maintainability.
  */
 export async function GET() {
-  console.log('[GET /api/orion/cv/components] Received request.');
+  console.log("[GET /api/orion/cv/components] Received request.");
   try {
     const components = await getCVComponentsFromNotion();
-    console.log(`[GET /api/orion/cv/components] Successfully fetched ${components.length} components.`);
+    console.log(
+      `[GET /api/orion/cv/components] Successfully fetched ${components.length} components.`
+    );
     return NextResponse.json({ success: true, components });
   } catch (error: any) {
-    console.error('[GET /api/orion/cv/components] Error fetching components:', error);
+    console.error(
+      "[GET /api/orion/cv/components] Error fetching components:",
+      error
+    );
     return NextResponse.json(
-      { success: false, error: error.message || 'An unexpected error occurred.' },
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred.",
+      },
       { status: 500 }
     );
   }

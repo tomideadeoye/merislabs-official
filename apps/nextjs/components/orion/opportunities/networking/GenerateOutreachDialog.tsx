@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { Button } from "@repo/ui";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui';
 import { Loader2, Copy, MessageSquare, Mail } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Opportunity } from '@shared/types/opportunity';
-import { useOpportunityCentralStore } from '../opportunityCentralStore';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
+import type { OrionOpportunity } from '@repo/shared';
+import { useOpportunityCentralStore } from '@repo/shared';
 
 interface Stakeholder {
   name: string;
@@ -23,8 +23,8 @@ export const GenerateOutreachDialog: React.FC = () => {
   const opportunityTitle = useOpportunityCentralStore((state: any) => state.opportunityTitle);
   const opportunityCompany = useOpportunityCentralStore((state: any) => state.opportunityCompany);
   const onOutreachGenerated = useOpportunityCentralStore((state: any) => state.onOutreachGenerated);
-  // For backward compatibility, opportunity may be undefined, so fallback to empty object
-  const opportunity = opportunityTitle && opportunityCompany
+  // For backward compatibility, OrionOpportunity may be undefined, so fallback to empty object
+  const OrionOpportunity = opportunityTitle && opportunityCompany
     ? { title: opportunityTitle, company: opportunityCompany, content: '' }
     : undefined;
   const [isLoading, setIsLoading] = useState(false);
@@ -46,8 +46,8 @@ export const GenerateOutreachDialog: React.FC = () => {
       }
 
       // Call the generate outreach API
-      if (!opportunity) {
-        setError('Opportunity context is missing.');
+      if (!OrionOpportunity) {
+        setError('OrionOpportunity context is missing.');
         setIsLoading(false);
         return;
       }
@@ -58,10 +58,10 @@ export const GenerateOutreachDialog: React.FC = () => {
         },
         body: JSON.stringify({
           stakeholder: stakeholder,
-          context: `This outreach is regarding the ${opportunity?.title ?? ''} position at ${opportunity?.company ?? ''}.`,
+          context: `This outreach is regarding the ${OrionOpportunity?.title ?? ''} position at ${OrionOpportunity?.company ?? ''}.`,
           profileData: profileData.profile,
-          additionalInfo: opportunity?.content ?? '',
-          jobTitle: opportunity?.title ?? ''
+          additionalInfo: OrionOpportunity?.content ?? '',
+          jobTitle: OrionOpportunity?.title ?? ''
         })
       });
 
@@ -105,7 +105,7 @@ export const GenerateOutreachDialog: React.FC = () => {
 
   const { linkedin, email } = parseOutreachContent();
 
-  if (!opportunity) return null;
+  if (!OrionOpportunity) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) close(); }}>

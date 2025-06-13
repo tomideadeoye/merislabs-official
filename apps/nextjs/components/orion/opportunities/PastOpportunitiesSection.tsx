@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@repo/ui';
 import { Loader2, History, RefreshCw, ExternalLink } from 'lucide-react';
-import { Opportunity } from '@shared/types/opportunity';
+import { OrionOpportunity } from '@repo/shared';
 
 interface PastOpportunitiesProps {
-  opportunity: Opportunity;
+  OrionOpportunity: OrionOpportunity;
 }
 
 interface SimilarOpportunity {
@@ -19,7 +19,7 @@ interface SimilarOpportunity {
   outcome?: string;
 }
 
-export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opportunity }) => {
+export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ OrionOpportunity }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [similarOpportunities, setSimilarOpportunities] = useState<SimilarOpportunity[]>([]);
 
@@ -34,7 +34,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: `${opportunity.title} ${opportunity.company} ${opportunity.type} ${opportunity.tags?.join(' ') || ''}`,
+          query: `${OrionOpportunity.title} ${OrionOpportunity.company} ${OrionOpportunity.type} ${OrionOpportunity.tags?.join(' ') || ''}`,
           collectionName: 'orion_memory',
           limit: 5,
           filter: {
@@ -50,7 +50,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
               {
                 key: 'opportunityId',
                 match: {
-                  value: opportunity.id
+                  value: OrionOpportunity.id
                 }
               }
             ]
@@ -65,7 +65,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
         // Transform the results into a more usable format
         const opportunities = data.results.map((item: any) => ({
           id: item.payload.opportunityId || 'unknown',
-          title: item.payload.title || 'Unknown Opportunity',
+          title: item.payload.title || 'Unknown OrionOpportunity',
           company: item.payload.company || 'Unknown Company',
           status: item.payload.status || 'unknown',
           similarity: Math.round(item.score * 100),
@@ -80,13 +80,13 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
     } finally {
       setIsLoading(false);
     }
-  }, [opportunity]);
+  }, [OrionOpportunity]);
 
   useEffect(() => {
-    if (opportunity) {
+    if (OrionOpportunity) {
       fetchSimilarOpportunities();
     }
-  }, [opportunity, fetchSimilarOpportunities]);
+  }, [OrionOpportunity, fetchSimilarOpportunities]);
 
   const getStatusColor = (status: string) => {
     if (status.includes('accepted') || status.includes('offer')) {
@@ -159,7 +159,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opp
                     className="text-gray-400 hover:text-gray-200"
                     onClick={() => {
                       if (item.id !== 'unknown') {
-                        window.open(`/admin/opportunity-pipeline/${item.id}`, '_blank');
+                        window.open(`/admin/OrionOpportunity-pipeline/${item.id}`, '_blank');
                       }
                     }}
                     disabled={item.id === 'unknown'}

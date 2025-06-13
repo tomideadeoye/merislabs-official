@@ -27,6 +27,12 @@ export * from "./components/ui/tabs";
 export * from "./components/ui/textarea";
 export * from "./components/ui/tooltip";
 export * from "./components/ui/header";
-export * from "./components/ui/footer";
-export * from "./components/ui/mood-checkin";
+export { default as Footer } from './components/ui/footer';
 export * from "./components/ui/theme-provider";
+
+export { default as DraftCommunicationForm } from './components/orion/DraftCommunicationForm';
+export { default as WhatsAppReplyDrafter } from './components/orion/WhatsAppReplyDrafter';
+export { default as AddOpportunityForm } from './components/orion/opportunities/AddOpportunityForm';
+export { default as OpportunityFilters } from './components/orion/opportunities/OpportunityFilters';
+export { default as OpportunityList } from './components/orion/opportunities/OpportunityList';
+export { default as OpportunityKanbanView } from './components/orion/opportunities/OpportunityKanbanView';

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { listOpportunitiesFromNotion } from '@shared/lib/notion_service';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from "next/server";
+import { listOpportunitiesFromNotion } from "@repo/shared/notion_service";
+import { z } from "zod";
 
 const OpportunityNotionOutputSharedSchema = z.object({
   id: z.string(),
@@ -38,20 +38,20 @@ const OpportunityNotionOutputSharedSchema = z.object({
 });
 
 // =====================
-// Opportunity Notion List API
+// OrionOpportunity Notion List API
 // =====================
-// GOAL: Provide comprehensive, context-rich, level-based logging for all Notion Opportunity list actions.
+// GOAL: Provide comprehensive, context-rich, level-based logging for all Notion OrionOpportunity list actions.
 // All logs include operation, parameters, validation, and results for traceability and rapid debugging.
 
 export async function GET(request: NextRequest) {
   const logContext = {
-    route: '/api/orion/notion/opportunity/list',
-    filePath: 'app/api/orion/notion/opportunity/list/route.ts',
+    route: "/api/orion/notion/OrionOpportunity/list",
+    filePath: "app/api/orion/notion/OrionOpportunity/list/route.ts",
     timestamp: new Date().toISOString(),
     // No user/session for this endpoint, but could be added if auth is required
   };
 
-  console.info('[OPPORTUNITY_NOTION_LIST][START]', logContext);
+  console.info("[OPPORTUNITY_NOTION_LIST][START]", logContext);
 
   try {
     const opportunities = await listOpportunitiesFromNotion();
@@ -62,18 +62,40 @@ export async function GET(request: NextRequest) {
       if (parseResult.success) {
         validOpportunities.push(parseResult.data);
       } else {
-        console.warn('[OPPORTUNITY_NOTION_LIST][VALIDATION_FAIL]', { ...logContext, opp, error: parseResult.error.format() });
+        console.warn("[OPPORTUNITY_NOTION_LIST][VALIDATION_FAIL]", {
+          ...logContext,
+          opp,
+          error: parseResult.error.format(),
+        });
         invalidOpportunities.push({ opp, error: parseResult.error.format() });
       }
     }
-    console.info('[OPPORTUNITY_NOTION_LIST][VALIDATION_SUMMARY]', { ...logContext, valid: validOpportunities.length, invalid: invalidOpportunities.length });
-    console.info('[OPPORTUNITY_NOTION_LIST][SUCCESS]', { ...logContext, validOpportunitiesCount: validOpportunities.length });
+    console.info("[OPPORTUNITY_NOTION_LIST][VALIDATION_SUMMARY]", {
+      ...logContext,
+      valid: validOpportunities.length,
+      invalid: invalidOpportunities.length,
+    });
+    console.info("[OPPORTUNITY_NOTION_LIST][SUCCESS]", {
+      ...logContext,
+      validOpportunitiesCount: validOpportunities.length,
+    });
 
-    return NextResponse.json({ success: true, opportunities: validOpportunities, invalidOpportunities });
+    return NextResponse.json({
+      success: true,
+      opportunities: validOpportunities,
+      invalidOpportunities,
+    });
   } catch (error: any) {
-    console.error('[OPPORTUNITY_NOTION_LIST][ERROR]', { ...logContext, error: error.message, stack: error.stack });
+    console.error("[OPPORTUNITY_NOTION_LIST][ERROR]", {
+      ...logContext,
+      error: error.message,
+      stack: error.stack,
+    });
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch opportunities from Notion' },
+      {
+        success: false,
+        error: error.message || "Failed to fetch opportunities from Notion",
+      },
       { status: 500 }
     );
   }

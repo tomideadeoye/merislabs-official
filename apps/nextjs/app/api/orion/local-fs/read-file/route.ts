@@ -1,5 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { readFileContent, getFileMetadata } from '@shared/lib/local_file_service';
+import { NextRequest, NextResponse } from "next/server";
+import {
+  readFileContent,
+  getFileMetadata,
+} from "@repo/shared";
+import { readFileFromLocal } from '@repo/shared';
 
 /**
  * API route to read file content
@@ -7,39 +11,45 @@ import { readFileContent, getFileMetadata } from '@shared/lib/local_file_service
 export async function POST(request: NextRequest) {
   try {
     const { filePath } = await request.json();
-    
-    if (!filePath || typeof filePath !== 'string') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'filePath is required and must be a string' 
-      }, { status: 400 });
+
+    if (!filePath || typeof filePath !== "string") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "filePath is required and must be a string",
+        },
+        { status: 400 }
+      );
     }
-    
+
     // Read file content
     const content = await readFileContent(filePath);
-    
+
     // Get file metadata
     const metadata = await getFileMetadata(filePath);
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       content,
-      metadata
+      metadata,
     });
   } catch (error: any) {
-    console.error('Error in POST /api/orion/local-fs/read-file:', error);
-    
+    console.error("Error in POST /api/orion/local-fs/read-file:", error);
+
     // Return appropriate status code based on error type
     let statusCode = 500;
-    if (error.message.startsWith('Access denied')) {
+    if (error.message.startsWith("Access denied")) {
       statusCode = 403;
-    } else if (error.message.startsWith('Unsupported file type')) {
+    } else if (error.message.startsWith("Unsupported file type")) {
       statusCode = 400;
     }
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'An unexpected error occurred' 
-    }, { status: statusCode });
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: statusCode }
+    );
   }
 }

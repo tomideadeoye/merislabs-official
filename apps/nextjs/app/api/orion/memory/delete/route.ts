@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from '@shared/auth';
-import { ORION_MEMORY_COLLECTION_NAME } from "@shared/lib/orion_config";
+import { auth } from "@repo/sharedauth";
+import { ORION_MEMORY_COLLECTION_NAME } from "@repo/shared/orion_config";
 import axios from "axios";
 
 /**
@@ -9,7 +9,10 @@ import axios from "axios";
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
@@ -32,7 +35,7 @@ export async function POST(request: NextRequest) {
     const deleteResponse = await axios.post(
       `${qdrantUrl}/collections/${collectionName}/points/delete`,
       {
-        points: ids
+        points: ids,
       }
     );
 
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Successfully deleted ${ids.length} memory points`
+      message: `Successfully deleted ${ids.length} memory points`,
     });
   } catch (error: any) {
     console.error("[MEMORY_DELETE_ERROR]", error);

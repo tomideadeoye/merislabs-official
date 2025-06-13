@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { PageNames, SessionStateKeys } from "@shared/app_state";
-import { useSessionState } from '@shared/hooks/useSessionState';
+import { PageHeader } from "@repo/ui";
+import { PageNames, SessionStateKeys } from "@repo/sharedapp_state";
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
 import { DatabaseZap, Search, Loader2, AlertTriangle, Info, PlusCircle } from "lucide-react";
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@shared/types/orion';
+import { Input } from '@repo/ui';
+import { Button } from '@repo/ui';
+import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@repo/shared';
 import { JournalEntryDisplay } from '@/components/orion/JournalEntryDisplay';
 import { DedicatedAddToMemoryFormComponent } from '@/components/orion/DedicatedAddToMemoryFormComponent';
-import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared';
+import { ScrollArea } from '@repo/ui';
+import { Label } from '@repo/ui';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 
 export default function MemoryManagerFeaturePage() {
   const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
@@ -80,9 +80,10 @@ export default function MemoryManagerFeaturePage() {
       } else {
         throw new Error(data.error || 'Failed to search memory.');
       }
-    } catch (err: any) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
       console.error("Error searching memory:", err);
-      setError(err.message || 'An unexpected error occurred.');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -106,12 +107,13 @@ export default function MemoryManagerFeaturePage() {
       const data = await response.json();
       if (data.success) {
         setDeleteSuccess('Memory item deleted successfully.');
-        setSearchResults(prev => prev.filter(item => item.id !== id));
+        setSearchResults(prev => prev.filter(item => (item.id || item.payload.source_id) !== id));
       } else {
         setDeleteError(data.error || 'Failed to delete memory item.');
       }
-    } catch (err: any) {
-      setDeleteError(err.message || 'Failed to delete memory item.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setDeleteError(errorMessage);
     } finally {
       setDeletingId(null);
     }
@@ -131,7 +133,7 @@ export default function MemoryManagerFeaturePage() {
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
           <CardTitle className="text-xl text-green-400 flex items-center">
-            <PlusCircle className="mr-2 h-6 w-6"/>
+            <PlusCircle className="mr-2 h-6 w-6" />
             Add New Item to Orion&apos;s Memory
           </CardTitle>
           <CardDescription className="text-gray-400">
@@ -147,7 +149,7 @@ export default function MemoryManagerFeaturePage() {
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
           <CardTitle className="text-xl text-blue-400 flex items-center">
-            <Search className="mr-2 h-6 w-6"/>
+            <Search className="mr-2 h-6 w-6" />
             Search Orion&apos;s Memory
           </CardTitle>
           <CardDescription className="text-gray-400">
@@ -196,7 +198,7 @@ export default function MemoryManagerFeaturePage() {
                   id="limit"
                   type="number"
                   value={limit}
-                  onChange={(e) => setLimit(Math.max(1, parseInt(e.target.value,10) || 5))}
+                  onChange={(e) => setLimit(Math.max(1, parseInt(e.target.value, 10) || 5))}
                   min="1"
                   className="bg-gray-700 border-gray-600 text-gray-200"
                 />
@@ -230,7 +232,7 @@ export default function MemoryManagerFeaturePage() {
       {!isLoading && !error && searchResults.length === 0 && hasSearched && (
         <div className="my-6 bg-yellow-900/30 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-md relative flex items-start" role="alert">
           <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-          <p>No results found for your query and filters.</p>
+          <p>No results found for your query and filters. Try a broader search.</p>
         </div>
       )}
 
@@ -240,18 +242,19 @@ export default function MemoryManagerFeaturePage() {
           <ScrollArea className="h-[calc(100vh-25rem)] md:h-[calc(100vh-20rem)]">
             <div className="space-y-4 pr-3">
               {searchResults.map((result) => {
-                const memoryId = result.id || result.payload.source_id;
+                const memoryId = result.id || (typeof result.payload?.source_id === 'string' ? result.payload.source_id : String(result.payload?.source_id ?? ''));
+                if (!memoryId) return null; // Don't render if no valid ID
                 return (
                   <div key={memoryId} className="relative group border border-gray-700 rounded-lg bg-gray-900/80 p-4">
                     <JournalEntryDisplay
                       entry={{
-                        title: "",
-                        date: new Date(result.payload.timestamp),
-                        content: result.payload.text,
+                        title: result.payload.title || "",
+                        date: new Date(result.payload.timestamp || Date.now()),
+                        content: result.payload.text || "No content available.",
                         contentType: "Journal",
-                        notionPageId: result.payload.source_id,
+                        notionPageId: result.payload.source_id || "N/A",
                         mood: result.payload.mood,
-                        tags: result.payload.tags,
+                        tags: result.payload.tags || [],
                       }}
                     />
                     <Button

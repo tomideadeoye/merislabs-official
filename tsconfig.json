@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -15,9 +19,74 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/nextjs/*"],
-      "@repo/ui": ["packages/ui/src"],
-      "@shared/*": ["packages/shared/src/*"]
+      "@repo/ui": [
+        "packages/ui/src"
+      ],
+      "@repo/ui/*": [
+        "packages/ui/src/*"
+      ],
+      "@repo/shared": [
+        "packages/shared/src"
+      ],
+      "@repo/shared/*": [
+        "packages/shared/src/*"
+      ],
+      "@repo/sharedtypes": [
+        "packages/sharedtypes"
+      ],
+      "@repo/sharedtypes/*": [
+        "packages/sharedtypes/*"
+      ],
+      "@repo/sharedtypes/orion": [
+        "packages/sharedtypes/orion"
+      ],
+      "@repo/sharedtypes/orion/*": [
+        "packages/sharedtypes/orion/*"
+      ],
+      "@repo/sharedtypes/ideas": [
+        "packages/sharedtypes/ideas"
+      ],
+      "@repo/sharedtypes/ideas/*": [
+        "packages/sharedtypes/ideas/*"
+      ],
+      "@repo/sharedtypes/habitica": [
+        "packages/sharedtypes/habitica"
+      ],
+      "@repo/sharedtypes/habitica/*": [
+        "packages/sharedtypes/habitica/*"
+      ],
+      "@repo/sharedtypes/narrative-clarity": [
+        "packages/sharedtypes/narrative-clarity"
+      ],
+      "@repo/sharedtypes/narrative-clarity/*": [
+        "packages/sharedtypes/narrative-clarity/*"
+      ],
+      "@repo/sharedtypes/strategic-outreach": [
+        "packages/sharedtypes/strategic-outreach"
+      ],
+      "@repo/sharedtypes/strategic-outreach/*": [
+        "packages/sharedtypes/strategic-outreach/*"
+      ],
+      "@repo/sharedhooks": [
+        "packages/shared/hooks"
+      ],
+      "@repo/sharedhooks/*": [
+        "packages/shared/hooks/*"
+      ],
+      "@repo/sharedlib": [
+        "packages/shared/lib",
+        "packages/shared/src/lib"
+      ],
+      "@repo/sharedlib/*": [
+        "packages/shared/lib/*",
+        "packages/shared/src/lib/*"
+      ],
+      "@repo/sharedauth": [
+        "packages/shared/auth.ts"
+      ],
+      "@repo/sharedapp_state": [
+        "packages/shared/app_state.ts"
+      ]
     },
     "plugins": [
       {
@@ -25,5 +94,16 @@
       }
     ]
   },
-  "exclude": ["node_modules", ".turbo", "dist", "build"]
+  "exclude": [
+    "node_modules",
+    ".turbo",
+    "dist",
+    "build"
+  ],
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

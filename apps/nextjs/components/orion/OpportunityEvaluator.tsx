@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/ui';
+import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 import {
   Loader2,
   AlertTriangle,
@@ -12,7 +12,7 @@ import {
   Info,
   ListTodo
 } from 'lucide-react';
-import type { OpportunityDetails, EvaluationOutput } from '@shared/types/opportunity';
+import type { OrionOpportunityDetails, EvaluationOutput } from '@repo/shared';
 import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
 import { useHabiticaTaskDialogStore } from './tasks/habiticaTaskDialogStore';
 
@@ -38,7 +38,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
     e.preventDefault();
 
     if (!title.trim() || !content.trim()) {
-      setError("Opportunity title and content are required.");
+      setError("OrionOpportunity title and content are required.");
       return;
     }
 
@@ -47,7 +47,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
     setEvaluation(null);
 
     try {
-      const response = await fetch('/api/orion/opportunity/evaluate', {
+      const response = await fetch('/api/orion/OrionOpportunity/evaluate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           content,
           type,
           url: url || undefined
-        } as OpportunityDetails)
+        } as OrionOpportunityDetails)
       });
 
       const data = await response.json();
@@ -70,10 +70,10 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         }
       } else {
         setEvaluation(null);
-        setError(data.error || 'Failed to evaluate opportunity.');
+        setError(data.error || 'Failed to evaluate OrionOpportunity.');
       }
     } catch (err: any) {
-      console.error('Error evaluating opportunity:', err);
+      console.error('Error evaluating OrionOpportunity:', err);
       setEvaluation(null);
       setError(err.message || 'An unexpected error occurred.');
     } finally {
@@ -125,7 +125,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         <CardHeader>
           <CardTitle className="text-xl flex items-center">
             <BarChart2 className="mr-2 h-5 w-5 text-amber-400" />
-            Evaluate Opportunity
+            Evaluate OrionOpportunity
           </CardTitle>
           <CardDescription className="text-gray-400">
             Analyze job descriptions, academic programs, or project briefs against your profile and goals.
@@ -134,7 +134,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="title" className="text-gray-300">Opportunity Title *</Label>
+              <Label htmlFor="title" className="text-gray-300">OrionOpportunity Title *</Label>
               <Input
                 id="title"
                 value={title}
@@ -146,7 +146,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
             </div>
 
             <div>
-              <Label htmlFor="type" className="text-gray-300">Opportunity Type *</Label>
+              <Label htmlFor="type" className="text-gray-300">OrionOpportunity Type *</Label>
               <Select value={type} onValueChange={(value: any) => setType(value)}>
                 <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
                   <SelectValue placeholder="Select type" />
@@ -197,7 +197,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
               ) : (
                 <>
                   <BarChart2 className="mr-2 h-4 w-4" />
-                  Evaluate Opportunity
+                  Evaluate OrionOpportunity
                 </>
               )}
             </Button>
@@ -220,17 +220,16 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           <CardHeader>
             <CardTitle className="text-xl text-amber-400">Evaluation Results: {title}</CardTitle>
             <CardDescription className="text-gray-400">
-              Analysis of how this opportunity aligns with your profile and goals
+              Analysis of how this OrionOpportunity aligns with your profile and goals
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <Label className="text-gray-300 font-medium">Overall Fit Score:</Label>
-              <p className={`text-2xl font-bold ${
-                (evaluation.fitScorePercentage || 0) >= 75 ? 'text-green-400' :
+              <p className={`text-2xl font-bold ${(evaluation.fitScorePercentage || 0) >= 75 ? 'text-green-400' :
                 (evaluation.fitScorePercentage || 0) >= 50 ? 'text-amber-400' :
-                'text-red-400'
-              }`}>
+                  'text-red-400'
+                }`}>
                 {evaluation.fitScorePercentage}%
               </p>
             </div>
@@ -332,8 +331,8 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
 
       <CreateHabiticaTaskDialog
         initialTaskText={selectedStep}
-        initialTaskNotes={`Next step for opportunity: ${title}`}
-        sourceModule="Opportunity Evaluator"
+        initialTaskNotes={`Next step for OrionOpportunity: ${title}`}
+        sourceModule="OrionOpportunity Evaluator"
         sourceReferenceId={title}
       />
     </div>

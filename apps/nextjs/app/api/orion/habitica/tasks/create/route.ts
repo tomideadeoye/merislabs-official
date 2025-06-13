@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createTask } from '@shared/lib/habitica_client';
-import type { HabiticaTaskCreationParams } from '@shared/types/habitica';
+import { NextRequest, NextResponse } from "next/server";
+import { createTask } from "@repo/shared/habitica_client";
+import type { HabiticaTaskCreationParams } from "@repo/shared/types/habitica";
 
 /**
  * API route for creating a new Habitica task
@@ -10,17 +10,23 @@ export async function POST(req: NextRequest) {
     const { userId, apiToken, task } = await req.json();
 
     if (!userId || !apiToken) {
-      return NextResponse.json({
-        success: false,
-        error: 'Habitica User ID and API Token are required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Habitica User ID and API Token are required",
+        },
+        { status: 400 }
+      );
     }
 
     if (!task || !task.text || !task.type) {
-      return NextResponse.json({
-        success: false,
-        error: 'Task text and type are required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Task text and type are required",
+        },
+        { status: 400 }
+      );
     }
 
     // Create task
@@ -30,7 +36,7 @@ export async function POST(req: NextRequest) {
       notes: task.notes,
       date: task.date,
       priority: task.priority,
-      tags: task.tags
+      tags: task.tags,
     };
 
     // Create task using the shared client
@@ -39,13 +45,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      task: createdTask
+      task: createdTask,
     });
   } catch (error: any) {
-    console.error('Error in POST /api/orion/habitica/tasks/create:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    console.error("Error in POST /api/orion/habitica/tasks/create:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

@@ -1,20 +1,26 @@
-import { NextResponse } from 'next/server';
-import { ORION_ACCESSIBLE_LOCAL_DIRECTORIES } from '@shared/lib/orion_config';
+import { NextResponse } from "next/server";
+import { ORION_ACCESSIBLE_LOCAL_DIRECTORIES } from "@repo/shared/orion_config";
 
 /**
  * API route to list configured accessible directories
  */
 export async function GET() {
   try {
-    return NextResponse.json({ 
-      success: true, 
-      directories: ORION_ACCESSIBLE_LOCAL_DIRECTORIES 
+    return NextResponse.json({
+      success: true,
+      directories: ORION_ACCESSIBLE_LOCAL_DIRECTORIES,
     });
   } catch (error: any) {
-    console.error('Error in GET /api/orion/local-fs/list-configured-dirs:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'An unexpected error occurred' 
-    }, { status: 500 });
+    console.error(
+      "Error in GET /api/orion/local-fs/list-configured-dirs:",
+      error
+    );
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

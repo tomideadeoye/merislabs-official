@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import type { PersonaMap } from '@shared/types/strategic-outreach';
+import { create } from "zustand";
+import type { Persona } from '@repo/shared';
 
 interface PersonaFormStore {
   isSubmitting: boolean;
-  feedback: { type: 'success' | 'error'; message: string } | null;
-  lastSubmittedData: Partial<PersonaMap> | null;
+  feedback: { type: "success" | "error"; message: string } | null;
+  lastSubmittedData: Partial<Persona> | null;
   error: string | null;
-  submitPersona: (data: Partial<PersonaMap>) => Promise<void>;
+  submitPersona: (data: Partial<Persona>) => Promise<void>;
   clearFeedback: () => void;
 }
 
@@ -23,15 +23,18 @@ export const usePersonaFormStore = create<PersonaFormStore>((set) => ({
       // Simulate async save
       await new Promise((resolve) => setTimeout(resolve, 500));
       set({
-        feedback: { type: 'success', message: 'Persona saved successfully!' },
+        feedback: { type: "success", message: "Persona saved successfully!" },
         lastSubmittedData: data,
         isSubmitting: false,
         error: null,
       });
     } catch (err: any) {
       set({
-        feedback: { type: 'error', message: err.message || 'Failed to save persona.' },
-        error: err.message || 'Failed to save persona.',
+        feedback: {
+          type: "error",
+          message: err.message || "Failed to save persona.",
+        },
+        error: err.message || "Failed to save persona.",
         isSubmitting: false,
       });
     }

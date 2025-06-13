@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { PageNames } from "@shared/app_state";
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { PageHeader, Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from '@repo/ui';
+import { PageNames } from "@repo/sharedapp_state";
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { DashboardRoutineStatus } from '@/components/orion/DashboardRoutineStatus';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
   Home,
   BookOpen,
@@ -22,8 +20,8 @@ import {
   X as XIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import { checkAllLlmApiKeys, PROVIDER_MODEL_CONFIGS } from '@shared/lib/llm_providers';
-import { useUserProfile } from '@shared/hooks/useUserProfile';
+import { checkAllLlmApiKeys, PROVIDER_MODEL_CONFIGS } from '@repo/shared';
+import { useUserProfile } from '@repo/sharedhooks/useUserProfile';
 
 import { HabiticaStatsContainer } from "@/components/orion/HabiticaStatsContainer";
 
@@ -404,7 +402,7 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">Track and evaluate job opportunities, projects, and more.</p>
-              <Link href="/admin/opportunity">
+              <Link href="/admin/OrionOpportunity">
                 <Button>View Opportunities</Button>
               </Link>
             </CardContent>
@@ -456,9 +454,9 @@ export default function AdminDashboardPage() {
             asChild
             className="w-full justify-start text-amber-400 border-amber-600 hover:bg-amber-700/30"
           >
-            <Link href="/admin/opportunity">
+            <Link href="/admin/OrionOpportunity">
               <BarChart2 className="mr-2 h-4 w-4" />
-              Evaluate Opportunity
+              Evaluate OrionOpportunity
             </Link>
           </Button>
 

@@ -1,34 +1,33 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { PageHeader } from "@repo/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger, Button } from '@repo/ui';
 import { NotionCVComponentsList } from "@/components/orion/notion/NotionCVComponentsList";
 import { NotionOpportunityForm } from "@/components/orion/notion/NotionOpportunityForm";
 import { Database, FileText, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { checkNotionApiHealth } from "@shared/lib/notion_next_service";
+import { checkNotionApiHealth } from '@repo/shared';
 
 export default function NotionIntegrationPage() {
   const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  
+
   React.useEffect(() => {
     const checkApiStatus = async () => {
       setApiStatus('checking');
       const isOnline = await checkNotionApiHealth();
       setApiStatus(isOnline ? 'online' : 'offline');
     };
-    
+
     checkApiStatus();
   }, []);
-  
+
   const handleCheckApiStatus = () => {
     setApiStatus('checking');
     checkNotionApiHealth().then(isOnline => {
       setApiStatus(isOnline ? 'online' : 'offline');
     });
   };
-  
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -37,7 +36,7 @@ export default function NotionIntegrationPage() {
         description="Manage your CV components and opportunities in Notion"
         showMemoryStatus={true}
       />
-      
+
       <div className="flex items-center space-x-2 mb-4">
         <div className="text-sm text-gray-400">Python Notion API Status:</div>
         {apiStatus === 'checking' ? (
@@ -54,9 +53,9 @@ export default function NotionIntegrationPage() {
           <div className="flex items-center">
             <AlertCircle className="h-4 w-4 text-red-400 mr-1" />
             <span className="text-red-400">Offline</span>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="ml-2 bg-gray-700 hover:bg-gray-600 text-xs"
               onClick={handleCheckApiStatus}
             >
@@ -65,7 +64,7 @@ export default function NotionIntegrationPage() {
           </div>
         )}
       </div>
-      
+
       {apiStatus === 'offline' && (
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md mb-4">
           <h3 className="text-lg font-medium flex items-center">
@@ -82,7 +81,7 @@ export default function NotionIntegrationPage() {
           </pre>
         </div>
       )}
-      
+
       <Tabs defaultValue="cv-components" className="w-full">
         <TabsList className="bg-gray-800 border-gray-700">
           <TabsTrigger value="cv-components" className="data-[state=active]:bg-gray-700">
@@ -94,11 +93,11 @@ export default function NotionIntegrationPage() {
             Opportunities
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="cv-components" className="mt-4">
           <NotionCVComponentsList />
         </TabsContent>
-        
+
         <TabsContent value="opportunities" className="mt-4">
           <NotionOpportunityForm />
         </TabsContent>

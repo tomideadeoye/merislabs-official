@@ -5,8 +5,8 @@ import { Button } from '@repo/ui';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@repo/ui';
 import { Loader2, Users, Copy, Mail } from 'lucide-react';
 import { GenerateOutreachDialog } from './GenerateOutreachDialog';
-import { useOpportunityCentralStore } from '../opportunityCentralStore';
-import type { Opportunity } from '@shared/types/opportunity';
+import { useOpportunityCentralStore } from '@repo/shared';
+import type { OrionOpportunity } from '@repo/shared'
 
 export interface Stakeholder {
   name: string;
@@ -17,10 +17,10 @@ export interface Stakeholder {
 }
 
 interface FindStakeholdersButtonProps {
-  opportunity: Opportunity;
+  OrionOpportunity: OrionOpportunity;
 }
 
-export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ opportunity }) => {
+export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ OrionOpportunity }) => {
   const isOpen = useOpportunityCentralStore((state: any) => state.isOpen);
   const open = useOpportunityCentralStore((state: any) => state.open);
   const close = useOpportunityCentralStore((state: any) => state.close);
@@ -44,8 +44,8 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          company: opportunity.company,
-          role: opportunity.title,
+          company: OrionOpportunity.company,
+          role: OrionOpportunity.title,
           count: 5
         })
       });
@@ -71,9 +71,9 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
     (useOpportunityCentralStore.getState() as any).closeOutreachDialog(); // Ensure closed before opening
     (useOpportunityCentralStore.getState() as any).openOutreachDialog({
       stakeholder,
-      opportunityTitle: opportunity.title,
-      opportunityCompany: opportunity.company,
-      onOutreachGenerated: () => {},
+      opportunityTitle: OrionOpportunity.title,
+      opportunityCompany: OrionOpportunity.company,
+      onOutreachGenerated: () => { },
     });
   };
 
@@ -91,7 +91,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
     <>
       <Button
         onClick={() => {
-          setOpportunity(opportunity);
+          setOpportunity(OrionOpportunity);
           open();
         }}
         className="bg-purple-600 hover:bg-purple-700"
@@ -103,14 +103,14 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
         <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
           <DialogHeader>
             <DialogTitle className="text-purple-400">
-              Find Key Stakeholders at {opportunity.company}
+              Find Key Stakeholders at {OrionOpportunity.company}
             </DialogTitle>
           </DialogHeader>
 
           {!stakeholders.length && !isLoading && !error && (
             <div className="py-6 text-center">
               <p className="mb-4 text-gray-300">
-                Find key stakeholders at {opportunity.company} who might be relevant for this opportunity.
+                Find key stakeholders at {OrionOpportunity.company} who might be relevant for this OrionOpportunity.
               </p>
               <Button
                 onClick={handleFindStakeholders}

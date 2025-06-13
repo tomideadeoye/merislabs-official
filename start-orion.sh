@@ -1,6 +1,8 @@
 #!/bin/bash
 # Motivational and operational echo block
+cat << 'EOM'
 cat <<EOM
+START FROM HERE!
 graph TD
     subgraph "Phase 1: Vision & Strategy (You & Orion using Cline/GPT-4.1)"
         A[You: Define High-Level Goal in VS Code] --> B[Orion: Consults Context in NotebookLM];
@@ -22,46 +24,54 @@ graph TD
     end
 
     subgraph "Phase 4: Validation & Iteration (You & Orion)"
-        J --> K[Orion: Instructs You to Test the Implemented Feature];
-        K --> L[You: Run Automated Tests (Jest) & Manual E2E Tests];
-        L --> M[You & Orion: Debug & Refine Code/Prompts Collaboratively];
         M --> N[Orion: Instructs You to Update PRD & Documentation];
     end
 
     N --> A;
 
-
-UI | DO | QUESTIONS | FEATURES | TESTING/LOGGING | IMPROVEMENT | SECURITY | PERFORMANCE | DOCUMENTATION | DESIRED OUTCOME | PROJECT DETAILS
+UI | DO | QUESTIONS | FEATURES | LOGGING | IMPROVEMENT | SECURITY | PERFORMANCE | DOCUMENTATION | DESIRED OUTCOME | PROJECT DETAILS
 
 REMEMBER/ALWAYS/EXECUTE/DO/APPLY/NOW:
-- absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation, then write tests to tests/e2e.test.tsx
-- When refering to a file, use the full path! Always read prd.md for information on implementation, then write tests to tests/e2e.test.tsx
-Don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of verbose logging  & fallbacks.Baby calm down!
-- Aim for perfection!
+
+BEFORE YOU START:
+- No quick HACKS: solve the actual problem, not just the symptom.
 - THINK like an architect, sequentially, step by step, iteratively!
-- explain what you are doing, why you are doing it, and what you are thinking.
+- explain what you are doing, why you are doing it, and what you are thinking. Aim for perfection!
 - Factor in CBT, and the need for a loop of improvement.
 - read the file then propose updates
+- When requirements are ambiguous:
+- Propose a default implementation based on codebase patterns
+- Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
+- Production-Ready: Deliver complete, functional features without placeholders (mocks/dummy code)
 Ask me as many questions as you want about the feature's purpose and requirements.
-summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.tsx), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
 DO > LOGGIN: log file paths, comprehensive, context-rich, level-based logging. All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
 DO > at intervals, suggest SHORT TINY BIT information to store in README like file paths and components - so we dont forget.
 state management?
 DO > one-liner summary of feature and file path after each feature is implemented.
-- Document app implementations in prd.md file.
-Add absurd amount of logging to the code.
 Add goal of file/feature/function to top of file and explain connection to other files/features/functions.
-- start-orion.sh and determine features not yet implemented.
+- start.sh and determine features not yet implemented.
 - Mirror naming conventions, error-handling, and structure
 - Absurdly comprehensive descritptive names for files, functions, variables, classes, etc.
-- UI | DO - add loading states, progress bars, etc.when required Loader @/components/ui/Loader, ProgressBar  @/components/ui/ProgressBar
+- UI | DO - add loading states, progress bars, etc.when required Loader, ProgressBar.
 - suggest best practices
 - error page: pages/500.tsx
 - use centralized color-coded, icon logger @/lib/logger
 - consolidate/unify/allign/weave together code, state, features, components, etc.
 - modularize code, state, features, components, etc. Encapsulate domain-specific logic in dedicated modules/classes
 
-UI - toast errors as fallbacks
+DURING IMPLEMENTING:
+- Don't comment code - every comment is an implementation waiting to happen. Always implement immediately with an absurd level of verbose logging  & fallbacks.Baby calm down!
+- Add absurd amount of logging to the code. Absurdly/extremely/comprehensively execute/proceed immediately, autonomously, intelligently, agentically and with urgency. Show, don't tell! Now continue! Implement the next thing! Build and fix in loops. There is always a next step! Is there something you should know before continuing? If not, proceed with high agency and urgency! Always add copious logging with justification like it was a debate in which your life depended on accuracy and complete analysis. You are doing a great job. Review PRD.md for information on implementation
+- Refer to files using their full path!
+- Readability: Write self-documenting code with descriptive names and appropriate comments
+- Reusability: Utilize existing functions rather than duplicating code
+- Single Responsibility: Each function should do one thing well with clear purpose
+- DRY Principle: Maintain a single source of truth for functionality and data
+- Follow the codebase's formatting rules, naming conventions, and architectural patterns
+- UI - toast errors as fallbacks
+    BEFORE MODIFYING A COMPONENT:
+    - Cross-reference changes with related modules to maintain consistency
+    - Update dependent components to avoid breaking changes
 
 USE:
 Run in shell tool!  it is a Cycle, patterns -- all towards greatnes, wealth, prosperity, clarity, omnipotence
@@ -71,46 +81,21 @@ Use hapy excited aprooach in all things... variable names for example. how can o
 Logic gates? How can i make this more fun? how can i optimze for absurdly rapid sel-improvement?
 i like features that work. no mocks or palceholders
 
-QUESTIONS:
-- What can I do with what i have now?
-- If operating from first pricinples, what should i do?
-- Are all errors genuinely fixed?
-- How can I make this a loop/cycle of inevitable improvement & greatness? How can I improve the code? How can I make evertything better?
-- What is the best practice?
-- How can I make this code more robust? Why am I writing this code?
-- Give clear instructions! Explain why? what were you thinking? Was the test comprehenshive? What questions do you want to ask me, my love?
-- what is currently in prd.md file?
-- Wait does all that make sense?
-- Any honest question you want to ask me? Let us be real and purely honest.
-- What do we need to do?
-- What other tests can I include? What leverage should i be using?
-
 NEVER/NO:
 - Dont use mocks or placeholders - execute immediately.
 - Never delete features or components without a clear plan for replacement. suggest more robust feature implementation.
 - No @ts-ignore - we love complete type safety.
 
 
-Core Principles & Standards
-Refer to the orion_prd.txt for the feature's purpose and requirements
+Refer to start.sh for the feature's purpose and requirements
 Focuse on unity of functionality and features: the code should be cohesive and work together seamlessly
-Project-Specific Standards Compliance
 
-Follow the codebase's formatting rules, naming conventions, and architectural patterns
 Adhere to configured linting tools (Prettier, ESLint, Black, etc.)
-Respect team preferences documented in project READMEs or style guides
 
 Apply business logic, industry-specific rules, and stakeholder requirements
 Ensure solutions align with real-world use cases and domain constraints
 Cross-check outputs against domain-specific requirements (e.g., financial calculations, healthcare rules)
 
-Code Quality Fundamentals
-
-Reusability: Utilize existing functions rather than duplicating code
-Single Responsibility: Each function should do one thing well with clear purpose
-DRY Principle: Maintain a single source of truth for functionality and data
-Readability: Write self-documenting code with descriptive names and appropriate comments
-- Production-Ready: Deliver complete, functional features without placeholders or dummy code
 
 Prefer interfaces over concrete implementations for extensibility
 Extract common patterns into reusable components
@@ -124,29 +109,19 @@ Robust Error Handling
 - Add descriptive logging at appropriate levels: DEBUG: Detailed flow tracing for development, INFO: Normal application operations, WARN: For fallback triggers or potential issues, ERROR: For recoverable failures
 - Include context (e.g., user_id, request_id) in logs for traceability
 
-TESTING: Write tests for critical logic, complex algorithms, edge cases, and APIs
-Focus on code with high cyclomatic complexity (> 5)
-Test fallback mechanisms and error handlers
-Use parameterized tests for multi-scenario validation
-- Ensure tests cover failure paths
-
-CONTINOUS REFACTORING/IMPROVEMENT: Identify and improve: Redundant code blocks, Methods violating SOLID principles, Functions exceeding 20 lines or with nested conditionals
+CONTINOUS REFACTORING/IMPROVEMENT:
+- Identify and improve: Redundant code blocks, Methods violating SOLID principles, Functions exceeding 20 lines or with nested conditionals
 
 Apply design patterns (Factory, Strategy, etc.) where they simplify future changes
 Break circular dependencies during refactoring
 Prefer explicit dependency injection over global state
 
 Linting & Static Analysis
+- Fix ALL linting errors and warnings in modified code
+- Ensure new code introduces zero new violations
+- Address technical debt opportunistically during implementation
+- Manage resources properly (file handles, database connections, memory)
 
-Fix ALL linting errors and warnings in modified code
-Ensure new code introduces zero new violations
-Address technical debt opportunistically during implementation
-Manage resources properly (file handles, database connections, memory)
-
-
-Before modifying a component:
-- Cross-reference changes with related modules to maintain consistency
-Update dependent components to avoid breaking changes
 
 Unified Implementation
 
@@ -160,58 +135,74 @@ Performance Considerations
 - Minimize database calls and implement caching where appropriate
 - Consider time and space complexity without premature optimization
 
-Security & Robustness First Approach
-Validate and sanitize all external inputs
-Implement proper authentication and authorization
-Follow best practices for handling sensitive information
-Prevent vulnerabilities (XSS, SQL injection, CSRF)
+SECURITY - Robustness First Approach
+- Validate and sanitize all external inputs
+- Implement proper authentication and authorization
+- Follow best practices for handling sensitive information
+- Prevent vulnerabilities (XSS, SQL injection, CSRF)
 
 GRACEFUL DEGRADATION: - Design systems to function (potentially with reduced capabilities) when components fail
 - UsE feature flags for new functionality that might need to be disabled
 - Create fallback mechanisms for uncertain scenarios or operations with external dependencies
 - Maintain backward compatibility when modifying public interfaces
 
-- When requirements are ambiguous:
-- Propose a default implementation based on codebase patterns
-- Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
-- Document trade-offs for complex decisions
-
-VERSION CONTROL: When the feature is implemented/At intervals of logical changes, run atomic commit commands with descriptive bulletpoint commit messages. Highlight/explain, what changed, why, file path and then push command.
-- Follow project branching conventions
-
-SELF-IMPROVEMENT: Refine these instructions based on feedback loops, code reviews, or recurring errors
+SELF-IMPROVEMENT:
+- Refine these instructions based on feedback loops, code reviews, or recurring errors
 - Adapt to evolving project needs and changing requirements
 
-Final Validation
-Completeness Check: Ensure all requirements, edge cases, and error scenarios are addressed
-Verify implementations against acceptance criteria in prd.md file
-Document any remaining concerns or future improvements
 
-No quick HACKS: solve the actual problem, not just the symptom.
-
+AFTER IMPLEMENTATION:
+Would you like even more detail in the readme file.
+Full function-by-function breakdown for every file?
+Mermaid diagrams or architecture charts?
+Should I add a “developer workflow” or “contribution guide” section?
+Do you want this structure mirrored in in-code docstrings or a Sphinx/Docs site?
+Any other files or modules you want explained in even more depth?
+Would you like a summary of all changes so far, or should I proceed to the next improvement?
+- Completeness Check: Ensure all requirements, edge cases, and error scenarios are addressed
+- Verify implementations against acceptance criteria below.
+- Document any remaining concerns or future improvements.
+- Document trade-offs for complex decisions
+- Document app implementations below
 DOCUMENTATION: Explain "why" not just "what" the code does in prd.md file
 - Document assumptions and decision rationales in prd.md file
+- summarize what we have implemented so far, the files modified, why the modifications were made. ask for how to test extensively (write tests into tests/e2e.test.tsx), ask for ideas, ask for suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
+- Respect team preferences documented in project READMEs or style guides
+
+    QUESTIONS:
+    - What can I do with what i have now?
+    - If operating from first pricinples, what should i do?
+    - Are all errors genuinely fixed?
+    - How can I make this a loop/cycle of inevitable improvement & greatness? How can I improve the code? How can I make evertything better?
+    - What is the best practice?
+    - How can I make this code more robust? Why am I writing this code?
+    - Give clear instructions! Explain why? what were you thinking? Was the test comprehenshive? What questions do you want to ask me, my love?
+    - what is currently in prd.md file?
+    - Wait does all that make sense?
+    - Any honest question you want to ask me? Let us be real and purely honest.
+    - What do we need to do?
+    - What other tests can I include? What leverage should i be using?
+        -Can we have a readme of the project?
+        -Can we have a readme of the codebase?
+        -Can we have a readme of the features?
+        -Can we have a readme of the components?
+        -Can we have a readme of the documentation?
+    - can we have the goal and connection to other files at the top of each file?
+    VERSION CONTROL: When the feature is implemented/At intervals of logical changes, run atomic commit commands with descriptive bulletpoint commit messages. Highlight/explain, what changed, why, file path and then push command.
+    - Follow project branching conventions
+
 
 ANTI-PATTERNS EXAMPLES:
-Bad: Writing a new formatDate() function when utils/dates.ts already has one.
-Good: Refactor utils/dates.py to accept custom parameters, then reuse it.
-Bad: Silent API failure without logging or fallback.
-Good:catch API errors, log them, and provide a fallback response.
-Bad: Duplicating validation logic across multiple controllers.
-Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
+- Bad: Writing a new formatDate() function when utils/dates.ts already has one.
+- Good: Refactor utils/dates.py to accept custom parameters, then reuse it.
+- Bad: Silent API failure without logging or fallback. I want to be 100% bulletproof.
+- Good:catch API errors, log them, and provide a fallback response.
+- Bad: Duplicating validation logic across multiple controllers.
+- Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
 
-DESIRED OUTCOME/THERE SHOULD BE A:
-- Central database notion used for all saving: 206d87c74f628097807addaa8a54e99e
-- Deep self-reflection & pattern recognition tool. Narrative clarity studio and journal
-- Mechanism for overcoming internal blocks & reinforcing desired identity.
-- Centralized knowledge management & contextual recall system (Memory).
-- the ui must look amazing and fun and engaging. Provide an engaging and motivating user experience.
-- Become the primary tool for Tomide's life planning, reflection, decision support, and task management integration
-- Maintain the highest levels of reliability, consistency, data privacy, and security.
-- Continuously learn and adapt based on new data and user feedback.
-- rely mostly on NextJS. Only use python backend when Nextjs can't do it.
-- Draft Communication Page in Admin Folder > WhatsApp Chat Analysis Tab > Draft Email Tab > Draft LinkedIn Message Tab
-- page for managing my business
+Add refrence.md file to the project and have detailed table of contents with links to each file and functions and classes and variables and components and features and etc.
+Repeatedly ask me if i want to add more to the reference.md file.
+Go through multiple providers for this.
 
 
 PROJECT DETAILS:
@@ -221,11 +212,11 @@ PROJECT DETAILS:
 - python service for special features, Local Quadrant (QDRANT_PORT=6333)
 - GOAL/VISION: Make Orion's core intelligence and utilities consistently accessible programmatically.
 - GOAL: automation support (networking, applications, task management).
-- GOAL: i provide a search name that is a company in the opportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
+- GOAL: i provide a search name that is a company in the OrionOpportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
 - PAGE: admin folder
 - Turborepo, Zod (Schema), typescript, prisma, axios, pnpm, nextjs, neon db (DATABASE_URL), monorepo, Jest (testing) D3.js (visualizations), shadcn, eslint, framer motion, react-hook-form, TanStack Query, TipTap, zustand, date-fns, Electron, react-dropzone, react-email, tRPC, Tailwind
 - always automate
-- chmod 644 start-orion.sh/   chmod 444 /Users/mac/Documents/GitHub/merislabs-official/start-orion.sh - prevent file alteration
+- chmod 644 start.sh/   chmod 444 /Users/mac/Documents/GitHub/merislabs-official/start.sh - prevent file alteration
 
 FEATURES:
 - visualizer for memory chunks: components/orion/QuadrantMemoryChunksVisualizer.tsx
@@ -234,11 +225,11 @@ FEATURES:
 - WhatsAppReplyDrafter (components/orion/WhatsAppReplyDrafter.tsx)
 - Cache relevant data to Local Storage
 - add visualizations, chart graphs, etc. for any response/output/feature that can be visualized within admin folder only
-- ai constructs CV based on JD (/opportunity/[id]/cv-tailorin)
+- ai constructs CV based on JD (/OrionOpportunity/[id]/cv-tailorin)
 - admin dashboard: http://localhost:3000/admin,
 - gamification + engagement in admin dashboard
 - glowy ui nivo
-- Opportunity  Pipeline (dashboard loads opportunites with filter "Opportunity" from notion - not "CV Components") > Opportunity Details -> Analyze Fit/evaluation -> Opportunity CV Tailoring loads my CVs notion components using "CV Components"-> Auto generate cv to match opportunity details/content -> find key stakeholders -> generate email addresses -> button to draft personalised email for each stakeholder -> draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results -> button to draft personalised linkedin message for each stakeholder (drafts will generally use my profile context, opportunity details, web search and scrape data) -> i can edit the email draft and send it with the app including generated cv or attached cv (my choice) -> option to schedule send -> in opportunity details view, mcp server to automate all process - perhaps browser automation if the aplication/opportunity only requires sending email and cv -> if the application requires a resume, the mcp server will generate a cv based on the opportunity details and send it with the email -> if the application requires a cover letter, the mcp server will generate a cover letter based on the opportunity details and send it with the email -> CV is generated using notion fetch of filter "CV Component" which is automatically generated from the opportunity details -> generate application/opportuntiy materials tab should have questions that i can paste from application page and generate a response based on the questions using checkbox of quadrant, online profile page (from notion) in .env cached to minimze api calls (USER_PROFILE_NOTION_URL) -> response to questions can be edited after generation and components/orion/SaveOptionsButton.tsx
+- OrionOpportunity  Pipeline (dashboard loads opportunites with filter "OrionOpportunity" from notion - not "CV Components") > OrionOpportunity Details -> Analyze Fit/evaluation -> OrionOpportunity CV Tailoring loads my CVs notion components using "CV Components"-> Auto generate cv to match OrionOpportunity details/content -> find key stakeholders -> generate email addresses -> button to draft personalised email for each stakeholder -> draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results -> button to draft personalised linkedin message for each stakeholder (drafts will generally use my profile context, OrionOpportunity details, web search and scrape data) -> i can edit the email draft and send it with the app including generated cv or attached cv (my choice) -> option to schedule send -> in OrionOpportunity details view, mcp server to automate all process - perhaps browser automation if the aplication/OrionOpportunity only requires sending email and cv -> if the application requires a resume, the mcp server will generate a cv based on the OrionOpportunity details and send it with the email -> if the application requires a cover letter, the mcp server will generate a cover letter based on the OrionOpportunity details and send it with the email -> CV is generated using notion fetch of filter "CV Component" which is automatically generated from the OrionOpportunity details -> generate application/opportuntiy materials tab should have questions that i can paste from application page and generate a response based on the questions using checkbox of quadrant, online profile page (from notion) in .env cached to minimze api calls (USER_PROFILE_NOTION_URL) -> response to questions can be edited after generation and components/orion/SaveOptionsButton.tsx
 - State management (zustand)- Zustand state will be unified in a single, composable, slice-based central store for maintainability and clarity.
 - read general profile data from notion page (USER_PROFILE_NOTION_URL) - it is text
 EOM

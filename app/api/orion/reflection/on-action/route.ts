@@ -1,1 +1,1 @@
-import { query, sql } from '@shared/lib/database';
+import { query, sql } from "@repo/shared/database";

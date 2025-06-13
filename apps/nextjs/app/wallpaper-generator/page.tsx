@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useLocalStorage } from "react-use";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui";
 
 export default function WallPaper() {
   const quotes = useMemo(() => [
@@ -61,16 +61,16 @@ export default function WallPaper() {
     });
   };
 
-//   const handleUploadImage = (e) => {
-//     const file = e.target.files[0];
-//     const reader = new FileReader();
+  //   const handleUploadImage = (e) => {
+  //     const file = e.target.files[0];
+  //     const reader = new FileReader();
 
-//     reader.onload = () => {
-//     //   setBackgroundImage(reader.result);
-//     };
+  //     reader.onload = () => {
+  //     //   setBackgroundImage(reader.result);
+  //     };
 
-//     reader.readAsDataURL(file);
-//   };
+  //     reader.readAsDataURL(file);
+  //   };
 
   return (
     <div

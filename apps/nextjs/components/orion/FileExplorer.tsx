@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
-import { Loader2, AlertTriangle, Folder, File, ChevronRight, ChevronDown, Database } from 'lucide-react';
-import path from 'path';
-
+import { Loader2, AlertTriangle, Folder, File, ChevronRight, ChevronDown } from 'lucide-react';
 import { useFileSelectionStore } from "./fileSelectionStore";
 
 /**
@@ -13,6 +11,12 @@ import { useFileSelectionStore } from "./fileSelectionStore";
  * All file selections are logged via context for traceability and future analytics.
  * Connects to: FileExplorerContext, file viewers, admin dashboards, engagement features.
  */
+
+// Client-side utility to get the basename of a path
+const getBasename = (path: string): string => {
+  return path.substring(path.lastIndexOf('/') + 1).substring(path.lastIndexOf('\\') + 1);
+};
+
 
 interface FileExplorerProps {
   className?: string;
@@ -56,18 +60,22 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        setConfiguredDirs(data.directories || []);
+        const dirs = data.directories || [];
+        setConfiguredDirs(dirs);
 
         // Set first directory as current path if available
-        if (data.directories && data.directories.length > 0) {
-          setCurrentPath(data.directories[0]);
+        if (dirs.length > 0) {
+          setCurrentPath(dirs[0]);
+          // Also expand the first directory by default
+          setExpandedDirs(new Set([dirs[0]]));
         }
       } else {
         throw new Error(data.error || 'Failed to fetch configured directories');
       }
-    } catch (err: any) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       console.error('Error fetching configured directories:', err);
-      setError(err.message || 'An unexpected error occurred');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -93,9 +101,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       } else {
         throw new Error(data.error || 'Failed to fetch directory contents');
       }
-    } catch (err: any) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       console.error(`Error fetching contents of ${dirPath}:`, err);
-      setError(err.message || 'An unexpected error occurred');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +128,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   };
 
   const renderFileTree = () => {
-    if (isLoading) {
+    if (isLoading && configuredDirs.length === 0) {
       return (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
@@ -159,35 +168,40 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 <ChevronRight className="h-4 w-4 mr-1 text-gray-400" />
               )}
               <Folder className="h-5 w-5 mr-2 text-blue-400" />
-              <span className="text-gray-200">{path.basename(dir)}</span>
-              <span className="text-xs text-gray-500 ml-2">{dir}</span>
+              <span className="text-gray-200 font-medium">{getBasename(dir)}</span>
+              <span className="text-xs text-gray-500 ml-2 truncate" title={dir}>{dir}</span>
             </div>
 
             {expandedDirs.has(dir) && (
               <div className="pl-6 space-y-1">
-                {contents.map((item) => (
-                  <div
-                    key={item.path}
-                    className={`flex items-center p-2 rounded-md ${
-                      item.type === 'directory' ? 'hover:bg-gray-700 cursor-pointer' : 'hover:bg-gray-700/50 cursor-pointer'
-                    }`}
-                    onClick={() => item.type === 'directory' ? handleDirectoryClick(item.path) : handleFileClick(item.path)}
-                  >
-                    {item.type === 'directory' ? (
-                      <>
-                        {expandedDirs.has(item.path) ? (
-                          <ChevronDown className="h-4 w-4 mr-1 text-gray-400" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 mr-1 text-gray-400" />
-                        )}
-                        <Folder className="h-5 w-5 mr-2 text-blue-400" />
-                      </>
-                    ) : (
-                      <File className="h-5 w-5 mr-2 text-gray-400" />
-                    )}
-                    <span className="text-gray-200">{item.name}</span>
+                {isLoading && currentPath === dir ? (
+                  <div className="flex items-center py-2 pl-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
                   </div>
-                ))}
+                ) : (
+                  contents.map((item) => (
+                    <div
+                      key={item.path}
+                      className={`flex items-center p-2 rounded-md ${item.type === 'directory' ? 'hover:bg-gray-700 cursor-pointer' : 'hover:bg-gray-700/50 cursor-pointer'
+                        }`}
+                      onClick={() => item.type === 'directory' ? handleDirectoryClick(item.path) : handleFileClick(item.path)}
+                    >
+                      {item.type === 'directory' ? (
+                        <>
+                          {expandedDirs.has(item.path) ? (
+                            <ChevronDown className="h-4 w-4 mr-1 text-gray-400" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 mr-1 text-gray-400" />
+                          )}
+                          <Folder className="h-5 w-5 mr-2 text-blue-400" />
+                        </>
+                      ) : (
+                        <File className="h-5 w-5 mr-2 text-gray-400" />
+                      )}
+                      <span className="text-gray-200">{item.name}</span>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>

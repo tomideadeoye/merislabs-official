@@ -1,1 +1,1 @@
-import { logger } from '@shared/lib/logger';
+import { logger } from "@repo/shared/logger";

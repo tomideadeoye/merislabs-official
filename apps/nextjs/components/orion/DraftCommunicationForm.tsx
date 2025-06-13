@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { apiClient } from "@shared/lib/apiClient";
+import { apiClient } from '@repo/shared';
 import {
   WHATSAPP_REPLY_HELPER_REQUEST_TYPE,
   DRAFT_COMMUNICATION_REQUEST_TYPE,
   ASK_QUESTION_REQUEST_TYPE,
-} from "@shared/lib/orion_config";
+} from "@repo/shared/orion_config";
 import { toast } from "react-hot-toast";
+import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared';
 
 interface DraftCommunicationFormProps {
   profileData?: string | null;

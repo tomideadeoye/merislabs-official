@@ -12,12 +12,12 @@ import {
   Search,
   AlertTriangle
 } from 'lucide-react';
-import type { PersonaMap } from '@shared/types/strategic-outreach';
+import type { Persona } from '@repo/shared';
 
 import { usePersonaStore } from "./personaStore";
 
 interface PersonaListProps {
-  personas: PersonaMap[];
+  personas: Persona[];
   isLoading?: boolean;
   error?: string | null;
 }
@@ -131,7 +131,7 @@ export const PersonaList: React.FC<PersonaListProps> = ({
                   variant="outline"
                   size="sm"
                   className="bg-red-900/30 hover:bg-red-800/50 text-red-300 border-red-700"
-                  onClick={() => deletePersona(persona.id)}
+                  onClick={() => persona.id ? deletePersona(persona.id) : null}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
                   Delete

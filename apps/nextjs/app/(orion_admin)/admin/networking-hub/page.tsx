@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { PageNames, SessionStateKeys } from "@shared/app_state";
-import { useSessionState } from '@shared/hooks/useSessionState';
+import { PageHeader } from "@repo/ui";
+import { PageNames, SessionStateKeys } from "@repo/sharedapp_state";
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
 import { PersonaForm } from '@/components/orion/PersonaForm';
 import { PersonaList } from '@/components/orion/PersonaList';
 import { OutreachForm } from '@/components/orion/OutreachForm';
 import { useOutreachGenerationStore } from '@/components/orion/outreachGenerationStore';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
+import { Button } from '@repo/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
+import { Input } from '@repo/ui';
 import {
   Network,
   Users,
@@ -20,21 +20,21 @@ import {
   Copy,
   CheckCheck
 } from 'lucide-react';
-import type { PersonaMap } from '@shared/types/strategic-outreach';
+import type { Persona } from '@repo/shared';
 import { usePersonaStore } from '@/components/orion/personaStore';
 import { usePersonaFormStore } from '@/components/orion/persona/personaFormStore';
 
 export default function NetworkingHubPage() {
   // State for personas
-  const [personas, setPersonas] = useState<PersonaMap[]>([]);
+  const [personas, setPersonas] = useState<Persona[]>([]);
   const [isLoadingPersonas, setIsLoadingPersonas] = useState<boolean>(true);
   const [personasError, setPersonasError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
-  const [editingPersona, setEditingPersona] = useState<PersonaMap | null>(null);
+  const [editingPersona, setEditingPersona] = useState<Persona | null>(null);
 
   // State for outreach
-  const [selectedPersona, setSelectedPersona] = useState<PersonaMap | null>(null);
+  const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
 
   // Zustand persona store
   const { selectedPersona: storeSelectedPersona, editPersona, deletePersona } = usePersonaStore();

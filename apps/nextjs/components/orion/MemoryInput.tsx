@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMemory } from '@shared/hooks/useMemory';
+import { useMemory } from '@repo/sharedhooks/useMemory';
 import { Textarea, Input, Button, Badge } from '@repo/ui';
 import { X, Plus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';

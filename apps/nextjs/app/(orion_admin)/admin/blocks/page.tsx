@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { BLOCK_TYPES, BlockType, Block, CreateBlockPayload } from "@shared/types/blocks";
+import { Card, CardHeader, CardTitle, CardContent } from "@repo/ui";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@repo/ui";
+import { Input } from "@repo/ui";
+import { Textarea } from "@repo/ui";
+import { Button } from "@repo/ui";
+import { BLOCK_TYPES, BlockType, Block, CreateBlockPayload } from '@repo/shared';
 
 const fetchBlocks = async (type?: BlockType): Promise<Block[]> => {
   const res = await fetch(`/api/orion/blocks/list${type ? `?type=${type}` : ""}`);
@@ -24,6 +24,8 @@ const createBlock = async (payload: CreateBlockPayload): Promise<Block | null> =
   return data.block || null;
 };
 
+// Diagnostic console log for CardHeader type check
+console.log('CardHeader type:', (CardHeader as any).$$typeof);
 function AddBlockForm({ onBlockCreated }: { onBlockCreated: () => void }) {
   const [type, setType] = useState<BlockType>(BLOCK_TYPES[0]);
   const [title, setTitle] = useState("");

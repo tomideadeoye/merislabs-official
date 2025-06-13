@@ -19,13 +19,13 @@ import {
   Tag
 } from 'lucide-react';
 import type {
-  OpportunityDetails,
   OpportunityType,
-  OpportunityStatus,
-  OpportunityPriority
-} from '@shared/types/opportunity';
+  OpportunityPriority,
+  OrionOpportunityStatus,
+  OrionOpportunityDetails
+} from '@repo/shared';
 
-import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
+import { useOpportunityCentralStore } from '@repo/shared';
 
 export const OpportunityFilters: React.FC = () => {
   const filters = useOpportunityCentralStore((state: any) => state.filters);
@@ -38,7 +38,7 @@ export const OpportunityFilters: React.FC = () => {
   const [tagInput, setTagInput] = useState<string>(filters.tag || '');
 
   const handleStatusChange = (value: string) => {
-    const status = value === 'all' ? undefined : (value as OpportunityStatus);
+    const status = value === 'all' ? undefined : (value as OrionOpportunityStatus);
     const newFilters = { ...filters, status };
     setFilters(newFilters);
   };
@@ -67,7 +67,7 @@ export const OpportunityFilters: React.FC = () => {
   };
 
   const handleSortChange = (value: string) => {
-    setSort(value as keyof OpportunityDetails);
+    setSort(value as keyof OrionOpportunityDetails);
   };
 
   const toggleSortOrder = () => {

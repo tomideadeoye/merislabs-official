@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { PageHeader } from "@/components/ui/page-header";
-import { PageNames } from "@shared/app_state";
+import { PageHeader } from '@repo/ui';
+import { PageNames } from "@repo/sharedapp_state";
 import { WhatsAppChatUploader } from '@/components/orion/WhatsAppChatUploader';
 import { WhatsAppChatAnalysis } from '@/components/orion/WhatsAppChatAnalysis';
 import { MessageSquare } from 'lucide-react';

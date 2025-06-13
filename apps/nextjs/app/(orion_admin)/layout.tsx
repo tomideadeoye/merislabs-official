@@ -3,12 +3,11 @@
 import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PageNames, SessionStateKeys, PageNameValue, initializeClientSession } from "@shared/app_state";
-import { useSessionState } from "@shared/hooks/useSessionState";
-import { cn } from "@/lib/utils";
-import { apiClient } from "@shared/lib/apiClient";
-import { Brain } from "lucide-react";
-import { Loader } from '@repo/ui';
+import { PageNames, SessionStateKeys, PageNameValue, initializeClientSession } from "@repo/shared/app_state";
+import { useSessionState } from "@repo/shared/hooks/useSessionState";
+import { cn } from "@repo/ui";
+import { apiClient } from "@repo/shared/lib/apiClient";
+import { Loader } from '@repo/ui'; // Correct import from the UI package
 
 import {
   LayoutDashboard,
@@ -29,27 +28,30 @@ import {
   FolderOpen,
   Layers,
   Mail,
+  Brain, // Added Brain icon
+  HelpCircle, // Added HelpCircle icon
 } from "lucide-react";
 
 interface NavItem {
   href: string;
-  label: PageNameValue;
+  label: string; // Use string for label to accommodate all names
   icon: React.ElementType;
 }
 
 const adminNavItems: NavItem[] = [
   { href: "/admin", label: PageNames.ADMIN_DASHBOARD, icon: LayoutDashboard },
   { href: "/admin/journal", label: PageNames.JOURNAL, icon: BookOpenText },
-  { href: "/admin/memory-manager", label: PageNames.MEMORY_MANAGER, icon: Brain },
-  { href: "/admin/opportunity-pipeline", label: PageNames.PIPELINE, icon: Briefcase },
-  { href: "/admin/blocks", label: "Blocks" as PageNameValue, icon: Layers },
-  { href: "/admin/narrative-clarity-studio", label: "Narrative Clarity Studio" as PageNameValue, icon: Brain },
-  { href: "/admin/draft-communication", label: "Draft Communication" as PageNameValue, icon: Mail },
-  { href: "/admin/networking", label: PageNames.NETWORKING, icon: Network },
+  { href: "/admin/memory-manager", label: PageNames.MEMORY_MANAGER, icon: DatabaseZap },
+  { href: "/admin/OrionOpportunity-pipeline", label: PageNames.PIPELINE, icon: Briefcase },
+  { href: "/admin/networking-hub", label: PageNames.NETWORKING, icon: Network },
+  { href: "/admin/ask-question", label: "Ask Orion", icon: HelpCircle },
+  { href: "/admin/blocks", label: "Blocks", icon: Layers },
+  { href: "/admin/narrative-clarity-studio", label: "Narrative Clarity Studio", icon: Brain },
+  { href: "/admin/draft-communication", label: "Draft Communication", icon: Mail },
   { href: "/admin/habitica", label: PageNames.HABITICA, icon: Rocket },
-  { href: "/admin/ask-question", label: PageNames.ASK, icon: BrainCircuit },
+  { href: "/admin/agentic-workflow", label: "Agentic Workflow", icon: BrainCircuit },
   { href: "/admin/routines", label: PageNames.ROUTINES, icon: Repeat },
-  { href: "/admin/insights", label: PageNames.INSIGHTS, icon: BarChart2 },
+  { href: "/admin/whatsapp-analysis", label: "WhatsApp Analysis", icon: MessageSquare },
   { href: "/admin/emotional", label: PageNames.EMOTIONAL, icon: HeartPulse },
   { href: "/admin/local-files", label: PageNames.LOCAL_FILES, icon: FolderOpen },
   { href: "/admin/idea-incubator", label: PageNames.IDEA_INCUBATOR, icon: Lightbulb },
@@ -63,7 +65,7 @@ const AdminSidebar: React.FC = () => {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-gray-800 p-4 transition-transform overflow-y-auto">
       <div className="mb-6">
         <Link href="/admin" className="flex items-center gap-2 text-xl font-semibold text-white">
-          <LayoutDashboard className="h-7 w-7 text-blue-400" />
+          <BrainCircuit className="h-7 w-7 text-blue-400" />
           <span>Orion Dashboard</span>
         </Link>
       </div>
@@ -92,7 +94,7 @@ const AdminSidebar: React.FC = () => {
 };
 
 export default function OrionAdminLayout({ children }: { children: React.ReactNode }) {
-  const [memoryInitialized, setMemoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED);
+  const [memoryInitialized, setMemoryInitialized] = useSessionState<boolean | null>(SessionStateKeys.MEMORY_INITIALIZED, null);
 
   useEffect(() => {
     initializeClientSession();
@@ -101,7 +103,8 @@ export default function OrionAdminLayout({ children }: { children: React.ReactNo
 
   useEffect(() => {
     const initMemory = async () => {
-      if (memoryInitialized === false) {
+      // Check for null or false
+      if (memoryInitialized === null || memoryInitialized === false) {
         try {
           const response = await apiClient.post("/api/orion/memory/initialize");
           if (response.data.success) {
@@ -111,12 +114,14 @@ export default function OrionAdminLayout({ children }: { children: React.ReactNo
               result: "success"
             });
           } else {
+            setMemoryInitialized(false);
             console.error("[OrionAdminLayout] Failed to initialize memory backend via API:", response.data.error, {
               operation: "memory/initialize",
               result: "fail"
             });
           }
         } catch (error) {
+          setMemoryInitialized(false);
           console.error("[OrionAdminLayout] Error calling memory initialize API:", error, {
             operation: "memory/initialize",
             result: "error"
@@ -143,7 +148,7 @@ export default function OrionAdminLayout({ children }: { children: React.ReactNo
             Welcome back, <span className="font-semibold text-blue-400">Architect</span>!
           </h1>
         </div>
-        <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader message="Loading amazing new things..." /></div>}>
+        <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader size="lg" /></div>}>
           {children}
         </Suspense>
       </main>

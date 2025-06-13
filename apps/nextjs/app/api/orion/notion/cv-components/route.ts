@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getCVComponentsFromNotion } from '@shared/lib/notion_service';
-// import { auth } from '@shared/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { getCVComponentsFromNotion } from "@repo/shared/notion_service";
+// import { auth } from '@repo/sharedauth';
 
 /**
  * API route for fetching CV components from Notion
@@ -18,14 +18,17 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      components: cvComponents
+      components: cvComponents,
     });
   } catch (error: any) {
-    console.error('Error in GET /api/orion/notion/cv-components:', error);
+    console.error("Error in GET /api/orion/notion/cv-components:", error);
 
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Failed to fetch CV components'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "Failed to fetch CV components",
+      },
+      { status: 500 }
+    );
   }
 }

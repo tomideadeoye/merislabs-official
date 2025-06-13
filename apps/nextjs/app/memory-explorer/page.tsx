@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MemorySearch } from '@/components/orion/MemorySearch';
-import { MemoryInput } from '@/components/orion/MemoryInput';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useMemory } from '@shared/hooks/useMemory';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
+import { MemorySearch } from '../../components/orion/MemorySearch';
+import { MemoryInput } from '../../components/orion/MemoryInput';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
+import { useMemory } from '@repo/sharedhooks/useMemory';
+import { Button } from '@repo/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 
 export default function MemoryExplorerPage() {
   const [activeTab, setActiveTab] = useState('search');
@@ -17,7 +17,7 @@ export default function MemoryExplorerPage() {
 
   const handleFilterChange = async (value: string) => {
     setSelectedFilter(value);
-    
+
     if (value.startsWith('type:')) {
       const type = value.replace('type:', '');
       await findByType(type);
@@ -49,13 +49,13 @@ export default function MemoryExplorerPage() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">Memory Explorer</h1>
-      
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-2 mb-6">
           <TabsTrigger value="search">Search</TabsTrigger>
           <TabsTrigger value="add">Add Memory</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="search" className="space-y-6">
           <Card>
             <CardHeader>
@@ -76,12 +76,12 @@ export default function MemoryExplorerPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <MemorySearch />
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="add">
           <Card>
             <CardHeader>
@@ -102,9 +102,9 @@ export default function MemoryExplorerPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <MemoryInput 
-                type={memoryType} 
+
+              <MemoryInput
+                type={memoryType}
                 defaultTags={[memoryType]}
                 onSuccess={() => setActiveTab('search')}
               />

@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import {Label,  Input , Button, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@repo/ui';
+import { Label, Input, Button, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, Heart, BrainCircuit } from 'lucide-react';
-import { LogEmotionRequestBody, CognitiveDistortionAnalysisData } from '@shared/types/orion';
+import { LogEmotionRequestBody, CognitiveDistortionAnalysisData } from '@repo/shared';
 import { CognitiveDistortionAnalysisForm } from './cbt/CognitiveDistortionAnalysisForm';
 import { CognitiveDistortionAnalysisProvider } from './cbt/CognitiveDistortionAnalysisContext';
+import { EmotionalLogForm } from '../EmotionalLogForm';
 
 // Common emotions for autocomplete
 const commonEmotions = [
@@ -263,10 +264,9 @@ export const EmotionalLogForm: React.FC<EmotionalLogFormProps> = ({
       </Button>
 
       {feedback && (
-        <div className={`p-3 rounded-md flex items-center ${
-          feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
-                                   : 'bg-red-900/30 border border-red-700 text-red-300'
-        }`}>
+        <div className={`p-3 rounded-md flex items-center ${feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
+          : 'bg-red-900/30 border border-red-700 text-red-300'
+          }`}>
           {feedback.type === 'success' ?
             <CheckCircle className="h-5 w-5 mr-2" /> :
             <AlertTriangle className="h-5 w-5 mr-2" />

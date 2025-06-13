@@ -1,11 +1,9 @@
 "use client";
 
 import React from 'react';
-import { PageHeader } from '@/components/ui/page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageHeader, Card, CardContent, CardHeader, CardTitle, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { Cog, Mail, Database, Cloud, Key } from 'lucide-react';
-import { EmailTestButton } from '@/components/orion/opportunities/EmailTestButton';
+import { EmailTestButton } from '@repo/ui';
 
 export default function SystemSettingsPage() {
   return (
@@ -15,7 +13,7 @@ export default function SystemSettingsPage() {
         icon={<Cog className="h-7 w-7" />}
         description="Configure and test Orion system settings and integrations."
       />
-      
+
       <Tabs defaultValue="email" className="w-full">
         <TabsList className="bg-gray-800 border-gray-700">
           <TabsTrigger value="email">Email</TabsTrigger>
@@ -23,7 +21,7 @@ export default function SystemSettingsPage() {
           <TabsTrigger value="api">API Keys</TabsTrigger>
           <TabsTrigger value="cloud">Cloud Services</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="email" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -40,14 +38,14 @@ export default function SystemSettingsPage() {
                 <li>EMAIL_SENDER - Your Gmail address</li>
                 <li>EMAIL_APP_PASSWORD - Your Gmail app password</li>
               </ul>
-              
+
               <div className="pt-4">
                 <EmailTestButton />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="database" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -63,7 +61,7 @@ export default function SystemSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="api" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -79,7 +77,7 @@ export default function SystemSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="cloud" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>

@@ -3,20 +3,31 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./app/*"],
-      "@/components/*": ["./components/*"]
+"@/*": ["./*"],
+"@/components/*": ["components/*"],
+      "@repo/ui": ["../../node_modules/@repo/ui/dist"],
+      "@repo/ui/*": ["../../node_modules/@repo/ui/dist/*"],
+      "@repo/shared": ["../../packages/shared/src"],
+      "@repo/shared/*": ["../../packages/shared/src/*"],
+      "@repo/sharedauth": ["../../packages/shared/src/auth"],
+      "@repo/sharedtypes/*": ["../../packages/shared/src/types/*"],
+      "@repo/sharedhooks/*": ["../../packages/shared/hooks/*"],
+      "@repo/sharedlib/*": ["../../packages/shared/src/lib/*"],
+      "@repo/sharedapp_state": ["../../packages/shared/app_state.ts"]
     },
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "strict": false
+    "strict": true
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "../components/**/*.ts",
+    "../components/**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]

@@ -112,7 +112,7 @@ npm run dev
 
 - Journal entries with memory integration
 - Memory search and exploration
-- Opportunity evaluation
+- OrionOpportunity evaluation
 
 ## Documentation
 
@@ -136,8 +136,20 @@ Orion implements full-stack, structured logging for all components:
 - Use `cat`, `less`, or any log viewer to inspect `api_server.log`.
 - For advanced analysis, import the log file into Grafana, Kibana, or similar tools.
 
-### Testing Logging -  Run `tests/e2e.test.tsx` to validate logging and observability across all components.
 
 We are upgrading the "Application" tab to show real, multi-draft cards with context and modal editing—no mocks, only live data.
 Draft application API now returns all context (profile, memories, web) for full transparency in the UI.
 The Application tab now shows real, editable, context-transparent draft cards—no mocks, only live data, and all linter errors are fixed.
+
+## Testing
+
+- As of now, there is no global E2E test file found in the repo. It is recommended to create `tests/e2e.test.tsx` at the project root for all end-to-end tests, as per project standards. This will help future contributors know where to add E2E tests for features like the CognitiveDistortionAnalysisForm.
+
+## Shared Types & Exports
+
+- Canonical types such as `OrionOpportunity`, `OpportunityStatus`, `EvaluationOutput`, etc. are defined and exported from `packages/shared/types/orion.ts`.
+- There is **no `OrionOpportunity.ts` file** in the codebase. All references to `@repo/shared/types/OrionOpportunity` should be updated to `@repo/shared/types/orion`.
+- Many TypeScript errors are caused by incorrect imports or references to non-existent files. Always import shared types from `@repo/shared/types/orion`.
+- If you encounter module resolution errors, check your import paths and update them to use the correct file.
+
+This documentation will help future contributors avoid confusion and resolve TypeScript errors more efficiently.

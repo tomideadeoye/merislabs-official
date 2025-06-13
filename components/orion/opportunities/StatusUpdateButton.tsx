@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+} from '@repo/ui';
 import { ChevronDown, Loader2 } from 'lucide-react';
 
 interface StatusUpdateButtonProps {
@@ -95,7 +95,7 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
 
     try {
       // Updated API endpoint to use the new Notion-specific route with ID
-      const response = await fetch(`/api/orion/notion/opportunity/${opportunityId}`, {
+      const response = await fetch(`/api/orion/notion/OrionOpportunity/${opportunityId}`, {
         method: 'PATCH', // Changed method to PATCH
         headers: {
           'Content-Type': 'application/json'
@@ -110,7 +110,7 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
 
       if (data.success) {
         // Status updated successfully
-        console.log('Opportunity status updated successfully:', data.opportunity);
+        console.log('OrionOpportunity status updated successfully:', data.OrionOpportunity);
         // Call the parent callback if provided
         if (onStatusUpdated) {
           onStatusUpdated();
@@ -123,7 +123,7 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
-      console.error('Error updating opportunity status:', err);
+      console.error('Error updating OrionOpportunity status:', err);
     } finally {
       setIsUpdating(false);
     }

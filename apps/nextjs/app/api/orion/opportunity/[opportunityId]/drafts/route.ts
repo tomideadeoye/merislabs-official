@@ -1,10 +1,10 @@
 /**
- * GOAL: Fetch and manage opportunity application drafts using Neon/Postgres, replacing SQLite for cloud reliability.
- * Related: lib/database.ts, prd.md, types/opportunity.d.ts
+ * GOAL: Fetch and manage OrionOpportunity application drafts using Neon/Postgres, replacing SQLite for cloud reliability.
+ * Related: lib/database.ts, prd.md, types/OrionOpportunity.d.ts
  */
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@shared/auth';
-import { query, sql } from '@shared/lib/database';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@repo/sharedauth";
+import { query, sql } from "@repo/shared/database";
 
 export async function GET(
   request: NextRequest,
@@ -12,22 +12,29 @@ export async function GET(
 ) {
   const session = await auth();
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
     const { opportunityId } = params;
 
-    // Get the opportunity to find the application material IDs
-    const opportunityQuery = 'SELECT applicationMaterialIds FROM opportunities WHERE id = $1';
+    // Get the OrionOpportunity to find the application material IDs
+    const opportunityQuery =
+      "SELECT applicationMaterialIds FROM opportunities WHERE id = $1";
     const opportunityResult = await query(opportunityQuery, [opportunityId]);
-    const opportunity = opportunityResult.rows[0];
+    const OrionOpportunity = opportunityResult.rows[0];
 
-    if (!opportunity || !opportunity.applicationmaterialids) {
-      return NextResponse.json({
-        success: false,
-        error: 'No application drafts found for this opportunity.'
-      }, { status: 404 });
+    if (!OrionOpportunity || !OrionOpportunity.applicationmaterialids) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No application drafts found for this OrionOpportunity.",
+        },
+        { status: 404 }
+      );
     }
 
     // For now, we'll return mock data
@@ -45,7 +52,7 @@ While my core technical stack includes JavaScript/TypeScript and Node.js rather 
 
 I am particularly drawn to CloudScale's culture of innovation and collaboration. I thrive in environments that value both technical excellence and practical problem-solving, consistently delivering solutions that balance performance with business needs.
 
-I would welcome the opportunity to discuss how my background in optimizing system performance and designing scalable architectures could contribute to CloudScale's continued success.
+I would welcome the OrionOpportunity to discuss how my background in optimizing system performance and designing scalable architectures could contribute to CloudScale's continued success.
 
 Sincerely,
 Tomide Adeoye`,
@@ -67,14 +74,14 @@ What particularly draws me to CloudScale is your emphasis on small, autonomous t
 
 While my primary languages have been JavaScript/TypeScript rather than Go, my strong experience with Python and distributed systems principles provides a solid foundation for quick adaptation to your technology stack.
 
-I would welcome the opportunity to discuss how my analytical approach and system design experience could help CloudScale build even more resilient and scalable cloud infrastructure.
+I would welcome the OrionOpportunity to discuss how my analytical approach and system design experience could help CloudScale build even more resilient and scalable cloud infrastructure.
 
 Best regards,
 Tomide Adeoye`,
 
       `Dear Hiring Manager,
 
-I am writing to express my strong interest in the Senior Software Engineer position at CloudScale Technologies. As someone passionate about building scalable, fault-tolerant systems, I am excited about the opportunity to contribute to your team's mission.
+I am writing to express my strong interest in the Senior Software Engineer position at CloudScale Technologies. As someone passionate about building scalable, fault-tolerant systems, I am excited about the OrionOpportunity to contribute to your team's mission.
 
 My background includes:
 
@@ -87,33 +94,41 @@ CloudScale's focus on helping companies manage complex cloud deployments across 
 
 I'm particularly impressed by CloudScale's engineering culture that emphasizes pragmatic solutions and technical excellence. This aligns perfectly with my own approach to software development, where I focus on creating robust solutions that deliver real business value.
 
-I would welcome the opportunity to discuss how my system architecture expertise and analytical mindset could contribute to CloudScale's continued growth and success.
+I would welcome the OrionOpportunity to discuss how my system architecture expertise and analytical mindset could contribute to CloudScale's continued growth and success.
 
 Sincerely,
-Tomide Adeoye`
+Tomide Adeoye`,
     ];
 
     return NextResponse.json({
       success: true,
       drafts: mockDrafts,
-      draftIds: JSON.parse(opportunity.applicationmaterialids)
+      draftIds: JSON.parse(OrionOpportunity.applicationmaterialids),
     });
-
   } catch (error: any) {
-    console.error('[OPPORTUNITY_DRAFTS_GET_API_ERROR]', error);
+    console.error("[OPPORTUNITY_DRAFTS_GET_API_ERROR]", error);
 
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch application drafts.',
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch application drafts.",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { opportunityId: string } }
+) {
   const session = await auth();
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
   }
   // ... rest of your logic ...
 }

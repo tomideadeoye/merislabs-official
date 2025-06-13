@@ -2,14 +2,26 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHabiticaTaskDialogStore } from './habiticaTaskDialogStore';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/app_state';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from '@/components/ui/button';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedapp_state';
+// FIX: Use barrel exports from @repo/ui for all UI components to resolve TS2307 errors and align with monorepo best practices.
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Label,
+  Input,
+  Textarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Button,
+} from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, SendToBack } from 'lucide-react';
 
 interface CreateHabiticaTaskDialogProps {
@@ -164,9 +176,8 @@ export const CreateHabiticaTaskDialog: React.FC<CreateHabiticaTaskDialogProps> =
         </div>
 
         {feedback && (
-          <div className={`p-3 rounded-md flex items-center ${
-            feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' : 'bg-red-900/30 border border-red-700 text-red-300'
-          }`}>
+          <div className={`p-3 rounded-md flex items-center ${feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' : 'bg-red-900/30 border border-red-700 text-red-300'
+            }`}>
             {feedback.type === 'success' ? (
               <CheckCircle className="h-5 w-5 mr-2" />
             ) : (
@@ -179,7 +190,7 @@ export const CreateHabiticaTaskDialog: React.FC<CreateHabiticaTaskDialogProps> =
         <DialogFooter>
           <Button
             onClick={closeDialog}
-            variant="outline"
+            variantType="outline"
             className="text-gray-300 border-gray-600"
           >
             Cancel

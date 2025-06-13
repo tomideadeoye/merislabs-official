@@ -2,12 +2,12 @@
 
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import type { EvaluationOutput, OpportunityNotionOutputShared } from "@shared/types/orion";
+import type { EvaluationOutput, OpportunityNotionOutputShared } from '@repo/shared';
 import { Loader2, AlertTriangle, RefreshCw, BarChartBig, CheckCircle, Lightbulb } from "lucide-react";
 import { z } from 'zod';
 
 interface OpportunityAnalysisDisplayProps {
-  opportunity: OpportunityNotionOutputShared | null;
+  OrionOpportunity: OpportunityNotionOutputShared | null;
   initialEvaluation?: EvaluationOutput | { rawOutput?: string };
 }
 
@@ -47,7 +47,7 @@ const OpportunityNotionOutputSharedSchema = z.object({
 });
 
 export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProps> = ({
-  opportunity,
+  OrionOpportunity,
   initialEvaluation,
 }) => {
   const [evaluation, setEvaluation] = useState<EvaluationOutput | { rawOutput?: string } | null>(
@@ -56,20 +56,20 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (opportunity) {
-    const parseResult = OpportunityNotionOutputSharedSchema.safeParse(opportunity);
+  if (OrionOpportunity) {
+    const parseResult = OpportunityNotionOutputSharedSchema.safeParse(OrionOpportunity);
     if (!parseResult.success) {
-      console.error('[OpportunityNotionOutputShared] Invalid data in OpportunityAnalysisDisplay:', parseResult.error.format(), opportunity);
+      console.error('[OpportunityNotionOutputShared] Invalid data in OpportunityAnalysisDisplay:', parseResult.error.format(), OrionOpportunity);
       throw new Error('Invalid OpportunityNotionOutputShared: ' + JSON.stringify(parseResult.error.format()));
     }
   }
 
-  // Fetch the latest evaluation for this opportunity
+  // Fetch the latest evaluation for this OrionOpportunity
   const fetchEvaluation = useCallback(async (oppId: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/orion/opportunity/${oppId}/evaluation`, {
+      const res = await fetch(`/api/orion/OrionOpportunity/${oppId}/evaluation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -90,35 +90,35 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
   }, []);
 
   useEffect(() => {
-    if (opportunity && !initialEvaluation) {
-      fetchEvaluation(opportunity.id);
+    if (OrionOpportunity && !initialEvaluation) {
+      fetchEvaluation(OrionOpportunity.id);
     } else if (initialEvaluation) {
       setEvaluation(initialEvaluation);
     }
-  }, [opportunity, fetchEvaluation, initialEvaluation]);
+  }, [OrionOpportunity, fetchEvaluation, initialEvaluation]);
 
   // Trigger a new evaluation
   const handleTriggerEvaluation = async () => {
-    if (!opportunity) return;
+    if (!OrionOpportunity) return;
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/orion/opportunity/${opportunity.id}/evaluation`, {
+      const res = await fetch(`/api/orion/OrionOpportunity/${OrionOpportunity.id}/evaluation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           // The backend can fetch the details it needs using the ID
-          // No need to send the whole opportunity object
+          // No need to send the whole OrionOpportunity object
         }),
       });
       const data = await res.json();
       if (data.success && data.evaluation) {
         setEvaluation(data.evaluation);
       } else {
-        throw new Error(data.error || "Failed to evaluate opportunity.");
+        throw new Error(data.error || "Failed to evaluate OrionOpportunity.");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to evaluate opportunity.");
+      setError(err.message || "Failed to evaluate OrionOpportunity.");
     } finally {
       setIsLoading(false);
     }
@@ -141,11 +141,11 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
     );
   };
 
-  if (!opportunity) {
+  if (!OrionOpportunity) {
     return (
       <div className="flex justify-center items-center py-10">
         <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
-        <p className="ml-2 text-gray-400">Loading opportunity data...</p>
+        <p className="ml-2 text-gray-400">Loading OrionOpportunity data...</p>
       </div>
     );
   }
@@ -162,7 +162,7 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
         ) : (
           <RefreshCw className="mr-2 h-4 w-4" />
         )}
-        {evaluation === null && !isLoading ? "Run Initial Evaluation" : "Re-Evaluate Opportunity"}
+        {evaluation === null && !isLoading ? "Run Initial Evaluation" : "Re-Evaluate OrionOpportunity"}
       </button>
 
       {isLoading && (
@@ -200,9 +200,9 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
                   <span className="text-xl text-green-400 font-bold">Orion's Evaluation Results</span>
                 </div>
                 <div className="text-gray-400 text-sm mb-2">
-                  For: <span className="font-semibold text-gray-200">{opportunity.title}</span>
-                  {opportunity.company && (
-                    <> at <span className="font-semibold text-gray-200">{opportunity.company}</span></>
+                  For: <span className="font-semibold text-gray-200">{OrionOpportunity.title}</span>
+                  {OrionOpportunity.company && (
+                    <> at <span className="font-semibold text-gray-200">{OrionOpportunity.company}</span></>
                   )}
                 </div>
                 <div className="mb-2">
@@ -270,7 +270,7 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
 
       {!evaluation && !isLoading && !error && (
         <div className="text-center py-10 text-gray-500">
-          <p>No evaluation has been run for this opportunity yet, or it could not be loaded.</p>
+          <p>No evaluation has been run for this OrionOpportunity yet, or it could not be loaded.</p>
           <p>Click the button above to generate an analysis.</p>
         </div>
       )}

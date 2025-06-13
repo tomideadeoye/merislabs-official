@@ -1,22 +1,31 @@
 export const runtime = "nodejs";
-import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@shared/lib/postgres';
-import { v4 as uuidv4 } from 'uuid';
-import { EmotionalLogEntry, LogEmotionRequestBody } from '@shared/types/orion';
+import { NextRequest, NextResponse } from "next/server";
+import { query } from "@repo/shared/postgres";
+import { v4 as uuidv4 } from "uuid";
+import {
+  EmotionalLogEntry,
+  LogEmotionRequestBody,
+} from "@repo/shared";
 
 /**
  * API route for logging emotions (Postgres/Neon version)
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as LogEmotionRequestBody;
+    const body = (await req.json()) as LogEmotionRequestBody;
 
     // Validate required fields - allow either emotion or automatic thought
-    if (!body.primaryEmotion && !body.cognitiveDistortionAnalysis?.automaticThought) {
-      return NextResponse.json({
-        success: false,
-        error: 'Primary emotion or an automatic thought is required'
-      }, { status: 400 });
+    if (
+      !body.primaryEmotion &&
+      !body.cognitiveDistortionAnalysis?.automaticThought
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Primary emotion or an automatic thought is required",
+        },
+        { status: 400 }
+      );
     }
 
     // Create new emotional log entry
@@ -28,11 +37,13 @@ export async function POST(req: NextRequest) {
       intensity: body.intensity,
       triggers: body.triggers || [],
       physicalSensations: body.physicalSensations || [],
-      accompanyingThoughts: body.accompanyingThoughts || body.cognitiveDistortionAnalysis?.automaticThought,
+      accompanyingThoughts:
+        body.accompanyingThoughts ||
+        body.cognitiveDistortionAnalysis?.automaticThought,
       copingMechanismsUsed: body.copingMechanismsUsed || [],
       contextualNote: body.contextualNote,
       relatedJournalSourceId: body.relatedJournalSourceId,
-      cognitiveDistortionAnalysis: body.cognitiveDistortionAnalysis
+      cognitiveDistortionAnalysis: body.cognitiveDistortionAnalysis,
     };
 
     // Insert into Postgres
@@ -62,20 +73,22 @@ export async function POST(req: NextRequest) {
       newEntry.relatedJournalSourceId,
       newEntry.cognitiveDistortionAnalysis
         ? JSON.stringify(newEntry.cognitiveDistortionAnalysis)
-        : null
+        : null,
     ]);
 
     return NextResponse.json({
       success: true,
-      message: 'Emotional log saved successfully',
-      entry: newEntry
+      message: "Emotional log saved successfully",
+      entry: newEntry,
     });
-
   } catch (error: any) {
-    console.error('Error in POST /api/orion/emotions/log:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    console.error("Error in POST /api/orion/emotions/log:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

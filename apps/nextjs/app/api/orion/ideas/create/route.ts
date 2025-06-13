@@ -6,23 +6,29 @@
  * - All features preserved from SQLite version, now with improved error handling and observability.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@shared/lib/database';
-import type { Idea, IdeaLog } from '@shared/types/ideas';
-import { v4 as uuidv4 } from 'uuid';
+import { NextRequest, NextResponse } from "next/server";
+import { query, sql } from "@repo/shared/database";
+import type { Idea, IdeaLog } from "@repo/shared/types/ideas";
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: NextRequest) {
-  const logContext = { route: '/api/orion/ideas/create', timestamp: new Date().toISOString() };
+  const logContext = {
+    route: "/api/orion/ideas/create",
+    timestamp: new Date().toISOString(),
+  };
   try {
-    console.info('[IDEAS_CREATE][START]', logContext);
+    console.info("[IDEAS_CREATE][START]", logContext);
 
     const body = await req.json();
     const { title, briefDescription, tags = [], priority, dueDate } = body;
 
-    if (!title || typeof title !== 'string' || title.trim() === '') {
-      console.warn('[IDEAS_CREATE][VALIDATION_FAIL] Missing or invalid title.', { ...logContext, body });
+    if (!title || typeof title !== "string" || title.trim() === "") {
+      console.warn(
+        "[IDEAS_CREATE][VALIDATION_FAIL] Missing or invalid title.",
+        { ...logContext, body }
+      );
       return NextResponse.json(
-        { success: false, error: 'Idea title is required' },
+        { success: false, error: "Idea title is required" },
         { status: 400 }
       );
     }
@@ -34,8 +40,10 @@ export async function POST(req: NextRequest) {
       id: uuidv4(),
       title: title.trim(),
       briefDescription: briefDescription?.trim(),
-      status: 'raw_spark',
-      tags: Array.isArray(tags) ? tags.map((t: string) => t.trim()).filter(Boolean) : [],
+      status: "raw_spark",
+      tags: Array.isArray(tags)
+        ? tags.map((t: string) => t.trim()).filter(Boolean)
+        : [],
       createdAt: now,
       updatedAt: now,
       dueDate,
@@ -66,9 +74,17 @@ export async function POST(req: NextRequest) {
 
     try {
       const res = await query(insertIdeaSQL, ideaParams);
-      console.info('[IDEAS_CREATE][DB][IDEA_INSERTED]', { ...logContext, rowCount: res.rowCount, ideaId: newIdea.id });
+      console.info("[IDEAS_CREATE][DB][IDEA_INSERTED]", {
+        ...logContext,
+        rowCount: res.rowCount,
+        ideaId: newIdea.id,
+      });
     } catch (dbErr) {
-      console.error('[IDEAS_CREATE][DB][ERROR_INSERT_IDEA]', { ...logContext, dbErr, ideaParams });
+      console.error("[IDEAS_CREATE][DB][ERROR_INSERT_IDEA]", {
+        ...logContext,
+        dbErr,
+        ideaParams,
+      });
       throw dbErr;
     }
 
@@ -77,9 +93,9 @@ export async function POST(req: NextRequest) {
       id: uuidv4(),
       ideaId: newIdea.id,
       timestamp: now,
-      type: 'initial_capture',
-      content: briefDescription || 'Initial idea captured.',
-      author: 'Tomide',
+      type: "initial_capture",
+      content: briefDescription || "Initial idea captured.",
+      author: "Tomide",
     };
 
     // Insert log into Postgres
@@ -101,23 +117,38 @@ export async function POST(req: NextRequest) {
 
     try {
       const logRes = await query(insertLogSQL, logParams);
-      console.info('[IDEAS_CREATE][DB][LOG_INSERTED]', { ...logContext, rowCount: logRes.rowCount, logId: initialLog.id });
+      console.info("[IDEAS_CREATE][DB][LOG_INSERTED]", {
+        ...logContext,
+        rowCount: logRes.rowCount,
+        logId: initialLog.id,
+      });
     } catch (logDbErr) {
-      console.error('[IDEAS_CREATE][DB][ERROR_INSERT_LOG]', { ...logContext, logDbErr, logParams });
+      console.error("[IDEAS_CREATE][DB][ERROR_INSERT_LOG]", {
+        ...logContext,
+        logDbErr,
+        logParams,
+      });
       throw logDbErr;
     }
 
-    console.info('[IDEAS_CREATE][SUCCESS] New idea created.', { ...logContext, ideaId: newIdea.id, title: newIdea.title });
+    console.info("[IDEAS_CREATE][SUCCESS] New idea created.", {
+      ...logContext,
+      ideaId: newIdea.id,
+      title: newIdea.title,
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Idea captured successfully!',
+      message: "Idea captured successfully!",
       idea: newIdea,
     });
   } catch (error: any) {
-    console.error('[IDEAS_CREATE][ERROR]', { ...logContext, error });
+    console.error("[IDEAS_CREATE][ERROR]", { ...logContext, error });
     return NextResponse.json(
-      { success: false, error: error.message || 'An unexpected error occurred' },
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
       { status: 500 }
     );
   }

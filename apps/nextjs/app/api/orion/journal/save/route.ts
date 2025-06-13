@@ -1,17 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
-import { ORION_MEMORY_COLLECTION_NAME } from '@shared/lib/orion_config';
-import { getServerSession } from 'next-auth/next';
-import { authConfig } from '@shared/auth';
-import { createJournalEntryInNotion } from '@shared/lib/notion_service'; // Import the Notion save function
-import type { JournalEntryNotionInput } from '@shared/types/orion'; // Import the type
-import { JOURNAL_REFLECTION_REQUEST_TYPE } from '@shared/lib/orion_config';
+import { NextRequest, NextResponse } from "next/server";
+import { v4 as uuidv4 } from "uuid";
+import { ORION_MEMORY_COLLECTION_NAME } from "@repo/shared/orion_config";
+import { getServerSession } from "next-auth/next";
+import { authConfig } from "@repo/sharedauth";
+import { createJournalEntryInNotion } from "@repo/shared/notion_service"; // Import the Notion save function
+import type { JournalEntryNotionInput } from "@repo/shared"; // Import the type
+import { JOURNAL_REFLECTION_REQUEST_TYPE } from "@repo/shared/orion_config";
 
 export async function POST(request: NextRequest) {
   // Check authentication
   const session = await getServerSession(authConfig);
   if (!session) {
-    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
   }
 
   try {
@@ -26,8 +29,11 @@ export async function POST(request: NextRequest) {
       // saveToSQLite, // Not handled in backend API yet
     } = body;
 
-    if (!text || typeof text !== 'string' || text.trim() === "") {
-      return NextResponse.json({ success: false, error: 'Journal text cannot be empty.' }, { status: 400 });
+    if (!text || typeof text !== "string" || text.trim() === "") {
+      return NextResponse.json(
+        { success: false, error: "Journal text cannot be empty." },
+        { status: 400 }
+      );
     }
 
     const currentISOTime = new Date().toISOString();
@@ -40,24 +46,27 @@ export async function POST(request: NextRequest) {
 
     // 1. Save the journal entry to Notion (if requested)
     if (saveToNotion) {
-      console.log(`[JOURNAL_SAVE_API] Attempting to save journal entry to Notion...`);
+      console.log(
+        `[JOURNAL_SAVE_API] Attempting to save journal entry to Notion...`
+      );
       const journalEntryData: JournalEntryNotionInput = {
-        title: text.substring(0, 100) + (text.length > 100 ? '...' : ''), // Use first 100 chars as title
+        title: text.substring(0, 100) + (text.length > 100 ? "..." : ""), // Use first 100 chars as title
         date: new Date(
-          typeof journalEntryTimestamp === 'string'
+          typeof journalEntryTimestamp === "string"
             ? journalEntryTimestamp
-            : (
-                journalEntryTimestamp &&
-                typeof journalEntryTimestamp === 'object' &&
-                typeof (journalEntryTimestamp as { toISOString?: unknown }).toISOString === 'function'
-              )
-              ? (journalEntryTimestamp as { toISOString: () => string }).toISOString()
-              : String(journalEntryTimestamp)
+            : journalEntryTimestamp &&
+              typeof journalEntryTimestamp === "object" &&
+              typeof (journalEntryTimestamp as { toISOString?: unknown })
+                .toISOString === "function"
+            ? (
+                journalEntryTimestamp as { toISOString: () => string }
+              ).toISOString()
+            : String(journalEntryTimestamp)
         ),
         content: text,
         mood: mood,
         tags: tags,
-        contentType: 'journal_entry',
+        contentType: "journal_entry",
       };
 
       const notionResponse = await createJournalEntryInNotion(journalEntryData);
@@ -65,37 +74,58 @@ export async function POST(request: NextRequest) {
       if (notionResponse) {
         notionSaved = true;
         sourceId = notionResponse.entry?.notionPageId; // Get the Notion page ID from the response
-        console.log(`[JOURNAL_SAVE_API] Journal entry successfully saved to Notion. Page ID: ${sourceId}`);
+        console.log(
+          `[JOURNAL_SAVE_API] Journal entry successfully saved to Notion. Page ID: ${sourceId}`
+        );
       } else {
-        console.error("[JOURNAL_SAVE_API] Failed to save journal entry to Notion.");
+        console.error(
+          "[JOURNAL_SAVE_API] Failed to save journal entry to Notion."
+        );
         // If Notion save fails and it was requested, return an error.
-        return NextResponse.json({ success: false, error: 'Failed to save journal entry to Notion.' }, { status: 500 });
+        return NextResponse.json(
+          { success: false, error: "Failed to save journal entry to Notion." },
+          { status: 500 }
+        );
       }
     } else {
       console.log(`[JOURNAL_SAVE_API] Skipping Notion save as not requested.`);
     }
 
     // Determine sourceId for Qdrant - use Notion ID if saved, otherwise generate new UUID
-    const qdrantSourceId = sourceId || `journal_${journalEntryTimestamp.replace(/[:.]/g, '-')}_${uuidv4().substring(0, 8)}`;
+    const qdrantSourceId =
+      sourceId ||
+      `journal_${journalEntryTimestamp.replace(
+        /[:.]/g,
+        "-"
+      )}_${uuidv4().substring(0, 8)}`;
 
     // 2. Save the journal entry to Qdrant (if requested)
     if (saveToQdrant) {
-      console.log(`[JOURNAL_SAVE_API] Attempting to save journal entry to Qdrant...`);
+      console.log(
+        `[JOURNAL_SAVE_API] Attempting to save journal entry to Qdrant...`
+      );
       // Generate Embeddings for the journal text
-      const embeddingResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/generate-embeddings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': request.headers.get('Authorization') || ''
-        },
-        body: JSON.stringify({
-          texts: [text] // Use the original text for embedding
-        })
-      });
+      const embeddingResponse = await fetch(
+        `${request.nextUrl.origin}/api/orion/memory/generate-embeddings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: request.headers.get("Authorization") || "",
+          },
+          body: JSON.stringify({
+            texts: [text], // Use the original text for embedding
+          }),
+        }
+      );
 
       const embeddingData = await embeddingResponse.json();
 
-      if (embeddingData.success && embeddingData.embeddings && embeddingData.embeddings.length > 0) {
+      if (
+        embeddingData.success &&
+        embeddingData.embeddings &&
+        embeddingData.embeddings.length > 0
+      ) {
         const embeddingVector = embeddingData.embeddings[0];
         console.log(`[JOURNAL_SAVE_API] Embeddings generated successfully.`);
 
@@ -106,7 +136,12 @@ export async function POST(request: NextRequest) {
           timestamp: journalEntryTimestamp,
           indexed_at: currentISOTime,
           type: "journal_entry",
-          tags: ["journal", ...tags.map((t: string) => String(t).toLowerCase().trim()).filter(Boolean)],
+          tags: [
+            "journal",
+            ...tags
+              .map((t: string) => String(t).toLowerCase().trim())
+              .filter(Boolean),
+          ],
           mood: mood,
           original_entry_id: sourceId, // Link back to the Notion page ID if available
         };
@@ -117,38 +152,67 @@ export async function POST(request: NextRequest) {
           payload: memoryPayload,
         };
 
-        console.log(`[JOURNAL_SAVE_API] Preparing to upsert journal entry to Qdrant with ID: ${memoryPoint.id} and source_id: ${qdrantSourceId}`);
+        console.log(
+          `[JOURNAL_SAVE_API] Preparing to upsert journal entry to Qdrant with ID: ${memoryPoint.id} and source_id: ${qdrantSourceId}`
+        );
 
         // Upsert the MemoryPoint into Qdrant
-        const upsertResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/upsert`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': request.headers.get('Authorization') || ''
-          },
-          body: JSON.stringify({
-            points: [memoryPoint],
-            collectionName: ORION_MEMORY_COLLECTION_NAME
-          })
-        });
+        const upsertResponse = await fetch(
+          `${request.nextUrl.origin}/api/orion/memory/upsert`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: request.headers.get("Authorization") || "",
+            },
+            body: JSON.stringify({
+              points: [memoryPoint],
+              collectionName: ORION_MEMORY_COLLECTION_NAME,
+            }),
+          }
+        );
 
         const upsertData = await upsertResponse.json();
 
         if (upsertData.success) {
           qdrantSaved = true;
-          console.log(`[JOURNAL_SAVE_API] Journal entry successfully saved to Qdrant.`);
+          console.log(
+            `[JOURNAL_SAVE_API] Journal entry successfully saved to Qdrant.`
+          );
         } else {
-          console.error("[JOURNAL_SAVE_API] Failed to upsert journal entry to Qdrant:", upsertData.error);
+          console.error(
+            "[JOURNAL_SAVE_API] Failed to upsert journal entry to Qdrant:",
+            upsertData.error
+          );
           // Log warning, but don't return error if Notion save was successful
-          if (!notionSaved) { // Only return error if Qdrant save failed and Notion was not saved/requested
-            return NextResponse.json({ success: false, error: 'Failed to save journal entry to Qdrant.', details: upsertData.error || "Unknown Qdrant error" }, { status: 500 });
+          if (!notionSaved) {
+            // Only return error if Qdrant save failed and Notion was not saved/requested
+            return NextResponse.json(
+              {
+                success: false,
+                error: "Failed to save journal entry to Qdrant.",
+                details: upsertData.error || "Unknown Qdrant error",
+              },
+              { status: 500 }
+            );
           }
         }
       } else {
-        console.error("[JOURNAL_SAVE_API] Failed to generate embeddings for Qdrant save:", embeddingData.error);
+        console.error(
+          "[JOURNAL_SAVE_API] Failed to generate embeddings for Qdrant save:",
+          embeddingData.error
+        );
         // Log warning, but don't return error if Notion save was successful
-        if (!notionSaved) { // Only return error if embedding failed and Notion was not saved/requested
-          return NextResponse.json({ success: false, error: 'Failed to generate embeddings for Qdrant save.', details: embeddingData.error || "Unknown embedding error" }, { status: 500 });
+        if (!notionSaved) {
+          // Only return error if embedding failed and Notion was not saved/requested
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Failed to generate embeddings for Qdrant save.",
+              details: embeddingData.error || "Unknown embedding error",
+            },
+            { status: 500 }
+          );
         }
       }
     } else {
@@ -159,30 +223,36 @@ export async function POST(request: NextRequest) {
     // Let's generate reflection if at least one primary storage (Notion/Qdrant) was requested.
     if (saveToNotion || saveToQdrant) {
       try {
-        const reflectionResponse = await fetch(`${request.nextUrl.origin}/api/orion/llm`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': request.headers.get('Authorization') || ''
-          },
-          body: JSON.stringify({
-            requestType: JOURNAL_REFLECTION_REQUEST_TYPE, // Use constant
-            primaryContext: text, // Pass the journal text as primary context
-            mood: mood || undefined,
-            temperature: 0.7,
-            maxTokens: 500,
-            // Potentially add system_prompt_override here if needed
-          })
-        });
+        const reflectionResponse = await fetch(
+          `${request.nextUrl.origin}/api/orion/llm`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: request.headers.get("Authorization") || "",
+            },
+            body: JSON.stringify({
+              requestType: JOURNAL_REFLECTION_REQUEST_TYPE, // Use constant
+              primaryContext: text, // Pass the journal text as primary context
+              mood: mood || undefined,
+              temperature: 0.7,
+              maxTokens: 500,
+              // Potentially add system_prompt_override here if needed
+            }),
+          }
+        );
 
         const reflectionData = await reflectionResponse.json();
 
         if (reflectionData.success && reflectionData.content) {
           reflectionContent = reflectionData.content;
-          console.log("[JOURNAL_SAVE_API] LLM Reflection generated successfully.");
+          console.log(
+            "[JOURNAL_SAVE_API] LLM Reflection generated successfully."
+          );
 
           // Store the reflection in memory ONLY IF Qdrant save of original entry was successful
-          if (qdrantSaved && sourceId) { // Need a valid sourceId (Notion ID) to link reflection
+          if (qdrantSaved && sourceId) {
+            // Need a valid sourceId (Notion ID) to link reflection
             const reflectionSourceId = `reflection_${sourceId}`;
             const reflectionPayload = {
               text: reflectionContent,
@@ -191,25 +261,39 @@ export async function POST(request: NextRequest) {
               timestamp: currentISOTime, // Use current time for reflection timestamp
               indexed_at: currentISOTime,
               type: "journal_reflection",
-              tags: ["reflection", "journal_reflection", ...tags.map((t: string) => String(t).toLowerCase().trim()).filter(Boolean)],
+              tags: [
+                "reflection",
+                "journal_reflection",
+                ...tags
+                  .map((t: string) => String(t).toLowerCase().trim())
+                  .filter(Boolean),
+              ],
               // mood? // Should reflection inherit mood? For now, no.
             };
 
             // Generate embedding for the reflection
-            const reflectionEmbeddingResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/generate-embeddings`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': request.headers.get('Authorization') || ''
-              },
-              body: JSON.stringify({
-                texts: [reflectionContent]
-              })
-            });
+            const reflectionEmbeddingResponse = await fetch(
+              `${request.nextUrl.origin}/api/orion/memory/generate-embeddings`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: request.headers.get("Authorization") || "",
+                },
+                body: JSON.stringify({
+                  texts: [reflectionContent],
+                }),
+              }
+            );
 
-            const reflectionEmbeddingData = await reflectionEmbeddingResponse.json();
+            const reflectionEmbeddingData =
+              await reflectionEmbeddingResponse.json();
 
-            if (reflectionEmbeddingData.success && reflectionEmbeddingData.embeddings && reflectionEmbeddingData.embeddings.length > 0) {
+            if (
+              reflectionEmbeddingData.success &&
+              reflectionEmbeddingData.embeddings &&
+              reflectionEmbeddingData.embeddings.length > 0
+            ) {
               const reflectionPoint = {
                 id: uuidv4(), // New UUID for the reflection Qdrant entry
                 vector: reflectionEmbeddingData.embeddings[0],
@@ -218,31 +302,36 @@ export async function POST(request: NextRequest) {
 
               // Upsert the reflection
               await fetch(`${request.nextUrl.origin}/api/orion/memory/upsert`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': request.headers.get('Authorization') || ''
+                  "Content-Type": "application/json",
+                  Authorization: request.headers.get("Authorization") || "",
                 },
                 body: JSON.stringify({
                   points: [reflectionPoint],
-                  collectionName: ORION_MEMORY_COLLECTION_NAME
-                })
+                  collectionName: ORION_MEMORY_COLLECTION_NAME,
+                }),
               });
 
-              console.log(`[JOURNAL_SAVE_API] Reflection saved to memory. Source ID: ${reflectionSourceId}`);
+              console.log(
+                `[JOURNAL_SAVE_API] Reflection saved to memory. Source ID: ${reflectionSourceId}`
+              );
 
               // Return the journal entry ID and reflection
               return NextResponse.json({
                 success: true,
-                message: 'Journal entry saved successfully!',
+                message: "Journal entry saved successfully!",
                 sourceId: sourceId,
-                reflection: reflectionData.content
+                reflection: reflectionData.content,
               });
             }
           }
         }
       } catch (reflectionError) {
-        console.error("[JOURNAL_SAVE_API] Error generating reflection:", reflectionError);
+        console.error(
+          "[JOURNAL_SAVE_API] Error generating reflection:",
+          reflectionError
+        );
         // Continue without reflection if it fails
       }
     }
@@ -250,14 +339,17 @@ export async function POST(request: NextRequest) {
     // Return success even if reflection failed
     return NextResponse.json({
       success: true,
-      message: 'Journal entry saved successfully!',
-      sourceId: sourceId
+      message: "Journal entry saved successfully!",
+      sourceId: sourceId,
     });
-
   } catch (error: any) {
-    console.error('[JOURNAL_SAVE_API_ERROR]', error.message, error.stack);
+    console.error("[JOURNAL_SAVE_API_ERROR]", error.message, error.stack);
     return NextResponse.json(
-      { success: false, error: 'Failed to save journal entry.', details: error.message || "Unknown error" },
+      {
+        success: false,
+        error: "Failed to save journal entry.",
+        details: error.message || "Unknown error",
+      },
       { status: 500 }
     );
   }

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Card, CardContent, CardHeader, CardTitle, Checkbox, Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle, RefreshCw, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { getOrionSourceUrl } from '@shared/lib/utils';
-import type { HabiticaTask } from '@shared/types/habitica';
+import { getOrionSourceUrl } from '@repo/shared';
+import type { HabiticaTask } from '@repo/shared';
 import { ActionReflectionDialog } from './tasks/ActionReflectionDialog';
 import { useActionReflectionDialogStore } from './tasks/actionReflectionDialogStore';
 
@@ -218,62 +218,62 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({
     <>
       <ActionReflectionDialog />
       <Card className={`bg-gray-800 border-gray-700 ${className}`}>
-      <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-lg flex items-center">
-          {title}
-        </CardTitle>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefreshTasks}
-          disabled={isLoading}
-          className="bg-gray-700 hover:bg-gray-600"
-        >
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <CardTitle className="text-lg flex items-center">
+            {title}
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefreshTasks}
+            disabled={isLoading}
+            className="bg-gray-700 hover:bg-gray-600"
+          >
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent>
           {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+            </div>
+          ) : error ? (
+            <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
+              {error}
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-gray-400">No {type} found.</p>
+            </div>
           ) : (
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <ul className="space-y-2">
+              {tasks.map((task) => (
+                <li key={task._id} className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => handleTaskToggle(task)}
+                    className="form-checkbox h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded"
+                  />
+                  <div className="flex-1">
+                    <p className={
+                      `text-gray-200 ${(task.completed || (type === 'dailys' && !isPastDue(task.date))) ? '' : 'text-red-400 font-semibold'}`
+                    }>
+                      {task.text}
+                    </p>
+                    {task.notes && <p className="text-xs text-gray-400 mt-1">{task.notes}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
-          Refresh
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
-          </div>
-        ) : error ? (
-          <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
-            {error}
-          </div>
-        ) : tasks.length === 0 ? (
-          <div className="text-center py-6">
-            <p className="text-gray-400">No {type} found.</p>
-          </div>
-        ) : (
-          <ul className="space-y-2">
-            {tasks.map((task) => (
-              <li key={task._id} className="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => handleTaskToggle(task)}
-                  className="form-checkbox h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded"
-                />
-                <div className="flex-1">
-                  <p className={
-                    `text-gray-200 ${(task.completed || (type === 'dailys' && !isPastDue(task.date))) ? '' : 'text-red-400 font-semibold'}`
-                  }>
-                    {task.text}
-                  </p>
-                  {task.notes && <p className="text-xs text-gray-400 mt-1">{task.notes}</p>}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
     </>
   );
 };

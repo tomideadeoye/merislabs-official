@@ -42,7 +42,7 @@ export function useOpportunityMemory(opportunityId: string) {
   };
 
   useEffect(() => {
-    // Load memories for the opportunity
+    // Load memories for the OrionOpportunity
     // This would typically fetch from an API
     setMemories([]);
   }, [opportunityId]);

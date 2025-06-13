@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/app_state';
-import { Button, Textarea, Input, Label, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Checkbox } from '@shared/ui';
-import { ChevronsUpDown } from 'lucide-react';
-import { cn } from '@shared/lib/utils';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedapp_state';
+import { Button, Textarea, Input, Label, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Checkbox } from '@repo/ui';
+import { ChevronsUpDown, Check } from 'lucide-react';
+import { cn } from '@repo/shared/utils';
 import { Loader2 } from 'lucide-react';
+import type { JournalEntryNotionInput } from '@repo/shared';
 
 interface JournalEntryFormProps {
     onEntrySaved?: (entryId: string, reflection?: string) => void;
@@ -82,26 +83,26 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
 
             // Call the backend API if saving to Notion or Qdrant is selected
             if (saveToNotion || saveToQdrant) {
-                 const response = await fetch('/api/orion/journal/save', {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/json'
-                     },
-                     body: JSON.stringify(payload)
-                 });
+                const response = await fetch('/api/orion/journal/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-                 const data = await response.json();
+                const data = await response.json();
 
-                 if (data.success) {
+                if (data.success) {
                     notionSaved = data.notionSaved || false; // Backend will indicate what was saved
                     qdrantSaved = data.qdrantSaved || false;
                     reflectionGenerated = data.reflectionGenerated || false;
                     sourceId = data.sourceId; // This will be the Notion page ID if Notion was saved
                     reflectionText = data.reflection;
-                 } else {
-                     // If backend API call fails, it's an error for Notion/Qdrant save
-                     throw new Error(data.error || "Failed to save journal entry via backend.");
-                 }
+                } else {
+                    // If backend API call fails, it's an error for Notion/Qdrant save
+                    throw new Error(data.error || "Failed to save journal entry via backend.");
+                }
             }
 
             // Handle Clipboard save on the frontend
@@ -129,35 +130,35 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
 
                 // Only clear the form and notify parent if Notion or Qdrant was successfully saved
                 if (notionSaved || qdrantSaved) {
-                   setJournalText("");
-                   setMood("");
-                   setTags("");
+                    setJournalText("");
+                    setMood("");
+                    setTags("");
                     // Notify parent component about the new entry if relevant destination was saved
-                   if (onEntrySaved && sourceId) { // Pass sourceId (Notion ID) and reflection
-                       onEntrySaved(sourceId, reflectionText);
-                   }
+                    if (onEntrySaved && sourceId) { // Pass sourceId (Notion ID) and reflection
+                        onEntrySaved(sourceId, reflectionText);
+                    }
                 }
 
             } else if (!saveToNotion && !saveToQdrant) {
-                 // Case where only clipboard/sqlite were selected, and clipboard might have failed
-                 if (clipboardCopied) {
+                // Case where only clipboard/sqlite were selected, and clipboard might have failed
+                if (clipboardCopied) {
                     setFeedbackMessage("Journal entry copied to clipboard.");
                     setIsError(false);
                     setJournalText(""); // Clear if only clipboard was selected and succeeded
                     setMood("");
                     setTags("");
-                 } else if (saveToSQLite) {
-                     setFeedbackMessage("SQLite save not yet implemented.");
-                     setIsError(false);
-                 } else {
-                     // Should not happen based on initial check, but for safety
-                      setFeedbackMessage("No save actions were successful.");
-                      setIsError(true);
-                 }
+                } else if (saveToSQLite) {
+                    setFeedbackMessage("SQLite save not yet implemented.");
+                    setIsError(false);
+                } else {
+                    // Should not happen based on initial check, but for safety
+                    setFeedbackMessage("No save actions were successful.");
+                    setIsError(true);
+                }
             } else {
-                 // Should not happen if backend call was successful
-                 setFeedbackMessage("Unknown save outcome.");
-                 setIsError(true);
+                // Should not happen if backend call was successful
+                setFeedbackMessage("Unknown save outcome.");
+                setIsError(true);
             }
 
 
@@ -346,7 +347,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({ onEntrySaved
                     />
                     <Label htmlFor="saveToQdrant" className="text-sm font-medium text-gray-300">Save to Qdrant (Memory Search)</Label>
                 </div>
-                 <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
                     <Checkbox
                         id="saveToClipboard"
                         checked={saveToClipboard}

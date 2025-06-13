@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { PageHeader } from '@/components/ui/page-header';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader, Button, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, ArrowLeft, BarChart2 } from 'lucide-react';
-import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
+import { OrionOpportunity } from '@repo/shared';
 import Link from 'next/link';
 
 export default function EvaluateOpportunityPage() {
@@ -15,7 +13,7 @@ export default function EvaluateOpportunityPage() {
 
   const router = useRouter();
 
-  const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
+  const [OrionOpportunity, setOpportunity] = useState<OrionOpportunity | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationOutput | null>(null);
   const [loading, setLoading] = useState(true);
   const [evaluating, setEvaluating] = useState(false);
@@ -24,21 +22,21 @@ export default function EvaluateOpportunityPage() {
   useEffect(() => {
     const fetchOpportunity = async () => {
       if (!opportunityId) {
-        setError("Opportunity ID is missing.");
+        setError("OrionOpportunity ID is missing.");
         setLoading(false);
         return;
       }
       try {
         setLoading(true);
-        const response = await fetch(`/api/orion/notion/opportunity/${opportunityId}`);
+        const response = await fetch(`/api/orion/notion/OrionOpportunity/${opportunityId}`);
         const data = await response.json();
-        if (data.success && data.opportunity) {
-          setOpportunity(data.opportunity);
+        if (data.success && data.OrionOpportunity) {
+          setOpportunity(data.OrionOpportunity);
         } else {
-          setError(data.error || 'Failed to fetch opportunity details.');
+          setError(data.error || 'Failed to fetch OrionOpportunity details.');
         }
       } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred while fetching opportunity.');
+        setError(err.message || 'An unexpected error occurred while fetching OrionOpportunity.');
       } finally {
         setLoading(false);
       }
@@ -50,18 +48,18 @@ export default function EvaluateOpportunityPage() {
   }, [opportunityId]);
 
   const handleEvaluate = async () => {
-    if (!opportunity) return;
+    if (!OrionOpportunity) return;
     setEvaluating(true);
     setError(null);
     try {
       // Call the Next.js API route for evaluation
-      const response = await fetch(`/api/orion/opportunity/${opportunityId}/evaluation`, {
+      const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/evaluation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          opportunityId: opportunity.id, // Assuming the API needs the opportunity ID
+          opportunityId: OrionOpportunity.id, // Assuming the API needs the OrionOpportunity ID
           // Include any other necessary data like JD, profile, etc.
           // For now, let's assume the API fetches JD/profile internally
         }),
@@ -85,7 +83,7 @@ export default function EvaluateOpportunityPage() {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-blue-400 mb-4" />
-        <p className="text-gray-400">Loading opportunity details for evaluation...</p>
+        <p className="text-gray-400">Loading OrionOpportunity details for evaluation...</p>
       </div>
     );
   }
@@ -96,36 +94,36 @@ export default function EvaluateOpportunityPage() {
         <PageHeader
           title="Evaluation Error"
           icon={<BarChart2 className="h-7 w-7" />}
-          description="Could not load opportunity for evaluation."
+          description="Could not load OrionOpportunity for evaluation."
         />
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
-          Opportunity ID is missing from the URL.
+          OrionOpportunity ID is missing from the URL.
         </div>
         <Button asChild>
-          <Link href={`/admin/opportunity-pipeline`}>
+          <Link href={`/admin/OrionOpportunity-pipeline`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Opportunity Pipeline
+            Back to OrionOpportunity Pipeline
           </Link>
         </Button>
       </div>
     );
   }
 
-  if (error || !opportunity) {
+  if (error || !OrionOpportunity) {
     return (
       <div className="space-y-6">
         <PageHeader
           title="Evaluation Error"
           icon={<BarChart2 className="h-7 w-7" />}
-          description="Could not load opportunity for evaluation."
+          description="Could not load OrionOpportunity for evaluation."
         />
         <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
-          {error || 'Opportunity not found or failed to load.'}
+          {error || 'OrionOpportunity not found or failed to load.'}
         </div>
         <Button asChild>
-          <Link href={`/admin/opportunity-pipeline/${opportunityId}`}>
+          <Link href={`/admin/OrionOpportunity-pipeline/${opportunityId}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Opportunity Details
+            Back to OrionOpportunity Details
           </Link>
         </Button>
       </div>
@@ -136,12 +134,12 @@ export default function EvaluateOpportunityPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <PageHeader
-          title={`Evaluate: ${opportunity.title}`}
+          title={`Evaluate: ${OrionOpportunity.title}`}
           icon={<BarChart2 className="h-7 w-7" />}
-          description={`Evaluate the opportunity at ${opportunity.company} against your profile.`}
+          description={`Evaluate the OrionOpportunity at ${OrionOpportunity.company} against your profile.`}
         />
         <Button variant="outline" size="sm" asChild className="border-gray-700">
-          <Link href={`/admin/opportunity-pipeline/${opportunityId}`}>
+          <Link href={`/admin/OrionOpportunity-pipeline/${opportunityId}`}>
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Details
           </Link>
@@ -156,23 +154,23 @@ export default function EvaluateOpportunityPage() {
 
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-gray-200">Opportunity Details</CardTitle>
+          <CardTitle className="text-gray-200">OrionOpportunity Details</CardTitle>
         </CardHeader>
         <CardContent className="text-gray-300 space-y-2">
-          <p><strong>Job Title:</strong> {opportunity.title}</p>
-          <p><strong>Company:</strong> {opportunity.company}</p>
-          {opportunity.content && (
-            <p><strong>Summary:</strong> {opportunity.content.substring(0, 200)}...</p>
+          <p><strong>Job Title:</strong> {OrionOpportunity.title}</p>
+          <p><strong>Company:</strong> {OrionOpportunity.company}</p>
+          {OrionOpportunity.content && (
+            <p><strong>Summary:</strong> {OrionOpportunity.content.substring(0, 200)}...</p>
           )}
-          {opportunity.sourceURL && (
-             <p><strong>Source:</strong> <a href={opportunity.sourceURL} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{opportunity.sourceURL}</a></p>
+          {OrionOpportunity.sourceURL && (
+            <p><strong>Source:</strong> <a href={OrionOpportunity.sourceURL} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{OrionOpportunity.sourceURL}</a></p>
           )}
         </CardContent>
       </Card>
 
       <Button
         onClick={handleEvaluate}
-        disabled={evaluating || !opportunity}
+        disabled={evaluating || !OrionOpportunity}
         className="w-full"
       >
         {evaluating ? (
@@ -209,35 +207,35 @@ export default function EvaluateOpportunityPage() {
               <div key={`pros-${index}`}>
                 {index === 0 && <h4 className="text-sm font-medium text-gray-400 mb-1">Pros</h4>}
                 <ul className="list-disc list-inside text-gray-300">
-                   {/* Add type annotations */}
+                  {/* Add type annotations */}
                   <li key={index}>{item}</li>
                 </ul>
               </div>
             ))}
             {evaluation.cons && evaluation.cons.length > 0 && evaluation.cons.map((item, index) => (
-               <div key={`cons-${index}`}>
+              <div key={`cons-${index}`}>
                 {index === 0 && <h4 className="text-sm font-medium text-gray-400 mb-1">Cons</h4>}
                 <ul className="list-disc list-inside text-gray-300">
-                   {/* Add type annotations */}
+                  {/* Add type annotations */}
                   <li key={index}>{item}</li>
                 </ul>
               </div>
             ))}
             {evaluation.missingSkills && evaluation.missingSkills.length > 0 && evaluation.missingSkills.map((item, index) => (
-               <div key={`missingSkills-${index}`}>
-                 {index === 0 && <h4 className="text-sm font-medium text-gray-400 mb-1">Missing Skills/Experience</h4>}
+              <div key={`missingSkills-${index}`}>
+                {index === 0 && <h4 className="text-sm font-medium text-gray-400 mb-1">Missing Skills/Experience</h4>}
                 <ul className="list-disc list-inside text-gray-300">
-                   {/* Add type annotations */}
+                  {/* Add type annotations */}
                   <li key={index}>{item}</li>
                 </ul>
               </div>
             ))}
-             {evaluation.scoreExplanation && (
-                 <div>
-                     <h4 className="text-sm font-medium text-gray-400 mb-1">Score Explanation</h4>
-                     <p className="text-gray-300 whitespace-pre-wrap">{evaluation.scoreExplanation}</p>
-                 </div>
-             )}
+            {evaluation.scoreExplanation && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-400 mb-1">Score Explanation</h4>
+                <p className="text-gray-300 whitespace-pre-wrap">{evaluation.scoreExplanation}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

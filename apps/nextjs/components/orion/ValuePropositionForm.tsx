@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle2, Lightbulb } from 'lucide-react';
-import type { ValueProposition } from '@shared/types/narrative-clarity';
+import type { ValueProposition } from '@repo/shared';
 
 import { useValueProposition } from "./ValuePropositionContext";
 
@@ -149,10 +149,9 @@ export const ValuePropositionForm: React.FC<ValuePropositionFormProps> = ({
           </div>
 
           {feedback && (
-            <div className={`p-3 rounded-md flex items-center ${
-              feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
-                                       : 'bg-red-900/30 border border-red-700 text-red-300'
-            }`}>
+            <div className={`p-3 rounded-md flex items-center ${feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
+              : 'bg-red-900/30 border border-red-700 text-red-300'
+              }`}>
               {feedback.type === 'success' ?
                 <CheckCircle2 className="h-5 w-5 mr-2" /> :
                 <AlertTriangle className="h-5 w-5 mr-2" />

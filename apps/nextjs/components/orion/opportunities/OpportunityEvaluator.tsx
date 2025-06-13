@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * GOAL: UI component for evaluating an opportunity against the user's profile and goals.
+ * GOAL: UI component for evaluating an OrionOpportunity against the user's profile and goals.
  * - Ensures all OpportunityDetails objects include both company and companyOrInstitution.
  * - Adds context-rich, traceable logging for every operation, parameter, and result.
- * - Related files: app/api/orion/opportunity/evaluate/route.ts, types/opportunity.d.ts
+ * - Related files: app/api/orion/OrionOpportunity/evaluate/route.ts, types/OrionOpportunity.d.ts
  */
 import React, { useState } from 'react';
-import { OpportunityDetails, EvaluationOutput } from '@shared/types/opportunity';
+import { OpportunityDetails, EvaluationOutput } from '@repo/shared';
 import { Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, BarChart2, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -30,7 +30,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
     e.preventDefault();
 
     if (!title.trim() || !company.trim() || !content.trim()) {
-      setError('Opportunity title, company, and content are required.');
+      setError('OrionOpportunity title, company, and content are required.');
       return;
     }
 
@@ -48,7 +48,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
       };
       console.log('[OpportunityEvaluator] Constructed opportunityDetails:', opportunityDetails);
 
-      const response = await fetch('/api/orion/opportunity/evaluate', {
+      const response = await fetch('/api/orion/OrionOpportunity/evaluate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -61,10 +61,10 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
       if (data.success) {
         setEvaluation(data.evaluation);
       } else {
-        throw new Error(data.error || 'Failed to evaluate opportunity');
+        throw new Error(data.error || 'Failed to evaluate OrionOpportunity');
       }
     } catch (err: any) {
-      console.error('Error evaluating opportunity:', err);
+      console.error('Error evaluating OrionOpportunity:', err);
       setError(err.message || 'An unexpected error occurred');
     } finally {
       setIsEvaluating(false);
@@ -77,7 +77,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
         <div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="title" className="text-gray-300">Opportunity Title *</Label>
+              <Label htmlFor="title" className="text-gray-300">OrionOpportunity Title *</Label>
               <Input
                 id="title"
                 value={title}
@@ -133,7 +133,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 id="content"
                 value={content}
                 onChange={(e) => { setContent(e.target.value); console.log('[OpportunityEvaluator] Content changed:', e.target.value); }}
-                placeholder="Paste the job content or opportunity details here..."
+                placeholder="Paste the job content or OrionOpportunity details here..."
                 className="min-h-[200px] bg-gray-700 border-gray-600 text-gray-200"
                 required
               />
@@ -152,7 +152,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
               ) : (
                 <>
                   <BarChart2 className="mr-2 h-4 w-4" />
-                  Evaluate Opportunity
+                  Evaluate OrionOpportunity
                 </>
               )}
             </Button>
@@ -181,11 +181,10 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                   <div className="flex items-center">
                     <div className="w-full bg-gray-700 rounded-full h-4">
                       <div
-                        className={`h-4 rounded-full ${
-                          (evaluation.fitScorePercentage || 0) >= 75 ? 'bg-green-500' :
+                        className={`h-4 rounded-full ${(evaluation.fitScorePercentage || 0) >= 75 ? 'bg-green-500' :
                           (evaluation.fitScorePercentage || 0) >= 50 ? 'bg-yellow-500' :
-                          'bg-red-500'
-                        }`}
+                            'bg-red-500'
+                          }`}
                         style={{ width: `${evaluation.fitScorePercentage || 0}%` }}
                       ></div>
                     </div>
@@ -198,13 +197,12 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                 <div>
                   <h3 className="text-sm font-medium text-gray-300 mb-1">Recommendation</h3>
                   <p
-                    className={`text-lg font-semibold ${
-                      evaluation.recommendation === 'Proceed'
-                        ? 'text-green-400'
-                        : evaluation.recommendation === 'Caution'
+                    className={`text-lg font-semibold ${evaluation.recommendation === 'Proceed'
+                      ? 'text-green-400'
+                      : evaluation.recommendation === 'Caution'
                         ? 'text-yellow-400'
                         : 'text-red-400'
-                    }`}>
+                      }`}>
                     {evaluation.recommendation || 'Not Evaluated'}
                   </p>
                 </div>
@@ -259,9 +257,9 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-gray-500">
               <BarChart2 className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-300 mb-2">Opportunity Evaluator</h3>
+              <h3 className="text-lg font-medium text-gray-300 mb-2">OrionOpportunity Evaluator</h3>
               <p className="text-gray-400">
-                Enter opportunity details on the left to evaluate how well it aligns with your profile and goals.
+                Enter OrionOpportunity details on the left to evaluate how well it aligns with your profile and goals.
               </p>
             </div>
           )}

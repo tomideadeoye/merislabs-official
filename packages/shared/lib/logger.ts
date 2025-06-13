@@ -183,24 +183,26 @@ class Logger {
   }
 }
 
+const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
-// --- Browser Logger ---
-const browserLogger = {
-  debug: (msg: string, ctx?: any) => console.debug(`%c🐞 [DEBUG] ${msg}`, 'color:magenta', ctx || ''),
-  info: (msg: string, ctx?: any) => console.info(`%cℹ️ [INFO] ${msg}`, 'color:blue', ctx || ''),
-  warn: (msg: string, ctx?: any) => console.warn(`%c⚠️ [WARN] ${msg}`, 'color:orange', ctx || ''),
-  error: (msg: string, ctx?: any) => {
-    if (ctx && typeof ctx === 'object' && Object.keys(ctx).length > 0) {
-      console.error(`%c❌ [ERROR] ${msg}`, 'color:red', ctx);
-    } else {
-      // Use warn to avoid Next.js overlay for non-critical logs
-      console.warn(`%c❌ [ERROR] ${msg}`, 'color:red');
-    }
-  },
-  success: (msg: string, ctx?: any) => console.log(`%c✅ [SUCCESS] ${msg}`, 'color:green', ctx || ''),
-};
+let logger: any;
 
-// Export the correct logger for each environment
-const isBrowser = typeof window !== 'undefined';
-export const logger = isBrowser ? browserLogger : Logger.getInstance();
-export { browserLogger };
+if (isNode) {
+  logger = require('../src/lib/logger.node').logger;
+} else {
+  logger = {
+    debug: (msg: string, ctx?: any) => console.debug(`%c🐞 [DEBUG] ${msg}`, 'color:magenta', ctx || ''),
+    info: (msg: string, ctx?: any) => console.info(`%cℹ️ [INFO] ${msg}`, 'color:blue', ctx || ''),
+    warn: (msg: string, ctx?: any) => console.warn(`%c⚠️ [WARN] ${msg}`, 'color:orange', ctx || ''),
+    error: (msg: string, ctx?: any) => {
+      if (ctx && typeof ctx === 'object' && Object.keys(ctx).length > 0) {
+        console.error(`%c❌ [ERROR] ${msg}`, 'color:red', ctx);
+      } else {
+        console.warn(`%c❌ [ERROR] ${msg}`, 'color:red', ctx || '');
+      }
+    },
+    success: (msg: string, ctx?: any) => console.log(`%c✅ [SUCCESS] ${msg}`, 'color:green', ctx || ''),
+  };
+}
+
+export { logger };

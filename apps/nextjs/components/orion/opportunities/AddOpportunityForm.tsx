@@ -12,8 +12,8 @@ import {
   Label,
   Textarea
 } from '@repo/ui';
-import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/components/orion/opportunities/opportunityCentralStore';
-import { OpportunityNotionInput } from '@shared/types/orion';
+import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@repo/shared';
+import type { OpportunityNotionInput, JournalEntryNotionInput, MemoryPayload, MemoryPoint, ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@repo/shared';
 
 interface AddOpportunityFormProps {
   onSuccess?: (opportunityId: string) => void;
@@ -79,7 +79,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
     };
 
     try {
-      const response = await fetch('/api/orion/notion/opportunity/create', {
+      const response = await fetch('/api/orion/notion/OrionOpportunity/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,14 +89,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create opportunity');
+        throw new Error(errorData.error || 'Failed to create OrionOpportunity');
       }
 
       const data = await response.json();
 
       if (data.success) {
         if (onSuccess) {
-          onSuccess(data.opportunity.id);
+          onSuccess(data.OrionOpportunity.id);
         }
         close();
         setFormData({
@@ -123,7 +123,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
     <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Opportunity</DialogTitle>
+          <DialogTitle>Add New OrionOpportunity</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -150,14 +150,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="type">Type *</Label>
-                    <Input id="type" name="type" value={formData.type} onChange={handleChange} required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="status">Status *</Label>
-                    <Input id="status" name="status" value={formData.status} onChange={handleChange} required />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="type">Type *</Label>
+                <Input id="type" name="type" value={formData.type} onChange={handleChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status *</Label>
+                <Input id="status" name="status" value={formData.status} onChange={handleChange} required />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="content">Full Description *</Label>
@@ -166,7 +166,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
-                placeholder="Full description of the opportunity"
+                placeholder="Full description of the OrionOpportunity"
                 required
               />
             </div>
@@ -181,14 +181,14 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
               />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="tags">Tags (comma-separated)</Label>
-                <Input
-                    id="tags"
-                    name="tags"
-                    value={formData.tags.join(', ')}
-                    onChange={handleTagsChange}
-                    placeholder="e.g., frontend, react, project-management"
-                />
+              <Label htmlFor="tags">Tags (comma-separated)</Label>
+              <Input
+                id="tags"
+                name="tags"
+                value={formData.tags.join(', ')}
+                onChange={handleTagsChange}
+                placeholder="e.g., frontend, react, project-management"
+              />
             </div>
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -196,7 +196,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({
           <DialogFooter className="mt-6">
             <Button type="button" variant="outline" onClick={close}>Cancel</Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Opportunity'}
+              {isSubmitting ? 'Creating...' : 'Create OrionOpportunity'}
             </Button>
           </DialogFooter>
         </form>

@@ -8,7 +8,21 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 /// <reference types="node-fetch" />
 import fetch from 'node-fetch';
-import { logger } from "./logger";
+import { logger } from '@repo/shared/logger';
+
+let readFileImpl: typeof import('fs/promises').readFile | undefined;
+let pathImpl: typeof import('path') | undefined;
+
+const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+
+if (isNode) {
+  readFileImpl = require('fs/promises').readFile;
+  pathImpl = require('path');
+} else {
+  // Stubs for non-Node environments
+  readFileImpl = async () => { throw new Error('readFile is not available in this environment.'); };
+  pathImpl = { join: () => { throw new Error('path.join is not available in this environment.'); } } as any;
+}
 
 /**
  * Defines the structure for the fetched user profile data.
@@ -124,13 +138,13 @@ export async function fetchUserProfile(): Promise<UserProfileData | null> {
     logger.info('Fallback Source: Attempting local file read for user profile...', logContext);
 
     // Using process.cwd() should resolve from the root of the running application
-    const profileTextPath = path.join(process.cwd(), 'backend', 'orion_python_backend', 'Tomide_Adeoye_Profile.txt');
-    const personalityTextPath = path.join(process.cwd(), 'backend', 'orion_python_backend', 'Tomide_Adeoye_personality.txt');
+    const profileTextPath = pathImpl.join(process.cwd(), 'backend', 'orion_python_backend', 'Tomide_Adeoye_Profile.txt');
+    const personalityTextPath = pathImpl.join(process.cwd(), 'backend', 'orion_python_backend', 'Tomide_Adeoye_personality.txt');
 
     logger.debug('Attempting to read profile files from paths:', { profilePath: profileTextPath, personalityPath: personalityTextPath });
 
-    const profileContent = await readFile(profileTextPath, 'utf-8');
-    const personalityContent = await readFile(personalityTextPath, 'utf-8');
+    const profileContent = await readFileImpl(profileTextPath, 'utf-8');
+    const personalityContent = await readFileImpl(personalityTextPath, 'utf-8');
 
     const combinedLocalText = `${profileContent}\n\n---\n\n${personalityContent}`.trim();
 

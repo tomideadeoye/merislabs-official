@@ -7,7 +7,7 @@
  */
 
 import React, { createContext, useContext, useCallback, useState } from "react";
-import type { CognitiveDistortionAnalysisData } from "@shared/types/orion";
+import type { CognitiveDistortionAnalysisData } from '@repo/shared';
 
 interface CognitiveDistortionAnalysisContextType {
   analysisData: CognitiveDistortionAnalysisData | null;

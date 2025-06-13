@@ -8,7 +8,7 @@
  */
 
 import React, { createContext, useContext, useCallback, useState } from "react";
-import type { CareerMilestone } from "@shared/types/narrative-clarity";
+import type { CareerMilestone } from '@repo/shared';
 
 interface CareerMilestoneContextType {
   submitMilestone: (data: Partial<CareerMilestone>) => Promise<void>;

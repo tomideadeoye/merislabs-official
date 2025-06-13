@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSessionState, SessionStateKeys } from "@shared/hooks/useSessionState";
+import { useSessionState, SessionStateKeys } from "@repo/sharedhooks/useSessionState";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsivePie } from "@nivo/pie";
 import { Loader2, AlertTriangle } from "lucide-react";
@@ -11,81 +11,81 @@ interface HabiticaStatsNivoProps {
 }
 
 const NivoBarChart = ({ data }: { data: any[] }) => (
-    <ResponsiveBar
-        data={data}
-        keys={['value']}
-        indexBy="label"
-        margin={{ top: 20, right: 20, bottom: 40, left: 50 }}
-        padding={0.3}
-        valueScale={{ type: 'linear' }}
-        indexScale={{ type: 'band', round: true }}
-        colors={{ scheme: 'nivo' }}
-        borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: 'Stats',
-            legendPosition: 'middle',
-            legendOffset: 32,
-        }}
-        axisLeft={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: 'Value',
-            legendPosition: 'middle',
-            legendOffset: -40,
-        }}
-        labelSkipWidth={12}
-        labelSkipHeight={12}
-        labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-        animate={true}
-        theme={{
-            axis: {
-                ticks: { text: { fill: "#a1a1aa" } },
-                legend: { text: { fill: "#a1a1aa" } },
-            },
-            labels: { text: { fill: "#ffffff" } },
-            tooltip: {
-                container: {
-                    background: "#27272a",
-                    color: "#e4e4e7",
-                    border: "1px solid #3f3f46",
-                },
-            },
-        }}
-    />
+  <ResponsiveBar
+    data={data}
+    keys={['value']}
+    indexBy="label"
+    margin={{ top: 20, right: 20, bottom: 40, left: 50 }}
+    padding={0.3}
+    valueScale={{ type: 'linear' }}
+    indexScale={{ type: 'band', round: true }}
+    colors={{ scheme: 'nivo' }}
+    borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+    axisTop={null}
+    axisRight={null}
+    axisBottom={{
+      tickSize: 5,
+      tickPadding: 5,
+      tickRotation: 0,
+      legend: 'Stats',
+      legendPosition: 'middle',
+      legendOffset: 32,
+    }}
+    axisLeft={{
+      tickSize: 5,
+      tickPadding: 5,
+      tickRotation: 0,
+      legend: 'Value',
+      legendPosition: 'middle',
+      legendOffset: -40,
+    }}
+    labelSkipWidth={12}
+    labelSkipHeight={12}
+    labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+    animate={true}
+    theme={{
+      axis: {
+        ticks: { text: { fill: "#a1a1aa" } },
+        legend: { text: { fill: "#a1a1aa" } },
+      },
+      labels: { text: { fill: "#ffffff" } },
+      tooltip: {
+        container: {
+          background: "#27272a",
+          color: "#e4e4e7",
+          border: "1px solid #3f3f46",
+        },
+      },
+    }}
+  />
 );
 
 const NivoPieChart = ({ data }: { data: any[] }) => (
-    <ResponsivePie
-        data={data}
-        margin={{ top: 20, right: 40, bottom: 20, left: 40 }}
-        innerRadius={0.5}
-        padAngle={0.7}
-        cornerRadius={3}
-        activeOuterRadiusOffset={8}
-        borderWidth={1}
-        borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-        arcLinkLabelsSkipAngle={10}
-        arcLinkLabelsTextColor="#a1a1aa"
-        arcLinkLabelsThickness={2}
-        arcLinkLabelsColor={{ from: 'color' }}
-        arcLabelsSkipAngle={10}
-        arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-        theme={{
-             tooltip: {
-                container: {
-                    background: "#27272a",
-                    color: "#e4e4e7",
-                    border: "1px solid #3f3f46",
-                },
-            },
-        }}
-    />
+  <ResponsivePie
+    data={data}
+    margin={{ top: 20, right: 40, bottom: 20, left: 40 }}
+    innerRadius={0.5}
+    padAngle={0.7}
+    cornerRadius={3}
+    activeOuterRadiusOffset={8}
+    borderWidth={1}
+    borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
+    arcLinkLabelsSkipAngle={10}
+    arcLinkLabelsTextColor="#a1a1aa"
+    arcLinkLabelsThickness={2}
+    arcLinkLabelsColor={{ from: 'color' }}
+    arcLabelsSkipAngle={10}
+    arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
+    theme={{
+      tooltip: {
+        container: {
+          background: "#27272a",
+          color: "#e4e4e7",
+          border: "1px solid #3f3f46",
+        },
+      },
+    }}
+  />
 );
 
 
@@ -129,22 +129,22 @@ export const HabiticaStatsNivo: React.FC<HabiticaStatsNivoProps> = ({ className 
       } catch (err: any) {
         setError(err.message || "Failed to load Habitica data");
       } finally {
-          setIsLoading(false);
+        setIsLoading(false);
       }
     }
     fetchStatsAndTasks();
   }, [habiticaUserId, habiticaApiToken]);
 
   const statsChartData = stats ? [
-      { label: "Health", value: Math.floor(stats.stats.hp) },
-      { label: "Exp", value: Math.floor(stats.stats.exp) },
-      { label: "Mana", value: Math.floor(stats.stats.mp) },
-      { label: "Gold", value: Math.floor(stats.stats.gp) },
-    ] : [];
+    { label: "Health", value: Math.floor(stats.stats.hp) },
+    { label: "Exp", value: Math.floor(stats.stats.exp) },
+    { label: "Mana", value: Math.floor(stats.stats.mp) },
+    { label: "Gold", value: Math.floor(stats.stats.gp) },
+  ] : [];
 
   const tasksChartData = tasks.length > 0 ? [
-      { id: "Completed", label: "Completed", value: tasks.filter(t => t.completed).length },
-      { id: "Incomplete", label: "Incomplete", value: tasks.filter(t => !t.completed).length },
+    { id: "Completed", label: "Completed", value: tasks.filter(t => t.completed).length },
+    { id: "Incomplete", label: "Incomplete", value: tasks.filter(t => !t.completed).length },
   ] : [];
 
   if (isLoading) {
@@ -158,12 +158,12 @@ export const HabiticaStatsNivo: React.FC<HabiticaStatsNivoProps> = ({ className 
 
   if (error) {
     return (
-        <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-center h-96">
-            <AlertTriangle className="h-6 w-6 mr-3" />
-            <div>
-                <p className="font-bold">Error loading Habitica data</p>
-                <p className="text-sm">{error}</p>
-            </div>
+      <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md flex items-center h-96">
+        <AlertTriangle className="h-6 w-6 mr-3" />
+        <div>
+          <p className="font-bold">Error loading Habitica data</p>
+          <p className="text-sm">{error}</p>
+        </div>
       </div>
     );
   }

@@ -2,10 +2,10 @@
  * GOAL: Fetch and update ideas and logs using Neon/Postgres.
  * Related: lib/database.ts, prd.md, types/ideas.d.ts
  */
-import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@shared/lib/database';
-import type { Idea, IdeaLog } from '@shared/types/ideas';
-import { v4 as uuidv4 } from 'uuid';
+import { NextRequest, NextResponse } from "next/server";
+import { query, sql } from "@repo/shared/database";
+import type { Idea, IdeaLog } from "@repo/shared/types/ideas";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * API route for fetching a specific idea and its logs
@@ -18,22 +18,28 @@ export async function GET(
     const { ideaId } = params;
 
     if (!ideaId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Idea ID is required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Idea ID is required",
+        },
+        { status: 400 }
+      );
     }
 
     // Fetch idea
-    const ideaQuery = 'SELECT * FROM ideas WHERE id = $1';
+    const ideaQuery = "SELECT * FROM ideas WHERE id = $1";
     const ideaResult = await query(ideaQuery, [ideaId]);
     const ideaRow = ideaResult.rows[0];
 
     if (!ideaRow) {
-      return NextResponse.json({
-        success: false,
-        error: 'Idea not found'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Idea not found",
+        },
+        { status: 404 }
+      );
     }
 
     // Parse idea data
@@ -42,15 +48,18 @@ export async function GET(
       title: ideaRow.title,
       briefDescription: ideaRow.briefdescription,
       status: ideaRow.status,
-      tags: Array.isArray(ideaRow.tags) ? ideaRow.tags : JSON.parse(ideaRow.tags || '[]'),
+      tags: Array.isArray(ideaRow.tags)
+        ? ideaRow.tags
+        : JSON.parse(ideaRow.tags || "[]"),
       createdAt: ideaRow.createdat,
       updatedAt: ideaRow.updatedat,
       dueDate: ideaRow.duedate,
-      priority: ideaRow.priority
+      priority: ideaRow.priority,
     };
 
     // Fetch idea logs
-    const logsQuery = 'SELECT * FROM idea_logs WHERE ideaId = $1 ORDER BY timestamp ASC';
+    const logsQuery =
+      "SELECT * FROM idea_logs WHERE ideaId = $1 ORDER BY timestamp ASC";
     const logsResult = await query(logsQuery, [ideaId]);
     const logs: IdeaLog[] = logsResult.rows.map((row: any) => ({
       id: row.id,
@@ -58,20 +67,23 @@ export async function GET(
       timestamp: row.timestamp,
       type: row.type,
       content: row.content,
-      author: row.author
+      author: row.author,
     }));
 
     return NextResponse.json({
       success: true,
       idea,
-      logs
+      logs,
     });
   } catch (error: any) {
     console.error(`Error in GET /api/orion/ideas/${params.ideaId}:`, error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -92,26 +104,32 @@ export async function PUT(
       tags = [],
       priority,
       dueDate,
-      note
+      note,
     } = body;
 
     if (!ideaId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Idea ID is required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Idea ID is required",
+        },
+        { status: 400 }
+      );
     }
 
     // Check if idea exists
-    const checkQuery = 'SELECT id FROM ideas WHERE id = $1';
+    const checkQuery = "SELECT id FROM ideas WHERE id = $1";
     const checkResult = await query(checkQuery, [ideaId]);
     const existingIdea = checkResult.rows[0];
 
     if (!existingIdea) {
-      return NextResponse.json({
-        success: false,
-        error: 'Idea not found'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Idea not found",
+        },
+        { status: 404 }
+      );
     }
 
     const now = new Date().toISOString();
@@ -136,7 +154,7 @@ export async function PUT(
       now,
       dueDate,
       priority,
-      ideaId
+      ideaId,
     ]);
 
     // If status was updated, create a status change log
@@ -150,14 +168,14 @@ export async function PUT(
         uuidv4(),
         ideaId,
         now,
-        'status_change',
+        "status_change",
         `Status updated to: ${status}`,
-        'Tomide'
+        "Tomide",
       ]);
     }
 
     // If a new note was provided, add it to the logs
-    if (note && typeof note === 'string' && note.trim()) {
+    if (note && typeof note === "string" && note.trim()) {
       const noteLogQuery = `
         INSERT INTO idea_logs (
           id, ideaId, timestamp, type, content, author
@@ -167,14 +185,14 @@ export async function PUT(
         uuidv4(),
         ideaId,
         now,
-        'note',
+        "note",
         note.trim(),
-        'Tomide'
+        "Tomide",
       ]);
     }
 
     // Fetch updated idea
-    const updatedIdeaQuery = 'SELECT * FROM ideas WHERE id = $1';
+    const updatedIdeaQuery = "SELECT * FROM ideas WHERE id = $1";
     const updatedIdeaResult = await query(updatedIdeaQuery, [ideaId]);
     const ideaRow = updatedIdeaResult.rows[0];
 
@@ -184,23 +202,28 @@ export async function PUT(
       title: ideaRow.title,
       briefDescription: ideaRow.briefdescription,
       status: ideaRow.status,
-      tags: Array.isArray(ideaRow.tags) ? ideaRow.tags : JSON.parse(ideaRow.tags || '[]'),
+      tags: Array.isArray(ideaRow.tags)
+        ? ideaRow.tags
+        : JSON.parse(ideaRow.tags || "[]"),
       createdAt: ideaRow.createdat,
       updatedAt: ideaRow.updatedat,
       dueDate: ideaRow.duedate,
-      priority: ideaRow.priority
+      priority: ideaRow.priority,
     };
 
     return NextResponse.json({
       success: true,
-      message: 'Idea updated successfully!',
-      idea: updatedIdea
+      message: "Idea updated successfully!",
+      idea: updatedIdea,
     });
   } catch (error: any) {
     console.error(`Error in PUT /api/orion/ideas/${params.ideaId}:`, error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

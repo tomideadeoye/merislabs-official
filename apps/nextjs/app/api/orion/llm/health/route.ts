@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { callExternalLLM, getFallbackModels } from '@shared/lib/orion_llm';
+import { NextRequest, NextResponse } from "next/server";
+import { callExternalLLM, getFallbackModels } from '@repo/shared';
 
-const PRIMARY_MODEL = 'azure/gpt-4.1';
+const PRIMARY_MODEL = "azure/gpt-4.1";
 const FALLBACK_MODELS = getFallbackModels(PRIMARY_MODEL);
 const MODELS_TO_CHECK = [PRIMARY_MODEL, ...FALLBACK_MODELS];
 
@@ -9,7 +9,7 @@ const MODELS_TO_CHECK = [PRIMARY_MODEL, ...FALLBACK_MODELS];
 const DEEPSEEK_CONFIG = {
   apiKey: process.env.AZURE_DEEPSEEK_API_KEY,
   basePath: process.env.AZURE_DEEPSEEK_ENDPOINT,
-  apiVersion: process.env.AZURE_DEEPSEEK_API_VERSION
+  apiVersion: process.env.AZURE_DEEPSEEK_API_VERSION,
 };
 
 // Validate configuration on server start
@@ -21,38 +21,42 @@ if (!DEEPSEEK_CONFIG.apiKey || !DEEPSEEK_CONFIG.basePath) {
 
 const AZURE_DEEPSEEK_CONFIG = {
   apiKey: process.env.AZURE_DEEPSEEK_API_KEY,
-  basePath: "https://ai-tomideadeoyeai005753286646.services.ai.azure.com/models/chat/completions",
-  apiVersion: "2024-05-01-preview"
+  basePath:
+    "https://ai-tomideadeoyeai005753286646.services.ai.azure.com/models/chat/completions",
+  apiVersion: "2024-05-01-preview",
 };
 
 export async function GET(req: NextRequest) {
   const results = [];
   for (const model of MODELS_TO_CHECK) {
     try {
-      const response = await callExternalLLM(model, [
-        { role: 'user', content: 'Say hello.' }
-      ], 0.2, 32);
+      const response = await callExternalLLM(
+        model,
+        [{ role: "user", content: "Say hello." }],
+        0.2,
+        32
+      );
       results.push({
         model,
-        provider: model.split('/')[0],
-        status: 'success',
+        provider: model.split("/")[0],
+        status: "success",
         content: response.content || null,
-        error: null
+        error: null,
       });
     } catch (err: any) {
       results.push({
         model,
-        provider: model.split('/')[0],
-        status: 'fail',
+        provider: model.split("/")[0],
+        status: "fail",
         content: null,
-        error: err.message || String(err)
+        error: err.message || String(err),
       });
     }
   }
 
   const [deepseekHealthy, ollamaHealthy] = await Promise.all([
     checkDeepSeekHealth(),
-    checkOllamaHealth()
+    checkOllamaHealth(),
   ]);
 
   return NextResponse.json({
@@ -60,7 +64,7 @@ export async function GET(req: NextRequest) {
     results,
     deepseek: deepseekHealthy ? "operational" : "outage",
     ollama: ollamaHealthy ? "operational" : "outage",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -68,7 +72,7 @@ async function checkDeepSeekHealth() {
   const config = {
     apiKey: process.env.AZURE_DEEPSEEK_API_KEY,
     basePath: process.env.AZURE_DEEPSEEK_ENDPOINT,
-    apiVersion: process.env.AZURE_DEEPSEEK_API_VERSION || "2024-05-01-preview"
+    apiVersion: process.env.AZURE_DEEPSEEK_API_VERSION || "2024-05-01-preview",
   };
 
   if (!config.apiKey || !config.basePath) {
@@ -78,7 +82,7 @@ async function checkDeepSeekHealth() {
   try {
     const testPayload = {
       messages: [{ role: "user", content: "Health check" }],
-      max_tokens: 5
+      max_tokens: 5,
     };
 
     const response = await fetch(
@@ -87,9 +91,9 @@ async function checkDeepSeekHealth() {
         method: "POST",
         headers: {
           "api-key": config.apiKey,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(testPayload)
+        body: JSON.stringify(testPayload),
       }
     );
 

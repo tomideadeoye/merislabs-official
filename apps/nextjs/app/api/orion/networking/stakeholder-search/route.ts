@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@shared/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@repo/sharedauth";
 
 // Default stakeholder roles for networking
 const DEFAULT_STAKEHOLDER_ROLES = [
@@ -39,7 +39,10 @@ interface Stakeholder {
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
@@ -48,10 +51,13 @@ export async function POST(request: NextRequest) {
 
     // Basic validation
     if (!query) {
-      return NextResponse.json({
-        success: false,
-        error: "Search query is required."
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Search query is required.",
+        },
+        { status: 400 }
+      );
     }
 
     // Find stakeholders
@@ -59,17 +65,19 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      stakeholders
+      stakeholders,
     });
-
   } catch (error: any) {
-    console.error('[STAKEHOLDER_SEARCH_API_ERROR]', error);
+    console.error("[STAKEHOLDER_SEARCH_API_ERROR]", error);
 
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to search for stakeholders.',
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to search for stakeholders.",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -89,26 +97,27 @@ async function findPotentialStakeholders(
   }
 
   // Use provided roles or default roles
-  const searchRoles = roles && roles.length > 0 ? roles : DEFAULT_STAKEHOLDER_ROLES;
+  const searchRoles =
+    roles && roles.length > 0 ? roles : DEFAULT_STAKEHOLDER_ROLES;
 
   // Search for stakeholders for each role
-  const stakeholdersPromises = searchRoles.map(role =>
+  const stakeholdersPromises = searchRoles.map((role) =>
     searchLinkedInProfiles(query, role)
   );
 
   const stakeholdersArrays = await Promise.all(stakeholdersPromises);
 
   // Flatten and enrich with company info
-  let stakeholders = stakeholdersArrays.flat().map(stakeholder => ({
+  let stakeholders = stakeholdersArrays.flat().map((stakeholder) => ({
     ...stakeholder,
     company_name: companyInfo.name,
     company_description: companyInfo.description,
-    company_website: companyInfo.website
+    company_website: companyInfo.website,
   }));
 
   // Remove duplicates based on LinkedIn URL
   const seen = new Set();
-  stakeholders = stakeholders.filter(s => {
+  stakeholders = stakeholders.filter((s) => {
     if (!s.linkedin_url || seen.has(s.linkedin_url)) {
       return false;
     }
@@ -117,7 +126,7 @@ async function findPotentialStakeholders(
   });
 
   // Generate potential email addresses
-  stakeholders = stakeholders.map(stakeholder => {
+  stakeholders = stakeholders.map((stakeholder) => {
     const email = generateEmail(stakeholder);
     return { ...stakeholder, email };
   });
@@ -139,7 +148,7 @@ async function getCompanyInfo(company: string): Promise<{
   return {
     name: company,
     description: `${company} is a leading company in its industry.`,
-    website: `https://www.${company.toLowerCase().replace(/\\s+/g, '')}.com`
+    website: `https://www.${company.toLowerCase().replace(/\\s+/g, "")}.com`,
   };
 }
 
@@ -147,7 +156,10 @@ async function getCompanyInfo(company: string): Promise<{
  * Search for LinkedIn profiles
  * This is a mock implementation - in a real implementation, this would use an API or web scraping
  */
-async function searchLinkedInProfiles(company: string, role: string): Promise<Stakeholder[]> {
+async function searchLinkedInProfiles(
+  company: string,
+  role: string
+): Promise<Stakeholder[]> {
   // In a real implementation, this would use web scraping or an API
   // For now, return mock data
   return [
@@ -155,10 +167,12 @@ async function searchLinkedInProfiles(company: string, role: string): Promise<St
       name: `${role} at ${company}`,
       role: role,
       company: company,
-      linkedin_url: `https://linkedin.com/in/${role.toLowerCase().replace(/\\s+/g, '-')}-${company.toLowerCase().replace(/\\s+/g, '-')}`,
+      linkedin_url: `https://linkedin.com/in/${role
+        .toLowerCase()
+        .replace(/\\s+/g, "-")}-${company.toLowerCase().replace(/\\s+/g, "-")}`,
       person_snippet: `Experienced ${role} at ${company} with a track record of success.`,
-      title: `${role} at ${company} | LinkedIn`
-    }
+      title: `${role} at ${company} | LinkedIn`,
+    },
   ];
 }
 
@@ -171,8 +185,11 @@ function generateEmail(stakeholder: Stakeholder): string | undefined {
       return undefined;
     }
 
-    const name = stakeholder.name.toLowerCase().split(' ');
-    const domain = stakeholder.company_website.split('//')[1]?.split('/')[0].replace('www.', '');
+    const name = stakeholder.name.toLowerCase().split(" ");
+    const domain = stakeholder.company_website
+      .split("//")[1]
+      ?.split("/")[0]
+      .replace("www.", "");
 
     if (!domain || name.length < 2) {
       return undefined;
@@ -181,7 +198,7 @@ function generateEmail(stakeholder: Stakeholder): string | undefined {
     // Common email patterns
     return `${name[0]}.${name[name.length - 1]}@${domain}`;
   } catch (error) {
-    console.error('Error generating email:', error);
+    console.error("Error generating email:", error);
     return undefined;
   }
 }

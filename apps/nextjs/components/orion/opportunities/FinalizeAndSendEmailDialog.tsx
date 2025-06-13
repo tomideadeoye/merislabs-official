@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Label } from '@repo/ui';
 import { Loader2, Send, AlertTriangle } from 'lucide-react';
-import type { SendEmailParams, EmailAttachment } from '@shared/lib/email_service';
+import type { SendEmailParams, EmailAttachment } from '@repo/shared/email_service';
 import { useEmailTestDialogStore } from './emailTestDialogStore';
 
 export const FinalizeAndSendEmailDialog: React.FC = () => {
@@ -96,18 +96,18 @@ export const FinalizeAndSendEmailDialog: React.FC = () => {
           </div>
           {attachmentsToSend && attachmentsToSend.length > 0 && (
             <div>
-                <Label className="text-gray-300">Attachments:</Label>
-                <ul className="list-disc list-inside text-xs text-gray-400">
-                    {attachmentsToSend.map(att => <li key={att.filename}>{att.filename} ({att.contentType})</li>)}
-                </ul>
+              <Label className="text-gray-300">Attachments:</Label>
+              <ul className="list-disc list-inside text-xs text-gray-400">
+                {attachmentsToSend.map(att => <li key={att.filename}>{att.filename} ({att.contentType})</li>)}
+              </ul>
             </div>
           )}
         </div>
-        {error && <p className="text-sm text-red-400 flex items-center mb-2"><AlertTriangle className="mr-1.5 h-4 w-4"/>{error}</p>}
+        {error && <p className="text-sm text-red-400 flex items-center mb-2"><AlertTriangle className="mr-1.5 h-4 w-4" />{error}</p>}
         <DialogFooter>
           <Button onClick={close} variant="outline" className="text-gray-300 border-gray-600">Cancel</Button>
           <Button onClick={handleSend} disabled={isSending || !to || !subject || !htmlBody} className="bg-green-600 hover:bg-green-700">
-            {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4"/>}
+            {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Send Email
           </Button>
         </DialogFooter>

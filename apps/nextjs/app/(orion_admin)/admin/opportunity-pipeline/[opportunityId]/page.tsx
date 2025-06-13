@@ -1,7 +1,7 @@
 import React from 'react';
 import { OpportunityDetailView } from '@/components/orion/pipeline/OpportunityDetailView';
-import { EvaluationOutput, Opportunity, OpportunityType, OpportunityStatus, OpportunityPriority, OpportunityNotionOutputShared } from '@shared/types/opportunity';
-import { fetchOpportunityByIdFromNotion } from '@shared/lib/notion_service';
+import { OrionOpportunity } from '@repo/shared';
+import { fetchOpportunityByIdFromNotion } from '@repo/shared/notion_service';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
@@ -47,14 +47,14 @@ const OpportunityNotionOutputSharedSchema = z.object({
   last_edited_time: z.union([z.string(), z.date(), z.null()]).optional(),
 });
 
-async function fetchNotionOpportunity(opportunityId: string): Promise<Opportunity> {
+async function fetchNotionOpportunity(opportunityId: string): Promise<OrionOpportunity> {
   const fetchResult = await fetchOpportunityByIdFromNotion(opportunityId);
-  if (!fetchResult.success || !fetchResult.opportunity) {
-    throw new Error('Opportunity not found');
+  if (!fetchResult.success || !fetchResult.OrionOpportunity) {
+    throw new Error('OrionOpportunity not found');
   }
-  // Convert OpportunityNotionOutputShared to Opportunity by ensuring required fields exist
+  // Convert OpportunityNotionOutputShared to OrionOpportunity by ensuring required fields exist
   // Convert last_edited_time to string if it's a Date object to match type definition
-  const rawOpportunityData = fetchResult.opportunity;
+  const rawOpportunityData = fetchResult.OrionOpportunity;
   // Ensure both company and companyOrInstitution are present for validation
   const normalizedOpportunityData: any = {
     ...rawOpportunityData,
@@ -67,8 +67,8 @@ async function fetchNotionOpportunity(opportunityId: string): Promise<Opportunit
     console.error('[OpportunityNotionOutputShared] Invalid data in fetchNotionOpportunity:', parseResult.error.format(), rawOpportunityData);
     throw new Error('Invalid OpportunityNotionOutputShared: ' + JSON.stringify(parseResult.error.format()));
   }
-  const opportunityData: OpportunityNotionOutputShared = parseResult.data;
-  const opportunity: Opportunity = {
+  const opportunityData: OrionOpportunityNotionOutputShared = parseResult.data;
+  const OrionOpportunity: OrionOpportunity = {
     id: opportunityData.id || '',
     notion_page_id: opportunityData.notion_page_id,
     title: opportunityData.title || '',
@@ -100,12 +100,12 @@ async function fetchNotionOpportunity(opportunityId: string): Promise<Opportunit
     relatedEvaluationId: (opportunityData.relatedEvaluationId !== null && opportunityData.relatedEvaluationId !== undefined) ? opportunityData.relatedEvaluationId : undefined,
     lastStatusUpdate: (opportunityData.lastStatusUpdate !== null && opportunityData.lastStatusUpdate !== undefined) ? opportunityData.lastStatusUpdate : undefined,
   };
-  return opportunity;
+  return OrionOpportunity;
 }
 
 async function fetchEvaluation(opportunityId: string): Promise<EvaluationOutput | undefined> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/orion/opportunity/${opportunityId}/evaluation`, {
+  const res = await fetch(`${baseUrl}/api/orion/OrionOpportunity/${opportunityId}/evaluation`, {
     method: 'POST',
     cache: 'no-store',
     headers: { 'Content-Type': 'application/json' },
@@ -122,20 +122,20 @@ export default async function OpportunityPipelinePage({ params }: Props) {
   const resolvedParams = await params;
   const { opportunityId } = resolvedParams;
 
-  let opportunity: Opportunity;
+  let OrionOpportunity: OrionOpportunity;
   try {
-    opportunity = await fetchNotionOpportunity(opportunityId);
+    OrionOpportunity = await fetchNotionOpportunity(opportunityId);
   } catch (error) {
     notFound();
   }
 
-  // Attempt to load an existing evaluation for this opportunity
+  // Attempt to load an existing evaluation for this OrionOpportunity
   const evaluation = await fetchEvaluation(opportunityId);
 
   return (
     <div className="px-4 py-6">
       <OpportunityDetailView
-        opportunity={opportunity}
+        OrionOpportunity={OrionOpportunity}
         evaluation={evaluation}
         opportunityId={opportunityId}
       />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Opportunity } from '@/types/opportunity';
+import type { OrionOpportunity } from '@repo/shared';
 
 export interface OpportunityFilters {
   status?: string;
@@ -13,7 +13,7 @@ export function useOpportunities(
   sortBy: string = 'lastStatusUpdate',
   sortOrder: 'asc' | 'desc' = 'desc'
 ) {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [opportunities, setOpportunities] = useState<OrionOpportunity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +33,7 @@ export function useOpportunities(
       params.append('sortBy', sortBy);
       params.append('sortOrder', sortOrder);
 
-      const response = await fetch(`/api/orion/opportunity/list?${params.toString()}`);
+      const response = await fetch(`/api/orion/OrionOpportunity/list?${params.toString()}`);
       const data = await response.json();
 
       if (data.success) {

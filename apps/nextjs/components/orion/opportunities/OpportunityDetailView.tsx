@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
-import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
+import { OrionOpportunity } from '@repo/shared';
 import { Calendar, ExternalLink, Edit, Trash2, BarChart2, FileText, MessageSquare, Users } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { StatusUpdateButton } from '@/components/orion/opportunities/StatusUpdateButton';
+import { StatusUpdateButton } from '@repo/ui';
 import Link from 'next/link';
 
 interface OpportunityDetailViewProps {
-  opportunity: Opportunity;
+  OrionOpportunity: OrionOpportunity;
   evaluation?: EvaluationOutput;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -17,7 +17,7 @@ interface OpportunityDetailViewProps {
 }
 
 export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
-  opportunity,
+  OrionOpportunity,
   evaluation,
   onEdit,
   onDelete,
@@ -73,12 +73,12 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">{opportunity.title}</h1>
-          <p className="text-lg text-gray-300 mt-1">{opportunity.company}</p>
+          <h1 className="text-2xl font-bold text-gray-100">{OrionOpportunity.title}</h1>
+          <p className="text-lg text-gray-300 mt-1">{OrionOpportunity.company}</p>
         </div>
 
         <div className="flex items-center space-x-2">
-          <StatusUpdateButton opportunityId={opportunity.id} currentStatus={opportunity.status || ''} />
+          <StatusUpdateButton opportunityId={OrionOpportunity.id} currentStatus={OrionOpportunity.status || ''} />
 
           {onEdit && (
             <Button variant="outline" size="sm" onClick={onEdit} className="border-gray-600">
@@ -97,19 +97,19 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {opportunity.status ? (
-          <Badge className={`${getStatusColor(opportunity.status)} text-white`}>
-            {formatStatus(opportunity.status)}
+        {OrionOpportunity.status ? (
+          <Badge className={`${getStatusColor(OrionOpportunity.status)} text-white`}>
+            {formatStatus(OrionOpportunity.status)}
           </Badge>
         ) : (
           <Badge className="bg-gray-500 text-white">Unknown</Badge>
         )}
 
         <Badge variant="outline" className="border-gray-600 text-gray-300">
-          {formatType(opportunity.type)}
+          {formatType(OrionOpportunity.type)}
         </Badge>
 
-        {opportunity.tags && opportunity.tags.map(tag => (
+        {OrionOpportunity.tags && OrionOpportunity.tags.map(tag => (
           <Badge key={tag} variant="secondary" className="bg-gray-700 text-gray-300">
             {tag}
           </Badge>
@@ -128,14 +128,14 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
         <TabsContent value="overview" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-6">
-              {opportunity.content && (
+              {OrionOpportunity.content && (
                 <Card className="bg-gray-800 border-gray-700">
                   <CardHeader>
                     <CardTitle className="text-gray-200">Description</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-gray-300 whitespace-pre-wrap">
-                      {opportunity.content}
+                      {OrionOpportunity.content}
                     </div>
                   </CardContent>
                 </Card>
@@ -185,11 +185,11 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                     <h4 className="text-sm font-medium text-gray-400 mb-1">Date Identified</h4>
                     <p className="text-gray-300 flex items-center">
                       <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                      {opportunity.dateIdentified ? (
+                      {OrionOpportunity.dateIdentified ? (
                         <>
-                          {format(new Date(opportunity.dateIdentified), 'PPP')}
+                          {format(new Date(OrionOpportunity.dateIdentified), 'PPP')}
                           <span className="text-gray-500 text-sm ml-2">
-                            ({formatDistanceToNow(new Date(opportunity.dateIdentified))} ago)
+                            ({formatDistanceToNow(new Date(OrionOpportunity.dateIdentified))} ago)
                           </span>
                         </>
                       ) : (
@@ -198,35 +198,35 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                     </p>
                   </div>
 
-                  {opportunity.nextActionDate && (
+                  {OrionOpportunity.nextActionDate && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Next Action Date</h4>
                       <p className="text-gray-300">
-                        {format(new Date(opportunity.nextActionDate), 'PPP')}
+                        {format(new Date(OrionOpportunity.nextActionDate), 'PPP')}
                       </p>
                     </div>
                   )}
 
-                  {opportunity.priority && (
+                  {OrionOpportunity.priority && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Priority</h4>
                       <Badge
                         className={
-                          opportunity.priority === 'high' ? 'bg-red-500' :
-                          opportunity.priority === 'medium' ? 'bg-yellow-500' :
-                          'bg-blue-500'
+                          OrionOpportunity.priority === 'high' ? 'bg-red-500' :
+                            OrionOpportunity.priority === 'medium' ? 'bg-yellow-500' :
+                              'bg-blue-500'
                         }
                       >
-                        {opportunity.priority.charAt(0).toUpperCase() + opportunity.priority.slice(1)}
+                        {OrionOpportunity.priority.charAt(0).toUpperCase() + OrionOpportunity.priority.slice(1)}
                       </Badge>
                     </div>
                   )}
 
-                  {opportunity.sourceURL && (
+                  {OrionOpportunity.sourceURL && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Source</h4>
                       <a
-                        href={opportunity.sourceURL}
+                        href={OrionOpportunity.sourceURL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-400 hover:text-blue-300 flex items-center"
@@ -245,28 +245,28 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Button variant="outline" className="w-full border-gray-600 justify-start" asChild>
-                    <Link href={`/admin/opportunity-pipeline/${opportunity.id}/evaluate`}>
+                    <Link href={`/admin/OrionOpportunity-pipeline/${OrionOpportunity.id}/evaluate`}>
                       <BarChart2 className="h-4 w-4 mr-2" />
-                      {evaluation ? 'Re-evaluate' : 'Evaluate'} Opportunity
+                      {evaluation ? 'Re-evaluate' : 'Evaluate'} OrionOpportunity
                     </Link>
                   </Button>
 
                   <Button variant="outline" className="w-full border-gray-600 justify-start" asChild>
-                    <Link href={`/admin/opportunity-pipeline/${opportunity.id}/draft`}>
+                    <Link href={`/admin/OrionOpportunity-pipeline/${OrionOpportunity.id}/draft`}>
                       <FileText className="h-4 w-4 mr-2" />
                       Draft Application
                     </Link>
                   </Button>
 
                   <Button variant="outline" className="w-full border-gray-600 justify-start" asChild>
-                    <Link href={`/admin/opportunity-pipeline/${opportunity.id}/stakeholders`}>
+                    <Link href={`/admin/OrionOpportunity-pipeline/${OrionOpportunity.id}/stakeholders`}>
                       <Users className="h-4 w-4 mr-2" />
                       Manage Stakeholders
                     </Link>
                   </Button>
 
                   <Button variant="outline" className="w-full border-gray-600 justify-start" asChild>
-                    <Link href={`/admin/opportunity-pipeline/${opportunity.id}/notes`}>
+                    <Link href={`/admin/OrionOpportunity-pipeline/${OrionOpportunity.id}/notes`}>
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Add Notes
                     </Link>
@@ -382,26 +382,26 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
             </Card>
           ) : (
             <div className="text-center py-12 text-gray-400">
-              No evaluation available. Click "Evaluate Opportunity" to create one.
+              No evaluation available. Click "Evaluate OrionOpportunity" to create one.
             </div>
           )}
         </TabsContent>
 
         <TabsContent value="applications" className="mt-6">
           <div className="text-center py-12 text-gray-400">
-              Application drafts will appear here. Click "Draft Application" to create one.
+            Application drafts will appear here. Click "Draft Application" to create one.
           </div>
         </TabsContent>
 
         <TabsContent value="stakeholders" className="mt-6">
           <div className="text-center py-12 text-gray-400">
-              Stakeholders will appear here. Click "Manage Stakeholders" to add contacts.
+            Stakeholders will appear here. Click "Manage Stakeholders" to add contacts.
           </div>
         </TabsContent>
 
         <TabsContent value="notes" className="mt-6">
           <div className="text-center py-12 text-gray-400">
-              Notes will appear here. Click "Add Notes" to create one.
+            Notes will appear here. Click "Add Notes" to create one.
           </div>
         </TabsContent>
       </Tabs>

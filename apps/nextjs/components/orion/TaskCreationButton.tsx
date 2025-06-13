@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Button } from '@repo/ui';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@repo/ui';
 import { HabiticaTaskForm } from './HabiticaTaskForm';

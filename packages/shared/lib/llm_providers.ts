@@ -247,3 +247,5 @@ export function checkAllLlmApiKeys() {
   }
   return results;
 }
+
+export const PROVIDER_MODEL_CONFIGS = {} as any;

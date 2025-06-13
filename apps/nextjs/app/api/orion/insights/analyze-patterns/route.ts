@@ -1,80 +1,84 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import {
   ORION_MEMORY_COLLECTION_NAME,
-  PATTERN_ANALYSIS_REQUEST_TYPE
-} from '@shared/lib/orion_config';
-import { PatternAnalysisRequest } from '@shared/types/insights';
-import { QdrantFilter } from '@shared/types/orion';
-import { ScoredMemoryPoint } from '@shared/types/orion';
+  PATTERN_ANALYSIS_REQUEST_TYPE,
+} from "@repo/shared/orion_config";
+import { PatternAnalysisRequest } from "@repo/shared/types/insights";
+import type { OpportunityNotionInput, JournalEntryNotionInput, MemoryPayload, MemoryPoint, ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@repo/shared';
 
 /**
  * API route for analyzing patterns in memory
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as PatternAnalysisRequest;
+    const body = (await req.json()) as PatternAnalysisRequest;
     const {
       limit = 30,
       dateFrom,
       dateTo,
       tags = [],
       types = ["journal_entry", "journal_reflection"],
-      customQuery = ""
+      customQuery = "",
     } = body;
 
     // Construct filter for memory search
     const filterConditions: any[] = [];
 
     if (types && types.length > 0) {
-      types.forEach(type => filterConditions.push({
-        key: "payload.type",
-        match: { value: type }
-      }));
+      types.forEach((type) =>
+        filterConditions.push({
+          key: "payload.type",
+          match: { value: type },
+        })
+      );
     }
 
     if (tags && tags.length > 0) {
-      tags.forEach(tag => filterConditions.push({
-        key: "payload.tags",
-        match: { value: tag.toLowerCase() }
-      }));
+      tags.forEach((tag) =>
+        filterConditions.push({
+          key: "payload.tags",
+          match: { value: tag.toLowerCase() },
+        })
+      );
     }
 
     if (dateFrom) {
       filterConditions.push({
         key: "payload.timestamp",
-        range: { gte: dateFrom }
+        range: { gte: dateFrom },
       });
     }
 
     if (dateTo) {
       filterConditions.push({
         key: "payload.timestamp",
-        range: { lte: dateTo }
+        range: { lte: dateTo },
       });
     }
 
-    const filter: QdrantFilter | undefined = filterConditions.length > 0
-      ? { must: filterConditions }
-      : undefined;
+    const filter: QdrantFilter | undefined =
+      filterConditions.length > 0 ? { must: filterConditions } : undefined;
 
     // Fetch memories from the memory search API
-    const searchResponse = await fetch('/api/orion/memory/search', {
-      method: 'POST',
+    const searchResponse = await fetch("/api/orion/memory/search", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: customQuery || "memories for pattern analysis",
         limit,
         filter,
-        collectionName: ORION_MEMORY_COLLECTION_NAME
-      })
+        collectionName: ORION_MEMORY_COLLECTION_NAME,
+      }),
     });
 
     const searchData = await searchResponse.json();
 
     if (!searchData.success || !searchData.results) {
-      throw new Error(searchData.error || 'Failed to fetch memories for pattern analysis');
+      throw new Error(
+        searchData.error || "Failed to fetch memories for pattern analysis"
+      );
     }
 
     const memories = searchData.results;
@@ -83,20 +87,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         patterns: [],
-        message: "Not enough data for meaningful pattern analysis with the current filters."
+        message:
+          "Not enough data for meaningful pattern analysis with the current filters.",
       });
     }
 
     // Prepare context for LLM
-    const memoryContext = memories.map((mem: ScoredMemoryPoint) =>
-      `Date: ${new Date(mem.payload.timestamp).toLocaleDateString()}
+    const memoryContext = memories
+      .map(
+        (mem: ScoredMemoryPoint) =>
+          `Date: ${new Date(mem.payload.timestamp).toLocaleDateString()}
 Type: ${mem.payload.type}
-Tags: ${mem.payload.tags?.join(', ') || 'N/A'}
-Mood: ${mem.payload.mood || 'N/A'}
+Tags: ${mem.payload.tags?.join(", ") || "N/A"}
+Mood: ${mem.payload.mood || "N/A"}
 Content:
 ${mem.payload.text}
 (Memory Source ID: ${mem.payload.source_id})`
-    ).join("\n\n---\n\n");
+      )
+      .join("\n\n---\n\n");
 
     // Construct prompt for pattern analysis
     const prompt = `
@@ -132,38 +140,40 @@ Focus on providing clear, concise, and actionable analysis. Do not add any conve
 `;
 
     // Call LLM for analysis
-    const llmResponse = await fetch('/api/orion/llm', {
-      method: 'POST',
+    const llmResponse = await fetch("/api/orion/llm", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         requestType: PATTERN_ANALYSIS_REQUEST_TYPE,
         primaryContext: prompt,
         temperature: 0.5,
-        maxTokens: 1500
-      })
+        maxTokens: 1500,
+      }),
     });
 
     const llmData = await llmResponse.json();
 
     if (!llmData.success || !llmData.content) {
-      throw new Error(llmData.error || 'Failed to generate pattern analysis');
+      throw new Error(llmData.error || "Failed to generate pattern analysis");
     }
 
     try {
       const patterns = JSON.parse(llmData.content);
       return NextResponse.json({ success: true, patterns });
     } catch (parseError) {
-      console.error('Failed to parse LLM response as JSON:', llmData.content);
-      throw new Error('Invalid format in pattern analysis response');
+      console.error("Failed to parse LLM response as JSON:", llmData.content);
+      throw new Error("Invalid format in pattern analysis response");
     }
-
   } catch (error: any) {
-    console.error('Error in POST /api/orion/insights/analyze-patterns:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    console.error("Error in POST /api/orion/insights/analyze-patterns:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

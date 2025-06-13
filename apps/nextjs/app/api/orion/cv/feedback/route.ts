@@ -1,16 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@shared/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@repo/sharedauth";
 
 interface FeedbackPayload {
   componentId: string;
   opportunityId: string;
   tailoredContent: string;
-  rating: 'positive' | 'negative';
+  rating: "positive" | "negative";
   comments?: string;
 }
 
 export async function GET() {
-  return NextResponse.json({ success: false, error: 'Method Not Allowed' }, { status: 405 });
+  return NextResponse.json(
+    { success: false, error: "Method Not Allowed" },
+    { status: 405 }
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -18,7 +21,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -27,14 +30,14 @@ export async function POST(request: NextRequest) {
 
     if (!payload.componentId || !payload.opportunityId || !payload.rating) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
 
     // In a real implementation, this would store the feedback in a database
     // For now, we'll just log it and return success
-    console.log('CV Tailoring Feedback:', payload);
+    console.log("CV Tailoring Feedback:", payload);
 
     // Example database operation:
     // await db.cvFeedback.create({
@@ -50,12 +53,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Feedback recorded successfully'
+      message: "Feedback recorded successfully",
     });
   } catch (error: any) {
-    console.error('Error recording CV feedback:', error);
+    console.error("Error recording CV feedback:", error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to record feedback' },
+      { success: false, error: error.message || "Failed to record feedback" },
       { status: 500 }
     );
   }

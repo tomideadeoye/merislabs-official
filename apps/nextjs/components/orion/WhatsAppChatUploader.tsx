@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from 'react';
-import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@shared/ui';
+import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { Loader2, AlertTriangle, Upload, CheckCircle } from 'lucide-react';
 import { useWhatsAppChatUploaderStore } from './whatsapp/whatsAppChatUploaderStore';
 

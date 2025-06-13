@@ -8,7 +8,7 @@
  */
 
 import React, { createContext, useContext, useCallback, useState } from "react";
-import type { ValueProposition } from "@shared/types/narrative-clarity";
+import type { ValueProposition } from '@repo/shared';
 
 interface ValuePropositionContextType {
   valueProposition: Partial<ValueProposition> | null;

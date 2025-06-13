@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2, Download, Sparkles, Clipboard } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useOpportunityMemory } from '@shared/hooks/useOpportunityMemory';
-import { useSessionState, SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useOpportunityMemory } from '@repo/sharedhooks/useOpportunityMemory';
+import { useSessionState, SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 
 export default function TailorContentPage() {
   const params = useParams();
   const opportunityId = params?.id as string;
 
-  const [opportunity, setOpportunity] = useState<any>(null);
+  const [OrionOpportunity, setOpportunity] = useState<any>(null);
   const [components, setComponents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export default function TailorContentPage() {
   const [exporting, setExporting] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Opportunity memory and profile context
+  // OrionOpportunity memory and profile context
   const { memories } = useOpportunityMemory(opportunityId || '');
   const [profile] = useSessionState(SessionStateKeys.TOMIDES_PROFILE_DATA);
 
@@ -31,11 +31,11 @@ export default function TailorContentPage() {
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch opportunity
-        const oppRes = await fetch(`/api/orion/opportunity/${opportunityId}`);
+        // Fetch OrionOpportunity
+        const oppRes = await fetch(`/api/orion/OrionOpportunity/${opportunityId}`);
         const oppData = await oppRes.json();
-        if (!oppData.success) throw new Error(oppData.error || 'Failed to fetch opportunity');
-        setOpportunity(oppData.opportunity);
+        if (!oppData.success) throw new Error(oppData.error || 'Failed to fetch OrionOpportunity');
+        setOpportunity(oppData.OrionOpportunity);
 
         // Fetch CV components
         const compRes = await fetch(`/api/orion/cv-components?opportunityId=${opportunityId}`);
@@ -68,8 +68,8 @@ export default function TailorContentPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cvContent,
-          opportunity,
-          jdAnalysis: opportunity?.description || ''
+          OrionOpportunity,
+          jdAnalysis: OrionOpportunity?.description || ''
         }),
       });
       const data = await res.json();
@@ -93,7 +93,7 @@ export default function TailorContentPage() {
       const lines = doc.splitTextToSize(cvContent, 180);
       doc.setFontSize(12);
       doc.text(lines, 10, 20);
-      doc.save(`CV_${opportunity?.title || 'export'}.pdf`);
+      doc.save(`CV_${OrionOpportunity?.title || 'export'}.pdf`);
     } catch (err) {
       // [LOG][ERROR] PDF export failed, error object:
       if (err instanceof Error) {
@@ -110,15 +110,15 @@ export default function TailorContentPage() {
 
   // Auto-generate tailored CV
   async function handleAutoGenerateCV() {
-    if (!opportunity) return;
+    if (!OrionOpportunity) return;
     setCVContent('Generating tailored CV...');
     try {
       const res = await fetch('/api/orion/cv/assemble', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          opportunity,
-          jd: opportunity.description || '',
+          OrionOpportunity,
+          jd: OrionOpportunity.description || '',
           memory: memories,
           profile,
         }),
@@ -129,7 +129,7 @@ export default function TailorContentPage() {
         try {
           const errData = await res.json();
           if (errData && errData.error) errorMsg = errData.error;
-        } catch {}
+        } catch { }
         setCVContent(errorMsg);
         alert(errorMsg);
         return;
@@ -182,7 +182,7 @@ export default function TailorContentPage() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Tailor CV Content for {opportunity?.title}</CardTitle>
+          <CardTitle>Tailor CV Content for {OrionOpportunity?.title}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex gap-2">

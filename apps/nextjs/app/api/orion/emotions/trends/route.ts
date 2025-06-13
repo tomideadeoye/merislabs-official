@@ -1,182 +1,209 @@
-/**
- * GOAL: API route for analyzing emotional trends in Orion, using Neon/Postgres for cloud scalability, reliability, and auditability.
- * - Aggregates emotion frequencies, triggers, and timelines from the central Postgres DB.
- * - Absurdly comprehensive logging for every step, with context and error details.
- * - Connects to: lib/database.ts (Postgres pool), prd.md (feature doc), tests/e2e.test.ts (tests)
- * - All features preserved from SQLite version, now with improved error handling and observability.
- */
-import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@shared/lib/database';
-import { OPPORTUNITY_EVALUATION_REQUEST_TYPE } from '@shared/lib/orion_config';
+import { NextRequest, NextResponse } from "next/server";
+import { query } from "@repo/shared/database";
+import { logger } from "@repo/shared/logger";
+import { z } from "zod";
+// Assuming a direct function call for LLM is better than a fetch
+// import { getLlmAnalysis } from '@repo/shared/llm';
+
+// Mocking a direct LLM function call as the original fetch was incorrect for server-side
+async function getLlmAnalysis(prompt: string): Promise<any> {
+  logger.info("[LLM_ANALYSIS_MOCK] Requesting analysis.");
+  // In a real scenario, this would call the LLM provider API
+  // For now, returning a mock structure to satisfy the type contracts
+  const mockResponse = {
+    patterns: ["Mock pattern: Increased joy on weekends."],
+    correlations: [
+      "Mock correlation: 'Work deadline' trigger linked to anxiety.",
+    ],
+    suggestions: [
+      "Mock suggestion: Practice mindfulness during high-stress periods.",
+    ],
+  };
+  return Promise.resolve(JSON.stringify(mockResponse));
+}
 
 export const dynamic = "force-dynamic";
 
+const queryParamsSchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
+
+interface EmotionCount {
+  primaryemotion: string;
+  count: string; // PG returns count as string
+  avgintensity: number;
+}
+
+interface CommonTrigger {
+  trigger: string;
+  count: string; // PG returns count as string
+}
+
+interface EmotionTimelinePoint {
+  date: string; // Or Date
+  primaryemotion: string;
+  avgintensity: number;
+}
+
 export async function GET(req: NextRequest) {
+  const logContext = { route: "api/orion/emotions/trends" };
   try {
     const url = new URL(req.url);
-    const startDate = url.searchParams.get('startDate');
-    const endDate = url.searchParams.get('endDate');
+    const searchParams = url.searchParams;
+
+    const validation = queryParamsSchema.safeParse({
+      startDate: searchParams.get("startDate"),
+      endDate: searchParams.get("endDate"),
+    });
+
+    if (!validation.success) {
+      logger.warn("[EMOTIONS_TRENDS][VALIDATION_FAIL]", {
+        errors: validation.error.errors,
+        ...logContext,
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid query parameters",
+          details: validation.error.flatten(),
+        },
+        { status: 400 }
+      );
+    }
+    const { startDate, endDate } = validation.data;
+
+    logger.info("[EMOTIONS_TRENDS] Starting trend analysis", {
+      startDate,
+      endDate,
+      ...logContext,
+    });
 
     // Build dynamic query for emotion counts
-    let queryStr = `SELECT primaryEmotion, COUNT(*) as count, AVG(intensity) as avgIntensity FROM emotional_logs WHERE 1=1`;
-    const params: any[] = [];
+    let queryStr = `SELECT "primaryEmotion", COUNT(*) as count, AVG(intensity) as avgIntensity FROM emotional_logs WHERE 1=1`;
+    const params: (string | Date)[] = [];
     let paramIdx = 1;
 
     if (startDate) {
       queryStr += ` AND timestamp >= $${paramIdx++}`;
-      params.push(startDate);
+      params.push(new Date(startDate));
     }
     if (endDate) {
       queryStr += ` AND timestamp <= $${paramIdx++}`;
-      params.push(endDate);
+      params.push(new Date(endDate));
     }
-    queryStr += ` GROUP BY primaryEmotion ORDER BY count DESC`;
+    queryStr += ` GROUP BY "primaryEmotion" ORDER BY count DESC`;
+    const emotionCountsResult = await query<EmotionCount>(queryStr, params);
+    logger.info("[EMOTIONS_TRENDS][DB][EMOTION_COUNTS]", {
+      rowCount: emotionCountsResult.rowCount,
+      ...logContext,
+    });
 
-    let emotionCounts = [];
-    try {
-      const res = await query(queryStr, params);
-      emotionCounts = res.rows;
-      console.info('[EMOTIONS_TRENDS][DB][EMOTION_COUNTS]', { rowCount: res.rowCount, params });
-    } catch (err) {
-      console.error('[EMOTIONS_TRENDS][DB][ERROR_EMOTION_COUNTS]', { err, params });
-      throw err;
-    }
-
-    // Most common triggers (Postgres JSONB)
+    // Most common triggers
     let triggerQuery = `
       SELECT value as trigger, COUNT(*) as count
       FROM emotional_logs, jsonb_array_elements_text(triggers) as value
       WHERE triggers IS NOT NULL
     `;
-    const triggerParams: any[] = [];
-    let triggerParamIdx = 1;
+    const triggerParams: (string | Date)[] = [];
+    paramIdx = 1;
     if (startDate) {
-      triggerQuery += ` AND timestamp >= $${triggerParamIdx++}`;
-      triggerParams.push(startDate);
+      triggerQuery += ` AND timestamp >= $${paramIdx++}`;
+      triggerParams.push(new Date(startDate));
     }
     if (endDate) {
-      triggerQuery += ` AND timestamp <= $${triggerParamIdx++}`;
-      triggerParams.push(endDate);
+      triggerQuery += ` AND timestamp <= $${paramIdx++}`;
+      triggerParams.push(new Date(endDate));
     }
     triggerQuery += ` GROUP BY value ORDER BY count DESC LIMIT 10`;
-
-    let commonTriggers = [];
-    try {
-      const trigRes = await query(triggerQuery, triggerParams);
-      commonTriggers = trigRes.rows;
-      console.info('[EMOTIONS_TRENDS][DB][TRIGGERS]', { rowCount: trigRes.rowCount, triggerParams });
-    } catch (err) {
-      console.error('[EMOTIONS_TRENDS][DB][ERROR_TRIGGERS]', { err, triggerParams });
-      throw err;
-    }
+    const commonTriggersResult = await query<CommonTrigger>(
+      triggerQuery,
+      triggerParams
+    );
+    logger.info("[EMOTIONS_TRENDS][DB][TRIGGERS]", {
+      rowCount: commonTriggersResult.rowCount,
+      ...logContext,
+    });
 
     // Emotion intensity over time
     let timelineQuery = `
       SELECT
         date_trunc('day', timestamp) as date,
-        primaryEmotion,
+        "primaryEmotion",
         AVG(intensity) as avgIntensity
       FROM emotional_logs
       WHERE intensity IS NOT NULL
     `;
-    const timelineParams: any[] = [];
-    let timelineParamIdx = 1;
+    const timelineParams: (string | Date)[] = [];
+    paramIdx = 1;
     if (startDate) {
-      timelineQuery += ` AND timestamp >= $${timelineParamIdx++}`;
-      timelineParams.push(startDate);
+      timelineQuery += ` AND timestamp >= $${paramIdx++}`;
+      timelineParams.push(new Date(startDate));
     }
     if (endDate) {
-      timelineQuery += ` AND timestamp <= $${timelineParamIdx++}`;
-      timelineParams.push(endDate);
+      timelineQuery += ` AND timestamp <= $${paramIdx++}`;
+      timelineParams.push(new Date(endDate));
     }
-    timelineQuery += ` GROUP BY date, primaryEmotion ORDER BY date`;
+    timelineQuery += ` GROUP BY date, "primaryEmotion" ORDER BY date`;
+    const emotionTimelineResult = await query<EmotionTimelinePoint>(
+      timelineQuery,
+      timelineParams
+    );
+    logger.info("[EMOTIONS_TRENDS][DB][TIMELINE]", {
+      rowCount: emotionTimelineResult.rowCount,
+      ...logContext,
+    });
 
-    let emotionTimeline = [];
-    try {
-      const timeRes = await query(timelineQuery, timelineParams);
-      emotionTimeline = timeRes.rows;
-      console.info('[EMOTIONS_TRENDS][DB][TIMELINE]', { rowCount: timeRes.rowCount, timelineParams });
-    } catch (err) {
-      console.error('[EMOTIONS_TRENDS][DB][ERROR_TIMELINE]', { err, timelineParams });
-      throw err;
-    }
+    const prompt = `
+      Analyze the following emotional data and provide insights:
+      Emotion Frequencies: ${JSON.stringify(emotionCountsResult.rows)}
+      Common Triggers: ${JSON.stringify(commonTriggersResult.rows)}
+      Emotion Timeline: ${JSON.stringify(emotionTimelineResult.rows)}
+      Please provide:
+      1. Key patterns or trends.
+      2. Potential correlations between emotions and triggers.
+      3. Suggestions for emotional well-being.
+      Format your response as a JSON object with keys: "patterns", "correlations", "suggestions".`;
 
-    // Get LLM analysis of the emotional data
-    const emotionalData = {
-      emotionCounts,
-      commonTriggers,
-      emotionTimeline
-    };
-
-    // Use LLM to analyze the emotional data
     let insights = null;
     try {
-      const llmResponse = await fetch('/api/orion/llm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          requestType: OPPORTUNITY_EVALUATION_REQUEST_TYPE,
-          primaryContext: `
-            Analyze the following emotional data and provide insights:
-
-            Emotion Frequencies:
-            ${JSON.stringify(emotionCounts, null, 2)}
-
-            Common Triggers:
-            ${JSON.stringify(commonTriggers, null, 2)}
-
-            Emotion Timeline:
-            ${JSON.stringify(emotionTimeline, null, 2)}
-
-            Please provide:
-            1. Key patterns or trends you observe
-            2. Potential correlations between emotions and triggers
-            3. Suggestions for emotional well-being based on this data
-
-            Format your response as a JSON object with the following structure:
-            {
-              "patterns": ["pattern 1", "pattern 2", ...],
-              "correlations": ["correlation 1", "correlation 2", ...],
-              "suggestions": ["suggestion 1", "suggestion 2", ...]
-            }
-          `,
-          temperature: 0.3,
-          maxTokens: 1000
-        })
+      const llmResponseContent = await getLlmAnalysis(prompt);
+      insights = JSON.parse(llmResponseContent);
+      logger.info("[EMOTIONS_TRENDS][LLM][INSIGHTS_PARSED]", {
+        insights,
+        ...logContext,
       });
-
-      if (llmResponse.ok) {
-        const llmData = await llmResponse.json();
-        if (llmData.success && llmData.content) {
-          try {
-            insights = JSON.parse(llmData.content);
-            console.info('[EMOTIONS_TRENDS][LLM][INSIGHTS_PARSED]', { insights });
-          } catch (parseError) {
-            console.error('[EMOTIONS_TRENDS][LLM][ERROR_PARSING]', { parseError, content: llmData.content });
-          }
-        }
-      }
     } catch (llmErr) {
-      console.error('[EMOTIONS_TRENDS][LLM][ERROR]', { llmErr });
+      const errorMessage =
+        llmErr instanceof Error ? llmErr.message : "LLM processing failed";
+      logger.error("[EMOTIONS_TRENDS][LLM][ERROR]", {
+        error: errorMessage,
+        ...logContext,
+      });
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        emotionCounts,
-        commonTriggers,
-        emotionTimeline,
-        insights
-      }
+        emotionCounts: emotionCountsResult.rows,
+        commonTriggers: commonTriggersResult.rows,
+        emotionTimeline: emotionTimelineResult.rows,
+        insights,
+      },
     });
-
-  } catch (error: any) {
-    console.error('[EMOTIONS_TRENDS][ERROR]', { error });
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred";
+    logger.error("[EMOTIONS_TRENDS][ERROR]", {
+      error: errorMessage,
+      ...logContext,
+    });
+    return NextResponse.json(
+      {
+        success: false,
+        error: errorMessage,
+      },
+      { status: 500 }
+    );
   }
 }

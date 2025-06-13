@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@repo/ui';
 import { Loader2, Users, Copy, Mail } from 'lucide-react';
-import { useOpportunityCentralStore } from '../opportunityCentralStore';
-import type { Opportunity } from '@shared/types/opportunity';
+import { useOpportunityCentralStore } from '@repo/shared';
+import type { OrionOpportunity } from '@repo/shared'
 
 export interface Stakeholder {
   name: string;
@@ -15,10 +15,10 @@ export interface Stakeholder {
 }
 
 interface FindStakeholdersButtonProps {
-  opportunity: Opportunity;
+  OrionOpportunity: OrionOpportunity;
 }
 
-export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ opportunity }) => {
+export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ OrionOpportunity }) => {
   const isOpen = useOpportunityCentralStore((state: any) => state.isStakeholderDialogOpen);
   const open = useOpportunityCentralStore((state: any) => state.openStakeholderDialog);
   const close = useOpportunityCentralStore((state: any) => state.closeStakeholderDialog);
@@ -41,8 +41,8 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          company: opportunity.company,
-          role: opportunity.title,
+          company: OrionOpportunity.company,
+          role: OrionOpportunity.title,
           count: 5
         })
       });
@@ -74,7 +74,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
     <>
       <Button
         onClick={() => {
-          setOpportunity(opportunity);
+          setOpportunity(OrionOpportunity);
           open();
         }}
         className="bg-purple-600 hover:bg-purple-700"
@@ -86,14 +86,14 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
         <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
           <DialogHeader>
             <DialogTitle className="text-purple-400">
-              Find Key Stakeholders at {opportunity.company}
+              Find Key Stakeholders at {OrionOpportunity.company}
             </DialogTitle>
           </DialogHeader>
 
           {!stakeholders.length && !isLoading && !error && (
             <div className="py-6 text-center">
               <p className="mb-4 text-gray-300">
-                Find key stakeholders at {opportunity.company} who might be relevant for this opportunity.
+                Find key stakeholders at {OrionOpportunity.company} who might be relevant for this OrionOpportunity.
               </p>
               <Button
                 onClick={handleFindStakeholders}

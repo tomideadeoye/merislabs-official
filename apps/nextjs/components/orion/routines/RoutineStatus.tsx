@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { useSessionState } from '@shared/hooks/useSessionState';
-import { SessionStateKeys } from '@shared/hooks/useSessionState';
+import { useSessionState } from '@repo/sharedhooks/useSessionState';
+import { SessionStateKeys } from '@repo/sharedhooks/useSessionState';
 import { Progress } from '@repo/ui';
 import { CheckCircle, Clock } from 'lucide-react';
 
@@ -39,13 +39,12 @@ export const RoutineStatus: React.FC<RoutineStatusProps> = ({ className }) => {
       <Progress value={progress} className="h-2 mb-4" />
 
       <div className="grid grid-cols-2 gap-4">
-        <div className={`p-3 rounded-md ${
-          morningCompleted
-            ? 'bg-green-900/30 border border-green-700'
-            : highlightMorning
-              ? 'bg-blue-900/30 border border-blue-700'
-              : 'bg-gray-700/30 border border-gray-600'
-        }`}>
+        <div className={`p-3 rounded-md ${morningCompleted
+          ? 'bg-green-900/30 border border-green-700'
+          : highlightMorning
+            ? 'bg-blue-900/30 border border-blue-700'
+            : 'bg-gray-700/30 border border-gray-600'
+          }`}>
           <div className="flex items-center">
             {morningCompleted ? (
               <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
@@ -54,13 +53,12 @@ export const RoutineStatus: React.FC<RoutineStatusProps> = ({ className }) => {
                 1
               </span>
             )}
-            <h4 className={`font-medium ${
-              morningCompleted
-                ? 'text-green-300'
-                : highlightMorning
-                  ? 'text-blue-300'
-                  : 'text-gray-400'
-            }`}>
+            <h4 className={`font-medium ${morningCompleted
+              ? 'text-green-300'
+              : highlightMorning
+                ? 'text-blue-300'
+                : 'text-gray-400'
+              }`}>
               Morning Kickstart
             </h4>
           </div>
@@ -71,13 +69,12 @@ export const RoutineStatus: React.FC<RoutineStatusProps> = ({ className }) => {
           </p>
         </div>
 
-        <div className={`p-3 rounded-md ${
-          eveningCompleted
-            ? 'bg-green-900/30 border border-green-700'
-            : highlightEvening
-              ? 'bg-purple-900/30 border border-purple-700'
-              : 'bg-gray-700/30 border border-gray-600'
-        }`}>
+        <div className={`p-3 rounded-md ${eveningCompleted
+          ? 'bg-green-900/30 border border-green-700'
+          : highlightEvening
+            ? 'bg-purple-900/30 border border-purple-700'
+            : 'bg-gray-700/30 border border-gray-600'
+          }`}>
           <div className="flex items-center">
             {eveningCompleted ? (
               <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
@@ -86,13 +83,12 @@ export const RoutineStatus: React.FC<RoutineStatusProps> = ({ className }) => {
                 2
               </span>
             )}
-            <h4 className={`font-medium ${
-              eveningCompleted
-                ? 'text-green-300'
-                : highlightEvening
-                  ? 'text-purple-300'
-                  : 'text-gray-400'
-            }`}>
+            <h4 className={`font-medium ${eveningCompleted
+              ? 'text-green-300'
+              : highlightEvening
+                ? 'text-purple-300'
+                : 'text-gray-400'
+              }`}>
               Evening Wind-Down
             </h4>
           </div>

@@ -3,9 +3,9 @@
 /**
  * Represents a persona map for strategic outreach
  */
-export interface PersonaMap {
-  id: string;
-  name: string;
+export interface Persona {
+  id?: string;
+  name?: string;
   company?: string;
   role?: string;
   industry?: string;
@@ -15,9 +15,12 @@ export interface PersonaMap {
   valueProposition?: string;
   notes?: string;
   tags?: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+// PersonaMap is now a single Persona object (not an array)
+export type PersonaMap = Persona;
 
 /**
  * Request to generate strategic outreach content

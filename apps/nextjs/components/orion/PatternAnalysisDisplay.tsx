@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@shared/ui';
+import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { Loader2, AlertTriangle, CheckCircle2, Lightbulb, Brain, Info, ListTodo } from 'lucide-react';
-import { IdentifiedPattern } from '@shared/types/insights';
+import { IdentifiedPattern } from '@repo/shared';
 import { CreateHabiticaTaskDialog } from './tasks/CreateHabiticaTaskDialog';
 import { useHabiticaTaskDialogStore } from './tasks/habiticaTaskDialogStore';
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { logger } from '../lib/logger';
 
 interface UserProfile {
   id: string;
@@ -30,7 +29,7 @@ export function useUserProfile() {
         if (cached) {
           const { profile, timestamp }: CacheData = JSON.parse(cached);
           if (Date.now() - timestamp < CACHE_TTL_MS) {
-            logger.info('Using cached user profile');
+            console.info('Using cached user profile');
             setProfile(profile);
             setLoading(false);
             return;
@@ -38,7 +37,7 @@ export function useUserProfile() {
         }
 
         // Fetch fresh data
-        logger.info('Fetching fresh user profile');
+        console.info('Fetching fresh user profile');
         const response = await fetch('/api/user/profile');
         if (!response.ok) throw new Error('Failed to fetch profile');
 
@@ -52,10 +51,10 @@ export function useUserProfile() {
         };
         localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
-        logger.info('User profile fetched and cached successfully');
+        console.info('User profile fetched and cached successfully');
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Unknown error');
-        logger.error('Failed to fetch user profile', { error });
+        console.error('Failed to fetch user profile', { error });
         setError(error);
         toast.error('Failed to load profile');
       } finally {
@@ -68,7 +67,7 @@ export function useUserProfile() {
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     try {
-      logger.info('Updating user profile', { updates });
+      console.info('Updating user profile', { updates });
       const response = await fetch('/api/user/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -87,11 +86,11 @@ export function useUserProfile() {
       };
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
-      logger.info('User profile updated successfully');
+      console.info('User profile updated successfully');
       toast.success('Profile updated');
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
-      logger.error('Failed to update user profile', { error });
+      console.error('Failed to update user profile', { error });
       toast.error('Failed to update profile');
       throw error;
     }

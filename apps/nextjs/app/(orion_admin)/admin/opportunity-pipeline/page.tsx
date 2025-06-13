@@ -1,20 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Opportunity } from '@shared/types/opportunity';
-import { OpportunityList } from '@/components/orion/opportunities/OpportunityList';
-import { OpportunityKanbanView } from '@/components/orion/opportunities/OpportunityKanbanView';
-import { AddOpportunityForm } from '@/components/orion/opportunities/AddOpportunityForm';
-import { useOpportunityDialogStore } from '@shared/hooks/useOpportunityDialogStore';
+import { OrionOpportunity } from '@repo/shared';
+import { OpportunityList, OpportunityKanbanView, AddOpportunityForm, OpportunityEvaluator } from '@repo/ui';
+import { useOpportunityDialogStore } from '@repo/sharedhooks/useOpportunityDialogStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger, PageHeader, Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@repo/ui';
 import { Briefcase, BarChart2, XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useOpportunities } from '@shared/hooks/useOpportunities';
+import { useOpportunities } from '@repo/sharedhooks/useOpportunities';
 import { OpportunityPipelineCharts } from './OpportunityPipelineCharts';
-import { OpportunityEvaluator } from '@/components/orion/opportunities/OpportunityEvaluator';
 
-import { useOpportunityCentralStore } from '@/components/orion/opportunities/opportunityCentralStore';
-import { logger } from '@shared/lib/logger';
+import { useOpportunityCentralStore } from '@repo/shared';
 
 export default function OpportunityPipelinePage() {
   const [activeView, setActiveView] = useState('list');
@@ -31,7 +27,7 @@ export default function OpportunityPipelinePage() {
   // TODO: Type state properly (currently using 'any' for rapid migration)
   const needsRefetch = useOpportunityCentralStore((state: any) => state.needsRefetch);
   const setNeedsRefetch = useOpportunityCentralStore((state: any) => state.setNeedsRefetch);
-  logger.success('[OpportunityPipeline][MIGRATION] Using central store selector for needsRefetch and setNeedsRefetch', { needsRefetch, setNeedsRefetch });
+  console.info('[OpportunityPipeline][MIGRATION] Using central store selector for needsRefetch and setNeedsRefetch', { needsRefetch, setNeedsRefetch });
   React.useEffect(() => {
     if (needsRefetch) {
       refetchOpportunities();
@@ -66,7 +62,7 @@ export default function OpportunityPipelinePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Opportunity Pipeline"
+        title="OrionOpportunity Pipeline"
         icon={<Briefcase className="h-7 w-7" />}
         description="Track and manage job applications, education programs, and project collaborations."
       />
@@ -89,7 +85,7 @@ export default function OpportunityPipelinePage() {
             <div className="mb-2 text-red-200">Troubleshooting tips:</div>
             <ul className="mb-4 text-red-100 list-disc list-inside text-sm">
               <li>Check your Notion API key and integration permissions.</li>
-              <li>Ensure the opportunity ID is valid and accessible.</li>
+              <li>Ensure the OrionOpportunity ID is valid and accessible.</li>
               <li>Check your network connection and Notion API status.</li>
               <li>Try again or contact support if the issue persists.</li>
             </ul>
@@ -137,7 +133,7 @@ export default function OpportunityPipelinePage() {
         <TabsList className="bg-gray-800 border-gray-700">
           <TabsTrigger value="list">List View</TabsTrigger>
           <TabsTrigger value="kanban">Kanban View</TabsTrigger>
-          <TabsTrigger value="evaluator">Opportunity Evaluator</TabsTrigger>
+          <TabsTrigger value="evaluator">OrionOpportunity Evaluator</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="mt-6">
@@ -152,7 +148,7 @@ export default function OpportunityPipelinePage() {
 
         <TabsContent value="kanban" className="mt-6">
           <OpportunityKanbanView
-             opportunities={opportunities}
+            opportunities={opportunities}
           />
         </TabsContent>
 
@@ -161,7 +157,7 @@ export default function OpportunityPipelinePage() {
             <CardHeader>
               <CardTitle className="flex items-center text-xl text-gray-200">
                 <BarChart2 className="mr-2 h-6 w-6 text-amber-400" />
-                Opportunity Evaluator
+                OrionOpportunity Evaluator
               </CardTitle>
               <CardDescription className="text-gray-400">
                 Analyze job descriptions, academic programs, or project briefs against your profile and goals.

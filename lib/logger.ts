@@ -1,18 +1,3 @@
-/**
- * Enhanced Logger for Orion
- * Combines Winston for production logging with stylish console output for development.
- *
- * Features:
- * - Color-coded output with icons in development
- * - Winston-based structured logging in production
- * - Development/Production mode awareness
- * - Singleton pattern for consistent logging
- * - Structured context logging
- * - Production error service integration ready
- * - Additional log levels (success)
- * - Timestamp and log level indicators
- */
-
 import { createLogger, format, transports, Logger as WinstonLogger } from 'winston';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
@@ -22,20 +7,19 @@ interface LogContext {
 }
 
 const LOG_STYLES: Record<LogLevel, { color: string; icon: string; consoleMethod: 'debug' | 'info' | 'warn' | 'error' | 'log' }> = {
-  debug:   { color: '\x1b[35m', icon: '🐞', consoleMethod: 'debug' },    // Magenta
-  info:    { color: '\x1b[34m', icon: 'ℹ️', consoleMethod: 'info' },     // Blue
-  warn:    { color: '\x1b[33m', icon: '⚠️', consoleMethod: 'warn' },     // Yellow
-  error:   { color: '\x1b[31m', icon: '❌', consoleMethod: 'error' },    // Red
-  success: { color: '\x1b[32m', icon: '✅', consoleMethod: 'log' },      // Green
+  debug:   { color: '\x1b[35m', icon: '🐞', consoleMethod: 'debug' },
+  info:    { color: '\x1b[34m', icon: 'ℹ️', consoleMethod: 'info' },
+  warn:    { color: '\x1b[33m', icon: '⚠️', consoleMethod: 'warn' },
+  error:   { color: '\x1b[31m', icon: '❌', consoleMethod: 'error' },
+  success: { color: '\x1b[32m', icon: '✅', consoleMethod: 'log' },
 };
 
-// Map our log levels to Winston levels
 const WINSTON_LEVEL_MAP: Record<LogLevel, string> = {
   debug: 'debug',
   info: 'info',
   warn: 'warn',
   error: 'error',
-  success: 'info', // Winston doesn't have 'success', map to 'info'
+  success: 'info',
 };
 
 class Logger {
@@ -47,7 +31,6 @@ class Logger {
   private constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
 
-    // Initialize Winston logger
     this.winstonLogger = createLogger({
       level: this.isDevelopment ? 'debug' : 'info',
       format: format.combine(
@@ -57,24 +40,21 @@ class Logger {
       ),
       defaultMeta: { service: 'orion' },
       transports: [
-        // Write all logs to console in development
         new transports.Console({
           format: format.combine(
             format.colorize(),
             format.simple()
           )
         }),
-        // Write all logs with level 'error' and below to 'error.log'
         new transports.File({
           filename: 'logs/error.log',
           level: 'error',
-          maxsize: 5242880, // 5MB
+          maxsize: 5242880,
           maxFiles: 5,
         }),
-        // Write all logs to 'combined.log'
         new transports.File({
           filename: 'logs/combined.log',
-          maxsize: 5242880, // 5MB
+          maxsize: 5242880,
           maxFiles: 5,
         })
       ]
@@ -96,18 +76,13 @@ class Logger {
   }
 
   public log(level: LogLevel, message: string, context?: LogContext) {
-    // Only log debug messages in development
-    if (level === 'debug' && !this.isDevelopment) {
-      return;
-    }
+    if (level === 'debug' && !this.isDevelopment) return;
 
     if (this.isDevelopment) {
-      // Use stylish console logging in development
       const formattedMessage = this.formatMessage(level, message, context);
       const { consoleMethod } = LOG_STYLES[level];
       console[consoleMethod](formattedMessage);
     } else {
-      // Use Winston in production
       const winstonLevel = WINSTON_LEVEL_MAP[level];
       this.winstonLogger.log(winstonLevel, message, {
         ...context,
@@ -116,16 +91,13 @@ class Logger {
       });
     }
 
-    // Handle production error logging
     if (!this.isDevelopment && level === 'error') {
       this.handleProductionError(message, context);
     }
   }
 
   private handleProductionError(message: string, context?: LogContext) {
-    // Winston already handles error logging to files
-    // Additional error service integration can be added here
-    // Example: Sentry.captureException(new Error(message), { extra: context });
+    // Error service integration placeholder
   }
 
   public debug(message: string, context?: LogContext) {
@@ -148,7 +120,6 @@ class Logger {
     this.log('success', message, context);
   }
 
-  // Convenience method for API logging
   public api(level: LogLevel, message: string, context?: LogContext) {
     const apiContext = {
       ...context,
@@ -159,7 +130,6 @@ class Logger {
     this.log(level, `[API] ${message}`, apiContext);
   }
 
-  // Convenience method for component logging
   public component(level: LogLevel, componentName: string, message: string, context?: LogContext) {
     const componentContext = {
       ...context,
@@ -170,7 +140,6 @@ class Logger {
     this.log(level, `[Component:${componentName}] ${message}`, componentContext);
   }
 
-  // Convenience method for state management logging
   public state(level: LogLevel, storeName: string, action: string, context?: LogContext) {
     const stateContext = {
       ...context,
@@ -183,5 +152,4 @@ class Logger {
   }
 }
 
-// Export the singleton instance
 export const logger = Logger.getInstance();

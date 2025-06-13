@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useCallback, useEffect } from "react";
 import ReactFlow, { addEdge, Background, Controls, MiniMap, Edge, Node, Connection } from "reactflow";
-import { generateCircularFlow } from '@shared/utils/generateCircularFlow';
+import { generateCircularFlow } from '@repo/sharedutils/generateCircularFlow';
 import ReactMarkdown from 'react-markdown';
-import { callSequentialThinking } from '@shared/lib/orion_tools';
-import { checkAllLlmApiKeys } from '@shared/lib/llm_providers';
+import { callSequentialThinking } from '@repo/shared/orion_tools';
+import { checkAllLlmApiKeys } from '@repo/shared/llm_providers';
 import { CheckCircle, XCircle, HelpCircle } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui';
 import { ValuePropositionForm } from '../ValuePropositionForm';
@@ -12,7 +12,7 @@ import { CareerMilestoneForm } from '../CareerMilestoneForm';
 import { CareerMilestoneList } from '../CareerMilestoneList';
 import { NarrativeGenerationForm } from '../NarrativeGenerationForm';
 import { CareerMilestoneProvider } from '../CareerMilestoneContext';
-import type { CareerMilestone } from '@shared/types/narrative-clarity';
+import type { CareerMilestone } from '@repo/shared/types/narrative-clarity';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];

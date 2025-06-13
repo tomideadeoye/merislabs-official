@@ -1,74 +1,104 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import {
   ORION_MEMORY_COLLECTION_NAME,
-  OPPORTUNITY_EVALUATION_REQUEST_TYPE
-} from '@shared/lib/orion_config';
-import { OpportunityDetails } from '@shared/types/opportunity';
+  OPPORTUNITY_EVALUATION_REQUEST_TYPE,
+} from "@repo/shared/orion_config";
+import { OrionOpportunityDetails } from '@repo/shared';
 
 /**
  * API route for evaluating opportunities
  */
 export async function POST(req: NextRequest) {
   // Get the token from the authorization header
-  const authHeader = req.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
-    const opportunityDetails: OpportunityDetails = await req.json();
+    const opportunityDetails: OrionOpportunityDetails = await req.json();
 
     // Validate required fields
-    if (!opportunityDetails.title || !opportunityDetails.content || !opportunityDetails.type) {
-      return NextResponse.json({
-        success: false,
-        error: 'Missing required opportunity details: title, description, and type.'
-      }, { status: 400 });
+    if (
+      !opportunityDetails.title ||
+      !opportunityDetails.content ||
+      !opportunityDetails.type
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Missing required OrionOpportunity details: title, description, and type.",
+        },
+        { status: 400 }
+      );
     }
 
     // Fetch Tomide's profile context
-    let profileContext = '';
+    let profileContext = "";
     try {
-      const profileResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/orion/profile`);
+      const profileResponse = await fetch(
+        `${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/api/orion/profile`
+      );
       profileContext = await profileResponse.text();
     } catch (error) {
-      console.error('Error fetching profile data:', error);
-      profileContext = "Tomide is an analytical systems thinker with a background in law and a strong interest in product management, process improvement, and technology (especially FinTech/LegalTech). Key skills include: Python, TypeScript, Next.js, systems design, LLM integration, data analysis. He aims for roles with growth, stability, low direct coding, and relocation potential to US/CA/UK/EU+. Core values: Freedom, Logic, Growth, Stability, Creation.";
+      console.error("Error fetching profile data:", error);
+      profileContext =
+        "Tomide is an analytical systems thinker with a background in law and a strong interest in product management, process improvement, and technology (especially FinTech/LegalTech). Key skills include: Python, TypeScript, Next.js, systems design, LLM integration, data analysis. He aims for roles with growth, stability, low direct coding, and relocation potential to US/CA/UK/EU+. Core values: Freedom, Logic, Growth, Stability, Creation.";
     }
 
     // Fetch relevant past experiences from memory
-    let pastExperiencesContext = "No specific past experiences retrieved from memory for this evaluation.";
+    let pastExperiencesContext =
+      "No specific past experiences retrieved from memory for this evaluation.";
     try {
-      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-      const memorySearchResponse = await fetch(`${baseUrl}/api/orion/memory/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: `Experiences, decisions, or outcomes related to ${opportunityDetails.type} like "${opportunityDetails.title}" or involving skills relevant to this opportunity.`,
-          collectionName: ORION_MEMORY_COLLECTION_NAME,
-          limit: 5
-        })
-      });
+      const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+      const memorySearchResponse = await fetch(
+        `${baseUrl}/api/orion/memory/search`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `Experiences, decisions, or outcomes related to ${opportunityDetails.type} like "${opportunityDetails.title}" or involving skills relevant to this OrionOpportunity.`,
+            collectionName: ORION_MEMORY_COLLECTION_NAME,
+            limit: 5,
+          }),
+        }
+      );
 
       const memoryData = await memorySearchResponse.json();
 
-      if (memoryData.success && memoryData.results && memoryData.results.length > 0) {
-        pastExperiencesContext = "Relevant Past Experiences/Reflections from Memory:\n" +
-          memoryData.results.map((item: any, i: number) =>
-            `${i+1}. (Source: ${item.payload.source_id}, Type: ${item.payload.type}): "${item.payload.text.substring(0, 200)}..."`
-          ).join("\n");
+      if (
+        memoryData.success &&
+        memoryData.results &&
+        memoryData.results.length > 0
+      ) {
+        pastExperiencesContext =
+          "Relevant Past Experiences/Reflections from Memory:\n" +
+          memoryData.results
+            .map(
+              (item: any, i: number) =>
+                `${i + 1}. (Source: ${item.payload.source_id}, Type: ${
+                  item.payload.type
+                }): "${item.payload.text.substring(0, 200)}..."`
+            )
+            .join("\n");
       }
     } catch (error) {
-      console.error('Error fetching relevant memories:', error);
+      console.error("Error fetching relevant memories:", error);
     }
 
     // Construct prompt for LLM
     const evaluationPrompt = `
-# Opportunity Evaluation Task
+# OrionOpportunity Evaluation Task
 
-You are Orion, an AI Life-Architecture System. Your task is to evaluate the following opportunity against Tomide's profile, goals, and past experiences.
+You are Orion, an AI Life-Architecture System. Your task is to evaluate the following OrionOpportunity against Tomide's profile, goals, and past experiences.
 
 ## Tomide's Profile & Goals:
 ${profileContext}
@@ -76,10 +106,10 @@ ${profileContext}
 ## Relevant Past Experiences:
 ${pastExperiencesContext}
 
-## Opportunity Details:
+## OrionOpportunity Details:
 Title: ${opportunityDetails.title}
 Type: ${opportunityDetails.type}
-${opportunityDetails.url ? `URL: ${opportunityDetails.url}` : ''}
+${opportunityDetails.url ? `URL: ${opportunityDetails.url}` : ""}
 Description:
 """
 ${opportunityDetails.content}
@@ -88,10 +118,10 @@ ${opportunityDetails.content}
 ## Evaluation Instructions:
 Please provide a structured evaluation in JSON format with the following fields:
 
-1. "fitScorePercentage": An estimated percentage (0-100) of how well Tomide's profile, skills, and goals align with this opportunity.
+1. "fitScorePercentage": An estimated percentage (0-100) of how well Tomide's profile, skills, and goals align with this OrionOpportunity.
 2. "alignmentHighlights": An array of strings listing key points of strong alignment.
 3. "gapAnalysis": An array of strings identifying potential gaps, missing qualifications, or areas of concern.
-4. "riskRewardAnalysis": An object with optional keys ("highRiskHighReward", "lowRiskHighReward", "highRiskLowReward", "lowRiskLowReward"), each containing a string explaining aspects of the opportunity falling into that category.
+4. "riskRewardAnalysis": An object with optional keys ("highRiskHighReward", "lowRiskHighReward", "highRiskLowReward", "lowRiskLowReward"), each containing a string explaining aspects of the OrionOpportunity falling into that category.
 5. "recommendation": Your overall recommendation string ('Pursue', 'Delay & Prepare', 'Reject', 'Consider Further').
 6. "reasoning": A concise paragraph explaining the rationale behind your recommendation and fit score.
 7. "suggestedNextSteps": An array of 2-3 concrete, actionable next steps Tomide could take based on the recommendation.
@@ -103,24 +133,26 @@ Provide your evaluation as a valid JSON object with the structure described abov
 `;
 
     // Call LLM for evaluation
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
     const llmResponse = await fetch(`${baseUrl}/api/orion/llm`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         requestType: OPPORTUNITY_EVALUATION_REQUEST_TYPE,
         primaryContext: evaluationPrompt,
         temperature: 0.3,
-        maxTokens: 2000
-      })
+        maxTokens: 2000,
+      }),
     });
 
     const llmData = await llmResponse.json();
 
     if (!llmData.success || !llmData.content) {
-      throw new Error(llmData.error || 'Failed to generate opportunity evaluation');
+      throw new Error(
+        llmData.error || "Failed to generate OrionOpportunity evaluation"
+      );
     }
 
     try {
@@ -128,35 +160,41 @@ Provide your evaluation as a valid JSON object with the structure described abov
       let jsonString = llmData.content;
 
       // Handle cases where the LLM might wrap the JSON in markdown code blocks
-      if (jsonString.includes('```json')) {
-        jsonString = jsonString.substring(
-          jsonString.indexOf('```json') + 7,
-          jsonString.lastIndexOf('```')
-        ).trim();
-      } else if (jsonString.includes('```')) {
-        jsonString = jsonString.substring(
-          jsonString.indexOf('```') + 3,
-          jsonString.lastIndexOf('```')
-        ).trim();
+      if (jsonString.includes("```json")) {
+        jsonString = jsonString
+          .substring(
+            jsonString.indexOf("```json") + 7,
+            jsonString.lastIndexOf("```")
+          )
+          .trim();
+      } else if (jsonString.includes("```")) {
+        jsonString = jsonString
+          .substring(
+            jsonString.indexOf("```") + 3,
+            jsonString.lastIndexOf("```")
+          )
+          .trim();
       }
 
       const evaluation = JSON.parse(jsonString);
       return NextResponse.json({ success: true, evaluation });
     } catch (parseError) {
-      console.error('Failed to parse LLM response as JSON:', llmData.content);
+      console.error("Failed to parse LLM response as JSON:", llmData.content);
       // Return the raw output if parsing fails
       return NextResponse.json({
         success: true,
         evaluation: { rawOutput: llmData.content },
-        warning: "LLM output was not valid JSON, returning raw text."
+        warning: "LLM output was not valid JSON, returning raw text.",
       });
     }
-
   } catch (error: any) {
-    console.error('Error in POST /api/orion/opportunity/evaluate:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    console.error("Error in POST /api/orion/OrionOpportunity/evaluate:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

@@ -9,9 +9,18 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@repo/shared": ["../shared/src"],
+      "@repo/shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../../packages/shared/src/**/*.ts",
+    "../../packages/shared/src/**/*.tsx"
+  ],
+  "references": [
+    {"path": "../../packages/shared/tsconfig.json"}
+  ],
   "exclude": ["node_modules", "dist"]
 }

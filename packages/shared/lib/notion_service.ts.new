@@ -71,7 +71,7 @@ export async function getOpportunityDetails(pageId: string) {
     const response = await notion.pages.retrieve({ page_id: pageId });
     return response;
   } catch (error) {
-    console.error(`Failed to retrieve opportunity ${pageId}:`, error);
+    console.error(`Failed to retrieve OrionOpportunity ${pageId}:`, error);
     return null;
   }
 }
@@ -85,7 +85,7 @@ export async function getOpportunityContent(pageId: string) {
     const response = await notion.blocks.children.list({ block_id: pageId });
     return response.results;
   } catch (error) {
-    console.error(`Failed to retrieve content for opportunity ${pageId}:`, error);
+    console.error(`Failed to retrieve content for OrionOpportunity ${pageId}:`, error);
     return null;
   }
 }
@@ -104,7 +104,7 @@ export async function updateOpportunityStatus(pageId: string, status: string) {
     });
     return { success: true };
   } catch (error) {
-    console.error(`Failed to update status for opportunity ${pageId}:`, error);
+    console.error(`Failed to update status for OrionOpportunity ${pageId}:`, error);
     return { success: false, error };
   }
 }
@@ -132,7 +132,7 @@ export async function addStakeholderToOpportunity(pageId: string, stakeholder: a
     });
     return { success: true };
   } catch (error) {
-    console.error(`Failed to add stakeholder to opportunity ${pageId}:`, error);
+    console.error(`Failed to add stakeholder to OrionOpportunity ${pageId}:`, error);
     return { success: false, error };
   }
 }
@@ -166,7 +166,7 @@ ${outreach.message}
     });
     return { success: true };
   } catch (error) {
-    console.error(`Failed to save outreach to opportunity ${pageId}:`, error);
+    console.error(`Failed to save outreach to OrionOpportunity ${pageId}:`, error);
     return { success: false, error };
   }
 }

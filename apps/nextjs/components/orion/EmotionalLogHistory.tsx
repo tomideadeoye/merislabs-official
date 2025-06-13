@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, Label, Card, CardContent, Switch } from '@repo/ui';
 import { Loader2, AlertTriangle, Calendar, Search, RefreshCw, BrainCircuit } from 'lucide-react';
-import { EmotionalLogEntry } from '@shared/types/orion';
+import { EmotionalLogEntry } from '@repo/shared';
 import { CognitiveDistortionDisplay } from './cbt/CognitiveDistortionDisplay';
 
 interface EmotionalLogHistoryProps {

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 interface OpportunityDetailViewProps {
-  opportunity: {
+  OrionOpportunity: {
     id: string;
     title: string;
     company: string;
@@ -29,16 +29,16 @@ interface OpportunityDetailViewProps {
   };
 }
 
-export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProps) {
+export function OpportunityDetailView({ OrionOpportunity }: OpportunityDetailViewProps) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">{opportunity.title}</h1>
-          <p className="text-gray-500">{opportunity.company}</p>
+          <h1 className="text-2xl font-bold">{OrionOpportunity.title}</h1>
+          <p className="text-gray-500">{OrionOpportunity.company}</p>
         </div>
-        <Badge variant={opportunity.status === 'Applied' ? 'success' : 'default'}>
-          {opportunity.status}
+        <Badge variant={OrionOpportunity.status === 'Applied' ? 'success' : 'default'}>
+          {OrionOpportunity.status}
         </Badge>
       </div>
 
@@ -55,7 +55,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
         <TabsContent value="overview">
           <Card>
             <CardHeader>
-              <CardTitle>Opportunity Overview</CardTitle>
+              <CardTitle>OrionOpportunity Overview</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -64,13 +64,13 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                   <div className="space-y-2">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2" />
-                      <span className="text-sm">Created: {new Date(opportunity.createdAt).toLocaleDateString()}</span>
+                      <span className="text-sm">Created: {new Date(OrionOpportunity.createdAt).toLocaleDateString()}</span>
                     </div>
-                    {opportunity.companyUrl && (
+                    {OrionOpportunity.companyUrl && (
                       <div className="flex items-center">
                         <ExternalLink className="h-4 w-4 mr-2" />
                         <a
-                          href={opportunity.companyUrl}
+                          href={OrionOpportunity.companyUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:underline"
@@ -88,19 +88,19 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                     <div className="flex items-center">
                       <Search className="h-4 w-4 mr-2" />
                       <span className="text-sm">
-                        JD Analysis: {opportunity.jdAnalysis ? 'Complete' : 'Not started'}
+                        JD Analysis: {OrionOpportunity.jdAnalysis ? 'Complete' : 'Not started'}
                       </span>
                     </div>
                     <div className="flex items-center">
                       <FileText className="h-4 w-4 mr-2" />
                       <span className="text-sm">
-                        CV Tailoring: {opportunity.tailoredCV ? 'Complete' : 'Not started'}
+                        CV Tailoring: {OrionOpportunity.tailoredCV ? 'Complete' : 'Not started'}
                       </span>
                     </div>
                     <div className="flex items-center">
                       <FileEdit className="h-4 w-4 mr-2" />
                       <span className="text-sm">
-                        Cover Letter: {opportunity.coverLetter ? 'Complete' : 'Not started'}
+                        Cover Letter: {OrionOpportunity.coverLetter ? 'Complete' : 'Not started'}
                       </span>
                     </div>
                   </div>
@@ -111,31 +111,31 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <h3 className="font-medium mb-2">Job Description</h3>
                 <div className="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
                   <p className="text-sm whitespace-pre-wrap">
-                    {opportunity.jdText || 'No job description available.'}
+                    {OrionOpportunity.jdText || 'No job description available.'}
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-2">
-                <Link href={`/opportunity/${opportunity.id}/analyze`}>
+                <Link href={`/OrionOpportunity/${OrionOpportunity.id}/analyze`}>
                   <Button variant="outline" size="sm">
                     <Search className="h-4 w-4 mr-2" />
                     Analyze JD
                   </Button>
                 </Link>
-                <Link href={`/opportunity/${opportunity.id}/cv-tailoring`}>
+                <Link href={`/OrionOpportunity/${OrionOpportunity.id}/cv-tailoring`}>
                   <Button variant="outline" size="sm">
                     <FileText className="h-4 w-4 mr-2" />
                     Tailor CV
                   </Button>
                 </Link>
-                <Link href={`/opportunity/${opportunity.id}/application`}>
+                <Link href={`/OrionOpportunity/${OrionOpportunity.id}/application`}>
                   <Button variant="outline" size="sm">
                     <FileEdit className="h-4 w-4 mr-2" />
                     Draft Application
                   </Button>
                 </Link>
-                <Link href={`/opportunity/${opportunity.id}/networking`}>
+                <Link href={`/OrionOpportunity/${OrionOpportunity.id}/networking`}>
                   <Button variant="outline" size="sm">
                     <Users className="h-4 w-4 mr-2" />
                     Find Contacts
@@ -156,7 +156,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <p>Analyze the job description to identify key requirements, skills, and company information.</p>
               </div>
 
-              <Link href={`/opportunity/${opportunity.id}/analyze`}>
+              <Link href={`/OrionOpportunity/${OrionOpportunity.id}/analyze`}>
                 <Button>
                   <Search className="h-4 w-4 mr-2" />
                   Go to Analysis
@@ -176,19 +176,19 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <p>Tailor your CV to match the job requirements using AI-powered component selection and rephrasing.</p>
               </div>
 
-              <Link href={`/opportunity/${opportunity.id}/cv-tailoring`}>
+              <Link href={`/OrionOpportunity/${OrionOpportunity.id}/cv-tailoring`}>
                 <Button>
                   <FileText className="h-4 w-4 mr-2" />
                   Go to CV Tailoring Studio
                 </Button>
               </Link>
 
-              {opportunity.tailoredCV && (
+              {OrionOpportunity.tailoredCV && (
                 <div className="mt-4">
                   <h3 className="font-medium mb-2">Tailored CV Preview</h3>
                   <div className="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
                     <p className="text-sm whitespace-pre-wrap">
-                      {opportunity.tailoredCV.substring(0, 300)}...
+                      {OrionOpportunity.tailoredCV.substring(0, 300)}...
                     </p>
                   </div>
                 </div>
@@ -207,19 +207,19 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <p>Draft cover letters and application emails tailored to the job and company.</p>
               </div>
 
-              <Link href={`/opportunity/${opportunity.id}/application`}>
+              <Link href={`/OrionOpportunity/${OrionOpportunity.id}/application`}>
                 <Button>
                   <Mail className="h-4 w-4 mr-2" />
                   Draft Application
                 </Button>
               </Link>
 
-              {opportunity.coverLetter && (
+              {OrionOpportunity.coverLetter && (
                 <div className="mt-4">
                   <h3 className="font-medium mb-2">Cover Letter Preview</h3>
                   <div className="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
                     <p className="text-sm whitespace-pre-wrap">
-                      {opportunity.coverLetter.substring(0, 300)}...
+                      {OrionOpportunity.coverLetter.substring(0, 300)}...
                     </p>
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <p>Find and connect with potential stakeholders at the company.</p>
               </div>
 
-              <Link href={`/opportunity/${opportunity.id}/networking`}>
+              <Link href={`/OrionOpportunity/${OrionOpportunity.id}/networking`}>
                 <Button>
                   <Users className="h-4 w-4 mr-2" />
                   Find Contacts
@@ -258,7 +258,7 @@ export function OpportunityDetailView({ opportunity }: OpportunityDetailViewProp
                 <p>Track the status of your application and schedule follow-ups.</p>
               </div>
 
-              <Link href={`/opportunity/${opportunity.id}/tracking`}>
+              <Link href={`/OrionOpportunity/${OrionOpportunity.id}/tracking`}>
                 <Button>
                   <Calendar className="h-4 w-4 mr-2" />
                   Track Application

@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import type { CognitiveDistortionAnalysisData, CognitiveDistortion } from '@shared/types/orion';
-import { COGNITIVE_DISTORTIONS_LIST, CognitiveDistortionId, DISTORTION_DESCRIPTIONS } from '@shared/lib/cbt_constants';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import type { CognitiveDistortionAnalysisData } from '@repo/shared';
+import { COGNITIVE_DISTORTIONS_LIST, CognitiveDistortionId, DISTORTION_DESCRIPTIONS } from '@repo/shared/cbt_constants';
+import { Label } from '@repo/ui';
+import { Textarea } from '@repo/ui';
+import { Checkbox } from '@repo/ui';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui';
 import { InfoIcon } from 'lucide-react';
 
 import { useCognitiveDistortionAnalysis } from "./CognitiveDistortionAnalysisContext";
@@ -20,6 +20,13 @@ import { useCognitiveDistortionAnalysis } from "./CognitiveDistortionAnalysisCon
 
 interface CognitiveDistortionAnalysisFormProps {
   initialData?: Partial<CognitiveDistortionAnalysisData>;
+}
+
+// Define locally, since not exported from shared
+interface CognitiveDistortion {
+  id: CognitiveDistortionId;
+  name: string;
+  selected: boolean;
 }
 
 const distortionOptions: CognitiveDistortion[] = Object.entries(COGNITIVE_DISTORTIONS_LIST).map(([id, name]) => ({
@@ -77,7 +84,7 @@ export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalys
       identifiedDistortions: currentDistortions.filter(d => d.selected).map(d => d.name),
       challengeToThought: currentChallenge || undefined,
       alternativePerspective: currentAlternative || undefined,
-    });
+    } as CognitiveDistortionAnalysisData);
   };
 
   return (
@@ -146,7 +153,7 @@ export const CognitiveDistortionAnalysisForm: React.FC<CognitiveDistortionAnalys
               setAlternativePerspective(e.target.value);
               triggerChange(automaticThought, distortions, challengeToThought, e.target.value);
             }}
-            placeholder="e.g., It's normal to be nervous, but I have the skills to do well. Even if it's not perfect, it's a learning opportunity."
+            placeholder="e.g., It's normal to be nervous, but I have the skills to do well. Even if it's not perfect, it's a learning OrionOpportunity."
             rows={3}
             className="bg-gray-700"
           />

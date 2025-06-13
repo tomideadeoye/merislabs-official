@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, Textarea } from '@repo/ui';
 import { Loader2, CheckCircle, AlertTriangle, MessageCircle } from 'lucide-react';
 
 import { useActionReflectionDialogStore } from './actionReflectionDialogStore';
 
-interface ActionReflectionDialogProps {}
+interface ActionReflectionDialogProps { }
 
 export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = () => {
   const {
@@ -29,7 +26,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = () 
 
   const handleSubmitReflection = useCallback(async () => {
     if (!reflectionText.trim()) {
-      setFeedback({ type: 'error', message: "Reflection text cannot be empty if you choose to save."});
+      setFeedback({ type: 'error', message: "Reflection text cannot be empty if you choose to save." });
       return;
     }
 
@@ -57,7 +54,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = () 
       const data = await response.json();
 
       if (data.success) {
-        setFeedback({ type: 'success', message: "Reflection saved to Orion's Memory!"});
+        setFeedback({ type: 'success', message: "Reflection saved to Orion's Memory!" });
 
         if (onReflectionSaved) onReflectionSaved();
 
@@ -70,7 +67,7 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = () 
         throw new Error(data.error || "Failed to save action reflection.");
       }
     } catch (err: any) {
-      setFeedback({ type: 'error', message: err.message || "Could not save reflection."});
+      setFeedback({ type: 'error', message: err.message || "Could not save reflection." });
     } finally {
       setIsSaving(false);
     }
@@ -110,9 +107,8 @@ export const ActionReflectionDialog: React.FC<ActionReflectionDialogProps> = () 
         </div>
 
         {feedback && (
-          <div className={`p-3 rounded-md flex items-center ${
-            feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' : 'bg-red-900/30 border border-red-700 text-red-300'
-          }`}>
+          <div className={`p-3 rounded-md flex items-center ${feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300' : 'bg-red-900/30 border border-red-700 text-red-300'
+            }`}>
             {feedback.type === 'success' ? (
               <CheckCircle className="h-5 w-5 mr-2" />
             ) : (

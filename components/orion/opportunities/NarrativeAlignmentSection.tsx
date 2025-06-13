@@ -3,15 +3,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@repo/ui';
 import { Loader2, BookText, Copy, RefreshCw } from 'lucide-react';
-import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
+import { OrionOpportunity } from '@repo/shared';
 
 interface NarrativeAlignmentSectionProps {
-  opportunity: Opportunity;
+  OrionOpportunity: OrionOpportunity;
   evaluation?: EvaluationOutput | null;
 }
 
 export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps> = ({
-  opportunity,
+  OrionOpportunity,
   evaluation
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +29,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: `Narrative statements, value propositions, or personal brand elements relevant to ${opportunity.title} at ${opportunity.company}`,
+          query: `Narrative statements, value propositions, or personal brand elements relevant to ${OrionOpportunity.title} at ${OrionOpportunity.company}`,
           collectionName: 'orion_memory',
           limit: 5,
           filter: {
@@ -60,10 +60,10 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           body: JSON.stringify({
             requestType: 'NARRATIVE_ALIGNMENT',
             primaryContext: `
-              Based on the following opportunity and evaluation, extract 3-5 key narrative points from Tomide's existing narrative statements that would be most effective for this specific opportunity.
+              Based on the following OrionOpportunity and evaluation, extract 3-5 key narrative points from Tomide's existing narrative statements that would be most effective for this specific OrionOpportunity.
 
-              Opportunity: ${opportunity.title} at ${opportunity.company}
-              ${opportunity.content ? `Description: ${opportunity.content}` : ''}
+              OrionOpportunity: ${OrionOpportunity.title} at ${OrionOpportunity.company}
+              ${OrionOpportunity.content ? `Description: ${OrionOpportunity.content}` : ''}
 
               Evaluation Highlights:
               ${evaluation?.alignmentHighlights?.join('\n') || 'No specific highlights available.'}
@@ -75,7 +75,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
               ${narrativePoints.join('\n\n')}
 
               Please provide:
-              1. A concise paragraph (3-5 sentences) that aligns Tomide's narrative with this specific opportunity
+              1. A concise paragraph (3-5 sentences) that aligns Tomide's narrative with this specific OrionOpportunity
               2. A list of 3-5 key narrative points that should be emphasized in application materials
             `,
             temperature: 0.4,
@@ -112,13 +112,13 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
     } finally {
       setIsLoading(false);
     }
-  }, [opportunity, evaluation]);
+  }, [OrionOpportunity, evaluation]);
 
   useEffect(() => {
-    if (opportunity && evaluation) {
+    if (OrionOpportunity && evaluation) {
       fetchNarrativeAlignment();
     }
-  }, [opportunity, evaluation, fetchNarrativeAlignment]);
+  }, [OrionOpportunity, evaluation, fetchNarrativeAlignment]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -202,7 +202,7 @@ Narrative Summary:
 ${narrativeContent}
 
 Key Points to Emphasize:
-${narrativeHighlights.map((h, i) => `${i+1}. ${h}`).join('\n')}
+${narrativeHighlights.map((h, i) => `${i + 1}. ${h}`).join('\n')}
                   `.trim();
                   copyToClipboard(fullText);
                 }}

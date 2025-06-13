@@ -3,10 +3,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useCVTailoring } from '@shared/hooks/useCVTailoring';
-import { CVComponent } from '@shared/lib/cv';
-import { generatePDF, generatePDFFilename } from '@shared/lib/pdf-generator';
-import { generateWordDoc, generateWordFilename } from '@shared/lib/word-generator';
+import { useCVTailoring } from '@repo/sharedhooks/useCVTailoring';
+import { CVComponent } from '@repo/shared/cv';
+import { generatePDF, generatePDFFilename } from '@repo/shared/pdf-generator';
+import { generateWordDoc, generateWordFilename } from '@repo/shared/word-generator';
 import { Button, Card, CardContent, CardHeader, CardTitle, Tabs, TabsContent, TabsList, TabsTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Textarea, Input, Progress } from '@repo/ui';
 import {
   Loader2, FileText, Edit, Check, X, RefreshCw, Download, MoveVertical, AlertTriangle, FileOutput, ThumbsUp, ThumbsDown
@@ -125,11 +125,11 @@ export function CVTailoringStudio({
   });
 
   // --- Handlers ---
-type CheckedState = boolean | "indeterminate";
-const handleComponentToggle = (componentId: string, checked: CheckedState) => {
-  if (checked === true) selectComponent(componentId);
-  else deselectComponent(componentId);
-};
+  type CheckedState = boolean | "indeterminate";
+  const handleComponentToggle = (componentId: string, checked: CheckedState) => {
+    if (checked === true) selectComponent(componentId);
+    else deselectComponent(componentId);
+  };
 
   const handleRephraseComponent = async (component: CVComponent) => {
     const analysis = jdAnalysisProp || fetchedJdAnalysis || '';
@@ -146,7 +146,7 @@ const handleComponentToggle = (componentId: string, checked: CheckedState) => {
   };
   const saveEditing = () => {
     if (editingComponentId) {
-      const updatedMap = {...tailoredContentMap};
+      const updatedMap = { ...tailoredContentMap };
       updatedMap[editingComponentId] = editedContent;
       setTailoredContentMap(updatedMap);
       setEditingComponentId(null);
@@ -295,16 +295,16 @@ const handleComponentToggle = (componentId: string, checked: CheckedState) => {
                 </p>
                 {isAnalyzingJd ? (
                   <div className="flex items-center text-blue-400">
-                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                     Analyzing Job Description...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing Job Description...
                   </div>
                 ) : jdAnalysisError ? (
-                   <div className="text-red-500 text-sm">
-                      <AlertTriangle className="inline mr-1 h-4 w-4" />
-                      {jdAnalysisError}
-                   </div>
+                  <div className="text-red-500 text-sm">
+                    <AlertTriangle className="inline mr-1 h-4 w-4" />
+                    {jdAnalysisError}
+                  </div>
                 ) : (
-                   <Button
+                  <Button
                     onClick={() => suggestComponents(fetchedJdAnalysis!, jobTitle, companyName)}
                     disabled={isLoading}
                     variant="outline"
@@ -330,9 +330,8 @@ const handleComponentToggle = (componentId: string, checked: CheckedState) => {
                         <div className="grid gap-1.5 leading-none">
                           <label
                             htmlFor={component.unique_id}
-                            className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                              suggestedComponentIds.includes(component.unique_id) ? 'text-blue-600 font-semibold' : ''
-                            }`}
+                            className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${suggestedComponentIds.includes(component.unique_id) ? 'text-blue-600 font-semibold' : ''
+                              }`}
                           >
                             {component.component_name}
                             {suggestedComponentIds.includes(component.unique_id) && (
@@ -495,9 +494,9 @@ const handleComponentToggle = (componentId: string, checked: CheckedState) => {
                   </div>
                 </div>
               ) : (
-<div className="text-center py-8 text-gray-500">
-  Click "Assemble CV" to generate your tailored CV
-</div>
+                <div className="text-center py-8 text-gray-500">
+                  Click "Assemble CV" to generate your tailored CV
+                </div>
               )}
 
               <div className="mt-4 flex justify-between">

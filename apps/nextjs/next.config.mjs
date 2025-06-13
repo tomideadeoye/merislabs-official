@@ -6,7 +6,7 @@ const nextConfig = {
         poll: 1000,
         ignored: [
           "**/.git/**",
-          "**/node_modules/**", // Corrected this line
+          "**/node_modules/**",
           "**/.next/**",
           "**/dist/**",
           "**/.turbo/**",

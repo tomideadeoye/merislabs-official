@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Button, Tabs, Textarea, Badge, Dialog, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@repo/ui';
-import { CardHeader, CardTitle } from '@/components/ui/card';
-import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Opportunity, EvaluationOutput } from '@shared/types/opportunity';
+import { Card, Button, Tabs, Textarea, Badge, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@repo/ui';
+import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogDescription, DialogFooter } from '@repo/ui';
+import { CardContent } from '@repo/ui';
+import { CardHeader, CardTitle } from '@repo/ui';
+import { TabsContent, TabsList, TabsTrigger } from '@repo/ui';
+import { OrionOpportunity } from '@repo/shared';
 import {
   ArrowLeft,
   BarChart2,
@@ -41,6 +43,20 @@ interface EnhancedOpportunityDetailViewProps {
   opportunityId: string;
 }
 
+interface EvaluationOutput {
+  summary: string;
+  alignmentScore: number;
+  pros: string[];
+  cons: string[];
+  actionableAdvice: string[];
+  narrativeAlignment?: {
+    score: number;
+    reasoning: string;
+  };
+  fitReasoning?: string;
+}
+
+
 // --- ApplicationDraftsPanel ---
 const ApplicationDraftsPanel = ({ opportunityId }: { opportunityId: string }) => {
   const [drafts, setDrafts] = useState<any[]>([]); // [{ draft_content, context }]
@@ -56,7 +72,7 @@ const ApplicationDraftsPanel = ({ opportunityId }: { opportunityId: string }) =>
     setError(null);
     try {
       console.info('[ApplicationDraftsPanel] Fetching application drafts for', { opportunityId });
-      const response = await fetch(`/api/orion/opportunity/${opportunityId}/draft-application`, {
+      const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/draft-application`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ numberOfDrafts: 3 })
@@ -166,81 +182,83 @@ const ApplicationDraftsPanel = ({ opportunityId }: { opportunityId: string }) =>
     setTimeout(() => setEditSaveStatus(''), 2000);
   };
 
-  if (isLoading) return <div className="flex items-center gap-2"><Loader2 className="animate-spin" /> Loading drafts...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (!drafts.length) return <div>No drafts found. Click to generate.</div>;
+  if (isLoading) return <div className="flex items-center gap-2" > <Loader2 className="animate-spin" /> Loading drafts...</div>;
+  if (error) return <div className="text-red-500" > { error } </div>;
+  if (!drafts.length) return <div>No drafts found.Click to generate.</div>;
 
   return (
     <div>
-      <div className="flex justify-end mb-4">
-        <button onClick={fetchDrafts} className="px-4 py-2 bg-blue-700 rounded text-white hover:bg-blue-800">Regenerate Drafts</button>
+    <div className= "flex justify-end mb-4" >
+    <button onClick={ fetchDrafts } className = "px-4 py-2 bg-blue-700 rounded text-white hover:bg-blue-800" > Regenerate Drafts </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {drafts.map((draft, idx) => {
+      < div className = "grid grid-cols-1 md:grid-cols-2 gap-6" >
+      {
+        drafts.map((draft, idx) => {
           const draftKey = draft.id || draft.draft_id || draft.draft_content?.slice(0, 16) || idx;
           if (!draftKey) console.warn('[EnhancedOpportunityDetailView] Empty draft key detected', { draft, idx });
           return (
-            <div key={draftKey} className="bg-gray-800 rounded-lg shadow p-4 border border-gray-700">
-              <div className="flex justify-between items-center">
-                <div className="font-bold text-lg">Draft {idx + 1}</div>
-                <div className="flex gap-2">
-                  <button onClick={() => handleExpand(idx)} className="text-blue-400 hover:text-blue-200"><FileText /></button>
-                  <button onClick={() => handleEdit(idx)} className="text-yellow-400 hover:text-yellow-200"><Edit2 /></button>
-                  <button onClick={() => handleCopy(draft.draft_content)} className="text-green-400 hover:text-green-200"><Copy /></button>
-                  <button onClick={() => saveToMemory(draft.draft_content, idx)} className="text-purple-400 hover:text-purple-200"><Save /></button>
-                </div>
-              </div>
-              <div className="mt-2 text-gray-300 line-clamp-3">{draft.draft_content?.slice(0, 180)}...</div>
-              {saveStatus[idx] && <div className="text-xs text-purple-300 mt-1">{saveStatus[idx]}</div>}
-              {expandedIndex === idx && (
-                <Accordion type="single" value={expandedIndex === idx ? `draft-${idx}` : undefined} className="mt-4">
-                  <AccordionItem value={`draft-${idx}`}>
-                    <AccordionTrigger>Show Full Draft & Context</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="whitespace-pre-wrap text-gray-200 mb-4">{draft.draft_content}</div>
-                      <div className="mb-2"><span className="font-semibold">Profile Context:</span> <span className="text-gray-400">{draft.context?.profileContext}</span></div>
-                      <div className="mb-2"><span className="font-semibold">Company Web Context:</span> <span className="text-gray-400">{draft.context?.companyWebContext}</span></div>
-                      <div className="mb-2"><span className="font-semibold">Memories Considered:</span>
-                        <ul className="list-disc ml-6 text-gray-400">
-                          {draft.context?.memoryResults?.map((mem: any, i: number) => {
-                            const memKey = mem.id || mem.source_id || mem.text || mem.content || i;
-                            if (!memKey) console.warn('[EnhancedOpportunityDetailView] Empty memoryResult key detected', { mem, i });
-                            return <li key={memKey}>{mem.text || mem.content || JSON.stringify(mem)}</li>;
-                          })}
-                        </ul>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+            <div key= { draftKey } className = "bg-gray-800 rounded-lg shadow p-4 border border-gray-700" >
+              <div className="flex justify-between items-center" >
+                <div className="font-bold text-lg" > Draft { idx + 1 } </div>
+                  < div className = "flex gap-2" >
+                    <button onClick={ () => handleExpand(idx) } className = "text-blue-400 hover:text-blue-200" > <FileText /></button >
+                      <button onClick={ () => handleEdit(idx) } className = "text-yellow-400 hover:text-yellow-200" > <Edit2 /></button >
+                        <button onClick={ () => handleCopy(draft.draft_content) } className = "text-green-400 hover:text-green-200" > <Copy /></button >
+                          <button onClick={ () => saveToMemory(draft.draft_content, idx) } className = "text-purple-400 hover:text-purple-200" > <Save /></button >
+                            </div>
+                            </div>
+                            < div className = "mt-2 text-gray-300 line-clamp-3" > { draft.draft_content?.slice(0, 180) }...</div>
+              { saveStatus[idx] && <div className="text-xs text-purple-300 mt-1"> { saveStatus[idx]} </div> }
+              { expandedIndex === idx && (
+            <Accordion type="single" value = { expandedIndex === idx ? `draft-${idx}` : undefined} className = "mt-4" >
+              <AccordionItem value={ `draft-${idx}` }>
+                <AccordionTrigger>Show Full Draft & Context </AccordionTrigger>
+                  < AccordionContent >
+                  <div className="whitespace-pre-wrap text-gray-200 mb-4" > { draft.draft_content } </div>
+                    < div className = "mb-2" > <span className="font-semibold" > Profile Context: </span> <span className="text-gray-400">{draft.context?.profileContext}</span > </div>
+                      < div className = "mb-2" > <span className="font-semibold" > Company Web Context: </span> <span className="text-gray-400">{draft.context?.companyWebContext}</span > </div>
+                        < div className = "mb-2" > <span className="font-semibold" > Memories Considered: </span>
+                          < ul className = "list-disc ml-6 text-gray-400" >
+                          {
+                            draft.context?.memoryResults?.map((mem: any, i: number) => {
+                              const memKey = mem.id || mem.source_id || mem.text || mem.content || i;
+                              if (!memKey) console.warn('[EnhancedOpportunityDetailView] Empty memoryResult key detected', { mem, i });
+                              return <li key={ memKey }> { mem.text || mem.content || JSON.stringify(mem) } </li>;
+                            })
+                          }
+                            </ul>
+                            </AccordionContent>
+                            </AccordionItem>
+                            </Accordion>
               )}
-            </div>
+</div>
           );
         })}
-        {/* Edit Modal */}
-        <Dialog open={editModal.open} onOpenChange={(open) => setEditModal({ ...editModal, open })}>
-          <DialogContent className="bg-gray-900 border-gray-700">
-            <DialogHeader><DialogTitle>Edit Draft</DialogTitle></DialogHeader>
-            <textarea
+{/* Edit Modal */ }
+<Dialog open={ editModal.open } onOpenChange = {(open) => setEditModal({ ...editModal, open })}>
+  <DialogContent className="bg-gray-900 border-gray-700" >
+    <DialogHeader><DialogTitle>Edit Draft < /DialogTitle></DialogHeader >
+      <textarea
               className="w-full h-40 p-2 rounded bg-gray-800 border border-gray-600 text-gray-200"
-              value={editModal.text}
-              onChange={e => setEditModal({ ...editModal, text: e.target.value })}
+value = { editModal.text }
+onChange = { e => setEditModal({ ...editModal, text: e.target.value })}
             />
-            <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setEditModal({ open: false, draftIdx: null, text: '' })} className="px-4 py-2 bg-gray-700 rounded text-gray-300">Cancel</button>
-              <button onClick={handleEditSave} className="px-4 py-2 bg-blue-600 rounded text-white">Save</button>
-              <button onClick={saveEditToMemory} className="px-4 py-2 bg-purple-700 rounded text-white flex items-center gap-2"><Save className="h-4 w-4" />Save to Memory</button>
-              {editSaveStatus && <span className="ml-2 text-purple-300 text-xs">{editSaveStatus}</span>}
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
+  < div className = "flex justify-end gap-2 mt-4" >
+    <button onClick={ () => setEditModal({ open: false, draftIdx: null, text: '' }) } className = "px-4 py-2 bg-gray-700 rounded text-gray-300" > Cancel </button>
+      < button onClick = { handleEditSave } className = "px-4 py-2 bg-blue-600 rounded text-white" > Save </button>
+        < button onClick = { saveEditToMemory } className = "px-4 py-2 bg-purple-700 rounded text-white flex items-center gap-2" > <Save className="h-4 w-4" /> Save to Memory </button>
+{ editSaveStatus && <span className="ml-2 text-purple-300 text-xs" > { editSaveStatus } </span> }
+</div>
+  </DialogContent>
+  </Dialog>
+  </div>
+  </div>
   );
 };
 
 export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailViewProps> = ({ opportunityId }) => {
   const router = useRouter();
-  const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
+  const [OrionOpportunity, setOpportunity] = useState<OrionOpportunity | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationOutput | null>(null);
   const [applicationDrafts, setApplicationDrafts] = useState<string[]>([]);
   const [stakeholders, setStakeholders] = useState<any[]>([]);
@@ -253,7 +271,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
   // Fetch evaluation data
   const fetchEvaluation = useCallback(async () => {
     try {
-      const response = await fetch(`/api/orion/opportunity/${opportunityId}/evaluation`, {
+      const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/evaluation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}), // Send empty JSON object
@@ -271,7 +289,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
   // Fetch application drafts
   const fetchApplicationDrafts = useCallback(async () => {
     try {
-      const response = await fetch(`/api/orion/opportunity/${opportunityId}/drafts`);
+      const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/drafts`);
       const data = await response.json();
 
       if (data.success) {
@@ -285,7 +303,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
   // Fetch stakeholders
   const fetchStakeholders = useCallback(async () => {
     try {
-      const response = await fetch(`/api/orion/opportunity/${opportunityId}/stakeholders`);
+      const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/stakeholders`);
       const data = await response.json();
 
       if (data.success) {
@@ -296,50 +314,50 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
     }
   }, [opportunityId]);
 
-  // Fetch opportunity data
+  // Fetch OrionOpportunity data
   const fetchOpportunityData = useCallback(async () => {
     try {
-      const response = await fetch(`/api/orion/opportunity/${opportunityId}`);
+      const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}`);
       const data = await response.json();
 
       if (data.success) {
-        setOpportunity(data.opportunity);
+        setOpportunity(data.OrionOpportunity);
 
         // If there's an evaluation ID, fetch the evaluation
-        if (data.opportunity.relatedEvaluationId) {
+        if (data.OrionOpportunity.relatedEvaluationId) {
           fetchEvaluation();
         }
 
         // Fetch application drafts if they exist
-        if (data.opportunity.applicationMaterialIds) {
+        if (data.OrionOpportunity.applicationMaterialIds) {
           fetchApplicationDrafts();
         }
 
         // Fetch stakeholders if they exist
-        if (data.opportunity.stakeholderContactIds) {
+        if (data.OrionOpportunity.stakeholderContactIds) {
           fetchStakeholders();
         }
       }
     } catch (error) {
-      console.error("Error fetching opportunity:", error);
+      console.error("Error fetching OrionOpportunity:", error);
     } finally {
       setIsLoading(false);
     }
   }, [opportunityId, fetchEvaluation, fetchApplicationDrafts, fetchStakeholders]);
 
-  // Fetch opportunity data
+  // Fetch OrionOpportunity data
   useEffect(() => {
     fetchOpportunityData();
   }, [opportunityId, fetchOpportunityData]);
 
   // Run evaluation
   const handleEvaluate = async () => {
-    if (!opportunity) return;
+    if (!OrionOpportunity) return;
 
     setIsEvaluating(true);
 
     try {
-      const response = await fetch(`/api/orion/opportunity/${opportunityId}/evaluation`, {
+      const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/evaluation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -354,8 +372,8 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
       if (data.success) {
         setEvaluation(data.evaluation);
 
-        // Update opportunity with evaluation ID
-        await fetch(`/api/orion/opportunity/${opportunityId}`, {
+        // Update OrionOpportunity with evaluation ID
+        await fetch(`/api/orion/OrionOpportunity/${opportunityId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json'
@@ -366,7 +384,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
         });
       }
     } catch (error) {
-      console.error("Error evaluating opportunity:", error);
+      console.error("Error evaluating OrionOpportunity:", error);
     } finally {
       setIsEvaluating(false);
     }
@@ -374,21 +392,21 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
 
   // Draft application
   const handleDraftApplication = async () => {
-    if (!opportunity) return;
+    if (!OrionOpportunity) return;
 
     setIsDraftingApplication(true);
 
     try {
-      const response = await fetch('/api/orion/opportunity/draft-application', {
+      const response = await fetch('/api/orion/OrionOpportunity/draft-application', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          opportunity: {
-            title: opportunity.title,
-            company: opportunity.company,
-            content: opportunity.content || '',
+          OrionOpportunity: {
+            title: OrionOpportunity.title,
+            company: OrionOpportunity.company,
+            content: OrionOpportunity.content || '',
           },
           evaluationSummary: evaluation,
           numberOfDrafts: 3
@@ -400,8 +418,8 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
       if (data.success) {
         setApplicationDrafts(data.drafts);
 
-        // Update opportunity with application draft IDs
-        await fetch(`/api/orion/opportunity/${opportunityId}`, {
+        // Update OrionOpportunity with application draft IDs
+        await fetch(`/api/orion/OrionOpportunity/${opportunityId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json'
@@ -420,7 +438,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
 
   // Search stakeholders
   const handleSearchStakeholders = async () => {
-    if (!opportunity) return;
+    if (!OrionOpportunity) return;
 
     setIsSearchingStakeholders(true);
 
@@ -431,7 +449,7 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          company: opportunity.company,
+          company: OrionOpportunity.company,
           roles: ['Engineering Manager', 'Recruiter', 'CTO']
         })
       });
@@ -441,8 +459,8 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
       if (data.success) {
         setStakeholders(data.stakeholders);
 
-        // Update opportunity with stakeholder IDs
-        await fetch(`/api/orion/opportunity/${opportunityId}`, {
+        // Update OrionOpportunity with stakeholder IDs
+        await fetch(`/api/orion/OrionOpportunity/${opportunityId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json'
@@ -467,8 +485,8 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
 
   // Open reflection dialog
   const openReflectionDialog = (type: 'application_sent' | 'interview_completed' | 'outreach_sent' | 'general') => {
-    if (opportunity) {
-      journalReflectionDialogStore.setDialogData({ opportunity, actionType: type });
+    if (OrionOpportunity) {
+      journalReflectionDialogStore.setDialogData({ OrionOpportunity, actionType: type });
       journalReflectionDialogStore.open();
     }
   };
@@ -477,75 +495,76 @@ export const EnhancedOpportunityDetailView: React.FC<EnhancedOpportunityDetailVi
     return <div>Loading...</div>;
   }
 
-  if (!opportunity) {
-    return <div>Opportunity not found.</div>;
+  if (!OrionOpportunity) {
+    return <div>OrionOpportunity not found.</div>;
   }
 
   return (
-    <div className="p-4 sm:p-6">
-      <Button onClick={() => router.back()} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
+    <div className= "p-4 sm:p-6" >
+    <Button onClick={ () => router.back() } className = "mb-4" >
+      <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Pipeline
-      </Button>
+          </Button>
 
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold">{opportunity.title}</h1>
-        <p className="text-xl text-muted-foreground">{opportunity.company}</p>
-      </header>
+          < header className = "mb-6" >
+            <h1 className="text-3xl font-bold" > { OrionOpportunity.title } </h1>
+              < p className = "text-xl text-muted-foreground" > { OrionOpportunity.company } </p>
+                </header>
 
-      <div className="mt-6">
-        <Tabs defaultValue="analysis" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analysis">Analysis</TabsTrigger>
-            <TabsTrigger value="application">Application</TabsTrigger>
-            <TabsTrigger value="stakeholders">Stakeholders</TabsTrigger>
-          </TabsList>
+                < div className = "mt-6" >
+                  <Tabs defaultValue="analysis" className = "w-full" >
+                    <TabsList className="grid w-full grid-cols-4" >
+                      <TabsTrigger value="overview" > Overview </TabsTrigger>
+                        < TabsTrigger value = "analysis" > Analysis </TabsTrigger>
+                          < TabsTrigger value = "application" > Application </TabsTrigger>
+                            < TabsTrigger value = "stakeholders" > Stakeholders </TabsTrigger>
+                              </TabsList>
 
-          <TabsContent value="overview">
-            <Card>
-              <CardHeader><CardTitle>Opportunity Details</CardTitle></CardHeader>
-              <CardContent>
-                <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: opportunity.content || '' }} />
-              </CardContent>
+                              < TabsContent value = "overview" >
+                                <Card>
+                                <CardHeader><CardTitle>OrionOpportunity Details < /CardTitle></CardHeader >
+                                  <CardContent>
+                                  <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML = {{ __html: OrionOpportunity.content || '' }
+} />
+  </CardContent>
+  </Card>
+  </TabsContent>
+
+  < TabsContent value = "analysis" >
+    <Card>
+    <CardHeader>
+    <div className="flex justify-between items-center" >
+      <CardTitle>Orion's Analysis</CardTitle>
+        < Button onClick = { handleEvaluate } disabled = { isEvaluating } >
+          { isEvaluating? 'Evaluating...': 'Re-evaluate' }
+          </Button>
+          </div>
+          </CardHeader>
+          < CardContent >
+          <ComprehensiveAnalysis evaluation={ evaluation } />
+            </CardContent>
             </Card>
-          </TabsContent>
+            </TabsContent>
 
-          <TabsContent value="analysis">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Orion's Analysis</CardTitle>
-                  <Button onClick={handleEvaluate} disabled={isEvaluating}>
-                    {isEvaluating ? 'Evaluating...' : 'Re-evaluate'}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ComprehensiveAnalysis evaluation={evaluation} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            < TabsContent value = "application" >
+              <Card>
+              <CardHeader><CardTitle>Application Materials < /CardTitle></CardHeader >
+                <CardContent>
+                <ApplicationDraftsPanel opportunityId={ opportunityId } />
+                  </CardContent>
+                  </Card>
+                  </TabsContent>
 
-          <TabsContent value="application">
-            <Card>
-              <CardHeader><CardTitle>Application Materials</CardTitle></CardHeader>
-              <CardContent>
-                <ApplicationDraftsPanel opportunityId={opportunityId} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="stakeholders">
-            <Card>
-              <CardHeader><CardTitle>Key Stakeholders</CardTitle></CardHeader>
-              <CardContent>
-                <FindStakeholdersButton opportunity={opportunity} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+                  < TabsContent value = "stakeholders" >
+                    <Card>
+                    <CardHeader><CardTitle>Key Stakeholders < /CardTitle></CardHeader >
+                      <CardContent>
+                      <FindStakeholdersButton OrionOpportunity={ OrionOpportunity } />
+                        </CardContent>
+                        </Card>
+                        </TabsContent>
+                        </Tabs>
+                        </div>
+                        </div>
   );
 };

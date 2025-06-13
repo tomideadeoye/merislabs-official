@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@shared/lib/database';
-import { EmotionalLogEntry } from '@shared/types/orion';
+import { NextRequest, NextResponse } from "next/server";
+import { query, sql } from "@repo/shared/database";
+import { EmotionalLogEntry } from '@repo/shared';
 
 export const dynamic = "force-dynamic";
 
@@ -10,12 +10,12 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const limit = parseInt(url.searchParams.get('limit') || '50');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
-    const startDate = url.searchParams.get('startDate');
-    const endDate = url.searchParams.get('endDate');
-    const emotion = url.searchParams.get('emotion');
-    const hasDistortionAnalysis = url.searchParams.get('hasDistortionAnalysis');
+    const limit = parseInt(url.searchParams.get("limit") || "50");
+    const offset = parseInt(url.searchParams.get("offset") || "0");
+    const startDate = url.searchParams.get("startDate");
+    const endDate = url.searchParams.get("endDate");
+    const emotion = url.searchParams.get("emotion");
+    const hasDistortionAnalysis = url.searchParams.get("hasDistortionAnalysis");
 
     // Build query with filters
     let queryStr = `SELECT * FROM emotional_logs WHERE 1=1`;
@@ -36,9 +36,9 @@ export async function GET(req: NextRequest) {
       params.emotion = emotion;
     }
 
-    if (hasDistortionAnalysis === 'true') {
+    if (hasDistortionAnalysis === "true") {
       queryStr += ` AND cognitiveDistortionAnalysis IS NOT NULL`;
-    } else if (hasDistortionAnalysis === 'false') {
+    } else if (hasDistortionAnalysis === "false") {
       queryStr += ` AND cognitiveDistortionAnalysis IS NULL`;
     }
 
@@ -63,36 +63,38 @@ export async function GET(req: NextRequest) {
       id: row.id,
       timestamp: row.timestamp,
       primaryEmotion: row.primaryEmotion,
-      secondaryEmotions: JSON.parse(row.secondaryEmotions || '[]'),
+      secondaryEmotions: JSON.parse(row.secondaryEmotions || "[]"),
       intensity: row.intensity,
-      triggers: JSON.parse(row.triggers || '[]'),
-      physicalSensations: JSON.parse(row.physicalSensations || '[]'),
+      triggers: JSON.parse(row.triggers || "[]"),
+      physicalSensations: JSON.parse(row.physicalSensations || "[]"),
       accompanyingThoughts: row.accompanyingThoughts,
-      copingMechanismsUsed: JSON.parse(row.copingMechanismsUsed || '[]'),
+      copingMechanismsUsed: JSON.parse(row.copingMechanismsUsed || "[]"),
       contextualNote: row.contextualNote,
       relatedJournalSourceId: row.relatedJournalSourceId,
-      cognitiveDistortionAnalysis: row.cognitiveDistortionAnalysis ?
-                                  JSON.parse(row.cognitiveDistortionAnalysis) :
-                                  undefined
+      cognitiveDistortionAnalysis: row.cognitiveDistortionAnalysis
+        ? JSON.parse(row.cognitiveDistortionAnalysis)
+        : undefined,
     }));
 
     // Get total count for pagination
     const countResult = await query(
       `SELECT COUNT(*) as count FROM emotional_logs`
     );
-    const total = parseInt(countResult.rows[0]?.count || '0', 10);
+    const total = parseInt(countResult.rows[0]?.count || "0", 10);
 
     return NextResponse.json({
       success: true,
       logs,
-      total
+      total,
     });
-
   } catch (error: any) {
-    console.error('Error in GET /api/orion/emotions/history:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'An unexpected error occurred'
-    }, { status: 500 });
+    console.error("Error in GET /api/orion/emotions/history:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

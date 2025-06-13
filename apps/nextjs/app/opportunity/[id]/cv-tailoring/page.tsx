@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { CVTailoringStudio } from '@/components/orion/CVTailoringStudio';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { Loader2 } from 'lucide-react';
 
 export default function CVTailoringPage() {
   const params = useParams();
   const opportunityId = params?.id as string;
 
-  const [opportunity, setOpportunity] = useState<any>(null);
+  const [OrionOpportunity, setOpportunity] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,13 +23,13 @@ export default function CVTailoringPage() {
     async function fetchOpportunity() {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/orion/opportunity/${opportunityId}`);
+        const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}`);
         const data = await response.json();
 
         if (data.success) {
-          setOpportunity(data.opportunity);
+          setOpportunity(data.OrionOpportunity);
         } else {
-          setError(data.error || 'Failed to fetch opportunity');
+          setError(data.error || 'Failed to fetch OrionOpportunity');
         }
       } catch (err: any) {
         setError(err.message || 'An error occurred');
@@ -64,14 +64,14 @@ export default function CVTailoringPage() {
     );
   }
 
-  if (!opportunity) {
+  if (!OrionOpportunity) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Opportunity Not Found</CardTitle>
+          <CardTitle>OrionOpportunity Not Found</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>The requested opportunity could not be found.</p>
+          <p>The requested OrionOpportunity could not be found.</p>
         </CardContent>
       </Card>
     );
@@ -81,11 +81,11 @@ export default function CVTailoringPage() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>CV Tailoring for {opportunity.title}</CardTitle>
+          <CardTitle>CV Tailoring for {OrionOpportunity.title}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-gray-500 mb-4">
-            Tailor your CV for this opportunity using AI assistance. The system will suggest relevant components,
+            Tailor your CV for this OrionOpportunity using AI assistance. The system will suggest relevant components,
             help you rephrase content to match the job requirements, and assemble a final CV.
           </p>
           {/* Auto Generate CV Button */}
@@ -97,14 +97,14 @@ export default function CVTailoringPage() {
                 setAutoGenLoading(true);
                 setAutoGenError(null);
                 try {
-                  // Fetch all CV components for this opportunity
+                  // Fetch all CV components for this OrionOpportunity
                   const res = await fetch(`/api/orion/cv-components?opportunityId=${opportunityId}`);
                   const data = await res.json();
                   if (!data.success) {
                     throw new Error(data.error || 'Failed to fetch CV components');
                   }
                   // Navigate to tailor content page (data will be fetched again on that page)
-                  router.push(`/opportunity/${opportunityId}/tailor-content`);
+                  router.push(`/OrionOpportunity/${opportunityId}/tailor-content`);
                 } catch (err: any) {
                   setAutoGenError(err.message || 'Failed to auto-generate CV');
                 } finally {
@@ -127,14 +127,14 @@ export default function CVTailoringPage() {
           </div>
 
           <CVTailoringStudio
-            jdAnalysis={opportunity.description || ''}
-            jobTitle={opportunity.title || ''}
-            companyName={opportunity.company || ''}
-            webResearchContext={opportunity.webResearchContext || ''}
+            jdAnalysis={OrionOpportunity.description || ''}
+            jobTitle={OrionOpportunity.title || ''}
+            companyName={OrionOpportunity.company || ''}
+            webResearchContext={OrionOpportunity.webResearchContext || ''}
             opportunityId={opportunityId}
             onCVAssembled={(cv) => {
-              // Save the CV to the opportunity record
-              fetch(`/api/orion/opportunity/${opportunityId}/cv`, {
+              // Save the CV to the OrionOpportunity record
+              fetch(`/api/orion/OrionOpportunity/${opportunityId}/cv`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cv })

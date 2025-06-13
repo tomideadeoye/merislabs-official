@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button, Input, Textarea, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui';
 import { Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
-import { OpportunityNotionPayload } from '@shared/lib/notion_next_service';
+import { OpportunityNotionPayload } from '@repo/shared/notion_next_service';
 
 export const NotionOpportunityForm = () => {
   const [title, setTitle] = useState('');
@@ -35,7 +35,7 @@ export const NotionOpportunityForm = () => {
         status
       };
 
-      const response = await fetch('/api/orion/notion/opportunity', {
+      const response = await fetch('/api/orion/notion/OrionOpportunity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ export const NotionOpportunityForm = () => {
       const data = await response.json();
 
       if (data.success) {
-        setFeedback({ type: 'success', message: 'Opportunity created in Notion successfully!' });
+        setFeedback({ type: 'success', message: 'OrionOpportunity created in Notion successfully!' });
 
         // Reset form
         setTitle('');
@@ -55,10 +55,10 @@ export const NotionOpportunityForm = () => {
         setUrl('');
         setStatus('Identified');
       } else {
-        throw new Error(data.error || 'Failed to create opportunity in Notion');
+        throw new Error(data.error || 'Failed to create OrionOpportunity in Notion');
       }
     } catch (err: any) {
-      console.error('Error creating opportunity in Notion:', err);
+      console.error('Error creating OrionOpportunity in Notion:', err);
       setFeedback({ type: 'error', message: err.message || 'An unexpected error occurred' });
     } finally {
       setIsSubmitting(false);
@@ -67,7 +67,7 @@ export const NotionOpportunityForm = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-gray-100">Create Opportunity in Notion</h2>
+      <h2 className="text-xl font-semibold text-gray-100">Create OrionOpportunity in Notion</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -78,7 +78,7 @@ export const NotionOpportunityForm = () => {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Senior Software Engineer"
             className="bg-gray-700 border-gray-600 text-gray-200"
-            required
+            required={true}
           />
         </div>
 
@@ -153,10 +153,9 @@ export const NotionOpportunityForm = () => {
         </Button>
 
         {feedback && (
-          <div className={`p-3 rounded-md flex items-center ${
-            feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
-                                     : 'bg-red-900/30 border border-red-700 text-red-300'
-          }`}>
+          <div className={`p-3 rounded-md flex items-center ${feedback.type === 'success' ? 'bg-green-900/30 border border-green-700 text-green-300'
+            : 'bg-red-900/30 border border-red-700 text-red-300'
+            }`}>
             {feedback.type === 'success' ?
               <CheckCircle className="h-5 w-5 mr-2" /> :
               <AlertTriangle className="h-5 w-5 mr-2" />

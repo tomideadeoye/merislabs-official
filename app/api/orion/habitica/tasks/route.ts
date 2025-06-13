@@ -1,2 +1,2 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@shared/lib/database';
+import { NextRequest, NextResponse } from "next/server";
+import { query, sql } from "@repo/shared/lib/database";

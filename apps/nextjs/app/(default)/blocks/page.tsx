@@ -1,8 +1,8 @@
 "use client";
 
-import Controls from "@/components/builder/Controls";
-import OtherInfo from "@/components/builder/OtherInfo";
-import { Project, projects } from "@/components/projects";
+import Controls from "../../../components/builder/Controls";
+import OtherInfo from "../../../components/builder/OtherInfo";
+import { Project, projects } from "../../../components/projects";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useState } from "react";
 import { IoMdBookmark } from "react-icons/io";

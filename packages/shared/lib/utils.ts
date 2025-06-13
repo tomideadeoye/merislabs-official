@@ -23,9 +23,9 @@ export function getOrionSourceUrl(sourceModule?: string, referenceId?: string): 
       // Link to pattern tracker, maybe with query to highlight the insight
       return `/admin/insights?highlight=${referenceId}`;
 
-    case 'Opportunity Evaluator':
-      // Link to opportunity evaluator, maybe with query to highlight the opportunity
-      return `/admin/opportunity?highlight=${referenceId}`;
+    case 'OrionOpportunity Evaluator':
+      // Link to OrionOpportunity evaluator, maybe with query to highlight the OrionOpportunity
+      return `/admin/OrionOpportunity?highlight=${referenceId}`;
 
     default:
       return '/admin'; // Fallback

@@ -4,16 +4,16 @@ import React from 'react';
 import { Card, CardContent, CardFooter, Badge } from '@repo/ui';
 import { Calendar, ExternalLink, BarChart2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { Opportunity } from '@shared/types/opportunity';
+import { OrionOpportunity } from '@repo/shared';
 import Link from 'next/link';
 
 interface OpportunityCardProps {
-  opportunity: Opportunity;
+  OrionOpportunity: OrionOpportunity;
 }
 
-export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity }) => {
-  console.log('[OpportunityCard][RENDER]', { opportunity });
-  console.log('[OpportunityCard][COMPANY]', opportunity.companyOrInstitution);
+export const OpportunityCard: React.FC<OpportunityCardProps> = ({ OrionOpportunity }) => {
+  console.log('[OpportunityCard][RENDER]', { OrionOpportunity });
+  console.log('[OpportunityCard][COMPANY]', OrionOpportunity.companyOrInstitution);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -53,10 +53,10 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
     <Card className="bg-gray-800 border-gray-700 hover:border-gray-500 transition-all">
       <CardContent className="pt-4">
         <div className="flex justify-between items-start">
-          <h3 className="text-lg font-medium text-gray-200 line-clamp-2">{opportunity.title}</h3>
-          {opportunity.status ? (
-            <Badge className={`${getStatusColor(opportunity.status)} text-white`}>
-              {formatStatus(opportunity.status)}
+          <h3 className="text-lg font-medium text-gray-200 line-clamp-2">{OrionOpportunity.title}</h3>
+          {OrionOpportunity.status ? (
+            <Badge className={`${getStatusColor(OrionOpportunity.status)} text-white`}>
+              {formatStatus(OrionOpportunity.status)}
             </Badge>
           ) : (
             <Badge className="bg-gray-500 text-white">Unknown</Badge>
@@ -64,23 +64,23 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
         </div>
 
         <p className="text-sm text-gray-300 mt-2">
-          {opportunity.companyOrInstitution && (
-            <span>{opportunity.companyOrInstitution}</span>
+          {OrionOpportunity.companyOrInstitution && (
+            <span>{OrionOpportunity.companyOrInstitution}</span>
           )}
         </p>
 
         <p className="text-sm text-gray-400 mt-2 line-clamp-2">
-          {opportunity.content || 'No description available'}
+          {OrionOpportunity.content || 'No description available'}
         </p>
 
         <div className="flex items-center mt-3 text-xs text-gray-500">
           <Calendar className="h-3 w-3 mr-1" />
           <span>
-            Added {opportunity.dateIdentified ? formatDistanceToNow(new Date(opportunity.dateIdentified)) + ' ago' : 'Unknown date'}
+            Added {OrionOpportunity.dateIdentified ? formatDistanceToNow(new Date(OrionOpportunity.dateIdentified)) + ' ago' : 'Unknown date'}
           </span>
         </div>
 
-        {opportunity.relatedEvaluationId && (
+        {OrionOpportunity.relatedEvaluationId && (
           <div className="flex items-center mt-2 text-xs text-blue-400">
             <BarChart2 className="h-3 w-3 mr-1" />
             <span>Evaluation available</span>
@@ -90,15 +90,15 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
 
       <CardFooter className="pt-0 flex justify-between">
         <Link
-          href={`/admin/opportunity-pipeline/${opportunity.id}`}
+          href={`/admin/OrionOpportunity-pipeline/${OrionOpportunity.id}`}
           className="text-xs text-blue-400 hover:text-blue-300"
         >
           View details
         </Link>
 
-        {opportunity.sourceURL && (
+        {OrionOpportunity.sourceURL && (
           <a
-            href={opportunity.sourceURL}
+            href={OrionOpportunity.sourceURL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-gray-400 hover:text-gray-300 flex items-center"

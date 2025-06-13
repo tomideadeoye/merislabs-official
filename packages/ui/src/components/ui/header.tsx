@@ -1,21 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar, Button } from '@repo/ui';
+import { Avatar, Button } from "@repo/ui";
 import MobileMenu from "./mobile-menu";
 import { usePathname } from "next/navigation";
-import type { NavItem } from "@shared/types/nav";
+import type { NavItem } from "@repo/shared/types/nav";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { logger } from "@shared/lib/logger";
+import { logger } from "@repo/shared/logger";
 
 interface HeaderProps {
   navItems: NavItem[];
 }
 
 export function Header({ navItems }: HeaderProps) {
-  logger.info("[Header] Component rendering.", { itemCount: navItems.length });
+  logger.info("[Header] Component rendering.", { itemCount: navItems?.length ?? 0 });
   const currentPage = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -49,11 +49,10 @@ export function Header({ navItems }: HeaderProps) {
                 <li key={item.id}>
                   <Link
                     href={item.link}
-                    className={`inline-block cursor-pointer px-4 py-2 font-medium transition duration-300 ease-in-out
-                      ${isActive(item.link)
-                        ? "border-b-2 border-yellow-500 text-yellow-700 dark:text-yellow-300"
-                        : "text-gray-900 dark:text-white hover:text-blue-700 dark:hover:text-yellow-200"}
-                    `}
+                    className={`inline-block cursor-pointer px-4 py-2 font-medium transition duration-300 ease-in-out ${isActive(item.link)
+                      ? "border-b-2 border-yellow-500 text-yellow-700 dark:text-yellow-300"
+                      : "text-gray-900 dark:text-white hover:text-blue-700 dark:hover:text-yellow-200"
+                      }`}
                   >
                     {item.id}
                   </Link>

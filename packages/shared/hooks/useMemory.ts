@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
-import { 
-  searchMemory, 
-  addMemory, 
-  findMemoriesByType, 
+import {
+  searchMemory,
+  addMemory,
+  findMemoriesByType,
   findMemoriesByTag,
   ScoredMemoryPoint,
   MemorySearchOptions
-} from '@/lib/memory';
+} from '../src/lib/memory';
 
 /**
  * Hook for interacting with the memory system
@@ -20,15 +20,15 @@ export function useMemory() {
    * Search memory
    */
   const search = useCallback(async (
-    query: string, 
+    query: string,
     options?: MemorySearchOptions
   ) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await searchMemory(query, options);
-      
+
       if (response.success && response.results) {
         setResults(response.results);
         return response.results;
@@ -56,14 +56,14 @@ export function useMemory() {
   ) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await addMemory(text, sourceId, type, tags, additionalFields);
-      
+
       if (!response.success) {
         setError(response.error || 'Unknown error');
       }
-      
+
       return response.success;
     } catch (err: any) {
       setError(err.message || 'Error adding memory');
@@ -79,10 +79,10 @@ export function useMemory() {
   const findByType = useCallback(async (type: string, limit: number = 10) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await findMemoriesByType(type, limit);
-      
+
       if (response.success && response.results) {
         setResults(response.results);
         return response.results;
@@ -104,10 +104,10 @@ export function useMemory() {
   const findByTag = useCallback(async (tag: string, limit: number = 10) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await findMemoriesByTag(tag, limit);
-      
+
       if (response.success && response.results) {
         setResults(response.results);
         return response.results;
