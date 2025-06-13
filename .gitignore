@@ -198,3 +198,37 @@ coverage/
 
 # Ignore generated files
 *.generated.*
+
+# Ignore secret and credential files
+backend/orion_python_backend/client_secret_*.json
+backend/orion_python_backend/*.pem
+backend/orion_python_backend/*.key
+backend/orion_python_backend/*.crt
+
+# Ignore environment variable files
+.env
+.env.*
+
+# Ignore Python virtual environments
+venv/
+__pycache__/
+
+# Ignore log files
+*.log
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE/editor folders
+.vscode/
+.idea/
+
+# Ignore test output
+coverage/
+
+# Ignore database files
+*.sqlite
+*.db
+
+# Add more patterns as needed for your project
