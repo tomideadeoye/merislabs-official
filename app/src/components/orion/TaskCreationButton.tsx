@@ -1,108 +1,52 @@
 'use client';
 
-import { Loader2, Plus, AlertTriangle } from "lucide-react";
-import { useState } from "react";
-import { useSessionState } from "../../hooks/useSessionState";
-import { SessionStateKeys } from "../../types";
+import React, { useState } from 'react';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui';
+import { Plus } from 'lucide-react';
+import { HabiticaTaskForm } from './HabiticaTaskForm';
 
-
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// Note if any: components to merge with, similar or redundant component
-
+// GOAL OF FILE|FEATURES|FUNCTIONS:
+// This component provides a button that opens a dialog to create a new Habitica task.
+// It manages the dialog's open/close state.
 
 interface TaskCreationButtonProps {
-  className?: string;
-  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  onTaskCreated?: () => void;
   initialText?: string;
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
 }
 
 export const TaskCreationButton: React.FC<TaskCreationButtonProps> = ({
+  onTaskCreated,
+  initialText,
+  variant,
+  size,
   className,
-  variant = 'default',
-  size = 'default',
 }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [isCheckingCredentials, setIsCheckingCredentials] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [habiticaUserId] = useSessionState(SessionStateKeys.HABITICA_USER_ID, '');
-  const [habiticaApiToken] = useSessionState(SessionStateKeys.HABITICA_API_TOKEN, '');
-
-  const handleClick = async () => {
-    setError(null);
-
-    if (!habiticaUserId || !habiticaApiToken) {
-      setError('Habitica credentials not set. Please set them in the Habitica page.');
-      return;
-    }
-
-    setIsCheckingCredentials(true);
-
-    try {
-      // Verify credentials by making a test API call
-      const response = await fetch('/api/orion/habitica/stats', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: habiticaUserId, apiToken: habiticaApiToken }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setIsDialogOpen(true);
-      } else {
-        throw new Error(data.error || 'Failed to verify Habitica credentials');
-      }
-    } catch (err: unknown) {
-      console.error('Error verifying Habitica credentials:', err);
-      setError((err as Error).message || 'An unexpected error occurred');
-    } finally {
-      setIsCheckingCredentials(false);
-    }
-  };
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleTaskCreated = () => {
-    setIsDialogOpen(false);
+    setIsOpen(false);
+    if (onTaskCreated) {
+      onTaskCreated();
+    }
   };
 
   return (
     <>
-      <Button
-        variant={variant}
-        size={size}
-        onClick={handleClick}
-        disabled={isCheckingCredentials}
-        className={className}
-      >
-        {isCheckingCredentials ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Task
-          </>
-        )}
+      <Button onClick={() => setIsOpen(true)} variant={variant} size={size} className={className}>
+        <Plus className="mr-2 h-4 w-4" />
+        New Task
       </Button>
 
-      {error && (
-        <div className="mt-2 bg-red-900/30 border border-red-700 text-red-300 p-2 rounded-md text-xs flex items-center">
-          <AlertTriangle className="h-3 w-3 mr-1" />
-          {error}
-        </div>
-      )}
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-gray-800 border-gray-700">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-gray-800 border-gray-700 text-gray-200">
           <DialogHeader>
-            <DialogTitle className="text-gray-200">Create Habitica Task</DialogTitle>
+            <DialogTitle className="text-gray-200">Create New Habitica Task</DialogTitle>
             <DialogDescription className="text-gray-400">Add a new task to your Habitica account</DialogDescription>
           </DialogHeader>
-
-          <HabiticaTaskForm onTaskCreated={handleTaskCreated} />
+          <HabiticaTaskForm onTaskCreated={handleTaskCreated} initialText={initialText} />
         </DialogContent>
       </Dialog>
     </>

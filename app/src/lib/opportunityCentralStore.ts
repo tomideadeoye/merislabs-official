@@ -1,4 +1,4 @@
-import { OrionOpportunityDetails, OrionOpportunity, Stakeholder } from '@/index';
+import type { OrionOpportunityDetails, OrionOpportunity, Stakeholder } from '@/types';
 import { create, StateCreator } from 'zustand';
 
 // NOTE: The previous comment about stubbing Stakeholder is no longer relevant as it is correctly imported.
@@ -29,47 +29,19 @@ export type SortableOpportunityKeys =
   | 'type'
   | 'status';
 
-// Forward declaration for the main store type to resolve circular dependency
-export type OpportunityCentralStoreType = BoardSlice &
-  DialogSlice &
-  FiltersSlice &
-  DraftApplicationDialogSlice &
-  FinalizeAndSendEmailDialogSlice &
-  GenerateOutreachDialogSlice &
-  FindStakeholdersDialogSlice;
+// --- Slice Interfaces ---
 
-// --- Board Slice ---
 interface BoardSlice {
   needsRefetch: boolean;
   setNeedsRefetch: (value: boolean) => void;
 }
-const createBoardSlice: StateCreator<OpportunityCentralStoreType, [], [], BoardSlice> = (set): BoardSlice => ({
-  needsRefetch: false,
-  setNeedsRefetch: (value: boolean) => {
-    console.info('[CentralStore][Board] setNeedsRefetch', { value });
-    set({ needsRefetch: value });
-  },
-});
 
-// --- Dialog Slice ---
 interface DialogSlice {
   isDialogOpen: boolean;
   openDialog: () => void;
   closeDialog: () => void;
 }
-const createDialogSlice: StateCreator<OpportunityCentralStoreType, [], [], DialogSlice> = (set): DialogSlice => ({
-  isDialogOpen: false,
-  openDialog: () => {
-    console.debug('[CentralStore][Dialog] openDialog');
-    set({ isDialogOpen: true });
-  },
-  closeDialog: () => {
-    console.debug('[CentralStore][Dialog] closeDialog');
-    set({ isDialogOpen: false });
-  },
-});
 
-// --- Filters Slice ---
 type SortOrder = 'asc' | 'desc';
 type Filters = Partial<OrionOpportunityDetails> & { tag?: string };
 interface FiltersSlice {
@@ -81,59 +53,20 @@ interface FiltersSlice {
   setSortOrder: (sortOrder: SortOrder) => void;
   clearFilters: () => void;
 }
-const createFiltersSlice = (set: SetState<OpportunityCentralStoreType>): FiltersSlice => ({
-  filters: {} as Filters,
-  sort: 'updatedAt' as SortableOpportunityKeys,
-  sortOrder: 'desc' as SortOrder,
-  setFilters: (filters: Filters) => {
-    console.info('[CentralStore][Filters] setFilters', { filters });
-    set({ filters });
-  },
-  setSort: (sort: SortableOpportunityKeys) => {
-    console.info('[CentralStore][Filters] setSort', { sort });
-    set({ sort });
-  },
-  setSortOrder: (sortOrder: SortOrder) => {
-    console.info('[CentralStore][Filters] setSortOrder', { sortOrder });
-    set({ sortOrder });
-  },
-  clearFilters: () => {
-    console.info('[CentralStore][Filters] clearFilters');
-    set({ filters: {} });
-  },
-});
 
-// --- Draft Application Dialog Slice ---
 interface DraftApplicationDialogSlice {
   isDraftDialogOpen: boolean;
   draftOpportunity: OrionOpportunity | undefined;
   openDraftDialog: (orionOpportunity: OrionOpportunity) => void;
   closeDraftDialog: () => void;
 }
-const createDraftApplicationDialogSlice = (
-  set: SetState<OpportunityCentralStoreType>
-): DraftApplicationDialogSlice => ({
-  isDraftDialogOpen: false,
-  draftOpportunity: undefined as OrionOpportunity | undefined,
-  openDraftDialog: (orionOpportunity: OrionOpportunity) => {
-    console.debug('[CentralStore][DraftDialog] openDraftDialog', {
-      orionOpportunity,
-    });
-    set({ isDraftDialogOpen: true, draftOpportunity: orionOpportunity });
-  },
-  closeDraftDialog: () => {
-    console.debug('[CentralStore][DraftDialog] closeDraftDialog');
-    set({ isDraftDialogOpen: false, draftOpportunity: undefined });
-  },
-});
 
-// --- Finalize and Send Email Dialog Slice ---
 interface FinalizeAndSendEmailDialogSlice {
   isFinalizeDialogOpen: boolean;
   initialTo: string;
   initialSubject: string;
   initialHtmlBody: string;
-  attachmentsToSend: File[]; // Assuming attachments are File objects
+  attachmentsToSend: File[];
   openFinalizeDialog: () => void;
   closeFinalizeDialog: () => void;
   setFinalizeDialogData: (data: {
@@ -143,31 +76,7 @@ interface FinalizeAndSendEmailDialogSlice {
     attachmentsToSend?: File[];
   }) => void;
 }
-const createFinalizeAndSendEmailDialogSlice = (
-  set: SetState<OpportunityCentralStoreType>
-): FinalizeAndSendEmailDialogSlice => ({
-  isFinalizeDialogOpen: false,
-  initialTo: '',
-  initialSubject: '',
-  initialHtmlBody: '',
-  attachmentsToSend: [] as File[],
-  openFinalizeDialog: () => {
-    console.debug('[CentralStore][FinalizeDialog] openFinalizeDialog');
-    set({ isFinalizeDialogOpen: true });
-  },
-  closeFinalizeDialog: () => {
-    console.debug('[CentralStore][FinalizeDialog] closeFinalizeDialog');
-    set({ isFinalizeDialogOpen: false });
-  },
-  setFinalizeDialogData: (data) => {
-    console.info('[CentralStore][FinalizeDialog] setFinalizeDialogData', {
-      data,
-    });
-    set({ ...data });
-  },
-});
 
-// --- Generate Outreach Dialog Slice ---
 interface GenerateOutreachDialogSlice {
   isOutreachDialogOpen: boolean;
   stakeholder: Stakeholder | undefined;
@@ -181,40 +90,8 @@ interface GenerateOutreachDialogSlice {
     onOutreachGenerated?: (outreach: string) => void;
   }) => void;
   closeOutreachDialog: () => void;
-  setOutreachDialogData: (data: {
-    stakeholder?: Stakeholder;
-    opportunityTitle?: string;
-    opportunityCompany?: string;
-    onOutreachGenerated?: (outreach: string) => void;
-  }) => void;
 }
-const createGenerateOutreachDialogSlice = (
-  set: SetState<OpportunityCentralStoreType>
-): GenerateOutreachDialogSlice => ({
-  isOutreachDialogOpen: false,
-  stakeholder: undefined as Stakeholder | undefined,
-  opportunityTitle: undefined as string | undefined,
-  opportunityCompany: undefined as string | undefined,
-  onOutreachGenerated: undefined as ((outreach: string) => void) | undefined,
-  openOutreachDialog: (data) => {
-    console.debug('[CentralStore][OutreachDialog] openOutreachDialog', {
-      data,
-    });
-    set({ isOutreachDialogOpen: true, ...data });
-  },
-  closeOutreachDialog: () => {
-    console.debug('[CentralStore][OutreachDialog] closeOutreachDialog');
-    set({ isOutreachDialogOpen: false });
-  },
-  setOutreachDialogData: (data) => {
-    console.info('[CentralStore][OutreachDialog] setOutreachDialogData', {
-      data,
-    });
-    set({ ...data });
-  },
-});
 
-// --- Find Stakeholders Dialog Slice ---
 interface FindStakeholdersDialogSlice {
   isFindStakeholdersDialogOpen: boolean;
   stakeholders: Stakeholder[];
@@ -226,45 +103,104 @@ interface FindStakeholdersDialogSlice {
   setSelectedStakeholder: (stakeholder: Stakeholder | null) => void;
   setOpportunity: (orionOpportunity: OrionOpportunity) => void;
 }
-const createFindStakeholdersDialogSlice = (
-  set: SetState<OpportunityCentralStoreType>
-): FindStakeholdersDialogSlice => ({
-  isFindStakeholdersDialogOpen: false,
-  stakeholders: [] as Stakeholder[],
-  selectedStakeholder: null as Stakeholder | null,
-  orionOpportunity: undefined as OrionOpportunity | undefined,
-  openFindStakeholdersDialog: () => {
-    console.debug('[CentralStore][FindStakeholdersDialog] openFindStakeholdersDialog');
-    set({ isFindStakeholdersDialogOpen: true });
-  },
-  closeFindStakeholdersDialog: () => {
-    console.debug('[CentralStore][FindStakeholdersDialog] closeFindStakeholdersDialog');
-    set({ isFindStakeholdersDialogOpen: false, selectedStakeholder: null });
-  },
-  setStakeholders: (stakeholders: Stakeholder[]) => {
-    console.info('[CentralStore][FindStakeholdersDialog] setStakeholders', {
-      stakeholders,
-    });
-    set({ stakeholders });
-  },
-  setSelectedStakeholder: (stakeholder: Stakeholder | null) => {
-    console.info('[CentralStore][FindStakeholdersDialog] setSelectedStakeholder', { stakeholder });
-    set({ selectedStakeholder: stakeholder });
-  },
-  setOpportunity: (orionOpportunity: OrionOpportunity) => {
-    console.info('[CentralStore][FindStakeholdersDialog] setOpportunity', {
-      orionOpportunity,
-    });
-    set({ orionOpportunity });
-  },
+
+export type OpportunityCentralStoreType = BoardSlice &
+  DialogSlice &
+  FiltersSlice &
+  DraftApplicationDialogSlice &
+  FinalizeAndSendEmailDialogSlice &
+  GenerateOutreachDialogSlice &
+  FindStakeholdersDialogSlice;
+
+// --- Slice Implementations ---
+
+const createBoardSlice: StateCreator<OpportunityCentralStoreType, [], [], BoardSlice> = (set) => ({
+  needsRefetch: false,
+  setNeedsRefetch: (value) => set({ needsRefetch: value }),
 });
 
-export const useOpportunityCentralStore = create<OpportunityCentralStoreType>((set) => ({
-  ...createBoardSlice(set),
-  ...createDialogSlice(set),
-  ...createFiltersSlice(set),
-  ...createDraftApplicationDialogSlice(set),
-  ...createFinalizeAndSendEmailDialogSlice(set),
-  ...createGenerateOutreachDialogSlice(set),
-  ...createFindStakeholdersDialogSlice(set),
+const createDialogSlice: StateCreator<OpportunityCentralStoreType, [], [], DialogSlice> = (set) => ({
+  isDialogOpen: false,
+  openDialog: () => set({ isDialogOpen: true }),
+  closeDialog: () => set({ isDialogOpen: false }),
+});
+
+const createFiltersSlice: StateCreator<OpportunityCentralStoreType, [], [], FiltersSlice> = (set) => ({
+  filters: {},
+  sort: 'updatedAt',
+  sortOrder: 'desc',
+  setFilters: (filters) => set({ filters }),
+  setSort: (sort) => set({ sort }),
+  setSortOrder: (sortOrder) => set({ sortOrder }),
+  clearFilters: () => set({ filters: {} }),
+});
+
+const createDraftApplicationDialogSlice: StateCreator<
+  OpportunityCentralStoreType,
+  [],
+  [],
+  DraftApplicationDialogSlice
+> = (set) => ({
+  isDraftDialogOpen: false,
+  draftOpportunity: undefined,
+  openDraftDialog: (orionOpportunity) => set({ isDraftDialogOpen: true, draftOpportunity: orionOpportunity }),
+  closeDraftDialog: () => set({ isDraftDialogOpen: false, draftOpportunity: undefined }),
+});
+
+const createFinalizeAndSendEmailDialogSlice: StateCreator<
+  OpportunityCentralStoreType,
+  [],
+  [],
+  FinalizeAndSendEmailDialogSlice
+> = (set) => ({
+  isFinalizeDialogOpen: false,
+  initialTo: '',
+  initialSubject: '',
+  initialHtmlBody: '',
+  attachmentsToSend: [],
+  openFinalizeDialog: () => set({ isFinalizeDialogOpen: true }),
+  closeFinalizeDialog: () => set({ isFinalizeDialogOpen: false }),
+  setFinalizeDialogData: (data) => set(data),
+});
+
+const createGenerateOutreachDialogSlice: StateCreator<
+  OpportunityCentralStoreType,
+  [],
+  [],
+  GenerateOutreachDialogSlice
+> = (set) => ({
+  isOutreachDialogOpen: false,
+  stakeholder: undefined,
+  opportunityTitle: undefined,
+  opportunityCompany: undefined,
+  onOutreachGenerated: undefined,
+  openOutreachDialog: (data) => set({ isOutreachDialogOpen: true, ...data }),
+  closeOutreachDialog: () => set({ isOutreachDialogOpen: false }),
+});
+
+const createFindStakeholdersDialogSlice: StateCreator<
+  OpportunityCentralStoreType,
+  [],
+  [],
+  FindStakeholdersDialogSlice
+> = (set) => ({
+  isFindStakeholdersDialogOpen: false,
+  stakeholders: [],
+  selectedStakeholder: null,
+  orionOpportunity: undefined,
+  openFindStakeholdersDialog: () => set({ isFindStakeholdersDialogOpen: true }),
+  closeFindStakeholdersDialog: () => set({ isFindStakeholdersDialogOpen: false, selectedStakeholder: null }),
+  setStakeholders: (stakeholders) => set({ stakeholders }),
+  setSelectedStakeholder: (stakeholder) => set({ selectedStakeholder: stakeholder }),
+  setOpportunity: (orionOpportunity) => set({ orionOpportunity }),
+});
+
+export const useOpportunityCentralStore = create<OpportunityCentralStoreType>()((...a) => ({
+  ...createBoardSlice(...a),
+  ...createDialogSlice(...a),
+  ...createFiltersSlice(...a),
+  ...createDraftApplicationDialogSlice(...a),
+  ...createFinalizeAndSendEmailDialogSlice(...a),
+  ...createGenerateOutreachDialogSlice(...a),
+  ...createFindStakeholdersDialogSlice(...a),
 }));

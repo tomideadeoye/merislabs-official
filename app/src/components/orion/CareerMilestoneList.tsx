@@ -1,6 +1,6 @@
 'use client';
 
-import type { CareerMilestone } from '@/types';
+import type { CareerMilestone } from '@/types/index';
 import { AlertTriangle, Award, Building, Calendar, ArrowUp, ArrowDown, Edit, Trash2 } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, Button, Badge } from '../ui';

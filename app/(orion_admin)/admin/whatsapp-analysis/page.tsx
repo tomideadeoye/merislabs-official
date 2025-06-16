@@ -2,11 +2,10 @@
 
 import { MessageSquare } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
-import {
-  WhatsAppChatUploader,
-  useWhatsAppChatUploaderStore,
-} from '../../../src/components/orion/whatsapp/WhatsAppChatUploader';
+
 import { WhatsAppChatAnalysis } from '../../../src/components/orion/whatsapp/WhatsAppChatAnalysis';
+import { WhatsAppChatUploader } from '@/src/components/orion/whatsapp/WhatsAppChatUploader';
+import { useWhatsAppChatUploaderStore } from '@/src/components/orion/whatsapp/whatsAppChatUploaderStore';
 
 // GOAL:
 // RELATION TO OTHER FILES, FUNCTIONS AND FEATURES:

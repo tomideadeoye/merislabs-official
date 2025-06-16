@@ -5,8 +5,9 @@
  * All usage and progress updates are logged for debugging and performance monitoring.
  */
 
+import { logger } from "@/styles";
 import React, { useEffect } from "react";
-import { logger } from "@/lib/logger";
+
 
 export interface ProgressBarProps {
   progress: number; // 0 to 100

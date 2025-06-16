@@ -1,6 +1,7 @@
 # Orion Project: Interconnected File Map (High-Level)
 
 ## GOAL OF FILE
+
 Document the interconnectedness of core files, utilities, feature components, and shared packages in the Orion codebase. This map is intended to clarify dependencies, guide refactoring, and support rapid debugging and onboarding.
 
 ---
@@ -190,7 +191,6 @@ graph TD
 - For a more granular map or a focus on a specific feature, request a breakdown of that area.
 - Suggest improvements, refactoring, or further documentation as needed.
 
-
 # 🌀 orion dev cycle: self-reinforcing circular workflow
 
 > a circular, agent-agnostic system to debug, build, test, reflect, and branch across llms and dev tools (cursor, notion, terminal, streamlit, web).
@@ -203,10 +203,10 @@ define the why. architect the purpose. commit to what matters.
 
 **🧠 fill:**
 
-* goal: `[what do i want to build or fix?]`
-* why it matters: `[what is the core value or vision behind this?]`
-* module or system affected: `[which orion subsystem?]`
-* success state: `[how will i know it's working?]`
+- goal: `[what do i want to build or fix?]`
+- why it matters: `[what is the core value or vision behind this?]`
+- module or system affected: `[which orion subsystem?]`
+- success state: `[how will i know it's working?]`
 
 **💬 prompts to ask the llm:**
 
@@ -225,11 +225,11 @@ gather insights from multiple agents. extract architecture plans.
 
 **🔄 consult (choose 2–3):**
 
-* [ ] chatgpt (gpt-4)
-* [ ] claude 3
-* [ ] gemini
-* [ ] deepseek / qwen
-* [ ] cursor's local assistant
+- [ ] chatgpt (gpt-4)
+- [ ] claude 3
+- [ ] gemini
+- [ ] deepseek / qwen
+- [ ] cursor's local assistant
 
 **💬 model prompt:**
 
@@ -246,9 +246,9 @@ please return:
 
 **📎 decision:**
 
-* [ ] go forward with best agent plan
-* [ ] merge suggestions from multiple models
-* [ ] cycle again if unclear or low-quality output
+- [ ] go forward with best agent plan
+- [ ] merge suggestions from multiple models
+- [ ] cycle again if unclear or low-quality output
 
 ---
 
@@ -258,10 +258,10 @@ build now. no delay. this is the architect's lab.
 
 **🧠 clarify before code:**
 
-* component name: `[fill here]`
-* file path: `[src/components/orion/[fill].tsx]`
-* state shape: `[what are we tracking?]`
-* target api route: `[api/orion/[fill]]`
+- component name: `[fill here]`
+- file path: `[src/components/orion/[fill].tsx]`
+- state shape: `[what are we tracking?]`
+- target api route: `[api/orion/[fill]]`
 
 **💬 cursor/gpt coding prompt:**
 
@@ -296,10 +296,10 @@ catch breakage. rewire logic. log test cases.
 
 **🧠 identify:**
 
-* symptom: `[what failed?]`
-* location: `[file path]`
-* trigger: `[what caused it?]`
-* logs: `[copy the full error here if available]`
+- symptom: `[what failed?]`
+- location: `[file path]`
+- trigger: `[what caused it?]`
+- logs: `[copy the full error here if available]`
 
 **💬 prompts to diagnose:**
 
@@ -348,8 +348,8 @@ use momentum. ask what's unlocked. loop again.
 
 **🧠 update todo or roadmap:**
 
-* `/tasks/next.md`
-* `/intents/[new_feature].md`
+- `/tasks/next.md`
+- `/intents/[new_feature].md`
 
 🔁 loop back to → intent clarification
 
@@ -409,5 +409,40 @@ use momentum. ask what's unlocked. loop again.
                   |
               ↻ LOOP BACK
 ```
+
+---
+
+## 🐞 Issue Log and Resolutions
+
+This section documents critical issues encountered during development, their root causes, the steps taken for resolution, and relevant file modifications. This log supports rapid debugging, knowledge transfer, and continuous improvement.
+
+### Issue 1: Module Resolution Error for `cn` Utility
+
+- **Description:** The `pnpm run dev` command failed due to a `Cannot find module '@/lib/utils'` error within `app/src/components/ui/avatar.tsx`.
+- **Root Cause:** The `avatar.tsx` component was attempting to import the `cn` utility using an incorrect absolute path alias (`@/lib/utils`), which was not resolving correctly in the monorepo context.
+- **Resolution Steps:**
+  1.  **Initial Attempt:** Modified `app/src/components/ui/avatar.tsx` to use a relative import path: `import { cn } from '../lib/utils';`.
+  2.  **Correction:** Further refined the relative import path to `import { cn } from '../../lib/utils';` to correctly point to `app/src/lib/utils.ts` given the nested directory structure.
+- **Files Modified:** `app/src/components/ui/avatar.tsx`
+- **Outcome:** The immediate module resolution error for `cn` was resolved, allowing `pnpm run dev` to proceed past this initial hurdle.
+
+### Issue 2: PostCSS Configuration Error - Missing `plugins` Key and `__esModule` Warning
+
+- **Description:** After resolving the `cn` import, the development server compilation (`pnpm run dev`) failed with an error: "Your custom PostCSS configuration must export a `plugins` key." A warning about `__esModule` also appeared. This error specifically impacted `app/layout.tsx` related to `next/font`.
+- **Root Cause:** Next.js expects `postcss.config.js` to export its configuration in a specific format. The file was initially using an ES module default export (`export default`) which was not fully compatible with how Next.js was interpreting the configuration, leading to the `plugins` key not being recognized and the `__esModule` warning.
+- **Resolution Steps:**
+  1.  **Attempted Fix (Incorrect):** Changed `postcss.config.js` to use `module.exports = { ... };` (CommonJS format), attempting to resolve the `plugins` key issue. This led to a `ReferenceError` in the subsequent step, indicating an environment mismatch.
+- **Files Modified:** `postcss.config.js`
+- **Outcome:** This change temporarily exacerbated the issue by introducing a new error, highlighting the sensitivity of module type in this environment.
+
+### Issue 3: PostCSS Configuration Error - `ReferenceError: module is not defined`
+
+- **Description:** Following the previous attempt to fix `postcss.config.js`, the `pnpm run dev` command resulted in a `ReferenceError: module is not defined` within `postcss.config.js` itself.
+- **Root Cause:** The environment (likely Next.js's build system) was attempting to load `postcss.config.js` as an ECMAScript module (ESM), but the file contained CommonJS syntax (`module.exports`). This module type mismatch caused the `ReferenceError`.
+- **Resolution Steps:**
+  1.  **Attempted Fix (Incorrect):** Renamed `postcss.config.js` to `postcss.config.cjs` to explicitly force CommonJS interpretation. This did not resolve the issue and was reverted.
+  2.  **Corrected Fix:** Reverted `postcss.config.js` to its original name and changed its content to use `export default { ... };` (ES module default export) to correctly provide the PostCSS plugins. This aligns with how Next.js expects the configuration in an ES module context.
+- **Files Modified:** `postcss.config.js`
+- **Outcome:** The `ReferenceError` was successfully resolved, and the Next.js development server started compiling without any `next/font` or PostCSS-related errors. This confirmed that Next.js expects an ES module default export for its `postcss.config.js` file.
 
 ---

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '../../../../packages/shared/auth';
+
 import { generateLLMResponse } from '@/lib/orion_llm';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+import { auth } from '@/auth';
 
 // Define the type inline:
 type DraftCommunicationRequestBody = {

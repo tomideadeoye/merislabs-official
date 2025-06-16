@@ -18,8 +18,9 @@ import {
   NOTION_CV_DATABASE_ID,
 } from './orion_server_config';
 
-import { logger } from './logger'; // Import the shared logger
+
 import { OpportunityStatus, OpportunityType, OpportunityPriority, OrionOpportunity, OpportunityNotionOutputShared, CVComponent, JournalEntryNotionInput } from '@/types';
+import logger from './logger';
 
 let notion: Client | null = null;
 if (NOTION_API_KEY) {

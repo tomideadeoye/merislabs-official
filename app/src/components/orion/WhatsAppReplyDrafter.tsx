@@ -1,14 +1,24 @@
-// apps/nextjs/components/orion/WhatsAppReplyDrafter.tsx
+'use client';
 
-import { Label, Textarea, Button, Input, Select } from "@headlessui/react";
-import { SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select";
-import { Loader2, Star } from "lucide-react";
-import { useState } from "react";
-import React = require("react");
-import { Card, CardHeader, CardTitle, CardContent } from "../ui";
-import { DedicatedAddToMemoryFormComponent } from "./DedicatedAddToMemoryFormComponent";
-import { QuadrantMemoryChunksVisualizer } from "./QuadrantMemoryChunksVisualizer";
-
+import React, { useState } from 'react';
+import {
+  Label,
+  Textarea,
+  Button,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from '@/components/ui';
+import { Loader2, Star } from 'lucide-react';
+import { DedicatedAddToMemoryFormComponent } from './DedicatedAddToMemoryFormComponent';
+import { QuadrantMemoryChunksVisualizer } from './QuadrantMemoryChunksVisualizer';
 
 const RELATIONSHIP_CONTEXTS = [
   { value: 'timi_girlfriend', label: 'Timi (Girlfriend)' },
@@ -30,13 +40,7 @@ export default function WhatsAppReplyDrafter() {
   const [numberOfDrafts, setNumberOfDrafts] = useState(3);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [drafts, setDrafts] = useState<
-    {
-      text: string;
-      explanation: string;
-      rank: number;
-    }[]
-  >([]);
+  const [drafts, setDrafts] = useState<{ text: string; explanation: string; rank: number }[]>([]);
   const [relevantMemories, setRelevantMemories] = useState<(string | { text: string; [key: string]: unknown })[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,7 +85,7 @@ export default function WhatsAppReplyDrafter() {
           <Textarea
             id="messageToReplyTo"
             value={messageToReplyTo}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessageToReplyTo(e.target.value)}
+            onChange={(e) => setMessageToReplyTo(e.target.value)}
             placeholder="Paste the WhatsApp message you want to reply to..."
             required
           />
@@ -92,14 +96,13 @@ export default function WhatsAppReplyDrafter() {
           <Textarea
             id="messageHistory"
             value={messageHistory}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessageHistory(e.target.value)}
+            onChange={(e) => setMessageHistory(e.target.value)}
             placeholder="(Optional) Paste additional chat history for context..."
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="topicOrGoal">
-            {' '}
             Reply Goal <span className="text-xs text-gray-400"> (optional) </span>
           </Label>
           <div className="flex flex-wrap gap-2 mb-2">
@@ -132,8 +135,8 @@ export default function WhatsAppReplyDrafter() {
           <Input
             id="topicOrGoal"
             value={topicOrGoal}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTopicOrGoal(e.target.value)}
-            placeholder="What is your goal for this reply? (e.g., clarify, set a boundary, express gratitude)"
+            onChange={(e) => setTopicOrGoal(e.target.value)}
+            placeholder="What is your goal for this reply? (e.g., clarify, set a boundary...)"
           />
         </div>
 
@@ -158,7 +161,7 @@ export default function WhatsAppReplyDrafter() {
           <Textarea
             id="additionalInstructions"
             value={additionalInstructions}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAdditionalInstructions(e.target.value)}
+            onChange={(e) => setAdditionalInstructions(e.target.value)}
             placeholder="(Optional) Any specific instructions for this draft?"
           />
         </div>
@@ -168,7 +171,7 @@ export default function WhatsAppReplyDrafter() {
           <Textarea
             id="userProfileContext"
             value={userProfileContext}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setUserProfileContext(e.target.value)}
+            onChange={(e) => setUserProfileContext(e.target.value)}
             placeholder="(Optional) Paste your profile context for deeper personalization."
           />
         </div>
@@ -181,7 +184,7 @@ export default function WhatsAppReplyDrafter() {
             min={1}
             max={5}
             value={numberOfDrafts}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumberOfDrafts(Number(e.target.value))}
+            onChange={(e) => setNumberOfDrafts(Number(e.target.value))}
           />
         </div>
 
@@ -198,8 +201,7 @@ export default function WhatsAppReplyDrafter() {
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
               {relevantMemories.map((mem, i) => (
                 <li key={i} className="bg-gray-50 rounded px-2 py-1">
-                  {' '}
-                  {typeof mem === 'string' ? mem : mem.text}{' '}
+                  {typeof mem === 'string' ? mem : mem.text}
                 </li>
               ))}
             </ul>
@@ -221,7 +223,6 @@ export default function WhatsAppReplyDrafter() {
                   {draft.rank === 1 && <Star className="text-yellow-400" />}Draft {draft.rank}
                   {draft.rank === 1 && (
                     <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                      {' '}
                       Orion&apos;s Pick
                     </span>
                   )}

@@ -1,30 +1,34 @@
-export * from './badge';
-export * from './button';
-export * from './tabs';
-export * from './header';
-export * from './dialog';
-export * from './card';
-export * from './input';
-export * from './command';
-export * from './page-header';
-export * from './theme-provider';
-export * from './textarea';
-export * from './loader';
-export * from './label';
-export * from './progress-bar';
-export * from './multi-select';
-export * from './tooltip';
-export * from './switch';
-export * from './select';
-export * from './scroll-area';
-export * from './progress';
-export * from './dropdown-menu';
-export * from './checkbox';
+// This file acts as the main public export for the @/components/ui package.
+
+// Export the utility function
+export * from '@/lib/utils';
+
+// Export all shadcn/ui and custom UI components
 export * from './accordion';
 export * from './avatar';
+export * from './badge';
+export * from './button';
+export * from './card';
+export * from './checkbox';
+export * from './command';
+export * from './dialog';
+export * from './dropdown-menu';
+export * from './input';
+export * from './label';
+export * from './loader';
+export * from './multi-select';
+export * from './page-header';
+export * from './progress';
+export * from './scroll-area';
+export * from './select';
 export * from './skeleton';
-export * from './mobile-menu';
-export * from './footer';
-export * from './Confetti';
-export * from './multiSelectStore';
-export { cn } from '@/app/utils';
+export * from './switch';
+export * from './tabs';
+export * from './textarea';
+export * from './tooltip';
+export * from './header';
+export { default as Footer } from './footer';
+export * from './theme-provider';
+export { default as ProgressBar } from './ProgressBar';
+export { RadioGroup, RadioGroupItem } from './RadioGroup';
+export { Alert, AlertDescription, AlertTitle } from './Alert';

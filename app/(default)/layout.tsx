@@ -4,9 +4,10 @@ import { useEffect } from 'react';
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import PageIllustration from '@/src/components/ui/page-illustration';
+import { Footer } from '@/src/lib';
 
-import PageIllustration from '../../components/page-illustration';
-import { Footer } from '@/ui/components/ui';
+
 
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {

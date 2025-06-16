@@ -8,29 +8,16 @@
 
 import { useEffect, useState } from 'react';
 import { useCVTailoring } from '@/app/hooks/useCVTailoring';
-import { CVComponent } from '@/types/orion';
+
 // import { generatePDF, generatePDFFilename } from '@repo/shared/pdf-generator'; // Removed as export functions are commented out
 import { generateWordDoc, generateWordFilename } from '@/lib/word-generator';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Checkbox,
-  Textarea,
-  Input,
-} from '@/ui/components/ui';
+
 import { Loader2, FileText, Edit, Check, X, RefreshCw, AlertTriangle } from 'lucide-react';
+import { CVComponent } from '@/index';
+import { Checkbox } from '@radix-ui/react-checkbox';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@radix-ui/react-select';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
+import { Card, CardHeader, CardTitle, CardContent, Button, Textarea, Input } from '../ui';
 
 interface CVTailoringStudioProps {
   jdAnalysis?: string;

@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import { useSessionState } from '@/hooks/useSessionState';
-import { Button, Textarea, Input, Label } from '@/ui/components/ui';
 import { Loader2, AlertTriangle, CheckCircle, Brain } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { MemoryPoint, MemoryPayload } from '@/types/orion';
+
 import { SessionStateKeys } from '@/lib/app_constants';
+import { Label } from '@radix-ui/react-label';
+import { Textarea, Input, Button } from '../ui';
 
 interface DedicatedAddToMemoryFormProps {
   onMemoryAdded?: () => void;

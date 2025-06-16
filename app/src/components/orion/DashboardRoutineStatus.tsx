@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { useSessionStateStore } from '@/state/sessionState';
-import { Card, CardContent, Button } from '@/ui/components/ui';
+
 import { CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { SessionStateKeys } from '@/lib/app_constants';
+import { useSessionStateStore } from '@/src/state/sessionState';
+import { Card, CardContent, Button } from '../ui';
 
 interface DashboardRoutineStatusProps {
   className?: string;

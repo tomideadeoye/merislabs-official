@@ -1,7 +1,8 @@
-// packages/shared/src/index.ts
-// This is a barrel file to re-export all public modules and types from the shared package.
+// GOAL: To provide a central point for style-related exports.
+// Currently used to export the logger, which might be better placed in lib.
 
-export * from '../src/lib/auth';
-export * from '../profile_service';
-export * from '../src/lib/types';
-export * from '../src/lib/lib';
+// Re-exporting logger from its actual location
+export { default as logger } from '../lib/logger';
+
+// Exporting types from their actual location
+export * from '../types';

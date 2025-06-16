@@ -1,127 +1,102 @@
 'use client';
 
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-
-import React, { useRef } from 'react';
-import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/components/ui';
-import { Loader2, AlertTriangle, Upload, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { useWhatsAppChatUploaderStore } from './whatsAppChatUploaderStore';
+import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
+import { Upload, Loader2, AlertTriangle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface WhatsAppChatUploaderProps {
   className?: string;
-  onTranscriptUploaded?: (analysisData: { suggested_replies: string[] }) => void;
+  onTranscriptUploaded?: (analysisData: any) => void;
 }
 
 export const WhatsAppChatUploader: React.FC<WhatsAppChatUploaderProps> = ({ className, onTranscriptUploaded }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { file, contactName, isUploading, error, success, analysisData, setFile, setContactName, submit, reset } =
-    useWhatsAppChatUploaderStore();
+  const [file, setFile] = useState<File | null>(null);
+  const [contactName, setContactName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { setAnalysisData } = useWhatsAppChatUploaderStore();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files) {
       setFile(e.target.files[0]);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await submit();
-    if (success && analysisData && onTranscriptUploaded) {
-      onTranscriptUploaded(analysisData);
+    if (!file || !contactName) {
+      toast.error('Please select a file and enter the contact name.');
+      return;
     }
-  };
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('contact_name', contactName);
 
-  const handleReset = () => {
-    reset();
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    try {
+      const response = await fetch('/api/orion/whatsapp/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to analyze chat.');
+      }
+
+      setAnalysisData(data.analysis, true);
+      toast.success('Chat analysis complete!');
+      if (onTranscriptUploaded) {
+        onTranscriptUploaded(data.analysis);
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Card className={`bg-gray-800 border-gray-700 ${className}`}>
       <CardHeader>
-        <CardTitle className="text-xl flex items-center">
-          <Upload className="mr-2 h-5 w-5 text-blue-400" />
-          Upload WhatsApp Chat
-        </CardTitle>
-        <CardDescription className="text-gray-400">Export a WhatsApp chat and upload it for analysis</CardDescription>
+        <CardTitle>Upload WhatsApp Chat</CardTitle>
+        <CardDescription>Upload a .txt file exported from WhatsApp to start the analysis.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="contactName" className="text-gray-300">
-              Contact or Group Name (Optional)
+              Contact Name
             </Label>
             <Input
               id="contactName"
+              type="text"
               value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-              placeholder="e.g., John Doe, Family Group"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContactName(e.target.value)}
+              placeholder="Enter the name of the person you chatted with"
               className="bg-gray-700 border-gray-600 text-gray-200"
-              disabled={isUploading || success}
+              required
             />
           </div>
-
           <div>
-            <Label htmlFor="chatFile" className="text-gray-300">
-              WhatsApp Chat Export (.txt)
+            <Label htmlFor="file" className="text-gray-300">
+              Chat File (.txt)
             </Label>
-            <input
-              id="file-upload"
+            <Input
+              id="file"
               type="file"
-              ref={fileInputRef}
               onChange={handleFileChange}
               accept=".txt"
-              className="hidden"
-              disabled={isUploading}
+              className="bg-gray-700 border-gray-600"
+              required
             />
-            <p className="text-xs text-gray-400 mt-1">
-              Export your chat from WhatsApp: Chat Options → More → Export Chat
-            </p>
           </div>
-
-          {error && (
-            <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
-              <AlertTriangle className="h-5 w-5 mr-2" />
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="bg-green-900/30 border border-green-700 text-green-300 p-3 rounded-md flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2" />
-              Chat analyzed successfully!
-            </div>
-          )}
-
-          <div className="flex space-x-2">
-            <Button type="submit" disabled={isUploading || !file || success} className="bg-blue-600 hover:bg-blue-700">
-              {isUploading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Analyze Chat
-                </>
-              )}
-            </Button>
-
-            {success && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleReset}
-                className="border-blue-600 text-blue-400 hover:bg-blue-900/30"
-              >
-                Analyze Another Chat
-              </Button>
-            )}
-          </div>
+          <Button type="submit" disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+            {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Upload className="mr-2 h-4 w-4" />}
+            {isLoading ? 'Analyzing...' : 'Analyze Chat'}
+          </Button>
         </form>
       </CardContent>
     </Card>

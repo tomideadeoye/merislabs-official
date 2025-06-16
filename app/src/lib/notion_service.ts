@@ -1,12 +1,15 @@
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
+import { OpportunityStatus, OpportunityType, OpportunityPriority, OrionOpportunity, OpportunityNotionOutputShared, CVComponent, JournalEntryNotionInput } from "@/index";
+import { RichTextItemResponse, PageObjectResponse, BlockObjectResponse, UpdatePageParameters, UpdatePageResponse } from "@notionhq/client";
+import { QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
+import { Client } from "pg";
+import { logger } from "./lib";
 
-import { OpportunityStatus, OpportunityType, OpportunityPriority, OrionOpportunity, OpportunityNotionOutputShared, CVComponent, JournalEntryNotionInput } from '@/index';
-import { BlockObjectResponse, Client, PageObjectResponse, RichTextItemResponse, UpdatePageParameters, UpdatePageResponse } from '@notionhq/client';
-import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints';
-import { logger } from './lib';
+// TODO: merge and consolidate files where possible for simplicity
 
+
+const NOTION_API_KEY = process.env.NOTION_API_KEY;
+const NOTION_DATABASE_ID = process.env.NOTION_OPPORTUNITIES_DB_ID; // Assuming this is the main database for opportunities, journals, contacts
+const NOTION_CV_DATABASE_ID = process.env.NOTION_CV_DB_ID;
 
 let notion: Client | null = null;
 if (NOTION_API_KEY) {

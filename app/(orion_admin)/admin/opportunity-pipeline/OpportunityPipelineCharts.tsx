@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { ResponsiveBar } from '@nivo/bar';
 import { ResponsivePie } from '@nivo/pie';
 import { Loader } from 'lucide-react';
-import { OrionOpportunity } from '@/types';
+import { OrionOpportunity } from '@/index';
 
 // Utility: Count opportunities by a key
 function getCounts<T extends OrionOpportunity>(opportunities: T[], key: keyof T) {
