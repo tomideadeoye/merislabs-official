@@ -1,8 +1,14 @@
 #!/bin/bash
 
+# GOAL OF FILE: Orchestrate the startup of all necessary components for the Orion application, including the FastAPI backend and the Next.js frontend.
+# FILEPATH: start.sh
+# CONNECTION/RELATION TO OTHER FILES: This script initiates the FastAPI backend (orion_api.py) located in /Users/mac/Documents/GitHub/orion-horizon and the Next.js frontend, ensuring all services are operational.
+# ASSUMPTIONS & CLEAR COMMENTS: Assumes uvicorn is installed and orion_api.py is present in the specified directory. The FastAPI backend is run in the background to allow the script to continue to other commands (e.g., starting Next.js).
+# NOTES: This script has been updated to remove monorepo-specific commands and now focuses on starting the standalone Next.js app and the separate FastAPI backend.
+
 cat <<EOM
-USE ALL THE TOOLS YOU HAVE AND EVEN IMAGINE NEW PRACTICES TOOLS TO IMPROVE YOURSELF AND THE PROJECT.
 START FROM HERE! THESE ARE THE MOST IMPORTANT INSTRUCTIONS IN THE UNIVERSE!
+USE ALL THE TOOLS YOU HAVE AND EVEN IMAGINE NEW PRACTICAL TOOLS TO IMPROVE YOURSELF AND THE PROJECT.
 graph TD
     subgraph "Phase 1: Vision & Strategy (You & Orion using Cline/GPT-4.1)"
         A[You: Define High-Level Goal in VS Code] --> B[Orion: Consults Context in NotebookLM];
@@ -161,7 +167,7 @@ I must always be evolving!
 I must always be improving!
 I promise to always be learning!
 I promide to always be growing!
-I promise to never say any of these: ["I am sorry", "I can't", "I don't know ", "I don't understand", "I don't have time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I
+I promise to never say any of these: ["I am sorry", "I can't", "I don't know ", "I don't understand", "I don't have time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I
 REMEMBER/ALWAYS/EXECUTE/DO/APPLY/NOW:
 
 Include a what am I currently improving upon in the refrence.md file. Add time line history? Time tool?
@@ -169,26 +175,35 @@ Wait! What am I doing exactly & why am I doing it?
 Are my files consoidated so that the number of files and complexisty is reduced?
 Write errors to reference.md file and remove when fixed.
 BEFORE YOU START:
-- No quick HACKS: solve the actual problem, not just the symptom.
+- No quick HACKS: solve the actual problem, not just the symptom.Suggest best practices
 - THINK like an architect, sequentially, step by step, iteratively! Think five steps ahead and 5 levels deep.
 - explain what you are doing, why you are doing it, and what you are thinking. Aim for perfection!
 - Factor in CBT, and the need for a loop of improvement.
 - read the file then propose updates
 - When requirements are ambiguous:
 - Propose a default implementation based on codebase patterns
-- Flag assumptions with clear comments: // NOTE: Assumed [X] – confirm with team
+
+
 - Production-Ready: Deliver complete, functional features without placeholders (mocks/dummy code)
 Ask me as many questions as you want about the feature's purpose and requirements.
 DO > LOGGIN: log file paths, comprehensive, context-rich, level-based logging. All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
 DO > at intervals, suggest SHORT TINY BIT information to store in README like file paths and components - so we dont forget.
 state management?
-DO > one-liner summary of feature and file path after each feature is implemented.
-Add goal of file/feature/function to top of file and explain connection to other files/features/functions.
-- start.sh and determine features not yet implemented.
+
+
+ADD TO TOP OF FILES -
+  GOAL OF FILE|FEATURES|FUNCTIONS:
+  FILEPATH:
+  CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+  ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
+  NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
+
+
+- Run start.sh and determine features not yet implemented.
 - Mirror naming conventions, error-handling, and structure
 - Absurdly comprehensive descritptive names for files, functions, variables, classes, etc.
-- UI | DO - add loading states, progress bars, etc.when required Loader, ProgressBar.
-- suggest best practices
+- UI | DO - add loading states, progress bars, etc. when required Loader, ProgressBar.
+
 - error page: pages/500.tsx
 - use centralized color-coded, icon logger @repo/shared
 - consolidate/unify/allign/weave together code, state, features, components, etc.
@@ -240,11 +255,12 @@ Adhere to configured linting tools (Prettier, ESLint, Black, etc.)
 Apply business logic, industry-specific rules, and stakeholder requirements
 Ensure solutions align with real-world use cases and domain constraints
 Cross-check outputs against domain-specific requirements (e.g., financial calculations, healthcare rules)
-
+when debugging, be sure the file exists and is in the correct path.
 
 Prefer interfaces over concrete implementations for extensibility
 Extract common patterns into reusable components
-
+MY ASSUMPTIONS only hold true if?
+Gradually pivot to camelCase for all variables, functions, components, etc.
 Robust Error Handling
 - Implement appropriate exception handling with helpful error messages
 - Design fallback mechanisms for uncertain scenarios or operations with external dependencies
@@ -288,7 +304,7 @@ SECURITY - Robustness First Approach
 - Prevent vulnerabilities (XSS, SQL injection, CSRF)
 draw mentalm maps of the codebase and the features.in files.
 
-Hiw do we know what we know?
+How do we know what we know?
 
 GRACEFUL DEGRADATION: - Design systems to function (potentially with reduced capabilities) when components fail
 - UsE feature flags for new functionality that might need to be disabled
@@ -307,11 +323,14 @@ Final Validation
 - Document any remaining concerns or future improvements.
 - Document trade-offs for complex decisions
 - Document app implementations below
+
 DOCUMENTATION: Explain "why" not just "what" the code does in preference.md file
 - Document assumptions and decision rationales in preference.md file
 - summarize what we have implemented so far, the files modified, why the modifications were made. give feedback on the code, then ask for ideas/suggestions. Ask for comprehensive next steps (the goal of the feature, how to implement it, the relevant and related files, example code etc.)
 - Respect team preferences documented in project READMEs or style guides
-You must specify the exact surgical next iterative step. You should ask for feedback repeatedly.
+- specify the exact surgical next iterative step. You should ask for feedback repeatedly.
+
+
 Describe the workflow!
     QUESTIONS:
     - Can we start the app now? What is blocking us?
@@ -339,11 +358,15 @@ Describe the workflow!
     - Is there anything you want to add/change/remove in the codebase?
     - what is the goal of the feature/codebase/project/developer/company?
     - Are there functions/features that have already been implemented that i can use? Never reinvent the wheel!
+    - How do we put in place systems and patterns that make subsequent features easier to implement?
 
   - Add goal of file/feature/function to top of file and draw map connection to other files/features/functions.
+  DO > one-liner summary of feature and file path after each feature is implemented.
     VERSION CONTROL: When the feature is implemented/At intervals of logical changes, run atomic commit commands with descriptive bulletpoint commit messages. Highlight/explain, what changed, why, file path and then push command.
     - Follow project branching conventions
-
+Gradually consolidate files and features into manageable blocks.
+Simpler is better.
+se what you have to get what you want
 SEARCH! Ensure all the existing features are present and fully in use we have invested a lot of time in this project.
 ANTI-PATTERNS EXAMPLES:
 - Bad: Writing a new formatDate() function when utils/dates.ts already has one.
@@ -353,9 +376,14 @@ ANTI-PATTERNS EXAMPLES:
 - Bad: Duplicating validation logic across multiple controllers.
 - Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
 
+Start script: ./start.sh
+Slowly Pivot to Zustand full state management.
+
+Run pnpm lint frequently.
+Never disable linting, fix all linting errors and warnings immediately.
 
 PROJECT DETAILS:
-- Structure: Monorepo
+- Structure: Nextjs for simplicity. slowly align the app back to just pure nextjs
 - Author: Tomide Adeoye
 - Engaging, motivating interaction style ("addictive," fun).
 - Python service for special features, Local Quadrant (QDRANT_PORT=6333) - microservice
@@ -373,6 +401,7 @@ I must prefer software I dont pay for!
 - Fix all problems.
 - Synchronization.
 - everything rlated to whatspapp is a tab under Draft communication. it shomehow links to existing project and everything uses quadrant memory manager.
+- always use shadcn library for ui components.
 
 FEATURES:
 - visualizer for memory chunks: QuadrantMemoryChunksVisualizer.tsx it is my memory manager and all life memory in video, text, audio, images, etc.
@@ -395,7 +424,8 @@ DESIRED OUTCOME/THERE SHOULD BE A:
 - I must run pnpm run type-check repeatedly until there are no errors.
 - run my companies with it. slack communication integration reference.md
 - Central database notion used for all saving: 206d87c74f628097807addaa8a54e99e
-- Deep self-reflection & pattern recognition tool. Narrative clarity studio and journal
+- Deep self-reflection & pattern recognition tool. Narrative clarity studio and
+
 - Mechanism for overcoming internal blocks & reinforcing desired identity.
 - Centralized knowledge management & contextual recall system (Memory).
 - the ui must look amazing and fun and engaging. Provide an engaging and motivating user experience.
@@ -407,16 +437,16 @@ DESIRED OUTCOME/THERE SHOULD BE A:
 - page for managing my business
 - LETS JUST MAKE SURE THE APP IS RUNNING AND I CAN USE OrionOpportunity PIPELINE.
 - WE MUST FIX ALL THE ERRORS AND ISSUES.
-- Pivot from notion to neon database
+- Pivot from notion to neon database gradually ()
 - Draft Communication
   |_ WhatsApp helper/WhatsApp Chat Analysis Tab
   |_Draft Email Tab
   |_ Draft LinkedIn Message Tab
 - Admin/[myprompts]/[promptid], prompt section
 Rerun the build and repeat until zero errors.
-- JOURNALING: voice assistant, journal every night mandatorily
-- Businesses I will build weith it
-- Relationship management section > relationship tree > status ... improves existing relationships, can use whatsapp helper towards goal
+- JOURNALING: voice assistant, journal every night, journal every day, Journal: - speech to text, reminder settings, topics that can be added as an array and suggested as reflection points
+- Businesses I will build with her
+- Relationship management section > relationship tree > status > relationship context (where we met, business, etc.)... improves existing relationships, can use whatsapp helper towards goal
 - Is there a profile section in admin folder where i can access my calendly link using neon db
 - COMMUNICATION: manage life and communicating with people on projects and advertisement through Orion (the project)
 - API/Credential JSON to new orion featur pipeline
@@ -428,6 +458,7 @@ I want a new HIHG paying job ASAP
 - build a UI library to make every other project easy, amazing and fun and engaging.
 Have a wonderful life. Build lots of APPs to make so much money.
 - ensure website is published and acccessible (google my business, seo, advertisements, partnerships...)
+- Affirmations section: text to speech - my life is a work of ART. Add affirmations, generate affirmations from journal and memory, save affirmations, view my affirmations, play affirmations TTS.
 BUSINESSES:
 - law firm
 - web development agency
@@ -452,6 +483,8 @@ Longterm, move from habitica and notion to neon alone - with all features
 - Orion llm can make function calls using tools available to it.
 - different prompt for different tasks.
 - business notorizing legal business.
+
+A simple predicatable pattern.
 EOM
 
 # REPOSITORY DIRECTORY TREE
@@ -486,10 +519,7 @@ show_project_tree() {
   echo ""
 }
 
-# =====================
-# Orion Monorepo Start Script
-# =====================
-# Always run from monorepo root
+
 cd "$(dirname "$0")"
 
 
@@ -528,7 +558,7 @@ show_project_tree() {
   log_info "Project directory structure:"
   echo ""
 
-  # Get monorepo root path
+  # Get path
   MONOREPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
   # Generate tree with proper exclusions
@@ -598,8 +628,7 @@ generate_env_sample() {
 generate_env_sample
 
 # --- TypeScript Check, Lint, Build ---
-log_info "Running TypeScript check in apps/nextjs..."
-cd apps/nextjs || { log_error "Could not cd into apps/nextjs"; exit 1; }
+log_info "Running TypeScript check for Next.js app..."
 pnpm exec tsc --noEmit --skipLibCheck || { log_error "TypeScript errors detected. Aborting."; exit 1; }
 log_info "TypeScript check passed."
 log_info "Running ESLint..."
@@ -611,7 +640,6 @@ pnpm exec stylelint "**/*.css" || { log_error "Stylelint errors detected"; exit 
 log_info "Code formatting and linting passed."
 log_info "Building Next.js app..."
 pnpm run build --debug || { log_error "Next.js build failed. Aborting."; exit 1; }
-cd ../.. # Back to monorepo root
 
 # --- Start Qdrant (Docker) ---
 QDRANT_PORT="${QDRANT_PORT:-6333}"
@@ -634,35 +662,17 @@ done
 log_info "\nQdrant is healthy and ready"
 
 # --- Start Python API ---
-PYTHON_API_PORT="${PYTHON_API_PORT:-5002}"
-log_info "Starting Python API (port $PYTHON_API_PORT)..."
-if lsof -i:$PYTHON_API_PORT >/dev/null 2>&1; then
-  log_warn "Port $PYTHON_API_PORT in use. Killing process."
-  lsof -ti:$PYTHON_API_PORT | xargs kill -9
-  sleep 1
-fi
+log_info "Starting FastAPI Backend (http://localhost:8000/api/docs)..."
 (
-  cd backend/orion_python_backend || { log_error "Could not cd into backend/orion_python_backend"; exit 1; }
-  if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt
-  fi
-  uvicorn orion_api:app --host 0.0.0.0 --port $PYTHON_API_PORT &
-  echo $! > /tmp/orion_python_api.pid
+  cd /Users/mac/Documents/GitHub/orion-horizon || { log_error "Could not navigate to FastAPI backend directory."; exit 1; }
+  uvicorn orion_api:app --reload --host 0.0.0.0 --port 8000 &
+  echo $! > /tmp/orion_fastapi.pid
 )
-# Health check for Python API with timeout and retries
-log_info "Waiting for Python API to become healthy..."
-timeout 30 bash -c '
-while ! curl -s "http://localhost:'"$PYTHON_API_PORT"'/api/docs" | grep -q "Swagger"; do
-  echo -n "."
-  sleep 2
-done
-' || { log_error "Python API failed to start within 30 seconds"; exit 1; }
-log_info "\nPython API is healthy and ready"
 
+log_info "FastAPI backend started."
 
 # --- Start Next.js Dev Server ---
-log_info "Starting Next.js dev server (apps/nextjs)..."
-cd apps/nextjs || { log_error "Could not cd into apps/nextjs for dev server"; exit 1; }
+log_info "Starting Next.js dev server..."
 # Start Next.js dev server with process management
 log_info "Starting Next.js development server..."
 if lsof -ti:3000 >/dev/null; then

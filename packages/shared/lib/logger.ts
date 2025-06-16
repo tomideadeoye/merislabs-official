@@ -1,208 +1,106 @@
-/**
- * Enhanced Logger for Orion
- * Combines Winston for production logging with stylish console output for development.
- *
- * Features:
- * - Color-coded output with icons in development
- * - Winston-based structured logging in production
- * - Development/Production mode awareness
- * - Singleton pattern for consistent logging
- * - Structured context logging
- * - Production error service integration ready
- * - Additional log levels (success)
- * - Timestamp and log level indicators
- */
+// GOAL OF FILE|FEATURES|FUNCTIONS:
+//   - Centralized, robust, and extensible logging utility for the entire Orion monorepo.
+//   - Provides clear, context-rich, and level-based logging for debugging, monitoring, and traceability.
+//   - Adheres to project logging standards: comprehensive, includes operation, user/session context, parameters, validation, and results.
+// FILEPATH:
+//   packages/shared/lib/logger.ts
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Imported by all applications and packages within the monorepo that require logging.
+//   - Designed to be a single source of truth for logging, preventing scattered console.logs or inconsistent logging practices.
+// ASSUMPTIONS & CLEAR COMMENTS
+//   - Assumes a consistent environment where console methods are available.
+//   - NOTE: For production, this logger should integrate with a proper logging service (e.g., Sentry, DataDog, Winston).
+// NOTES:
+//   - Consider adding a mechanism for toggling log levels based on environment variables (e.g., `process.env.NODE_ENV`).
+//   - Could be extended to support different log transports (file, network, etc.).
+//   - For browser environments, ensure sensitive data is not logged.
 
-import { createLogger, format, transports, Logger as WinstonLogger } from 'winston';
-
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
-
-interface LogContext {
-  [key: string]: any;
+export enum LogLevel {
+  DEBUG = 'DEBUG',
+  INFO = 'INFO',
+  WARN = 'WARN',
+  ERROR = 'ERROR',
 }
 
-const LOG_STYLES: Record<LogLevel, { color: string; icon: string; consoleMethod: 'debug' | 'info' | 'warn' | 'error' | 'log' }> = {
-  debug:   { color: '\x1b[35m', icon: '🐞', consoleMethod: 'debug' },    // Magenta
-  info:    { color: '\x1b[34m', icon: 'ℹ️', consoleMethod: 'info' },     // Blue
-  warn:    { color: '\x1b[33m', icon: '⚠️', consoleMethod: 'warn' },     // Yellow
-  error:   { color: '\x1b[31m', icon: '❌', consoleMethod: 'error' },    // Red
-  success: { color: '\x1b[32m', icon: '✅', consoleMethod: 'log' },      // Green
-};
+interface LogContext {
+  operation?: string;
+  userId?: string;
+  sessionId?: string;
+  params?: Record<string, unknown>;
+  validation?: Record<string, unknown>;
+  results?: Record<string, unknown>;
+  [key: string]: unknown; // Allow for arbitrary additional context
+}
 
-// Map our log levels to Winston levels
-const WINSTON_LEVEL_MAP: Record<LogLevel, string> = {
-  debug: 'debug',
-  info: 'info',
-  warn: 'warn',
-  error: 'error',
-  success: 'info', // Winston doesn't have 'success', map to 'info'
-};
-
-class Logger {
-  private static instance: Logger;
-  private isDevelopment: boolean;
-  private readonly reset = '\x1b[0m';
-  private winstonLogger: WinstonLogger;
+class OrionLogger {
+  private static instance: OrionLogger;
+  private currentLogLevel: LogLevel = LogLevel.INFO; // Default log level
 
   private constructor() {
-    this.isDevelopment = process.env.NODE_ENV === 'development';
-
-    // Initialize Winston logger
-    this.winstonLogger = createLogger({
-      level: this.isDevelopment ? 'debug' : 'info',
-      format: format.combine(
-        format.timestamp(),
-        format.json(),
-        format.errors({ stack: true })
-      ),
-      defaultMeta: { service: 'orion' },
-      transports: [
-        // Write all logs to console in development
-        new transports.Console({
-          format: format.combine(
-            format.colorize(),
-            format.simple()
-          )
-        }),
-        // Write all logs with level 'error' and below to 'error.log'
-        new transports.File({
-          filename: 'logs/error.log',
-          level: 'error',
-          maxsize: 5242880, // 5MB
-          maxFiles: 5,
-        }),
-        // Write all logs to 'combined.log'
-        new transports.File({
-          filename: 'logs/combined.log',
-          maxsize: 5242880, // 5MB
-          maxFiles: 5,
-        })
-      ]
-    });
+    // Initialize log level from environment variable if available
+    if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_LOG_LEVEL) {
+      const envLevel = process.env.NEXT_PUBLIC_LOG_LEVEL.toUpperCase();
+      if (Object.values(LogLevel).includes(envLevel as LogLevel)) {
+        this.currentLogLevel = envLevel as LogLevel;
+      }
+    }
   }
 
-  public static getInstance(): Logger {
-    if (!Logger.instance) {
-      Logger.instance = new Logger();
+  public static getInstance(): OrionLogger {
+    if (!OrionLogger.instance) {
+      OrionLogger.instance = new OrionLogger();
     }
-    return Logger.instance;
+    return OrionLogger.instance;
+  }
+
+  private shouldLog(level: LogLevel): boolean {
+    const levels = [LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR];
+    return levels.indexOf(level) >= levels.indexOf(this.currentLogLevel);
   }
 
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
-    const { color, icon } = LOG_STYLES[level];
     const timestamp = new Date().toISOString();
-    const contextStr = context ? ` ${color}${JSON.stringify(context, null, 2)}${this.reset}` : '';
-    return `${color}${icon} [${level.toUpperCase()}][${timestamp}]${this.reset} ${message}${contextStr}`;
+    const levelTag = `[${level.toUpperCase()}]`.padEnd(7);
+    const contextString = context ? ` ${JSON.stringify(context)}` : '';
+    return `${timestamp} ${levelTag} ${message}${contextString}`;
   }
 
-  public log(level: LogLevel, message: string, context?: LogContext) {
-    // Only log debug messages in development
-    if (level === 'debug' && !this.isDevelopment) {
-      return;
+  public debug(message: string, context?: LogContext): void {
+    if (this.shouldLog(LogLevel.DEBUG)) {
+      console.debug(this.formatMessage(LogLevel.DEBUG, message, context));
     }
+  }
 
-    if (this.isDevelopment) {
-      // Use stylish console logging in development
-      const formattedMessage = this.formatMessage(level, message, context);
-      const { consoleMethod } = LOG_STYLES[level];
-      console[consoleMethod](formattedMessage);
+  public info(message: string, context?: LogContext): void {
+    if (this.shouldLog(LogLevel.INFO)) {
+      console.info(this.formatMessage(LogLevel.INFO, message, context));
+    }
+  }
+
+  public warn(message: string, context?: LogContext): void {
+    if (this.shouldLog(LogLevel.WARN)) {
+      console.warn(this.formatMessage(LogLevel.WARN, message, context));
+    }
+  }
+
+  public error(message: string, context?: LogContext): void {
+    if (this.shouldLog(LogLevel.ERROR)) {
+      console.error(this.formatMessage(LogLevel.ERROR, message, context));
+    }
+  }
+
+  // Method to dynamically set log level (useful for testing or advanced scenarios)
+  public setLogLevel(level: LogLevel): void {
+    if (Object.values(LogLevel).includes(level)) {
+      this.currentLogLevel = level;
+      this.info(`[Logger] Log level updated to: ${level}`);
     } else {
-      // Use Winston in production
-      const winstonLevel = WINSTON_LEVEL_MAP[level];
-      this.winstonLogger.log(winstonLevel, message, {
-        ...context,
-        level: winstonLevel,
-        timestamp: new Date().toISOString()
-      });
+      this.warn(`[Logger] Attempted to set invalid log level: ${level}`);
     }
-
-    // Handle production error logging
-    if (!this.isDevelopment && level === 'error') {
-      this.handleProductionError(message, context);
-    }
-  }
-
-  private handleProductionError(message: string, context?: LogContext) {
-    // Winston already handles error logging to files
-    // Additional error service integration can be added here
-    // Example: Sentry.captureException(new Error(message), { extra: context });
-  }
-
-  public debug(message: string, context?: LogContext) {
-    this.log('debug', message, context);
-  }
-
-  public info(message: string, context?: LogContext) {
-    this.log('info', message, context);
-  }
-
-  public warn(message: string, context?: LogContext) {
-    this.log('warn', message, context);
-  }
-
-  public error(message: string, context?: LogContext) {
-    this.log('error', message, context);
-  }
-
-  public success(message: string, context?: LogContext) {
-    this.log('success', message, context);
-  }
-
-  // Convenience method for API logging
-  public api(level: LogLevel, message: string, context?: LogContext) {
-    const apiContext = {
-      ...context,
-      timestamp: new Date().toISOString(),
-      environment: this.isDevelopment ? 'development' : 'production',
-      type: 'api'
-    };
-    this.log(level, `[API] ${message}`, apiContext);
-  }
-
-  // Convenience method for component logging
-  public component(level: LogLevel, componentName: string, message: string, context?: LogContext) {
-    const componentContext = {
-      ...context,
-      component: componentName,
-      timestamp: new Date().toISOString(),
-      type: 'component'
-    };
-    this.log(level, `[Component:${componentName}] ${message}`, componentContext);
-  }
-
-  // Convenience method for state management logging
-  public state(level: LogLevel, storeName: string, action: string, context?: LogContext) {
-    const stateContext = {
-      ...context,
-      store: storeName,
-      action,
-      timestamp: new Date().toISOString(),
-      type: 'state'
-    };
-    this.log(level, `[State:${storeName}] ${action}`, stateContext);
   }
 }
 
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+const sharedLogger = OrionLogger.getInstance();
+export default sharedLogger;
 
-let logger: any;
-
-if (isNode) {
-  logger = require('../src/lib/logger.node').logger;
-} else {
-  logger = {
-    debug: (msg: string, ctx?: any) => console.debug(`%c🐞 [DEBUG] ${msg}`, 'color:magenta', ctx || ''),
-    info: (msg: string, ctx?: any) => console.info(`%cℹ️ [INFO] ${msg}`, 'color:blue', ctx || ''),
-    warn: (msg: string, ctx?: any) => console.warn(`%c⚠️ [WARN] ${msg}`, 'color:orange', ctx || ''),
-    error: (msg: string, ctx?: any) => {
-      if (ctx && typeof ctx === 'object' && Object.keys(ctx).length > 0) {
-        console.error(`%c❌ [ERROR] ${msg}`, 'color:red', ctx);
-      } else {
-        console.warn(`%c❌ [ERROR] ${msg}`, 'color:red', ctx || '');
-      }
-    },
-    success: (msg: string, ctx?: any) => console.log(`%c✅ [SUCCESS] ${msg}`, 'color:green', ctx || ''),
-  };
-}
-
-export { logger };
+// Re-export LogLevel for external use

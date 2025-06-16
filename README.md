@@ -22,15 +22,18 @@ merislabs-official/
 - **packages/**: Backends, microservices, shared code
 
 ## Adding a New Project
+
 - Add a new folder to `apps/` (for apps) or `packages/` (for backends, shared, or microservices).
 - Update `pnpm-workspace.yaml` if needed (should already include all `apps/*` and `packages/*`).
 - Each project manages its own dependencies and config.
 
 ## Running Projects
+
 - Next.js app: `cd apps/nextjs && pnpm dev`
 - Python backend: `cd packages/orion_python_backend && python orion_api.py`
 
 ## Best Practices
+
 - Keep each project self-contained.
 - Use `packages/shared/` for shared code.
 - Update this README and workspace config when adding new projects.
@@ -48,17 +51,20 @@ merislabs-official/
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/merislabs-official.git
 cd merislabs-official
 ```
 
 2. Install JavaScript dependencies:
+
 ```bash
 npm install
 ```
 
 3. Install Python dependencies:
+
 ```bash
 cd orion_python_backend
 pip install -r requirements.txt
@@ -70,16 +76,19 @@ cd ..
 #### Option 1: Using the start script
 
 For Unix/Linux/macOS:
+
 ```bash
 npm run start-orion
 ```
 
 For Windows:
+
 ```bash
 npm run start-orion-win
 ```
 
 This will:
+
 - Start the Qdrant database in Docker
 - Start the Python API server
 - Provide instructions for accessing the system
@@ -87,17 +96,20 @@ This will:
 #### Option 2: Manual startup
 
 1. Start Qdrant database:
+
 ```bash
 docker run -d --name qdrant_db -p 6333:6333 -p 6334:6334 -v $(pwd)/qdrant_storage:/qdrant/storage qdrant/qdrant
 ```
 
 2. Start Python API server:
+
 ```bash
 cd orion_python_backend
 python notion_api_server.py
 ```
 
 3. Start Next.js development server:
+
 ```bash
 npm run dev
 ```
@@ -127,15 +139,17 @@ Orion implements full-stack, structured logging for all components:
 - **Frontend**: Logs user actions, errors, and component lifecycle events. In production, logs are sent to `/api/log` and appended to `api_server.log`.
 
 ### Log File Location
+
 - All logs are stored in `api_server.log` (project root or `orion_python_backend/`).
 
 ### Log Format
+
 - JSON lines (one log entry per line), including timestamp, level, message, context, and correlation/session IDs.
 
 ### Viewing Logs
+
 - Use `cat`, `less`, or any log viewer to inspect `api_server.log`.
 - For advanced analysis, import the log file into Grafana, Kibana, or similar tools.
-
 
 We are upgrading the "Application" tab to show real, multi-draft cards with context and modal editing—no mocks, only live data.
 Draft application API now returns all context (profile, memories, web) for full transparency in the UI.
@@ -153,3 +167,8 @@ The Application tab now shows real, editable, context-transparent draft cards—
 - If you encounter module resolution errors, check your import paths and update them to use the correct file.
 
 This documentation will help future contributors avoid confusion and resolve TypeScript errors more efficiently.
+
+### Resolved Issues
+
+- **Tailwind CSS Plugin Resolution**: Addressed issue where `tailwindcss-animate` could not be resolved by ensuring it is installed via `pnpm` and correctly referenced in `tailwind.config.js`.
+- **IDE Formatting**: Configured Prettier and ESLint to work together, and set Prettier as the default formatter for TypeScript and TSX files in `.vscode/settings.json` to resolve formatting inconsistencies in Cursor.

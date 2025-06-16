@@ -1,109 +1,35 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@repo/ui": [
-        "packages/ui/src"
-      ],
-      "@repo/ui/*": [
-        "packages/ui/src/*"
-      ],
-      "@repo/shared": [
-        "packages/shared/src"
-      ],
-      "@repo/shared/*": [
-        "packages/shared/src/*"
-      ],
-      "@repo/sharedtypes": [
-        "packages/sharedtypes"
-      ],
-      "@repo/sharedtypes/*": [
-        "packages/sharedtypes/*"
-      ],
-      "@repo/sharedtypes/orion": [
-        "packages/sharedtypes/orion"
-      ],
-      "@repo/sharedtypes/orion/*": [
-        "packages/sharedtypes/orion/*"
-      ],
-      "@repo/sharedtypes/ideas": [
-        "packages/sharedtypes/ideas"
-      ],
-      "@repo/sharedtypes/ideas/*": [
-        "packages/sharedtypes/ideas/*"
-      ],
-      "@repo/sharedtypes/habitica": [
-        "packages/sharedtypes/habitica"
-      ],
-      "@repo/sharedtypes/habitica/*": [
-        "packages/sharedtypes/habitica/*"
-      ],
-      "@repo/sharedtypes/narrative-clarity": [
-        "packages/sharedtypes/narrative-clarity"
-      ],
-      "@repo/sharedtypes/narrative-clarity/*": [
-        "packages/sharedtypes/narrative-clarity/*"
-      ],
-      "@repo/sharedtypes/strategic-outreach": [
-        "packages/sharedtypes/strategic-outreach"
-      ],
-      "@repo/sharedtypes/strategic-outreach/*": [
-        "packages/sharedtypes/strategic-outreach/*"
-      ],
-      "@repo/sharedhooks": [
-        "packages/shared/hooks"
-      ],
-      "@repo/sharedhooks/*": [
-        "packages/shared/hooks/*"
-      ],
-      "@repo/sharedlib": [
-        "packages/shared/lib",
-        "packages/shared/src/lib"
-      ],
-      "@repo/sharedlib/*": [
-        "packages/shared/lib/*",
-        "packages/shared/src/lib/*"
-      ],
-      "@repo/sharedauth": [
-        "packages/shared/auth.ts"
-      ],
-      "@repo/sharedapp_state": [
-        "packages/shared/app_state.ts"
-      ]
+      "@/*": ["./app/*"],
+      "@/app/*": ["./app/*"],
+      "@/components/*": ["./app/src/components/*"],
+      "@/hooks/*": ["./app/src/hooks/*"],
+      "@/lib/*": ["./app/lib/*"],
+      "@/types/*": ["./app/src/types/*"]
     },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "strict": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
   },
-  "exclude": [
-    "node_modules",
-    ".turbo",
-    "dist",
-    "build"
-  ],
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["next-env.d.ts", "next-images.d.ts", "app/**/*.ts", "app/**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
+
+// TODO: MIGRATE TO FULL NEXTJS - move away from monorepo
+// TODO: consolidate files and features for simplicity

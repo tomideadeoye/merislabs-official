@@ -1,237 +1,413 @@
-# Orion Project Reference
+# Orion Project: Interconnected File Map (High-Level)
 
-## Current Fixes/Refactors in Progress
-
-### Import Path and Type Canonicalization (2024-06-12)
-- [x] packages/shared/src/opportunityCentralStore.ts: Fixed import path for OrionOpportunity/OpportunityDetails to use '../types/OrionOpportunity'. Why: Unifies type usage, resolves TS2307 errors, enables correct type-checking across monorepo.
-- [ ] Global: Begin replacing all @repo/sharedlib imports with @repo/shared in all app, api, and component files. Why: Canonicalizes shared code usage, resolves module not found errors, and aligns with monorepo best practices.
-
-## Centralized Logging System
-**File:** [`lib/logger.ts`](lib/logger.ts)
-**Features:**
-- Winston-based production logging
-- Color-coded console output for development
-- Context-aware logging (API, components, state)
-- Multiple transport layers (console, file)
-- Type-safe log levels (debug, info, warn, error, success)
-
-**Dependencies Added:**
-- winston
-- @types/uuid
-- node-fetch
-- @types/node-fetch
-
-**Key Components:**
-- Singleton Logger class
-- Log context formatting
-- Production error handling
-- Specialized logging methods (API, component, state)
-
-## Canonical UI Component Source
-- All UI components (Button, Badge, Input, etc.) must be imported from the canonical shadcn/ui-compatible implementations in:
-  - `packages/ui/src/components/ui/`
-
-## Import Pattern
-- Use barrel exports from `@repo/ui` for all UI components:
-  ```ts
-  import { Button, Badge, Input, Loader, Progress, Checkbox, Avatar, Label, Tabs, Command, ScrollArea } from '@repo/ui';
-  ```
-- The `cn` utility must be imported from `@repo/ui` or `../../lib/utils` if not barrel-exported.
-
-## Deleted Legacy Locations
-- All legacy UI components in the following locations have been deleted to prevent conflicts:
-  - `components/ui/`
-  - `packages/shared/hooks/components/ui/`
-
-## Why?
-- This unifies the UI layer, eliminates prop/type errors, and ensures shadcn/ui compatibility across the monorepo.
-- Only the canonical implementations in `packages/ui/src/components/ui/` are supported.
-
-## One-liner Summary
-> All UI components must be imported from `@repo/ui` (shadcn/ui-compatible, canonical). Legacy UI files are deleted. This ensures a single source of truth and eliminates all prop/type errors.
+## GOAL OF FILE
+Document the interconnectedness of core files, utilities, feature components, and shared packages in the Orion codebase. This map is intended to clarify dependencies, guide refactoring, and support rapid debugging and onboarding.
 
 ---
 
-## Open Questions & Next Steps for Contributors
+## Mermaid Diagram: High-Level File Interconnections
 
-Please help guide the next phase of development by answering or updating the following:
+```mermaid
+graph TD
+  %% Core Utilities
+  subgraph "src/lib/"
+    L1[logger.ts]
+    L2[database.ts]
+    L3[notion_service.ts]
+    L4[persona_service.ts]
+    L5[orion_llm.ts]
+    L6[memory.ts]
+    L7[cv.ts]
+    L8[profile_service.ts]
+    L9[constants.ts]
+    L10[utils.ts]
+  end
 
-1. **What is the intended functionality for each stubbed module?**
-   (If you have requirements, please specify for each.)
+  %% Shared Types
+  subgraph "src/types/"
+    T1[orion.ts]
+    T2[types.ts]
+  end
 
-2. **Are there any priority modules that should be implemented first?**
+  %% Shared Packages
+  subgraph "packages/shared/"
+    S1[auth.ts]
+    S2[profile_service.ts]
+    S3[lib/logger.ts]
+    S4[lib/notion_service.ts.new]
+    S5[types/index.ts]
+  end
 
-3. **What are the most critical edge cases or failure scenarios to test for each module?**
+  %% Feature Components
+  subgraph "components/builder/orion/"
+    C1[JournalEntryForm.tsx]
+    C2[JournalList.tsx]
+    C3[CVTailoringStudio.tsx]
+    C4[OpportunityList.tsx]
+    C5[OpportunityEvaluator.tsx]
+    C6[EmotionalLogForm.tsx]
+    C7[HabiticaTaskList.tsx]
+    C8[NotionCVComponentsList.tsx]
+    C9[JournalEntryWithMemory.tsx]
+    C10[OpportunityActions.tsx]
+    C11[PastOpportunitiesSection.tsx]
+    C12[application/DraftApplicationButton.tsx]
+  end
 
-4. **Should we add integration tests for modules that interact with external services (e.g., email, LLM providers)?**
+  %% API Routes
+  subgraph "app/app/api/orion/"
+    A1[journal/list/route.ts]
+    A2[notion/cv-components/route.ts]
+    A3[profile/route.ts]
+    A4[opportunities/route.ts]
+    A5[memory/route.ts]
+  end
 
-5. **Are there any architectural or design patterns you want enforced across all shared modules?**
+  %% UI Components
+  subgraph "src/components/ui/components/orion/"
+    U1[DraftCommunicationForm.tsx]
+    U2[WhatsAppChatUploader.tsx]
+    U3[DedicatedAddToMemoryFormComponent.tsx]
+    U4[opportunities/OpportunityActions.tsx]
+    U5[opportunities/AddOpportunityForm.tsx]
+    U6[opportunities/OpportunityDetailView.tsx]
+    U7[opportunities/OpportunityEvaluator.tsx]
+    U8[opportunities/NarrativeAlignmentSection.tsx]
+  end
+
+  %% Interconnections
+  L1 --> C1
+  L1 --> C2
+  L1 --> C3
+  L1 --> C4
+  L1 --> C5
+  L1 --> C6
+  L1 --> C7
+  L1 --> C8
+  L1 --> C9
+  L1 --> C10
+  L1 --> C11
+  L1 --> C12
+
+  L2 --> C3
+  L2 --> C4
+  L2 --> C5
+
+  L3 --> C8
+  L3 --> C3
+  L3 --> C4
+
+  L4 --> C5
+  L5 --> C3
+  L6 --> C9
+  L7 --> C3
+  L8 --> C4
+
+  T1 --> C1
+  T1 --> C2
+  T1 --> C3
+  T1 --> C4
+  T1 --> C5
+  T1 --> C6
+  T1 --> C7
+  T1 --> C8
+  T1 --> C9
+  T1 --> C10
+  T1 --> C11
+  T1 --> C12
+
+  L1 --> A1
+  L2 --> A1
+  L3 --> A2
+  L8 --> A3
+  L2 --> A4
+  L6 --> A5
+  T1 --> A1
+  T1 --> A2
+  T1 --> A3
+  T1 --> A4
+  T1 --> A5
+
+  U1 --> L1
+  U2 --> L1
+  U3 --> L1
+  U4 --> L1
+  U5 --> L1
+  U6 --> L1
+  U7 --> L1
+  U8 --> L1
+
+  U4 --> C10
+  U5 --> C4
+  U6 --> C4
+  U7 --> C5
+  U8 --> C5
+
+  S3 --> L1
+  S4 --> L3
+  S2 --> L8
+  S5 --> T1
+
+  C3 --> S3
+  C4 --> S3
+  C5 --> S3
+  C8 --> S4
+
+  A1 --> S3
+  A2 --> S4
+  A3 --> S2
+
+  U1 --> S3
+  U2 --> S3
+  U3 --> S3
+
+  U2 --> L6
+  U2 --> T1
+
+  C3 --> L7
+  C3 --> T1
+
+  C4 --> L2
+  C4 --> T1
+```
 
 ---
 
-**What would you like to focus on next?**
-- Implementing a specific module?
-- Improving documentation?
-- Reviewing reference.md for missing features?
-- Something else?
+## Summary
 
-Your input will help determine the most valuable next step for the project.
-
-## [2024-06-12] Barrel Export Fixes
-- [x] Exported logger, email_service, and cv from packages/shared/src/index.ts. Why: Enables all app and UI code to import these modules via '@repo/shared/logger', '@repo/shared/email_service', and '@repo/shared/cv', resolving module not found errors and ensuring monorepo-wide type safety.
-- [x] Added 'exports' field to packages/shared/package.json, mapping all key submodules (logger, email_service, cv, orion_config, profile_service, memory, apiClient) for monorepo-wide import resolution. Why: Ensures all submodules are resolvable via '@repo/shared/...', fixing module not found errors in app and UI code.
-- [x] Expanded 'exports' field to include all referenced submodules and types (utils, notion_next_service, notion_service, narrative_service, database, pdf-generator, cbt_constants, persona_service, opportunityCentralStore, and all types). Why: Ensures all imports like '@repo/shared/utils' resolve correctly across the monorepo, further reducing module not found errors.
-
-## [2024-06-12] Type Canonicalization
-- [x] Unified and canonically exported PersonaMap, CVComponent, and NavItem types in packages/shared/src/index.ts. Why: Ensures all app and UI code can import these types from a single, canonical source, eliminating ambiguity and type errors.
-- [x] Redefined PersonaMap as a single Persona object (not an array) in both .d.ts and .ts files. All array usages in app code should use Persona[].
-- [x] Deleted the minimal NavItem definition in packages/shared/types/nav.d.ts. All code now uses the richer NavItem from src/types/nav.ts.
-- [x] Unified CVComponent to match the canonical version in lib/cv.ts and removed the redundant/conflicting definition in orion.d.ts. All code now uses the canonical CVComponent interface.
-
-## [2024-06-12] Observations & File Path Map
-
-### Observations
-- The codebase is now converging on canonical type and component imports, with all major types (e.g., OrionOpportunity, Persona, CVComponent) and UI elements imported from a single source of truth.
-- All UI components must be imported from `@repo/ui` (shadcn/ui-compatible, canonical). Legacy UI files are deleted. This ensures a single source of truth and eliminates all prop/type errors.
-- Shared logic, state, and types are centralized in `packages/shared/src/` and `packages/shared/src/types/`.
-- Admin dashboard features are modularized under `apps/nextjs/app/(orion_admin)/admin/`, with each feature in its own folder.
-- OrionOpportunity pipeline, memory management, and communication features are distributed across both `apps/nextjs/components/orion/` and `packages/ui/src/components/orion/opportunities/`.
-- All state management is moving toward a unified, composable, slice-based central store in `packages/shared/src/opportunityCentralStore.ts`.
-
-### File Path Map (Key Features & Components)
-
-#### Admin Dashboard (Next.js App)
-- `apps/nextjs/app/(orion_admin)/admin/` — All admin dashboard features (OrionOpportunity pipeline, memory manager, routines, communication, etc.)
-  - `OrionOpportunity-pipeline/` — OrionOpportunity pipeline dashboard and kanban
-  - `memory-manager/` — Memory management UI
-  - `draft-communication/` — Drafting emails, WhatsApp, LinkedIn messages
-  - `habitica/`, `routines/`, `system-settings/`, etc. — Modular admin features
-
-#### Orion Core Components (App)
-- `apps/nextjs/components/orion/` — Core Orion features (journal, memory, ideas, persona, WhatsApp, etc.)
-  - `opportunities/` — OrionOpportunity-related forms, dialogs, and views
-  - `tasks/`, `cbt/`, `notion/`, `persona/`, `routines/`, `pipeline/` — Modular feature folders
-  - `QuadrantMemoryChunksVisualizer.tsx` — Visualizer for memory chunks
-  - `DedicatedAddToMemoryFormComponent.tsx` — Add-to-memory UI
-  - `WhatsAppReplyDrafter.tsx` — WhatsApp reply drafting
-
-#### UI Components (Canonical, Shadcn-Compatible)
-- `packages/ui/src/components/ui/` — All canonical UI components (Button, Badge, Input, Loader, ProgressBar, etc.)
-- `packages/ui/src/components/orion/opportunities/` — OrionOpportunity pipeline UI (Kanban, DetailView, Filters, etc.)
-
-#### Shared Logic, State, and Types
-- `packages/shared/src/` — Shared logic, state, and utility functions
-  - `opportunityCentralStore.ts` — Centralized Zustand store for opportunities
-  - `lib/` — Shared services (logger, email, database, LLM, etc.)
-  - `types/` — Canonical type definitions (OrionOpportunity, persona, nav, etc.)
-
-#### Key Shared Services
-- `packages/shared/src/lib/logger.ts` — Centralized logger utility
-- `packages/shared/src/lib/email_service.ts` — Email sending service
-- `packages/shared/src/lib/orion_llm.ts` — LLM integration logic
-- `packages/shared/src/lib/orion_memory.ts` — Memory management logic
-
-#### State Management
-- All state is moving toward a unified, composable, slice-based central store in `packages/shared/src/opportunityCentralStore.ts`.
-
-#### Memory/Knowledge Management
-- `QuadrantMemoryChunksVisualizer.tsx` (apps/nextjs/components/orion/) — Visualizes memory chunks
-- `DedicatedAddToMemoryFormComponent.tsx` (apps/nextjs/components/orion/) — Add-to-memory UI
-- `memory-manager/` (apps/nextjs/app/(orion_admin)/admin/) — Admin memory management UI
-
-#### Communication/Drafting
-- `draft-communication/` (apps/nextjs/app/(orion_admin)/admin/) — Drafting emails, WhatsApp, LinkedIn
-- `WhatsAppReplyDrafter.tsx` (apps/nextjs/components/orion/) — WhatsApp reply drafting
-
-#### OrionOpportunity Pipeline
-- `OrionOpportunity-pipeline/` (apps/nextjs/app/(orion_admin)/admin/) — Admin OrionOpportunity pipeline dashboard
-- `OpportunityKanbanView.tsx`, `OpportunityDetailView.tsx`, `OpportunityFilters.tsx` (packages/ui/src/components/orion/opportunities/) — UI for OrionOpportunity pipeline
-
-#### Persona/CBT/Journal
-- `PersonaForm.tsx`, `persona/` (apps/nextjs/components/orion/) — Persona management
-- `cbt/` (apps/nextjs/components/orion/) — CBT tools
-- `JournalEntryForm.tsx`, `JournalList.tsx` (apps/nextjs/components/orion/) — Journaling
+- **Core utilities** in `src/lib/` are the backbone for all features and API routes.
+- **Shared types** in `src/types/` are used everywhere for type safety and data contracts.
+- **Feature components** in `components/builder/orion/` implement Orion's main user-facing features.
+- **API routes** in `app/app/api/orion/` orchestrate backend logic, using both core utilities and shared types.
+- **UI components** in `src/components/ui/components/orion/` and related folders provide the user interface, often wrapping or composing feature components.
+- **Shared packages** in `packages/shared/` re-export core utilities/types for monorepo-wide usage.
 
 ---
 
-> This map is a living document. Update as new features, refactors, or architectural changes are made. Add new feature/component paths as they are implemented.
+## Next Steps
+
+- Use this map to identify redundant code, opportunities for consolidation, and to guide onboarding or debugging.
+- For a more granular map or a focus on a specific feature, request a breakdown of that area.
+- Suggest improvements, refactoring, or further documentation as needed.
+
+
+# 🌀 orion dev cycle: self-reinforcing circular workflow
+
+> a circular, agent-agnostic system to debug, build, test, reflect, and branch across llms and dev tools (cursor, notion, terminal, streamlit, web).
 
 ---
 
-## Next Steps (Immediate)
-1. **Resolve All TypeScript Errors:**
-   - Continue systematically fixing all remaining TS errors (type import/export, path issues, implicit any, prop mismatches, duplicate/conflicting declarations).
-   - Prioritize canonical imports and single sources of truth for all types, state, and UI components.
-2. **Unify State Management:**
-   - Complete migration to a single, composable, slice-based Zustand store in `packages/shared/src/opportunityCentralStore.ts`.
-   - Remove legacy or redundant state stores.
-3. **Fix Path Imports:**
-   - Update all `@/components/...` and `@/types/...` imports to canonical monorepo paths (`@repo/shared`, `@repo/ui`, etc.).
-4. **Document All Features:**
-   - Ensure every major feature/component is mapped in this file and described in prd.md.
-   - Add one-liner summaries and file paths for new features as they are implemented.
-5. **Automate Testing:**
-   - Expand end-to-end and integration tests, especially for OrionOpportunity pipeline, memory manager, and communication features.
-6. **Continuous Refactoring:**
-   - Remove dead code, consolidate duplicate logic, and enforce best practices (see start.sh and prd.md for standards).
+## 1. 🌟 intent clarification
 
-## Long-Term Plan (Vision)
-- **Feature Completeness:**
-  - Implement all features described in start.sh and prd.md, including OrionOpportunity pipeline automation, memory/knowledge management, communication drafting, journaling, and business management.
-  - Ensure every feature is production-ready, robust, and fully integrated with the central state and UI.
-- **Unified State & Data:**
-  - All state managed via a single, composable Zustand store.
-  - All data (opportunities, memory, personas, etc.) unified in Neon DB and/or Notion, with robust syncing and caching.
-- **Best-in-Class UI/UX:**
-  - All UI components are shadcn/ui-compatible, fun, engaging, and visually consistent.
-  - Add visualizations, gamification, and progress feedback throughout the admin dashboard.
-- **Automation & AI:**
-  - Automate OrionOpportunity outreach, CV tailoring, and communication drafting using LLMs and browser automation.
-  - Integrate with external services (email, WhatsApp, LinkedIn, Google Calendar, etc.) for seamless workflow.
-- **Robust Logging & Observability:**
-  - All operations logged with context-rich, level-based logging (see logger utility).
-  - Add monitoring and error reporting for all critical flows.
-- **Continuous Improvement:**
-  - Regularly review and refactor code for maintainability, performance, and security.
-  - Update this reference and prd.md as features evolve.
-  - Foster a culture of rapid self-improvement, feedback, and architectural clarity.
-- **Documentation & Onboarding:**
-  - Keep this file, prd.md, and README up to date with all features, file paths, and architectural decisions.
-  - Make onboarding new contributors seamless with clear maps, standards, and examples.
+define the why. architect the purpose. commit to what matters.
 
-> The goal: Orion becomes the primary tool for life planning, reflection, decision support, and business/task management—engaging, reliable, and always improving.
+**🧠 fill:**
 
-## Error Fixing Roadmap (2024-06-12)
+* goal: `[what do i want to build or fix?]`
+* why it matters: `[what is the core value or vision behind this?]`
+* module or system affected: `[which orion subsystem?]`
+* success state: `[how will i know it's working?]`
 
-### Top Remaining Error Classes
-1. **Type Import/Export Issues:**
-   - Duplicate/conflicting exports in `packages/shared/src/index.ts`.
-   - Canonical type usage for all domain types (e.g., OrionOpportunity, Persona, CVComponent, etc.).
-2. **Path Import Errors:**
-   - `@/components/...` and `@/types/...` imports need to be updated to canonical monorepo paths (`@repo/shared`, `@repo/ui`, etc.).
-3. **Implicit `any` Types:**
-   - Add explicit types to all function parameters currently typed as `any` (especially in React components and stores).
-4. **Component/Store Import Errors:**
-   - Ensure all referenced components and stores exist and are exported from their respective packages.
-5. **Props/Type Mismatches:**
-   - Update component props to match their type definitions (especially for shadcn/ui components).
-6. **Duplicate/Conflicting Declarations:**
-   - Remove or refactor duplicate exports in files like `orion_llm.ts` and `llm_providers.ts`.
+**💬 prompts to ask the llm:**
 
-### Most Affected Files/Directories
-- `packages/shared/src/index.ts` (type exports)
-- `apps/nextjs/components/orion/` (core feature components)
-- `packages/ui/src/components/orion/opportunities/` (OrionOpportunity pipeline UI)
-- `packages/shared/src/lib/` (shared services, LLM, logger, etc.)
-- `apps/nextjs/app/(orion_admin)/admin/` (admin dashboard features)
+```txt
+- what's the architectural intent behind [fill goal]?
+- what's the fastest way to go from concept to working prototype?
+- what assumptions do i need to surface before building [fill]?
+- how does this goal relate to my core orion principles?
+```
 
-### Prioritized Plan for Error Fixing
-1. **Clean up duplicate/conflicting exports in `packages/shared/src/index.ts`.**
-2. **Update all path imports to canonical monorepo paths.**
-3. **Add explicit types for all function parameters with implicit `any`.**
-4. **Fix missing/misnamed component and store imports.**
-5. **Align all component props with their type definitions.**
-6. **Remove/refactor duplicate declarations in shared logic files.**
-7. **Re-run type-check after each batch of fixes and update this roadmap.**
+---
 
-> Track progress here as errors are resolved. Remove completed items and add new error classes as they are discovered.
+## 2. 🧠 llm collaboration / planning
+
+gather insights from multiple agents. extract architecture plans.
+
+**🔄 consult (choose 2–3):**
+
+* [ ] chatgpt (gpt-4)
+* [ ] claude 3
+* [ ] gemini
+* [ ] deepseek / qwen
+* [ ] cursor's local assistant
+
+**💬 model prompt:**
+
+```txt
+you are an ai systems strategist. i am building [fill goal] for orion.
+
+please return:
+- key steps and modules required
+- edge cases to account for
+- warning signs or bugs
+- naming suggestions for state and components
+- one test case i might forget
+```
+
+**📎 decision:**
+
+* [ ] go forward with best agent plan
+* [ ] merge suggestions from multiple models
+* [ ] cycle again if unclear or low-quality output
+
+---
+
+## 3. 🛠 implementation in cursor (or editor)
+
+build now. no delay. this is the architect's lab.
+
+**🧠 clarify before code:**
+
+* component name: `[fill here]`
+* file path: `[src/components/orion/[fill].tsx]`
+* state shape: `[what are we tracking?]`
+* target api route: `[api/orion/[fill]]`
+
+**💬 cursor/gpt coding prompt:**
+
+```txt
+build a typescript component called [fill] that:
+- [explain functionality in 1–2 lines]
+- uses state for [fill]
+- fetches data from [fill]
+- handles error and loading
+```
+
+**💬 extra prompts:**
+
+```txt
+- write a unit test for [fill component]
+- what are 3 likely bugs in this component?
+- simulate api responses and show data render
+```
+
+**💡 if building python logic (e.g. in orion_python_backend):**
+
+```txt
+write a fastapi route to [fill goal], with json input of [fill shape].
+return: [fill output].
+```
+
+---
+
+## 4. 🧪 debugging + testing
+
+catch breakage. rewire logic. log test cases.
+
+**🧠 identify:**
+
+* symptom: `[what failed?]`
+* location: `[file path]`
+* trigger: `[what caused it?]`
+* logs: `[copy the full error here if available]`
+
+**💬 prompts to diagnose:**
+
+```txt
+- what causes this react error: [fill message]?
+- how can i reproduce this in a test?
+- where would i add debug logging for [fill logic]?
+- is this a typing issue or state sync error?
+```
+
+**📁 save test to:** `/tests/[feature_name].test.ts`
+
+---
+
+## 5. 🪞 self-reflection (architect's log)
+
+track what worked, what felt stuck, what's evolving in you.
+
+**🧠 questions to ask:**
+
+```txt
+- what was most intuitive in this session?
+- what confused me and why?
+- what friction repeated from last build?
+- what assumptions did i confirm or break?
+```
+
+**📁 save to:** `/journal/[today]-dev-reflection.md`
+**tags:** `#flow`, `#blocker_[fill]`, `#pattern_[fill]`
+
+---
+
+## 6. 🌱 branch to next
+
+use momentum. ask what's unlocked. loop again.
+
+**💬 prompts to find the next branch:**
+
+```txt
+- what downstream system will need to change now?
+- what's the smallest next improvement i can ship?
+- what feature does this unlock?
+- what test coverage is missing now?
+- where could user friction still live in this flow?
+```
+
+**🧠 update todo or roadmap:**
+
+* `/tasks/next.md`
+* `/intents/[new_feature].md`
+
+🔁 loop back to → intent clarification
+
+---
+
+## 🔄 summary cycle flow
+
+```txt
+[1] intent
+   ↓
+[2] llm collaboration
+   ↓
+[3] implement via cursor
+   ↓
+[4] debug + test
+   ↓
+[5] reflect + log
+   ↓
+[6] branch next
+   ↺ back to 1
+```
+
+---
+
+## 🧭 ascii decision tree
+
+```txt
+        +---------------------+
+        |   intent clarified  |
+        +---------------------+
+                  |
+          +---------------+
+          |  multi-llm plan|
+          +---------------+
+                  |
+         good plan? / \
+                  /   \
+        +--------+     +-----------+
+        | implement     | retry or |
+        | in cursor      | try new |
+        |                |  model  |
+        +--------+     +-----------+
+                  |
+            +-------------+
+            | debug + test|
+            +-------------+
+                  |
+            +-------------+
+            |  reflect +   |
+            |  extract log |
+            +-------------+
+                  |
+            +-----------------+
+            | identify next   |
+            | feature/step    |
+            +-----------------+
+                  |
+              ↻ LOOP BACK
+```
+
+---

@@ -1,13 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
+  darkMode: ['class'],
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "../../packages/shared/**/*.{js,ts,jsx,tsx}",
-    "../../packages/shared/**/**/*.{js,ts,jsx,tsx}",
-    "../../apps/nextjs/app/**/*.{js,ts,jsx,tsx}",
-    "../../apps/nextjs/components/**/*.{js,ts,jsx,tsx}",
+    './app/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+    '../../packages/shared/**/*.{js,ts,jsx,tsx}',
+    '../../packages/shared/**/**/*.{js,ts,jsx,tsx}',
+    '../../packages/ui/src/**/*.{js,ts,jsx,tsx}',
+    '../../apps/nextjs/app/**/*.{js,ts,jsx,tsx}',
+    '../../apps/nextjs/components/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
   	container: {
@@ -89,5 +90,5 @@ module.exports = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require('tailwindcss-animate')],
 };

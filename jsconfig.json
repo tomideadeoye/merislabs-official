@@ -12,6 +12,12 @@
     },
     "checkJs": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "components/orion/EmotionalLogHistory.jsx"
+  ],
   "exclude": ["node_modules", "**/node_modules/*"]
 }

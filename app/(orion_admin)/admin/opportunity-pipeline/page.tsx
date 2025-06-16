@@ -1,79 +1,177 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
-// TODO: Replace Loader with a @repo/ui or shared implementation if available
-// import { Loader } from '@repo/ui';
-// TODO: Replace Loader with a @repo/ui or shared implementation if available
-// import { Loader } from '@repo/ui';
-// import { Loader } from '@repo/sharedui';
-import { OpportunityList, OpportunityFilters, AddOpportunityForm, OpportunityKanbanView } from '@repo/ui';
-import { logger } from '@repo/shared/logger';
-import { useOpportunities } from '@repo/sharedhooks/useOpportunities';
+import React, { useState } from 'react';
+import { OpportunityList, OpportunityKanbanView, AddOpportunityForm, OpportunityEvaluator } from '@/ui/components/ui';
+import { useOpportunityDialogStore } from '@repo/shared/hooks/useOpportunityDialogStore';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  PageHeader,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Button,
+} from '@/ui/components/ui';
+import { Briefcase, BarChart2, XIcon } from 'lucide-react';
+import { useOpportunities } from '@repo/shared/hooks/useOpportunities';
+import { OpportunityPipelineCharts } from './OpportunityPipelineCharts';
+
+import { useOpportunityCentralStore, type OpportunityCentralStoreType } from '@repo/shared/opportunityCentralStore';
 
 export default function OpportunityPipelinePage() {
-  const [view, setView] = useState<'list' | 'kanban'>('list');
-  const { opportunities, isLoading, error } = useOpportunities();
+  const [activeView, setActiveView] = useState('list');
+  const { opportunities, isLoading, error, refetchOpportunities } = useOpportunities();
 
-  useEffect(() => {
-    logger.info('OpportunityPipelinePage mounted', { view });
-  }, [view]);
+  // Listen for Kanban refetch flag
+  const needsRefetch = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.needsRefetch);
+  const setNeedsRefetch = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.setNeedsRefetch);
+  console.info('[OpportunityPipeline][MIGRATION] Using central store selector for needsRefetch and setNeedsRefetch', {
+    needsRefetch,
+    setNeedsRefetch,
+  });
+  React.useEffect(() => {
+    if (needsRefetch) {
+      refetchOpportunities();
+      setNeedsRefetch(false);
+    }
+  }, [needsRefetch, refetchOpportunities, setNeedsRefetch]);
 
-  if (error) {
-    logger.error('Error loading opportunities', { error });
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Error Loading Opportunities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-500">Failed to load opportunities. Please try again later.</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const { open: openAddDialog, close: closeAddDialog } = useOpportunityDialogStore();
+
+  const handleAddNew = () => {
+    openAddDialog();
+  };
+
+  const handleAddSuccess = () => {
+    closeAddDialog();
+    refetchOpportunities();
+  };
+
+  // In the component where you fetch and display opportunities:
+  // After fetching, check for error and render fallback UI if needed
+  const opportunityError = error;
+  const handleRetryFetchOpportunity = () => {
+    refetchOpportunities();
+  };
+
+  // Add this block after the Notion error fallback UI, or wherever research results/errors are displayed
+  const researchError = error;
+  const handleRetryResearch = () => {
+    refetchOpportunities();
+  };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>OrionOpportunity Pipeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setView('list')}
-                className={`px-4 py-2 rounded ${view === 'list' ? 'bg-primary text-white' : 'bg-secondary'
-                  }`}
-              >
-                List View
-              </button>
-              <button
-                onClick={() => setView('kanban')}
-                className={`px-4 py-2 rounded ${view === 'kanban' ? 'bg-primary text-white' : 'bg-secondary'
-                  }`}
-              >
-                Kanban View
-              </button>
-            </div>
-            <AddOpportunityForm />
-          </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="OrionOpportunity Pipeline"
+        icon={<Briefcase className="h-7 w-7" />}
+        description="Track and manage job applications, education programs, and project collaborations."
+      />
 
-          <OpportunityFilters />
+      {/* Visualization charts for admin */}
+      <OpportunityPipelineCharts opportunities={opportunities} />
 
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <span className="text-gray-500">Loading...</span>
-            </div>
-          ) : view === 'list' ? (
-            <OpportunityList opportunities={opportunities} />
-          ) : (
-            <OpportunityKanbanView opportunities={opportunities} />
-          )}
-        </CardContent>
-      </Card>
+      {opportunityError && (
+        <Card className="bg-gradient-to-r from-red-900 to-red-800 border-red-700 shadow-lg mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center text-xl text-red-200">
+              <XIcon className="mr-2 h-6 w-6 text-red-400" />
+              Notion Fetch Error
+            </CardTitle>
+            <CardDescription className="text-red-300">{opportunityError}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-2 text-red-200">Troubleshooting tips:</div>
+            <ul className="mb-4 text-red-100 list-disc list-inside text-sm">
+              <li>Check your Notion API key and integration permissions.</li>
+              <li>Ensure the OrionOpportunity ID is valid and accessible.</li>
+              <li>Check your network connection and Notion API status.</li>
+              <li>Try again or contact support if the issue persists.</li>
+            </ul>
+            <Button
+              variant="outline"
+              className="border-red-500 text-red-400 hover:bg-red-900/30"
+              onClick={handleRetryFetchOpportunity}
+            >
+              Retry Fetch
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {researchError && (
+        <Card className="bg-gradient-to-r from-red-900 to-red-800 border-red-700 shadow-lg mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center text-xl text-red-200">
+              <XIcon className="mr-2 h-6 w-6 text-red-400" />
+              Research Proxy Error
+            </CardTitle>
+            <CardDescription className="text-red-300">{researchError}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-2 text-red-200">Troubleshooting tips:</div>
+            <ul className="mb-4 text-red-100 list-disc list-inside text-sm">
+              <li>
+                Ensure the Python backend is running on <b>localhost:5002</b>.
+              </li>
+              <li>Check your network connection and backend logs for errors.</li>
+              <li>Try again or contact support if the issue persists.</li>
+            </ul>
+            <Button
+              variant="outline"
+              className="border-red-500 text-red-400 hover:bg-red-900/30"
+              onClick={handleRetryResearch}
+            >
+              Retry Research
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <Tabs defaultValue="list" value={activeView} onValueChange={setActiveView}>
+        <TabsList className="bg-gray-800 border-gray-700">
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="kanban">Kanban View</TabsTrigger>
+          <TabsTrigger value="evaluator">OrionOpportunity Evaluator</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="mt-6">
+          <OpportunityList
+            opportunities={opportunities}
+            isLoading={isLoading}
+            error={error}
+            refetchOpportunities={refetchOpportunities}
+            onAddNew={handleAddNew}
+          />
+        </TabsContent>
+
+        <TabsContent value="kanban" className="mt-6">
+          <OpportunityKanbanView opportunities={opportunities} />
+        </TabsContent>
+
+        <TabsContent value="evaluator" className="mt-6">
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="flex items-center text-xl text-gray-200">
+                <BarChart2 className="mr-2 h-6 w-6 text-amber-400" />
+                OrionOpportunity Evaluator
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Analyze job descriptions, academic programs, or project briefs against your profile and goals.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OpportunityEvaluator />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      <AddOpportunityForm onSuccess={handleAddSuccess} />
     </div>
   );
 }
