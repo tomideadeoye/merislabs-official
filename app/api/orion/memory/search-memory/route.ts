@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchMemory } from '@repo/shared/orion_memory';
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
-import type { QdrantFilter } from '@repo/shared';
+import { searchMemory } from '@/app/shared/orion_memory';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+import type { QdrantFilter } from '@/app/shared';
 
 /**
  * API route to search the memory system

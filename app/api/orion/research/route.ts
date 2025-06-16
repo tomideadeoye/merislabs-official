@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/sharedauth';
-import { PYTHON_API_URL } from '@repo/shared/orion_config'; // Import Python API URL
-import { logger } from '@repo/shared/logger';
+import { auth } from '@/auth';
+import { PYTHON_API_URL } from '@/lib/orion_config';
+import logger from '@/lib/logger';
+
+// Type guard to check if an error object has a 'code' property (often present on Node.js system errors)
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return typeof error === 'object' && error !== null && 'code' in error;
+}
 
 /**
  * API route to proxy web research and scraping requests to the Python backend.
@@ -17,7 +22,7 @@ export async function POST(request: NextRequest) {
     const { query, type = 'web', count, url } = await request.json();
 
     let pythonBackendUrl: string;
-    let requestBody: any = {};
+    let requestBody: Record<string, unknown> = {};
 
     if (type === 'scrape') {
       if (!url) {
@@ -55,14 +60,22 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify(requestBody),
       });
-    } catch (fetchError: any) {
+    } catch (fetchError: unknown) {
       let errorMsg = 'Unknown error';
-      if (fetchError?.code === 'ECONNREFUSED' || fetchError?.message?.includes('ECONNREFUSED')) {
-        errorMsg = 'Python backend is not running or not reachable (ECONNREFUSED)';
-      } else if (fetchError?.message?.includes('fetch failed')) {
-        errorMsg = 'Network error: Unable to reach Python backend';
-      } else if (fetchError instanceof Error) {
-        errorMsg = fetchError.message;
+      if (fetchError instanceof Error) {
+        // Use a type guard for Node.js system errors which have a 'code' property
+        if (
+          (isNodeError(fetchError) && fetchError.code === 'ECONNREFUSED') ||
+          fetchError.message?.includes('ECONNREFUSED')
+        ) {
+          errorMsg = 'Python backend is not running or not reachable (ECONNREFUSED)';
+        } else if (fetchError.message?.includes('fetch failed')) {
+          errorMsg = 'Network error: Unable to reach Python backend';
+        } else {
+          errorMsg = fetchError.message;
+        }
+      } else {
+        errorMsg = String(fetchError);
       }
       logger.error('[RESEARCH_PROXY_ERROR] Failed to fetch from Python backend', {
         pythonBackendUrl,
@@ -86,7 +99,8 @@ export async function POST(request: NextRequest) {
           },
           { status: pythonResponse.status }
         );
-      } catch (jsonError) {
+      } catch (jsonError: unknown) {
+        logger.error('[RESEARCH_PROXY_ERROR] Failed to parse Python backend error response', { error: jsonError });
         return NextResponse.json(
           {
             success: false,
@@ -102,15 +116,21 @@ export async function POST(request: NextRequest) {
       pythonBackendUrl,
     });
     return NextResponse.json({ success: true, results: pythonData });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    let errorMsg = 'An unexpected error occurred during web research/scraping proxy.';
+    if (error instanceof Error) {
+      errorMsg = error.message;
+    } else {
+      errorMsg = String(error);
+    }
     logger.error('[RESEARCH_PROXY_ERROR] Unexpected error in research proxy', {
-      error: error?.message,
+      error: errorMsg,
       raw: error,
     });
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred during web research/scraping proxy.',
+        error: errorMsg,
       },
       { status: 500 }
     );

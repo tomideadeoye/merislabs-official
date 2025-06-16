@@ -2,12 +2,15 @@
  * @repo/shared/lib/routes.ts
  * Goal: Centralized route definitions and navigation items for the Orion application.
  * This file aims to provide a single source of truth for all application routes,
- * making navigation consistent and easy to manage across the monorepo.
+ * making navigation consistent and easy to manage across the simple nextjs project.
  *
  * Relation to other files, functions and features:
  * - Imported by `apps/nextjs/app/layout.tsx` for main navigation.
  * - Ensures consistent routing for internal links and programmatic navigation.
  */
+
+// Defines canonical routes for the Next.js application.
+// This ensures consistent navigation and URL management across the app.
 
 export interface NavItem {
   title: string;

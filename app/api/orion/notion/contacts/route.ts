@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchContactsFromNotion } from '@repo/shared/notion_service';
-import { auth } from '@repo/sharedauth';
+import { fetchContactsFromNotion } from '@/app/shared/notion_service';
+import { auth } from '@/app/sharedauth';
 
 interface FetchContactsApiResponse {
   success: boolean;

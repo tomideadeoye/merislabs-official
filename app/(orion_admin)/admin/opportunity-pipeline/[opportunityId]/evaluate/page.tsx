@@ -6,11 +6,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { PageHeader, Button, Card, CardContent, CardHeader, CardTitle } from '@/ui/components/ui';
+import { PageHeader, Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Loader2, ArrowLeft, BarChart2 } from 'lucide-react';
 // Corrected to direct relative import due to persistent alias resolution issues in deep paths
 import Link from 'next/link';
-import { OrionOpportunity, EvaluationOutput } from '@repo/shared';
+import { OrionOpportunity, EvaluationOutput } from '@/app/shared';
 
 export default function EvaluateOpportunityPage() {
   const params = useParams();

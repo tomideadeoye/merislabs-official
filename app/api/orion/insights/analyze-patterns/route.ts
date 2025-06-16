@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ORION_MEMORY_COLLECTION_NAME, PATTERN_ANALYSIS_REQUEST_TYPE } from '@repo/shared/orion_config';
-import { PatternAnalysisRequest } from '@repo/shared/types/insights';
+import { ORION_MEMORY_COLLECTION_NAME, PATTERN_ANALYSIS_REQUEST_TYPE } from '@/lib/orion_config';
+import { PatternAnalysisRequest } from '@/app/shared/types/insights';
 import type {
   OpportunityNotionInput,
   JournalEntryNotionInput,
@@ -9,7 +9,7 @@ import type {
   ScoredMemoryPoint,
   QdrantFilter,
   QdrantFilterCondition,
-} from '@repo/shared';
+} from '@/app/shared';
 
 /**
  * API route for analyzing patterns in memory

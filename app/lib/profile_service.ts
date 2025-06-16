@@ -8,15 +8,13 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 /// <reference types="node-fetch" />
 import fetch from 'node-fetch';
-import { logger } from './logger';
+import logger from '@/lib/logger';
+import { UserProfileData } from '@/lib/types';
 
 let readFileImpl: typeof import('fs/promises').readFile | undefined;
 let pathImpl: typeof import('path') | undefined;
 
-const isNode =
-  typeof process !== 'undefined' &&
-  process.versions != null &&
-  process.versions.node != null;
+const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
 if (isNode) {
   readFileImpl = require('fs/promises').readFile;
@@ -54,9 +52,7 @@ function extractNotionPageId(url: string): string | null {
   if (match) return match[0];
 
   // Regex for standard UUID format
-  const dashed = url.match(
-    /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
-  );
+  const dashed = url.match(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/);
   if (dashed) return dashed[0].replace(/-/g, ''); // Return non-dashed version
 
   return null;
@@ -95,10 +91,7 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
   logger.info('Attempting to fetch user profile data...', logContext);
 
   // 1. Check in-memory cache first
-  if (
-    profileCache &&
-    Date.now() - profileCache.timestamp < PROFILE_CACHE_TTL_MS
-  ) {
+  if (profileCache && Date.now() - profileCache.timestamp < PROFILE_CACHE_TTL_MS) {
     logger.info('Returning cached user profile data.', {
       ...logContext,
       source: profileCache.data?.source,
@@ -112,31 +105,23 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
   // 2. Primary Source: Attempt to fetch from Notion
   if (notionUrl && notionApiKey) {
     try {
-      logger.info(
-        'Primary Source: Attempting to fetch profile from Notion page.',
-        logContext,
-      );
+      logger.info('Primary Source: Attempting to fetch profile from Notion page.', logContext);
       const pageId = extractNotionPageId(notionUrl);
       if (!pageId) {
-        throw new Error(
-          'Could not extract a valid Notion page ID from USER_PROFILE_NOTION_URL.',
-        );
+        throw new Error('Could not extract a valid Notion page ID from USER_PROFILE_NOTION_URL.');
       }
 
-      const notionRes = await fetch(
-        `https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`,
-        {
-          headers: {
-            Authorization: `Bearer ${notionApiKey}`,
-            'Notion-Version': '2022-06-28',
-          },
+      const notionRes = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, {
+        headers: {
+          Authorization: `Bearer ${notionApiKey}`,
+          'Notion-Version': '2022-06-28',
         },
-      );
+      });
 
       if (!notionRes.ok) {
         const errorBody = await notionRes.text();
         throw new Error(
-          `Failed to fetch Notion page: ${notionRes.status} ${notionRes.statusText}. Response: ${errorBody}`,
+          `Failed to fetch Notion page: ${notionRes.status} ${notionRes.statusText}. Response: ${errorBody}`
         );
       }
 
@@ -154,49 +139,34 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
           source: 'notion',
         };
         profileCache = { data: profileData, timestamp: Date.now() };
-        logger.success(
-          'Successfully fetched and parsed profile from Notion.',
-          logContext,
-        );
+        logger.success('Successfully fetched and parsed profile from Notion.', logContext);
         return profileData;
       } else {
-        logger.warn(
-          'Notion page was fetched but contained no parsable text content. Attempting fallback.',
-          logContext,
-        );
+        logger.warn('Notion page was fetched but contained no parsable text content. Attempting fallback.', logContext);
       }
     } catch (error) {
-      logger.error(
-        'Error fetching/parsing user profile from Notion. Attempting fallback.',
-        { ...logContext, error },
-      );
+      logger.error('Error fetching/parsing user profile from Notion. Attempting fallback.', { ...logContext, error });
     }
   } else {
-    logger.warn(
-      'Notion URL or API Key not set. Attempting local file fallback.',
-      logContext,
-    );
+    logger.warn('Notion URL or API Key not set. Attempting local file fallback.', logContext);
   }
 
   // 3. Fallback Source: Attempt to fetch from local files
   try {
-    logger.info(
-      'Fallback Source: Attempting local file read for user profile...',
-      logContext,
-    );
+    logger.info('Fallback Source: Attempting local file read for user profile...', logContext);
 
     // Using process.cwd() should resolve from the root of the running application
     const profileTextPath = pathImpl!.join(
       process.cwd(),
       'backend',
       'orion_python_backend',
-      'Tomide_Adeoye_Profile.txt',
+      'Tomide_Adeoye_Profile.txt'
     );
     const personalityTextPath = pathImpl!.join(
       process.cwd(),
       'backend',
       'orion_python_backend',
-      'Tomide_Adeoye_personality.txt',
+      'Tomide_Adeoye_personality.txt'
     );
 
     logger.debug('Attempting to read profile files from paths:', {
@@ -205,13 +175,9 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
     });
 
     const profileContent = await readFileImpl!(profileTextPath, 'utf-8');
-    const personalityContent = await readFileImpl!(
-      personalityTextPath,
-      'utf-8',
-    );
+    const personalityContent = await readFileImpl!(personalityTextPath, 'utf-8');
 
-    const combinedLocalText =
-      `${profileContent}\n\n---\n\n${personalityContent}`.trim();
+    const combinedLocalText = `${profileContent}\n\n---\n\n${personalityContent}`.trim();
 
     if (combinedLocalText) {
       const profileData: ProfileServiceRawData = {
@@ -219,20 +185,51 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
         source: 'local',
       };
       profileCache = { data: profileData, timestamp: Date.now() };
-      logger.success(
-        'Successfully fetched profile from local files.',
-        logContext,
-      );
+      logger.success('Successfully fetched profile from local files.', logContext);
       return profileData;
     } else {
-      throw new Error('Local profile files were found but are empty.');
+      logger.warn('Local profile files were read but contained no content.', logContext);
+      return null;
     }
   } catch (error) {
-    logger.error(
-      'Failed to fetch user profile from all sources (Notion and local files). This is a critical context failure.',
-      { ...logContext, error },
-    );
-    // This will now be the final point of failure if local files are also missing.
+    logger.error('Failed to fetch user profile from local files. This is a critical context failure.', {
+      ...logContext,
+      error,
+    });
+    return null;
+  }
+}
+
+/**
+ * Retrieves user profile text and structures it into UserProfileData.
+ * This function integrates with `fetchUserProfile` and transforms the raw text.
+ * @returns A promise that resolves to UserProfileData or null.
+ */
+export async function getProfileText(): Promise<UserProfileData | null> {
+  logger.info('[ProfileService] getProfileText called.', { operation: 'getProfileText' });
+  try {
+    const rawProfile = await fetchUserProfile();
+    if (rawProfile && rawProfile.profileText) {
+      // For now, we'll just put the entire profileText into a 'summary' field.
+      // In a real application, you might parse this into more structured fields.
+      const profileData: UserProfileData = {
+        id: 'user-profile-default',
+        name: 'Tomide Adeoye',
+        email: 'tomide.adeoye@example.com',
+        // Assuming 'summary' or 'bio' is a field in UserProfileData
+        // You might need to adjust UserProfileData in types/index.ts to match this.
+        summary: rawProfile.profileText.substring(0, 500) + '...', // Truncate for example
+        // Add other fields as needed, potentially parsing from the raw text
+      };
+      logger.success('[ProfileService] User profile text retrieved and structured.', { source: rawProfile.source });
+      return profileData;
+    } else {
+      logger.warn('[ProfileService] No raw profile text found.');
+      return null;
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('[ProfileService] Error in getProfileText.', { error: errorMessage });
     return null;
   }
 }

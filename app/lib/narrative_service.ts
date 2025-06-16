@@ -2,12 +2,14 @@
  * Narrative Service for Narrative Clarity Studio
  * GOAL RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:  Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
  * This module provides functions to manage narrative documents and components.
+ * opportunities for improvement:
+ * suggestions:
+ * todo:
  */
 
-/// <reference types="uuid" />
 
-import { NarrativeType } from "@/types";
-import { NarrativeDocument, CareerMilestone, ValueProposition } from "../types";
+import { v4 as uuidv4 } from 'uuid';
+import { NarrativeDocument, CareerMilestone, ValueProposition, NarrativeType } from '..';
 
 
 // In-memory storage for narrative documents (in a real app, this would be a database)
@@ -19,7 +21,7 @@ let valueProposition: ValueProposition | null = null;
  * Create a new narrative document
  */
 export async function createNarrativeDocument(
-  data: Omit<NarrativeDocument, 'id' | 'createdAt' | 'updatedAt'>,
+  data: Omit<NarrativeDocument, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<NarrativeDocument> {
   const now = new Date().toISOString();
   const newDocument: NarrativeDocument = {
@@ -43,9 +45,7 @@ export async function getNarrativeDocuments(): Promise<NarrativeDocument[]> {
 /**
  * Get a narrative document by ID
  */
-export async function getNarrativeDocumentById(
-  id: string,
-): Promise<NarrativeDocument | null> {
+export async function getNarrativeDocumentById(id: string): Promise<NarrativeDocument | null> {
   const document = narrativeDocuments.find((d) => d.id === id);
   return document || null;
 }
@@ -55,7 +55,7 @@ export async function getNarrativeDocumentById(
  */
 export async function updateNarrativeDocument(
   id: string,
-  data: Partial<NarrativeDocument>,
+  data: Partial<NarrativeDocument>
 ): Promise<NarrativeDocument | null> {
   const index = narrativeDocuments.findIndex((d) => d.id === id);
   if (index === -1) return null;
@@ -82,9 +82,7 @@ export async function deleteNarrativeDocument(id: string): Promise<boolean> {
 /**
  * Get narrative documents by type
  */
-export async function getNarrativeDocumentsByType(
-  type: NarrativeType,
-): Promise<NarrativeDocument[]> {
+export async function getNarrativeDocumentsByType(type: NarrativeType): Promise<NarrativeDocument[]> {
   return narrativeDocuments.filter((d) => d.type === type);
 }
 
@@ -92,9 +90,7 @@ export async function getNarrativeDocumentsByType(
  * Career Milestone Functions
  */
 
-export async function saveCareerMilestone(
-  milestone: Omit<CareerMilestone, 'id'>,
-): Promise<CareerMilestone> {
+export async function saveCareerMilestone(milestone: Omit<CareerMilestone, 'id'>): Promise<CareerMilestone> {
   const newMilestone: CareerMilestone = {
     id: uuidv4(),
     ...milestone,
@@ -112,7 +108,7 @@ export async function getCareerMilestones(): Promise<CareerMilestone[]> {
 
 export async function updateCareerMilestone(
   id: string,
-  data: Partial<CareerMilestone>,
+  data: Partial<CareerMilestone>
 ): Promise<CareerMilestone | null> {
   const index = careerMilestones.findIndex((m) => m.id === id);
   if (index === -1) return null;
@@ -141,7 +137,7 @@ export async function deleteCareerMilestone(id: string): Promise<boolean> {
  */
 
 export async function saveValueProposition(
-  data: Omit<ValueProposition, 'id' | 'updatedAt'>,
+  data: Omit<ValueProposition, 'id' | 'updatedAt'>
 ): Promise<ValueProposition> {
   const now = new Date().toISOString();
   const newValueProp: ValueProposition = {

@@ -2,15 +2,15 @@
  * GOAL: API route for creating a new idea in Orion, using Neon/Postgres for cloud scalability, reliability, and auditability.
  * - Persists new ideas and logs to the central Postgres DB.
  * - Absurdly comprehensive logging for every step, with context and error details.
- * - Connects to: lib/database.ts (Postgres pool), types/ideas.d.ts, prd.md (feature doc), tests/e2e.test.ts (tests)
+ * - Connects to: lib/database.ts (Postgres pool), types/ideas.d.ts, reference.md (feature doc), tests/e2e.test.ts (tests)
  * - All features preserved from SQLite version, now with improved error handling and observability.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@repo/shared/database';
-import type { Idea, IdeaLog } from '@repo/shared/types/ideas';
+import { query, sql } from '@/app/shared/database';
+import type { Idea, IdeaLog } from '@/app/shared/types/ideas';
 import { v4 as uuidv4 } from 'uuid';
-import { auth } from '@repo/shared/auth';
+import { auth } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   const logContext = {

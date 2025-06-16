@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { logger } from '@/lib/logger';
 
 import { AlertTriangle } from 'lucide-react';
-import { OpportunityStatus, OrionOpportunity } from '@/types';
+import { OpportunityStatus, OrionOpportunity } from '@/lib/types';
 
 interface KanbanColumn {
   id: string;

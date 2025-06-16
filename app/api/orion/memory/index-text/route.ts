@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { ORION_MEMORY_COLLECTION_NAME, QDRANT_URL } from '@repo/shared/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME, QDRANT_URL } from '@/lib/orion_config';
 import { QdrantClient } from '@qdrant/js-client-rest';
+import logger from '@/lib/logger';
 
 /**
  * @api {post} /api/orion/memory/index-text Index text in memory
@@ -25,11 +26,11 @@ export async function POST(req: NextRequest) {
     const { text, sourceId = uuidv4(), type, tags = [], additionalFields = {} } = body;
 
     if (!text) {
-      console.error('[INDEX_TEXT_API] Text is required');
+      logger.error('[INDEX_TEXT_API] Text is required');
       return NextResponse.json({ success: false, error: 'Text is required' }, { status: 400 });
     }
     if (!type) {
-      console.error('[INDEX_TEXT_API] Type is required');
+      logger.error('[INDEX_TEXT_API] Type is required');
       return NextResponse.json({ success: false, error: 'Type is required' }, { status: 400 });
     }
 
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
     });
     const embedData = await embedResponse.json();
     if (!embedData.success || !embedData.embeddings || !embedData.embeddings[0]) {
-      console.error('[INDEX_TEXT_API] Embedding failed:', embedData);
+      logger.error('[INDEX_TEXT_API] Embedding failed:', embedData);
       return NextResponse.json(
         {
           success: false,
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
     const embedding = embedData.embeddings[0];
     if (embedding.length !== 384) {
-      console.warn(`[INDEX_TEXT_API] Embedding vector size is ${embedding.length}, expected 384.`);
+      logger.warn(`[INDEX_TEXT_API] Embedding vector size is ${embedding.length}, expected 384.`);
     }
 
     // 2. Create memory point
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
       ],
     });
     if (upsertResult.status !== 'completed' && upsertResult.status !== 'acknowledged') {
-      console.error('[INDEX_TEXT_API] Qdrant upsert failed:', upsertResult);
+      logger.error('[INDEX_TEXT_API] Qdrant upsert failed:', upsertResult);
       return NextResponse.json(
         {
           success: false,
@@ -90,14 +91,11 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-    console.info(`[INDEX_TEXT_API] Memory point indexed successfully: ${sourceId}`);
+    logger.info(`[INDEX_TEXT_API] Memory point indexed successfully: ${sourceId}`);
     return NextResponse.json({ success: true, id: sourceId });
-  } catch (error) {
-    let errorMsg = 'Unexpected error';
-    if (error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string') {
-      errorMsg = (error as any).message;
-    }
-    console.error('[INDEX_TEXT_API] Unexpected error:', error);
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'An unknown error occurred';
+    logger.error(`[INDEX_TEXT_API] Unexpected error: ${errorMsg}`, { errorDetails: error });
     return NextResponse.json({ success: false, error: errorMsg }, { status: 500 });
   }
 }

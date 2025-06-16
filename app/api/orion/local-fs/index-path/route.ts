@@ -1,9 +1,9 @@
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/lib/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/app/shared/lib/orion_config';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { readFileContent, listDirectoryContents, FileSystemItem } from '@repo/shared/lib/local_file_service';
+import { readFileContent, listDirectoryContents, FileSystemItem } from '@/app/shared/lib/local_file_service';
 
 // Constants for indexing
 const MAX_FILE_SIZE_MB = 5; // Limit file size for indexing

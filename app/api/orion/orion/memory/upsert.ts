@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 
 // Initialize Qdrant client
 const qdrantClient = new QdrantClient({

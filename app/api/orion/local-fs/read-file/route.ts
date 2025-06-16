@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileContent, getFileMetadata } from '@repo/shared/lib/local_file_service';
+import { readFileContent, getFileMetadata } from '@/app/shared/lib/local_file_service';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { auth } from '@repo/sharedauth';
-import { fetchUserProfile } from '@repo/shared/profile_service';
-import { logger } from '@repo/shared/logger';
+// import { auth } from '@/app/sharedauth';
+import { fetchUserProfile } from '@/app/shared/profile_service';
+import { logger } from '@/lib/logger';
 
 export const revalidate = 300; // Revalidate every 5 minutes
 

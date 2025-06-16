@@ -4,8 +4,8 @@ import {
   saveCareerMilestone,
   updateCareerMilestone,
   deleteCareerMilestone,
-} from '@repo/shared/narrative_service';
-import { CareerMilestone } from '@repo/shared/types/narrative-clarity';
+} from '@/app/shared/narrative_service';
+import { CareerMilestone } from '@/app/shared/types/narrative-clarity';
 
 /**
  * GET handler for career milestones

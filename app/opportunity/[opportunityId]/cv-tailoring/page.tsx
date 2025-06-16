@@ -4,18 +4,22 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { CVTailoringStudio } from '@/components/orion/CVTailoringStudio';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/components/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import { Loader2 } from 'lucide-react';
-import { OrionOpportunity } from '@repo/shared/types/orion';
+import { useParams } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
+import { CVTailoringStudio } from '@/components/orion/CVTailoringStudio';
+import { OrionOpportunity } from '@/lib/types';
+
+// GOAL:
+// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 
 export default function CVTailoringPage() {
   const params = useParams();
   const opportunityId = params?.id as string;
 
-  const [OrionOpportunity, setOpportunity] = useState<OrionOpportunity | null>(null);
+  const [opportunityData, setOpportunity] = useState<OrionOpportunity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,14 +73,14 @@ export default function CVTailoringPage() {
     );
   }
 
-  if (!OrionOpportunity) {
+  if (!opportunityData) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>OrionOpportunity Not Found</CardTitle>
+          <CardTitle>Opportunity Not Found</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>The requested OrionOpportunity could not be found.</p>
+          <p>The requested opportunity could not be found.</p>
         </CardContent>
       </Card>
     );
@@ -86,12 +90,12 @@ export default function CVTailoringPage() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>CV Tailoring for {OrionOpportunity.title}</CardTitle>
+          <CardTitle>CV Tailoring for {opportunityData.title}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-gray-500 mb-4">
-            Tailor your CV for this OrionOpportunity using AI assistance. The system will suggest relevant components,
-            help you rephrase content to match the job requirements, and assemble a final CV.
+            Tailor your CV for this opportunity using AI assistance. The system will suggest relevant components, help
+            you rephrase content to match the job requirements, and assemble a final CV.
           </p>
           {/* Auto Generate CV Button */}
           <div className="mb-4">
@@ -102,14 +106,14 @@ export default function CVTailoringPage() {
                 setAutoGenLoading(true);
                 setAutoGenError(null);
                 try {
-                  // Fetch all CV components for this OrionOpportunity
+                  // Fetch all CV components for this opportunity
                   const res = await fetch(`/api/orion/cv-components?opportunityId=${opportunityId}`);
                   const data = await res.json();
                   if (!data.success) {
                     throw new Error(data.error || 'Failed to fetch CV components');
                   }
                   // Navigate to tailor content page (data will be fetched again on that page)
-                  router.push(`/OrionOpportunity/${opportunityId}/tailor-content`);
+                  router.push(`/opportunity/${opportunityId}/tailor-content`);
                 } catch (err: unknown) {
                   setAutoGenError(err instanceof Error ? err.message : 'Failed to auto-generate CV');
                 } finally {
@@ -129,21 +133,7 @@ export default function CVTailoringPage() {
             {autoGenError && <p className="text-red-500 mt-2">{autoGenError}</p>}
           </div>
 
-          <CVTailoringStudio
-            jdAnalysis={String(OrionOpportunity.content || '')}
-            jobTitle={OrionOpportunity.title || ''}
-            companyName={OrionOpportunity.company || ''}
-            webResearchContext={OrionOpportunity.webResearchContext || ''}
-            opportunityId={opportunityId}
-            onCVAssembled={(assembledCvString: string) => {
-              // Save the CV to the OrionOpportunity record
-              fetch(`/api/orion/OrionOpportunity/${opportunityId}/cv`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cv: assembledCvString }),
-              });
-            }}
-          />
+          <CVTailoringStudio opportunity={opportunityData} cvComponents={[]} />
         </CardContent>
       </Card>
     </div>

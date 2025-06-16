@@ -1,4 +1,4 @@
-import { callExternalLLM, getFallbackModels } from '@repo/shared/lib/orion_llm';
+import { callExternalLLM, getFallbackModels } from '@/app/shared/lib/orion_llm';
 import { NextResponse } from 'next/server';
 
 const PRIMARY_MODEL = 'azure/gpt-4.1';

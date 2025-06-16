@@ -3,7 +3,17 @@
 import React, { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Input, Button, Label, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/ui/components/ui';
+import {
+  Input,
+  Button,
+  Label,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui';
 import { AlertCircle } from 'lucide-react';
 
 function SignInForm() {

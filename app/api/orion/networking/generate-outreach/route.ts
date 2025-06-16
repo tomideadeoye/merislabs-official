@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/sharedauth';
-import { generateLLMResponse } from '@repo/shared/lib/orion_llm';
-import { CombinedLLMResponse } from '@repo/shared/types/orion';
+import { auth } from '@/app/sharedauth';
+import { generateLLMResponse } from '@/app/shared/lib/orion_llm';
+import { CombinedLLMResponse } from '@/app/shared/types/orion';
 
 // GOAL:
 // RELATION TO OTHER FILES, FUNCTIONS AND FEATURES:

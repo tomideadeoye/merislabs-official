@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@repo/shared/database';
-import { logger } from '@repo/shared/logger';
+import { query } from '@/app/shared/database';
+import { logger } from '@/lib/logger';
 import { z } from 'zod';
 // Assuming a direct function call for LLM is better than a fetch
-// import { getLlmAnalysis } from '@repo/shared/llm';
+// import { getLlmAnalysis } from '@/app/shared/llm';
 
 // Mocking a direct LLM function call as the original fetch was incorrect for server-side
 async function getLlmAnalysis(prompt: string): Promise<any> {

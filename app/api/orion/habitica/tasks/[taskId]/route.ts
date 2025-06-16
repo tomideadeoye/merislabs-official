@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteTask } from '@repo/shared/habitica_client';
+import { deleteTask } from '@/app/shared/habitica_client';
 
 export async function DELETE(req: NextRequest, { params }: { params: { taskId: string } }) {
   try {

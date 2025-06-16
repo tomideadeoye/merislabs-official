@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PROVIDER_MODEL_CONFIGS, generateLLMResponse } from '@repo/shared';
-import { constructLlmMessages, getDefaultModelForRequestType, callExternalLLM } from '@repo/shared/orion_llm';
-import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@repo/shared';
-import { ASK_QUESTION_REQUEST_TYPE, ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
+import { PROVIDER_MODEL_CONFIGS, generateLLMResponse } from '@/app/shared';
+import { constructLlmMessages, getDefaultModelForRequestType, callExternalLLM } from '@/app/shared/orion_llm';
+import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/app/shared';
+import { ASK_QUESTION_REQUEST_TYPE, ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 
 export async function POST(req: NextRequest) {
   try {

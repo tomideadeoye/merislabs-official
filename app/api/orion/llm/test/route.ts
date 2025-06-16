@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PROVIDER_MODEL_CONFIGS } from '@repo/shared';
+import { PROVIDER_MODEL_CONFIGS } from '@/app/shared';
 
 // Helper function to get API key and endpoint for a model
 function getModelConfig(modelId: string): {

@@ -7,7 +7,7 @@
  * This module provides functions to manage persona maps for strategic outreach.
  */
 
-import { Persona } from "../types";
+import { Persona } from "./types";
 
 
 

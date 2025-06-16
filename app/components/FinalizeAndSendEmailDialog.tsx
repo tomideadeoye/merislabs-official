@@ -4,18 +4,11 @@ import { useState, useEffect } from 'react';
 
 import { useEmailTestDialogStore } from './emailTestDialogStore';
 import { EmailAttachment, SendEmailParams } from '@/types/email';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  Label,
-  Input,
-  Textarea,
-  DialogFooter,
-  Button,
-} from '../../app/src/lib';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@radix-ui/react-dialog';
+import { Label } from '@radix-ui/react-dropdown-menu';
+import { AlertTriangle, Loader2, Send } from 'lucide-react';
+import { DialogHeader, Input, Textarea, DialogFooter, Button } from './ui';
+
 
 export const FinalizeAndSendEmailDialog: React.FC = () => {
   const {

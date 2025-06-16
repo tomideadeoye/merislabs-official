@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createTask } from '@repo/shared/habitica_client';
-import type { HabiticaTaskCreationParams } from '@repo/shared/types/habitica';
+import { createTask } from '@/app/shared/habitica_client';
+import type { HabiticaTaskCreationParams } from '@/app/shared/types/habitica';
 
 /**
  * API route for creating a new Habitica task

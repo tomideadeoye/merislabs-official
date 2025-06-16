@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 
 export async function POST(request: NextRequest) {
   try {

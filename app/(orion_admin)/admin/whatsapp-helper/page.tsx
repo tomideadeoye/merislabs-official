@@ -1,7 +1,7 @@
 'use client';
 
-import { PageHeader } from '@/ui/components/ui';
-import { PageNames } from '@repo/shared';
+import { PageHeader } from '@/components/ui';
+import { PageNames } from '@/app/shared';
 import { Users } from 'lucide-react';
 
 export default function WhatsAppHelperFeaturePage() {

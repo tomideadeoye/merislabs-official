@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listOpportunitiesFromNotion } from '@repo/shared/notion_service';
+import { listOpportunitiesFromNotion } from '@/app/shared/notion_service';
 import { z } from 'zod';
 
 const OpportunityNotionOutputSharedSchema = z.object({

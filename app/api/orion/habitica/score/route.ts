@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scoreTask } from '@repo/shared/habitica_client';
-import { auth } from '@repo/shared/auth';
+import { scoreTask } from '@/app/shared/habitica_client';
+import { auth } from '@/lib/auth';
 
 // GOAL OF FILE|FEATURES|FUNCTIONS:
 // FILEPATH:

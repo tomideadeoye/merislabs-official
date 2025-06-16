@@ -5,9 +5,8 @@
  * - Related files: lib/notion_service.ts, lib/notion_next_service.ts, types/OrionOpportunity.d.ts
  */
 import { NextResponse } from 'next/server';
-import { updateNotionOpportunity } from '@repo/shared/notion_service';
-import { fetchOpportunityByIdFromNotion } from '@repo/shared/notion_service';
-import { OpportunityNotionPayloadSchema } from '@repo/shared/notion_next_service';
+import { updateNotionOpportunity, fetchOpportunityByIdFromNotion } from '@/app/lib/notion_service';
+import { OpportunityNotionPayloadSchema } from '@/app/src/lib/notion_next_service';
 
 export async function PATCH(request: Request, { params }: { params: { opportunityId: string } }) {
   const { opportunityId } = params;
@@ -90,12 +89,9 @@ export async function GET(request: Request, { params }: { params: { opportunityI
         return NextResponse.json({ success: false, error: 'OrionOpportunity not found.' }, { status: 404 });
       }
       // Normalize company/companyOrInstitution
-      const company =
-        (fetchResult.OrionOpportunity.company ?? (fetchResult.OrionOpportunity as any).companyOrInstitution ?? '') ||
-        '';
+      const company = fetchResult.OrionOpportunity.company ?? fetchResult.OrionOpportunity.companyOrInstitution ?? '';
       const companyOrInstitution =
-        ((fetchResult.OrionOpportunity as any).companyOrInstitution ?? fetchResult.OrionOpportunity.company ?? '') ||
-        '';
+        fetchResult.OrionOpportunity.companyOrInstitution ?? fetchResult.OrionOpportunity.company ?? '';
       const normalizedOpportunity = {
         ...fetchResult.OrionOpportunity,
         company,
@@ -122,12 +118,15 @@ export async function GET(request: Request, { params }: { params: { opportunityI
       const status = errorStr.includes('not found') ? 404 : 500;
       return NextResponse.json({ success: false, error: fetchResult.error }, { status });
     }
-  } catch (error: any) {
-    console.error(`[GET /api/orion/notion/OrionOpportunity/${opportunityId}] Uncaught error during fetch:`, error);
+  } catch (error: unknown) {
+    console.error(
+      `[GET /api/orion/notion/OrionOpportunity/${opportunityId}] Uncaught error during fetch:`,
+      error instanceof Error ? error.message : error
+    );
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred.',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred.',
       },
       { status: 500 }
     );

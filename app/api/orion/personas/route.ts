@@ -6,8 +6,9 @@ import {
   updatePersona,
   deletePersona,
   searchPersonas,
-} from '@repo/shared/persona_service';
-import { Persona } from '@repo/shared/types/orion';
+} from '@/lib/persona_service';
+import type { Persona } from '@/lib/types';
+import logger from '@/lib/logger';
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // Note if any: components to merge with, similar or redundant component
@@ -18,6 +19,7 @@ import { Persona } from '@repo/shared/types/orion';
  * - Search personas by query
  */
 export async function GET(req: NextRequest) {
+  logger.info('[API] GET /api/orion/personas - Request received.');
   try {
     const url = new URL(req.url);
     const id = url.searchParams.get('id');
@@ -37,14 +39,16 @@ export async function GET(req: NextRequest) {
     } else {
       // Get all personas
       const personas = await getPersonas();
+      logger.success('[API] GET /api/orion/personas - Personas fetched successfully.', { count: personas.length });
       return NextResponse.json({ success: true, personas });
     }
   } catch (error: unknown) {
-    console.error('Error in GET /api/orion/personas:', error instanceof Error ? error.message : String(error));
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    logger.error('[API] GET /api/orion/personas - Failed to fetch personas.', { error: errorMessage });
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );
@@ -56,11 +60,13 @@ export async function GET(req: NextRequest) {
  * Creates a new persona
  */
 export async function POST(req: NextRequest) {
+  logger.info('[API] POST /api/orion/personas - Request received.');
   try {
     const body: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'> = await req.json();
     const { name, company, role, industry, values, challenges, interests, valueProposition, notes, tags } = body;
 
     if (!name) {
+      logger.warn('[API] POST /api/orion/personas - Validation failed: Name is required.');
       return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 });
     }
 
@@ -77,13 +83,15 @@ export async function POST(req: NextRequest) {
       tags,
     });
 
+    logger.success('[API] POST /api/orion/personas - Persona created successfully.', { personaId: newPersona.id });
     return NextResponse.json({ success: true, persona: newPersona });
   } catch (error: unknown) {
-    console.error('Error in POST /api/orion/personas:', error instanceof Error ? error.message : String(error));
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    logger.error('[API] POST /api/orion/personas - Failed to create persona.', { error: errorMessage });
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

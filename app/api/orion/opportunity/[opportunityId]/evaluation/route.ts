@@ -1,8 +1,8 @@
 import { auth } from '@/app/auth';
 import { MemoryPayload, fetchUserProfile, generateLLMResponse, REQUEST_TYPES } from '@/app/index';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
-import { EvaluationOutput } from '@/types';
-import { logger } from '@repo/shared/lib/logger';
+import { EvaluationOutput } from '@/lib/types';
+import { logger } from '@/app/shared/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Define the response type for the evaluation API
@@ -306,7 +306,7 @@ export async function POST(
     let evaluation: EvaluationOutput;
     try {
       // Robust extraction/repair step
-      let extractedJson = extractFirstJsonObject(llmResponseContent.content);
+      const extractedJson = extractFirstJsonObject(llmResponseContent.content);
       console.log('[EVAL_API][DEBUG] Raw LLM output:', llmResponseContent.content);
       console.log('[EVAL_API][DEBUG] Extracted JSON for parsing:', extractedJson);
       if (!extractedJson) {

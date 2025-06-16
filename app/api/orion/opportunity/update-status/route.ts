@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/sharedauth';
+import { auth } from '@/app/sharedauth';
 
 export async function POST(request: NextRequest) {
   // Check authentication

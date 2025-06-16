@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-// Imports updated to use @/ui/components/ui barrel exports
+// Imports updated to use @/components/ui barrel exports
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogFooter,
   Button,
   Textarea,
-} from '@/ui/components/ui';
+} from '@/components/ui';
 import { Loader2, BookOpen, Save } from 'lucide-react';
 
 import { useJournalReflectionDialogStore } from './journalReflectionDialogStore';

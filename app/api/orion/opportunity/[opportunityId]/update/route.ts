@@ -1,11 +1,11 @@
 /**
  * GOAL: Update OrionOpportunity details using Neon/Postgres, replacing SQLite for cloud reliability.
- * Related: lib/database.ts, prd.md, types/OrionOpportunity.d.ts
+ * Related: lib/database.ts, reference.md, types/OrionOpportunity.d.ts
  * opportunties for consolidation and improvement:
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@repo/shared/database';
-import type { OpportunityUpdatePayload } from '@repo/shared';
+import { query } from '@/lib/database';
+import type { OpportunityUpdatePayload } from '@/lib/types';
 
 interface RouteParams {
   params: {
@@ -69,135 +69,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Prepare update fields
-    const updateFields: Record<string, unknown> = {
-      laststatusupdate: new Date().toISOString(),
-    };
+    const { status, priority, notes } = body;
 
-    // Basic fields
-    if (body.title !== undefined) updateFields.title = body.title;
-    if (body.company !== undefined) updateFields.company = body.company;
-    if (body.type !== undefined) updateFields.type = body.type;
-    if (body.content !== undefined) updateFields.content = body.content;
-    if (body.sourceURL !== undefined) updateFields.sourceurl = body.sourceURL;
-    if (body.status !== undefined) updateFields.status = body.status;
-    if (body.priority !== undefined) updateFields.priority = body.priority;
-    if (body.nextActionDate !== undefined) updateFields.nextactiondate = body.nextActionDate;
-    if (body.notes !== undefined) updateFields.notes = body.notes;
-    if (body.relatedEvaluationId !== undefined) updateFields.relatedevaluationid = body.relatedEvaluationId;
+    const updateQuery = `
+      UPDATE opportunities
+      SET
+        status = COALESCE($1, status),
+        priority = COALESCE($2, priority),
+        notes = COALESCE($3, notes),
+        "updatedAt" = NOW()
+      WHERE id = $4
+      RETURNING *;
+    `;
+    const result = await query(updateQuery, [status, priority, notes, opportunityId]);
 
-    // Handle array fields that need special processing
-    if (body.tags !== undefined) {
-      updateFields.tags = JSON.stringify(body.tags);
+    if (result.rowCount === 0) {
+      return NextResponse.json({ success: false, error: 'Opportunity not found' }, { status: 404 });
     }
 
-    // Handle adding/removing from arrays
-    if (body.addApplicationMaterialId || body.removeApplicationMaterialId) {
-      const currentIds = existingOpp.applicationmaterialids ? JSON.parse(existingOpp.applicationmaterialids) : [];
-
-      if (body.addApplicationMaterialId && !currentIds.includes(body.addApplicationMaterialId)) {
-        currentIds.push(body.addApplicationMaterialId);
-      }
-
-      if (body.removeApplicationMaterialId) {
-        const index = currentIds.indexOf(body.removeApplicationMaterialId);
-        if (index !== -1) {
-          currentIds.splice(index, 1);
-        }
-      }
-
-      updateFields.applicationmaterialids = JSON.stringify(currentIds);
-    }
-
-    if (body.addStakeholderContactId || body.removeStakeholderContactId) {
-      const currentIds = existingOpp.stakeholdercontactids ? JSON.parse(existingOpp.stakeholdercontactids) : [];
-
-      if (body.addStakeholderContactId && !currentIds.includes(body.addStakeholderContactId)) {
-        currentIds.push(body.addStakeholderContactId);
-      }
-
-      if (body.removeStakeholderContactId) {
-        const index = currentIds.indexOf(body.removeStakeholderContactId);
-        if (index !== -1) {
-          currentIds.splice(index, 1);
-        }
-      }
-
-      updateFields.stakeholdercontactids = JSON.stringify(currentIds);
-    }
-
-    if (body.addRelatedHabiticaTaskId || body.removeRelatedHabiticaTaskId) {
-      const currentIds = existingOpp.relatedhabiticataskids ? JSON.parse(existingOpp.relatedhabiticataskids) : [];
-
-      if (body.addRelatedHabiticaTaskId && !currentIds.includes(body.addRelatedHabiticaTaskId)) {
-        currentIds.push(body.addRelatedHabiticaTaskId);
-      }
-
-      if (body.removeRelatedHabiticaTaskId) {
-        const index = currentIds.indexOf(body.removeRelatedHabiticaTaskId);
-        if (index !== -1) {
-          currentIds.splice(index, 1);
-        }
-      }
-
-      updateFields.relatedhabiticataskids = JSON.stringify(currentIds);
-    }
-
-    // Build the SQL update statement
-    const setClause = Object.keys(updateFields)
-      .map((key, idx) => `${key} = $${idx + 2}`)
-      .join(', ');
-
-    const updateQuery = `UPDATE opportunities SET ${setClause} WHERE id = $1`;
-    await query(updateQuery, [opportunityId, ...Object.values(updateFields)]);
-    console.info('[OPPORTUNITY_UPDATE][DB_UPDATED]', {
-      ...logContext,
-      updateFields,
-    });
-
-    // Fetch the updated OrionOpportunity
-    const updatedQuery = 'SELECT * FROM opportunities WHERE id = $1';
-    const updatedResult = await query(updatedQuery, [opportunityId]);
-    const updatedOppRaw = updatedResult.rows[0];
-
-    // Deserialize JSON string fields
-    const updatedOpportunity = {
-      ...updatedOppRaw,
-      tags: updatedOppRaw.tags ? JSON.parse(updatedOppRaw.tags) : [],
-      applicationMaterialIds: updatedOppRaw.applicationmaterialids
-        ? JSON.parse(updatedOppRaw.applicationmaterialids)
-        : [],
-      stakeholderContactIds: updatedOppRaw.stakeholdercontactids ? JSON.parse(updatedOppRaw.stakeholdercontactids) : [],
-      relatedHabiticaTaskIds: updatedOppRaw.relatedhabiticataskids
-        ? JSON.parse(updatedOppRaw.relatedhabiticataskids)
-        : [],
-    };
-
-    console.info('[OPPORTUNITY_UPDATE][SUCCESS]', {
-      ...logContext,
-      opportunityId,
-      updatedOpportunity,
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'OrionOpportunity updated successfully.',
-      OrionOpportunity: updatedOpportunity,
-    });
-  } catch (error: unknown) {
-    console.error('[OPPORTUNITY_UPDATE][ERROR]', {
-      ...logContext,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : 'N/A',
-    });
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update OrionOpportunity.',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true, opportunity: result.rows[0] });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

@@ -1,5 +1,5 @@
 import { PageNames } from '../../../../apps/nextjs/src/lib/app_constants';
-import { PageHeader, Tabs, TabsList, TabsTrigger } from '@/ui/components/ui';
+import { PageHeader, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { BarChart2, MessageSquare, Smartphone } from 'lucide-react';
 import DraftCommunicationClientWrapper from './DraftCommunicationClientWrapper'; // Import the new client wrapper
 

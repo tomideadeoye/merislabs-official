@@ -1,10 +1,10 @@
 /**
  * GOAL: Fetch and update ideas and logs using Neon/Postgres.
- * Related: lib/database.ts, prd.md, types/ideas.d.ts
+ * Related: lib/database.ts, reference.md, types/ideas.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@repo/shared/lib/postgres';
-import type { Idea, IdeaLog } from '@repo/shared/types/ideas';
+import { query, sql } from '@/app/shared/lib/postgres';
+import type { Idea, IdeaLog } from '@/app/shared/types/ideas';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

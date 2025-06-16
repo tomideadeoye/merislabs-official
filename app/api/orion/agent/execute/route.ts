@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/shared/auth';
-import { generateLLMResponse, ORION_TOOLS } from '@repo/shared';
-import type { CombinedLLMResponse } from '@repo/shared/types/orion';
+import { auth } from '@/lib/auth';
+import { generateLLMResponse, ORION_TOOLS } from '@/app/shared';
+import type { CombinedLLMResponse } from '@/app/shared/types/orion';
 
 // Define the structure of a tool call received from the LLM
 interface LLMToolCall {

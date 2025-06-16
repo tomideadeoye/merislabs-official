@@ -1,11 +1,11 @@
 // GOAL OF FILE|FEATURES|FUNCTIONS:
-//   - Centralized, robust, and extensible logging utility for the entire Orion monorepo.
+//   - Centralized, robust, and extensible logging utility for the entire Orion simple nextjs project.
 //   - Provides clear, context-rich, and level-based logging for debugging, monitoring, and traceability.
 //   - Adheres to project logging standards: comprehensive, includes operation, user/session context, parameters, validation, and results.
 // FILEPATH:
 //   packages/shared/lib/logger.ts
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
-//   - Imported by all applications and packages within the monorepo that require logging.
+//   - Imported by all applications and packages within the simple nextjs project that require logging.
 //   - Designed to be a single source of truth for logging, preventing scattered console.logs or inconsistent logging practices.
 // ASSUMPTIONS & CLEAR COMMENTS
 //   - Assumes a consistent environment where console methods are available.

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@repo/shared/database';
-import { EmotionalLogEntry } from '@repo/shared';
+import { query } from '@/app/shared/database';
+import { EmotionalLogEntry } from '@/app/shared';
 
 export const dynamic = 'force-dynamic';
 

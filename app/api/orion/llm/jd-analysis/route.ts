@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@repo/shared';
-import { REQUEST_TYPES } from '@repo/shared/orion_llm';
-import type { CombinedLLMResponse } from '@repo/shared/types/orion';
+import { generateLLMResponse } from '@/app/shared';
+import { REQUEST_TYPES } from '@/app/shared/orion_llm';
+import type { CombinedLLMResponse } from '@/app/shared/types/orion';
 
 /**
  * API route for performing Job Description (JD) analysis using LLM.

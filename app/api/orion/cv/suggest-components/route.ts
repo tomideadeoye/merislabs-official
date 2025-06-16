@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@repo/shared'; // LLM utility
-import { getCVComponentsFromNotion } from '@repo/shared/notion_service';
-import { CV_COMPONENT_SELECTION_REQUEST_TYPE } from '@repo/shared/orion_config'; // Request type
-import type { CVComponent, CombinedLLMResponse } from '@repo/shared/types/orion'; // Corrected import
+import { generateLLMResponse } from '@/app/shared'; // LLM utility
+import { getCVComponentsFromNotion } from '@/app/shared/notion_service';
+import { CV_COMPONENT_SELECTION_REQUEST_TYPE } from '@/lib/orion_config'; // Request type
+import type { CVComponent, CombinedLLMResponse } from '@/app/shared/types/orion'; // Corrected import
 
 /**
  * API route to suggest CV components based on JD analysis and web research context.

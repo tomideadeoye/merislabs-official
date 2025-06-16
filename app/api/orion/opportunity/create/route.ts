@@ -1,6 +1,6 @@
+import { OpportunityCreatePayload } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import type { OpportunityCreatePayload } from 'src/types/orion';
+
 
 // =====================
 // OrionOpportunity Pipeline Create API

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callLLMWithFallback } from '@repo/shared/lib/orion_llm';
+import { callLLMWithFallback } from '@/app/shared/lib/orion_llm';
 
 async function getStepsFromLLM(prompt: string, model = 'azure/gpt-4.1') {
   const messages = [{ role: 'user', content: prompt }];

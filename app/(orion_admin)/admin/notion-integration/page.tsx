@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PageHeader } from '@/ui/components/ui';
-import { Tabs, TabsContent, TabsList, TabsTrigger, Button } from '@/ui/components/ui';
+import { PageHeader } from '@/components/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger, Button } from '@/components/ui';
 import { NotionCVComponentsList } from '../../../../components/orion/notion/NotionCVComponentsList';
 import { NotionOpportunityForm } from '../../../../components/orion/notion/NotionOpportunityForm';
 import { Database, FileText, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { checkNotionApiHealth } from '@repo/shared/lib/notion_next_service';
+import { checkNotionApiHealth } from '@/app/shared/lib/notion_next_service';
 
 export default function NotionIntegrationPage() {
   const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');

@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '../../../../packages/shared/auth';
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import axios from 'axios';
 
 /**
  * API route to delete memory points from Qdrant
  */
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -38,13 +39,14 @@ export async function POST(request: NextRequest) {
       success: true,
       message: `Successfully deleted ${ids.length} memory points`,
     });
-  } catch (error: any) {
-    console.error('[MEMORY_DELETE_ERROR]', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('[MEMORY_DELETE_ERROR]', errorMessage, error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to delete memory points',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

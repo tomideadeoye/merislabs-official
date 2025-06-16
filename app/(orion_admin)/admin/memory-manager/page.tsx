@@ -4,20 +4,20 @@
 // RELATION TO OTHER FILES, file_path, FUNCTIONS AND FEATURES:
 
 import React, { useState, useCallback } from 'react';
-import { PageHeader } from '@/ui/components/ui';
-import { PageNames, SessionStateKeys } from '@repo/shared';
-import { useSessionState } from '@repo/shared/hooks/useSessionState';
+import { PageHeader } from '@/components/ui';
+import { PageNames, SessionStateKeys } from '@/app/shared';
+import { useSessionState } from '@/app/shared/hooks/useSessionState';
 import { DatabaseZap, Search, Loader2, AlertTriangle, Info, PlusCircle } from 'lucide-react';
-import { Input } from '@/ui/components/ui';
-import { Button } from '@/ui/components/ui';
-import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@repo/shared';
+import { Input } from '@/components/ui';
+import { Button } from '@/components/ui';
+import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/app/shared';
 import { JournalEntryDisplay } from '../../../../components/orion/JournalEntryDisplay';
 import { DedicatedAddToMemoryFormComponent } from '../../../../components/orion/DedicatedAddToMemoryFormComponent';
 
-import { ScrollArea } from '@/ui/components/ui';
-import { Label } from '@/ui/components/ui';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/components/ui';
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/lib/orion_config';
+import { ScrollArea } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/app/shared/lib/orion_config';
 
 export default function MemoryManagerFeaturePage() {
   const memoryInitialized = useSessionState((state) => state.state[SessionStateKeys.MEMORY_INITIALIZED] as boolean);

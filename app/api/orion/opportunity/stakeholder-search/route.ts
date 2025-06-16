@@ -1,6 +1,7 @@
+import { auth } from '@/auth';
+import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/auth';
-import { DRAFT_APPLICATION_REQUEST_TYPE } from 'src/lib/orion_config';
+
 
 interface StakeholderSearchRequestBody {
   company: string;

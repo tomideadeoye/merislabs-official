@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { OpportunityList, OpportunityKanbanView, AddOpportunityForm, OpportunityEvaluator } from '@/ui/components/ui';
-import { useOpportunityDialogStore } from '@repo/shared/hooks/useOpportunityDialogStore';
+import {
+  OpportunityList,
+  OpportunityKanbanView,
+  AddOpportunityForm,
+  OpportunityEvaluator,
+} from '@/components/ui';
+import { useOpportunityDialogStore } from '@/app/shared/hooks/useOpportunityDialogStore';
 import {
   Tabs,
   TabsContent,
@@ -15,12 +20,12 @@ import {
   CardDescription,
   CardContent,
   Button,
-} from '@/ui/components/ui';
+} from '@/components/ui';
 import { Briefcase, BarChart2, XIcon } from 'lucide-react';
-import { useOpportunities } from '@repo/shared/hooks/useOpportunities';
+import { useOpportunities } from '@/app/shared/hooks/useOpportunities';
 import { OpportunityPipelineCharts } from './OpportunityPipelineCharts';
 
-import { useOpportunityCentralStore, type OpportunityCentralStoreType } from '@repo/shared/opportunityCentralStore';
+import { useOpportunityCentralStore, type OpportunityCentralStoreType } from '@/app/shared/opportunityCentralStore';
 
 export default function OpportunityPipelinePage() {
   const [activeView, setActiveView] = useState('list');

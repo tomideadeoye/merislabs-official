@@ -3,10 +3,11 @@
 // Note if any: components to merge with, similar or redundant component
 // Opportunities for improvement or consolidation.
 
-import { addMemory, findMemoriesByType, findMemoriesByTag } from '@/lib/memory';
-import { searchMemory } from '@/lib/orion_memory';
-import { ScoredMemoryPoint, MemorySearchOptions, SearchMemoryResponse } from '@/types/orion';
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
+import { ScoredMemoryPoint, MemorySearchOptions, searchMemory } from "..";
+import { addMemory, findMemoriesByType, findMemoriesByTag } from "../lib/memory";
+
+
 
 /**
  * Hook for interacting with the memory system

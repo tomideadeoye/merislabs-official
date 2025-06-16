@@ -7,18 +7,18 @@
  * - Related files: lib/notion_service.ts, lib/profile_service.ts, lib/orion_llm.ts, types/OrionOpportunity.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse, REQUEST_TYPES } from '@repo/shared';
-import { fetchOpportunityByIdFromNotion } from '@repo/shared/notion_service';
-import { fetchUserProfile } from '@repo/shared/profile_service';
-import { auth } from '@repo/shared/auth';
+import { generateLLMResponse, REQUEST_TYPES } from '@/app/shared';
+import { fetchOpportunityByIdFromNotion } from '@/app/shared/notion_service';
+import { fetchUserProfile } from '@/app/shared/profile_service';
+import { auth } from '@/lib/auth';
 import type {
   UserProfileData,
   ScoredMemoryPoint,
   EvaluationOutput,
   CombinedLLMResponse,
   LLMResponseSuccess,
-} from '@repo/shared';
-import type { UserProfileFetchResponse } from '@repo/shared/types/orion';
+} from '@/app/shared';
+import type { UserProfileFetchResponse } from '@/app/shared/types/orion';
 
 // Define a local interface that matches the return type of fetchUserProfile
 interface ProfileDataFromService extends UserProfileFetchResponse {

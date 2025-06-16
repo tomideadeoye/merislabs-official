@@ -1,10 +1,10 @@
 /**
  * GOAL: Fetch and manage OrionOpportunity application drafts using Neon/Postgres, replacing SQLite for cloud reliability.
- * Related: lib/database.ts, prd.md, types/OrionOpportunity.d.ts
+ * Related: lib/database.ts, reference.md, types/OrionOpportunity.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/sharedauth';
-import { query, sql } from '@repo/shared/database';
+import { auth } from '@/app/sharedauth';
+import { query, sql } from '@/app/shared/database';
 
 export async function GET(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   const session = await auth();

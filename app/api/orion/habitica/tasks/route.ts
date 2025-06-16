@@ -3,14 +3,14 @@
  * - Fetches tasks from Habitica API (via lib/habitica_client).
  * - Augments tasks with origin info from Postgres (habitica_task_links table).
  * - Absurdly comprehensive logging for every step, with context and error details.
- * - Connects to: lib/habitica_client.ts, lib/database.ts (Postgres pool), prd.md (feature doc), tests/e2e.test.ts (tests)
+ * - Connects to: lib/habitica_client.ts, lib/database.ts (Postgres pool), reference.md (feature doc), tests/e2e.test.ts (tests)
  * - All features preserved from SQLite version, now with improved error handling and observability.
  */
 export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
-import { getTasks } from '@repo/shared/habitica_client';
-import type { HabiticaTask } from '@repo/shared/types/habitica';
-import { query, sql } from '@repo/shared/database';
+import { getTasks } from '@/app/shared/habitica_client';
+import type { HabiticaTask } from '@/app/shared/types/habitica';
+import { query, sql } from '@/app/shared/database';
 
 export async function POST(req: NextRequest) {
   const logContext = {

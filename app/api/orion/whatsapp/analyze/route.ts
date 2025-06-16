@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeWhatsAppChat } from '@repo/shared'; // This will be imported on the server
+import { analyzeWhatsAppChat } from '@/app/shared'; // This will be imported on the server
 
 /**
  * API route for analyzing WhatsApp chat exports

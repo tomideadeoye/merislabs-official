@@ -1,10 +1,10 @@
+import { generateLLMResponse } from '@/lib/llm_providers';
+import { searchMemory } from '@/lib/orion_memory';
+import { getPersonaById } from '@/lib/persona_service';
+import { fetchUserProfile } from '@/profile_service';
+import { SearchMemoryResponse, ScoredMemoryPoint, UserProfileFetchResponse, CombinedLLMResponse } from '@/styles';
 import { NextRequest, NextResponse } from 'next/server';
-import { getPersonaById } from '@repo/shared/persona_service';
-import { searchMemory } from '@repo/shared';
-import { generateLLMResponse } from '@repo/shared';
-import type { ScoredMemoryPoint, CombinedLLMResponse, SearchMemoryResponse } from '@repo/shared';
-import { fetchUserProfile } from '@repo/shared/profile_service';
-import type { UserProfileFetchResponse } from '@repo/shared/types/orion';
+
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // Note if any: components to merge with, similar or redundant component

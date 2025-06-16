@@ -10,7 +10,7 @@
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 
 import { PROVIDER_MODEL_CONFIGS, DEFAULT_GENERATION_PROVIDERS } from './llm_providers';
-// import { LLMRequestOptions } from "@repo/shared/types/llm";
+import { OutreachRequest, OutreachResponse, UserProfileData } from '@/lib/types';
 
 // =========== Retry Logic for API Calls ===========
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -520,7 +520,7 @@ export async function callExternalLLM(
 
   const [provider, modelName] = model.split('/');
   let url = '';
-  let headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   let body: any = {};
 
   switch (provider) {
@@ -669,4 +669,67 @@ export async function selectPrimaryModelForRequestType(requestType: string, heal
     return healthyModels[0];
   }
   throw new Error('No healthy LLM models available');
+}
+
+/**
+ * Generates a personalized outreach message using an LLM.
+ * @param params The outreach request parameters.
+ * @returns A promise that resolves to an OutreachResponse containing the generated draft.
+ */
+export async function generateOutreachMessage(params: {
+  outreachRequest: OutreachRequest;
+  userProfileData: UserProfileData;
+}): Promise<OutreachResponse> {
+  const { outreachRequest, userProfileData } = params;
+  const { persona, outreachGoal, messageType, tone, length, specificContext, callToAction } = outreachRequest;
+
+  const primaryContext = `
+  Generate a ${messageType} for an outreach with the following details:
+
+  Persona to target: ${persona.name} - ${persona.description}
+  Outreach Goal: ${outreachGoal}
+  Tone: ${tone}
+  Length: ${length}
+  ${specificContext ? `Specific Context: ${specificContext}` : ''}
+  ${callToAction ? `Call to Action: ${callToAction}` : ''}
+
+  User Profile:
+  Name: ${userProfileData.name}
+  Email: ${userProfileData.email}
+  Bio: ${userProfileData.bio}
+  Skills: ${userProfileData.skills.join(', ')}
+  Experience: ${userProfileData.experience.join(', ')}
+  Education: ${userProfileData.education.join(', ')}
+  Interests: ${userProfileData.interests.join(', ')}
+  Values: ${userProfileData.values.join(', ')}
+  Goals: ${userProfileData.goals.join(', ')}
+  Social Links: ${userProfileData.socialLinks.map((link) => `${link.platform}: ${link.url}`).join(', ')}
+  ${userProfileData.summary ? `Summary: ${userProfileData.summary}` : ''}
+  ${userProfileData.backgroundSummary ? `Background Summary: ${userProfileData.backgroundSummary}` : ''}
+  ${userProfileData.keySkills ? `Key Skills: ${userProfileData.keySkills.join(', ')}` : ''}
+  ${userProfileData.location ? `Location: ${userProfileData.location}` : ''}
+  `;
+
+  const messages = constructLlmMessages({
+    requestType: REQUEST_TYPES.DRAFT_COMMUNICATION,
+    primaryContext: primaryContext,
+    profileContext: userProfileData.profileText, // Assuming profileText is available
+  });
+
+  try {
+    const response = await callLLMWithFallback(
+      messages,
+      getDefaultModelForRequestType(REQUEST_TYPES.DRAFT_COMMUNICATION)
+    );
+
+    if (response && response.content) {
+      return { success: true, draft: response.content, message: 'Outreach message generated successfully.' };
+    } else {
+      throw new Error(response?.error || 'Failed to generate outreach message.');
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('[generateOutreachMessage] Error generating outreach message:', errorMessage);
+    return { success: false, draft: '', message: `Failed to generate outreach message: ${errorMessage}` };
+  }
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scoreTask } from '@repo/shared/habitica_client';
+import { scoreTask } from '@/app/shared/habitica_client';
 
 /**
  * API route for scoring a Habitica task (marking as complete/incomplete)

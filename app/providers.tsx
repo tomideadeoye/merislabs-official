@@ -1,9 +1,10 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-import { ThemeProvider } from '@/components/ui';
+
 import { Toaster } from 'react-hot-toast';
 import logger from './lib/logger';
+import { ThemeProvider } from 'next-themes';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   logger.info('[Providers] Initializing global providers: SessionProvider, ThemeProvider, MemoryProvider, Toaster');
@@ -39,4 +40,4 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 }
 
-// TODO: MIGRATE TO FULL NEXTJS - move away from monorepo
+// TODO: MIGRATE TO FULL NEXTJS - move away from simple nextjs project

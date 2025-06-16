@@ -1,8 +1,8 @@
 // app/api/orion/email/send/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/shared/auth'; // Your NextAuth.js auth helper
-import { sendEmailService } from '@repo/shared/email_service'; // Adjust path if needed
-import type { SendEmailParams } from '@repo/shared/types/email';
+import { auth } from '@/lib/auth'; // Your NextAuth.js auth helper
+import { sendEmailService } from '@/app/shared/email_service'; // Adjust path if needed
+import type { SendEmailParams } from '@/app/shared/types/email';
 
 export async function POST(request: NextRequest) {
   const session = await auth();

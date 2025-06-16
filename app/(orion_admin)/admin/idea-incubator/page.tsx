@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PageHeader } from '@/ui/components/ui';
+import { PageHeader } from '@/components/ui';
 import { IdeaCaptureForm } from '../../../../components/orion/ideas/IdeaCaptureForm';
 import { IdeaList } from '../../../../components/orion/ideas/IdeaList';
 import { Lightbulb } from 'lucide-react';

@@ -1,12 +1,12 @@
 /**
  * GOAL: Create Habitica todo via API, link to Orion source, and log all actions for traceability.
  * Uses Neon/Postgres (pool from lib/database.ts) for cloud reliability.
- * Related: lib/habitica_client.ts, lib/database.ts, prd.md
+ * Related: lib/habitica_client.ts, lib/database.ts, reference.md
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createTask } from '@repo/shared/habitica_client';
-import { auth } from '@repo/shared/auth';
-import { query } from '@repo/shared/database';
+import { createTask } from '@/app/shared/habitica_client';
+import { auth } from '@/lib/auth';
+import { query } from '@/app/shared/database';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {

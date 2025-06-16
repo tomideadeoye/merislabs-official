@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@repo/shared';
+import { generateLLMResponse } from '@/app/shared';
 
 export async function POST(request: NextRequest) {
   try {

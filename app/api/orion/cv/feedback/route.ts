@@ -5,7 +5,7 @@
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/shared/auth';
+import { auth } from '@/lib/auth';
 
 interface FeedbackPayload {
   componentId: string;

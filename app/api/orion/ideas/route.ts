@@ -3,14 +3,14 @@
  * - Replaces SQLite for cloud scalability, reliability, and performance.
  * - Returns all ideas, with optional status and tag filtering.
  * - Absurdly comprehensive logging for every step, including query construction, execution, and error handling.
- * - Related: lib/database.ts (Postgres pool), types/ideas.d.ts (Idea type), prd.md (feature documentation).
+ * - Related: lib/database.ts (Postgres pool), types/ideas.d.ts (Idea type), reference.md (feature documentation).
  * - All features preserved, no logic lost in migration.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { query } from '@repo/shared/lib/postgres';
-import { logger } from '@repo/shared/lib/logger';
-import type { Idea } from '@repo/shared/types/ideas';
+import { query } from '../../../lib/postgres';
+import logger from '../../../lib/logger';
+import type { Idea } from '../../../src/types/ideas';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
     }));
 
     const filteredIdeas = tag
-      ? ideas.filter((idea) => idea.tags?.some((t) => t.toLowerCase() === tag.toLowerCase()))
+      ? ideas.filter((idea) => idea.tags?.some((t: string) => t.toLowerCase() === tag.toLowerCase()))
       : ideas;
 
     logger.info('Returning ideas', { count: filteredIdeas.length });

@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SessionStateKeys } from '@/lib/app_constants';
 import { useSessionState } from '@/hooks/useSessionState';
-import { cn } from '@/ui/components/ui';
+import { cn } from '@/components/ui';
 import { apiClient } from '@/lib/apiClient';
-import { Loader } from '@/ui/components/ui'; // Correct import from the UI package
+import { Loader } from '@/components/ui'; // Correct import from the UI package
 import { ROUTES } from '@/lib/routes'; // Import ROUTES
 import { NavItem } from '@/types/nav'; // Import NavItem
 

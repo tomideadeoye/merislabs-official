@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@/ui/components/ui';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@/components/ui';
 import { Loader2, Users, Copy, Mail } from 'lucide-react';
 import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/app/opportunityCentralStore';
-import type { OrionOpportunity } from '@/types';
-import type { Stakeholder } from '@repo/shared/types';
+import type { OrionOpportunity } from '@/lib/types';
+import type { Stakeholder } from '@/app/shared/types';
 
 interface FindStakeholdersButtonProps {
   orionOpportunity: OrionOpportunity;

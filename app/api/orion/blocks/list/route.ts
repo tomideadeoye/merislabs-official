@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { searchMemory } from '@repo/shared';
-import { BLOCK_TYPES, Block, BlockType } from '@repo/shared/types/blocks';
-import type { QdrantFilter } from '@repo/shared';
+import { searchMemory } from '@/app/shared';
+import { BLOCK_TYPES, Block, BlockType } from '@/app/shared/types/blocks';
+import type { QdrantFilter } from '@/app/shared';
 
 /**
  * GET /api/orion/blocks/list

@@ -1,21 +1,24 @@
 'use client';
 
-import React from 'react';
-import { JournalEntryWithMemory } from '../../components/orion/JournalEntryWithMemory';
-import { useMemoryContext } from '../../components/orion/MemoryProvider';
-import { useEffect } from 'react';
-import { MEMORY_TYPES } from '@repo/shared/orion_config';
-import { Card, CardContent } from '@/ui/components/ui';
-import { Badge } from '@/ui/components/ui';
-import { CalendarDays, MessageSquare, Tag } from 'lucide-react';
+import React, { useEffect } from 'react';
+// import JournalLayout from '@/components/layouts/JournalLayout'; // Removed as its location is uncertain
+// import { JournalEntryForm } from '../src/components/orion/JournalEntryForm'; // Removed: Defined but never used
+import { JournalEntryWithMemory } from '@/components/orion/JournalEntryWithMemory';
+// import { MemoryProvider, useMemoryContext } from '../src/components/orion/MemoryProvider'; // Removed: Defined but never used
+import { useMemoryContext } from '@/components/orion/MemoryProvider';
+// import { useSessionState } from '../src/hooks/useSessionState'; // Removed: Defined but never used
+import { ScoredMemoryPoint } from '@/lib/types';
+import { MEMORY_TYPES } from '@/lib/orion_config';
+import { Card, CardContent, Badge } from '@/components/ui';
+import { CalendarDays, Tag } from 'lucide-react';
 
 export default function JournalPage() {
-  const { findByType, results, isLoading } = useMemoryContext();
+  const { search, searchResults, loading } = useMemoryContext();
 
   useEffect(() => {
     // Load journal entries when the page loads
-    findByType(MEMORY_TYPES.JOURNAL, 10);
-  }, [findByType]);
+    search('', { type: MEMORY_TYPES.JOURNAL, limit: 10 }); // Using search with type filter
+  }, [search]);
 
   return (
     <div className="container mx-auto py-8">
@@ -26,13 +29,13 @@ export default function JournalPage() {
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Recent Entries</h2>
-          {isLoading ? (
+          {loading ? (
             <p>Loading entries...</p>
-          ) : results.length === 0 ? (
+          ) : searchResults.length === 0 ? (
             <p>No journal entries found.</p>
           ) : (
             <div className="space-y-4">
-              {results.map((entry) => (
+              {searchResults.map((entry: ScoredMemoryPoint) => (
                 <Card key={entry.payload.source_id} className="bg-gray-800 border-gray-700">
                   <CardContent className="pt-6">
                     <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.payload.text}</p>
@@ -46,12 +49,12 @@ export default function JournalPage() {
                       {entry.payload.mood && <span>Mood: {entry.payload.mood}</span>}
 
                       {entry.payload.tags && entry.payload.tags.length > 0 && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex flex-wrap items-center gap-1">
                           <Tag className="h-3 w-3" />
                           <div className="flex flex-wrap gap-1">
                             {entry.payload.tags
-                              .filter((tag) => tag !== 'journal' && tag !== 'journal_entry')
-                              .map((tag, i) => (
+                              .filter((tag: string) => tag !== 'journal' && tag !== 'journal_entry')
+                              .map((tag: string, i: number) => (
                                 <Badge key={i} variant="outline" className="text-xs">
                                   {tag}
                                 </Badge>

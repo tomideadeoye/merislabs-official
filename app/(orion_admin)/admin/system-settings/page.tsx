@@ -11,7 +11,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/ui/components/ui';
+} from '@/components/ui';
 import { Cog, Mail, Database, Cloud, Key } from 'lucide-react';
 import { EmailTestButton } from '../../../../components/orion/opportunities/EmailTestButton';
 

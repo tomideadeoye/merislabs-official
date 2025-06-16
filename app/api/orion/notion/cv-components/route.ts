@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCVComponentsFromNotion } from '@/lib/notion_service';
-// import { auth } from '@repo/sharedauth';
+// import { auth } from '@/app/sharedauth';
 
 /**
  * API route for fetching CV components from Notion

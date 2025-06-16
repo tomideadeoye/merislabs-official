@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle } from '@/ui/components/ui';
+import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Loader2, LogIn } from 'lucide-react';
 
 export default function LoginPage() {

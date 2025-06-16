@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createOpportunityInNotion } from '@repo/shared/notion_service';
-import { OpportunityNotionPayloadSchema } from '@repo/shared/notion_next_service';
+import { createOpportunityInNotion } from '@/app/shared/notion_service';
+import { OpportunityNotionPayloadSchema } from '@/app/shared/notion_next_service';
 
 export async function POST(request: Request) {
   try {

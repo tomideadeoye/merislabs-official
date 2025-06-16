@@ -1,14 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { PlusCircle, Loader2, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent, Button } from '@/ui/components/ui';
-import { CareerMilestoneForm } from '../../../../components/orion/CareerMilestoneForm';
-import { CareerMilestoneList } from '../../../../components/orion/CareerMilestoneList';
-import { NarrativeGenerationForm } from '../../../../components/orion/NarrativeGenerationForm';
-import { CareerMilestoneProvider } from '../../../../components/orion/CareerMilestoneContext';
-import { callSequentialThinking } from '@repo/shared/orion_tools';
-import { checkAllLlmApiKeys } from '../../../../../../packages/shared/lib/llm_providers';
-import type { CareerMilestone } from '@repo/shared/types/narrative-clarity';
+import { checkAllLlmApiKeys, callSequentialThinking } from '@/index';
+import { CareerMilestoneProvider } from '@/src/components/orion/CareerMilestoneContext';
+import { CareerMilestoneForm } from '@/src/components/orion/CareerMilestoneForm';
+import { CareerMilestoneList } from '@/src/components/orion/CareerMilestoneList';
+import { NarrativeGenerationForm } from '@/src/components/orion/NarrativeGenerationForm';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import type { CareerMilestone } from '@/types/index';
 
 interface LLMAPIKeyStatus {
   modelId: string;
@@ -494,71 +494,111 @@ export default function NarrativeClarityStudio() {
           </TabsList>
 
           <TabsContent value="narrative" className="space-y-6">
-            <NarrativeGenerationForm />
+            <NarrativeGenerationForm
+              description={description}
+              setDescription={setDescription}
+              loading={loading}
+              llmError={llmError}
+              llmMarkdown={llmMarkdown}
+              setMarkdownEdit={setMarkdownEdit}
+              handleLLMGenerate={handleLLMGenerate}
+              handleMarkdownSubmit={handleMarkdownSubmit}
+              handleLLMImprove={handleLLMImprove}
+              improvementPrompt={improvementPrompt}
+              setImprovementPrompt={setImprovementPrompt}
+              multiLLM={multiLLM}
+              setMultiLLM={setMultiLLM}
+              multiLlmOutputs={multiLlmOutputs}
+              multiLlmLoading={multiLlmLoading}
+              multiLlmError={multiLlmError}
+              llmApiKeys={llmApiKeys}
+              llmWhy={llmWhy}
+              llmWhyLoading={llmWhyLoading}
+              handleLlmWhy={handleLlmWhy}
+              sequentialSteps={sequentialSteps}
+              sequentialRaw={sequentialRaw}
+              sequentialLoading={sequentialLoading}
+              sequentialError={sequentialError}
+              sequentialLastThought={sequentialLastThought}
+              sequentialThoughtNumber={sequentialThoughtNumber}
+              handleSequentialContinue={handleSequentialContinue}
+              sequentialWhy={sequentialWhy}
+              sequentialWhyLoading={sequentialWhyLoading}
+              handleSequentialWhy={handleSequentialWhy}
+            />
           </TabsContent>
 
           <TabsContent value="milestones" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button onClick={() => setShowAddMilestoneForm(true)} className="bg-green-600 hover:bg-green-700">
-                <PlusCircle className="mr-2 h-4 w-4" /> Add New Milestone
-              </Button>
-            </div>
+            <CareerMilestoneList
+              milestones={milestones}
+              isLoading={isLoadingMilestones}
+              error={milestonesError}
+              onEdit={(milestone) => {
+                setEditingMilestone(milestone);
+                setShowAddMilestoneForm(true);
+              }}
+              onDelete={handleDeleteMilestone}
+              onReorder={handleReorderMilestone}
+            />
+            <Button onClick={() => setShowAddMilestoneForm(true)} className="mt-4">
+              <PlusCircle className="mr-2 h-4 w-4" /> Add New Milestone
+            </Button>
 
-            {showAddMilestoneForm && <CareerMilestoneForm initialData={editingMilestone || undefined} />}
-
-            {isLoadingMilestones ? (
-              <div className="flex justify-center items-center py-10 text-gray-400">
-                <Loader2 className="h-8 w-8 animate-spin mr-2" />
-                Loading milestones...
-              </div>
-            ) : milestonesError ? (
-              <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md">
-                <AlertTriangle className="h-5 w-5 mr-2 inline-block" />
-                Error loading milestones: {milestonesError}
-              </div>
-            ) : (
-              <CareerMilestoneList milestones={milestones} />
+            {showAddMilestoneForm && (
+              <CareerMilestoneForm
+                initialData={editingMilestone || undefined}
+                existingMilestonesCount={milestones.length}
+                onSubmit={handleMilestoneSubmit}
+                onCancel={() => {
+                  setShowAddMilestoneForm(false);
+                  setEditingMilestone(null);
+                }}
+              />
             )}
           </TabsContent>
 
-          <TabsContent value="pipeline" className="space-y-6">
-            {/* Placeholder for Opportunity Pipeline Flow Diagram */}
-            <div className="h-[500px] w-full border border-gray-700 rounded-md bg-gray-900 flex items-center justify-center text-gray-400">
-              <p>Opportunity Pipeline Flow Diagram will be displayed here.</p>
+          {/* ReactFlow placeholder content */}
+          <TabsContent value="pipeline" className="h-[500px] w-full border rounded-md">
+            <div className="flex items-center justify-center h-full text-gray-500">
+              Opportunity pipeline visualization coming soon.
             </div>
           </TabsContent>
 
-          <TabsContent value="llm-health" className="space-y-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-200"> LLM API Key Health Check </h2>
-            {llmHealthLoading ? (
-              <div className="flex items-center text-gray-400">
-                <Loader2 className="h-4 w-4 animate-spin mr-2" /> Checking LLM API keys...
+          <TabsContent value="llm-health" className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-200"> LLM API Key Health </h2>
+            {llmHealthLoading && (
+              <div className="flex items-center space-x-2 text-gray-400">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Checking LLM API keys...</span>
               </div>
-            ) : llmHealthError ? (
-              <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded-md flex items-center">
-                <AlertTriangle className="h-5 w-5 mr-2" />
-                Error fetching LLM health: {llmHealthError}
+            )}
+            {llmHealthError && (
+              <div className="flex items-center space-x-2 text-red-500">
+                <AlertTriangle className="h-5 w-5" />
+                <span>Error: {llmHealthError}</span>
               </div>
-            ) : llmHealth.length > 0 ? (
-              <div className="space-y-2">
-                {llmHealth.map((health, index) => (
-                  <div key={index} className="flex items-center text-sm">
-                    {health.present ? (
-                      <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+            )}
+            {!llmHealthLoading && !llmHealthError && llmHealth.length === 0 && (
+              <div className="flex items-center space-x-2 text-yellow-500">
+                <Info className="h-5 w-5" />
+                <span>No LLM API keys configured or found.</span>
+              </div>
+            )}
+            {!llmHealthLoading && !llmHealthError && llmHealth.length > 0 && (
+              <ul className="space-y-2">
+                {llmHealth.map((status) => (
+                  <li key={status.modelId} className="flex items-center space-x-2">
+                    {status.present ? (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
                     ) : (
-                      <XCircle className="h-4 w-4 text-red-500 mr-2" />
+                      <XCircle className="h-5 w-5 text-red-500" />
                     )}
-                    <span className={health.present ? 'text-gray-300' : 'text-red-300'}>
-                      {health.modelId} ({health.modelId}): {health.present ? 'API Key Present' : 'API Key Missing'}
+                    <span className={status.present ? 'text-gray-300' : 'text-red-400'}>
+                      {status.modelId}: {status.present ? 'Present' : `Missing (${status.reason || 'Unknown reason'})`}
                     </span>
-                  </div>
+                  </li>
                 ))}
-              </div>
-            ) : (
-              <div className="bg-yellow-900/30 border border-yellow-700 text-yellow-300 p-3 rounded-md flex items-center">
-                <Info className="h-5 w-5 mr-2" />
-                No LLM API key health data available.Check environment variables.
-              </div>
+              </ul>
             )}
           </TabsContent>
         </Tabs>

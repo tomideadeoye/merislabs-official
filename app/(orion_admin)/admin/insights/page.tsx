@@ -2,7 +2,7 @@
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // Note if any: components to merge with, similar or redundant component
 
-import { PageHeader } from '@/ui/components/ui';
+import { PageHeader } from '@/components/ui';
 import { PatternAnalysisDisplay } from '../../../../components/orion/PatternAnalysisDisplay';
 import { Brain } from 'lucide-react';
 

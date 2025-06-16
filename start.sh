@@ -4,7 +4,7 @@
 # FILEPATH: start.sh
 # CONNECTION/RELATION TO OTHER FILES: This script initiates the FastAPI backend (orion_api.py) located in /Users/mac/Documents/GitHub/orion-horizon and the Next.js frontend, ensuring all services are operational.
 # ASSUMPTIONS & CLEAR COMMENTS: Assumes uvicorn is installed and orion_api.py is present in the specified directory. The FastAPI backend is run in the background to allow the script to continue to other commands (e.g., starting Next.js).
-# NOTES: This script has been updated to remove monorepo-specific commands and now focuses on starting the standalone Next.js app and the separate FastAPI backend.
+# NOTES: This script has been updated to remove simple nextjs project-specific commands and now focuses on starting the standalone Next.js app and the separate FastAPI backend.
 
 cat <<EOM
 START FROM HERE! THESE ARE THE MOST IMPORTANT INSTRUCTIONS IN THE UNIVERSE!
@@ -176,7 +176,7 @@ Are my files consoidated so that the number of files and complexisty is reduced?
 Write errors to reference.md file and remove when fixed.
 BEFORE YOU START:
 - No quick HACKS: solve the actual problem, not just the symptom.Suggest best practices
-- THINK like an architect, sequentially, step by step, iteratively! Think five steps ahead and 5 levels deep.
+- THINK like an architect, sequentially, step by step, iteratively! Think five steps ahead and 5 levels deep. TAKE COMPLETE INITIATIVE!
 - explain what you are doing, why you are doing it, and what you are thinking. Aim for perfection!
 - Factor in CBT, and the need for a loop of improvement.
 - read the file then propose updates
@@ -392,7 +392,7 @@ PROJECT DETAILS:
 - GOAL: i provide a search name that is a company in the OrionOpportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
 - Send 100s of email applications a day to companies in the OrionOpportunity pipelin
 - Send 100s of propo
-- Zod (Schema), typescript, prisma, axios, pnpm, nextjs, neon db (DATABASE_URL), monorepo, Jest (testing) D3.js (visualizations), shadcn, eslint, framer motion, react-hook-form, TanStack Query, TipTap, zustand, date-fns, Electron, react-dropzone, react-email, tRPC, Tailwind
+- Zod (Schema), typescript, prisma, axios, pnpm, nextjs, neon db (DATABASE_URL), simple nextjs project, Jest (testing) D3.js (visualizations), shadcn, eslint, framer motion, react-hook-form, TanStack Query, TipTap, zustand, date-fns, Electron, react-dropzone, react-email, tRPC, Tailwind
 - always automate
 - chmod 644 start.sh/   chmod 444 /Users/mac/Documents/GitHub/merislabs-official/start.sh - prevent file alteration
 - Within the codebase, I must communicate in different files our main goals/vision/requirements/features/components/state/etc.
@@ -483,8 +483,10 @@ Longterm, move from habitica and notion to neon alone - with all features
 - Orion llm can make function calls using tools available to it.
 - different prompt for different tasks.
 - business notorizing legal business.
-
-A simple predicatable pattern.
+- DONT ADD TESTS FOR NOW.
+- HARMONIZE FEATURES AND FUNCTIONALITIES
+A simple predicatable pattern. I want all errors fixed ASAP!
+Increasingly stucture the app to standard as we proceed. Implement new features even while debugging.
 EOM
 
 # REPOSITORY DIRECTORY TREE
@@ -559,7 +561,7 @@ show_project_tree() {
   echo ""
 
   # Get path
-  MONOREPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+  simple nextjs project_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
   # Generate tree with proper exclusions
   if command -v tree >/dev/null 2>&1; then
@@ -568,11 +570,11 @@ show_project_tree() {
       --noreport \
       --charset=utf8 \
       -a \
-      $MONOREPO_ROOT
+      $simple nextjs project_ROOT
   else
     log_warn "tree command not found - using find fallback"
-    find $MONOREPO_ROOT -maxdepth 3 -type d ! -path '*node_modules*' ! -path '*.next*' ! -path '*.git*' \
-      | sed -e "s|$MONOREPO_ROOT/||" -e 's|[^/]*/|  |g' \
+    find $simple nextjs project_ROOT -maxdepth 3 -type d ! -path '*node_modules*' ! -path '*.next*' ! -path '*.git*' \
+      | sed -e "s|$simple nextjs project_ROOT/||" -e 's|[^/]*/|  |g' \
       | sort
   fi
   echo ""

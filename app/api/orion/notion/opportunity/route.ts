@@ -3,9 +3,9 @@ import {
   createOpportunityInNotion,
   OpportunityNotionPayload,
   OpportunityNotionPayloadSchema,
-} from '@repo/shared/notion_next_service';
-import { auth } from '@repo/sharedauth';
-import { fetchOpportunityByIdFromNotion } from '@repo/shared/notion_service';
+} from '@/app/shared/notion_next_service';
+import { auth } from '@/app/sharedauth';
+import { fetchOpportunityByIdFromNotion } from '@/app/shared/notion_service';
 
 /**
  * API route for creating an OrionOpportunity in Notion

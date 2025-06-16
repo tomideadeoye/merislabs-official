@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { PageHeader } from '@/ui/components/ui';
+import { PageHeader } from '@/components/ui';
 import { EmotionalLogForm } from '../../../../components/orion/EmotionalLogForm';
 import { EmotionalLogHistory } from '../../../../components/orion/EmotionalLogHistory';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/components/ui';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
 import { HeartPulse, History, PlusCircle } from 'lucide-react';
 
 export default function EmotionalTrackerPage() {

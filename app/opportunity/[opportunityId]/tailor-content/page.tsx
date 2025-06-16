@@ -6,182 +6,144 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/components/ui';
-import { Loader2, Download, Sparkles, Clipboard } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import { useOpportunityMemory } from '@repo/sharedhooks/useOpportunityMemory';
-import { useSessionState, SessionStateKeys } from '@repo/shared/hooks/useSessionState';
-import { OpportunityNotionOutputShared, CVComponent } from '@repo/shared/types/orion'; // Import specific types
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Loader2 } from 'lucide-react';
+import { useOpportunityMemory } from '@/lib/hooks/useOpportunityMemory';
+import { useSessionState, SessionStateKeys, SessionState } from '@/lib/hooks/useSessionState';
+import { CVComponent, OrionOpportunity } from '@/lib/types';
+import logger from '@/lib/logger';
 
 export default function TailorContentPage() {
   const params = useParams();
   const opportunityId = params?.id as string;
 
-  const [OrionOpportunity, setOpportunity] = useState<OpportunityNotionOutputShared | null>(null);
-  // 'components' is assigned a value but never used. Removed as per linter.
-  // const [components, setComponents] = useState<CVComponent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [opportunityData, setOpportunity] = useState<OrionOpportunity | null>(null);
+  const [jobDescription, setJobDescription] = useState<string>('');
+  const [cvComponents, setCvComponents] = useState<CVComponent[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [autoGenLoading, setAutoGenLoading] = useState<boolean>(false);
+  const [generatedContent, setGeneratedContent] = useState<string>('');
+  const [llmOutput, setLlmOutput] = useState<string>('');
 
-  const [cvContent, setCVContent] = useState<string>('');
-  const [aiSuggestion, setAISuggestion] = useState<string>('');
-  const [exporting, setExporting] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const {
+    opportunityMemories,
+    isLoading: isMemoriesLoading,
+    error: memoriesError,
+  } = useOpportunityMemory(opportunityId);
 
-  // OrionOpportunity memory and profile context
-  const { memories } = useOpportunityMemory(opportunityId || '');
-  const profile = useSessionState((state) => state.state[SessionStateKeys.TOMIDES_PROFILE_DATA]);
+  const profile = useSessionState((state: SessionState) => state.state[SessionStateKeys.TOMIDES_PROFILE_DATA]);
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchOpportunityAndCvComponents() {
+      logger.info('Fetching opportunity details and CV components.', { opportunityId });
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch OrionOpportunity
-        const oppRes = await fetch(`/api/orion/OrionOpportunity/${opportunityId}`);
-        const oppData: { success: boolean; OrionOpportunity?: OpportunityNotionOutputShared; error?: string } =
-          await oppRes.json();
-        if (!oppData.success) throw new Error(oppData.error || 'Failed to fetch OrionOpportunity');
-        setOpportunity(oppData.OrionOpportunity || null);
+        // Fetch opportunity details
+        const opportunityRes = await fetch(`/api/orion/opportunities/${opportunityId}`);
+        const opportunityDataFetched: { success: boolean; opportunity?: OrionOpportunity; error?: string } =
+          await opportunityRes.json();
+
+        if (!opportunityDataFetched.success || !opportunityDataFetched.opportunity) {
+          throw new Error(opportunityDataFetched.error || 'Failed to fetch opportunity details.');
+        }
+        setOpportunity(opportunityDataFetched.opportunity);
+        setJobDescription(opportunityDataFetched.opportunity.content || '');
 
         // Fetch CV components
-        const compRes = await fetch(`/api/orion/cv-components?opportunityId=${opportunityId}`);
-        const compData: { success: boolean; components?: CVComponent[]; error?: string } = await compRes.json();
-        if (!compData.success) throw new Error(compData.error || 'Failed to fetch CV components');
-        // setComponents(compData.components || []); // Removed as 'components' state is unused
+        const cvComponentsRes = await fetch(`/api/orion/cv-components?opportunityId=${opportunityId}`);
+        const cvComponentsData: { success: boolean; cvComponents?: CVComponent[]; error?: string } =
+          await cvComponentsRes.json();
 
-        // Assemble initial CV content from all components
-        const assembled = (compData.components || [])
-          .map((c: CVComponent) => `### ${c.componentName || c.name}\n${c.contentPrimary || c.content}\n`)
-          .join('\n');
-        setCVContent(assembled);
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        setError(errorMessage || 'Failed to load data');
+        if (!cvComponentsData.success || !cvComponentsData.cvComponents) {
+          throw new Error(cvComponentsData.error || 'Failed to fetch CV components.');
+        }
+        setCvComponents(cvComponentsData.cvComponents);
+
+        logger.success('Opportunity details and CV components fetched successfully.', { opportunityId });
+      } catch (err) {
+        logger.error('Error fetching opportunity details or CV components:', { error: err, opportunityId });
+        setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
         setIsLoading(false);
       }
     }
-    if (opportunityId) fetchData();
+
+    if (opportunityId) {
+      fetchOpportunityAndCvComponents();
+    }
   }, [opportunityId]);
 
-  // AI Suggestion handler (real)
-  async function handleAISuggestion() {
-    setAISuggestion('Generating suggestions...');
-    try {
-      const res = await fetch('/api/orion/cv/ai-suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cvContent,
-          OrionOpportunity,
-          jdAnalysis: OrionOpportunity?.content || '',
-        }),
-      });
-      const data: { success: boolean; suggestions?: string; error?: string } = await res.json();
-      if (data.success && data.suggestions) {
-        setAISuggestion(data.suggestions);
-      } else {
-        setAISuggestion(data.error || 'Failed to generate suggestions.');
-      }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setAISuggestion(errorMessage || 'Failed to generate suggestions.');
+  const handleGenerateContent = async () => {
+    if (!profile) {
+      logger.warn('Cannot generate content: User profile not loaded.');
+      setError('User profile is not available. Please ensure you are logged in or profile data is loaded.');
+      return;
     }
-  }
 
-  // Export as PDF (real)
-  async function handleExportPDF() {
-    setExporting(true);
-    try {
-      const { jsPDF } = await import('jspdf');
-      const doc = new jsPDF();
-      // Split content into lines to avoid overflow
-      const lines = doc.splitTextToSize(cvContent, 180);
-      doc.setFontSize(12);
-      doc.text(lines, 10, 20);
-      doc.save(`CV_${OrionOpportunity?.title || 'export'}.pdf`);
-    } catch (err) {
-      // [LOG][ERROR] PDF export failed, error object:
-      if (err instanceof Error) {
-        console.error('[EXPORT_PDF][ERROR]', { message: err.message, stack: err.stack });
-        alert('Failed to export PDF: ' + err.message);
-      } else {
-        console.error('[EXPORT_PDF][ERROR][NON-ERROR]', { err });
-        alert('Failed to export PDF: ' + JSON.stringify(err));
-      }
-    } finally {
-      setExporting(false);
+    if (!opportunityData) {
+      logger.warn('Cannot generate content: Opportunity data not loaded.');
+      setError('Opportunity data is not available.');
+      return;
     }
-  }
 
-  // Auto-generate tailored CV
-  async function handleAutoGenerateCV() {
-    if (!OrionOpportunity) return;
-    setCVContent('Generating tailored CV...');
+    logger.info('Initiating content generation for CV tailoring.', { opportunityId });
+    setAutoGenLoading(true);
+    setError(null);
     try {
-      const res = await fetch('/api/orion/cv/assemble', {
+      const response = await fetch(`/api/orion/generate-tailored-content`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          OrionOpportunity,
-          jd: OrionOpportunity.content || '',
-          memory: memories,
+          jobDescription: jobDescription || '',
+          cvComponents,
+          opportunityMemories,
           profile,
+          opportunityId,
+          opportunityTitle: opportunityData.title,
+          companyName: opportunityData.company,
+          opportunityContent: opportunityData.content || '',
         }),
       });
 
-      if (!res.ok) {
-        let errorMsg = `Server error: ${res.status}`;
-        try {
-          const errData = await res.json();
-          if (errData && errData.error) errorMsg = errData.error;
-        } catch (parseError: unknown) {
-          console.error('[AUTO_GENERATE_CV][ERROR] Failed to parse error response:', parseError); // Log the parsing error
-        }
-        setCVContent(errorMsg);
-        alert(errorMsg);
-        return;
-      }
+      const data: { success: boolean; tailoredContent?: string; llmOutput?: string; error?: string } =
+        await response.json();
 
-      const data: { success: boolean; cv?: string; error?: string } = await res.json();
-      if (data.success && data.cv) {
-        setCVContent(data.cv);
+      if (data.success && data.tailoredContent) {
+        setGeneratedContent(data.tailoredContent);
+        setLlmOutput(data.llmOutput || '');
+        logger.success('Tailored content generated successfully.', { opportunityId });
       } else {
-        const errorMsg = data.error || 'Failed to generate tailored CV.';
-        setCVContent(errorMsg);
-        alert(errorMsg);
+        throw new Error(data.error || 'Failed to generate tailored content.');
       }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setCVContent(errorMessage || 'Network or server error while generating tailored CV.');
-      alert(errorMessage || 'Network or server error while generating tailored CV.');
+    } catch (err) {
+      logger.error('Error generating tailored content:', { error: err, opportunityId });
+      setError(err instanceof Error ? err.message : 'An unknown error occurred during content generation.');
+    } finally {
+      setAutoGenLoading(false);
     }
-  }
+  };
 
-  // Copy to clipboard
-  async function handleCopy() {
-    await navigator.clipboard.writeText(cvContent);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  }
-
-  if (isLoading) {
+  if (isLoading || isMemoriesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <p className="ml-2 text-gray-500">Loading opportunity and memories...</p>
       </div>
     );
   }
 
-  if (error) {
+  if (error || memoriesError) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="text-red-500">Error</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{error}</p>
+          <p>{error || memoriesError}</p>
         </CardContent>
       </Card>
     );
@@ -191,61 +153,85 @@ export default function TailorContentPage() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Tailor CV Content for {OrionOpportunity?.title}</CardTitle>
+          <CardTitle>
+            Tailor Content for {opportunityData?.title || 'Opportunity'} (ID: {opportunityId})
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex gap-2">
-            <button
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition"
-              onClick={handleExportPDF}
-              disabled={exporting}
-            >
-              <Download className="inline-block mr-2 h-5 w-5" />
-              {exporting ? 'Exporting...' : 'Export as PDF'}
-            </button>
-            <button
-              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded transition"
-              onClick={handleCopy}
-              disabled={copied}
-            >
-              <Clipboard className="inline-block mr-2 h-5 w-5" />
-              {copied ? 'Copied!' : 'Copy to Clipboard'}
-            </button>
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition"
-              onClick={handleAISuggestion}
-            >
-              <Sparkles className="inline-block mr-2 h-5 w-5" />
-              Get AI Suggestions
-            </button>
-            <button
-              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded transition"
-              onClick={handleAutoGenerateCV}
-            >
-              Auto Generate Tailored CV
-            </button>
-          </div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <label className="block font-semibold mb-1">Edit CV (Markdown)</label>
+        <CardContent className="space-y-4">
+          <p className="text-gray-500">Job Description:</p>
+          <textarea
+            className="w-full p-2 border rounded resize-y bg-gray-700 text-white"
+            rows={10}
+            value={jobDescription}
+            readOnly
+          />
+
+          <p className="text-gray-500">Your CV Components:</p>
+          {cvComponents.length > 0 ? (
+            <ul className="list-disc list-inside text-gray-400">
+              {cvComponents.map((component) => (
+                <li key={component.id} className="mb-1">
+                  <strong>{component.name}:</strong> {component.content}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No CV components found. Please ensure they are loaded.</p>
+          )}
+
+          <p className="text-gray-500">Relevant Memories:</p>
+          {opportunityMemories.length > 0 ? (
+            <ul className="list-disc list-inside text-gray-400">
+              {opportunityMemories.map((memory) => (
+                <li key={memory.id} className="mb-1 text-sm">
+                  <strong>{memory.payload.title || 'Memory'}:</strong> {memory.payload.text.substring(0, 150)}...
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No relevant memories found for this opportunity.</p>
+          )}
+
+          <button
+            onClick={handleGenerateContent}
+            disabled={autoGenLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition disabled:opacity-50"
+          >
+            {autoGenLoading ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                Generating Tailored Content...
+              </span>
+            ) : (
+              'Generate Tailored Content'
+            )}
+          </button>
+          {generatedContent && (
+            <div className="mt-4">
+              <p className="text-gray-500">Generated Tailored Content:</p>
               <textarea
-                className="w-full min-h-[300px] border rounded p-2 mb-2"
-                value={cvContent}
-                onChange={(e) => setCVContent(e.target.value)}
-                placeholder="Edit your CV content here..."
+                className="w-full p-2 border rounded resize-y bg-gray-700 text-white"
+                rows={15}
+                value={generatedContent}
+                readOnly
               />
+              <button
+                onClick={() => navigator.clipboard.writeText(generatedContent)}
+                className="mt-2 bg-green-600 hover:bg-green-700 text-white"
+              >
+                Copy Generated Content
+              </button>
             </div>
-            <div className="flex-1">
-              <label className="block font-semibold mb-1">Preview</label>
-              <div className="w-full min-h-[300px] border rounded p-2 bg-gray-50 overflow-auto prose prose-sm max-w-none">
-                <ReactMarkdown>{cvContent}</ReactMarkdown>
-              </div>
-            </div>
-          </div>
-          {aiSuggestion && (
-            <div className="bg-blue-50 border border-blue-200 rounded p-3 mt-2 text-blue-800 whitespace-pre-line">
-              <strong>AI Suggestions:</strong>
-              <div>{aiSuggestion}</div>
+          )}
+          {llmOutput && (
+            <div className="mt-4">
+              <p className="text-gray-500">Raw LLM Output (for debugging):</p>
+              <textarea
+                className="w-full p-2 border rounded resize-y bg-gray-700 text-white"
+                rows={10}
+                value={llmOutput}
+                readOnly
+              />
             </div>
           )}
         </CardContent>

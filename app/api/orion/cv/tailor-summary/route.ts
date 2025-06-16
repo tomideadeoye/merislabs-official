@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@repo/shared'; // Import LLM utility
-import { fetchCVComponents } from '@repo/shared/cv'; // Import function to fetch all CV components
-import { getCVComponentsFromNotion } from '@repo/shared/notion_service'; // Import from notion_service
-import { CV_SUMMARY_TAILORING_REQUEST_TYPE } from '@repo/shared/orion_config'; // Import request type
-import { CVComponent } from '@repo/shared';
+import { generateLLMResponse } from '@/lib/'; // Import LLM utility
+import { fetchCVComponents } from '@/lib/cv'; // Import function to fetch all CV components
+import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Import from notion_service
+import { CV_SUMMARY_TAILORING_REQUEST_TYPE } from '@/lib/orion_config'; // Import request type
+import { CVComponent } from '@/lib/';
 
 /**
  * API route for tailoring a CV summary based on JD analysis using LLM

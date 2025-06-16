@@ -12,7 +12,8 @@ import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/lib/app_constants';
 import { WhatsAppChatAnalysis } from '../../../src/components/orion/whatsapp/WhatsAppChatAnalysis';
 import WhatsAppReplyDrafter from '../../../src/components/orion/WhatsAppReplyDrafter';
-import { DraftCommunicationForm } from '../../../src/lib';
+import DraftCommunicationForm from '@/src/components/orion/DraftCommunicationForm';
+
 
 export default function DraftCommunicationClientWrapper() {
   // Assuming useSessionState returns just the value if only one variable is destructured.

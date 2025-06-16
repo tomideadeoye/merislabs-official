@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { notFound, useParams } from 'next/navigation';
-import { EvaluationOutput, OrionOpportunity } from '@repo/shared';
+import { EvaluationOutput, OrionOpportunity } from '@/app/shared';
 
-import { CardContent } from '@/ui/components/ui';
+import { CardContent } from '@/components/ui';
 import { OpportunityPipelineCharts } from '../../../(orion_admin)/admin/opportunity-pipeline/OpportunityPipelineCharts';
 
 // Fetch a single OrionOpportunity from the API

@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/ui/components/ui';
+import { Button } from '@/components/ui';
 import { BarChart2, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { OrionOpportunity } from '@/types';
+import { OrionOpportunity } from '@/lib/types';
+
 
 
 interface EvaluateWithOrionButtonProps {

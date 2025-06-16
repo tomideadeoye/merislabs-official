@@ -1,18 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/components/ui';
-// TODO: Replace Loader with a @/ui/components/ui or shared implementation if available
-// import { Loader } from '@/ui/components/ui';
-// TODO: Replace Loader with a @/ui/components/ui or shared implementation if available
-// import { Loader } from '@/ui/components/ui';
-// import { Loader } from '@/ui/components/ui';
-import { OpportunityList } from '@/ui/components/orion/opportunities/OpportunityList';
-import { OpportunityFilters } from '@/components/OpportunityFilters';
-import { AddOpportunityForm } from '@/ui/components/orion/opportunities/AddOpportunityForm';
-import { OpportunityKanbanView } from '@/components/OpportunityKanbanView';
-import { logger } from '@/lib/logger';
-import { useOpportunities } from '@/app/hooks/useOpportunities';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+// TODO: Replace Loader with a @/components/ui or shared implementation if available
+// import { Loader } from '@/components/ui';
+// TODO: Replace Loader with a @/components/ui or shared implementation if available
+// import { Loader } from '@/components/ui';
+// import { Loader } from '@/components/ui';
+import { OpportunityList } from '@/components/ui/orion/opportunities/OpportunityList';
+import { OpportunityFilters } from '@/components/orion/opportunity-pipeline/OpportunityFilters';
+import { AddOpportunityForm } from '@/components/ui/orion/opportunities/AddOpportunityForm';
+import { OpportunityKanbanView } from '@/components/orion/opportunity-pipeline/OpportunityKanbanView';
+import { useOpportunities } from '@/hooks/useOpportunities';
+import logger from '@/lib/logger';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:

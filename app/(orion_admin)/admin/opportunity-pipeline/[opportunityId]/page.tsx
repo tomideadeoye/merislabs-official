@@ -1,4 +1,4 @@
-import { OpportunityNotionOutputShared, EvaluationOutput } from '@repo/shared/types/orion';
+import { OpportunityNotionOutputShared, EvaluationOutput } from '@/app/shared/types/orion';
 import { notFound } from 'next/navigation';
 import { OpportunityDetailView } from '../../../../../components/orion/OpportunityDetailView';
 

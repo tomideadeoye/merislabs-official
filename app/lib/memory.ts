@@ -3,9 +3,21 @@
  * Provides a unified interface for interacting with the memory system
  */
 
-import { ScoredMemoryPoint } from '@/types';
-import { MemorySearchOptions, MemoryPayload } from '../types/orion';
+// GOAL OF FILE|FEATURES|FUNCTIONS:
+// FILEPATH:
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+// ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
+// NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
+// TODOS:
+// SUGGESTIONS:
+
+import { MemorySearchOptions, ScoredMemoryPoint, MemoryPayload, QdrantFilter } from '@/lib/types';
 import { ORION_MEMORY_COLLECTION_NAME } from './orion_config';
+import { QdrantClient } from '@qdrant/js-client-rest';
+import logger from '@/lib/logger';
+
+// Placeholder for Qdrant Client
+let qdrantClient: QdrantClient | null = null;
 
 export interface MemoryPoint {
   text: string;
@@ -177,4 +189,75 @@ export async function findMemoriesByTag(
   error?: string;
 }> {
   return findMemoriesByField('payload.tags', tag, limit);
+}
+
+/**
+ * Initializes the Qdrant client and ensures the memory collection exists.
+ */
+export async function initializeOrionMemory(): Promise<void> {
+  if (!qdrantClient) {
+    qdrantClient = new QdrantClient({ host: 'localhost', port: 6333 });
+  }
+
+  try {
+    const collectionExists = await qdrantClient.collectionExists(ORION_MEMORY_COLLECTION_NAME);
+    if (!collectionExists) {
+      logger.info('[Memory] Creating Qdrant collection...', { collection: ORION_MEMORY_COLLECTION_NAME });
+      await qdrantClient.createCollection(ORION_MEMORY_COLLECTION_NAME, {
+        vectors: { size: 384, distance: 'Cosine' },
+      });
+      logger.success('[Memory] Qdrant collection created.', { collection: ORION_MEMORY_COLLECTION_NAME });
+    } else {
+      logger.info('[Memory] Qdrant collection already exists.', { collection: ORION_MEMORY_COLLECTION_NAME });
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('[Memory] Failed to initialize Qdrant memory.', { error: errorMessage });
+    throw new Error(`Failed to initialize Qdrant memory: ${errorMessage}`);
+  }
+}
+
+/**
+ * Searches Qdrant memory for relevant content based on a query.
+ * NOTE: This is a direct Qdrant search. For full RAG, it should integrate with an embedding model.
+ * For now, it will use a simple text search placeholder or a proxy to embedding service.
+ */
+export async function findRelevantMemories(
+  query: string,
+  limit: number = 5,
+  filter?: QdrantFilter
+): Promise<ScoredMemoryPoint[]> {
+  if (!qdrantClient) {
+    logger.warn('[Memory] Qdrant client not initialized. Attempting initialization.');
+    await initializeOrionMemory(); // Try to initialize if not already
+    if (!qdrantClient) {
+      logger.error('[Memory] Failed to initialize Qdrant client for search.');
+      return [];
+    }
+  }
+
+  try {
+    // In a real scenario, `query` would be converted to an embedding here.
+    // For this placeholder, we'll simulate a search or rely on `searchMemory` if it proxies to a backend that handles embeddings.
+    logger.info('[Memory] Simulating relevant memory search.', { query, limit, filter });
+
+    // If searchMemory is a proxy to a backend that handles embeddings/Qdrant,
+    // we can reuse it. Otherwise, we'd need embedding logic here.
+    const searchResult = await searchMemory({ query, limit, filter });
+
+    if (searchResult.success && searchResult.results) {
+      logger.success('[Memory] Simulated relevant memory search successful.', {
+        query,
+        resultsCount: searchResult.results.length,
+      });
+      return searchResult.results;
+    } else {
+      logger.warn('[Memory] No relevant memories found or search failed.', { query, error: searchResult.error });
+      return [];
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('[Memory] Error during relevant memory search.', { query, error: errorMessage });
+    return [];
+  }
 }

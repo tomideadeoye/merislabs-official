@@ -9,7 +9,7 @@
 
 import axios from 'axios';
 import { ORION_MEMORY_COLLECTION_NAME } from './orion_config';
-import { QdrantFilter, ScoredMemoryPoint, SearchMemoryResponse } from '@/types/orion';
+import { QdrantFilter, SearchMemoryResponse } from '..';
 
 const MEMORY_API_ENDPOINT = '/api/orion/memory';
 

@@ -4,6 +4,16 @@ import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import nextPlugin from '@next/eslint-plugin-next';
 import prettierConfig from 'eslint-config-prettier';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import reactHooks from 'eslint-plugin-react-hooks';
+import { FlatCompat } from '@eslint/eslintrc';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
 
 export default tseslint.config(
   {
@@ -17,12 +27,26 @@ export default tseslint.config(
       'postcss.config.js',
       'tailwind.config.js',
       'babel.config.js',
+      '**/.next/',
+      '**/coverage/',
+      '**/dist/',
+      '**/build/',
+      '**/out/',
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.d.ts',
+      '**/public/',
+      'middleware.ts',
+      'jest.setup.js',
+      'app/layout.js',
+      'app/layout.tsx',
+      'postcss.config.cjs',
     ],
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
@@ -31,8 +55,8 @@ export default tseslint.config(
         ecmaFeatures: {
           jsx: true,
         },
-        project: ['./tsconfig.json'], // Ensure this points to your project's tsconfig
-        tsconfigRootDir: import.meta.dirname, // Essential for `project` to work correctly
+        project: ['./tsconfig.json'],
+        tsconfigRootDir: path.dirname(fileURLToPath(import.meta.url)),
       },
       globals: {
         ...globals.browser,
@@ -43,13 +67,15 @@ export default tseslint.config(
       react: pluginReact,
       '@typescript-eslint': tseslint.plugin,
       '@next': nextPlugin,
+      'react-hooks': reactHooks,
     },
     rules: {
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      // Add next.js core web vitals rules explicitly or through the plugin
-      '@next/next/no-html-link-for-pages': 'error', // Example Next.js rule
+      '@next/no-html-link-for-pages': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
     settings: {
       react: {

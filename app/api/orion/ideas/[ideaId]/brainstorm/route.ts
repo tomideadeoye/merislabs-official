@@ -1,7 +1,7 @@
 /**
  * GOAL: Brainstorm and develop ideas using LLM, persist logs and context in Neon/Postgres, and store context in memory for future reference.
  * Uses Neon/Postgres (pool from lib/database.ts) for cloud reliability.
- * Related: lib/orion_config.ts, lib/database.ts, prd.md
+ * Related: lib/orion_config.ts, lib/database.ts, reference.md
  */
 // GOAL OF FILE|FEATURES|FUNCTIONS:
 // FILEPATH:
@@ -9,14 +9,14 @@
 // ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@repo/shared/lib/postgres';
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
-import type { IdeaLog } from '@repo/shared/types/ideas';
+import { query } from '@/app/shared/lib/postgres';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+import type { IdeaLog } from '@/app/shared/types/ideas';
 import { v4 as uuidv4 } from 'uuid';
-import { Idea } from '@repo/shared/types/ideas';
-import { generateLLMResponse } from '@repo/shared/lib/orion_llm';
-import { REQUEST_TYPES as OriginalRequestTypes } from '@repo/shared/lib/orion_llm'; // Rename original import
-import { logger } from '@repo/shared/lib/logger';
+import { Idea } from '@/app/shared/types/ideas';
+import { generateLLMResponse } from '@/app/shared/lib/orion_llm';
+import { REQUEST_TYPES as OriginalRequestTypes } from '@/app/shared/lib/orion_llm'; // Rename original import
+import { logger } from '@/app/shared/lib/logger';
 
 const REQUEST_TYPES = OriginalRequestTypes; // Re-assign to force type inference
 

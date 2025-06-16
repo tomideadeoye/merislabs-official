@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useFileSelectionStore } from '../../../../components/orion/fileSelectionStore';
-import { PageHeader } from '@/ui/components/ui';
+import { PageHeader } from '@/components/ui';
 import { FileExplorer } from '../../../../components/orion/FileExplorer';
 import { FileViewer } from '../../../../components/orion/FileViewer';
-import { Button } from '@/ui/components/ui';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/components/ui';
+import { Button } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
 import { Loader2, AlertTriangle, CheckCircle, Database, FolderOpen } from 'lucide-react';
 
 export default function LocalFilesPage() {

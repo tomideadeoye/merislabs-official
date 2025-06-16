@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { ORION_ACCESSIBLE_LOCAL_DIRECTORIES } from '@repo/shared/orion_config';
+import { ORION_ACCESSIBLE_LOCAL_DIRECTORIES } from '@/lib/orion_config';
 
 /**
  * API route to list configured accessible directories

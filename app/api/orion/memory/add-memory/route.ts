@@ -1,11 +1,11 @@
 /**
  * GOAL: Add memory points to Qdrant (primary) and Neon/Postgres (secondary for structured types).
- * Related: lib/database.ts, prd.md, lib/orion_config.ts
+ * Related: lib/database.ts, reference.md, lib/orion_config.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { ORION_MEMORY_COLLECTION_NAME } from '@repo/shared/orion_config';
-import { query, sql } from '@repo/shared/database';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+import { query, sql } from '@/app/shared/database';
 
 export async function POST(request: NextRequest) {
   try {

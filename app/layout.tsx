@@ -9,9 +9,10 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './css/style.css';
-import { Header } from '@/components/ui';
+import { Header } from '@radix-ui/react-accordion';
+import { navItems } from './lib/routes';
 import { Providers } from './providers';
-import { NavItem, navItems } from '@/lib/routes';
+
 
 const inter = localFont({
   src: './fonts/Inter.woff2',

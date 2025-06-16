@@ -1,7 +1,7 @@
 // app/api/orion/email/test/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { sendEmailService } from '@repo/shared/email_service';
-import type { SendEmailParams } from '@repo/shared/types/email';
+import { sendEmailService } from '@/app/shared/email_service';
+import type { SendEmailParams } from '@/app/shared/types/email';
 
 // This is a test endpoint that doesn't require authentication
 // It's useful for testing the email service during development

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-import { logger } from '@repo/shared/lib/logger';
-import { auth } from '@/app/auth';
+import { authConfig } from '@/lib/auth';
+import logger from '@/lib/logger';
+import { getServerSession } from 'next-auth';
 
 /**
  * @goal Handles POST requests to draft WhatsApp replies.
@@ -15,7 +15,7 @@ import { auth } from '@/app/auth';
 export async function POST(req: NextRequest) {
   logger.info('[API][DraftWhatsAppReply][POST] Received request to draft WhatsApp reply.');
 
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session) {
     logger.warn('[API][DraftWhatsAppReply][POST] Unauthorized access attempt.');
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -40,16 +40,18 @@ export async function POST(req: NextRequest) {
       draftedReply,
       message: 'WhatsApp reply drafted successfully.',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    const errorStack = error instanceof Error ? error.stack : 'No stack trace available';
     logger.error('[API][DraftWhatsAppReply][POST] Error drafting WhatsApp reply:', {
-      error: error.message,
-      stack: error.stack,
+      error: errorMessage,
+      stack: errorStack,
     });
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to draft WhatsApp reply',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

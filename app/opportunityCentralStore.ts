@@ -1,32 +1,33 @@
-import { create } from 'zustand';
-import { OrionOpportunityDetails, OrionOpportunity, Stakeholder } from '.';
+import { create, StateCreator } from 'zustand';
+import { OrionOpportunity, Stakeholder, Filters, SortableOpportunityKeys, SortOrder } from '@/lib/types';
 // NOTE: The previous comment about stubbing Stakeholder is no longer relevant as it is correctly imported.
 
 // Define a type for keys that can be used for sorting
-export type SortableOpportunityKeys =
-  | 'updatedAt'
-  | 'createdAt'
-  | 'nextActionDate'
-  | 'title'
-  | 'company'
-  | 'priority'
-  | 'dateIdentified'
-  | 'lastStatusUpdate'
-  | 'id'
-  | 'url'
-  | 'notes'
-  | 'companyOrInstitution'
-  | 'content'
-  | 'sourceUrl'
-  | 'deadline'
-  | 'location'
-  | 'salary'
-  | 'contact'
-  | 'position'
-  | 'notionPageId'
-  | 'contentType'
-  | 'type'
-  | 'status';
+// This is now imported from @/lib/types, but keeping here for reference if specific needs arise.
+// export type SortableOpportunityKeys =
+//   | 'updatedAt'
+//   | 'createdAt'
+//   | 'nextActionDate'
+//   | 'title'
+//   | 'company'
+//   | 'priority'
+//   | 'dateIdentified'
+//   | 'lastStatusUpdate'
+//   | 'id'
+//   | 'url'
+//   | 'notes'
+//   | 'companyOrInstitution'
+//   | 'content'
+//   | 'sourceUrl'
+//   | 'deadline'
+//   | 'location'
+//   | 'salary'
+//   | 'contact'
+//   | 'position'
+//   | 'notionPageId'
+//   | 'contentType'
+//   | 'type'
+//   | 'status';
 
 // Forward declaration for the main store type to resolve circular dependency
 export type OpportunityCentralStoreType = BoardSlice &
@@ -37,12 +38,15 @@ export type OpportunityCentralStoreType = BoardSlice &
   GenerateOutreachDialogSlice &
   FindStakeholdersDialogSlice;
 
+// Define the type for the 'set' function passed to slice creators from the main store
+type MainStoreSet = Parameters<StateCreator<OpportunityCentralStoreType, [], [], OpportunityCentralStoreType>>[0];
+
 // --- Board Slice ---
 interface BoardSlice {
   needsRefetch: boolean;
   setNeedsRefetch: (value: boolean) => void;
 }
-const createBoardSlice = (set: any): BoardSlice => ({
+const createBoardSlice = (set: MainStoreSet): BoardSlice => ({
   needsRefetch: false,
   setNeedsRefetch: (value: boolean) => {
     console.info('[CentralStore][Board] setNeedsRefetch', { value });
@@ -56,7 +60,7 @@ interface DialogSlice {
   openDialog: () => void;
   closeDialog: () => void;
 }
-const createDialogSlice = (set: any): DialogSlice => ({
+const createDialogSlice = (set: MainStoreSet): DialogSlice => ({
   isDialogOpen: false,
   openDialog: () => {
     console.debug('[CentralStore][Dialog] openDialog');
@@ -69,8 +73,9 @@ const createDialogSlice = (set: any): DialogSlice => ({
 });
 
 // --- Filters Slice ---
-type SortOrder = 'asc' | 'desc';
-type Filters = Partial<OrionOpportunityDetails> & { tag?: string };
+// Filters and SortOrder are now imported from @/lib/types
+// type SortOrder = 'asc' | 'desc'; // Moved to types/index.ts
+// type Filters = Partial<OrionOpportunityDetails> & { tag?: string }; // Moved to types/index.ts
 interface FiltersSlice {
   filters: Filters;
   sort: SortableOpportunityKeys;
@@ -80,7 +85,7 @@ interface FiltersSlice {
   setSortOrder: (sortOrder: SortOrder) => void;
   clearFilters: () => void;
 }
-const createFiltersSlice = (set: any): FiltersSlice => ({
+const createFiltersSlice = (set: MainStoreSet): FiltersSlice => ({
   filters: {} as Filters,
   sort: 'updatedAt' as SortableOpportunityKeys,
   sortOrder: 'desc' as SortOrder,
@@ -109,7 +114,7 @@ interface DraftApplicationDialogSlice {
   openDraftDialog: (orionOpportunity: OrionOpportunity) => void;
   closeDraftDialog: () => void;
 }
-const createDraftApplicationDialogSlice = (set: any): DraftApplicationDialogSlice => ({
+const createDraftApplicationDialogSlice = (set: MainStoreSet): DraftApplicationDialogSlice => ({
   isDraftDialogOpen: false,
   draftOpportunity: undefined as OrionOpportunity | undefined,
   openDraftDialog: (orionOpportunity: OrionOpportunity) => {
@@ -140,7 +145,7 @@ interface FinalizeAndSendEmailDialogSlice {
     attachmentsToSend?: File[];
   }) => void;
 }
-const createFinalizeAndSendEmailDialogSlice = (set: any): FinalizeAndSendEmailDialogSlice => ({
+const createFinalizeAndSendEmailDialogSlice = (set: MainStoreSet): FinalizeAndSendEmailDialogSlice => ({
   isFinalizeDialogOpen: false,
   initialTo: '',
   initialSubject: '',
@@ -183,26 +188,34 @@ interface GenerateOutreachDialogSlice {
     onOutreachGenerated?: (outreach: string) => void;
   }) => void;
 }
-const createGenerateOutreachDialogSlice = (set: any): GenerateOutreachDialogSlice => ({
+const createGenerateOutreachDialogSlice = (set: MainStoreSet): GenerateOutreachDialogSlice => ({
   isOutreachDialogOpen: false,
   stakeholder: undefined as Stakeholder | undefined,
   opportunityTitle: undefined as string | undefined,
   opportunityCompany: undefined as string | undefined,
   onOutreachGenerated: undefined as ((outreach: string) => void) | undefined,
   openOutreachDialog: (data) => {
-    console.debug('[CentralStore][OutreachDialog] openOutreachDialog', {
-      data,
+    console.debug('[CentralStore][OutreachDialog] openOutreachDialog', { data });
+    set({
+      isOutreachDialogOpen: true,
+      stakeholder: data.stakeholder,
+      opportunityTitle: data.opportunityTitle,
+      opportunityCompany: data.opportunityCompany,
+      onOutreachGenerated: data.onOutreachGenerated,
     });
-    set({ isOutreachDialogOpen: true, ...data });
   },
   closeOutreachDialog: () => {
     console.debug('[CentralStore][OutreachDialog] closeOutreachDialog');
-    set({ isOutreachDialogOpen: false });
+    set({
+      isOutreachDialogOpen: false,
+      stakeholder: undefined,
+      opportunityTitle: undefined,
+      opportunityCompany: undefined,
+      onOutreachGenerated: undefined,
+    });
   },
   setOutreachDialogData: (data) => {
-    console.info('[CentralStore][OutreachDialog] setOutreachDialogData', {
-      data,
-    });
+    console.info('[CentralStore][OutreachDialog] setOutreachDialogData', { data });
     set({ ...data });
   },
 });
@@ -219,10 +232,10 @@ interface FindStakeholdersDialogSlice {
   setSelectedStakeholder: (stakeholder: Stakeholder | null) => void;
   setOpportunity: (orionOpportunity: OrionOpportunity) => void;
 }
-const createFindStakeholdersDialogSlice = (set: any): FindStakeholdersDialogSlice => ({
+const createFindStakeholdersDialogSlice = (set: MainStoreSet): FindStakeholdersDialogSlice => ({
   isFindStakeholdersDialogOpen: false,
   stakeholders: [] as Stakeholder[],
-  selectedStakeholder: null as Stakeholder | null,
+  selectedStakeholder: null,
   orionOpportunity: undefined as OrionOpportunity | undefined,
   openFindStakeholdersDialog: () => {
     console.debug('[CentralStore][FindStakeholdersDialog] openFindStakeholdersDialog');
@@ -230,7 +243,7 @@ const createFindStakeholdersDialogSlice = (set: any): FindStakeholdersDialogSlic
   },
   closeFindStakeholdersDialog: () => {
     console.debug('[CentralStore][FindStakeholdersDialog] closeFindStakeholdersDialog');
-    set({ isFindStakeholdersDialogOpen: false, selectedStakeholder: null });
+    set({ isFindStakeholdersDialogOpen: false });
   },
   setStakeholders: (stakeholders: Stakeholder[]) => {
     console.info('[CentralStore][FindStakeholdersDialog] setStakeholders', {
@@ -239,16 +252,20 @@ const createFindStakeholdersDialogSlice = (set: any): FindStakeholdersDialogSlic
     set({ stakeholders });
   },
   setSelectedStakeholder: (stakeholder: Stakeholder | null) => {
-    console.info('[CentralStore][FindStakeholdersDialog] setSelectedStakeholder', { stakeholder });
+    console.info('[CentralStore][FindStakeholdersDialog] setSelectedStakeholder', {
+      stakeholder,
+    });
     set({ selectedStakeholder: stakeholder });
   },
   setOpportunity: (orionOpportunity: OrionOpportunity) => {
-    console.info('[CentralStore][FindStakeholdersDialog] setOpportunity', { orionOpportunity });
+    console.info('[CentralStore][FindStakeholdersDialog] setOpportunity', {
+      orionOpportunity,
+    });
     set({ orionOpportunity });
   },
 });
 
-export const useOpportunityCentralStore = create<OpportunityCentralStoreType>()((set, get) => ({
+export const useOpportunityCentralStore = create<OpportunityCentralStoreType>()((set) => ({
   ...createBoardSlice(set),
   ...createDialogSlice(set),
   ...createFiltersSlice(set),

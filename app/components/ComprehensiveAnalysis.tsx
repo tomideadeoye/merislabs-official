@@ -5,9 +5,9 @@
 // Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Progress, Badge } from '@/ui/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, Progress, Badge } from '@/components/ui';
 import { Lightbulb, ThumbsUp, ThumbsDown, Star, FileText } from 'lucide-react';
-import { EvaluationOutput } from '@/types';
+import { EvaluationOutput } from '@/lib/types';
 
 interface ComprehensiveAnalysisProps {
   evaluation: EvaluationOutput | null;

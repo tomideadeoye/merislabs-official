@@ -80,12 +80,12 @@ export {
   type LLMResponseSuccess,
   type LLMResponseFailure,
   type CombinedLLMResponse,
-} from '../src/types/orion';
+} from '@/lib/types';
 
 // Email-related types, now from their dedicated file
-export type { SendEmailParams, EmailAttachment } from '../src/types/email';
+export type { SendEmailParams, EmailAttachment } from '@/types/email';
 
-export { type HabiticaTask, type HabiticaUserStats } from './types/habitica';
+export { type HabiticaTask, type HabiticaUserStats } from '@/types/habitica';
 
 // Export constants, functions, and classes from lib/ and hooks/ explicitly.
 // This prevents unintended re-exports and module resolution ambiguities
@@ -103,7 +103,7 @@ export {
   BROWSER_CONTEXT_MAX_CHARS,
   MIN_DRAFT_LENGTH,
   checkAllLlmApiKeys,
-} from '../src/lib/llm_providers';
+} from '@/lib/llm_providers';
 
 // Orion LLM related exports (including generateLLMResponse, getFallbackModels, REQUEST_TYPES)
 export {
@@ -112,22 +112,22 @@ export {
   REQUEST_TYPES,
   constructLlmMessages,
   callExternalLLM,
-} from '../src/lib/orion_llm';
+} from '@/lib/orion_llm';
 
 // Profile Service
-export { fetchUserProfile } from '../src/lib/profile_service';
+export { fetchUserProfile } from '@/lib/profile_service';
 
 // WhatsApp Parser
-export { parseWhatsAppChat } from '../src/lib/whatsapp_parser';
+export { parseWhatsAppChat } from '@/lib/whatsapp_parser';
 
 // Orion Memory
-export { processTextForIndexing, searchMemory } from '../src/lib/orion_memory';
+export { processTextForIndexing, searchMemory } from '@/lib/orion_memory';
 
 // Orion Tools
-export { AVAILABLE_ORION_TOOLS as ORION_TOOLS, callSequentialThinking } from '../src/lib/orion_tools';
+export { AVAILABLE_ORION_TOOLS as ORION_TOOLS, callSequentialThinking } from '@/lib/orion_tools';
 
 // CBT Constants
-export { COGNITIVE_DISTORTIONS_LIST, DISTORTION_DESCRIPTIONS } from '../src/lib/cbtConstants';
+export { COGNITIVE_DISTORTIONS_LIST, DISTORTION_DESCRIPTIONS } from '@/lib/cbtConstants';
 
 // Notion Service (Removed direct exports to prevent client-side bundling)
 
@@ -140,11 +140,11 @@ export {
   assembleCV,
   generateWordDoc,
   generateWordFilename,
-} from '../src/lib/cv';
+} from '@/lib/cv';
 
 // Utility functions
-export { cn, getOrionSourceUrl } from '../src/lib/utils';
-export { logger as Logger } from './lib/logger';
+export { cn, getOrionSourceUrl } from '@/utils';
+export { logger as Logger } from '@/lib/logger';
 
 // Clients
 export {
@@ -155,28 +155,27 @@ export {
   scoreTask,
   updateTask,
   deleteTask,
-} from '../src/lib/habitica_client';
-export { apiClient } from '../src/lib/apiClient';
+} from '@/lib/habitica_client';
+export { apiClient } from '@/lib/apiClient';
 
 // Hooks
-export { useSessionState } from '../app/hooks/useSessionState';
-export { useUserProfile } from './hooks/useUserProfile';
-export { useOpportunities } from './hooks/useOpportunities';
-export { useCVTailoring } from './hooks/useCVTailoring';
-export { useOpportunityMemory } from './hooks/useOpportunityMemory';
-export { useMemory } from './hooks/useMemory';
-export { useOpportunityDialogStore } from './hooks/useOpportunityDialogStore';
-export { useLocalStorage } from './hooks/useLocalStorage';
-export { ORION_MEMORY_COLLECTION_NAME } from '../src/lib/orion_config';
+export { useSessionState } from '@/hooks/useSessionState';
+export { useUserProfile } from '@/hooks/useUserProfile';
+export { useOpportunities } from '@/hooks/useOpportunities';
+export { useCVTailoring } from '@/hooks/useCVTailoring';
+export { useOpportunityMemory } from '@/hooks/useOpportunityMemory';
+export { useMemory } from '@/hooks/useMemory';
+export { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
+export { useLocalStorage } from '@/hooks/useLocalStorage';
+export { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 export {
   useOpportunityCentralStore,
   type OpportunityCentralStoreType,
   type SortableOpportunityKeys,
-} from './lib/opportunityCentralStore';
+} from '@/opportunityCentralStore';
 
 // App State & Constants
-export { PageNames, SessionStateKeys } from '../src/lib/app_constants';
+export { PageNames, SessionStateKeys } from '@/app_constants';
 
 // Emotions
 // Removed emotionalLogStore export as it appears to be an application-specific store not intended for the shared package.
-// export { emotionalLogStore } from '../emotions';

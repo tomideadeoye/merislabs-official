@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { addMemory } from '@repo/shared/memory';
-import { BLOCK_TYPES, BlockType, Block, CreateBlockPayload } from '@repo/shared/types/blocks';
+import { addMemory } from '@/app/shared/memory';
+import { BLOCK_TYPES, BlockType, Block, CreateBlockPayload } from '@/app/shared/types/blocks';
 import { z } from 'zod';
 
 /**

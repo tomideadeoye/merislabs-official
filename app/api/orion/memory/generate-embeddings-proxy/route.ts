@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import logger from '@/lib/logger'; // Import logger
 
 /**
  * Proxy endpoint for generating embeddings
@@ -19,12 +20,13 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error: any) {
-    console.error('Error in generate embeddings proxy:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    logger.error('[GENERATE_EMBEDDINGS_PROXY_ERROR]', { error: errorMessage, originalError: error });
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

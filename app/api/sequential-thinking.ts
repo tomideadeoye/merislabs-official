@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var mcp_sequentialThinking: ((params: any) => Promise<any>) | undefined;
 }
 

@@ -1,41 +1,29 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { PageHeader } from '@/ui/components/ui';
-import { PersonaForm } from '../../../../components/orion/PersonaForm';
-import { PersonaList } from '../../../../components/orion/PersonaList';
-import { OutreachForm } from '../../../../components/orion/OutreachForm';
-import { useOutreachGenerationStore } from '../../../../components/orion/outreachGenerationStore';
-import { Button } from '@/ui/components/ui';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/components/ui';
-import { Input } from '@/ui/components/ui';
-import { Network, Users, UserPlus, Search, Send, Copy, CheckCheck } from 'lucide-react';
-import { usePersonaStore } from '../../../../components/orion/personaStore';
-import { usePersonaFormStore } from '../../../../components/orion/persona/personaFormStore';
-import { Persona } from '@/types/orion';
+import { Button, Input, PageHeader, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
+import { Network, Users, Send, Search, UserPlus, CheckCheck, Copy } from 'lucide-react';
+import { usePersonaStore } from '@/lib/stores/personaStore';
+import { useOutreachGenerationStore } from '@/lib/stores/outreachGenerationStore';
+import { usePersonaFormStore } from '@/lib/stores/personaFormStore';
+import { PersonaForm } from '@/components/orion/networking-hub/PersonaForm';
+import { PersonaList } from '@/components/orion/networking-hub/PersonaList';
+import { OutreachForm } from '@/components/orion/networking-hub/OutreachForm';
+import type { Persona } from '@/lib/types';
 
 export default function NetworkingHubPage() {
-  // State for personas
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [isLoadingPersonas, setIsLoadingPersonas] = useState<boolean>(true);
   const [personasError, setPersonasError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [editingPersona, setEditingPersona] = useState<Persona | null>(null);
-
-  // State for outreach
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
-
-  // Zustand persona store
   const { selectedPersona: storeSelectedPersona } = usePersonaStore();
-
   const { latestOutreach: outreachDraft, clearLatestOutreach } = useOutreachGenerationStore();
   const [copied, setCopied] = useState<boolean>(false);
-
-  // PersonaForm store
   const { feedback, clearFeedback } = usePersonaFormStore();
 
-  // Sync selectedPersona with personaStore
   useEffect(() => {
     if (storeSelectedPersona) {
       setSelectedPersona(storeSelectedPersona);
@@ -43,18 +31,14 @@ export default function NetworkingHubPage() {
     }
   }, [storeSelectedPersona, clearLatestOutreach]);
 
-  // Fetch personas on mount
-  // Fetch personas from API
   const fetchPersonas = useCallback(async () => {
     setIsLoadingPersonas(true);
     setPersonasError(null);
-
     try {
       const response = await fetch(
         `/api/orion/personas${searchQuery ? `?query=${encodeURIComponent(searchQuery)}` : ''}`
       );
       const data = await response.json();
-
       if (data.success) {
         setPersonas(data.personas || []);
       } else {
@@ -72,7 +56,6 @@ export default function NetworkingHubPage() {
     fetchPersonas();
   }, [fetchPersonas]);
 
-  // Reset copy status after 2 seconds
   useEffect(() => {
     if (copied) {
       const timer = setTimeout(() => setCopied(false), 2000);
@@ -80,7 +63,6 @@ export default function NetworkingHubPage() {
     }
   }, [copied]);
 
-  // Side effect: close form and refresh list on PersonaForm success
   useEffect(() => {
     if (feedback?.type === 'success') {
       setShowAddForm(false);
@@ -90,17 +72,6 @@ export default function NetworkingHubPage() {
     }
   }, [feedback, fetchPersonas, clearFeedback]);
 
-  // Listen for persona delete action in personaStore and update local state
-  useEffect(() => {
-    // This is a placeholder for future implementation:
-    // You may want to listen for a deletePersona event and update local state accordingly.
-    // For now, deletion is handled via API and local state update.
-  }, []);
-
-  // Handle outreach generation
-  // (No longer needed: handled by global store)
-
-  // Handle copy to clipboard
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(outreachDraft || '');
     setCopied(true);
@@ -113,7 +84,6 @@ export default function NetworkingHubPage() {
         icon={<Network className="h-7 w-7" />}
         description="Create persona maps and craft personalized outreach messages."
       />
-
       <Tabs defaultValue="personas" className="w-full">
         <TabsList className="bg-gray-800 border-gray-700">
           <TabsTrigger value="personas" className="data-[state=active]:bg-gray-700">
@@ -125,9 +95,7 @@ export default function NetworkingHubPage() {
             Craft Outreach
           </TabsTrigger>
         </TabsList>
-
         <TabsContent value="personas" className="mt-6 space-y-6">
-          {/* Personas Tab Content */}
           <div className="flex flex-col md:flex-row justify-between gap-4">
             <div className="flex items-center space-x-2">
               <Input
@@ -140,7 +108,6 @@ export default function NetworkingHubPage() {
                 <Search className="h-4 w-4" />
               </Button>
             </div>
-
             <Button
               onClick={() => {
                 setShowAddForm(!showAddForm);
@@ -152,8 +119,6 @@ export default function NetworkingHubPage() {
               {showAddForm ? 'Cancel' : 'Add New Persona'}
             </Button>
           </div>
-
-          {/* Add/Edit Persona Form */}
           {(showAddForm || editingPersona) && (
             <div className="mb-6">
               <PersonaForm
@@ -165,19 +130,14 @@ export default function NetworkingHubPage() {
               />
             </div>
           )}
-
-          {/* Personas List */}
           <PersonaList personas={personas} isLoading={isLoadingPersonas} error={personasError} />
         </TabsContent>
-
         <TabsContent value="outreach" className="mt-6 space-y-6">
-          {/* Outreach Tab Content */}
           {selectedPersona ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <OutreachForm persona={selectedPersona} />
               </div>
-
               <div className="space-y-4">
                 <div className="bg-gray-800 border border-gray-700 rounded-md p-4">
                   <div className="flex justify-between items-center mb-4">
@@ -203,7 +163,6 @@ export default function NetworkingHubPage() {
                       </Button>
                     )}
                   </div>
-
                   {outreachDraft ? (
                     <div className="whitespace-pre-wrap text-gray-300 bg-gray-700/50 p-4 rounded-md border border-gray-600 max-h-[600px] overflow-y-auto">
                       {outreachDraft}

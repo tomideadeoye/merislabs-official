@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authConfig } from '@/app/auth';
-import type { Session /* User */ } from 'next-auth';
-import type { AuthOptions } from 'next-auth';
-import type { DraftApplicationRequestBody, DraftApplicationResponseBody } from 'src/types/orion';
-import { DRAFT_APPLICATION_REQUEST_TYPE } from 'src/lib/orion_config';
+import { authConfig } from '@/auth';
+import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
+import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/styles';
+import { Session } from 'inspector';
+import { AuthOptions } from 'next-auth';
 
 // Enhanced system prompt for draft application generation
 const SYSTEM_PROMPT_DRAFT_APPLICATION = `

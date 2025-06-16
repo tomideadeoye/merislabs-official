@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
-import { getCareerMilestones, getValueProposition } from '@repo/shared/narrative_service';
+import { getCareerMilestones, getValueProposition } from '../../../../lib/narrative_service';
 import {
   NarrativeGenerationRequest,
   NarrativeGenerationResponse,
@@ -9,11 +9,12 @@ import {
   ScoredMemoryPoint, // Ensure ScoredMemoryPoint is imported
   UserProfileData,
   SearchMemoryResponse, // Import SearchMemoryResponse
-} from '@repo/shared'; // Correct import path
-import { searchMemory } from '@repo/shared'; // Correct import path
-import { fetchUserProfile } from '@repo/shared'; // Import fetchUserProfile
-import { generateLLMResponse } from '@repo/shared/orion_llm';
-import { CombinedLLMResponse } from '@repo/shared/types/orion'; // Import CombinedLLMResponse from types
+  CareerMilestone, // Added import for CareerMilestone type
+  CombinedLLMResponse, // Moved CombinedLLMResponse here
+} from '@/app';
+import { searchMemory } from '@/app';
+import { fetchUserProfile } from '@/app';
+import { generateLLMResponse } from '@/app';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -70,23 +71,23 @@ export async function POST(req: NextRequest) {
         must: [{ key: 'payload.tags', match: { value: 'achievement' } }],
       },
     };
-    const searchResults: ScoredMemoryPoint[] | SearchMemoryResponse = await searchMemory(searchOptions);
+    const searchResponse: SearchMemoryResponse = await searchMemory(searchOptions);
 
     console.log(
-      '[NARRATIVE_GENERATE] searchResults type:',
-      typeof searchResults,
-      Array.isArray(searchResults) ? 'array' : 'object',
-      searchResults
+      '[NARRATIVE_GENERATE] searchResponse details:',
+      searchResponse
     );
 
     let relevantMemories: ScoredMemoryPoint[] = [];
-    if (Array.isArray(searchResults)) {
-      relevantMemories = searchResults;
-    } else if (searchResults && 'results' in searchResults && Array.isArray(searchResults.results)) {
-      relevantMemories = searchResults.results;
+    if (searchResponse.success && searchResponse.results) {
+      relevantMemories = searchResponse.results;
     }
 
     // Get profile data
+    // fetchUserProfile from @/app (app/src/lib/profile_service.ts) returns Promise<UserProfileData | null>
+    // UserProfileData is { profileText?: string, ... }
+    // The original code was checking for profileFetchResult.success and profileFetchResult.profile which is not the structure.
+    // It also had a fallback for profileFetchResult.profileText which is also not directly on the result of fetchUserProfile.
     let profileData: UserProfileData | null = null;
     try {
       const profileFetchResult = await fetchUserProfile();
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
         profileData = profileFetchResult.profile;
       } else if (profileFetchResult.profileText) {
         // Fallback: If profile object is null but profileText is present, use it for profileText
-        profileData = { profileText: profileFetchResult.profileText } as UserProfileData;
+        profileData = profileFetchResult;
       }
     } catch (error: unknown) {
       console.error('Error fetching profile data:', error);
@@ -122,9 +123,9 @@ ${
 ${
   careerMilestones && careerMilestones.length > 0
     ? careerMilestones
-        .sort((a, b) => a.order - b.order) // a and b are CareerMilestone
+        .sort((a: CareerMilestone, b: CareerMilestone) => (a.order ?? 0) - (b.order ?? 0))
         .map(
-          (milestone) => `
+          (milestone: CareerMilestone) => `
 ### ${milestone.title} ${milestone.organization ? `at ${milestone.organization}` : ''}
 ${milestone.startDate ? `${milestone.startDate} - ${milestone.endDate || 'Present'}` : ''}
 ${milestone.description}
@@ -205,7 +206,7 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
       suggestedTitle = narrativeType
         .replace(/_/g, ' ')
         .split(' ')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
     }
 

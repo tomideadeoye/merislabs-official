@@ -1,6 +1,6 @@
 import NextAuth, { type Session, type User } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { logger } from './lib/logger';
+import logger from './lib/logger';
 
 // Define the shape of the object returned by NextAuth for this specific usage
 interface NextAuthExports {

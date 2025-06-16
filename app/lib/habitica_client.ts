@@ -55,8 +55,8 @@ export interface HabiticaUserStats {
     // Add other relevant preference fields as needed
   };
   // Add other top-level user fields as needed based on API response
-  // items: any; // Example for items, but ideally more specific type
-  // party: any; // Example for party, but ideally more specific type
+  // items: unknown; // Example for items, but ideally more specific type
+  // party: unknown; // Example for party, but ideally more specific type
 }
 
 /**
@@ -73,6 +73,32 @@ export interface HabiticaTask {
   isDue?: boolean; // for todos/dailies
   completed?: boolean; // for todos
   // Add other common task properties like tags, checklist, date created/due as needed
+}
+
+/**
+ * Interface for data required to create a new task.
+ */
+export interface CreateHabiticaTaskPayload {
+  text: string;
+  type: 'todo' | 'daily' | 'habit' | 'reward';
+  notes?: string;
+  priority?: number;
+  tags?: string[];
+  value?: number; // For rewards
+  isDue?: boolean; // For todos/dailies
+}
+
+/**
+ * Interface for data required to update an existing task.
+ */
+export interface UpdateHabiticaTaskPayload {
+  text?: string;
+  notes?: string;
+  priority?: number;
+  tags?: string[];
+  value?: number; // For rewards
+  isDue?: boolean; // For todos/dailies
+  completed?: boolean;
 }
 
 /**
@@ -150,15 +176,18 @@ export async function getUserData(userId?: string, apiToken?: string): Promise<H
       })
     );
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const statusCode = (error as { response?: { status?: number } }).response?.status;
+    const details = (error as { response?: { data?: unknown } }).response?.data;
     logger.error(
       JSON.stringify({
         operation: 'getUserData',
         message: 'Error fetching Habitica user data.',
         userId: userId || 'from_env',
-        error: error.message,
-        statusCode: error.response?.status,
-        details: error.response?.data,
+        error: errorMessage,
+        statusCode,
+        details,
       })
     );
     throw error;
@@ -172,7 +201,7 @@ export async function getUserData(userId?: string, apiToken?: string): Promise<H
  * @returns An array of user tasks.
  * @throws Error if fetching tasks fails.
  */
-export async function getTasks(userId?: string, apiToken?: string) {
+export async function getTasks(userId?: string, apiToken?: string): Promise<HabiticaTask[]> {
   const client = createHabiticaClient(userId, apiToken);
   try {
     logger.info(
@@ -192,15 +221,18 @@ export async function getTasks(userId?: string, apiToken?: string) {
       })
     );
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const statusCode = (error as { response?: { status?: number } }).response?.status;
+    const details = (error as { response?: { data?: unknown } }).response?.data;
     logger.error(
       JSON.stringify({
         operation: 'getTasks',
         message: 'Error fetching Habitica tasks.',
         userId: userId || 'from_env',
-        error: error.message,
-        statusCode: error.response?.status,
-        details: error.response?.data,
+        error: errorMessage,
+        statusCode,
+        details,
       })
     );
     throw error;
@@ -215,7 +247,11 @@ export async function getTasks(userId?: string, apiToken?: string) {
  * @returns The created task data.
  * @throws Error if creating task fails.
  */
-export async function createTask(taskData: any, userId?: string, apiToken?: string) {
+export async function createTask(
+  taskData: CreateHabiticaTaskPayload,
+  userId?: string,
+  apiToken?: string
+): Promise<HabiticaTask> {
   const client = createHabiticaClient(userId, apiToken);
   try {
     logger.info(
@@ -238,15 +274,18 @@ export async function createTask(taskData: any, userId?: string, apiToken?: stri
       })
     );
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const statusCode = (error as { response?: { status?: number } }).response?.status;
+    const details = (error as { response?: { data?: unknown } }).response?.data;
     logger.error(
       JSON.stringify({
         operation: 'createTask',
         message: 'Error creating Habitica task.',
         userId: userId || 'from_env',
-        error: error.message,
-        statusCode: error.response?.status,
-        details: error.response?.data,
+        error: errorMessage,
+        statusCode,
+        details,
       })
     );
     throw error;
@@ -254,14 +293,20 @@ export async function createTask(taskData: any, userId?: string, apiToken?: stri
 }
 
 /**
- * Score (complete) a task in Habitica.
+ * Score a task (mark as complete, or reinforce habit).
  * @param taskId - The ID of the task to score.
- * @param direction - 'up' to complete/score positively, 'down' to score negatively.
+ * @param direction - 'up' for positive, 'down' for negative (only for habits).
  * @param userId - Optional Habitica User ID.
  * @param apiToken - Optional Habitica API Token.
- * @returns The updated user stats after scoring the task.
+ * @returns The updated task data.
+ * @throws Error if scoring task fails.
  */
-export async function scoreTask(taskId: string, direction: 'up' | 'down', userId?: string, apiToken?: string) {
+export async function scoreTask(
+  taskId: string,
+  direction: 'up' | 'down',
+  userId?: string,
+  apiToken?: string
+): Promise<HabiticaTask> {
   const client = createHabiticaClient(userId, apiToken);
   try {
     logger.info(
@@ -269,8 +314,8 @@ export async function scoreTask(taskId: string, direction: 'up' | 'down', userId
         operation: 'scoreTask',
         message: 'Attempting to score Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
-        direction: direction,
+        taskId,
+        direction,
       })
     );
     const response = await client.post(`/tasks/${taskId}/score/${direction}`);
@@ -279,23 +324,26 @@ export async function scoreTask(taskId: string, direction: 'up' | 'down', userId
         operation: 'scoreTask',
         message: 'Successfully scored Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
-        direction: direction,
-        // Consider adding a summary of resulting user stats if available in response
+        taskId,
+        direction,
+        taskText: response.data.data.text,
       })
     );
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const statusCode = (error as { response?: { status?: number } }).response?.status;
+    const details = (error as { response?: { data?: unknown } }).response?.data;
     logger.error(
       JSON.stringify({
         operation: 'scoreTask',
         message: 'Error scoring Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
-        direction: direction,
-        error: error.message,
-        statusCode: error.response?.status,
-        details: error.response?.data,
+        taskId,
+        direction,
+        error: errorMessage,
+        statusCode,
+        details,
       })
     );
     throw error;
@@ -305,13 +353,18 @@ export async function scoreTask(taskId: string, direction: 'up' | 'down', userId
 /**
  * Update an existing task in Habitica.
  * @param taskId - The ID of the task to update.
- * @param taskData - The updated task data.
+ * @param taskData - The data to update the task with.
  * @param userId - Optional Habitica User ID.
  * @param apiToken - Optional Habitica API Token.
  * @returns The updated task data.
  * @throws Error if updating task fails.
  */
-export async function updateTask(taskId: string, taskData: any, userId?: string, apiToken?: string) {
+export async function updateTask(
+  taskId: string,
+  taskData: UpdateHabiticaTaskPayload,
+  userId?: string,
+  apiToken?: string
+): Promise<HabiticaTask> {
   const client = createHabiticaClient(userId, apiToken);
   try {
     logger.info(
@@ -319,8 +372,8 @@ export async function updateTask(taskId: string, taskData: any, userId?: string,
         operation: 'updateTask',
         message: 'Attempting to update Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
-        taskDataPreview: { text: taskData.text, type: taskData.type },
+        taskId,
+        updateData: taskData,
       })
     );
     const response = await client.put(`/tasks/${taskId}`, taskData);
@@ -329,21 +382,24 @@ export async function updateTask(taskId: string, taskData: any, userId?: string,
         operation: 'updateTask',
         message: 'Successfully updated Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
-        updatedTaskText: response.data.data.text,
+        taskId,
+        taskText: response.data.data.text,
       })
     );
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const statusCode = (error as { response?: { status?: number } }).response?.status;
+    const details = (error as { response?: { data?: unknown } }).response?.data;
     logger.error(
       JSON.stringify({
         operation: 'updateTask',
         message: 'Error updating Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
-        error: error.message,
-        statusCode: error.response?.status,
-        details: error.response?.data,
+        taskId,
+        error: errorMessage,
+        statusCode,
+        details,
       })
     );
     throw error;
@@ -355,10 +411,10 @@ export async function updateTask(taskId: string, taskData: any, userId?: string,
  * @param taskId - The ID of the task to delete.
  * @param userId - Optional Habitica User ID.
  * @param apiToken - Optional Habitica API Token.
- * @returns The response from the delete operation.
+ * @returns True if deletion was successful.
  * @throws Error if deleting task fails.
  */
-export async function deleteTask(taskId: string, userId?: string, apiToken?: string) {
+export async function deleteTask(taskId: string, userId?: string, apiToken?: string): Promise<boolean> {
   const client = createHabiticaClient(userId, apiToken);
   try {
     logger.info(
@@ -366,29 +422,32 @@ export async function deleteTask(taskId: string, userId?: string, apiToken?: str
         operation: 'deleteTask',
         message: 'Attempting to delete Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
+        taskId,
       })
     );
-    const response = await client.delete(`/tasks/${taskId}`);
+    await client.delete(`/tasks/${taskId}`);
     logger.info(
       JSON.stringify({
         operation: 'deleteTask',
         message: 'Successfully deleted Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
+        taskId,
       })
     );
-    return response.data.data;
-  } catch (error: any) {
+    return true;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const statusCode = (error as { response?: { status?: number } }).response?.status;
+    const details = (error as { response?: { data?: unknown } }).response?.data;
     logger.error(
       JSON.stringify({
         operation: 'deleteTask',
         message: 'Error deleting Habitica task.',
         userId: userId || 'from_env',
-        taskId: taskId,
-        error: error.message,
-        statusCode: error.response?.status,
-        details: error.response?.data,
+        taskId,
+        error: errorMessage,
+        statusCode,
+        details,
       })
     );
     throw error;

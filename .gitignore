@@ -1,10 +1,10 @@
-# Turborepo/monorepo
+# Turborepo/simple nextjs project
 .turbo/
 .cache/
 pnpm-lock.yaml
 pnpm-workspace.yaml
 ###########################################
-# Monorepo .gitignore (cleaned & deduplicated)
+# simple nextjs project .gitignore (cleaned & deduplicated)
 ###########################################
 
 # Local environment & secrets
@@ -162,7 +162,7 @@ backend/orion_python_backend/*.pyo
 backend/orion_python_backend/*.egg-info/
 backend/orion_python_backend/.env*
 
-# Monorepo workspace artifacts
+# simple nextjs project workspace artifacts
 pnpm-lock.yaml
 lerna-debug.log
 

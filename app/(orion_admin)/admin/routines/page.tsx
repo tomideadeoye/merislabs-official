@@ -12,12 +12,12 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/ui/components/ui';
-import { SessionStateKeys } from '@repo/shared';
-import { useSessionState } from '@repo/shared/hooks/useSessionState';
-import { MorningRoutine } from '../../../../components/orion/routines/MorningRoutine';
-import { EveningRoutine } from '../../../../components/orion/routines/EveningRoutine';
-import { RoutineStatus } from '../../../../components/orion/routines/RoutineStatus';
+} from '@/components/ui';
+import { SessionStateKeys } from '@/lib/app_constants';
+import { useSessionState } from '@/hooks/useSessionState';
+import { MorningRoutine } from '@/components/orion/routines/MorningRoutine';
+import { EveningRoutine } from '@/components/orion/routines/EveningRoutine';
+import { RoutineStatus } from '@/components/orion/routines/RoutineStatus';
 import { Repeat, Sun, Moon } from 'lucide-react';
 
 export default function RoutinesPage() {
@@ -25,13 +25,12 @@ export default function RoutinesPage() {
   const currentHour = new Date().getHours();
   const defaultTab = currentHour >= 5 && currentHour < 16 ? 'morning' : 'evening';
 
+  // Access session state store functions
+  const { selectSessionValue } = useSessionState();
+
   // Session state for routine completion
-  const morningCompleted = useSessionState(
-    (state) => state.state[SessionStateKeys.ROUTINES_MORNING_COMPLETED] as boolean
-  );
-  const eveningCompleted = useSessionState(
-    (state) => state.state[SessionStateKeys.ROUTINES_EVENING_COMPLETED] as boolean
-  );
+  const morningCompleted = selectSessionValue<boolean>(SessionStateKeys.ROUTINES_MORNING_COMPLETED);
+  const eveningCompleted = selectSessionValue<boolean>(SessionStateKeys.ROUTINES_EVENING_COMPLETED);
 
   // Local state for active tab
   const [activeTab, setActiveTab] = useState<string>(defaultTab);

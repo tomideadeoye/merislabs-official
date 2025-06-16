@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import type { AuthOptions } from 'next-auth';
 import { authConfig } from '@/app/auth';
 import { getJournalEntriesFromNotion } from '@/lib/notion_service';
-import { JournalEntryNotionInput } from '@/types';
+import { JournalEntryNotionInput } from '@/lib/types';
 
 interface FetchJournalEntriesApiResponse {
   success: boolean;

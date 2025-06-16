@@ -10,7 +10,7 @@
 //   - Uses:
 //       - useSessionState (from @repo/shared/hooks/useSessionState)
 //       - JournalEntryForm, JournalEntryDisplay, AddTaskFromReflection, JournalList (from components/orion/)
-//       - UI components from @/ui/components/ui
+//       - UI components from '@/components/ui
 //       - SessionStateKeys, JournalEntryNotionInput (from @repo/shared/types/orion)
 //   - Related to: Habitica integration, journal API endpoints, admin dashboard navigation.
 // ASSUMPTIONS & CLEAR COMMENTS
@@ -37,7 +37,10 @@ import { JournalEntryForm } from '../../../src/components/orion/JournalEntryForm
 import { JournalList } from '../../../src/components/orion/JournalList';
 import { useSessionState } from '../../../src/hooks/useSessionState';
 import { JournalEntryNotionInput } from '../../../src/types';
-
+import { SessionStateKeys } from '../../../src/lib/app_constants';
+import { PageHeader } from '@/components/ui/page-header';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { JournalEntryDisplay } from '../../../src/components/orion/JournalEntryDisplay';
 
 export default function JournalPage() {
   const [activeTab, setActiveTab] = useState<string>('new');
@@ -45,8 +48,9 @@ export default function JournalPage() {
   const [lastReflection, setLastReflection] = useState<string | null>(null);
 
   // Retrieve Habitica credentials from session state
-  const userId = useSessionState((state) => state.state.habiticaUserId);
-  const apiToken = useSessionState((state) => state.state.habiticaApiToken);
+  const { selectSessionValue } = useSessionState();
+  const userId = selectSessionValue<string | null>(SessionStateKeys.HABITICA_USER_ID);
+  const apiToken = selectSessionValue<string | null>(SessionStateKeys.HABITICA_API_TOKEN);
 
   const handleEntrySaved = async (entryId: string, reflectionText?: string) => {
     setLastReflection(reflectionText || null);

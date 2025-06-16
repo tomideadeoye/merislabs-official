@@ -1,11 +1,26 @@
-import { EmotionalLogEntry } from '@/types';
-import { NextRequest, NextResponse } from 'next/server';
-import { query } from 'src/lib/database';
-import { logger } from 'src/lib/logger';
+import logger from '@/lib/logger';
+import { CognitiveDistortionAnalysisData, EmotionalLogEntry } from '@/lib/types';
+import { NextResponse } from 'next/server';
+import { query } from '@/lib/database';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+interface EmotionalLogRow {
+  id: string;
+  timestamp: string;
+  primary_emotion: string;
+  secondary_emotions: string[];
+  intensity: number;
+  triggers: string[];
+  physical_sensations: string[];
+  accompanying_thoughts: string;
+  coping_mechanisms_used: string[];
+  contextual_note: string;
+  related_journal_source_id: string;
+  cognitive_distortion_analysis: CognitiveDistortionAnalysisData;
+}
+
+export async function GET() {
   try {
     logger.info('[EMOTIONS_HISTORY] Fetching emotional log history.');
     const result = await query(
@@ -28,20 +43,20 @@ export async function GET(req: NextRequest) {
       `
     );
 
-    const logs: EmotionalLogEntry[] = result.rows.map((row: any) => ({
+    const logs: EmotionalLogEntry[] = result.rows.map((row: EmotionalLogRow) => ({
       id: row.id,
       timestamp: row.timestamp,
-      emotion: row.primary_emotion || row.primaryEmotion,
-      primaryEmotion: row.primary_emotion || row.primaryEmotion,
+      emotion: row.primary_emotion,
+      primaryEmotion: row.primary_emotion,
       intensity: row.intensity,
-      context: row.contextual_note || row.contextualNote,
-      accompanyingThoughts: row.accompanying_thoughts || row.accompanyingThoughts,
-      contextualNote: row.contextual_note || row.contextualNote,
-      cognitiveDistortionAnalysis: row.cognitive_distortion_analysis || row.cognitiveDistortionAnalysis,
-      secondaryEmotions: row.secondary_emotions || row.secondaryEmotions,
+      context: row.contextual_note,
+      accompanyingThoughts: row.accompanying_thoughts,
+      contextualNote: row.contextual_note,
+      cognitiveDistortionAnalysis: row.cognitive_distortion_analysis,
+      secondaryEmotions: row.secondary_emotions,
       triggers: row.triggers,
-      copingMechanismsUsed: row.coping_mechanisms_used || row.copingMechanismsUsed,
-      relatedJournalSourceId: row.related_journal_source_id || row.relatedJournalSourceId,
+      copingMechanismsUsed: row.coping_mechanisms_used,
+      relatedJournalSourceId: row.related_journal_source_id,
     }));
 
     logger.info('[EMOTIONS_HISTORY] Successfully fetched history.', {

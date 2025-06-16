@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCVComponentsFromNotion } from '@repo/shared/notion_service';
+import { getCVComponentsFromNotion } from '@/app/shared/notion_service';
 
 /**
  * @fileoverview Fetches CV components from Notion.

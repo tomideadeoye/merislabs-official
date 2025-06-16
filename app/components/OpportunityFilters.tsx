@@ -1,7 +1,7 @@
 'use client';
 
 import { useOpportunities } from '@/app/hooks/useOpportunities';
-import { OpportunityStatus, OpportunityType, OpportunityPriority } from '@/types';
+import { OpportunityStatus, OpportunityType, OpportunityPriority } from '@/lib/types';
 import { Button, Input } from '@headlessui/react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@radix-ui/react-select';
 import { Filter, X, Tag, Search, SortAsc, SortDesc } from 'lucide-react';

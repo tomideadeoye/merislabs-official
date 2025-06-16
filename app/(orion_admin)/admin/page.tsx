@@ -17,7 +17,6 @@
 //   - Related to: LLM API integration, user session/profile, admin navigation, feature dashboards.
 // ASSUMPTIONS & CLEAR COMMENTS
 //   - Assumes all imported hooks/components are implemented and stable.
-//   - Assumes /api/orion/llm/health and /api/orion/profile endpoints exist and return expected data.
 //   - NOTE: Assumed admin password is 'orion' for both username and password – confirm with team for production security.
 // NOTES:
 //   - Consider consolidating admin dashboard cards/components for maintainability.
@@ -31,10 +30,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { PageHeader, Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from '@/components/ui';
-import { PageNames, SessionStateKeys } from '@/lib/app_constants';
-import consolidatedLogger from '@/lib/logger';
-import { useSessionState } from '@/hooks/useSessionState';
-import { DashboardRoutineStatus } from '@/components/orion/DashboardRoutineStatus';
+import { PageNames, SessionStateKeys } from '@/app/lib/app_constants';
+import consolidatedLogger from '@/packages/shared/lib/logger';
+import { useSessionState } from '@/app/src/hooks/useSessionState';
+import { DashboardRoutineStatus } from '@/app/src/components/orion/DashboardRoutineStatus';
 import {
   Home,
   BookOpen,
@@ -51,9 +50,9 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import Link from 'next/link';
-import { checkAllLlmApiKeys, PROVIDER_MODEL_CONFIGS, LLMModelConfig } from '@/lib/llm_providers';
+import { checkAllLlmApiKeys, PROVIDER_MODEL_CONFIGS, LLMModelConfig } from '@/app/lib/llm_providers';
 import { useUserProfile } from '@/app/hooks/useUserProfile';
-import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
+import { HabiticaStatsContainer } from '@/app/src/components/orion/HabiticaStatsContainer';
 
 interface LlmHealthStatus {
   model: string;
@@ -252,7 +251,7 @@ export default function AdminDashboardPage() {
               type="button"
               aria-label="Close profile card"
               className="ml-4 p-1 rounded hover:bg-red-800/40 transition"
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 setProfileVisible(false);
                 consolidatedLogger.info('[ProfileUI][ACTION] Closed profile card');
@@ -301,7 +300,7 @@ export default function AdminDashboardPage() {
                   <Button
                     variant="outline"
                     className="border-blue-500 text-blue-400 hover:bg-blue-900/30 mb-2"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       handleRefreshProfile();
                     }}
@@ -316,7 +315,7 @@ export default function AdminDashboardPage() {
                 <Button
                   variant="outline"
                   className="border-blue-500 text-blue-400 hover:bg-blue-900/30"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     handleRefreshProfile();
                   }}
@@ -327,7 +326,7 @@ export default function AdminDashboardPage() {
                 <Button
                   variant="outline"
                   className="border-red-500 text-red-400 hover:bg-red-900/30"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     localStorage.removeItem('userProfile');
                     setProfileData(null);

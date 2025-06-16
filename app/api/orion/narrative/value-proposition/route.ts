@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getValueProposition, saveValueProposition } from '@repo/shared/narrative_service';
-import { ValueProposition } from '@repo/shared/types/narrative-clarity';
+import { getValueProposition, saveValueProposition } from '@/app/shared/narrative_service';
+import { ValueProposition } from '@/app/shared/types/narrative-clarity';
 
 /**
  * GET handler for value proposition

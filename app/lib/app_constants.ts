@@ -1,3 +1,11 @@
+// GOAL OF FILE|FEATURES|FUNCTIONS:
+// FILEPATH:
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+// ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
+// NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
+// TODOS:
+// SUGGESTIONS:
+
 export enum PageNames {
   ADMIN_DASHBOARD = 'Admin Dashboard',
   NETWORKING = 'Strategic Outreach Engine',
@@ -29,24 +37,14 @@ export enum SessionStateKeys {
   AUTH_STATUS = 'authStatus',
   USER_PROFILE_LOADED = 'userProfileLoaded',
   ATM_PASTED_TEXT = 'atmPastedText',
-  ATM_SOURCE_ID = 'atmSourceId',
-  ATM_TAGS_INPUT = 'atmTagsInput',
-  ASK_Q_INPUT = 'askQInput',
-  ASK_Q_ANSWER = 'askQAnswer',
-  ASK_Q_PROCESSING = 'askQProcessing',
   WHATSAPP_CHAT_FILE = 'whatsAppChatFile',
   WHATSAPP_CHAT_ANALYSIS = 'whatsAppChatAnalysis',
   DRAFT_COMMUNICATION_TYPE = 'draftCommunicationType',
   HABITICA_USER_ID = 'habiticaUserId',
   HABITICA_API_TOKEN = 'habiticaApiToken',
-  HABITICA_STATS = 'habiticaStats',
   ROUTINES_LAST_RUN = 'routinesLastRun',
   ROUTINES_EXECUTION_STATUS = 'routinesExecutionStatus',
-  NARRATIVE_TYPE = 'narrativeType',
-  NARRATIVE_TONE = 'narrativeTone',
-  NARRATIVE_LENGTH = 'narrativeLength',
-  NARRATIVE_CONTEXT = 'narrativeContext',
-  NARRATIVE_REQUIREMENTS = 'narrativeRequirements',
-  NARRATIVE_GENERATING = 'narrativeGenerating',
-  JOURNAL_TEXT = 'journalText',
+  ASK_Q_INPUT = 'askQInput',
+  ASK_Q_ANSWER = 'askQAnswer',
+  ASK_Q_PROCESSING = 'askQProcessing',
 }

@@ -10,7 +10,7 @@
 //   - Uses:
 //       - useSessionState (from @repo/shared/hooks/useSessionState)
 //       - HabiticaCredentialsForm, HabiticaStatsContainer, HabiticaTaskList, HabiticaTaskForm (from components/orion/)
-//       - UI components from @/ui/components/ui
+//       - UI components from '@/components/ui
 //   - Related to: User authentication/session state, Habitica API integration, admin dashboard features, journal task extraction.
 // ASSUMPTIONS & CLEAR COMMENTS
 //   - Assumes Habitica-related components are implemented and handle API logic internally.
@@ -25,17 +25,21 @@
 
 'use client';
 
-import { HabiticaCredentialsForm } from "../../../src/components/orion/HabiticaCredentialsForm";
-import { HabiticaStatsContainer } from "../../../src/components/orion/HabiticaStatsContainer";
-import { HabiticaTaskForm } from "../../../src/components/orion/HabiticaTaskForm";
-import { HabiticaTaskList } from "../../../src/components/orion/HabiticaTaskList";
-import { useSessionState } from "../../../src/hooks/useSessionState";
-
-
+import { HabiticaCredentialsForm } from '../../../src/components/orion/HabiticaCredentialsForm';
+import { HabiticaStatsContainer } from '../../../src/components/orion/HabiticaStatsContainer';
+import { HabiticaTaskForm } from '../../../src/components/orion/HabiticaTaskForm';
+import { HabiticaTaskList } from '../../../src/components/orion/HabiticaTaskList';
+import { useSessionState } from '../../../src/hooks/useSessionState';
+import React, { useState, useCallback } from 'react';
+import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Rocket, ShieldAlert } from 'lucide-react';
+import { SessionStateKeys } from '../../../src/lib/app_constants';
 
 export default function HabiticaPage() {
-  const habiticaUserId = useSessionState((state) => state.state.habiticaUserId);
-  const habiticaApiToken = useSessionState((state) => state.state.habiticaApiToken);
+  const { selectSessionValue } = useSessionState();
+  const habiticaUserId = selectSessionValue<string | null>(SessionStateKeys.HABITICA_USER_ID);
+  const habiticaApiToken = selectSessionValue<string | null>(SessionStateKeys.HABITICA_API_TOKEN);
   const [refreshKey, setRefreshKey] = useState<number>(Date.now());
 
   const credentialsAreSet = Boolean(habiticaUserId && habiticaApiToken);

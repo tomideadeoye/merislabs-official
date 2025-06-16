@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@repo/shared/auth';
+import { auth } from '@/lib/auth';
 import { Client, APIResponseError, CreatePageParameters } from '@notionhq/client';
-import { CVComponent } from '@repo/shared';
-import { NOTION_API_KEY, NOTION_DATABASE_ID } from '@repo/shared/lib/orion_server_config';
+import { CVComponent } from '@/app/shared';
+import { NOTION_API_KEY, NOTION_DATABASE_ID } from '@/app/shared/lib/orion_server_config';
 
 // GOAL:
 // RELATION TO OTHER FILES, FUNCTIONS AND FEATURES:

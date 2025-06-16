@@ -1,6 +1,6 @@
 /**
  * GOAL: Save action reflections to Qdrant (primary) and Neon/Postgres (secondary for structured links).
- * Related: lib/database.ts, prd.md, lib/orion_config.ts
+ * Related: lib/database.ts, reference.md, lib/orion_config.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/app/auth';

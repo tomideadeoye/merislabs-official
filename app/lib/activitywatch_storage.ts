@@ -8,7 +8,7 @@
  */
 
 import { query } from './postgres';
-import { ProductivitySummary } from './activitywatch_processor';
+import { ProductivitySummary } from '../types/activitywatch_processor';
 
 export type AnalyticsSnapshot = {
   id: number;
