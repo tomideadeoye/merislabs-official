@@ -1,11 +1,11 @@
 // app/api/orion/email/test/route.ts
+import { SendEmailParams, SendEmailResponse } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { sendEmailService } from '@/app/shared/email_service';
-import type { SendEmailParams } from '@/app/shared/types/email';
+import { sendEmailService } from '@/lib/email_service';
 
 // This is a test endpoint that doesn't require authentication
 // It's useful for testing the email service during development
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse<SendEmailResponse>> {
   try {
     const body = await request.json();
 
@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          message: 'Missing required fields for sending email.',
           error: 'Missing required fields for sending email: "to", "subject", and either "textBody" or "htmlBody".',
         },
         { status: 400 }
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          message: result.message || 'Internal server error during email dispatch.',
           error: result.error || 'Internal server error during email dispatch.',
           details: result.details,
         },
@@ -44,12 +46,14 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('[API /email/test] Unexpected error:', error);
     return NextResponse.json(
       {
         success: false,
+        message: 'Failed to process email request.',
         error: 'Failed to process email request.',
-        details: error instanceof Error ? error.message : String(error),
+        details: errorMessage,
       },
       { status: 500 }
     );

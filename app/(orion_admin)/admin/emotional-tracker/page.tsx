@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { PageHeader } from '@/components/ui';
-import { EmotionalLogForm } from '../../../../components/orion/EmotionalLogForm';
-import { EmotionalLogHistory } from '../../../../components/orion/EmotionalLogHistory';
+import { EmotionalLogForm } from '@/components/orion/emotional-tracker/EmotionalLogForm';
+import { EmotionalLogHistory } from '@/components/orion/emotional-tracker/EmotionalLogHistory';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
 import { HeartPulse, History, PlusCircle } from 'lucide-react';
@@ -65,7 +66,7 @@ export default function EmotionalTrackerPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <EmotionalLogHistory key={`history-${refreshTrigger}`} />
+              <EmotionalLogHistory key={refreshTrigger} />
             </CardContent>
           </Card>
         </TabsContent>

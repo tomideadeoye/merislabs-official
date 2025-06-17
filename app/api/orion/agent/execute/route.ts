@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { generateLLMResponse, ORION_TOOLS } from '@/app/shared';
-import type { CombinedLLMResponse } from '@/app/shared/types/orion';
+import { auth } from '@/auth';
+import { generateLLMResponse } from '@/lib/orion_llm';
+import { AVAILABLE_ORION_TOOLS as ORION_TOOLS } from '@/lib/orion_tools';
+import type { CombinedLLMResponse, LLMToolCall, Message, LLMResponseSuccess } from '@/lib/types';
 
 // Define the structure of a tool call received from the LLM
-interface LLMToolCall {
-  id?: string; // Optional ID provided by the LLM
-  function: {
-    name: string;
-    arguments: string; // Arguments are a JSON string from the LLM
-  };
-  type: 'function';
-}
+// interface LLMToolCall {
+//   id?: string; // Optional ID provided by the LLM
+//   function: {
+//     name: string;
+//     arguments: string; // Arguments are a JSON string from the LLM
+//   };
+//   type: 'function';
+// }
 
 // Type guard for LLM function call structure
 function isLLMFunctionCall(func: unknown): func is { name: string; arguments: string } {
@@ -181,7 +182,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Initial LLM message history
-    const messages: { role: string; content?: string; tool_calls?: LLMToolCall[]; tool_call_id?: string }[] = [
+    const messages: Message[] = [
+      // Use Message[] type
       {
         role: 'system',
         content:
@@ -207,8 +209,7 @@ export async function POST(request: NextRequest) {
 
       let llmResponse: CombinedLLMResponse;
       try {
-        const primaryContext =
-          messages && messages.length > 0 ? messages.map((m: { content?: string }) => m.content).join('\n') : '';
+        const primaryContext = messages && messages.length > 0 ? messages.map((m) => m.content).join('\n') : ''; // m is already typed as Message
         const options: Record<string, unknown> = {};
         if (llmParams.modelOverride) options.model = llmParams.modelOverride;
         if (llmParams.temperature) options.temperature = llmParams.temperature;
@@ -231,7 +232,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const responseContent = llmResponse.content;
+      // Type narrow llmResponse to LLMResponseSuccess after successful check
+      const successfulLLMResponse = llmResponse as LLMResponseSuccess;
+      const responseContent = successfulLLMResponse.content;
 
       // Attempt to parse tool calls from the LLM's response
       const toolCalls: LLMToolCall[] = parseAndValidateToolCalls(responseContent);
@@ -244,7 +247,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Add tool message and tool output to history
-        messages.push({ role: 'assistant', tool_calls: toolCalls });
+        messages.push({ role: 'assistant', content: null, tool_calls: toolCalls });
         for (let j = 0; j < toolCalls.length; j++) {
           messages.push({
             role: 'tool',

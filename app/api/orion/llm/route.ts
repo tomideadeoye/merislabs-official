@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PROVIDER_MODEL_CONFIGS, generateLLMResponse } from '@/app/shared';
-import { constructLlmMessages, getDefaultModelForRequestType, callExternalLLM } from '@/app/shared/orion_llm';
-import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/app/shared';
-import { ASK_QUESTION_REQUEST_TYPE, ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+import { constructLlmMessages, getDefaultModelForRequestType, callExternalLLM } from '@/lib/orion_llm';
+import { ASK_QUESTION_REQUEST_TYPE } from '@/lib/orion_config';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +11,6 @@ export async function POST(req: NextRequest) {
       model,
       temperature = 0.7,
       maxTokens,
-      memoryFilter,
       memoryResults,
       profileContext,
       primaryContext,
@@ -39,8 +36,15 @@ export async function POST(req: NextRequest) {
     const result = await callExternalLLM(modelToUse, messages, temperature, maxTokens || undefined, tools, tool_choice);
 
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('LLM API error:', error);
-    return NextResponse.json({ success: false, error: error.message || 'An error occurred' }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'An error occurred',
+        message: `LLM API call failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      },
+      { status: 500 }
+    );
   }
 }

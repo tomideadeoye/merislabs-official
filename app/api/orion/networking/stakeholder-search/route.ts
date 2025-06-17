@@ -1,5 +1,5 @@
+import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/sharedauth';
 
 // Default stakeholder roles for networking
 const DEFAULT_STAKEHOLDER_ROLES = [
@@ -64,14 +64,14 @@ export async function POST(request: NextRequest) {
       success: true,
       stakeholders,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[STAKEHOLDER_SEARCH_API_ERROR]', error);
-
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to search for stakeholders.',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

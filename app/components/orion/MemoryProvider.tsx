@@ -1,9 +1,18 @@
+'use client';
+
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import logger from '@/lib/logger';
 import { ScoredMemoryPoint, MemorySearchOptions, UserProfileData } from '@/lib/types';
-import { initializeOrionMemory, findRelevantMemories } from '@/lib/memory';
+import {
+  initializeOrionMemory,
+  findRelevantMemories,
+  addMemory,
+  findMemoriesByType,
+  findMemoriesByTag,
+} from '@/lib/memory';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { getProfileText } from '@/lib/profile_service'; // Assuming this exists or will be created
+import { useUserProfile } from '@/hooks/useUserProfile';
+import toast from 'react-hot-toast';
 
 // Define the shape of the Memory Context
 interface MemoryContextType {
@@ -13,9 +22,20 @@ interface MemoryContextType {
   error: string | null;
   initializeMemory: () => Promise<void>;
   memoryInitialized: boolean;
-  userProfileData: UserProfileData | null;
-  loadingProfile: boolean;
-  profileError: string | null;
+  userProfileData: UserProfileData | null | undefined;
+  loadingProfile: boolean | undefined;
+  profileError: string | Error | null | undefined;
+  addMemory: (
+    text: string,
+    sourceId: string,
+    type: string,
+    tags?: string[],
+    additionalFields?: Record<string, unknown>
+  ) => Promise<boolean>;
+  findByType: (type: string, limit?: number) => Promise<ScoredMemoryPoint[]>;
+  findByTag: (tag: string, limit?: number) => Promise<ScoredMemoryPoint[]>;
+  clearResults: () => void;
+  clearError: () => void;
 }
 
 // Create the context with a default undefined value
@@ -30,9 +50,9 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [memoryInitialized, setMemoryInitialized] = useState<boolean>(false);
-  const [userProfileData, setUserProfileData] = useState<UserProfileData | null>(null);
-  const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
-  const [profileError, setProfileError] = useState<string | null>(null);
+
+  // Import and use the existing useUserProfile hook
+  const { profile: userProfileData, loading: loadingProfile, error: profileError } = useUserProfile();
 
   // Initialize memory backend (Qdrant)
   const initializeMemory = useCallback(async () => {
@@ -57,33 +77,10 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
         status: 'fail',
         error: errorMessage,
       });
+      toast.error(`Qdrant Connection Error: ${errorMessage.replace('Failed to initialize Qdrant memory: ', '')}`);
       setMemoryInitialized(false);
     } finally {
       setLoading(false);
-    }
-  }, []);
-
-  // Fetch user profile data
-  const fetchUserProfile = useCallback(async () => {
-    setLoadingProfile(true);
-    setProfileError(null);
-    logger.info('[MemoryProvider] Fetching user profile data...', { operation: 'fetch_user_profile' });
-    try {
-      const profile = await getProfileText(); // Assuming getProfileText returns UserProfileData or null
-      setUserProfileData(profile);
-      logger.success('[MemoryProvider] User profile fetched successfully.', {
-        operation: 'fetch_user_profile',
-        profileExists: !!profile,
-      });
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      setProfileError(`Failed to load profile: ${errorMessage}`);
-      logger.error('[MemoryProvider] Failed to fetch user profile.', {
-        operation: 'fetch_user_profile',
-        error: errorMessage,
-      });
-    } finally {
-      setLoadingProfile(false);
     }
   }, []);
 
@@ -115,13 +112,160 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
     }
   }, []);
 
+  // Add memory function
+  const addMemoryItem = useCallback(
+    async (
+      text: string,
+      sourceId: string,
+      type: string,
+      tags: string[] = [],
+      additionalFields: Record<string, unknown> = {}
+    ) => {
+      setLoading(true);
+      setError(null);
+      logger.info('[MemoryProvider] Adding memory item.', {
+        operation: 'add_memory',
+        sourceId,
+        type,
+        tags,
+      });
+
+      try {
+        const response = await addMemory(text, sourceId, type, tags, additionalFields);
+
+        if (!response.success) {
+          setError(response.error || 'Unknown error adding memory');
+          logger.error('[MemoryProvider] Failed to add memory.', {
+            operation: 'add_memory',
+            error: response.error,
+          });
+          return false;
+        }
+
+        logger.success('[MemoryProvider] Memory added successfully.', {
+          operation: 'add_memory',
+          sourceId,
+        });
+        return true;
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        setError(`Error adding memory: ${errorMessage}`);
+        logger.error('[MemoryProvider] Exception during add memory.', {
+          operation: 'add_memory',
+          error: errorMessage,
+        });
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // Find memories by type
+  const findByType = useCallback(async (type: string, limit: number = 10) => {
+    setLoading(true);
+    setError(null);
+    logger.info('[MemoryProvider] Finding memories by type.', {
+      operation: 'find_by_type',
+      type,
+      limit,
+    });
+
+    try {
+      const response = await findMemoriesByType(type, limit);
+
+      if (response.success && response.results) {
+        setSearchResults(response.results);
+        logger.success('[MemoryProvider] Found memories by type.', {
+          operation: 'find_by_type',
+          type,
+          resultsCount: response.results.length,
+        });
+        return response.results;
+      } else {
+        setError(response.error || 'Unknown error finding memories by type');
+        logger.error('[MemoryProvider] Failed to find memories by type.', {
+          operation: 'find_by_type',
+          type,
+          error: response.error,
+        });
+        return [];
+      }
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      setError(`Error finding memories by type: ${errorMessage}`);
+      logger.error('[MemoryProvider] Exception during find by type.', {
+        operation: 'find_by_type',
+        type,
+        error: errorMessage,
+      });
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Find memories by tag
+  const findByTag = useCallback(async (tag: string, limit: number = 10) => {
+    setLoading(true);
+    setError(null);
+    logger.info('[MemoryProvider] Finding memories by tag.', {
+      operation: 'find_by_tag',
+      tag,
+      limit,
+    });
+
+    try {
+      const response = await findMemoriesByTag(tag, limit);
+
+      if (response.success && response.results) {
+        setSearchResults(response.results);
+        logger.success('[MemoryProvider] Found memories by tag.', {
+          operation: 'find_by_tag',
+          tag,
+          resultsCount: response.results.length,
+        });
+        return response.results;
+      } else {
+        setError(response.error || 'Unknown error finding memories by tag');
+        logger.error('[MemoryProvider] Failed to find memories by tag.', {
+          operation: 'find_by_tag',
+          tag,
+          error: response.error,
+        });
+        return [];
+      }
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      setError(`Error finding memories by tag: ${errorMessage}`);
+      logger.error('[MemoryProvider] Exception during find by tag.', {
+        operation: 'find_by_tag',
+        tag,
+        error: errorMessage,
+      });
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Clear results
+  const clearResults = useCallback(() => {
+    setSearchResults([]);
+  }, []);
+
+  // Clear error
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   // Initialize on mount
   React.useEffect(() => {
     if (!memoryInitialized) {
       initializeMemory();
     }
-    fetchUserProfile();
-  }, [initializeMemory, fetchUserProfile, memoryInitialized]);
+  }, [initializeMemory, memoryInitialized]);
 
   const contextValue = React.useMemo(
     () => ({
@@ -134,6 +278,11 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
       userProfileData,
       loadingProfile,
       profileError,
+      addMemory: addMemoryItem,
+      findByType,
+      findByTag,
+      clearResults,
+      clearError,
     }),
     [
       search,
@@ -145,6 +294,11 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
       userProfileData,
       loadingProfile,
       profileError,
+      addMemoryItem,
+      findByType,
+      findByTag,
+      clearResults,
+      clearError,
     ]
   );
 

@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/app/shared/database';
-import { logger } from '@/lib/logger';
+import { query } from '@/lib/database';
+import logger from '@/lib/logger';
 import { z } from 'zod';
 // Assuming a direct function call for LLM is better than a fetch
-// import { getLlmAnalysis } from '@/app/shared/llm';
+// import { getLlmAnalysis } from '@/lib/llm';
+
+interface LlmAnalysisInsights {
+  patterns: string[];
+  correlations: string[];
+  suggestions: string[];
+}
 
 // Mocking a direct LLM function call as the original fetch was incorrect for server-side
-async function getLlmAnalysis(prompt: string): Promise<any> {
+async function getLlmAnalysis(): Promise<string> {
   logger.info('[LLM_ANALYSIS_MOCK] Requesting analysis.');
   // In a real scenario, this would call the LLM provider API
   // For now, returning a mock structure to satisfy the type contracts
-  const mockResponse = {
+  const mockResponse: LlmAnalysisInsights = {
     patterns: ['Mock pattern: Increased joy on weekends.'],
     correlations: ["Mock correlation: 'Work deadline' trigger linked to anxiety."],
     suggestions: ['Mock suggestion: Practice mindfulness during high-stress periods.'],
@@ -144,26 +150,15 @@ export async function GET(req: NextRequest) {
       ...logContext,
     });
 
-    const prompt = `
-      Analyze the following emotional data and provide insights:
-      Emotion Frequencies: ${JSON.stringify(emotionCountsResult.rows)}
-      Common Triggers: ${JSON.stringify(commonTriggersResult.rows)}
-      Emotion Timeline: ${JSON.stringify(emotionTimelineResult.rows)}
-      Please provide:
-      1. Key patterns or trends.
-      2. Potential correlations between emotions and triggers.
-      3. Suggestions for emotional well-being.
-      Format your response as a JSON object with keys: "patterns", "correlations", "suggestions".`;
-
-    let insights = null;
+    let insights: LlmAnalysisInsights | null = null;
     try {
-      const llmResponseContent = await getLlmAnalysis(prompt);
+      const llmResponseContent = await getLlmAnalysis();
       insights = JSON.parse(llmResponseContent);
       logger.info('[EMOTIONS_TRENDS][LLM][INSIGHTS_PARSED]', {
         insights,
         ...logContext,
       });
-    } catch (llmErr) {
+    } catch (llmErr: unknown) {
       const errorMessage = llmErr instanceof Error ? llmErr.message : 'LLM processing failed';
       logger.error('[EMOTIONS_TRENDS][LLM][ERROR]', {
         error: errorMessage,
@@ -180,7 +175,7 @@ export async function GET(req: NextRequest) {
         insights,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('[EMOTIONS_TRENDS][ERROR]', {
       error: errorMessage,

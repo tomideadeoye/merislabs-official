@@ -1,13 +1,14 @@
 // app/api/orion/email/send/route.ts
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
+import { SendEmailParams, SendEmailResponse } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth'; // Your NextAuth.js auth helper
-import { sendEmailService } from '@/app/shared/email_service'; // Adjust path if needed
-import type { SendEmailParams } from '@/app/shared/types/email';
+import { sendEmailService } from '@/lib/email_service';
 
-export async function POST(request: NextRequest) {
-  const session = await auth();
+export async function POST(request: NextRequest): Promise<NextResponse<SendEmailResponse>> {
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ success: false, message: 'Unauthorized', error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -18,6 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          message: 'Missing required fields for sending email.',
           error: 'Missing required fields for sending email: "to", "subject", and either "textBody" or "htmlBody".',
         },
         { status: 400 }
@@ -45,6 +47,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          message: result.message || 'Internal server error during email dispatch.',
           error: result.error || 'Internal server error during email dispatch.',
           details: result.details,
         },
@@ -52,12 +55,14 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('[API /email/send] Unexpected error:', error);
     return NextResponse.json(
       {
         success: false,
+        message: 'Failed to process email request.',
         error: 'Failed to process email request.',
-        details: error instanceof Error ? error.message : String(error),
+        details: errorMessage,
       },
       { status: 500 }
     );

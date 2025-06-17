@@ -1,8 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/app/shared/database';
-import { EmotionalLogEntry } from '@/app/shared';
+import { query } from '@/lib/database';
+import { EmotionalLogEntry, CognitiveDistortionAnalysisData } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
+
+// interface EmotionalLogQueryParams {
+//   startDate?: string;
+//   endDate?: string;
+//   emotion?: string;
+//   limit: number;
+//   offset: number;
+// }
+
+interface RawEmotionalLogEntry {
+  id: string;
+  timestamp: string;
+  primary_emotion: string;
+  primaryEmotion: string;
+  intensity: number;
+  contextual_note: string;
+  contextualNote: string;
+  accompanying_thoughts?: string;
+  accompanyingThoughts?: string;
+  cognitive_distortion_analysis?: CognitiveDistortionAnalysisData;
+  cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData;
+  secondary_emotions?: string[];
+  secondaryEmotions?: string[];
+  triggers?: string[];
+  coping_mechanisms_used?: string[];
+  copingMechanismsUsed?: string[];
+  related_journal_source_id?: string;
+  relatedJournalSourceId?: string;
+}
 
 /**
  * API route for retrieving emotion logs
@@ -19,7 +48,7 @@ export async function GET(req: NextRequest) {
 
     // Build query with filters
     let queryStr = `SELECT * FROM emotional_logs WHERE 1=1`;
-    const params: any = {};
+    const params: Record<string, string | number | undefined> = {};
 
     if (startDate) {
       queryStr += ` AND timestamp >= @startDate`;
@@ -38,7 +67,8 @@ export async function GET(req: NextRequest) {
 
     if (hasDistortionAnalysis === 'true') {
       queryStr += ` AND cognitiveDistortionAnalysis IS NOT NULL`;
-    } else if (hasDistortionAnalysis === 'false') {
+    }
+    if (hasDistortionAnalysis === 'false') {
       queryStr += ` AND cognitiveDistortionAnalysis IS NULL`;
     }
 
@@ -59,7 +89,7 @@ export async function GET(req: NextRequest) {
     const { rows } = await query(pgQuery, values);
 
     // Parse JSON fields
-    const logs: EmotionalLogEntry[] = rows.map((row: any) => ({
+    const logs: EmotionalLogEntry[] = rows.map((row: RawEmotionalLogEntry) => ({
       id: row.id,
       timestamp: row.timestamp,
       emotion: row.primary_emotion || row.primaryEmotion,
@@ -84,12 +114,12 @@ export async function GET(req: NextRequest) {
       logs,
       total,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in GET /api/orion/emotions/history:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       },
       { status: 500 }
     );

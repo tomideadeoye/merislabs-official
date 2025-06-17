@@ -1,9 +1,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a form for users to write and save new journal entries. Includes a placeholder for integration with the memory system backend API.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/orion/JournalEntryWithMemory.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `JournalPage` (`app/journal/page.tsx`).
+//   - Uses `@/components/ui` components (`Card`, `Textarea`, `Button`).
 import { Button } from '@/components/ui/button';
 import logger from '@/lib/logger';
-
 // GOAL OF FILE: Provide a form for new journal entries and integrate with memory features.
 // RELATION TO OTHER FILES: This component is used in `app/journal/page.tsx`.
 // It will allow users to input journal text, which will then be processed and added to Orion's memory.

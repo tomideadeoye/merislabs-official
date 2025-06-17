@@ -13,7 +13,7 @@ import {
   TabsTrigger,
 } from '@/components/ui';
 import { Cog, Mail, Database, Cloud, Key } from 'lucide-react';
-import { EmailTestButton } from '../../../../components/orion/opportunities/EmailTestButton';
+import { EmailTestButton } from '@/components/ui/orion';
 
 export default function SystemSettingsPage() {
   return (

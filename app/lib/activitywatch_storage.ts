@@ -7,8 +7,9 @@
  * - Designed for robust, extensible analytics storage
  */
 
+import { ProductivitySummary } from './activitywatch_processor';
 import { query } from './postgres';
-import { ProductivitySummary } from '../types/activitywatch_processor';
+
 
 export type AnalyticsSnapshot = {
   id: number;

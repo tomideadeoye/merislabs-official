@@ -1,14 +1,18 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { PlusCircle, Loader2, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
-import { checkAllLlmApiKeys, callSequentialThinking } from '@/index';
-import { CareerMilestoneProvider } from '@/src/components/orion/CareerMilestoneContext';
-import { CareerMilestoneForm } from '@/src/components/orion/CareerMilestoneForm';
-import { CareerMilestoneList } from '@/src/components/orion/CareerMilestoneList';
-import { NarrativeGenerationForm } from '@/src/components/orion/NarrativeGenerationForm';
+import React, { useState, useEffect } from 'react';
+import { checkAllLlmApiKeys } from '@/lib/llm_providers';
+import { callSequentialThinking } from '@/lib/orion_llm';
+import { CareerMilestone } from '@/lib/types';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import type { CareerMilestone } from '@/types/index';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Loader2, PlusCircle, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
+import { CareerMilestoneProvider } from '@/components/orion/narrative-clarity-studio/CareerMilestoneProvider';
+import { NarrativeGenerationForm } from '@/components/orion/narrative-clarity-studio/NarrativeGenerationForm';
+import { CareerMilestoneList } from '@/components/orion/narrative-clarity-studio/CareerMilestoneList';
+import { CareerMilestoneForm } from '@/components/orion/narrative-clarity-studio/CareerMilestoneForm';
 
 interface LLMAPIKeyStatus {
   modelId: string;
@@ -209,7 +213,7 @@ export default function NarrativeClarityStudio() {
   };
 
   const handleMarkdownSubmit = () => {
-    const steps = parseMarkdownToSteps(markdownEdit);
+    parseMarkdownToSteps(markdownEdit);
     setLlmMarkdown(markdownEdit);
     // Commented out as ReactFlow is currently a placeholder.
     // const { nodes, edges } = generateCircularFlow(steps);
@@ -237,7 +241,7 @@ export default function NarrativeClarityStudio() {
       if (data.success && data.content) {
         setLlmMarkdown(data.content);
         setMarkdownEdit(data.content);
-        const steps = parseMarkdownToSteps(data.content);
+        parseMarkdownToSteps(data.content);
         // Commented out as ReactFlow is currently a placeholder.
         // const { nodes, edges } = generateCircularFlow(steps);
         // setNodes(nodes);
@@ -456,9 +460,9 @@ export default function NarrativeClarityStudio() {
   };
 
   const updateGraphWithMilestones = (updatedMilestones: CareerMilestone[]) => {
-    const newNodes = updatedMilestones.map((milestone) => ({
+    updatedMilestones.map((milestone) => ({
       id: (milestone.notionPageId || milestone.unique_id || `temp-id-${Math.random()}`).toString(), // Use notionPageId, unique_id, or a generated temp ID as a string
-      data: { label: milestone.component_name },
+      data: { label: milestone.title },
       position: { x: Math.random() * 500, y: Math.random() * 500 }, // Placeholder for positioning
       // Add other relevant milestone data here
     }));
@@ -497,35 +501,145 @@ export default function NarrativeClarityStudio() {
             <NarrativeGenerationForm
               description={description}
               setDescription={setDescription}
+              handleLLMGenerate={handleLLMGenerate}
               loading={loading}
               llmError={llmError}
-              llmMarkdown={llmMarkdown}
-              setMarkdownEdit={setMarkdownEdit}
-              handleLLMGenerate={handleLLMGenerate}
-              handleMarkdownSubmit={handleMarkdownSubmit}
-              handleLLMImprove={handleLLMImprove}
-              improvementPrompt={improvementPrompt}
-              setImprovementPrompt={setImprovementPrompt}
-              multiLLM={multiLLM}
-              setMultiLLM={setMultiLLM}
-              multiLlmOutputs={multiLlmOutputs}
-              multiLlmLoading={multiLlmLoading}
-              multiLlmError={multiLlmError}
-              llmApiKeys={llmApiKeys}
-              llmWhy={llmWhy}
-              llmWhyLoading={llmWhyLoading}
-              handleLlmWhy={handleLlmWhy}
-              sequentialSteps={sequentialSteps}
-              sequentialRaw={sequentialRaw}
-              sequentialLoading={sequentialLoading}
-              sequentialError={sequentialError}
-              sequentialLastThought={sequentialLastThought}
-              sequentialThoughtNumber={sequentialThoughtNumber}
-              handleSequentialContinue={handleSequentialContinue}
-              sequentialWhy={sequentialWhy}
-              sequentialWhyLoading={sequentialWhyLoading}
-              handleSequentialWhy={handleSequentialWhy}
             />
+
+            {llmMarkdown && (
+              <div className="mt-6">
+                <h2 className="text-xl font-semibold text-gray-200 mb-2">Generated Narrative Draft</h2>
+                <Textarea
+                  value={markdownEdit}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMarkdownEdit(e.target.value)}
+                  className="bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500 min-h-[200px]"
+                  placeholder="Generated narrative..."
+                />
+                <Button onClick={handleMarkdownSubmit} className="mt-2">
+                  Apply Changes to Narrative
+                </Button>
+                <div className="flex items-center space-x-2 mt-4">
+                  <input
+                    type="checkbox"
+                    id="multiLLM"
+                    checked={multiLLM}
+                    onChange={(e) => setMultiLLM(e.target.checked)}
+                    className="form-checkbox h-4 w-4 text-blue-600"
+                  />
+                  <Label htmlFor="multiLLM" className="text-gray-300">
+                    Generate with multiple LLMs (for comparison)
+                  </Label>
+                </div>
+              </div>
+            )}
+
+            {multiLlmLoading && (
+              <div className="flex items-center space-x-2 text-gray-400 mt-4">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Generating with multiple LLMs...</span>
+              </div>
+            )}
+
+            {multiLlmError && (
+              <div className="flex items-center space-x-2 text-red-500 mt-4">
+                <AlertTriangle className="h-5 w-5" />
+                <span>Error generating with multiple LLMs: {multiLlmError}</span>
+              </div>
+            )}
+
+            {multiLlmOutputs.length > 0 && (
+              <div className="mt-6 space-y-4">
+                <h2 className="text-xl font-semibold text-gray-200">Multiple LLM Outputs</h2>
+                {multiLlmOutputs.map((output) => (
+                  <Card key={output.modelId} className="bg-gray-800 border-gray-700">
+                    <CardHeader>
+                      <CardTitle className="text-gray-200">{output.modelId}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {output.success ? (
+                        <>
+                          <Textarea
+                            value={output.steps?.map((s, i) => `${i + 1}. ${s}`).join('\n') || ''}
+                            readOnly
+                            className="bg-gray-700 border-gray-600 text-gray-200 min-h-[150px]"
+                          />
+                          <Button
+                            onClick={() => handleLlmWhy(output.modelId, output.steps?.join('\n') || '')}
+                            disabled={llmWhyLoading[output.modelId]}
+                          >
+                            {llmWhyLoading[output.modelId] ? 'Getting Explanation...' : 'Why this output?'}
+                          </Button>
+                          {llmWhy[output.modelId] && (
+                            <p className="text-sm text-gray-400 mt-2">{llmWhy[output.modelId]}</p>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-red-400">Error: {output.error || 'Unknown error'}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {sequentialRaw.length > 0 && (
+              <div className="mt-6 space-y-4">
+                <h2 className="text-xl font-semibold text-gray-200">Sequential Thinking Process</h2>
+                {sequentialRaw.map((thought, idx) => (
+                  <Card key={idx} className="bg-gray-800 border-gray-700">
+                    <CardHeader>
+                      <CardTitle className="text-gray-200">Thought {idx + 1}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <Textarea
+                        value={thought.thought || ''}
+                        readOnly
+                        className="bg-gray-700 border-gray-600 text-gray-200 min-h-[100px]"
+                      />
+                      <Button
+                        onClick={() => handleSequentialWhy(idx, thought.thought || '')}
+                        disabled={sequentialWhyLoading[idx]}
+                      >
+                        {sequentialWhyLoading[idx] ? 'Getting Explanation...' : 'Why this thought?'}
+                      </Button>
+                      {sequentialWhy[idx] && <p className="text-sm text-gray-400 mt-2">{sequentialWhy[idx]}</p>}
+                    </CardContent>
+                  </Card>
+                ))}
+                {sequentialLoading && (
+                  <div className="flex items-center space-x-2 text-gray-400">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Generating next thought...</span>
+                  </div>
+                )}
+                {sequentialError && (
+                  <p className="text-red-500 text-sm">Error in sequential thinking: {sequentialError}</p>
+                )}
+                {!sequentialLoading && !sequentialError && sequentialThoughtNumber <= 5 && (
+                  <Button onClick={handleSequentialContinue}>Continue Sequential Thinking</Button>
+                )}
+              </div>
+            )}
+
+            {/* ReactFlow graph (placeholder) */}
+            <div className="mt-6 h-[500px] w-full border rounded-md hidden">
+              <div className="flex items-center justify-center h-full text-gray-500">
+                Narrative flow visualization coming soon.
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold text-gray-200 mb-2">Improve Narrative</h2>
+              <Textarea
+                value={improvementPrompt}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setImprovementPrompt(e.target.value)}
+                placeholder="How can I improve this narrative? e.g., Make it more concise, focus on impact, add more metrics."
+                className="bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500 min-h-[80px]"
+              />
+              <Button onClick={handleLLMImprove} disabled={loading} className="mt-2">
+                {loading ? 'Improving...' : 'Improve Narrative'}
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="milestones" className="space-y-6">
@@ -533,7 +647,7 @@ export default function NarrativeClarityStudio() {
               milestones={milestones}
               isLoading={isLoadingMilestones}
               error={milestonesError}
-              onEdit={(milestone) => {
+              onEdit={(milestone: CareerMilestone) => {
                 setEditingMilestone(milestone);
                 setShowAddMilestoneForm(true);
               }}

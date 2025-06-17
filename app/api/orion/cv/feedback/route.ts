@@ -5,7 +5,8 @@
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
 
 interface FeedbackPayload {
   componentId: string;
@@ -21,7 +22,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authConfig);
     if (!session?.user) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }

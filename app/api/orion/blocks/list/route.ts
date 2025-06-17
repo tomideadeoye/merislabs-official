@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
+import { searchMemory } from '@/lib/orion_memory';
+import { BlockType, BLOCK_TYPES, QdrantFilter, Block } from '@/styles';
 import { NextRequest, NextResponse } from 'next/server';
-import { searchMemory } from '@/app/shared';
-import { BLOCK_TYPES, Block, BlockType } from '@/app/shared/types/blocks';
-import type { QdrantFilter } from '@/app/shared';
 
 /**
  * GET /api/orion/blocks/list
@@ -49,7 +48,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Search memory
-    const searchResult = await searchMemory({ query: '*', filter, limit: 50 });
+    const searchResult = await searchMemory('*', { filter, limit: 50 });
     // Debug: log raw search results
     console.log('[BLOCKS_LIST_API] Raw search results:', JSON.stringify(searchResult.results, null, 2));
     if (!searchResult.success) {

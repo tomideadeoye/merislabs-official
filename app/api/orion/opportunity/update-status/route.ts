@@ -1,54 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/sharedauth';
+import { updateOpportunityStatusInDb } from '@/lib/opportunity_db_service';
+import logger from '@/lib/logger';
+
+// =====================
+// Opportunity Pipeline Create API
+// =====================
+// GOAL: Provide comprehensive, context-rich, level-based logging for all opportunity creation actions.
+// All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
 
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const logContext = {
+    route: '/api/orion/opportunity/update-status',
+    filePath: 'app/api/orion/opportunity/update-status/route.ts',
+    timestamp: new Date().toISOString(),
+    user: 'public',
+  };
+
+  logger.info('[OPPORTUNITY_UPDATE_STATUS][START] Initiating POST request to update opportunity status.', logContext);
 
   try {
-    const body = await request.json();
-    const { opportunityId, status } = body;
+    const { opportunityId, newStatus } = await request.json();
+    logger.info('[OPPORTUNITY_UPDATE_STATUS][PAYLOAD] Received update status payload.', {
+      ...logContext,
+      opportunityId,
+      newStatus,
+    });
 
-    if (!opportunityId || !status) {
+    if (!opportunityId || !newStatus) {
+      logger.warn(
+        '[OPPORTUNITY_UPDATE_STATUS][VALIDATION_FAIL] Missing required fields (opportunityId or newStatus).',
+        { ...logContext, opportunityId, newStatus }
+      );
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing required parameters: opportunityId and status',
-        },
+        { success: false, error: 'Opportunity ID and new status are required.' },
         { status: 400 }
       );
     }
 
-    // Update the OrionOpportunity status
-    const response = await fetch(`${request.nextUrl.origin}/api/orion/OrionOpportunity/${opportunityId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: request.headers.get('cookie') || '', // Forward cookies for authentication
-      },
-      body: JSON.stringify({ status }),
+    await updateOpportunityStatusInDb(opportunityId, newStatus);
+
+    logger.info('[OPPORTUNITY_UPDATE_STATUS][SUCCESS] Successfully updated opportunity status in Neon DB.', {
+      ...logContext,
+      opportunityId,
+      newStatus,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Failed to update OrionOpportunity status: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-
-    return NextResponse.json({
-      success: true,
-      OrionOpportunity: data.OrionOpportunity,
+    return NextResponse.json({ success: true, message: 'Opportunity status updated successfully.' });
+  } catch (error: unknown) {
+    logger.error('[OPPORTUNITY_UPDATE_STATUS][ERROR] An error occurred during status update.', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
     });
-  } catch (error: any) {
-    console.error('[UPDATE_STATUS_ERROR]', error);
+
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to update OrionOpportunity status',
+        error: 'Failed to update opportunity status.',
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

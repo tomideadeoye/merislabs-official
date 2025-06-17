@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createTask } from '@/app/shared/habitica_client';
-import type { HabiticaTaskCreationParams } from '@/app/shared/types/habitica';
+import { createTask } from '@/lib/habitica_client';
+import type { HabiticaTaskCreationParams } from '@/lib/types';
 
 /**
  * API route for creating a new Habitica task
@@ -47,12 +47,15 @@ export async function POST(req: NextRequest) {
       success: true,
       task: createdTask,
     });
-  } catch (error: any) {
-    console.error('Error in POST /api/orion/habitica/tasks/create:', error);
+  } catch (error: unknown) {
+    console.error(
+      'Error in POST /api/orion/habitica/tasks/create:',
+      error instanceof Error ? error.message : String(error)
+    );
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       },
       { status: 500 }
     );

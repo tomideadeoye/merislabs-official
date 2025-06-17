@@ -17,7 +17,7 @@ import { QdrantClient } from '@qdrant/js-client-rest';
 import logger from '@/lib/logger';
 
 // Placeholder for Qdrant Client
-let qdrantClient: QdrantClient | null = null;
+// let qdrantClient: QdrantClient | null = null; // Qdrant client should be used server-side, e.g., in API routes
 
 export interface MemoryPoint {
   text: string;
@@ -33,13 +33,24 @@ export interface MemoryPoint {
 /**
  * Search memory for relevant content
  */
-export async function searchMemory(options: MemorySearchOptions): Promise<{
+export async function searchMemory(
+  queryText: string,
+  options?: Omit<MemorySearchOptions, 'query'>
+): Promise<{
   success: boolean;
   results?: ScoredMemoryPoint[];
   error?: string;
 }> {
+  // Client-side validation before making the API call
+  if (!queryText || queryText.trim() === '') {
+    logger.warn('[searchMemory] Attempted to search with an empty query.');
+    return {
+      success: false,
+      error: 'Query cannot be empty.', // Return the same error message the backend might produce
+    };
+  }
+
   try {
-    const queryText = options.query; // Query is now guaranteed to be a string
     const response = await fetch('/api/orion/memory/search-proxy', {
       method: 'POST',
       headers: {
@@ -47,9 +58,9 @@ export async function searchMemory(options: MemorySearchOptions): Promise<{
       },
       body: JSON.stringify({
         queryText,
-        filter: options.filter,
-        limit: options.limit || 10,
-        withVectors: options.withVectors || false,
+        filter: options?.filter,
+        limit: options?.limit || 10,
+        withVectors: options?.withVectors || false,
       }),
     });
 
@@ -154,8 +165,7 @@ export async function findMemoriesByField(
 }> {
   // Always use 'payload.' prefix for Qdrant filtering
   const key = field.startsWith('payload.') ? field : `payload.${field}`;
-  return searchMemory({
-    query: '*',
+  return searchMemory('*', {
     filter: {
       must: [{ key, match: { value } }],
     },
@@ -195,24 +205,27 @@ export async function findMemoriesByTag(
  * Initializes the Qdrant client and ensures the memory collection exists.
  */
 export async function initializeOrionMemory(): Promise<void> {
-  if (!qdrantClient) {
-    qdrantClient = new QdrantClient({ host: 'localhost', port: 6333 });
-  }
-
+  logger.info('[Memory] Attempting to initialize/verify Qdrant memory via API.');
   try {
-    const collectionExists = await qdrantClient.collectionExists(ORION_MEMORY_COLLECTION_NAME);
-    if (!collectionExists) {
-      logger.info('[Memory] Creating Qdrant collection...', { collection: ORION_MEMORY_COLLECTION_NAME });
-      await qdrantClient.createCollection(ORION_MEMORY_COLLECTION_NAME, {
-        vectors: { size: 384, distance: 'Cosine' },
-      });
-      logger.success('[Memory] Qdrant collection created.', { collection: ORION_MEMORY_COLLECTION_NAME });
-    } else {
-      logger.info('[Memory] Qdrant collection already exists.', { collection: ORION_MEMORY_COLLECTION_NAME });
+    // Call the API route for initialization
+    const response = await fetch('/api/orion/memory/initialize', {
+      method: 'POST',
+    });
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      const errorMessage = data.error || `Failed to initialize memory system via API: ${response.statusText}`;
+      logger.error('[Memory] Failed to initialize Qdrant memory via API.', { error: errorMessage });
+      throw new Error(errorMessage);
     }
+    logger.success('[Memory] Qdrant memory initialized/verified via API.', {
+      collection: ORION_MEMORY_COLLECTION_NAME, // Assuming this is still relevant, though managed by API
+      message: data.message,
+    });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('[Memory] Failed to initialize Qdrant memory.', { error: errorMessage });
+    // Re-throw the original error message or a more specific one
     throw new Error(`Failed to initialize Qdrant memory: ${errorMessage}`);
   }
 }
@@ -227,14 +240,12 @@ export async function findRelevantMemories(
   limit: number = 5,
   filter?: QdrantFilter
 ): Promise<ScoredMemoryPoint[]> {
-  if (!qdrantClient) {
-    logger.warn('[Memory] Qdrant client not initialized. Attempting initialization.');
-    await initializeOrionMemory(); // Try to initialize if not already
-    if (!qdrantClient) {
-      logger.error('[Memory] Failed to initialize Qdrant client for search.');
-      return [];
-    }
-  }
+  // Direct Qdrant client usage is removed from here as this function is likely called client-side.
+  // It relies on `searchMemory` which proxies to the backend.
+  // Initialization is handled by `MemoryProvider` calling `initializeOrionMemory`,
+  // which now correctly calls the API.
+
+  logger.info('[Memory] Finding relevant memories using searchMemory proxy.', { query, limit, filter });
 
   try {
     // In a real scenario, `query` would be converted to an embedding here.
@@ -243,7 +254,7 @@ export async function findRelevantMemories(
 
     // If searchMemory is a proxy to a backend that handles embeddings/Qdrant,
     // we can reuse it. Otherwise, we'd need embedding logic here.
-    const searchResult = await searchMemory({ query, limit, filter });
+    const searchResult = await searchMemory(query, { limit, filter });
 
     if (searchResult.success && searchResult.results) {
       logger.success('[Memory] Simulated relevant memory search successful.', {

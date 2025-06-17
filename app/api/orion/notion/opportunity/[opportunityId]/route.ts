@@ -4,9 +4,10 @@
  * - Adds context-rich, traceable logging for every operation, parameter, and result.
  * - Related files: lib/notion_service.ts, lib/notion_next_service.ts, types/OrionOpportunity.d.ts
  */
+import { OpportunityNotionPayloadSchema } from '@/lib/notion_next_service';
+import { updateNotionOpportunity, fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { NextResponse } from 'next/server';
-import { updateNotionOpportunity, fetchOpportunityByIdFromNotion } from '@/app/lib/notion_service';
-import { OpportunityNotionPayloadSchema } from '@/app/src/lib/notion_next_service';
+
 
 export async function PATCH(request: Request, { params }: { params: { opportunityId: string } }) {
   const { opportunityId } = params;

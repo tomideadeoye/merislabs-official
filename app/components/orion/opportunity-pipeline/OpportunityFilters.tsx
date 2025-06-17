@@ -1,9 +1,13 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides UI elements for filtering the list of opportunities (e.g., search input). Currently a placeholder for more advanced filtering.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/orion/opportunity-pipeline/OpportunityFilters.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityPipelinePage` (`app/(orion_admin)/admin/opportunity-pipeline/page.tsx`).
+//   - Uses `@/components/ui` components (`Card`, `CardContent`, `Input`, `Button`).
 import { Button } from '@/components/ui/button';
 import logger from '@/lib/logger';
-
 // GOAL OF FILE: Provide filtering options for the opportunity pipeline.
 // RELATION TO OTHER FILES: This component is used in `admin/opportunity-pipeline/page.tsx`.
 // It will manage state for various filters (e.g., status, type, search query).

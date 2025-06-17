@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/app/shared';
-import { REQUEST_TYPES } from '@/app/shared/orion_llm';
-import type { CombinedLLMResponse } from '@/app/shared/types/orion';
+import { CombinedLLMResponse } from '@/lib/types';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
+import logger from '@/lib/logger';
 
 /**
  * API route for performing Job Description (JD) analysis using LLM.
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       company_name ? `Company: ${company_name}\n` : ''
     }\nJob Description:\n${job_description}\n\nProvide a structured analysis including:\n- Key responsibilities and duties.\n- Required skills and qualifications (technical and soft skills).\n- Desired skills or 'nice-to-haves'.\n- Experience requirements (years, specific types of experience).\n- Any specific keywords or themes to emphasize.\n- Company mission, values, or culture points relevant to a candidate.\n\nFormat the output as a clear, easy-to-read text summary.`;
 
-    console.log('[JD_ANALYSIS_API] Sending JD analysis prompt to LLM...');
+    logger.info('[JD_ANALYSIS_API] Sending JD analysis prompt to LLM...');
 
     try {
       const llmResponse: CombinedLLMResponse = await generateLLMResponse(REQUEST_TYPES.JD_ANALYSIS, prompt, {
@@ -41,10 +41,10 @@ export async function POST(req: NextRequest) {
       }
 
       const llmContent: string = llmResponse.content; // Extract content after checking success
-      console.log('[JD_ANALYSIS_API] LLM content:', llmContent);
+      logger.info('[JD_ANALYSIS_API] LLM content received.', { contentPreview: llmContent.substring(0, 100) });
       return NextResponse.json({ success: true, analysis: llmContent });
     } catch (err: unknown) {
-      console.error('[JD_ANALYSIS_API] LLM error:', err);
+      logger.error('[JD_ANALYSIS_API] LLM error:', { error: err });
       return NextResponse.json(
         {
           success: false,
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       );
     }
   } catch (error: unknown) {
-    console.error('[JD_ANALYSIS_API_ERROR]', error);
+    logger.error('[JD_ANALYSIS_API_ERROR] Unexpected error:', { error: error });
     return NextResponse.json(
       {
         success: false,

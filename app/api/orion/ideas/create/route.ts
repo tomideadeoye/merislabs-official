@@ -7,10 +7,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@/app/shared/database';
-import type { Idea, IdeaLog } from '@/app/shared/types/ideas';
+import { query } from '@/lib/database';
+import type { Idea, IdeaLog } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
-import { auth } from '@/lib/auth';
+import { auth } from '@/auth';
 
 export async function POST(req: NextRequest) {
   const logContext = {
@@ -81,10 +81,10 @@ export async function POST(req: NextRequest) {
         rowCount: res.rowCount,
         ideaId: newIdea.id,
       });
-    } catch (dbErr) {
+    } catch (dbErr: unknown) {
       console.error('[IDEAS_CREATE][DB][ERROR_INSERT_IDEA]', {
         ...logContext,
-        dbErr,
+        dbErr: dbErr instanceof Error ? dbErr.message : String(dbErr),
         ideaParams,
       });
       throw dbErr;
@@ -130,10 +130,10 @@ export async function POST(req: NextRequest) {
         rowCount: logRes.rowCount,
         logId: initialLog.id,
       });
-    } catch (logDbErr) {
+    } catch (logDbErr: unknown) {
       console.error('[IDEAS_CREATE][DB][ERROR_INSERT_LOG]', {
         ...logContext,
-        logDbErr,
+        logDbErr: logDbErr instanceof Error ? logDbErr.message : String(logDbErr),
         logParams,
       });
       throw logDbErr;
@@ -150,12 +150,15 @@ export async function POST(req: NextRequest) {
       message: 'Idea captured successfully!',
       idea: newIdea,
     });
-  } catch (error: any) {
-    console.error('[IDEAS_CREATE][ERROR]', { ...logContext, error });
+  } catch (error: unknown) {
+    console.error('[IDEAS_CREATE][ERROR]', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       },
       { status: 500 }
     );

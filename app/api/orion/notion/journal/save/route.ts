@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { saveJournalEntryToNotion } from '@/lib/notion_service';
-import type { JournalEntryNotionInput } from '@/types/orion';
+import type { JournalEntryNotionInput } from '@/lib/types';
 
 export async function POST(request: Request) {
   try {
@@ -24,12 +24,13 @@ export async function POST(request: Request) {
     } else {
       return NextResponse.json({ success: false, error: 'Failed to save journal entry to Notion' }, { status: 500 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in Save Journal Entry API route:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

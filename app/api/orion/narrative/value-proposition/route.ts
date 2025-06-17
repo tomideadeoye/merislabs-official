@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getValueProposition, saveValueProposition } from '@/app/shared/narrative_service';
-import { ValueProposition } from '@/app/shared/types/narrative-clarity';
+import { getValueProposition, saveValueProposition } from '@/lib/narrative_service';
+import { ValueProposition } from '@/lib/types/narrative-clarity';
 
 /**
  * GET handler for value proposition
@@ -20,12 +20,13 @@ export async function GET() {
     }
 
     return NextResponse.json({ success: true, valueProposition });
-  } catch (error: any) {
-    console.error('Error in GET /api/orion/narrative/value-proposition:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error in GET /api/orion/narrative/value-proposition:', errorMessage);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );
@@ -50,7 +51,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Construct title and content based on available data
+    const title = body.valueStatement
+      ? `Value Proposition: ${body.valueStatement.substring(0, 50)}...`
+      : 'Generated Value Proposition';
+    const content =
+      `Value Statement: ${body.valueStatement || 'N/A'}\n` +
+      `Core Strengths: ${body.coreStrengths?.join(', ') || 'N/A'}\n` +
+      `Unique Skills: ${body.uniqueSkills?.join(', ') || 'N/A'}\n` +
+      `Passions: ${body.passions?.join(', ') || 'N/A'}\n` +
+      `Vision: ${body.vision || 'N/A'}\n` +
+      `Target Audience: ${body.targetAudience || 'N/A'}`;
+
     const valueProposition = await saveValueProposition({
+      title: title,
+      content: content,
       coreStrengths: body.coreStrengths || [],
       uniqueSkills: body.uniqueSkills || [],
       passions: body.passions || [],
@@ -60,12 +75,13 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, valueProposition });
-  } catch (error: any) {
-    console.error('Error in POST /api/orion/narrative/value-proposition:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error in POST /api/orion/narrative/value-proposition:', errorMessage);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

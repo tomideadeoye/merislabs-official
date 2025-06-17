@@ -1,52 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callLLMWithFallback } from '@/app/shared/lib/orion_llm';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 
 async function getStepsFromLLM(prompt: string, model = 'azure/gpt-4.1') {
-  const messages = [{ role: 'user', content: prompt }];
-  const result = await callLLMWithFallback(messages, model, 0.7, 1000);
-  if (result && result.content) {
-    // Parse numbered/bullet list into array
-    return result.content
-      .split(/\n|\r/)
-      .map((s: string) => s.replace(/^\d+\.|^- /, '').trim())
-      .filter(Boolean);
+  const result = await generateLLMResponse(REQUEST_TYPES.IDEA_BRAINSTORM, prompt, {
+    model,
+    temperature: 0.7,
+    maxTokens: 1000,
+    systemContext:
+      'You are an AI assistant specialized in generating structured, circular workflow steps based on user prompts. Ensure the steps are logical, actionable, and form a continuous loop. Provide concise and clear steps suitable for a process diagram.',
+  });
+
+  if (result.success) {
+    if (result.content) {
+      const lines = result.content.split(/\n/g);
+      const steps = lines
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0 && /^[\\d\\W]*[a-zA-Z]/.test(line))
+        .map((line) => line.replace(/^[\\d\\W]+\\s*/, ''));
+
+      return steps;
+    }
+  } else {
+    console.error(`[GENERATE_CIRCULAR_FLOW_LLM_ERROR] LLM call failed: ${result.error}`);
+    throw new Error(result.error || 'LLM generation failed.');
   }
-  throw new Error('LLM did not return steps');
+  return [];
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { description, currentCycle, improvementPrompt } = await req.json();
-    let steps: string[] = [];
+    const { prompt, model } = await request.json();
 
-    if (improvementPrompt && Array.isArray(currentCycle)) {
-      const prompt = `Given this cycle: [${currentCycle.join(
-        ', '
-      )}]. User prompt: ${improvementPrompt}. Return the improved cycle as an ordered list.`;
-      steps = await getStepsFromLLM(prompt);
-      if (!Array.isArray(steps) || steps.length < 2) {
-        return NextResponse.json({ success: false, error: 'LLM could not extract improved steps.' }, { status: 400 });
-      }
-      return NextResponse.json({ success: true, steps });
+    if (!prompt) {
+      return NextResponse.json({ success: false, error: 'Prompt is required.' }, { status: 400 });
     }
 
-    if (description && typeof description === 'string') {
-      const prompt = `Propose a process wheel flow for: ${description}. Return the flow as an ordered list of steps.`;
-      steps = await getStepsFromLLM(prompt);
-      if (!Array.isArray(steps) || steps.length < 2) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'LLM could not extract steps from description.',
-          },
-          { status: 400 }
-        );
-      }
-      return NextResponse.json({ success: true, steps });
-    }
+    const steps = await getStepsFromLLM(prompt, model);
 
-    return NextResponse.json({ success: false, error: 'No description provided' }, { status: 400 });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
+    return NextResponse.json({ success: true, steps });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('[API_ERROR] Failed to generate circular flow steps:', errorMessage);
+    return NextResponse.json(
+      { success: false, error: 'Failed to generate circular flow steps', details: errorMessage },
+      { status: 500 }
+    );
   }
 }

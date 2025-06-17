@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/app/shared';
+import { generateLLMResponse } from '@/lib/orion_llm';
+import type { CombinedLLMResponse } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const { cvContent, OrionOpportunity, jdAnalysis } = await request.json();
+    const { cvContent, jdAnalysis } = await request.json();
 
-    if (!cvContent || !OrionOpportunity) {
+    if (!cvContent) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Missing required fields: cvContent and OrionOpportunity.',
+          error: 'Missing required fields: cvContent.',
         },
         { status: 400 }
       );
@@ -24,11 +25,6 @@ ${cvContent}
 --- Job Description Analysis ---
 ${jdAnalysis || 'N/A'}
 
---- OrionOpportunity Details ---
-Title: ${OrionOpportunity.title || 'N/A'}
-Company: ${OrionOpportunity.company || 'N/A'}
-Description: ${OrionOpportunity.description || 'N/A'}
-
 --- Instructions ---
 - Be concise and direct.
 - Focus on tailoring the CV to the job requirements.
@@ -36,18 +32,25 @@ Description: ${OrionOpportunity.description || 'N/A'}
 - Do not rewrite the CV, only provide suggestions.
 `;
 
-    const llmContent = await generateLLMResponse('CV_AI_SUGGEST', prompt, {
+    const llmResponse: CombinedLLMResponse = await generateLLMResponse('CV_AI_SUGGEST', prompt, {
       temperature: 0.6,
       maxTokens: 300,
     });
 
-    return NextResponse.json({ success: true, suggestions: llmContent });
-  } catch (err: any) {
+    if (!llmResponse.success) {
+      return NextResponse.json(
+        { success: false, error: llmResponse.error || 'LLM failed to generate suggestions' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, suggestions: llmResponse.content });
+  } catch (err: unknown) {
     console.error('[CV AI SUGGEST][ERROR]', err);
     return NextResponse.json(
       {
         success: false,
-        error: err.message || 'Failed to generate AI suggestions.',
+        error: err instanceof Error ? err.message : 'Failed to generate AI suggestions.',
       },
       { status: 500 }
     );

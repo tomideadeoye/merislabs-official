@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@/components/ui';
-import { Loader2, Users, Copy, Mail } from 'lucide-react';
-import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/app/opportunityCentralStore';
+import { Loader2, Users, Copy, Mail, Save } from 'lucide-react';
 import type { OrionOpportunity } from '@/lib/types';
-import type { Stakeholder } from '@/app/shared/types';
+import type { Stakeholder } from '@/lib/types';
+import { OpportunityCentralStoreType } from '@/lib/opportunityCentralStore';
+import { useOpportunityCentralStore } from '@/lib/opportunityCentralStore';
+import toast from 'react-hot-toast';
 
 interface FindStakeholdersButtonProps {
   orionOpportunity: OrionOpportunity;
@@ -23,6 +25,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
   const setOpportunity = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.setOpportunity);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savingContactId, setSavingContactId] = useState<string | null>(null);
 
   const handleFindStakeholders = async () => {
     setIsLoading(true);
@@ -44,7 +47,11 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
       const data = await response.json();
 
       if (data.success && data.stakeholders) {
-        setStakeholders(data.stakeholders);
+        const stakeholdersWithIds = data.stakeholders.map((s: Stakeholder) => ({
+          ...s,
+          id: s.id || Math.random().toString(36).substring(7),
+        }));
+        setStakeholders(stakeholdersWithIds);
       } else {
         throw new Error(data.error || 'Failed to find stakeholders');
       }
@@ -61,12 +68,50 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
     }
   };
 
+  const handleSaveContact = async (stakeholder: Stakeholder) => {
+    if (savingContactId === stakeholder.id) return;
+
+    setSavingContactId(stakeholder.id || null);
+    toast.loading(`Saving ${stakeholder.name}...`);
+
+    try {
+      const response = await fetch('/api/orion/contacts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: stakeholder.name,
+          email: stakeholder.email,
+          linkedinUrl: stakeholder.linkedinUrl,
+          role: stakeholder.role,
+          company: stakeholder.company,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.contact) {
+        toast.success(`${stakeholder.name} saved to contacts!`);
+      } else {
+        throw new Error(data.error || 'Failed to save contact');
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('Error saving contact:', err);
+      toast.error(`Failed to save ${stakeholder.name}: ${errorMessage}`);
+    } finally {
+      setSavingContactId(null);
+    }
+  };
+
   const handleGenerateOutreach = (stakeholder: Stakeholder) => {
     setSelectedStakeholder(stakeholder);
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard!', { duration: 1500 });
   };
 
   return (
@@ -124,7 +169,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 {stakeholders.map((stakeholder: Stakeholder, index: number) => (
-                  <Card key={index} className="bg-gray-700 border-gray-600">
+                  <Card key={stakeholder.id || index} className="bg-gray-700 border-gray-600">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start">
                         <div>
@@ -160,13 +205,29 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
                           )}
                         </div>
 
-                        <Button
-                          size="sm"
-                          className="bg-purple-600 hover:bg-purple-700"
-                          onClick={() => handleGenerateOutreach(stakeholder)}
-                        >
-                          Draft Outreach
-                        </Button>
+                        <div className="flex flex-col space-y-2">
+                          <Button
+                            size="sm"
+                            className="bg-purple-600 hover:bg-purple-700"
+                            onClick={() => handleGenerateOutreach(stakeholder)}
+                          >
+                            Draft Outreach
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-gray-600 text-gray-300 hover:bg-gray-600"
+                            onClick={() => handleSaveContact(stakeholder)}
+                            disabled={savingContactId === stakeholder.id}
+                          >
+                            {savingContactId === stakeholder.id ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <Save className="mr-2 h-4 w-4" />
+                            )}
+                            Save to Contacts
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

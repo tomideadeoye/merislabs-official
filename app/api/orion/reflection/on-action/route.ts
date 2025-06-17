@@ -3,10 +3,11 @@
  * Related: lib/database.ts, reference.md, lib/orion_config.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/auth';
+
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
 import { query } from '@/lib/database';
+import { auth } from '@/auth';
 
 interface ActionReflectionRequestBody {
   habiticaTaskId: string;
@@ -141,9 +142,9 @@ export async function POST(request: NextRequest) {
       console.log(
         `[ACTION_REFLECTION_API][VERBOSE] Reflection link saved to Neon/Postgres for task ID: ${habiticaTaskId}`
       );
-    } catch (pgError: any) {
+    } catch (pgError: unknown) {
       console.error(
-        `[ACTION_REFLECTION_API][ERROR] Failed to save reflection link to Neon/Postgres: ${pgError.message}`
+        `[ACTION_REFLECTION_API][ERROR] Failed to save reflection link to Neon/Postgres: ${pgError instanceof Error ? pgError.message : String(pgError)}`
       );
       // Continue even if database update fails, as we've already saved to memory
     }
@@ -155,14 +156,14 @@ export async function POST(request: NextRequest) {
       message: 'Action reflection saved successfully!',
       data: memoryPoint,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[ACTION_REFLECTION_API_ERROR][FATAL]', error);
 
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to save action reflection.',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

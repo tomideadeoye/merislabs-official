@@ -8,13 +8,13 @@
  * - It uses `lib/logger.ts` for logging operational information.
  * - Frontend components (e.g., user profile dashboards, contextual AI prompts) will consume this API.
  */
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import logger from '@/lib/logger';
 import { fetchUserProfile } from '@/lib/profile_service';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   logger.info('[API][Profile][GET] Received request to fetch user profile.');
   try {
     const userProfile = await fetchUserProfile();

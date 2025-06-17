@@ -24,9 +24,6 @@ const ignoreDirs = [
 ];
 
 const nextConfig = {
-  experimental: {
-    esmExternals: 'loose',
-  },
   webpack: (config, { isServer }) => {
     // Add support for importing SVG files
     config.module.rules.push({
@@ -47,21 +44,12 @@ const nextConfig = {
       config.externals.push('dns');
     }
 
-    config.module.rules.push({
-      test: /\.js$/,
-      include: [/node_modules[\\/]@qdrant[\\/]js-client-rest/, /node_modules[\\/]undici/],
-      use: {
-        loader: 'babel-loader',
-        options: {
-          presets: ['next/babel'],
-        },
-      },
-    });
     return config;
   },
   images: {
     unoptimized: true,
   },
+  transpilePackages: ['@qdrant/js-client-rest', 'undici'],
 };
 
 export default nextConfig;

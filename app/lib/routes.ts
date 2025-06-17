@@ -9,15 +9,10 @@
  * - Ensures consistent routing for internal links and programmatic navigation.
  */
 
+import { NavItem } from '@/lib/types';
+
 // Defines canonical routes for the Next.js application.
 // This ensures consistent navigation and URL management across the app.
-
-export interface NavItem {
-  title: string;
-  href: string;
-  icon?: string; // Optional icon name or path
-  disabled?: boolean;
-}
 
 export const ROUTES = {
   HOME: {
@@ -72,10 +67,10 @@ export const ROUTES = {
     href: '/admin/routines',
     title: 'Routines',
   },
-  WHATSAPP_ANALYSIS: {
-    href: '/admin/whatsapp-analysis',
-    title: 'WhatsApp Analysis',
-  },
+  // WHATSAPP_ANALYSIS: {
+  //   href: '/admin/whatsapp-analysis',
+  //   title: 'WhatsApp Analysis',
+  // },
   EMOTIONAL: {
     href: '/admin/emotional',
     title: 'Emotional',

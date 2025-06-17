@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { query, sql } from '@/app/shared/database';
+import { query } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -151,13 +151,17 @@ export async function POST(request: NextRequest) {
       memoryId: memoryPoint.id,
       sourceId: sourceId,
     });
-  } catch (error: any) {
-    console.error('[MEMORY_API_ERROR]', error.message, error.stack);
+  } catch (error: unknown) {
+    console.error(
+      '[MEMORY_API_ERROR]',
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.stack : undefined
+    );
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to save memory.',
-        details: error.message || 'Unknown error',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

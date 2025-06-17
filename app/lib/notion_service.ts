@@ -6,6 +6,7 @@ import {
   OpportunityNotionOutputShared,
   CVComponent,
   JournalEntryNotionInput,
+  Contact,
 } from '@/lib/types';
 import {
   RichTextItemResponse,
@@ -355,8 +356,9 @@ export async function listOpportunitiesFromNotion(
 ) {
   logger.info('[NOTION][listOpportunitiesFromNotion][START]', { filters });
   if (!notion || !NOTION_DATABASE_ID) {
-    logger.warn('[NOTION][listOpportunitiesFromNotion][WARN] Notion client or database ID not configured.');
-    return [];
+    const errorMessage = 'Notion client or database ID not configured. Cannot list opportunities.';
+    logger.warn('[NOTION][listOpportunitiesFromNotion][WARN] ' + errorMessage);
+    throw new Error(errorMessage);
   }
 
   try {
@@ -778,8 +780,9 @@ export async function saveOutreachToNotion(
 export async function getCVComponentsFromNotion(): Promise<CVComponent[]> {
   logger.info('[NOTION][getCVComponentsFromNotion][START]');
   if (!notion || !NOTION_CV_DATABASE_ID) {
-    logger.warn('[NOTION][getCVComponentsFromNotion][WARN] Notion client or CV database ID not configured.');
-    return [];
+    const errorMessage = 'Notion client or CV database ID not configured. Cannot fetch CV components.';
+    logger.warn('[NOTION][getCVComponentsFromNotion][WARN] ' + errorMessage);
+    throw new Error(errorMessage);
   }
 
   try {
@@ -1007,8 +1010,9 @@ export async function updateNotionOpportunity(
 export async function getJournalEntriesFromNotion() {
   logger.info('[NOTION][getJournalEntriesFromNotion][START]');
   if (!notion || !NOTION_DATABASE_ID) {
-    logger.warn('[NOTION][getJournalEntriesFromNotion][WARN] Notion client or database ID not configured.');
-    return [];
+    const errorMessage = 'Notion client or database ID not configured. Cannot fetch journal entries.';
+    logger.warn('[NOTION][getJournalEntriesFromNotion][WARN] ' + errorMessage);
+    throw new Error(errorMessage);
   }
 
   try {
@@ -1080,8 +1084,9 @@ export async function getJournalEntriesFromNotion() {
 export async function createJournalEntryInNotion(data: JournalEntryNotionInput) {
   logger.info('[NOTION][createJournalEntryInNotion][START]', { data });
   if (!notion || !NOTION_DATABASE_ID) {
-    logger.warn('[NOTION][createJournalEntryInNotion][WARN] Notion client or database ID not configured.');
-    return null;
+    const errorMessage = 'Notion client or database ID not configured. Cannot create journal entry.';
+    logger.warn('[NOTION][createJournalEntryInNotion][WARN] ' + errorMessage);
+    throw new Error(errorMessage);
   }
   try {
     const response = await notion.pages.create({
@@ -1112,11 +1117,12 @@ export async function createJournalEntryInNotion(data: JournalEntryNotionInput) 
   }
 }
 
-export async function fetchContactsFromNotion() {
+export async function fetchContactsFromNotion(): Promise<Contact[]> {
   logger.info('[NOTION][fetchContactsFromNotion][START]');
   if (!notion || !NOTION_DATABASE_ID) {
-    logger.warn('[NOTION][fetchContactsFromNotion][WARN] Notion client or database ID not configured.');
-    return [];
+    const errorMessage = 'Notion client or database ID not configured. Cannot fetch contacts.';
+    logger.warn('[NOTION][fetchContactsFromNotion][WARN] ' + errorMessage);
+    throw new Error(errorMessage);
   }
 
   try {
@@ -1158,7 +1164,7 @@ export async function fetchContactsFromNotion() {
           linkedinUrl: linkedinUrl || undefined,
         };
       })
-      .filter((contact) => contact !== null); // Filter out null entries
+      .filter((contact) => contact !== null) as Contact[]; // Assert the filtered array as Contact[]
 
     logger.info('[NOTION][fetchContactsFromNotion][SUCCESS]', {
       count: contacts.length,
@@ -1176,8 +1182,9 @@ export async function fetchContactsFromNotion() {
 export async function saveJournalEntryToNotion(data: JournalEntryNotionInput) {
   logger.info('[NOTION][saveJournalEntryToNotion][START]', { data });
   if (!notion || !NOTION_DATABASE_ID) {
-    logger.warn('[NOTION][saveJournalEntryToNotion][WARN] Notion client or database ID not configured.');
-    return null;
+    const errorMessage = 'Notion client or database ID not configured. Cannot save journal entry.';
+    logger.warn('[NOTION][saveJournalEntryToNotion][WARN] ' + errorMessage);
+    throw new Error(errorMessage);
   }
 
   try {

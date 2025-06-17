@@ -31,12 +31,13 @@ export async function POST(req: NextRequest) {
     }
     console.log('[UPsert-Proxy] Python backend response:', JSON.stringify(data));
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[UPsert-Proxy] Error in memory upsert proxy:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

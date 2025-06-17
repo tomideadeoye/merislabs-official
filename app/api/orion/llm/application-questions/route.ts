@@ -6,24 +6,13 @@
  * - Used by admin and user-facing UIs for Q&A about opportunities.
  * - Related files: lib/notion_service.ts, lib/profile_service.ts, lib/orion_llm.ts, types/OrionOpportunity.d.ts
  */
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
+import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
+import { fetchUserProfile } from '@/lib/profile_service';
+import { UserProfileFetchResponse, CombinedLLMResponse, ScoredMemoryPoint } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse, REQUEST_TYPES } from '@/app/shared';
-import { fetchOpportunityByIdFromNotion } from '@/app/shared/notion_service';
-import { fetchUserProfile } from '@/app/shared/profile_service';
-import { auth } from '@/lib/auth';
-import type {
-  UserProfileData,
-  ScoredMemoryPoint,
-  EvaluationOutput,
-  CombinedLLMResponse,
-  LLMResponseSuccess,
-} from '@/app/shared';
-import type { UserProfileFetchResponse } from '@/app/shared/types/orion';
-
-// Define a local interface that matches the return type of fetchUserProfile
-interface ProfileDataFromService extends UserProfileFetchResponse {
-  // No additional properties needed here, as it now extends UserProfileFetchResponse
-}
 
 // Define the response type for the Application Q&A API
 interface ApplicationQnaApiResponse {
@@ -31,6 +20,7 @@ interface ApplicationQnaApiResponse {
   answer?: CombinedLLMResponse;
   error?: string;
   memoryResults?: ScoredMemoryPoint[];
+  message?: string; // Add message for consistent error responses
 }
 
 /**
@@ -41,19 +31,32 @@ export async function POST(
   { params }: { params: { opportunityId: string } }
 ): Promise<NextResponse<ApplicationQnaApiResponse>> {
   // Use the defined response type
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized', message: 'Authentication required to access this resource.' },
+      { status: 401 }
+    );
   }
 
   const opportunityId = params.opportunityId; // OrionOpportunity ID from the URL
   const { question, webContext } = (await request.json()) as { question: string; webContext?: string }; // User's question and potentially web context from frontend
 
   if (!opportunityId) {
-    return NextResponse.json({ success: false, error: 'OrionOpportunity ID is required.' }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Opportunity ID is required.',
+        message: 'The opportunity ID must be provided in the request.',
+      },
+      { status: 400 }
+    );
   }
   if (!question) {
-    return NextResponse.json({ success: false, error: 'Question is required.' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: 'Question is required.', message: 'A question is required to generate an answer.' },
+      { status: 400 }
+    );
   }
 
   try {
@@ -61,12 +64,22 @@ export async function POST(
     const opportunityResult = await fetchOpportunityByIdFromNotion(opportunityId);
 
     if (!opportunityResult.success) {
-      return NextResponse.json({ success: false, error: opportunityResult.error || 'Unknown error' }, { status: 500 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: opportunityResult.error || 'Unknown error',
+          message: opportunityResult.error || 'Failed to fetch opportunity details.',
+        },
+        { status: 500 }
+      );
     }
     const OrionOpportunity = opportunityResult.OrionOpportunity;
     if (!OrionOpportunity) {
       console.error('[APP_QNA_API] OrionOpportunity not found for ID:', opportunityId, { user: session.user?.email });
-      return NextResponse.json({ success: false, error: 'OrionOpportunity not found.' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Opportunity not found.', message: `No opportunity found with ID: ${opportunityId}.` },
+        { status: 404 }
+      );
     }
     // Normalize company/companyOrInstitution for downstream use
     const company = (OrionOpportunity.company ?? OrionOpportunity.companyOrInstitution ?? '') || '';
@@ -79,7 +92,8 @@ export async function POST(
     });
 
     // Fetch user profile data
-    const profileData: ProfileDataFromService | null = await fetchUserProfile();
+    // Directly use UserProfileFetchResponse which is correctly typed now
+    const profileData: UserProfileFetchResponse | null = await fetchUserProfile();
     const profileContext = profileData?.profileText
       ? `User Profile Details:\n${profileData?.profileText || 'No profile data available.'}`
       : 'User profile data not available.';
@@ -146,6 +160,7 @@ Answer the user's question about this job OrionOpportunity thoroughly and accura
         success: true,
         answer: llmResponseContent,
         memoryResults,
+        message: 'Successfully generated answer.',
       }); // Include memoryResults
     } else {
       console.error('[APP_QNA_API] LLM failed to generate answer', llmResponseContent.error);
@@ -154,6 +169,7 @@ Answer the user's question about this job OrionOpportunity thoroughly and accura
           success: false,
           error: llmResponseContent.error || 'Failed to generate answer using LLM',
           memoryResults: memoryResults, // Include memoryResults even on failure
+          message: `Failed to generate answer: ${llmResponseContent.error || 'Unknown LLM error'}`,
         },
         { status: 500 }
       );
@@ -165,6 +181,7 @@ Answer the user's question about this job OrionOpportunity thoroughly and accura
         success: false,
         error: error instanceof Error ? error.message : 'An unexpected error occurred while answering the question.',
         memoryResults: [],
+        message: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
       },
       { status: 500 }
     );

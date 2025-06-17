@@ -1,6 +1,6 @@
+import { ORION_MEMORY_COLLECTION_NAME, OPPORTUNITY_EVALUATION_REQUEST_TYPE } from '@/lib';
+import { OrionOpportunityDetails, ScoredMemoryPoint } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { ORION_MEMORY_COLLECTION_NAME, OPPORTUNITY_EVALUATION_REQUEST_TYPE } from 'src/lib/orion_config';
-import type { OrionOpportunityDetails } from 'src/types/orion';
 
 /**
  * API route for evaluating opportunities
@@ -60,10 +60,8 @@ export async function POST(req: NextRequest) {
           'Relevant Past Experiences/Reflections from Memory:\n' +
           memoryData.results
             .map(
-              (item: any, i: number) =>
-                `${i + 1}. (Source: ${item.payload.source_id}, Type: ${
-                  item.payload.type
-                }): "${item.payload.text.substring(0, 200)}..."`
+              (item: ScoredMemoryPoint, i: number) =>
+                `${i + 1}. (Source: ${item.payload.source_id}, Type: ${item.payload.type}): "${item.payload.text.substring(0, 200)}..."`
             )
             .join('\n');
       }
@@ -143,7 +141,8 @@ Provide your evaluation as a valid JSON object with the structure described abov
 
       const evaluation = JSON.parse(jsonString);
       return NextResponse.json({ success: true, evaluation });
-    } catch (parseError) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_parseError: unknown) {
       console.error('Failed to parse LLM response as JSON:', llmData.content);
       // Return the raw output if parsing fails
       return NextResponse.json({
@@ -152,14 +151,25 @@ Provide your evaluation as a valid JSON object with the structure described abov
         warning: 'LLM output was not valid JSON, returning raw text.',
       });
     }
-  } catch (error: any) {
-    console.error('Error in POST /api/orion/OrionOpportunity/evaluate:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'An unexpected error occurred',
-      },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error in POST /api/orion/OrionOpportunity/evaluate:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message || 'An unexpected error occurred',
+        },
+        { status: 500 }
+      );
+    } else {
+      console.error('An unexpected non-Error object was thrown:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'An unexpected error occurred',
+        },
+        { status: 500 }
+      );
+    }
   }
 }

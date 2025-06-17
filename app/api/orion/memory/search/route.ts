@@ -69,13 +69,14 @@ export async function POST(request: NextRequest) {
       results: searchData.results,
       query,
     });
-  } catch (error: any) {
-    console.error('[MEMORY_SEARCH_API_ERROR]', error.message, error.stack);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('[MEMORY_SEARCH_API_ERROR]', errorMessage, error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to search memory.',
-        details: error.message || 'Unknown error',
+        details: errorMessage,
       },
       { status: 500 }
     );

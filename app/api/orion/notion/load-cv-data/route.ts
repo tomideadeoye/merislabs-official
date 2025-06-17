@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
 import { Client, APIResponseError, CreatePageParameters } from '@notionhq/client';
-import { CVComponent } from '@/app/shared';
-import { NOTION_API_KEY, NOTION_DATABASE_ID } from '@/app/shared/lib/orion_server_config';
+import { CVComponent } from '@/lib/types';
 
-// GOAL:
-// RELATION TO OTHER FILES, FUNCTIONS AND FEATURES:
-
-// Ensure Notion client is configured
+// Ensure Notion client is configured directly from process.env
+const NOTION_API_KEY = process.env.NOTION_API_KEY;
+const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
 
 interface LoadCvDataRequestBody {
@@ -28,7 +27,7 @@ interface LoadCvDataApiResponse {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<LoadCvDataApiResponse>> {
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
@@ -87,7 +86,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<LoadCvDat
         if (componentData.keywords && componentData.keywords.length > 0)
           // Ensure keywords array is not empty
           properties['Keywords'] = {
-            multi_select: componentData.keywords.map((k) => ({ name: k })),
+            multi_select: componentData.keywords.map((k: string) => ({ name: k })),
           };
 
         // Only attempt to create if required properties are present (Title and Content)

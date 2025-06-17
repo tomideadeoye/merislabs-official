@@ -13,7 +13,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui';
-import { SessionStateKeys } from '@/lib/app_constants';
+import { SessionStateKeys } from '@/lib/constants';
 import { useSessionState } from '@/hooks/useSessionState';
 import { MorningRoutine } from '@/components/orion/routines/MorningRoutine';
 import { EveningRoutine } from '@/components/orion/routines/EveningRoutine';

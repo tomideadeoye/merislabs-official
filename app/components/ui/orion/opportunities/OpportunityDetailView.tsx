@@ -1,26 +1,26 @@
 'use client';
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays the detailed information for a single opportunity, including its description, key details, status, tags, and links to related actions (Tailor CV, Stakeholders, Communications). Renders evaluation summary and full evaluation in separate tabs.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/OpportunityDetailView.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by the opportunity detail page (`app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`).
+//   - Receives `OrionOpportunity` and `evaluation` data as props.
+//   - Uses `StatusUpdateButton` (`./StatusUpdateButton`) to change the opportunity status.
+//   - Uses `OpportunityAnalysisDisplay` (`./OpportunityAnalysisDisplay`) to show evaluation details.
 // Note if any: components to merge with, similar or redundant component
 import React, { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Badge,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Button,
-} from '../../ui';
+
 import { EvaluationOutput, OpportunityNotionOutputShared } from '@/lib/types';
 import { Calendar, ExternalLink, Edit, Trash2, BarChart2, FileText, MessageSquare, Users } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { StatusUpdateButton } from './StatusUpdateButton';
 import { OpportunityAnalysisDisplay } from './OpportunityAnalysisDisplay';
 import Link from 'next/link';
+import { Button } from '../../button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
+import { Card, CardHeader, CardTitle, CardContent } from '../../card';
+import { Badge } from '../../badge';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:

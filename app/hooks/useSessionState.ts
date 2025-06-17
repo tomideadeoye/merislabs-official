@@ -2,8 +2,7 @@
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
-import { useCallback } from 'react';
-import { SessionStateKeys } from '../lib/app_constants';
+import { SessionStateKeys } from '@/lib/constants';
 import { useSessionStateStore } from '@/state/sessionState';
 
 interface UseSessionState {

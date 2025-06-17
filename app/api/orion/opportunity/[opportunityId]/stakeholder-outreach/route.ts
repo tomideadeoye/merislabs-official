@@ -8,7 +8,7 @@
  */
 import { auth } from '@/auth';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
-import { fetchUserProfile, ProfileServiceRawData } from '@/lib/profile_service';
+import { fetchUserProfile } from '@/lib/profile_service';
 import type { UserProfileFetchResponse, OrionOpportunity, LLMResponseFailure } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -34,15 +34,16 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
     // Assume opportunityDetails is already the full OrionOpportunity object passed from frontend
     const opportunity: OrionOpportunity = opportunityDetails;
 
-    const rawProfileResponse: ProfileServiceRawData | null = await fetchUserProfile();
+    const rawProfileResponse: UserProfileFetchResponse = await fetchUserProfile();
     const profileResponse: UserProfileFetchResponse = {
       success: !!rawProfileResponse,
-      profileText: rawProfileResponse?.profileText || null,
+      profileText: rawProfileResponse?.profileText || '',
       profile: rawProfileResponse
         ? {
+            id: 'placeholder-id',
             name: 'Tomide',
             email: 'tomide@example.com',
-            bio: rawProfileResponse.profileText,
+            bio: rawProfileResponse.profileText || '',
             skills: [],
             experience: [],
             education: [],
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
             socialLinks: [],
             contactInfo: {},
           }
-        : null, // Placeholder for actual UserProfileData
+        : null,
       error: rawProfileResponse ? undefined : 'Failed to fetch profile',
       source: rawProfileResponse?.source,
     };

@@ -1,17 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useFileSelectionStore } from '../../../../components/orion/fileSelectionStore';
-import { PageHeader } from '@/components/ui';
-import { FileExplorer } from '../../../../components/orion/FileExplorer';
-import { FileViewer } from '../../../../components/orion/FileViewer';
-import { Button } from '@/components/ui';
+import { useFileSelectionStore } from '@/state/fileSelection';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
+import { PageHeader } from '@/components/ui/page-header';
+import { Button } from '@/components/ui/button';
+import { FileExplorer } from '@/components/orion/local-files/FileExplorer';
+import { FileViewer } from '@/components/orion/local-files/FileViewer';
 import { Loader2, AlertTriangle, CheckCircle, Database, FolderOpen } from 'lucide-react';
 
 export default function LocalFilesPage() {
-  const selectedFile = useFileSelectionStore((state) => state.selectedFile);
-  const clearSelectedFile = useFileSelectionStore((state) => state.clearSelectedFile);
+  const { selectedFile } = useFileSelectionStore((state) => state);
   const [indexingStatus, setIndexingStatus] = useState<{
     isLoading: boolean;
     error: string | null;

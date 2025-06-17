@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
 import {
   getCareerMilestones,
   saveCareerMilestone,
   updateCareerMilestone,
   deleteCareerMilestone,
-} from '@/app/shared/narrative_service';
-import { CareerMilestone } from '@/app/shared/types/narrative-clarity';
+} from '@/lib/narrative_service';
+import { CareerMilestone } from '@/styles';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET handler for career milestones
@@ -14,12 +14,13 @@ export async function GET() {
   try {
     const milestones = await getCareerMilestones();
     return NextResponse.json({ success: true, milestones });
-  } catch (error: any) {
-    console.error('Error in GET /api/orion/narrative/milestones:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error in GET /api/orion/narrative/milestones:', errorMessage);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );
@@ -46,12 +47,13 @@ export async function POST(req: NextRequest) {
 
     const milestone = await saveCareerMilestone(body);
     return NextResponse.json({ success: true, milestone });
-  } catch (error: any) {
-    console.error('Error in POST /api/orion/narrative/milestones:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error in POST /api/orion/narrative/milestones:', errorMessage);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );
@@ -90,12 +92,13 @@ export async function PUT(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, milestone: updatedMilestone });
-  } catch (error: any) {
-    console.error('Error in PUT /api/orion/narrative/milestones:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error in PUT /api/orion/narrative/milestones:', errorMessage);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );
@@ -133,12 +136,13 @@ export async function DELETE(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Error in DELETE /api/orion/narrative/milestones:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error in DELETE /api/orion/narrative/milestones:', errorMessage);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

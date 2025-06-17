@@ -1,6 +1,15 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a form for creating or editing a Persona profile. Handles form state, submission to the backend API, and updates the global persona list store.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/orion/networking-hub/PersonaForm.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `app/(orion_admin)/admin/networking-hub/page.tsx` (implied parent).
+//   - Uses `usePersonaFormStore` (`@/lib/stores/personaFormStore`) for local form state management (formData, loading, feedback).
+//   - Uses `usePersonaStore` (`@/lib/stores/personaStore`) to add/update the persona in the global list after successful API call.
+//   - Interacts with backend API routes: `/api/orion/personas` (POST for create) and `/api/orion/personas/[id]` (PUT for update).
+//   - Uses `@/components/ui` for form elements (`Button`, `Input`, `Label`, `Textarea`, `Card`, `Badge`).
 import React, { useEffect } from 'react';
+import isEqual from 'lodash.isequal';
 import { Button, Input, Label, Textarea, Badge } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { usePersonaFormStore } from '@/lib/stores/personaFormStore';
@@ -22,8 +31,31 @@ export function PersonaForm({ initialData, onCancel }: PersonaFormProps) {
 
   useEffect(() => {
     logger.debug('[PersonaForm] Initializing form with data:', { initialData, isEditing });
-    resetForm(initialData);
-  }, [initialData, resetForm, isEditing]);
+
+    // Construct the expected formData if resetForm was called with initialData
+    // This handles the default empty values for missing properties in initialData
+    const targetFormData = {
+      name: initialData?.name || '',
+      description: initialData?.description || '',
+      traits: initialData?.traits || [],
+      goals: initialData?.goals || [],
+      company: initialData?.company || '',
+      role: initialData?.role || '',
+      tags: initialData?.tags || [],
+    };
+
+    // Compare the current formData from the store with the targetFormData
+    // Only reset if they are not deeply equal, preventing unnecessary updates
+    if (!isEqual(formData, targetFormData)) {
+      logger.info('[PersonaForm] Current form data differs from initial data. Resetting form.', {
+        current: formData,
+        target: targetFormData,
+      });
+      resetForm(initialData);
+    } else {
+      logger.debug('[PersonaForm] Current form data already matches initial data. No reset needed.');
+    }
+  }, [initialData, resetForm, isEditing, formData]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ [e.target.id]: e.target.value });

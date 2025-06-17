@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui';
 import { AlertCircle } from 'lucide-react';
+import logger from '@/lib/logger';
 
 function SignInForm() {
   const router = useRouter();
@@ -44,6 +45,7 @@ function SignInForm() {
         router.push(callbackUrl);
       }
     } catch (error) {
+      logger.error('Error during sign in', { error });
       setError('An error occurred during sign in');
       setIsLoading(false);
     }

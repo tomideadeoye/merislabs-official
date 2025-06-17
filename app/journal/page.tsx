@@ -1,3 +1,21 @@
+/**
+ * GOAL OF FILE|FEATURES|FUNCTIONS: Displays the Journal page, allowing users to view recent journal entries fetched from the Qdrant vector database via `MemoryProvider`. Provides UI for browsing past reflections.
+ * FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/journal/page.tsx
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/(default)/layout.tsx`: Wraps this page with `MemoryProvider`.
+ *   - `MemoryProvider` (`@/components/orion/MemoryProvider`): Provides `useMemoryContext` hook.
+ *   - `useMemoryContext` (`@/components/orion/MemoryProvider`): Hook for memory interaction (search).
+ *   - `JournalEntryWithMemory` (`@/components/orion/JournalEntryWithMemory`): Component for adding new journal entries.
+ *   - `MEMORY_TYPES` (`@/lib/orion_config`): Defines journal entry type for filtering.
+ *   - `ScoredMemoryPoint` (`@/lib/types`): Defines structure of search results.
+ *   - `@/components/ui`: Provides `Card`, `CardContent`, `Badge` for UI.
+ *   - `lucide-react`: Provides icons (`CalendarDays`, `Tag`).
+ * ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed `MemoryProvider` is available in the layout. Assumed journal entries are stored with `payload.type` as `MEMORY_TYPES.JOURNAL`. `use client` is necessary for hooks.
+ * NOTES:
+ *   - COMPONENTS TO MERGE WITH: Could integrate Journal entry creation/editing more tightly.
+ *   - OPPORTUNITIES FOR IMPROVEMENT: Add pagination, advanced filtering, full-text search, editing/deletion, mood tracking visualizations.
+ *   - OPPORTUNITIES TO CONSOLIDATE: Consolidates viewing journal entries from memory.
+ */
 'use client';
 
 import React, { useEffect } from 'react';
@@ -17,7 +35,7 @@ export default function JournalPage() {
 
   useEffect(() => {
     // Load journal entries when the page loads
-    search('', { type: MEMORY_TYPES.JOURNAL, limit: 10 }); // Using search with type filter
+    search('', { filter: { must: [{ key: 'payload.type', match: { value: MEMORY_TYPES.JOURNAL } }] }, limit: 10 }); // Using search with type filter
   }, [search]);
 
   return (

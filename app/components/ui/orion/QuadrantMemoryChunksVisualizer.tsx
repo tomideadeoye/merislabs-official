@@ -1,5 +1,11 @@
 import React from 'react';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: A simple UI component to visualize memory chunks, optionally grouped by a 'quadrant' or category. Useful for debugging or understanding how memory is being segmented/used.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/QuadrantMemoryChunksVisualizer.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by components that process or display memory chunks (e.g., potentially in a debug view or analysis result display - implied).
+//   - Receives an array of `MemoryChunk` objects as a prop.
+// ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed `MemoryChunk` type is defined elsewhere (e.g., `@/lib/types`). Assumed the `quadrant` property, if present, is a string used for grouping.
 interface MemoryChunk {
   text: string;
   quadrant?: string; // e.g., "Q1", "Q2", "Q3", "Q4" or a descriptive label

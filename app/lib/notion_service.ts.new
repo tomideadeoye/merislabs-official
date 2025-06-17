@@ -1,6 +1,6 @@
 import { Client } from '@notionhq/client';
 import { NOTION_API_KEY, NOTION_DATABASE_ID } from './orion_server_config';
-import type { CVComponentShared } from '@/types/orion';
+import type { CVComponentShared } from '@/lib/types';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 let notion: Client | null = null;

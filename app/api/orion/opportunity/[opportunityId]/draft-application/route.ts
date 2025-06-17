@@ -1,6 +1,10 @@
-import { auth } from '@/app/auth';
-import { fetchUserProfile, MemoryPayload, generateLLMResponse, REQUEST_TYPES } from '@/app/index';
+
+import { auth } from '@/auth';
+import { generateLLMResponse } from '@/lib/llm_providers';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
+import { REQUEST_TYPES } from '@/lib/orion_llm';
+import { fetchUserProfile } from '@/profile_service';
+import { MemoryPayload } from '@/styles';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

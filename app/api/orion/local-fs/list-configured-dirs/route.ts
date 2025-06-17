@@ -10,12 +10,12 @@ export async function GET() {
       success: true,
       directories: ORION_ACCESSIBLE_LOCAL_DIRECTORIES,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in GET /api/orion/local-fs/list-configured-dirs:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       },
       { status: 500 }
     );

@@ -5,22 +5,23 @@
 
 import React, { useState, useCallback } from 'react';
 import { PageHeader } from '@/components/ui';
-import { PageNames, SessionStateKeys } from '@/app/shared';
-import { useSessionState } from '@/app/shared/hooks/useSessionState';
+import { PageNames, SessionStateKeys } from '@/lib/constants';
+import { useSessionState } from '@/hooks/useSessionState';
 import { DatabaseZap, Search, Loader2, AlertTriangle, Info, PlusCircle } from 'lucide-react';
 import { Input } from '@/components/ui';
 import { Button } from '@/components/ui';
-import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/app/shared';
-import { JournalEntryDisplay } from '../../../../components/orion/JournalEntryDisplay';
-import { DedicatedAddToMemoryFormComponent } from '../../../../components/orion/DedicatedAddToMemoryFormComponent';
+import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/lib/types';
+// import { JournalEntryWithMemory } from '@/components/orion/JournalEntryWithMemory';
+import { DedicatedAddToMemoryFormComponent } from '@/components/ui/orion/DedicatedAddToMemoryFormComponent';
 
 import { ScrollArea } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
-import { ORION_MEMORY_COLLECTION_NAME } from '@/app/shared/lib/orion_config';
+import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 
 export default function MemoryManagerFeaturePage() {
-  const memoryInitialized = useSessionState((state) => state.state[SessionStateKeys.MEMORY_INITIALIZED] as boolean);
+  const { selectSessionValue } = useSessionState();
+  const memoryInitialized = selectSessionValue<boolean>(SessionStateKeys.MEMORY_INITIALIZED);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
@@ -274,17 +275,15 @@ export default function MemoryManagerFeaturePage() {
                 if (!memoryId) return null; // Don't render if no valid ID
                 return (
                   <div key={memoryId} className="relative group border border-gray-700 rounded-lg bg-gray-900/80 p-4">
-                    <JournalEntryDisplay
-                      entry={{
-                        title: result.payload.title || '',
-                        date: new Date(result.payload.timestamp || Date.now()),
-                        content: result.payload.text || '', // Use text as content, as 'content' property is not directly on payload.
-                        contentType: result.payload.type || 'general_note', // Map payload.type to contentType
-                        notionPageId: result.payload.source_id, // Map payload.source_id to notionPageId
-                        mood: result.payload.mood,
-                        tags: result.payload.tags || [],
-                      }}
-                    />
+                    <h3 className="text-lg font-semibold text-gray-100">{result.payload.title || 'No Title'}</h3>
+                    <p className="text-sm text-gray-300 mt-1">{String(result.payload.content) || 'No Content'}</p>
+                    <p className="text-xs text-gray-400 mt-2">Type: {result.payload.type || 'N/A'}</p>
+                    {result.payload.tags && result.payload.tags.length > 0 && (
+                      <p className="text-xs text-gray-400 mt-1">Tags: {result.payload.tags.join(', ')}</p>
+                    )}
+                    <p className="text-xs text-gray-500 mt-1">Score: {result.score?.toFixed(4)}</p>
+                    <p className="text-xs text-gray-500 mt-1">Source ID: {memoryId}</p>
+
                     <Button
                       variant="destructive"
                       size="sm"

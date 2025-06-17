@@ -1,5 +1,14 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a UI for tailoring a CV based on a specific opportunity and a collection of pre-defined CV components. Simulates LLM-based content generation.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/orion/CVTailoringStudio.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by a page component (likely related to opportunity details, e.g., `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/cv-tailoring/page.tsx` - implied).
+//   - Receives `opportunity` and `cvComponents` data as props.
+//   - Uses `@/components/ui` components (`Card`, `Textarea`, `Button`, `Label`, `Tabs`) for the UI.
+//   - Uses `logger` (`@/lib/logger`) for logging component interactions.
+// ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed `OrionOpportunity` and `CVComponent` types are correctly defined in `@/lib/types`. Assumed the `cvComponents` prop contains relevant pieces of the user's CV. The LLM call is currently simulated.
+// NOTES: The core LLM generation logic is currently a placeholder (`generateTailoredText` function). This needs to be replaced with an actual API call to a backend endpoint that handles the LLM interaction, likely using the user's profile context, the opportunity details, and the provided CV components.
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -47,7 +56,7 @@ export const CVTailoringStudio: React.FC<CVTailoringStudioProps> = ({ opportunit
             <p className="text-gray-400">Title: {opportunity.title}</p>
             <p className="text-gray-400">Description:</p>
             <Textarea
-              value={opportunity.description ? opportunity.description : ''}
+              value={typeof opportunity.description === 'string' ? opportunity.description : ''}
               readOnly
               rows={10}
               className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 font-mono"

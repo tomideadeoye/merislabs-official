@@ -1,33 +1,29 @@
 'use client';
 
+import { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
+import { OpportunityNotionInput } from '@/styles';
+import { Input, Textarea, Button } from '@headlessui/react';
+import { Dialog, DialogContent, DialogTitle } from '@radix-ui/react-dialog';
+import { Label } from '@radix-ui/react-label';
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
 
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  Input,
-  Button,
-  Label,
-  Textarea,
-} from '@/components/ui';
-import { useOpportunityDialogStore } from '@/app/hooks/useOpportunityDialogStore';
-import { OpportunityNotionInput } from '@/app/index';
+import { DialogHeader, DialogFooter } from '../../dialog';
+import { useShallow } from 'zustand/react/shallow';
 
 interface AddOpportunityFormProps {
   onSuccess?: (opportunityId: string) => void;
 }
 
 export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSuccess }) => {
-  const { isOpen, close } = useOpportunityDialogStore((state) => ({
-    isOpen: state.isOpen,
-    close: state.close,
-  }));
+  const { isOpen, close } = useOpportunityDialogStore(
+    useShallow((state) => ({
+      isOpen: state.isOpen,
+      close: state.close,
+    }))
+  );
   const [formData, setFormData] = useState({
     title: '',
     company_or_institution: '',
@@ -204,7 +200,7 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
           <DialogFooter className="mt-6">
-            <Button type="button" variant="outline" onClick={close}>
+            <Button type="button" onClick={close}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

@@ -1,8 +1,8 @@
 export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/app/shared/lib/postgres';
+import { query } from '@/lib/database';
 import { v4 as uuidv4 } from 'uuid';
-import { EmotionalLogEntry, LogEmotionRequestBody } from '@/app/shared/types/orion';
+import { EmotionalLogEntry, LogEmotionRequestBody } from '@/lib/types';
 
 /**
  * API route for logging emotions (Postgres/Neon version)

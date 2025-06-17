@@ -80,7 +80,8 @@ export {
   type LLMResponseSuccess,
   type LLMResponseFailure,
   type CombinedLLMResponse,
-} from '@/lib/types';
+  type SortableOpportunityKeys,
+} from './lib/types';
 
 // Email-related types, now from their dedicated file
 export type { SendEmailParams, EmailAttachment } from '@/types/email';
@@ -119,6 +120,7 @@ export { fetchUserProfile } from '@/lib/profile_service';
 
 // WhatsApp Parser
 export { parseWhatsAppChat } from '@/lib/whatsapp_parser';
+export { analyzeWhatsAppChat } from '@/lib/whatsapp_analyzer';
 
 // Orion Memory
 export { processTextForIndexing, searchMemory } from '@/lib/orion_memory';
@@ -143,8 +145,8 @@ export {
 } from '@/lib/cv';
 
 // Utility functions
-export { cn, getOrionSourceUrl } from '@/utils';
-export { logger as Logger } from '@/lib/logger';
+export { cn, getOrionSourceUrl } from './lib/utils';
+export { default as logger } from './lib/logger';
 
 // Clients
 export {
@@ -168,14 +170,10 @@ export { useMemory } from '@/hooks/useMemory';
 export { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
 export { useLocalStorage } from '@/hooks/useLocalStorage';
 export { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-export {
-  useOpportunityCentralStore,
-  type OpportunityCentralStoreType,
-  type SortableOpportunityKeys,
-} from '@/opportunityCentralStore';
+export { useOpportunityCentralStore } from './lib/opportunityCentralStore';
 
 // App State & Constants
-export { PageNames, SessionStateKeys } from '@/app_constants';
+// export { PageNames, SessionStateKeys } from './lib/app_constants'; // Removed due to 'export * from' above
 
 // Emotions
 // Removed emotionalLogStore export as it appears to be an application-specific store not intended for the shared package.

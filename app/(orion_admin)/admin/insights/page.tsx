@@ -3,8 +3,8 @@
 // Note if any: components to merge with, similar or redundant component
 
 import { PageHeader } from '@/components/ui';
-import { PatternAnalysisDisplay } from '../../../../components/orion/PatternAnalysisDisplay';
 import { Brain } from 'lucide-react';
+// import PatternAnalysisDisplay from '@/components/orion/insights/PatternAnalysisDisplay';
 
 export default function InsightsPage() {
   return (
@@ -15,7 +15,7 @@ export default function InsightsPage() {
         description="Discover recurring themes, patterns, and insights across your memories and journal entries."
       />
 
-      <PatternAnalysisDisplay />
+      {/* <PatternAnalysisDisplay /> */}
     </div>
   );
 }

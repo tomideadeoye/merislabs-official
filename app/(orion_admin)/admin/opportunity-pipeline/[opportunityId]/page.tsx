@@ -1,16 +1,18 @@
-import { OpportunityNotionOutputShared, EvaluationOutput } from '@/app/shared/types/orion';
-import { notFound } from 'next/navigation';
-import { OpportunityDetailView } from '../../../../../components/orion/OpportunityDetailView';
 
 // GOAL:
-// This page displays the detailed view of a single opportunity, including its evaluation and related data.
-// Data is fetched via a dedicated Next.js API route to ensure server-side data fetching and prevent client-side import of Notion service.
+// This page displays the detailed view of a single opportunity. It fetches the opportunity data and any existing evaluation server-side via API routes and renders the `OpportunityDetailView` component.
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// - Uses `@repo/shared/types/orion` for Opportunity types.
-// - Fetches data from `/api/orion/opportunity/[id]` and `/api/orion/OrionOpportunity/[id]/evaluation`.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+// - Fetches opportunity data from `/api/orion/opportunity/[opportunityId]`.
+// - Fetches existing evaluation data from `/api/orion/OrionOpportunity/[opportunityId]/evaluation`.
 // - Renders `OpportunityDetailView` from `../../../../../components/orion/OpportunityDetailView`.
 // next steps if any:
 // components to merge with if any:
+
+import { OpportunityDetailView } from "@/components/ui/orion";
+import { OpportunityNotionOutputShared, EvaluationOutput } from "@/styles";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileContent, getFileMetadata } from '@/app/shared/lib/local_file_service';
+import { readFileContent, getFileMetadata } from '@/lib/local_file_service';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -33,21 +33,23 @@ export async function POST(request: NextRequest) {
       content,
       metadata,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/orion/local-fs/read-file:', error);
 
     // Return appropriate status code based on error type
     let statusCode = 500;
-    if (error.message.startsWith('Access denied')) {
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errorMessage.startsWith('Access denied')) {
       statusCode = 403;
-    } else if (error.message.startsWith('Unsupported file type')) {
+    } else if (errorMessage.startsWith('Unsupported file type')) {
       statusCode = 400;
     }
 
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: statusCode }
     );

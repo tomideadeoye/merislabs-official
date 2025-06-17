@@ -1,19 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+// GOAL OF FILE|FEATURES|FUNCTIONS: This page serves as the main administrative view for the Opportunity Pipeline. It provides different views (List, Kanban, Evaluator), displays charts, handles data fetching via a hook, and manages the "Add Opportunity" dialog.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/(orion_admin)/admin/opportunity-pipeline/page.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Uses `useOpportunities` hook (`@/hooks/useOpportunities`) for fetching, loading, error, and status updates.
+//   - Renders `OpportunityPipelineCharts` (`./OpportunityPipelineCharts`) for data visualization.
+//   - Renders `OpportunityList` (`@/components/ui/orion/opportunities/OpportunityList`) for list view.
+//   - Renders `OpportunityKanbanView` (`@/components/orion/opportunity-pipeline/OpportunityKanbanView`) for Kanban view.
+//   - Renders `OpportunityEvaluator` (`@/components/ui/orion/opportunities/OpportunityEvaluator`) for quick evaluation.
+//   - Renders `AddOpportunityForm` (`@/components/ui/orion/opportunities/AddOpportunityForm`) within a dialog.
+//   - Uses `useOpportunityDialogStore` (`@/hooks/useOpportunityDialogStore`) to manage the add form dialog state.
+//   - Uses `logger` (`@/lib/logger`) for extensive logging.
+import React, { useState, useEffect } from 'react';
 import {
-  OpportunityList,
-  OpportunityKanbanView,
-  AddOpportunityForm,
-  OpportunityEvaluator,
-} from '@/components/ui';
-import { useOpportunityDialogStore } from '@/app/shared/hooks/useOpportunityDialogStore';
-import {
+  PageHeader,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-  PageHeader,
   Card,
   CardHeader,
   CardTitle,
@@ -22,85 +26,76 @@ import {
   Button,
 } from '@/components/ui';
 import { Briefcase, BarChart2, XIcon } from 'lucide-react';
-import { useOpportunities } from '@/app/shared/hooks/useOpportunities';
+import { useOpportunities } from '@/hooks/useOpportunities';
 import { OpportunityPipelineCharts } from './OpportunityPipelineCharts';
-
-import { useOpportunityCentralStore, type OpportunityCentralStoreType } from '@/app/shared/opportunityCentralStore';
+import { OpportunityList } from '@/components/ui/orion/opportunities/OpportunityList';
+import { OpportunityKanbanView } from '@/components/orion/opportunity-pipeline/OpportunityKanbanView';
+import { OpportunityEvaluator } from '@/components/ui/orion/opportunities/OpportunityEvaluator';
+import { AddOpportunityForm } from '@/components/ui/orion/opportunities/AddOpportunityForm';
+import { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
+import logger from '@/lib/logger';
 
 export default function OpportunityPipelinePage() {
+  logger.debug('[OPPORTUNITY_PIPELINE_PAGE][RENDER] Component rendering.');
   const [activeView, setActiveView] = useState('list');
-  const { opportunities, isLoading, error, refetchOpportunities } = useOpportunities();
-
-  // Listen for Kanban refetch flag
-  const needsRefetch = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.needsRefetch);
-  const setNeedsRefetch = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.setNeedsRefetch);
-  console.info('[OpportunityPipeline][MIGRATION] Using central store selector for needsRefetch and setNeedsRefetch', {
-    needsRefetch,
-    setNeedsRefetch,
-  });
-  React.useEffect(() => {
-    if (needsRefetch) {
-      refetchOpportunities();
-      setNeedsRefetch(false);
-    }
-  }, [needsRefetch, refetchOpportunities, setNeedsRefetch]);
-
   const { open: openAddDialog, close: closeAddDialog } = useOpportunityDialogStore();
 
+  const { opportunities, isLoading, error, refetchOpportunities, updateOpportunityStatus } = useOpportunities();
+
+  // Log opportunities, isLoading, and error from useOpportunities hook
+  useEffect(() => {
+    logger.debug('[OPPORTUNITY_PIPELINE_PAGE][USE_EFFECT][OPPORTUNITIES_STATE]', {
+      opportunitiesCount: opportunities.length,
+      isLoading,
+      error,
+    });
+  }, [opportunities.length, isLoading, error]);
+
   const handleAddNew = () => {
+    logger.info('[OPPORTUNITY_PIPELINE_PAGE][EVENT] "Add New" button clicked.');
     openAddDialog();
   };
 
   const handleAddSuccess = () => {
+    logger.info('[OPPORTUNITY_PIPELINE_PAGE][EVENT] New opportunity added successfully, refetching list.');
     closeAddDialog();
-    refetchOpportunities();
+    refetchOpportunities(); // This call will trigger a re-fetch and state update in useOpportunities
   };
 
-  // In the component where you fetch and display opportunities:
-  // After fetching, check for error and render fallback UI if needed
-  const opportunityError = error;
-  const handleRetryFetchOpportunity = () => {
-    refetchOpportunities();
-  };
-
-  // Add this block after the Notion error fallback UI, or wherever research results/errors are displayed
-  const researchError = error;
-  const handleRetryResearch = () => {
-    refetchOpportunities();
-  };
+  logger.debug('[OPPORTUNITY_PIPELINE_PAGE][RETURN] Rendering JSX.', {
+    activeView,
+    opportunitiesCount: opportunities.length,
+    isLoading,
+    error,
+  });
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="OrionOpportunity Pipeline"
+        title="Opportunity Pipeline"
         icon={<Briefcase className="h-7 w-7" />}
         description="Track and manage job applications, education programs, and project collaborations."
       />
 
-      {/* Visualization charts for admin */}
-      <OpportunityPipelineCharts opportunities={opportunities} />
+      <OpportunityPipelineCharts opportunities={opportunities} isLoading={isLoading} />
 
-      {opportunityError && (
+      {error && (
         <Card className="bg-gradient-to-r from-red-900 to-red-800 border-red-700 shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="flex items-center text-xl text-red-200">
               <XIcon className="mr-2 h-6 w-6 text-red-400" />
-              Notion Fetch Error
+              Data Fetch Error
             </CardTitle>
-            <CardDescription className="text-red-300">{opportunityError}</CardDescription>
+            <CardDescription className="text-red-300">{error}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-2 text-red-200">Troubleshooting tips:</div>
-            <ul className="mb-4 text-red-100 list-disc list-inside text-sm">
-              <li>Check your Notion API key and integration permissions.</li>
-              <li>Ensure the OrionOpportunity ID is valid and accessible.</li>
-              <li>Check your network connection and Notion API status.</li>
-              <li>Try again or contact support if the issue persists.</li>
-            </ul>
             <Button
               variant="outline"
               className="border-red-500 text-red-400 hover:bg-red-900/30"
-              onClick={handleRetryFetchOpportunity}
+              onClick={() => {
+                logger.info('[OPPORTUNITY_PIPELINE_PAGE][EVENT] "Retry Fetch" button clicked.');
+                refetchOpportunities();
+              }}
             >
               Retry Fetch
             </Button>
@@ -108,40 +103,18 @@ export default function OpportunityPipelinePage() {
         </Card>
       )}
 
-      {researchError && (
-        <Card className="bg-gradient-to-r from-red-900 to-red-800 border-red-700 shadow-lg mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl text-red-200">
-              <XIcon className="mr-2 h-6 w-6 text-red-400" />
-              Research Proxy Error
-            </CardTitle>
-            <CardDescription className="text-red-300">{researchError}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-2 text-red-200">Troubleshooting tips:</div>
-            <ul className="mb-4 text-red-100 list-disc list-inside text-sm">
-              <li>
-                Ensure the Python backend is running on <b>localhost:5002</b>.
-              </li>
-              <li>Check your network connection and backend logs for errors.</li>
-              <li>Try again or contact support if the issue persists.</li>
-            </ul>
-            <Button
-              variant="outline"
-              className="border-red-500 text-red-400 hover:bg-red-900/30"
-              onClick={handleRetryResearch}
-            >
-              Retry Research
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      <Tabs defaultValue="list" value={activeView} onValueChange={setActiveView}>
+      <Tabs
+        defaultValue="list"
+        value={activeView}
+        onValueChange={(value) => {
+          logger.info('[OPPORTUNITY_PIPELINE_PAGE][EVENT] Tab changed.', { newTab: value });
+          setActiveView(value);
+        }}
+      >
         <TabsList className="bg-gray-800 border-gray-700">
           <TabsTrigger value="list">List View</TabsTrigger>
           <TabsTrigger value="kanban">Kanban View</TabsTrigger>
-          <TabsTrigger value="evaluator">OrionOpportunity Evaluator</TabsTrigger>
+          <TabsTrigger value="evaluator">Opportunity Evaluator</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="mt-6">
@@ -155,7 +128,16 @@ export default function OpportunityPipelinePage() {
         </TabsContent>
 
         <TabsContent value="kanban" className="mt-6">
-          <OpportunityKanbanView opportunities={opportunities} />
+          <OpportunityKanbanView
+            opportunities={opportunities}
+            onStatusChange={async (opportunityId, newStatus) => {
+              logger.info('[OPPORTUNITY_PIPELINE_PAGE][EVENT] Kanban status change initiated.', {
+                opportunityId,
+                newStatus,
+              });
+              await updateOpportunityStatus(opportunityId, newStatus);
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="evaluator" className="mt-6">
@@ -163,10 +145,10 @@ export default function OpportunityPipelinePage() {
             <CardHeader>
               <CardTitle className="flex items-center text-xl text-gray-200">
                 <BarChart2 className="mr-2 h-6 w-6 text-amber-400" />
-                OrionOpportunity Evaluator
+                Quick Opportunity Evaluator
               </CardTitle>
               <CardDescription className="text-gray-400">
-                Analyze job descriptions, academic programs, or project briefs against your profile and goals.
+                Paste details to analyze an opportunity against your profile without saving it first.
               </CardDescription>
             </CardHeader>
             <CardContent>

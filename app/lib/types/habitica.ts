@@ -40,7 +40,7 @@ export interface HabiticaStatsData {
 export interface HabiticaTaskCreationParams {
   text: string;
   type: 'habit' | 'daily' | 'todo' | 'reward';
-  priority?: string | number; // Updated to allow string or number
+  priority?: number;
   notes?: string;
   tags?: string[];
   checklist?: { text: string }[];

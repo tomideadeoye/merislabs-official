@@ -3,14 +3,14 @@
  * Related: lib/database.ts, reference.md, types/ideas.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { query, sql } from '@/app/shared/lib/postgres';
-import type { Idea, IdeaLog } from '@/app/shared/types/ideas';
+import { query } from '@/lib/database';
+import { Idea, IdeaLog } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
  * API route for fetching a specific idea and its logs
  */
-export async function GET(req: NextRequest, { params }: { params: { ideaId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { ideaId: string } }) {
   try {
     const { ideaId } = params;
 
@@ -19,6 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { ideaId: stri
         {
           success: false,
           error: 'Idea ID is required',
+          message: 'Idea ID is required to fetch a specific idea and its logs.',
         },
         { status: 400 }
       );
@@ -34,6 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: { ideaId: stri
         {
           success: false,
           error: 'Idea not found',
+          message: `Idea with ID ${ideaId} not found.`,
         },
         { status: 404 }
       );
@@ -56,11 +58,11 @@ export async function GET(req: NextRequest, { params }: { params: { ideaId: stri
     // Fetch idea logs
     const logsQuery = 'SELECT * FROM idea_logs WHERE ideaId = $1 ORDER BY timestamp ASC';
     const logsResult = await query(logsQuery, [ideaId]);
-    const logs: IdeaLog[] = logsResult.rows.map((row: any) => ({
+    const logs: IdeaLog[] = logsResult.rows.map((row: IdeaLog) => ({
       id: row.id,
-      ideaId: row.ideaid,
+      ideaId: row.ideaId,
       timestamp: row.timestamp,
-      logType: row.logtype || row.type,
+      logType: row.logType || row.type,
       details: row.details || `Log entry of type ${row.type}`,
       action: row.action || `Logged ${row.type}`,
       type: row.type,
@@ -79,6 +81,7 @@ export async function GET(req: NextRequest, { params }: { params: { ideaId: stri
       {
         success: false,
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        message: `Failed to fetch idea ${params.ideaId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       },
       { status: 500 }
     );
@@ -88,10 +91,10 @@ export async function GET(req: NextRequest, { params }: { params: { ideaId: stri
 /**
  * API route for updating an idea
  */
-export async function PUT(req: NextRequest, { params }: { params: { ideaId: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { ideaId: string } }) {
   try {
     const { ideaId } = params;
-    const body = await req.json();
+    const body = await request.json();
     const { title, description, status, tags = [], priority, dueDate, note } = body;
 
     if (!ideaId) {
@@ -99,6 +102,7 @@ export async function PUT(req: NextRequest, { params }: { params: { ideaId: stri
         {
           success: false,
           error: 'Idea ID is required',
+          message: 'Idea ID is required to update the idea.',
         },
         { status: 400 }
       );
@@ -114,6 +118,7 @@ export async function PUT(req: NextRequest, { params }: { params: { ideaId: stri
         {
           success: false,
           error: 'Idea not found',
+          message: `Idea with ID ${ideaId} not found for update.`,
         },
         { status: 404 }
       );
@@ -205,7 +210,6 @@ export async function PUT(req: NextRequest, { params }: { params: { ideaId: stri
 
     return NextResponse.json({
       success: true,
-      message: 'Idea updated successfully',
       idea: updatedIdea,
     });
   } catch (error: unknown) {
@@ -214,6 +218,7 @@ export async function PUT(req: NextRequest, { params }: { params: { ideaId: stri
       {
         success: false,
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        message: `Failed to update idea ${params.ideaId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       },
       { status: 500 }
     );

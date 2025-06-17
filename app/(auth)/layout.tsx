@@ -1,4 +1,5 @@
-import PageIllustration from '../../components/page-illustration';
+import PageIllustration from "@/components/ui/page-illustration";
+
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -25,16 +25,16 @@
 
 'use client';
 
-import { HabiticaCredentialsForm } from '../../../src/components/orion/HabiticaCredentialsForm';
-import { HabiticaStatsContainer } from '../../../src/components/orion/HabiticaStatsContainer';
-import { HabiticaTaskForm } from '../../../src/components/orion/HabiticaTaskForm';
-import { HabiticaTaskList } from '../../../src/components/orion/HabiticaTaskList';
-import { useSessionState } from '../../../src/hooks/useSessionState';
+import { HabiticaCredentialsForm } from '@/components/orion/Habitica/HabiticaCredentialsForm';
+import { HabiticaStatsContainer } from '@/components/orion/Habitica/HabiticaStatsContainer';
+import { HabiticaTaskForm } from '@/components/orion/Habitica/HabiticaTaskForm';
+import { HabiticaTaskList } from '@/components/orion/Habitica/HabiticaTaskList';
+import { useSessionState } from '@/hooks/useSessionState';
 import React, { useState, useCallback } from 'react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Rocket, ShieldAlert } from 'lucide-react';
-import { SessionStateKeys } from '../../../src/lib/app_constants';
+import { SessionStateKeys } from '@/lib/constants';
 
 export default function HabiticaPage() {
   const { selectSessionValue } = useSessionState();

@@ -6,184 +6,35 @@ Document the interconnectedness of core files, utilities, feature components, an
 
 ---
 
-## Mermaid Diagram: High-Level File Interconnections
+## Current File Structure Pattern: A Pure Next.js Approach
 
-```mermaid
-graph TD
-  %% Core Utilities: These nodes represent essential utility modules within the `lib/` directory.
-  %% They provide foundational services like logging, database access, and integration with external APIs.
-  subgraph "lib/"
-    L1[logger.ts]
-    L2[database.ts]
-    L3[notion_service.ts]
-    L4[persona_service.ts]
-    L5[orion_llm.ts]
-    L6[memory.ts]
-    L7[cv.ts]
-    L8[profile_service.ts]
-    L9[constants.ts]
-    L10[utils.ts]
-  end
+The project's file structure is evolving towards a highly organized and modular "pure Next.js" application, emphasizing clarity, maintainability, and scalability. Here's the pattern we're adhering to:
 
-  %% Shared Types: This subgraph represents the shared TypeScript type definitions.
-  %% These types ensure data consistency and type safety across the entire application.
-  subgraph "types/"
-    T1[orion.ts]
-    T2[types.ts]
-  end
+1.  **Root-Level `app/` Directory**: This is the core of our Next.js application, containing all pages, API routes, and client-side logic.
 
-  %% Shared Packages
-  subgraph "packages/shared/"
-    S1[auth.ts]
-    S2[profile_service.ts]
-    S3[lib/logger.ts]
-    S4[lib/notion_service.ts.new]
-    S5[types/index.ts]
-  end
+2.  **Feature-Based Grouping within `app/`**:
 
-  %% Feature Components
-  subgraph "components/orion/"
-    C1[JournalEntryForm.tsx]
-    C2[JournalList.tsx]
-    C3[CVTailoringStudio.tsx]
-    C4[OpportunityList.tsx]
-    C5[OpportunityEvaluator.tsx]
-    C6[EmotionalLogForm.tsx]
-    C7[HabiticaTaskList.tsx]
-    C8[NotionCVComponentsList.tsx]
-    C9[JournalEntryWithMemory.tsx]
-    C10[OpportunityActions.tsx]
-    C11[PastOpportunitiesSection.tsx]
-    C12[application/DraftApplicationButton.tsx]
-  end
+    - **Pages (`app/(group)/feature/page.tsx`)**: Pages are organized into logical groups (e.g., `(orion_admin)`) to manage routing and layout, and then further by feature (e.g., `admin/journal/page.tsx`). This provides a clean URL structure and separates concerns.
+    - **Components (`app/components/`)**:
+      - `app/components/ui/`: This directory houses reusable, generic UI components (e.g., `button.tsx`, `badge.tsx`, `card.tsx`, `page-header.tsx`). These are designed to be highly abstract and reusable across different parts of the application.
+      - `app/components/orion/` (or `app/components/feature-name/`): This is for application-specific components that are tightly coupled to Orion's features (e.g., `JournalEntryWithMemory.tsx`, `OpportunityDetailView.tsx`). These components often combine UI elements with specific business logic.
+    - **Libraries/Utilities (`app/lib/`)**:
+      - `app/lib/types/`: Centralized location for all TypeScript interfaces and types, ensuring consistency across the application (e.g., `index.ts` for main types).
+      - `app/lib/app_constants.ts`: Stores global constants and enums (like `SessionStateKeys`, `PageNames`).
+      - `app/lib/orion_llm.ts`, `app/lib/orion_tools.ts`, `app/lib/profile_service.ts`, `app/lib/cv.ts`, etc.: These files contain core business logic, utility functions, API clients, and service integrations, organized by domain or functionality.
+      - `app/lib/logger.ts`: A centralized logging utility for consistent and context-rich logging.
+    - **Hooks (`app/hooks/`)**: Custom React hooks (e.g., `useSessionState.ts`, `useUserProfile.ts`, `useCVTailoring.ts`) are stored here, encapsulating reusable stateful logic.
+    - **API Routes (`app/api/`)**: Backend API endpoints are organized by feature or domain (e.g., `api/orion/journal/save/route.ts`, `api/orion/cv/assemble/route.ts`), following Next.js API route conventions.
+    - **State Management (`app/state/`)**: For global state management solutions like Zustand stores (e.g., `sessionState.ts`, `opportunityCentralStore.ts`).
 
-  %% API Routes
-  subgraph "app/api/orion/"
-    A1[journal/list/route.ts]
-    A2[notion/cv-components/route.ts]
-    A3[profile/route.ts]
-    A4[opportunities/route.ts]
-    A5[memory/route.ts]
-  end
+3.  **Naming Conventions**: We are committed to using absurdly comprehensive and descriptive names for files, functions, variables, and classes. This mirrors existing conventions in the codebase and significantly improves readability and maintainability.
 
-  %% UI Components
-  subgraph "components/ui/orion/"
-    U1[DraftCommunicationForm.tsx]
-    U2[WhatsAppChatUploader.tsx]
-    U3[DedicatedAddToMemoryFormComponent.tsx]
-    U4[opportunities/OpportunityActions.tsx]
-    U5[opportunities/AddOpportunityForm.tsx]
-    U6[opportunities/OpportunityDetailView.tsx]
-    U7[opportunities/OpportunityEvaluator.tsx]
-    U8[opportunities/NarrativeAlignmentSection.tsx]
-  end
+4.  **Consistency and Unification**: A key principle is to consolidate, unify, and align code, state, features, and components. This means:
+    - Avoiding redundant implementations.
+    - Using shared types and utilities whenever possible.
+    - Ensuring a consistent user experience across different features.
 
-  %% Interconnections
-  L1 --> C1
-  L1 --> C2
-  L1 --> C3
-  L1 --> C4
-  L1 --> C5
-  L1 --> C6
-  L1 --> C7
-  L1 --> C8
-  L1 --> C9
-  L1 --> C10
-  L1 --> C11
-  L1 --> C12
-
-  L2 --> C3
-  L2 --> C4
-  L2 --> C5
-
-  L3 --> C8
-  L3 --> C3
-  L3 --> C4
-
-  L4 --> C5
-  L5 --> C3
-  L6 --> C9
-  L7 --> C3
-  L8 --> C4
-
-  T1 --> C1
-  T1 --> C2
-  T1 --> C3
-  T1 --> C4
-  T1 --> C5
-  T1 --> C6
-  T1 --> C7
-  T1 --> C8
-  T1 --> C9
-  T1 --> C10
-  T1 --> C11
-  T1 --> C12
-
-  L1 --> A1
-  L2 --> A1
-  L3 --> A2
-  L8 --> A3
-  L2 --> A4
-  L6 --> A5
-  T1 --> A1
-  T1 --> A2
-  T1 --> A3
-  T1 --> A4
-  T1 --> A5
-
-  U1 --> L1
-  U2 --> L1
-  U3 --> L1
-  U4 --> L1
-  U5 --> L1
-  U6 --> L1
-  U7 --> L1
-  U8 --> L1
-
-  U4 --> C10
-  U5 --> C4
-  U6 --> C4
-  U7 --> C5
-  U8 --> C5
-
-  S3 --> L1
-  S4 --> L3
-  S2 --> L8
-  S5 --> T1
-
-  C3 --> S3
-  C4 --> S3
-  C5 --> S3
-  C8 --> S4
-
-  A1 --> S3
-  A2 --> S4
-  A3 --> S2
-
-  U1 --> S3
-  U2 --> S3
-  U3 --> S3
-
-  U2 --> L6
-  U2 --> T1
-
-  C3 --> L7
-  C3 --> T1
-
-  C4 --> L2
-  C4 --> T1
-```
-
----
-
-## Summary
-
-- **Core utilities** in `lib/` are the backbone for all features and API routes.
-- **Shared types** in `types/` are used everywhere for type safety and data contracts.
-- **Feature components** in `components/orion/` implement Orion's main user-facing features.
-- **API routes** in `app/api/orion/` orchestrate backend logic, using both core utilities and shared types.
-- **UI components** in `components/ui/orion/` and related folders provide the user interface, often wrapping or composing feature components. Shared UI components are also provided via `@repo/ui`.
-- **Shared packages** in `packages/shared/` re-export core utilities/types for simple nextjs project-wide usage.
+This structure allows for a clear separation of concerns, promotes reusability, simplifies debugging, and enables faster development cycles in our pure Next.js environment.
 
 ---
 
@@ -449,11 +300,11 @@ This section documents critical issues encountered during development, their roo
 
 ### Issue 4: Persistent Module Resolution Errors Post-`src` Folder Removal
 
-- **Description:** Repeated `Cannot find module` errors across multiple files (`api/orion/habitica/tasks/route.ts`, `app/lib/opportunityCentralStore.ts`, `app/src/components/orion/HabiticaTaskList.tsx`) for aliases like `@/lib`, `@/types`, and `@repo/ui`. These errors persisted despite `tsconfig.json` appearing correctly configured and various attempts with relative paths.
-- **Root Cause:** The primary cause was the restructuring of the project (removal of the `src` folder and reorganization of core directories) which led to module resolution inconsistencies. The `@/lib` and `@/types` aliases were not resolving correctly in all contexts, especially for deeply nested files or those within `app/src` (which should now be at the root). Additionally, the `@repo/ui` alias was not correctly linking to the shared UI package. There were also redundant local type extensions and incorrect assumptions about `HabiticaTask` properties.
+- **Description:** Repeated `Cannot find module` errors across multiple files (`api/orion/habitica/tasks/route.ts`, `app/lib/opportunityCentralStore.ts`, `app/src/components/orion/HabiticaTaskList.tsx`) for aliases like `@/lib`, `@/types`, and `@/components/ui`. These errors persisted despite `tsconfig.json` appearing correctly configured and various attempts with relative paths.
+- **Root Cause:** The primary cause was the restructuring of the project (removal of the `src` folder and reorganization of core directories) which led to module resolution inconsistencies. The `@/lib` and `@/types` aliases were not resolving correctly in all contexts, especially for deeply nested files or those within `app/src` (which should now be at the root). Additionally, the `@/components/ui` alias was not correctly linking to the shared UI package. There were also redundant local type extensions and incorrect assumptions about `HabiticaTask` properties.
 - **Resolution Steps:**
   1.  **`api/orion/habitica/tasks/route.ts`:**
-      - Initial attempt to change `@/app/shared/habitica_client` to `@/lib/habitica_client` and `@/app/shared/types/habitica` to `@/lib/types/habitica`.
+      - Initial attempt to change `@/lib/habitica_client` to `@/lib/habitica_client` and `@/lib/types/habitica` to `@/lib/types/habitica`.
       - Further refined imports to explicit relative paths `../../../lib/habitica_client` and `../../../types/habitica`.
       - Removed unused `query` and `sql` imports.
       - Removed unused `type` variable from request destructuring.
@@ -462,7 +313,7 @@ This section documents critical issues encountered during development, their roo
       - Attempted to change `type { ... } from '@/lib/types'` to `type { ... } from '../../types'`.
       - **Corrected:** Identified through `file_search` that the actual types directory is `app/lib/types`. Changed the import to `type { ... } from './types'`.
   3.  **`app/src/components/orion/HabiticaTaskList.tsx`:**
-      - Updated `@/components/ui` to `@repo/ui` (aligned with monorepo shared UI package strategy).
+      - Updated `@/components/ui` to `@/components/ui` (aligned with monorepo shared UI package strategy).
       - Corrected relative import paths for `HabiticaTask` from `../../types/habitica` to `../../lib/types/habitica`.
       - Corrected import path for `SessionStateKeys` from `@/app/src/lib/app_constants` to `../../app_constants`.
       - Removed redundant local `interface HabiticaTask extends BaseHabiticaTask` extension, as the base interface now correctly defines all properties.
@@ -1691,7 +1542,7 @@ What we have implemented:
 We have successfully restructured Orion's Next.js application to align with a standard, clean, root-level project setup, eliminating the src folder. This involved:
 Reorganizing file system: Moving core utilities, global types, and UI components from their previous src/ subdirectories (e.g., src/lib, src/types, src/components) directly to root-level directories (lib, types, components).
 Updating tsconfig.json: Configuring TypeScript's module resolution by setting baseUrl: "." and defining paths aliases (e.g., @/lib/_, @/types/_, @/components/_, @/_) to point directly to these new root-level folders.
-Correcting import paths: Adjusting import statements in files like api/orion/emotions/history/route.ts to use the new, correct root-level aliases (e.g., import { logger } from "@/lib/logger";). We also specifically corrected the import for CognitiveDistortionAnalysisData and EmotionalLogEntry to assume they are defined in @/types/orion.
+Correcting import paths: Adjusting import statements in files like api/orion/emotions/history/route.ts to use the new, correct root-level aliases (e.g., import { logger } from "@/lib/logger";). We also specifically corrected the import for CognitiveDistortionAnalysisData and EmotionalLogEntry to assume they are defined in @/lib/types.
 Updating reference.md: Documenting all these structural changes in our reference.md file for perfect traceability and clarity, including updating the Mermaid diagram and adding a detailed log entry.
 Why the modifications were made:
 These modifications were crucial to:
@@ -1704,3 +1555,90 @@ File System: lib/, types/, components/ directories created/populated at the root
 Configuration: tsconfig.json (modified compilerOptions.baseUrl and compilerOptions.paths).
 Application Code: api/orion/emotions/history/route.ts (updated import statements).
 Documentation: reference.md (updated sections including Mermaid diagram, summary, and added a new issue log entry).
+
+---
+
+## 🚀 Development Progress Summary (Latest Updates)
+
+This section summarizes the recent key features implemented, major code modifications, and significant bug fixes in the Orion project. It highlights how these changes contribute to the overarching vision and enhances the system's capabilities.
+
+### 🌟 Key Features Implemented:
+
+- **Visually Engaging User Profile Summary**: A new, dynamic card has been integrated into the Admin Dashboard (`app/(orion_admin)/admin/page.tsx`). This card now provides a visually appealing overview of the user's loaded profile data, including background summary, key skills, goals, values, location, and last updated time. This enhances personalization and quick access to essential information.
+- **"Save to Contacts" Button for Stakeholders**: A crucial enhancement has been added to the "Find Stakeholders" dialog (`app/components/FindStakeholdersButton.tsx`). Users can now directly save discovered stakeholders to the Neon (Postgres) contacts database, significantly streamlining the networking and contact management workflow.
+
+### 🛠 Major Code Modifications & Refactors:
+
+- **Migration of Contacts Service from Notion to Neon (Postgres)**:
+  - **Reason**: To transition from Notion to a more scalable and robust PostgreSQL database for contacts management.
+  - **Changes**:
+    - Defined and implemented a new `contacts` table schema in Neon.
+    - Created `fetchContactsFromNeon` and `saveContactToNeon` functions in a dedicated service file (`app/lib/contact_service.ts`) for database interactions.
+    - Updated the primary contacts API endpoint (`app/api/orion/contacts/route.ts`, renamed from `app/api/orion/notion/contacts/route.ts`) to exclusively use the new Neon-backed service for both data retrieval and persistence.
+    - The old Notion-based contacts API route was subsequently deleted.
+    - A temporary SQL execution endpoint (`app/api/orion/internal/execute-sql/route.ts`) was briefly used for table creation and then removed.
+- **Comprehensive TypeScript and Linter Error Resolution**:
+  - **Reason**: To achieve a zero-error build, ensure strict type safety, improve code maintainability, and align with project coding standards.
+  - **Changes**:
+    - Resolved numerous "Cannot find module" errors by consistently correcting import paths to use the new monorepo aliases (`@/lib/types`, `@/components/ui`).
+    - Addressed prevalent implicit `any` type issues by strictly defining new interfaces and types (`Contact`, `ContactRow`, `MemoryPayload` extensions) where data structures were ambiguous.
+    - Corrected `Module has no exported member` errors by updating import sources for core Next.js/Auth functions (e.g., `getServerSession` from `next-auth/next`).
+    - Cleaned up extensive commented-out JSX in `app/(orion_admin)/admin/journal/page.tsx` that was causing parsing issues.
+    - Removed unused function parameters across various API routes and utility files (`app/lib/logger.ts`, `api/orion/profile/route.ts`, `app/api/orion/networking/find-stakeholders/route.ts`).
+    - Refined error handling mechanisms in API routes to use `unknown` type for caught errors, promoting safer type narrowing.
+- **UI Component Refinements & Bug Fixes**:
+  - **Reason**: To ensure a consistent, functional, and visually appealing user interface across the application.
+  - **Changes**:
+    - Corrected an incorrect `Header` import and resolved `NavItem` icon rendering issues within `app/(orion_admin)/layout.tsx`, including reapplying an edit to simplify the rendering logic for icons.
+    - Fixed `variant` prop errors on `Button` components and addressed other type compatibility issues in UI components.
+    - Ensured the `getSessionValue` function within `app/components/ui/orion/DedicatedAddToMemoryFormComponent.tsx` correctly handles non-string types with explicit checks and fallbacks.
+    - Removed the "LLM Health Status" component from the Admin Dashboard (`app/(orion_admin)/admin/page.tsx`) as per user request.
+- **Build & Environment Configuration Stability**:
+  - **Reason**: To ensure the project can be consistently built and run without environmental or tooling-related errors.
+  - **Changes**:
+    - Diagnosed and resolved a persistent PostCSS configuration error by identifying and removing the conflicting `postcss.config.js` in favor of `postcss.config.cjs`. This involved guiding the user through a deep clean and rebuild process.
+    - Addressed a "Module not found: Can't resolve 'babel-loader'" error, specifically related to `@qdrant/js-client-rest`, by updating `next.config.mjs` to include the package in `transpilePackages`.
+
+### ✅ Current Status & Verification:
+
+- The Admin Dashboard now features a rich, dynamic profile summary.
+- Stakeholders can be successfully found and saved to the Neon database.
+- The codebase is significantly cleaner with fewer type and linter errors.
+- The build process is more stable following PostCSS and module resolution fixes.
+
+### ➡️ Next Steps:
+
+1.  **Comprehensive Testing for Contact Saving**: Develop end-to-end (e2e) tests for the new contact saving functionality to cover various scenarios, including successful saves, edge cases (e.g., missing data, duplicate entries), and error handling. I am awaiting the exact file path for `tests/e2e.test.tsx` to proceed.
+2.  **Continuous Improvement**: Address any new or remaining linter errors and type warnings as they emerge, adhering to the principle of a zero-error build.
+
+---
+
+## Recent Debugging Insights & Refactorings (2024-07-30)
+
+### 1. Persistent "Maximum update depth exceeded" Error
+
+- **Initial Observation:** Encountered "Maximum update depth exceeded" error, indicating an infinite re-render loop, primarily observed when using `OpportunityKanbanView`.
+- **Initial Attempt:** Modified `useEffect` dependencies in `app/components/OpportunityKanbanView.tsx` to prevent `columns` state from causing re-renders. This did not fully resolve the issue.
+
+### 2. Root Cause: Duplicate User Profile Data Fetching
+
+- **Pattern Identified:** `app/components/orion/MemoryProvider.tsx` was found to have its own internal logic for fetching user profile data (`getProfileText()`), which was redundant given the existence of the dedicated `useUserProfile` hook in `app/hooks/useUserProfile.ts`.
+- **Impact:** This duplication led to conflicting state updates and re-render cycles, causing the "Maximum update depth exceeded" error.
+
+### 3. Solution: User Profile Data Consolidation
+
+- **Refactoring:** `app/components/orion/MemoryProvider.tsx` was refactored to:
+  - Remove internal `userProfileData`, `loadingProfile`, and `profileError` state variables.
+  - Eliminate the `fetchUserProfile` `useCallback` function.
+  - Import and directly consume the `useUserProfile` hook from `app/hooks/useUserProfile.ts`.
+- **Benefit:** Centralizes user profile data fetching and state management, resolving the infinite re-render loop and aligning with the DRY principle.
+
+### 4. TypeScript Type Alignment & Error Resolution
+
+- **Problem:** During refactoring `MemoryProvider.tsx`, several TypeScript errors arose due to type mismatches between `MemoryContextType` and the actual return types of `useUserProfile`. Specifically:
+  - `UserProfileData | undefined` vs `UserProfileData | null` for `userProfileData`.
+  - `boolean | undefined` vs `boolean` for `loadingProfile`.
+  - `Error | null` vs `string | null | undefined` for `profileError`.
+- **Resolution:** The `MemoryContextType` interface in `app/components/orion/MemoryProvider.tsx` was updated to explicitly include `undefined` and `Error` as possible types for these properties, ensuring type compatibility and resolving the compilation errors.
+
+---

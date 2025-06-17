@@ -1,7 +1,15 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays a list of tasks (Todos or Dailies) fetched from the Habitica API. Allows users to mark tasks as complete/incomplete and refreshes the list.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/orion/HabiticaTaskList.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by a page component (likely related to task management or dashboard - implied).
+//   - Uses `useSessionState` (`../../hooks/useSessionState`) to retrieve Habitica credentials.
+//   - Interacts with backend API routes `/api/orion/habitica/tasks` (POST) to fetch tasks and `/api/orion/habitica/tasks/score` (POST) to score tasks.
+//   - Uses `@/components/ui` components (`Card`, `Button`, `Loader2`, `AlertTriangle`).
+//   - Uses `logger` (`../../lib/logger`) for logging.
 import type { HabiticaTask } from '../../lib/types/habitica';
-import { SessionStateKeys } from '../../lib/app_constants';
+import { SessionStateKeys } from '../../lib/constants';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';

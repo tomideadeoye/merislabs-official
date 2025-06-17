@@ -2,13 +2,27 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
 import type { AuthOptions } from 'next-auth';
-import { authConfig } from '@/app/auth';
+import { authConfig } from '@/lib/auth';
 import { getJournalEntriesFromNotion } from '@/lib/notion_service';
 import { JournalEntryNotionInput } from '@/lib/types';
 
 interface FetchJournalEntriesApiResponse {
   success: boolean;
-  journalEntries?: JournalEntryNotionInput[];
+  journalEntries?: (
+    | JournalEntryNotionInput
+    | {
+        id: string;
+        title: string;
+        date: string;
+        content: string;
+        reflectionId: string | null;
+        original_entry_id: string | null;
+        tags: string[] | undefined;
+        mood: string | undefined;
+        createdAt: string | undefined;
+        updatedAt: string | undefined;
+      }
+  )[];
   error?: string;
 }
 

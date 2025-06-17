@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createOpportunityInNotion } from '@/app/shared/notion_service';
-import { OpportunityNotionPayloadSchema } from '@/app/shared/notion_next_service';
+import { createOpportunityInNotion } from '@/lib/notion_service';
+import { OpportunityNotionPayloadSchema } from '@/lib/notion_next_service';
 
 export async function POST(request: Request) {
   try {
@@ -32,12 +32,13 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in Create OrionOpportunity API route:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

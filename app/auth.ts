@@ -1,12 +1,14 @@
 import NextAuth, { type Session, type User } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import { type JWT } from 'next-auth/jwt';
+import { type NextRequest, NextResponse } from 'next/server';
 import logger from './lib/logger';
 
 // Define the shape of the object returned by NextAuth for this specific usage
 interface NextAuthExports {
   handlers: {
-    GET: (...args: any[]) => any; // Using any for simplicity for handlers
-    POST: (...args: any[]) => any;
+    GET: (req: NextRequest, res: NextResponse) => Promise<void>;
+    POST: (req: NextRequest, res: NextResponse) => Promise<void>;
   };
   auth: () => Promise<Session | null>; // Assuming auth returns a Promise<Session | null>
 }
@@ -17,7 +19,7 @@ export const authConfig = {
     error: '/auth/error',
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: User | null }) {
+    async jwt({ token, user }: { token: JWT; user: User | null }) {
       if (user) {
         // These properties should be available if module augmentation is set up for NextAuth
         token.id = user.id;
@@ -25,7 +27,7 @@ export const authConfig = {
       }
       return token;
     },
-    async session({ session, token }: { session: Session; token: any }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (token && session.user) {
         // These properties should be available if module augmentation is set up for NextAuth
         session.user.id = token.id;
@@ -64,8 +66,8 @@ export const authConfig = {
 
           logger.warn('Invalid credentials', { email: credentials.email });
           return null;
-        } catch (error) {
-          logger.error('Authentication error', { error });
+        } catch (error: unknown) {
+          logger.error('Authentication error', { error: error instanceof Error ? error.message : String(error) });
           return null;
         }
       },

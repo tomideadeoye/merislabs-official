@@ -14,8 +14,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Avatar } from '.';
-import { NavItem } from '../../types';
+
 import MobileMenu from './mobile-menu';
+import { NavItem } from '@/lib/types';
 
 interface HeaderProps {
   navItems: NavItem[];

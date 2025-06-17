@@ -9,10 +9,10 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './css/style.css';
-import { Header } from '@radix-ui/react-accordion';
+import { Header } from '@/components/ui/header';
 import { navItems } from './lib/routes';
 import { Providers } from './providers';
-
+import { MemoryProvider } from '@/components/orion/MemoryProvider';
 
 const inter = localFont({
   src: './fonts/Inter.woff2',
@@ -30,8 +30,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-inter vsc-initialized`}>
         <Providers>
-          <Header navItems={navItems} />
-          {children}
+          <MemoryProvider>
+            <Header navItems={navItems} />
+            {children}
+          </MemoryProvider>
         </Providers>
       </body>
     </html>

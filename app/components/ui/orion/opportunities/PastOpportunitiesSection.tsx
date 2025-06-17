@@ -1,9 +1,18 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays a list of similar past opportunities based on the current opportunity, fetched from the memory system (Qdrant). Helps identify patterns and outcomes from previous applications.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/PastOpportunitiesSection.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
+//   - Receives the current `OrionOpportunity` object as a prop.
+//   - Calls the backend API route `/api/orion/memory/search` to find similar opportunities in Qdrant memory.
+//   - Uses `@/lib/types` for `OrionOpportunity` and `ScoredMemoryPoint` types.
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '../../ui';
-import { Loader2, History, RefreshCw, ExternalLink } from 'lucide-react';
-import { OrionOpportunity } from '@/types/orion';
+import { Loader2, History, RefreshCw } from 'lucide-react';
+import { OrionOpportunity, ScoredMemoryPoint } from '@/lib/types';
+import { Button, Badge, ButtonProps } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '../../card';
+import { ExternalLink } from 'lucide-react';
 
 interface PastOpportunitiesProps {
   OrionOpportunity: OrionOpportunity;
@@ -63,7 +72,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
 
       if (data.success && data.results && data.results.length > 0) {
         // Transform the results into a more usable format
-        const opportunities = data.results.map((item: any) => ({
+        const opportunities = data.results.map((item: ScoredMemoryPoint) => ({
           id: item.payload.opportunityId || 'unknown',
           title: item.payload.title || 'Unknown OrionOpportunity',
           company: item.payload.company || 'Unknown Company',
@@ -109,11 +118,13 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
         </CardTitle>
 
         <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchSimilarOpportunities}
-          disabled={isLoading}
-          className="bg-gray-700 hover:bg-gray-600"
+          {...({
+            variant: 'outline',
+            size: 'sm',
+            onClick: fetchSimilarOpportunities,
+            disabled: isLoading,
+            className: 'bg-gray-700 hover:bg-gray-600',
+          } as ButtonProps)}
         >
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
           Refresh
@@ -144,15 +155,17 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
                   </div>
 
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-400 hover:text-gray-200"
-                    onClick={() => {
-                      if (item.id !== 'unknown') {
-                        window.open(`/admin/OrionOpportunity-pipeline/${item.id}`, '_blank');
-                      }
-                    }}
-                    disabled={item.id === 'unknown'}
+                    {...({
+                      variant: 'ghost',
+                      size: 'sm',
+                      className: 'text-gray-400 hover:text-gray-200',
+                      onClick: () => {
+                        if (item.id !== 'unknown') {
+                          window.open(`/admin/OrionOpportunity-pipeline/${item.id}`, '_blank');
+                        }
+                      },
+                      disabled: item.id === 'unknown',
+                    } as ButtonProps)}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>

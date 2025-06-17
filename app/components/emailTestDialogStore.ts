@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface EmailTestDialogStore {
+export interface EmailTestDialogStore {
   isOpen: boolean;
   initialTo: string;
   initialSubject: string;

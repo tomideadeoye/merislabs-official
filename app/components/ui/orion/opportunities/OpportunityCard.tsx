@@ -1,6 +1,12 @@
 'use client';
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays a single opportunity as a card with key details (title, company, status, date identified, evaluation status, source URL) and a link to view details.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/OpportunityCard.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityList` (`./OpportunityList.tsx`).
+//   - Uses `OrionOpportunity` type (`@/lib/types`).
+//   - Uses `@/components/ui` components (`Card`, `Badge`).
 // Note if any: components to merge with, similar or redundant component
 import React from 'react';
 
@@ -8,7 +14,8 @@ import Link from 'next/link';
 import { OrionOpportunity } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge, Calendar, BarChart2, ExternalLink } from 'lucide-react';
-import { Card, CardContent, CardFooter } from '../../ui';
+import { Card, CardContent, CardFooter } from '../../card';
+
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:

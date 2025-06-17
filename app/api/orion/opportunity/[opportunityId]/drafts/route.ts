@@ -3,8 +3,8 @@
  * Related: lib/database.ts, reference.md, types/OrionOpportunity.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/sharedauth';
-import { query, sql } from '@/app/shared/database';
+import { auth } from '@/auth';
+import { query } from '@/lib/database';
 
 export async function GET(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   const session = await auth();
@@ -98,21 +98,21 @@ Tomide Adeoye`,
       drafts: mockDrafts,
       draftIds: JSON.parse(OrionOpportunity.applicationmaterialids),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[OPPORTUNITY_DRAFTS_GET_API_ERROR]', error);
 
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to fetch application drafts.',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
+export async function POST() {
   const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

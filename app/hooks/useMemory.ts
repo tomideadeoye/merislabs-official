@@ -3,11 +3,9 @@
 // Note if any: components to merge with, similar or redundant component
 // Opportunities for improvement or consolidation.
 
-import { useState, useCallback } from "react";
-import { ScoredMemoryPoint, MemorySearchOptions, searchMemory } from "..";
-import { addMemory, findMemoriesByType, findMemoriesByTag } from "../lib/memory";
-
-
+import { useState, useCallback } from 'react';
+import { ScoredMemoryPoint, MemorySearchOptions, searchMemory } from '..';
+import { addMemory, findMemoriesByType, findMemoriesByTag } from '../lib/memory';
 
 /**
  * Hook for interacting with the memory system
@@ -25,7 +23,7 @@ export function useMemory() {
     setError(null);
 
     try {
-      const response = await searchMemory({ query, ...options });
+      const response = await searchMemory(query, options);
 
       if (response.success && response.results) {
         setResults(response.results);

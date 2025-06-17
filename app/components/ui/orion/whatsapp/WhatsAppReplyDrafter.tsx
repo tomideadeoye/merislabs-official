@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button, Textarea, Label, Card, CardContent, CardHeader, CardTitle, Badge } from '@/components/ui';
 import { Copy, Sparkles, MessageSquare, Loader2, InfoIcon, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useUserProfile } from '@/app/index';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 /**
  * WhatsAppReplyDrafter

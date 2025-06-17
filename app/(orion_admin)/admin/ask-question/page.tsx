@@ -2,13 +2,14 @@
 // GOAL: This page should be able to ask questions about the user's profile, memories, and other data.
 
 import { HelpCircle } from 'lucide-react';
-import { AskQuestionForm } from '@/components/orion/AskQuestionForm';
 import { useSessionState } from '@/hooks/useSessionState';
-import { SessionStateKeys } from '@/lib/types';
+import { SessionStateKeys } from '@/lib/constants';
 import { PageHeader } from '@/components/ui';
+import { AskQuestionForm } from './AskQuestionForm';
 
 export default function AskQuestionPage() {
-  const [memoryInitialized] = useSessionState(SessionStateKeys.MEMORY_INITIALIZED, false);
+  const { selectSessionValue } = useSessionState();
+  const memoryInitialized = selectSessionValue<boolean>(SessionStateKeys.MEMORY_INITIALIZED);
 
   return (
     <div className="space-y-6">

@@ -1,5 +1,13 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Generates and displays a narrative summary and key points for a specific opportunity, aligning it with the user's existing narrative statements stored in memory. Uses an LLM via a backend API.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/NarrativeAlignmentSection.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
+//   - Receives the current `OrionOpportunity` and its `evaluation` as props.
+//   - Calls backend API route `/api/orion/memory/search` to find relevant narrative entries in memory.
+//   - Calls backend API route `/api/orion/llm` with `requestType: 'NARRATIVE_ALIGNMENT'` to generate the aligned narrative.
+//   - Uses `@/lib/types` for `OrionOpportunity`, `ScoredMemoryPoint`, and `EvaluationOutput` types.
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
 import { Loader2, BookText, Copy, RefreshCw } from 'lucide-react';

@@ -1,7 +1,14 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a dropdown button to update the status of a specific opportunity. Interacts with the backend API to persist the status change.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/StatusUpdateButton.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
+//   - Interacts with the backend API route `/api/orion/notion/OrionOpportunity/[opportunityId]` (PATCH) to update the status in Notion.
+//   - Uses `@/components/ui` components (`Button`, `DropdownMenu`, etc.).
+//   - Uses `lucide-react` for icons.
 import React, { useState } from 'react';
-import { Button } from '../../ui';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../../ui';
+} from '@/components/ui/dropdown-menu';
 import { ChevronDown, Loader2 } from 'lucide-react';
 
 interface StatusUpdateButtonProps {
@@ -122,8 +129,8 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
       } else {
         throw new Error(data.error || 'Failed to update status');
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       console.error('Error updating OrionOpportunity status:', err);
     } finally {
       setIsUpdating(false);

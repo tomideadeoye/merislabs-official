@@ -1,7 +1,13 @@
 'use client';
 
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays a specific opportunity and allows the user to trigger an AI-driven evaluation of that opportunity against their profile. Shows the evaluation results.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/evaluate/page.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Uses `useParams` (`next/navigation`) to get the `opportunityId` from the URL.
+//   - Fetches opportunity details from `/api/orion/notion/opportunity/[opportunityId]`.
+//   - Triggers evaluation by calling `/api/orion/opportunity/[opportunityId]/evaluation` (POST).
+//   - Uses `@/components/ui` components (`PageHeader`, `Button`, `Card`, `Loader2`) for the UI.
+//   - Uses `OrionOpportunity` and `EvaluationOutput` types (`@/lib/types`).
 // next steps if any:
 
 import { useState, useEffect } from 'react';
@@ -10,7 +16,7 @@ import { PageHeader, Button, Card, CardContent, CardHeader, CardTitle } from '@/
 import { Loader2, ArrowLeft, BarChart2 } from 'lucide-react';
 // Corrected to direct relative import due to persistent alias resolution issues in deep paths
 import Link from 'next/link';
-import { OrionOpportunity, EvaluationOutput } from '@/app/shared';
+import { OrionOpportunity, EvaluationOutput } from '@/lib/types';
 
 export default function EvaluateOpportunityPage() {
   const params = useParams();
@@ -217,7 +223,7 @@ export default function EvaluateOpportunityPage() {
               <h4 className="text-sm font-medium text-gray-400 mb-1">Strengths</h4>
               {evaluation.strengths && evaluation.strengths.length > 0 ? (
                 <ul className="list-disc list-inside text-gray-300 space-y-1">
-                  {evaluation.strengths.map((item) => (
+                  {evaluation.strengths.map((item: { title: string; reasoning: string }) => (
                     <li key={item.title}>{item.title}</li>
                   ))}
                 </ul>
@@ -229,7 +235,7 @@ export default function EvaluateOpportunityPage() {
               <h4 className="text-sm font-medium text-gray-400 mb-1">Areas for Improvement</h4>
               {evaluation.gaps && evaluation.gaps.length > 0 ? (
                 <ul className="list-disc list-inside text-gray-300 space-y-1">
-                  {evaluation.gaps.map((item) => (
+                  {evaluation.gaps.map((item: { skill: string; reasoning: string }) => (
                     <li key={item.skill}>
                       {item.skill}: {item.reasoning}
                     </li>

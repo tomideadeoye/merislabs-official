@@ -1,5 +1,6 @@
+import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/sharedauth';
+import { query } from '@/lib/database';
 
 export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   try {
@@ -15,22 +16,22 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
       return NextResponse.json({ success: false, error: 'CV content is required' }, { status: 400 });
     }
 
-    // Here you would typically store the CV in your database
-    // For now, we'll just return success
-
-    // Example database operation:
-    // await db.OrionOpportunity.update({
-    //   where: { id: opportunityId },
-    //   data: { tailoredCV: cv }
-    // });
+    // Store the CV in your database
+    await query('UPDATE OrionOpportunity SET "tailoredCV" = $1, "updatedAt" = NOW() WHERE id = $2', [
+      cv,
+      opportunityId,
+    ]);
 
     return NextResponse.json({
       success: true,
       message: 'CV saved successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error saving CV:', error);
-    return NextResponse.json({ success: false, error: error.message || 'Failed to save CV' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: (error instanceof Error ? error.message : String(error)) || 'Failed to save CV' },
+      { status: 500 }
+    );
   }
 }
 
@@ -43,28 +44,23 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
 
     const opportunityId = params.opportunityId;
 
-    // Here you would typically fetch the CV from your database
-    // For now, we'll just return a placeholder
+    // Fetch the CV from your database
+    const result = await query('SELECT "tailoredCV" FROM OrionOpportunity WHERE id = $1', [opportunityId]);
+    const tailoredCV = result.rows[0]?.tailoredCV;
 
-    // Example database operation:
-    // const OrionOpportunity = await db.OrionOpportunity.findUnique({
-    //   where: { id: opportunityId },
-    //   select: { tailoredCV: true }
-    // });
-
-    // if (!OrionOpportunity || !OrionOpportunity.tailoredCV) {
-    //   return NextResponse.json(
-    //     { success: false, error: 'No CV found for this OrionOpportunity' },
-    //     { status: 404 }
-    //   );
-    // }
+    if (!tailoredCV) {
+      return NextResponse.json({ success: false, error: 'No CV found for this OrionOpportunity' }, { status: 404 });
+    }
 
     return NextResponse.json({
       success: true,
-      cv: 'Placeholder CV content', // Replace with actual CV from database
+      cv: tailoredCV,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching CV:', error);
-    return NextResponse.json({ success: false, error: error.message || 'Failed to fetch CV' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch CV' },
+      { status: 500 }
+    );
   }
 }

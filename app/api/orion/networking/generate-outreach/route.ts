@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/sharedauth';
-import { generateLLMResponse } from '@/app/shared/lib/orion_llm';
-import { CombinedLLMResponse } from '@/app/shared/types/orion';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
+import { generateLLMResponse } from '@/lib/orion_llm';
+import { CombinedLLMResponse } from '@/lib/types';
 
 // GOAL:
 // RELATION TO OTHER FILES, FUNCTIONS AND FEATURES:
@@ -51,7 +52,7 @@ For email outreach:
 You excel at helping professionals initiate conversations that lead to meaningful relationships rather than transactional exchanges.`;
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }

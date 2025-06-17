@@ -9,8 +9,243 @@
 // ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 
-import { PROVIDER_MODEL_CONFIGS, DEFAULT_GENERATION_PROVIDERS } from './llm_providers';
-import { OutreachRequest, OutreachResponse, UserProfileData } from '@/lib/types';
+import {
+  OutreachRequest,
+  OutreachResponse,
+  UserProfileData,
+  CombinedLLMResponse,
+  ScoredMemoryPoint,
+  Message,
+  CreateChatCompletionResponse,
+  LLMSequentialThinkingResponse,
+} from '@/lib/types';
+import { LLMModelConfig } from '@/lib/types/llm'; // Ensure LLMModelConfig is imported from the consolidated types file
+
+// Consolidating LLM provider configurations and constants directly into orion_llm.ts
+
+export const DEFAULT_GENERATION_PROVIDERS = [
+  'azure',
+  'groq',
+  'gemini',
+  'mistral',
+  'openrouter',
+  'cohere',
+  'together_ai',
+];
+
+export const SYNTHESIZER_PROVIDER = 'gemini';
+export const SYNTHESIZER_MODEL_ID = 'gemini/gemini-1.5-pro-latest';
+
+export const DEFAULT_LLM_TIMEOUT = 60; // seconds
+export const DEFAULT_SYNTHESIZER_TIMEOUT = 60; // seconds
+export const BROWSER_CONTEXT_MAX_CHARS = 4000;
+export const MIN_DRAFT_LENGTH = 20;
+
+// Supported model IDs (for quick reference):
+// azure/gpt-4.1
+// deepseek-r1
+// groq/llama3-70b-8192
+// groq/gemma2-9b-it
+// groq/llama-3.1-70b-versatile
+// groq/mistral-hermes-24b
+// groq/deepseek-r1-distill-qwen-32b
+// openrouter/mistralai/mistral-7b-instruct
+// openrouter/google/gemini-2.0-flash-exp:free
+// openrouter/deepseek/deepseek-chat-v3-0324:free
+// openrouter/deepseek/deepseek-coder-v2-0324:free
+// openrouter/anthropic/claude-3-5-sonnet
+// mistral/mistral-large-latest
+// mistral/mistral-small-latest
+// gemini/gemini-1.5-pro-latest
+// gemini/gemini-1.5-flash-latest
+// cohere/command-r-plus
+// together_ai/meta-llama/Llama-3.1-70B-Instruct-hf
+// together_ai/Qwen/Qwen2-72B-Instruct
+
+// Model provider configurations
+export const PROVIDER_MODEL_CONFIGS: Record<string, LLMModelConfig[]> = {
+  // Azure Models
+  azure: [
+    {
+      modelId: 'azure/gpt-4.1',
+      apiKeyEnv: 'AZURE_OPENAI_API_KEY',
+      azureEndpointEnv: 'AZURE_OPENAI_ENDPOINT',
+      apiVersion: '2025-01-01-preview',
+      deploymentId: 'gpt-4.1',
+      modelInfo: {
+        inputCostPerToken: 0.0000015,
+        outputCostPerToken: 0.000002,
+        contextWindow: 32768,
+        maxOutputTokens: 4096,
+      },
+    },
+    // DeepSeek-R1 as Azure deployment
+    {
+      modelId: 'azure/DeepSeek-R1',
+      apiKeyEnv: 'AZURE_DEEPSEEK_API_KEY',
+      azureEndpointEnv: 'AZURE_DEEPSEEK_ENDPOINT',
+      apiVersion: '2024-05-01-preview',
+      deploymentId: 'DeepSeek-R1',
+      modelInfo: {
+        contextWindow: 32768,
+        maxOutputTokens: 4096,
+      },
+      comment: 'DeepSeek-R1 model deployed on Azure OpenAI',
+    },
+  ],
+
+  // Groq Models
+  groq: [
+    {
+      modelId: 'groq/llama3-70b-8192',
+      apiKeyEnv: 'GROQ_API_KEY',
+      modelInfo: {
+        inputCostPerToken: 0.0,
+        outputCostPerToken: 0.0,
+        contextWindow: 8192,
+        maxOutputTokens: 4096,
+      },
+      comment: 'Current Llama3 70b on Groq',
+    },
+    {
+      modelId: 'groq/gemma2-9b-it',
+      apiKeyEnv: 'GROQ_API_KEY',
+      comment: 'Current Gemma2 9b on Groq',
+    },
+    {
+      modelId: 'groq/llama-3.1-70b-versatile',
+      apiKeyEnv: 'GROQ_API_KEY',
+      comment: 'Recommended replacement for Llama 3.1 and Tool Use models',
+    },
+    {
+      modelId: 'groq/mistral-hermes-24b',
+      apiKeyEnv: 'GROQ_API_KEY',
+      comment: 'Recommended replacement for Mixtral 8x7B',
+    },
+    {
+      modelId: 'groq/deepseek-r1-distill-qwen-32b',
+      apiKeyEnv: 'GROQ_API_KEY',
+      comment: 'Recommended reasoning model, replaced specdec Llama',
+    },
+  ],
+
+  // OpenRouter Models
+  openrouter: [
+    {
+      modelId: 'openrouter/mistralai/mistral-7b-instruct',
+      apiKeyEnv: 'OPEN_ROUTER_API_KEY',
+      apiBase: 'https://openrouter.ai/api/v1',
+      comment: 'Example free/low-cost model on OpenRouter',
+    },
+    {
+      modelId: 'openrouter/google/gemini-2.0-flash-exp:free',
+      apiKeyEnv: 'OPEN_ROUTER_API_KEY',
+      apiBase: 'https://openrouter.ai/api/v1',
+      modelInfo: {
+        contextWindow: 128000,
+        maxOutputTokens: 8192,
+      },
+      comment: 'Gemini 2.0 Flash experimental free tier via OpenRouter',
+    },
+    {
+      modelId: 'openrouter/deepseek/deepseek-chat-v3-0324:free',
+      apiKeyEnv: 'OPEN_ROUTER_API_KEY',
+      apiBase: 'https://openrouter.ai/api/v1',
+      modelInfo: {
+        contextWindow: 32768,
+        maxOutputTokens: 4096,
+      },
+      comment: 'DeepSeek Chat v3 free tier via OpenRouter',
+    },
+    {
+      modelId: 'openrouter/deepseek/deepseek-coder-v2-0324:free',
+      apiKeyEnv: 'OPEN_ROUTER_API_KEY',
+      apiBase: 'https://openrouter.ai/api/v1',
+      modelInfo: {
+        contextWindow: 32768,
+        maxOutputTokens: 4096,
+      },
+      comment: 'DeepSeek Coder v2 free tier via OpenRouter',
+    },
+    {
+      modelId: 'openrouter/anthropic/claude-3-5-sonnet',
+      apiKeyEnv: 'OPEN_ROUTER_API_KEY',
+      apiBase: 'https://openrouter.ai/api/v1',
+      comment: 'Anthropic Claude 3.5 Sonnet via OpenRouter',
+    },
+  ],
+
+  // Mistral Models
+  mistral: [
+    {
+      modelId: 'mistral/mistral-large-latest',
+      apiKeyEnv: 'MISTRAL_API_KEY',
+    },
+    {
+      modelId: 'mistral/mistral-small-latest',
+      apiKeyEnv: 'MISTRAL_API_KEY',
+      comment: 'Use latest small',
+    },
+  ],
+
+  // Gemini Models
+  gemini: [
+    {
+      modelId: 'gemini/gemini-1.5-pro-latest',
+      apiKeyEnv: 'GEMINI_API_KEY',
+      comment: 'Gemini 1.5 Pro via Google AI Studio',
+    },
+    {
+      modelId: 'gemini/gemini-1.5-flash-latest',
+      apiKeyEnv: 'GEMINI_API_KEY',
+      comment: 'Gemini 1.5 Flash via Google AI Studio',
+    },
+  ],
+
+  // Cohere Models
+  cohere: [
+    {
+      modelId: 'cohere/command-r-plus',
+      apiKeyEnv: 'COHERE_API_KEY',
+      comment: 'Capable Cohere model',
+    },
+  ],
+
+  // Together AI Models
+  together_ai: [
+    {
+      modelId: 'together_ai/meta-llama/Llama-3.1-70B-Instruct-hf',
+      apiKeyEnv: 'TOGETHER_API_KEY',
+    },
+    {
+      modelId: 'together_ai/Qwen/Qwen2-72B-Instruct',
+      apiKeyEnv: 'TOGETHER_API_KEY',
+    },
+  ],
+};
+
+// Utility: Check for all required LLM API keys
+// This function remains in orion_llm.ts as it directly uses PROVIDER_MODEL_CONFIGS
+export function checkAllLlmApiKeys() {
+  const results: {
+    modelId: string;
+    provider: string;
+    apiKeyEnv: string;
+    present: boolean;
+  }[] = [];
+  for (const [provider, models] of Object.entries(PROVIDER_MODEL_CONFIGS)) {
+    for (const model of models as LLMModelConfig[]) {
+      const apiKey = process.env[model.apiKeyEnv];
+      results.push({
+        modelId: model.modelId,
+        provider: provider,
+        apiKeyEnv: model.apiKeyEnv,
+        present: !!apiKey,
+      });
+    }
+  }
+  return results;
+}
 
 // =========== Retry Logic for API Calls ===========
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,14 +263,14 @@ async function retry<T>(
   fn: () => Promise<T>,
   retries: number,
   initialDelay: number,
-  shouldRetry: (error: any) => boolean
+  shouldRetry: (error: unknown) => boolean
 ): Promise<T> {
-  let lastError: any;
+  let lastError: unknown;
   let delay = initialDelay;
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
       if (shouldRetry(error)) {
         const jitter = delay * 0.1 * Math.random(); // Add jitter to avoid thundering herd
@@ -43,7 +278,7 @@ async function retry<T>(
           `[LLM_RETRY] Attempt ${i + 1}/${retries} failed with retryable error. Retrying in ${Math.round(
             delay + jitter
           )}ms...`,
-          lastError.message
+          error instanceof Error ? error.message : String(error)
         );
         await sleep(delay + jitter);
         delay *= 2; // Exponential backoff
@@ -62,7 +297,7 @@ async function retry<T>(
  * @param error The error object.
  * @returns True if the error is a 429 (rate limit), false otherwise.
  */
-const shouldRetryLLM = (error: any): boolean => {
+const shouldRetryLLM = (error: unknown): boolean => {
   if (error instanceof Error) {
     // Retry on rate limits or temporary server errors
     if (error.message.includes('429') || error.message.includes('500') || error.message.includes('503')) {
@@ -118,7 +353,8 @@ export const REQUEST_TYPES = {
   PROFILE_SUMMARY_TAILORING: 'PROFILE_SUMMARY_TAILORING',
   CODE_GENERATION: 'CODE_GENERATION',
   CODE_EXPLANATION: 'CODE_EXPLANATION',
-  IDEA_BRAINSTORM: 'IDEA_BRAINSTORM', // Ensure this property is present
+  IDEA_BRAINSTORM: 'IDEA_BRAINSTORM',
+  WHATSAPP_CHAT_ANALYSIS: 'WHATSAPP_CHAT_ANALYSIS',
 } as const; // Use 'as const' for literal type inference
 
 /**
@@ -170,10 +406,10 @@ export function constructLlmMessages({
   primaryContext?: string;
   systemContext?: string;
   profileContext?: string;
-  memoryResults?: any[];
+  memoryResults?: ScoredMemoryPoint[];
   prompt?: string;
-}): Array<{ role: string; content: string }> {
-  const messages = [];
+}): Message[] {
+  const messages: Message[] = [];
 
   // Add system message based on request type or use provided system context
   if (systemContext) {
@@ -231,7 +467,7 @@ export function constructLlmMessages({
 
   // Add memory results if provided
   if (memoryResults && memoryResults.length > 0) {
-    const memoryContext = memoryResults.map((item, index) => `Memory ${index + 1}: ${item.text}`).join('\n\n');
+    const memoryContext = memoryResults.map((item, index) => `Memory ${index + 1}: ${item.payload.text}`).join('\n\n');
 
     messages.push({
       role: 'user',
@@ -252,49 +488,53 @@ export function constructLlmMessages({
 /**
  * Get LLM answer with fallback
  */
-export async function getLlmAnswerWithFallback(prompt: string, options: any = {}): Promise<[any, string | null]> {
-  const { model, temperature = 0.7, max_tokens } = options;
+export async function getLlmAnswerWithFallback(
+  prompt: string,
+  options: {
+    model?: string;
+    temperature?: number;
+    maxTokens?: number;
+  } = {}
+): Promise<[CombinedLLMResponse | null, string | null]> {
+  const defaultModel = options.model || getDefaultModelForRequestType('ASK_QUESTION');
+  const modelsToTry = [defaultModel, ...getFallbackModels(defaultModel)];
 
-  const initialModel = model || 'openrouter/deepseek/deepseek-chat-v3-0324:free';
-  const modelsToTry = [initialModel, ...getFallbackModels(initialModel)];
-
-  for (const currentModel of modelsToTry) {
+  for (const model of modelsToTry) {
     try {
-      console.log(`Attempting model ${currentModel}`);
-
-      // Use absolute URL for server-side fetch
-      const llmApiUrl =
-        typeof window === 'undefined'
-          ? process.env.NEXTAUTH_URL
-            ? process.env.NEXTAUTH_URL.replace(/\/$/, '') + '/api/orion/llm'
-            : 'http://localhost:3000/api/orion/llm'
-          : '/api/orion/llm';
-      const response = await fetch(llmApiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt,
-          model: currentModel,
-          temperature,
-          maxTokens: max_tokens,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        return [data, data.content];
+      const response = await retry(
+        () =>
+          callExternalLLM(
+            model,
+            [{ role: 'user', content: prompt }],
+            options.temperature || 0.7,
+            options.maxTokens || 1000
+          ),
+        3, // Retries
+        1000, // Initial delay
+        shouldRetryLLM
+      );
+      if (response && response.choices && response.choices.length > 0) {
+        const content = response.choices[0].message?.content;
+        if (content) {
+          return [
+            {
+              success: true,
+              content,
+              model,
+              temperature: options.temperature || 0.7,
+              maxTokens: options.maxTokens || 1000,
+            },
+            null,
+          ];
+        }
       }
-    } catch (error) {
-      console.error(`Error with model ${currentModel}:`, error);
-      continue;
+    } catch (error: unknown) {
+      console.warn(`[getLlmAnswerWithFallback] Failed with model ${model}:`, error);
+      // Continue to next model if this one fails
     }
   }
 
-  console.error('All models and retries exhausted');
-  return [null, null];
+  return [null, 'All LLM models failed to generate a response. Please check API keys and model configurations.'];
 }
 
 /**
@@ -306,45 +546,40 @@ export async function generateLLMResponse(
   options: {
     profileContext?: string;
     systemContext?: string;
-    memoryResults?: any[];
+    memoryResults?: ScoredMemoryPoint[];
     model?: string;
     temperature?: number;
     maxTokens?: number;
   } = {}
-): Promise<{ success: boolean; content?: string; error?: string }> {
-  const { profileContext, systemContext, memoryResults, model, temperature, maxTokens } = options;
-
-  // Construct the messages payload
+): Promise<CombinedLLMResponse> {
   const messages = constructLlmMessages({
     requestType,
     primaryContext,
-    systemContext,
-    profileContext,
-    memoryResults,
+    systemContext: options.systemContext,
+    profileContext: options.profileContext,
+    memoryResults: options.memoryResults,
   });
 
-  // Determine which model to use
-  const primaryModel = model || getDefaultModelForRequestType(requestType);
+  const modelToUse = options.model || getDefaultModelForRequestType(requestType);
 
   try {
-    const llmResponse = await callLLMWithFallback(messages, primaryModel, temperature, maxTokens);
+    const response = await callExternalLLM(modelToUse, messages, options.temperature || 0.7, options.maxTokens || 1000);
 
-    if (llmResponse && llmResponse.trim()) {
-      console.log(`[LLM_SERVICE] Successfully generated LLM response using ${primaryModel} for type ${requestType}.`);
-      return { success: true, content: llmResponse };
-    } else {
-      console.warn(`[LLM_SERVICE] LLM response was empty for type ${requestType} using model ${primaryModel}.`);
-      return { success: false, error: 'Empty response from LLM.' };
+    if (response && response.choices && response.choices.length > 0) {
+      const content = response.choices[0].message?.content;
+      if (content) {
+        return {
+          success: true,
+          content,
+          model: modelToUse,
+          temperature: options.temperature || 0.7,
+          maxTokens: options.maxTokens || 1000,
+        };
+      }
     }
+    return { success: false, error: 'LLM response was empty or malformed.' };
   } catch (error: unknown) {
-    console.error(
-      `[LLM_SERVICE] Error generating LLM response for type ${requestType}:`,
-      error instanceof Error ? error.message : String(error)
-    );
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown LLM generation error.',
-    };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -368,55 +603,62 @@ export async function generateLLMResponseWithTools({
   primaryContext: string;
   profileContext?: string;
   systemContext?: string;
-  memoryResults?: any[];
+  memoryResults?: unknown[];
   model?: string;
   temperature?: number;
   maxTokens?: number;
-  tools?: any[];
-  tool_choice?: any;
-}): Promise<any> {
-  const modelId = model || getDefaultModelForRequestType(requestType);
+  tools?: object[];
+  tool_choice?: object | 'none' | 'auto';
+}): Promise<CombinedLLMResponse> {
+  const messages = constructLlmMessages({
+    requestType,
+    primaryContext,
+    systemContext,
+    profileContext,
+    memoryResults: memoryResults as ScoredMemoryPoint[], // Cast to ScoredMemoryPoint[]
+  });
+
+  const modelToUse = model || getDefaultModelForRequestType(requestType);
+
   try {
-    // Use absolute URL for server-side fetch
-    const llmApiUrl =
-      typeof window === 'undefined'
-        ? process.env.NEXTAUTH_URL
-          ? process.env.NEXTAUTH_URL.replace(/\/$/, '') + '/api/orion/llm'
-          : 'http://localhost:3000/api/orion/llm'
-        : '/api/orion/llm';
-    const response = await fetch(llmApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        requestType,
-        primaryContext,
-        profileContext,
-        systemContext,
-        memoryResults,
-        model: modelId,
-        temperature,
-        maxTokens,
-        tools,
-        tool_choice,
-        // Pass through any other agentic params as needed
-      }),
-    });
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.error || 'Failed to generate LLM response with tools');
+    const response = await callExternalLLM(
+      modelToUse,
+      messages,
+      temperature || 0.7,
+      maxTokens || 1000,
+      tools,
+      tool_choice
+    );
+
+    if (response && response.choices && response.choices.length > 0) {
+      const message = response.choices[0].message;
+      if (message.tool_calls && message.tool_calls.length > 0) {
+        return {
+          success: true,
+          content: message.content || '',
+          tool_calls: message.tool_calls,
+          model: modelToUse,
+          temperature: temperature || 0.7,
+          maxTokens: maxTokens || 1000,
+        };
+      } else if (message.content) {
+        return {
+          success: true,
+          content: message.content,
+          model: modelToUse,
+          temperature: temperature || 0.7,
+          maxTokens: maxTokens || 1000,
+        };
+      }
     }
-    // Return the full LLM response (not just .content)
-    return data;
-  } catch (error: any) {
-    console.error('Error in generateLLMResponseWithTools:', error);
-    throw error;
+    return { success: false, error: 'LLM response was empty or malformed.' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
 // Helper function to make API requests using fetch instead of axios
-async function makeApiRequest(url: string, data: any, headers: Record<string, string>) {
+async function makeApiRequest(url: string, data: object, headers: Record<string, string>) {
   console.log(`[LLM_API_REQUEST][INFO] Making API request to ${url}`);
   try {
     const response = await fetch(url, {
@@ -438,15 +680,18 @@ async function makeApiRequest(url: string, data: any, headers: Record<string, st
       throw new Error(`API request failed with status ${response.status}: ${errorText}`);
     }
     return await response.json();
-  } catch (error: any) {
-    console.error(`[LLM_API_REQUEST][ERROR] Error in makeApiRequest for URL ${url}:`, error.message);
+  } catch (error: unknown) {
+    console.error(
+      `[LLM_API_REQUEST][ERROR] Error in makeApiRequest for URL ${url}:`,
+      error instanceof Error ? error.message : String(error)
+    );
     // Re-throw the error to be handled by the caller (including retry logic)
     throw error;
   }
 }
 
 // Helper function to get API key and endpoint for a model
-function getModelConfig(modelId: string): {
+export function getModelConfig(modelId: string): {
   apiKey: string | null;
   endpoint?: string;
   deploymentId?: string;
@@ -465,12 +710,12 @@ function getModelConfig(modelId: string): {
     // For other providers with format "provider/model"
     const providerConfigs = PROVIDER_MODEL_CONFIGS[provider as keyof typeof PROVIDER_MODEL_CONFIGS];
     if (providerConfigs) {
-      modelConfig = providerConfigs.find((m: any) => m.modelId === modelId);
+      modelConfig = providerConfigs.find((m: LLMModelConfig) => m.modelId === modelId);
     }
   } else {
     // For simple model names, search across all providers
-    for (const [providerName, models] of Object.entries(PROVIDER_MODEL_CONFIGS)) {
-      const found = models.find((m: any) => m.modelId === modelId);
+    for (const [, /* intentionally unused */ models] of Object.entries(PROVIDER_MODEL_CONFIGS)) {
+      const found = (models as LLMModelConfig[]).find((m: LLMModelConfig) => m.modelId === modelId);
       if (found) {
         modelConfig = found;
         break;
@@ -504,12 +749,12 @@ function getModelConfig(modelId: string): {
 // Helper function to call external LLM API
 export async function callExternalLLM(
   model: string,
-  messages: any[],
+  messages: Message[],
   temperature: number,
   maxTokens?: number,
-  tools?: any[],
-  tool_choice?: any
-) {
+  tools?: object[],
+  tool_choice?: object | 'none' | 'auto'
+): Promise<CreateChatCompletionResponse | null> {
   console.log(`[callExternalLLM][INFO] Calling model: ${model}`);
   const modelConfig = getModelConfig(model);
 
@@ -521,7 +766,14 @@ export async function callExternalLLM(
   const [provider, modelName] = model.split('/');
   let url = '';
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  let body: any = {};
+  const body: {
+    messages: Message[];
+    temperature: number;
+    max_tokens?: number;
+    tools?: object[];
+    tool_choice?: object | 'none' | 'auto';
+    model?: string;
+  } = { messages, temperature, max_tokens: maxTokens, tools, tool_choice };
 
   switch (provider) {
     case 'azure':
@@ -530,26 +782,13 @@ export async function callExternalLLM(
       }
       url = `${modelConfig.endpoint}/openai/deployments/${modelConfig.deploymentId}/chat/completions?api-version=${modelConfig.apiVersion}`;
       headers['api-key'] = modelConfig.apiKey;
-      body = {
-        messages,
-        temperature,
-        max_tokens: maxTokens,
-        tools,
-        tool_choice,
-      };
+      // body structure already aligned with openai
       break;
 
     case 'groq':
       url = 'https://api.groq.com/openai/v1/chat/completions';
       headers['Authorization'] = `Bearer ${modelConfig.apiKey}`;
-      body = {
-        model: modelName,
-        messages,
-        temperature,
-        max_tokens: maxTokens,
-        tools,
-        tool_choice,
-      };
+      body.model = modelName;
       break;
 
     case 'openrouter':
@@ -557,14 +796,7 @@ export async function callExternalLLM(
       headers['Authorization'] = `Bearer ${modelConfig.apiKey}`;
       headers['HTTP-Referer'] = process.env.NEXTAUTH_URL || 'http://localhost:3000';
       headers['X-Title'] = 'Orion by Meris';
-      body = {
-        model: `${provider}/${modelName}`,
-        messages,
-        temperature,
-        max_tokens: maxTokens,
-        tools,
-        tool_choice,
-      };
+      body.model = `${provider}/${modelName}`;
       break;
 
     // Add cases for other providers like 'gemini', 'mistral'
@@ -577,28 +809,31 @@ export async function callExternalLLM(
     const result = await retry(() => makeApiRequest(url, body, headers), 3, 2000, shouldRetryLLM);
 
     // Check if the model was not found and return null to trigger fallback
-    if (result && result.error === 'MODEL_NOT_FOUND') {
+    if (result && (result as { error?: string }).error === 'MODEL_NOT_FOUND') {
       return null;
     }
 
-    return result;
-  } catch (error: any) {
-    console.error(`[callExternalLLM][ERROR] Failed to call ${model} API after all retries:`, error.message);
+    return result as CreateChatCompletionResponse; // Cast to expected response type
+  } catch (error: unknown) {
+    console.error(
+      `[callExternalLLM][ERROR] Failed to call ${model} API after all retries:`,
+      error instanceof Error ? error.message : String(error)
+    );
     // Re-throw the final error to be handled by the fallback mechanism
-    throw new Error(`Failed to call ${model} API: ${error.message}`);
+    throw new Error(`Failed to call ${model} API: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 export async function callLLMWithFallback(
-  messages: any[],
+  messages: Message[],
   primaryModel: string,
   temperature = 0.7,
   maxTokens = 1000,
-  tools?: any[],
-  tool_choice?: any
-) {
+  tools?: object[],
+  tool_choice?: object | 'none' | 'auto'
+): Promise<CreateChatCompletionResponse | null> {
   const modelsToTry = [primaryModel, ...getFallbackModels(primaryModel)];
-  let lastError: any;
+  let lastError: unknown;
 
   for (const model of modelsToTry) {
     try {
@@ -606,24 +841,40 @@ export async function callLLMWithFallback(
       const result = await callExternalLLM(model, messages, temperature, maxTokens, tools, tool_choice);
 
       // If result is null (due to 404), or if there's no valid content, continue to the next model.
-      if (result && result.choices && result.choices.length > 0) {
+      if (
+        result &&
+        result.choices &&
+        result.choices.length > 0 &&
+        result.choices[0].message.content &&
+        result.choices[0].message.content.trim()
+      ) {
         console.log(`[LLM Fallback] Success with model: ${model}`);
-        return result;
+        return result; // Return the full CreateChatCompletionResponse
       } else if (result === null) {
         // This was a 404, so we log it and move to the next model.
         console.log(`[LLM Fallback] Model ${model} not found, trying next model.`);
         lastError = new Error(`Model ${model} not found (404).`);
         continue;
+      } else {
+        // Log if result is not null but also not valid (e.g., missing choices or content)
+        console.warn(`[LLM Fallback] Model ${model} returned an invalid response structure.`);
+        lastError = new Error(`Invalid response structure from model ${model}.`);
+        continue;
       }
-    } catch (err: any) {
-      console.error(`[LLM Fallback] Model ${model} failed with an unexpected error:`, err.message);
+    } catch (err: unknown) {
+      console.error(
+        `[LLM Fallback] Model ${model} failed with an unexpected error:`,
+        err instanceof Error ? err.message : String(err)
+      );
       lastError = err;
       // Continue to the next model if this one fails
       continue;
     }
   }
   // If all models fail, throw the last recorded error
-  throw new Error(`All LLM providers/models failed. Last error: ${lastError?.message || 'Unknown error'}`);
+  throw new Error(
+    `All LLM providers/models failed. Last error: ${lastError instanceof Error ? lastError.message : String(lastError)}`
+  );
 }
 
 /**
@@ -631,43 +882,27 @@ export async function callLLMWithFallback(
  * Future: Add cost/speed-based override logic here if needed.
  */
 export async function selectPrimaryModelForRequestType(requestType: string, healthyModels: string[]): Promise<string> {
-  // Define strict order of preference for each request type
-  const requestTypeModelOrder: Record<string, string[]> = {
-    OPPORTUNITY_EVALUATION: [
-      'azure/gpt-4.1',
-      'azure/DeepSeek-R1',
-      'groq/llama3-70b-8192',
-      'openrouter/deepseek/deepseek-chat-v3-0324:free',
-    ],
-    DRAFT_COMMUNICATION: ['azure/gpt-4.1', 'groq/llama3-70b-8192', 'openrouter/deepseek/deepseek-chat-v3-0324:free'],
-    ASK_QUESTION: ['openrouter/deepseek/deepseek-chat-v3-0324:free', 'azure/gpt-4.1', 'groq/llama3-70b-8192'],
-    JOURNAL_ENTRY: ['openrouter/deepseek/deepseek-chat-v3-0324:free', 'azure/gpt-4.1'],
-    ORION_IMPROVEMENT: ['azure/gpt-4.1', 'groq/llama3-70b-8192'],
-    JD_ANALYSIS: ['openrouter/google/gemini-2.0-flash-exp:free', 'azure/gpt-4.1'],
-    CV_COMPONENT_TAILORING: ['openrouter/google/gemini-2.0-flash-exp:free', 'azure/gpt-4.1'],
-    PROFILE_SUMMARY_TAILORING: ['openrouter/google/gemini-2.0-flash-exp:free', 'azure/gpt-4.1'],
-    CODE_GENERATION: ['openrouter/deepseek/deepseek-coder-v2-0324:free', 'azure/gpt-4.1'],
-    CODE_EXPLANATION: ['openrouter/deepseek/deepseek-coder-v2-0324:free', 'azure/gpt-4.1'],
-    default: [
-      'azure/gpt-4.1',
-      'azure/DeepSeek-R1',
-      'openrouter/deepseek/deepseek-chat-v3-0324:free',
-      'groq/llama3-70b-8192',
-    ],
-  };
-  const order = requestTypeModelOrder[requestType] || requestTypeModelOrder.default;
-  // Pick the first healthy model in the order
-  for (const model of order) {
-    if (healthyModels.includes(model)) {
-      console.log(`[LLM Model Selection] Selected primary model for ${requestType}: ${model}`);
-      return model;
+  const defaultModel = getDefaultModelForRequestType(requestType);
+  if (healthyModels.includes(defaultModel)) {
+    console.log(`[LLM Model Selection] Selected primary model for ${requestType}: ${defaultModel}`);
+    return defaultModel;
+  }
+
+  // If the default model for the request type is not healthy, try to find a healthy fallback
+  const fallbackModels = getFallbackModels(defaultModel);
+  for (const fallbackModel of fallbackModels) {
+    if (healthyModels.includes(fallbackModel)) {
+      console.log(`[LLM Model Selection] Selected fallback model for ${requestType}: ${fallbackModel}`);
+      return fallbackModel;
     }
   }
-  // Fallback: just pick the first healthy model
+
+  // If no specific or fallback model is healthy, return the first healthy model available
   if (healthyModels.length > 0) {
     console.log(`[LLM Model Selection] No preferred model healthy, using: ${healthyModels[0]}`);
     return healthyModels[0];
   }
+
   throw new Error('No healthy LLM models available');
 }
 
@@ -702,7 +937,6 @@ export async function generateOutreachMessage(params: {
   Education: ${userProfileData.education.join(', ')}
   Interests: ${userProfileData.interests.join(', ')}
   Values: ${userProfileData.values.join(', ')}
-  Goals: ${userProfileData.goals.join(', ')}
   Social Links: ${userProfileData.socialLinks.map((link) => `${link.platform}: ${link.url}`).join(', ')}
   ${userProfileData.summary ? `Summary: ${userProfileData.summary}` : ''}
   ${userProfileData.backgroundSummary ? `Background Summary: ${userProfileData.backgroundSummary}` : ''}
@@ -717,15 +951,30 @@ export async function generateOutreachMessage(params: {
   });
 
   try {
-    const response = await callLLMWithFallback(
+    const llmResponse = await callLLMWithFallback(
       messages,
       getDefaultModelForRequestType(REQUEST_TYPES.DRAFT_COMMUNICATION)
     );
 
-    if (response && response.content) {
-      return { success: true, draft: response.content, message: 'Outreach message generated successfully.' };
+    if (
+      llmResponse &&
+      llmResponse.choices &&
+      llmResponse.choices.length > 0 &&
+      llmResponse.choices[0].message.content &&
+      llmResponse.choices[0].message.content.trim()
+    ) {
+      return {
+        success: true,
+        draft: llmResponse.choices[0].message.content,
+        message: 'Outreach message generated successfully.',
+      };
     } else {
-      throw new Error(response?.error || 'Failed to generate outreach message.');
+      // Handle cases where llmResponse is null or content is missing/invalid
+      throw new Error(
+        llmResponse === null
+          ? 'LLM did not return a valid response.'
+          : 'Failed to generate outreach message: Invalid response structure or empty content.'
+      );
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -733,3 +982,48 @@ export async function generateOutreachMessage(params: {
     return { success: false, draft: '', message: `Failed to generate outreach message: ${errorMessage}` };
   }
 }
+
+export async function callSequentialThinking({
+  thought,
+  nextThoughtNeeded,
+  thoughtNumber,
+  totalThoughts,
+}: {
+  thought: string;
+  nextThoughtNeeded: boolean;
+  thoughtNumber: number;
+  totalThoughts: number;
+}): Promise<LLMSequentialThinkingResponse> {
+  try {
+    const response = await fetch('/api/orion/sequential-thinking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ thought, nextThoughtNeeded, thoughtNumber, totalThoughts }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData.error || 'Unknown error from sequential thinking API';
+      throw new Error(`Failed to call sequential thinking tool: ${errorMessage}`);
+    }
+
+    const data = await response.json();
+    return data as LLMSequentialThinkingResponse; // Cast to the correct type
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to call sequential thinking tool: ${errorMessage}`);
+  }
+}
+
+// Model provider configurations
+// This was moved from llm_providers.ts as part of consolidation
+// export { PROVIDER_MODEL_CONFIGS }; // Removed duplicate export
+
+// Default generation providers (moved from llm_providers.ts)
+// export { DEFAULT_GENERATION_PROVIDERS }; // Removed duplicate export
+
+// Synthesizer settings (moved from llm_providers.ts)
+// export { SYNTHESIZER_PROVIDER, SYNTHESIZER_MODEL_ID }; // Removed duplicate export
+
+// LLM Call Defaults (moved from llm_providers.ts)
+// export { DEFAULT_LLM_TIMEOUT, DEFAULT_SYNTHESIZER_TIMEOUT, BROWSER_CONTEXT_MAX_CHARS, MIN_DRAFT_LENGTH }; // Removed duplicate export

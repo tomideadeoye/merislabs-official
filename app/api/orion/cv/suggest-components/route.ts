@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/app/shared'; // LLM utility
-import { getCVComponentsFromNotion } from '@/app/shared/notion_service';
-import { CV_COMPONENT_SELECTION_REQUEST_TYPE } from '@/lib/orion_config'; // Request type
-import type { CVComponent, CombinedLLMResponse } from '@/app/shared/types/orion'; // Corrected import
+import { generateLLMResponse } from '@/lib/orion_llm'; // Corrected import
+import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Corrected import
+import { CV_COMPONENT_SELECTION_REQUEST_TYPE } from '@/lib/orion_config';
+import type { CVComponent, CombinedLLMResponse } from '@/lib/types'; // Corrected import
 
 /**
  * API route to suggest CV components based on JD analysis and web research context.
@@ -58,13 +58,13 @@ Example Output:
 
     const rawContent = llmResponse.content;
     const parts = rawContent.split('\n');
-    const suggested_component_ids_raw: string = parts[0] || ''; // Explicitly type as string
+    const suggested_component_ids_raw: string = parts[0] || '';
     const suggested_components_json = parts.slice(1).join('\n');
 
     const suggested_component_ids: string[] = suggested_component_ids_raw
       .split(',')
       .map((id: string) => id.trim())
-      .filter((id: string) => id.length > 0); // Explicitly type id and filter empty strings
+      .filter((id: string) => id.length > 0);
 
     let componentSuggestions: { component_id: string; reasoning: string }[] = [];
     try {
@@ -72,7 +72,10 @@ Example Output:
         componentSuggestions = JSON.parse(suggested_components_json);
       }
     } catch (parseError: unknown) {
-      console.error('[SUGGEST_CV_COMPONENTS_API] Failed to parse JSON suggestions:', parseError);
+      console.error(
+        '[SUGGEST_CV_COMPONENTS_API] Failed to parse JSON suggestions:',
+        parseError instanceof Error ? parseError.message : String(parseError)
+      );
       // Continue without parsed suggestions if parsing fails
     }
 
@@ -81,7 +84,10 @@ Example Output:
 
     return NextResponse.json({ success: true, suggested_component_ids, componentSuggestions });
   } catch (error: unknown) {
-    console.error('[SUGGEST_CV_COMPONENTS_API] Error in suggest CV components API:', error);
+    console.error(
+      '[SUGGEST_CV_COMPONENTS_API] Error in suggest CV components API:',
+      error instanceof Error ? error.message : String(error)
+    );
     return NextResponse.json(
       {
         success: false,

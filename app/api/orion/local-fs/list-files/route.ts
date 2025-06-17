@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { listDirectoryContents } from '@/lib/local_file_service';
 
 /**
  * API route to list files in a directory
@@ -23,21 +24,18 @@ export async function POST(request: NextRequest) {
       success: true,
       contents,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/orion/local-fs/list-files:', error);
 
     // Return appropriate status code based on error type
-    const statusCode = error.message.startsWith('Access denied') ? 403 : 500;
+    const statusCode = error instanceof Error && error.message.startsWith('Access denied') ? 403 : 500;
 
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       },
       { status: statusCode }
     );
   }
-}
-function listDirectoryContents(directoryPath: string) {
-  throw new Error('Function not implemented.');
 }

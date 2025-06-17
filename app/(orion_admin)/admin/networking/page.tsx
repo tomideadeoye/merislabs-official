@@ -7,7 +7,7 @@
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 
 import { PageHeader } from '@/components/ui';
-import { PageNames } from '@/app_state';
+import { PageNames } from '@/lib/constants';
 import { Network } from 'lucide-react';
 
 export default function NetworkingFeaturePage() {

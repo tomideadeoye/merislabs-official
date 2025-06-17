@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteTask } from '@/app/shared/habitica_client';
+import { deleteTask } from '@/lib/habitica_client';
 
 export async function DELETE(req: NextRequest, { params }: { params: { taskId: string } }) {
   try {
@@ -21,12 +21,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { taskId: s
     const result = await deleteTask(taskId);
     console.log(`[HABITICA_DELETE_TASK] Deleted task ${taskId}`);
     return NextResponse.json({ success: true, result });
-  } catch (error: any) {
-    console.error('[HABITICA_DELETE_TASK_ERROR]', error.message);
+  } catch (error: unknown) {
+    console.error('[HABITICA_DELETE_TASK_ERROR]', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to delete Habitica task.',
+        error: error instanceof Error ? error.message : 'Failed to delete Habitica task.',
       },
       { status: 500 }
     );

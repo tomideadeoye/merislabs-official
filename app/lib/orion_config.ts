@@ -4,7 +4,10 @@
 
 // DEBUG: Log Notion env variables at startup for troubleshooting
 console.info('[ORION_CONFIG][DEBUG] NOTION_API_KEY:', process.env.NEXT_PUBLIC_NOTION_API_KEY ? '[SET]' : '[NOT SET]');
-console.info('[ORION_CONFIG][DEBUG] NOTION_DATABASE_ID:', process.env.NEXT_PUBLIC_NOTION_DATABASE_ID ? process.env.NEXT_PUBLIC_NOTION_DATABASE_ID : '[NOT SET]');
+console.info(
+  '[ORION_CONFIG][DEBUG] NOTION_DATABASE_ID:',
+  process.env.NEXT_PUBLIC_NOTION_DATABASE_ID ? process.env.NEXT_PUBLIC_NOTION_DATABASE_ID : '[NOT SET]'
+);
 
 // API URLs
 export const PYTHON_API_URL = process.env.NEXT_PUBLIC_PYTHON_API_URL || 'http://localhost:5002';
@@ -43,15 +46,19 @@ export const MEMORY_TYPES = {
   TASK: 'task',
   CONVERSATION: 'conversation',
   DOCUMENT: 'document',
-  FEEDBACK: 'feedback'
+  FEEDBACK: 'feedback',
 };
 
 // Local file system access
 export const ORION_ACCESSIBLE_LOCAL_DIRECTORIES = [
   '/Users/mac/Documents/GitHub',
   '/Users/mac/Documents/Projects',
-  '/Users/mac/Downloads'
+  '/Users/mac/Downloads',
 ];
+
+export function getConfiguredDirectories(): string[] {
+  return ORION_ACCESSIBLE_LOCAL_DIRECTORIES;
+}
 
 // Authorization helper function
 export async function checkAuthorization(role: string, request: Request) {

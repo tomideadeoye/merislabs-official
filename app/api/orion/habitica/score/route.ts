@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scoreTask } from '@/app/shared/habitica_client';
-import { auth } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
+import { scoreTask } from '@/lib/habitica_client';
 
 // GOAL OF FILE|FEATURES|FUNCTIONS:
 // FILEPATH:
@@ -9,14 +10,14 @@ import { auth } from '@/lib/auth';
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const body = await request.json();
-    const { taskId, direction, userId, apiToken } = body;
+    const { taskId, direction } = body;
 
     if (!taskId || !direction) {
       return NextResponse.json({ success: false, error: 'Task ID and direction are required.' }, { status: 400 });

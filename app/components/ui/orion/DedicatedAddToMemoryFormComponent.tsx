@@ -1,20 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-
 // GOAL: This component allows users to add text content to Orion's memory system,
 // with options to save to a vector database (Qdrant), Notion, and PostgreSQL.
 // It handles embedding generation, data structuring, and API calls to
 // persist memory points across selected destinations.
 //
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// - Connected to:
-//   - `apps/nextjs/src/hooks/useSessionState`: For persistent state management across sessions.
-//   - `apps/nextjs/src/lib/app_constants`: Defines `SessionStateKeys` for state management.
-//   - `apps/nextjs/src/lib/orion_config`: Provides `ORION_MEMORY_COLLECTION_NAME` for Qdrant.
-//   - `apps/nextjs/src/types/orion`: Exports `MemoryPayload` and `MemoryPoint` types for data structuring.
-//   - `/api/orion/memory/generate-embeddings`: Backend API for generating text embeddings.
-//   - `/api/orion/memory/upsert`: Backend API for saving to the vector database.
+// GOAL OF FILE|FEATURES|FUNCTIONS: Allows users to add text content to Orion's memory system, with options to save to a vector database (Qdrant), Notion, and PostgreSQL. Handles embedding generation, data structuring, and API calls.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/DedicatedAddToMemoryFormComponent.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+// - Uses `useSessionStateStore` (`@/state/sessionState`) for persistent form state across sessions.
+// - Calls backend API routes: `/api/orion/memory/generate-embeddings` (POST) and `/api/orion/memory/upsert` (POST).
 //   - `/api/orion/memory/save-to-notion`: Backend API for saving to Notion (requires implementation).
 //   - `/api/orion/memory/save-to-postgres`: Backend API for saving to PostgreSQL (requires implementation).
 //   - `@/components/ui` components: `Button`, `Textarea`, `Input`, `Label` from the shared UI library.
@@ -28,11 +24,11 @@ import React, { useState } from 'react';
 
 import { useSessionStateStore } from '@/state/sessionState';
 import { Button, Textarea, Input, Label } from '@/components/ui';
-import { Loader2, AlertTriangle, CheckCircle, Brain } from 'lucide-react';
+import { Loader2, Brain } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { MemoryPoint, MemoryPayload } from '@/types/orion';
-import { SessionStateKeys } from '@/lib/app_constants';
+import { MemoryPoint, MemoryPayload } from '@/lib/types';
+import { SessionStateKeys } from '@/lib/constants';
 
 interface DedicatedAddToMemoryFormProps {
   onMemoryAdded?: () => void;
@@ -51,9 +47,21 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
 }) => {
   const { setSessionValue, getSessionValue } = useSessionStateStore();
 
-  const [text, setText] = useState<string>(getSessionValue(SessionStateKeys.ATM_PASTED_TEXT) || initialText);
-  const [sourceId, setSourceId] = useState<string>(getSessionValue(SessionStateKeys.ATM_SOURCE_ID) || initialSourceId);
-  const [tags, setTags] = useState<string>(getSessionValue(SessionStateKeys.ATM_TAGS_INPUT) || initialTags);
+  const [text, setText] = useState<string>(
+    typeof getSessionValue(SessionStateKeys.ATM_PASTED_TEXT) === 'string'
+      ? (getSessionValue(SessionStateKeys.ATM_PASTED_TEXT) as string)
+      : initialText
+  );
+  const [sourceId, setSourceId] = useState<string>(
+    typeof getSessionValue(SessionStateKeys.ATM_SOURCE_ID) === 'string'
+      ? (getSessionValue(SessionStateKeys.ATM_SOURCE_ID) as string)
+      : initialSourceId
+  );
+  const [tags, setTags] = useState<string>(
+    typeof getSessionValue(SessionStateKeys.ATM_TAGS_INPUT) === 'string'
+      ? (getSessionValue(SessionStateKeys.ATM_TAGS_INPUT) as string)
+      : initialTags
+  );
 
   // Local states for component specific UI/logic
   const [type, setType] = useState<string>(initialType);
@@ -236,9 +244,12 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
           message: 'No destinations selected or all selected destinations failed to save.',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding memory:', error);
-      setFeedback({ type: 'error', message: `Failed to add memory: ${error.message || 'Unknown error'}` });
+      setFeedback({
+        type: 'error',
+        message: `Failed to add memory: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
     } finally {
       setIsSaving(false);
     }

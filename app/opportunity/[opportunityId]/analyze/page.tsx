@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { notFound, useParams } from 'next/navigation';
-import { EvaluationOutput, OrionOpportunity } from '@/app/shared';
+import { EvaluationOutput, OrionOpportunity } from '@/lib/types';
 
 import { CardContent } from '@/components/ui';
 import { OpportunityPipelineCharts } from '../../../(orion_admin)/admin/opportunity-pipeline/OpportunityPipelineCharts';
@@ -10,10 +10,16 @@ import { OpportunityPipelineCharts } from '../../../(orion_admin)/admin/opportun
 // Fetch a single OrionOpportunity from the API
 async function fetchOpportunity(id: string): Promise<OrionOpportunity | null> {
   try {
-    const res = await fetch(`/api/orion/OrionOpportunity/${id}`, { cache: 'no-store' });
-    if (!res.ok) return null;
+    const res = await fetch(`/api/orion/opportunity/${id}`, { 
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) {
+      console.error('Opportunity API returned error status:', res.status);
+      return null;
+    }
     const data = await res.json();
-    return data.OrionOpportunity as OrionOpportunity;
+    return data.opportunity as OrionOpportunity;
   } catch (error) {
     console.error('Error fetching opportunity:', error);
     return null;
@@ -23,8 +29,14 @@ async function fetchOpportunity(id: string): Promise<OrionOpportunity | null> {
 // Fetch all opportunities for pipeline analytics
 async function fetchAllOpportunities(): Promise<OrionOpportunity[]> {
   try {
-    const res = await fetch('/api/orion/OrionOpportunity/list', { cache: 'no-store' });
-    if (!res.ok) return [];
+    const res = await fetch('/api/orion/opportunity/list', { 
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) {
+      console.error('Opportunities list API returned error status:', res.status);
+      return [];
+    }
     const data = await res.json();
     return data.opportunities as OrionOpportunity[];
   } catch (error) {
@@ -45,12 +57,17 @@ export default function AnalyzePage() {
   // Fetch evaluation with profile source and error
   async function fetchEvaluationWithSource(opportunityId: string): Promise<EvaluationOutput | null> {
     try {
-      const res = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/evaluation`, {
+      // Use a cache-busting parameter to prevent infinite loops
+      const res = await fetch(`/api/orion/opportunity/${opportunityId}/evaluation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ timestamp: Date.now() }),
+        cache: 'no-store',
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        console.error('Evaluation API returned error status:', res.status);
+        return null;
+      }
       const data = await res.json();
       return data.evaluation as EvaluationOutput | null;
     } catch (error) {
@@ -62,15 +79,30 @@ export default function AnalyzePage() {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    Promise.all([fetchOpportunity(id), fetchEvaluationWithSource(id), fetchAllOpportunities()]).then(
-      ([opp, evalResult, allOpps]) => {
+    
+    const fetchData = async () => {
+      try {
+        const [opp, evalResult, allOpps] = await Promise.all([
+          fetchOpportunity(id), 
+          fetchEvaluationWithSource(id), 
+          fetchAllOpportunities()
+        ]);
+        
         if (!mounted) return;
         setOpportunity(opp);
         setEvaluation(evalResult);
         setAllOpportunities(allOpps);
-        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-    );
+    };
+    
+    fetchData();
+    
     return () => {
       mounted = false;
     };
@@ -155,7 +187,7 @@ export default function AnalyzePage() {
                   <div className="bg-gray-800 p-4 rounded-lg">
                     <h4 className="text-md font-semibold text-purple-300 mb-2">Missing Skills / Gaps</h4>
                     <ul className="list-disc list-inside text-gray-300 space-y-1">
-                      {evaluation.gaps?.map((gap, i: number) => (
+                      {evaluation.gaps?.map((gap: { skill: string; reasoning: string }, i: number) => (
                         <li key={i}>
                           {gap.skill}: {gap.reasoning}
                         </li>
@@ -165,11 +197,13 @@ export default function AnalyzePage() {
                   <div className="bg-gray-800 p-4 rounded-lg">
                     <h4 className="text-md font-semibold text-purple-300 mb-2">Matching Highlights</h4>
                     <ul className="list-disc list-inside text-gray-300 space-y-1">
-                      {evaluation.alignmentHighlights?.map((highlight, i: number) => (
-                        <li key={i}>
-                          {highlight.title}: {highlight.reasoning}
-                        </li>
-                      ))}
+                      {evaluation.alignmentHighlights?.map(
+                        (highlight: { title: string; reasoning: string }, i: number) => (
+                          <li key={i}>
+                            {highlight.title}: {highlight.reasoning}
+                          </li>
+                        )
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -177,7 +211,7 @@ export default function AnalyzePage() {
                 <div className="bg-gray-800 p-4 rounded-lg">
                   <h4 className="text-md font-semibold text-purple-300 mb-2">Strengths</h4>
                   <ul className="list-disc list-inside text-gray-300 space-y-1">
-                    {evaluation.strengths?.map((strength, i: number) => (
+                    {evaluation.strengths?.map((strength: { title: string; reasoning: string }, i: number) => (
                       <li key={i}>
                         {strength.title}: {strength.reasoning}
                       </li>

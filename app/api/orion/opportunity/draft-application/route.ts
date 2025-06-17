@@ -3,8 +3,16 @@ import { getServerSession } from 'next-auth/next';
 import { authConfig } from '@/auth';
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/styles';
-import { Session } from 'inspector';
-import { AuthOptions } from 'next-auth';
+import { Session as NextAuthSession } from 'next-auth';
+
+interface CustomSession extends NextAuthSession {
+  user?: {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  };
+}
 
 // Enhanced system prompt for draft application generation
 const SYSTEM_PROMPT_DRAFT_APPLICATION = `
@@ -169,7 +177,7 @@ function parseDraftsFromLLMResponse(llmContent: string): string {
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session: Session | null = await getServerSession(authConfig as unknown as AuthOptions);
+  const session: CustomSession | null = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized', message: 'Unauthorized' }, { status: 401 });
   }

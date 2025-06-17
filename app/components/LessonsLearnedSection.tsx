@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
 import { Loader2, Lightbulb, RefreshCw, Copy } from 'lucide-react';
 import { OrionOpportunity } from '@/lib/types';
-import { ScoredMemoryPoint } from '@/app/shared/types';
+import { ScoredMemoryPoint } from '@/lib/types';
 
 interface LessonsLearnedProps {
   OrionOpportunity: OrionOpportunity;

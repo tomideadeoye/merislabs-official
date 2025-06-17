@@ -20,6 +20,24 @@ export * from './memory';
 export * from './email';
 import type { HabiticaTask } from './habitica';
 
+// Explicitly export types to avoid duplicate identifier errors
+export * from './blocks';
+export * from './habitica';
+export * from './ideas';
+export * from './insights';
+export * from './llm';
+export * from './narrative-clarity';
+export * from './nav';
+export * from './strategic-outreach';
+export * from './memory';
+export * from './email';
+
+export interface LLMAPIKeyStatus {
+  modelId: string;
+  present: boolean;
+  reason?: string;
+}
+
 // NOTE: If any types were intended to be defined in ./orion.ts but that file does not exist,
 // they should be moved here or to another appropriate file and exported directly.
 // Goal:
@@ -101,8 +119,10 @@ export enum OpportunityStatus {
   ARCHIVED = 'archived',
   EVALUATING = 'evaluating',
   EVALUATED_POSITIVE = 'evaluatedPositive',
+  EVALUATED_NEGATIVE = 'evaluatedNegative',
   APPLICATION_DRAFTING = 'applicationDrafting',
   INTERVIEW_SCHEDULED = 'interviewScheduled',
+  INTERVIEW_COMPLETED = 'interviewCompleted',
   APPLIED = 'applied',
   PURSUING = 'pursuing',
   NEGOTIATING = 'negotiating',
@@ -110,6 +130,8 @@ export enum OpportunityStatus {
   APPLICATION_READY = 'applicationReady',
   OUTREACH_PLANNED = 'outreachPlanned',
   OUTREACH_SENT = 'outreachSent',
+  FOLLOW_UP_NEEDED = 'followUpNeeded',
+  FOLLOW_UP_SENT = 'followUpSent',
   OFFER_RECEIVED = 'offerReceived',
   APPLYING_NEXT_STEP = 'applyingNextStep',
   INTERVIEWING_ROUND_1 = 'interviewingRound1',
@@ -122,6 +144,8 @@ export enum OpportunityStatus {
   FOLLOW_UP = 'followUp',
   ON_HOLD = 'onHold',
   CONVERTED = 'converted',
+  REJECTED_BY_THEM = 'rejectedByThem',
+  DECLINED_BY_ME = 'declinedByMe',
 }
 
 export enum OpportunityPriority {
@@ -178,6 +202,7 @@ export interface EvaluationOutput {
 }
 
 export interface UserProfileData {
+  id: string;
   name: string;
   email: string;
   bio: string;
@@ -189,12 +214,13 @@ export interface UserProfileData {
   goals: string[];
   socialLinks: { platform: string; url: string }[];
   contactInfo: { phone?: string; address?: string };
-  summary?: string; // Added based on WhatsAppReplyDrafter error
+  summary?: string; // Add summary as optional
   profileText?: string;
-  source?: string; // Used in evaluation/route.ts
+  source?: 'notion' | 'local'; // Used in evaluation/route.ts
   backgroundSummary?: string;
   keySkills?: string[];
   location?: string; // Used in draft-application/route.ts
+  lastEditedTime?: string | Date | null; // Added lastEditedTime to UserProfileData
 }
 
 /**
@@ -220,13 +246,12 @@ export interface DraftApplicationRequestBody {
  * Response body for drafting an application.
  */
 export interface DraftApplicationResponseBody {
-  draftContent?: string;
+  drafts?: string[];
+  modelUsed?: string;
   message: string;
   success: boolean;
-  // Additional properties found in errors:
-  drafts?: string[]; // Used in draft-application/route.ts
-  error?: string; // Used in draft-application/route.ts
-  details?: string; // Used in draft-application/route.ts
+  error?: string;
+  details?: string;
 }
 
 export interface SearchMemoryResponse {
@@ -285,6 +310,7 @@ export interface CareerMilestone {
 }
 
 export interface JournalEntryNotionInput {
+  id?: string; // Add id as optional
   title: string;
   content: string;
   date: string | Date;
@@ -292,8 +318,10 @@ export interface JournalEntryNotionInput {
   contentType?: string;
   notionPageId?: string;
   mood?: string;
-  reflectionId?: string;
-  original_entry_id?: string;
+  reflectionId?: string | null;
+  original_entry_id?: string | null;
+  createdAt?: string; // Add createdAt as optional
+  updatedAt?: string; // Add updatedAt as optional
   // Add other relevant journal properties as needed
 }
 
@@ -325,6 +353,11 @@ export interface MemoryPayload {
   original_entry_id?: string; // Corrected to snake_case for consistency with backend
   originalTaskText?: string;
   title?: string; // Add title to payload as needed
+  opportunityId?: string; // Added for PastOpportunitiesSection.tsx
+  company?: string; // Added for PastOpportunitiesSection.tsx
+  status?: string; // Added for PastOpportunitiesSection.tsx
+  outcome?: string; // Added for PastOpportunitiesSection.tsx
+
   [key: string]: unknown; // Allows for additional fields
 }
 
@@ -343,8 +376,14 @@ export interface ScoredMemoryPoint {
 
 export interface QdrantFilterCondition {
   key: string;
-  match: {
+  match?: {
     value: string | number | boolean;
+  };
+  range?: {
+    gte?: string | number;
+    gt?: string | number;
+    lte?: string | number;
+    lt?: string | number;
   };
 }
 
@@ -939,7 +978,6 @@ export interface AnalyticsSnapshot {
 }
 
 export interface MemorySearchOptions {
-  query: string;
   filter?: QdrantFilter;
   limit?: number;
   withVectors?: boolean;
@@ -975,6 +1013,7 @@ export interface LLMResponseSuccess {
   model: string;
   temperature: number;
   maxTokens: number;
+  tool_calls?: LLMToolCall[];
 }
 
 export interface LLMResponseFailure {
@@ -1096,12 +1135,15 @@ export interface HabiticaStats {
 export interface Idea {
   id: string;
   title: string;
-  description: string;
-  status: 'new' | 'researching' | 'developing' | 'launched' | 'abandoned';
+  description?: string;
+  status: 'new' | 'researching' | 'developing' | 'launched' | 'abandoned' | 'raw_spark';
   tags?: string[];
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
   brainstormingNotes?: string;
+  dueDate?: string;
+  priority?: string;
+  userId?: string;
 }
 
 export interface Insight {
@@ -1130,11 +1172,12 @@ export interface LLMRequest {
 }
 
 export interface LLMToolCall {
-  id: string;
+  id?: string;
   function: {
     name: string;
     arguments: string;
   };
+  type: 'function'; // Explicitly add the type property
 }
 
 export interface LLMToolOutput {
@@ -1143,8 +1186,8 @@ export interface LLMToolOutput {
 }
 
 export interface Message {
-  role: 'user' | 'assistant' | 'tool';
-  content: string;
+  role: 'user' | 'assistant' | 'tool' | 'system';
+  content: string | null; // Allow content to be null for tool_calls messages
   tool_calls?: LLMToolCall[];
   tool_call_id?: string;
 }
@@ -1288,4 +1331,44 @@ export interface StrategicOutreachExecutionResult {
   errors?: string[];
   sentEmailsCount: number;
   sentLinkedInMessagesCount: number;
+}
+
+export interface LocalFileIndexRequest {
+  action: 'index' | 'delete' | 'list';
+  filePath: string;
+}
+
+export interface FilePath {
+  name: string;
+  path: string;
+  type: 'file' | 'directory';
+}
+
+export interface LocalFileIndexResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  files?: FilePath[];
+  directories?: FilePath[];
+  indexedPaths?: string[];
+}
+
+export interface LLMSequentialThinkingResponse {
+  thought: string;
+  nextThoughtNeeded?: boolean;
+  thoughtNumber?: number;
+  totalThoughts?: number;
+  [key: string]: unknown; // Allow for additional properties from the API
+}
+
+export interface Contact {
+  id: string;
+  name: string;
+  email: string | null;
+  linkedinUrl: string | null;
+  role: string | null;
+  company: string | null;
+  createdAt: string;
+  updatedAt: string;
+  [key: string]: unknown; // Allow for additional Notion properties
 }

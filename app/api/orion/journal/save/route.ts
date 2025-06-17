@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { getServerSession } from 'next-auth/next';
 import { authConfig } from '@/lib/auth';
-import { createJournalEntryInNotion } from '@/app/shared/notion_service'; // Import the Notion save function
-import type { JournalEntryNotionInput } from '@/app/shared'; // Import the type
+import { createJournalEntryInNotion } from '@/lib/notion_service'; // Import the Notion save function
+import type { JournalEntryNotionInput } from '@/lib'; // Import the type
 import { JOURNAL_REFLECTION_REQUEST_TYPE } from '@/lib/orion_config';
 import type { Session } from 'next-auth';
 import type { AuthOptions } from 'next-auth'; // Ensure AuthOptions is imported

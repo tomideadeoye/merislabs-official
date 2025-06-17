@@ -45,13 +45,13 @@ export interface WhatsAppAnalysisData {
 interface WhatsAppChatUploaderStore {
   uploadedFile: File | null;
   uploadProgress: number;
-  parsedChatData: WhatsAppParsedChatData | null; // Replaced any with WhatsAppParsedChatData
-  analysisData: WhatsAppAnalysisData | null; // Replaced any with WhatsAppAnalysisData
+  parsedChatData: WhatsAppParsedChatData | null;
+  analysisData: WhatsAppAnalysisData | null;
   success: boolean;
   setUploadedFile: (file: File | null) => void;
   setUploadProgress: (progress: number) => void;
-  setParsedChatData: (data: WhatsAppParsedChatData | null) => void; // Replaced any
-  setAnalysisData: (data: WhatsAppAnalysisData | null) => void; // Replaced any
+  setParsedChatData: (data: WhatsAppParsedChatData | null) => void;
+  setAnalysisData: (data: WhatsAppAnalysisData | null) => void;
   setSuccess: (success: boolean) => void;
   reset: () => void;
 }

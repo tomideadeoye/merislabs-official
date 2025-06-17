@@ -1,6 +1,11 @@
 // components/orion/opportunities/OpportunityAnalysisDisplay.tsx
-// GOAL:
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays the results of an opportunity evaluation. Allows triggering a re-evaluation via a backend API call. Handles loading, errors, and displays structured evaluation data or raw LLM output if parsing fails.
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/OpportunityAnalysisDisplay.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
+//   - Calls backend API route `/api/orion/OrionOpportunity/[opportunityId]/evaluation` (POST) to fetch or trigger evaluation.
+//   - Uses `@/lib/types` for `OpportunityNotionOutputShared` and `EvaluationOutput` types.
 // Note if any: components to merge with, similar or redundant component
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';

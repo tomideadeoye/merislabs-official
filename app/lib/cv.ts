@@ -2,8 +2,6 @@
  * CV component management and tailoring functionality
  */
 
-import { PYTHON_API_URL } from './orion_config';
-
 export interface CVComponent {
   notionPageId: string;
   unique_id: string;
@@ -17,10 +15,7 @@ export interface CVComponent {
   contentType?: string;
 }
 
-const BASE_URL =
-  typeof window === 'undefined'
-    ? process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    : '';
+const BASE_URL = typeof window === 'undefined' ? process.env.NEXTAUTH_URL || 'http://localhost:3000' : '';
 
 /**
  * Fetch all CV components from Notion
@@ -32,7 +27,7 @@ export async function fetchCVComponents(): Promise<CVComponent[]> {
       throw new Error(`Failed to fetch CV components: ${response.statusText}`);
     }
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching CV components:', error);
     throw error;
   }
@@ -44,31 +39,28 @@ export async function fetchCVComponents(): Promise<CVComponent[]> {
 export async function suggestCVComponents(
   jdAnalysis: string,
   jobTitle: string,
-  companyName: string,
+  companyName: string
 ): Promise<{
   success: boolean;
   suggested_component_ids?: string[];
   error?: string;
 }> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/api/orion/cv/suggest-components`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jd_analysis: jdAnalysis,
-          job_title: jobTitle,
-          company_name: companyName,
-        }),
+    const response = await fetch(`${BASE_URL}/api/orion/cv/suggest-components`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({
+        jd_analysis: jdAnalysis,
+        job_title: jobTitle,
+        company_name: companyName,
+      }),
+    });
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error suggesting CV components:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 }
 
@@ -78,27 +70,24 @@ export async function suggestCVComponents(
 export async function rephraseComponent(
   componentId: string,
   jdAnalysis: string,
-  webResearchContext?: string,
+  webResearchContext?: string
 ): Promise<{ success: boolean; rephrased_content?: string; error?: string }> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/api/orion/cv/rephrase-component`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          component_id: componentId,
-          jd_analysis: jdAnalysis,
-          web_research_context: webResearchContext,
-        }),
+    const response = await fetch(`${BASE_URL}/api/orion/cv/rephrase-component`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({
+        component_id: componentId,
+        jd_analysis: jdAnalysis,
+        web_research_context: webResearchContext,
+      }),
+    });
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error rephrasing CV component:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 }
 
@@ -108,7 +97,7 @@ export async function rephraseComponent(
 export async function tailorSummary(
   componentId: string,
   jdAnalysis: string,
-  webResearchContext?: string,
+  webResearchContext?: string
 ): Promise<{ success: boolean; tailored_content?: string; error?: string }> {
   try {
     const response = await fetch(`${BASE_URL}/api/orion/cv/tailor-summary`, {
@@ -123,9 +112,9 @@ export async function tailorSummary(
       }),
     });
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error tailoring CV summary:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 }
 
@@ -136,7 +125,7 @@ export async function assembleCV(
   selectedComponentIds: string[],
   templateName: 'Standard' | 'Modern' | 'Compact',
   headerInfo: string,
-  tailoredContentMap: Record<string, string>,
+  tailoredContentMap: Record<string, string>
 ): Promise<{ success: boolean; assembled_cv?: string; error?: string }> {
   try {
     const response = await fetch(`${BASE_URL}/api/orion/cv/assemble`, {
@@ -152,9 +141,9 @@ export async function assembleCV(
       }),
     });
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error assembling CV:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 }
 
@@ -162,18 +151,12 @@ export async function assembleCV(
  * Generate a Word document (DOCX) from assembled CV content.
  * This is a placeholder function.
  */
-export async function generateWordDoc(
-  assembledCvContent: string,
-  templateName: string,
-): Promise<Blob> {
+export async function generateWordDoc(assembledCvContent: string, templateName: string): Promise<Blob> {
   console.warn('generateWordDoc: Placeholder function called.');
   // In a real application, this would involve a backend call or a more complex client-side generation
-  return new Blob(
-    [`Generated Word Doc for ${templateName}: ${assembledCvContent}`],
-    {
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    },
-  );
+  return new Blob([`Generated Word Doc for ${templateName}: ${assembledCvContent}`], {
+    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  });
 }
 
 /**
@@ -182,8 +165,6 @@ export async function generateWordDoc(
  */
 export function generateWordFilename(jobTitle: string): string {
   console.warn('generateWordFilename: Placeholder function called.');
-  const formattedJobTitle = jobTitle
-    .replace(/[^a-zA-Z0-9]/g, '_')
-    .toLowerCase();
+  const formattedJobTitle = jobTitle.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
   return `tailored_cv_${formattedJobTitle}_${new Date().toISOString().slice(0, 10)}.docx`;
 }

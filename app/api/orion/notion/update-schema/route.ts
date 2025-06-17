@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateNotionDatabaseSchema } from '@/app/shared/notion_service'; // Import the update function
+import { updateNotionDatabaseSchema } from '@/lib/notion_service'; // Import the update function
 
 interface UpdateSchemaRequestBody {
   databaseId: string;

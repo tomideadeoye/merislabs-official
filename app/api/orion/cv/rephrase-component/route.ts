@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/app/shared'; // Import LLM utility
-import { getCVComponentsFromNotion } from '@/app/shared/notion_service'; // Import from notion_service
-import { CV_COMPONENT_REPHRASING_REQUEST_TYPE } from '@/lib/orion_config'; // Import request type
-import type { CVComponent, CombinedLLMResponse } from '@/app/shared/types/orion'; // Corrected import and type
+import { generateLLMResponse } from '@/lib/orion_llm'; // Corrected import
+import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Corrected import
+import { CV_COMPONENT_REPHRASING_REQUEST_TYPE } from '@/lib/orion_config';
+import type { CVComponent, CombinedLLMResponse } from '@/lib/types'; // Corrected import
 
 /**
  * API route for rephrasing a CV component based on JD analysis using LLM

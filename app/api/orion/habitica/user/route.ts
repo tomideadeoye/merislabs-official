@@ -3,21 +3,25 @@ import { getUserData } from '@/lib/habitica_client';
 import { cookies } from 'next/headers';
 
 // GOAL OF FILE|FEATURES|FUNCTIONS:
-// FILEPATH:
+// This file provides API endpoints for managing Habitica user credentials and fetching user data.
+// The GET endpoint retrieves user stats, while the POST endpoint saves user ID and API token to secure cookies after validation.
+// FILEPATH: app/api/orion/habitica/user/route.ts
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+// - '@/lib/habitica_client': Provides functions to interact with the Habitica API (getUserData).
+// - 'next/headers': Used for accessing and setting cookies securely.
+// - HabiticaCredentialsForm.tsx (UI component): Interacts with these API endpoints to allow users to set their credentials.
 // ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
-// NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
+// - Credentials stored in httpOnly, secure, sameSite=strict cookies for security.
+// NOTES: This API acts as a secure proxy to the Habitica API, preventing direct client-side exposure of API tokens.
 // TODOS:
 // SUGGESTIONS:
 
 /**
  * GET handler for Habitica user stats
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    // Defensive: always await cookies() and type as any
-    console.warn('[HabiticaUserAPI][GET] Awaiting cookies() as workaround for type mismatch.');
-    const cookieStore: any = await cookies();
+    const cookieStore = cookies(); // Await cookies() directly, remove 'any' type assertion
     const userId = cookieStore.get('HABITICA_USER_ID')?.value;
     const apiToken = cookieStore.get('HABITICA_API_TOKEN')?.value;
     console.info('[HabiticaUserAPI][GET] Read cookies', { userId, apiToken });
@@ -28,6 +32,7 @@ export async function GET(req: NextRequest) {
         {
           success: false,
           error: 'Habitica credentials not found',
+          message: 'Habitica credentials not found. Please set them via the settings.',
         },
         { status: 401 }
       );
@@ -42,18 +47,20 @@ export async function GET(req: NextRequest) {
         {
           success: false,
           error: 'Failed to fetch Habitica user stats',
+          message: 'Could not retrieve user stats from Habitica. Please check your credentials.',
         },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true, userStats });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in GET /api/orion/habitica/user:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        message: `Failed to retrieve Habitica user data: ${error instanceof Error ? error.message : 'Unknown error'}`,
       },
       { status: 500 }
     );
@@ -63,9 +70,9 @@ export async function GET(req: NextRequest) {
 /**
  * POST handler to save Habitica credentials
  */
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await request.json();
     const { userId, apiToken } = body;
     console.info('[HabiticaUserAPI][POST] Received credentials', {
       userId,
@@ -79,6 +86,7 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           error: 'User ID and API Token are required',
+          message: 'User ID and API Token cannot be empty.',
         },
         { status: 400 }
       );
@@ -93,6 +101,7 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           error: 'Invalid Habitica credentials',
+          message: 'The provided Habitica User ID or API Token is invalid. Please check and try again.',
         },
         { status: 401 }
       );
@@ -121,12 +130,13 @@ export async function POST(req: NextRequest) {
       apiToken,
     });
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/orion/habitica/user:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        message: `Failed to save Habitica credentials: ${error instanceof Error ? error.message : 'Unknown error'}`,
       },
       { status: 500 }
     );

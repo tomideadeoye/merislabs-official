@@ -3,14 +3,22 @@
  * - Replaces SQLite for cloud scalability, reliability, and performance.
  * - Returns all ideas, with optional status and tag filtering.
  * - Absurdly comprehensive logging for every step, including query construction, execution, and error handling.
- * - Related: lib/database.ts (Postgres pool), types/ideas.d.ts (Idea type), reference.md (feature documentation).
- * - All features preserved, no logic lost in migration.
+ * FILEPATH: app/api/orion/ideas/route.ts
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ * - `@/lib/database.ts` (Postgres pool): Used for database interactions.
+ * - `@/lib/logger.ts`: Centralized logging utility.
+ * - `@/lib/types/index.ts` (Idea type): Defines the structure of Idea objects.
+ * ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
+ * - Idea data is stored in a `ideas` table in the Neon Postgres database.
+ * NOTES: All features preserved from previous implementations. This route is designed to be highly observable with extensive logging.
+ * TODOS: Consider adding pagination metadata (total count) to the response for better client-side handling.
+ * SUGGESTIONS: Implement a more robust filtering mechanism (e.g., combining status and tags).
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { query } from '../../../lib/postgres';
-import logger from '../../../lib/logger';
-import type { Idea } from '../../../src/types/ideas';
+import { query } from '@/lib/database';
+import logger from '@/lib/logger';
+import { Idea } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,7 +62,7 @@ export async function GET(req: NextRequest) {
     logger.info('Request received', { status, tag, page, limit });
 
     let pgQuery = 'SELECT * FROM ideas';
-    const queryParams: any[] = [];
+    const queryParams: unknown[] = [];
     let paramIndex = 1;
 
     if (status) {
@@ -69,16 +77,16 @@ export async function GET(req: NextRequest) {
     logger.debug('Constructed SQL query', { pgQuery, queryParams });
 
     const result = await query<Idea>(pgQuery, queryParams);
-    const ideas: Idea[] = result.rows.map((row: any) => ({
+    const ideas: Idea[] = result.rows.map((row: Idea) => ({
       id: row.id,
       title: row.title,
       description: row.description, // Use 'description' as per updated Idea interface
       status: row.status,
-      tags: JSON.parse(row.tags || '[]'),
-      createdAt: row.createdat,
-      updatedAt: row.updatedat,
-      userId: row.userid, // Include userId
-      dueDate: row.duedate, // Include dueDate
+      tags: Array.isArray(row.tags) ? row.tags : row.tags ? JSON.parse(row.tags) : [], // Handle tags as array or JSON string
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      userId: row.userId, // Include userId
+      dueDate: row.dueDate, // Include dueDate
       priority: row.priority, // Include priority
     }));
 
@@ -95,7 +103,11 @@ export async function GET(req: NextRequest) {
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        message: `Failed to fetch ideas: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      },
       { status: 500 }
     );
   }

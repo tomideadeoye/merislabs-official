@@ -1,14 +1,21 @@
-"use client";
+'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a button to trigger a test email sending flow. Opens a dialog (`FinalizeAndSendEmailDialog`) pre-filled with sample email content.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/EmailTestButton.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Uses `useEmailTestDialogStore` (`../../../emailTestDialogStore`) to manage the state of the email sending dialog.
+//   - Renders `FinalizeAndSendEmailDialog` (`@/components/FinalizeAndSendEmailDialog`).
+//   - Uses `@/components/ui/button` for the button UI.
 import React from 'react';
 
-import { FinalizeAndSendEmailDialog } from '../../../../FinalizeAndSendEmailDialog';
+
 import { Mail } from 'lucide-react';
-import { Button } from '@headlessui/react';
-import { useEmailTestDialogStore } from '../../../../emailTestDialogStore';
+import { Button } from '@/components/ui/button';
+import { useEmailTestDialogStore, EmailTestDialogStore } from '../../../emailTestDialogStore';
+import { FinalizeAndSendEmailDialog } from '@/components/FinalizeAndSendEmailDialog';
 
 export const EmailTestButton: React.FC = () => {
-  const openDialog = useEmailTestDialogStore((state) => state.open);
+  const openDialog = useEmailTestDialogStore((state: EmailTestDialogStore) => state.open);
 
   const sampleHtmlEmail = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -29,10 +36,10 @@ export const EmailTestButton: React.FC = () => {
       <Button
         onClick={() =>
           openDialog({
-            initialTo: "",
-            initialSubject: "Test Email from Orion",
+            initialTo: '',
+            initialSubject: 'Test Email from Orion',
             initialHtmlBody: sampleHtmlEmail,
-            onEmailSent: (messageId) => {
+            onEmailSent: (messageId: string) => {
               console.log('Email sent successfully with message ID:', messageId);
             },
           })

@@ -8,7 +8,7 @@
 
 import { PageHeader } from '@/components/ui/page-header';
 import { BrainCircuit } from 'lucide-react';
-import { PageNames } from '@/lib/app_constants';
+import { PageNames } from '@/lib/constants';
 
 export default function AgenticWorkflowFeaturePage() {
   return (

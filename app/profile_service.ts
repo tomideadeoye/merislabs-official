@@ -7,7 +7,10 @@
 import { logger } from './styles';
 
 let readFileImpl: typeof import('fs/promises').readFile | undefined;
-let pathImpl: typeof import('path') | undefined;
+interface PathModuleStub {
+  join: (...paths: string[]) => string;
+}
+let pathImpl: typeof import('path') | PathModuleStub | undefined;
 
 const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
@@ -20,10 +23,11 @@ if (isNode) {
     throw new Error('readFile is not available in this environment.');
   };
   pathImpl = {
-    join: () => {
-      throw new Error('path.join is not available in this environment.');
+    join: (...paths: string[]) => {
+      // Simple join for demonstration; in a real scenario, use a proper path library or Node.js path module.
+      return paths.join('/');
     },
-  } as any;
+  };
 }
 
 /**
@@ -56,13 +60,13 @@ function extractNotionPageId(url: string): string | null {
 /**
  * Extracts plain text from any Notion block type that contains a `rich_text` array.
  */
-function extractTextFromBlock(block: any): string {
+function extractTextFromBlock(block: { type: string; [key: string]: any }): string {
   const blockType = block?.type;
   if (!blockType) return '';
 
   const blockContent = block[blockType];
   if (blockContent?.rich_text && Array.isArray(blockContent.rich_text)) {
-    return blockContent.rich_text.map((rt: any) => rt.plain_text).join('');
+    return blockContent.rich_text.map((rt: { plain_text: string }) => rt.plain_text).join('');
   }
   return '';
 }
@@ -120,11 +124,11 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
         );
       }
 
-      const notionData = (await notionRes.json()) as any;
+      const notionData = (await notionRes.json()) as { results: { type: string; [key: string]: any }[] };
 
       // REFACTORED: Concatenate text from all supported block types into a single string.
       const allText = notionData.results
-        .map((block: any) => extractTextFromBlock(block))
+        .map((block) => extractTextFromBlock(block))
         .join('\n') // Join content from different blocks with a newline
         .trim();
 
@@ -185,10 +189,10 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
     } else {
       throw new Error('Local profile files were found but are empty.');
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(
       'Failed to fetch user profile from all sources (Notion and local files). This is a critical context failure.',
-      { ...logContext, error }
+      { ...logContext, error: error instanceof Error ? error.message : String(error) }
     );
     // This will now be the final point of failure if local files are also missing.
     return null;

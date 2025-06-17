@@ -8,9 +8,9 @@
  */
 export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
-import { getTasks } from '@/app/shared/habitica_client';
-import type { HabiticaTask } from '@/app/shared/types/habitica';
-import { query, sql } from '@/app/shared/database';
+import { getTasks } from '@/lib/habitica_client';
+import type { HabiticaTask } from '@/lib/types';
+import { query } from '@/lib/database';
 
 export async function POST(req: NextRequest) {
   const logContext = {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   try {
     console.info('[HABITICA_TASKS][START]', logContext);
 
-    const { userId, apiToken, type } = await req.json();
+    const { userId, apiToken } = await req.json();
 
     // Use env vars if not provided
     const finalUserId = userId || process.env.HABITICA_USER_ID;
@@ -45,12 +45,12 @@ export async function POST(req: NextRequest) {
         count: allTasks.length,
         ...logContext,
       });
-    } catch (fetchErr) {
+    } catch (fetchErr: unknown) {
       console.error('[HABITICA_TASKS][ERROR_FETCHING]', {
-        fetchErr,
+        fetchErr: fetchErr instanceof Error ? fetchErr.message : String(fetchErr),
         ...logContext,
       });
-      throw fetchErr;
+      throw fetchErr; // Re-throw to propagate the error
     }
 
     // Filter by type if requested, else return all types
@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
               };
             }
             return task;
-          } catch (dbError: any) {
+          } catch (dbError: unknown) {
             console.error('[HABITICA_TASKS][DB][ERROR_FETCHING_ORIGIN]', {
               taskId: task._id,
-              dbError,
+              dbError: dbError instanceof Error ? dbError.message : String(dbError),
             });
             return task; // Return original task if DB error
           }
@@ -103,12 +103,15 @@ export async function POST(req: NextRequest) {
       habits: augHabits,
       rewards: augRewards,
     });
-  } catch (error: any) {
-    console.error('[HABITICA_TASKS][ERROR]', { ...logContext, error });
+  } catch (error: unknown) {
+    console.error('[HABITICA_TASKS][ERROR]', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       },
       { status: 500 }
     );

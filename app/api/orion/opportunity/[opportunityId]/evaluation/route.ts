@@ -1,8 +1,11 @@
-import { auth } from '@/app/auth';
-import { MemoryPayload, fetchUserProfile, generateLLMResponse, REQUEST_TYPES } from '@/app/index';
+import { auth } from '@/auth';
+import { generateLLMResponse } from '@/lib/llm_providers';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
-import { EvaluationOutput } from '@/lib/types';
-import { logger } from '@/app/shared/lib/logger';
+import { REQUEST_TYPES } from '@/lib/orion_llm';
+import { EvaluationOutput, MemoryPayload } from '@/lib/types';
+import { fetchUserProfile } from '@/profile_service';
+import logger from '@/lib/logger';
+
 import { NextRequest, NextResponse } from 'next/server';
 
 // Define the response type for the evaluation API
@@ -28,40 +31,62 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ): Promise<NextResponse<EvaluationApiResponse>> {
-  // Use the defined response type
+  logger.info('[EVAL_API][START] Initiating opportunity evaluation POST request.', {
+    opportunityId: params.opportunityId,
+    method: request.method,
+  });
   const session = await auth();
   if (!session || !session.user) {
+    logger.warn('[EVAL_API][AUTH_FAIL] Unauthorized access attempt detected. User session invalid.');
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   const resolvedParams = await params;
   const { opportunityId } = resolvedParams;
+  logger.debug('[EVAL_API][PARAM_RESOLVED] Opportunity ID resolved from parameters.', { opportunityId });
 
   if (!opportunityId) {
-    return NextResponse.json({ success: false, error: 'OrionOpportunity ID is required.' }, { status: 400 });
+    logger.error('[EVAL_API][VALIDATION_ERROR] Opportunity ID is missing from the request.', { status: 400 });
+    return NextResponse.json({ success: false, error: 'Opportunity ID is required.' }, { status: 400 });
   }
 
   try {
     // Receive optional web context from the frontend
     let frontendCompanyWebContext: string | undefined = undefined;
     try {
-      const body = await request.json().catch(() => ({})); // Provide default empty object if parsing fails
-      frontendCompanyWebContext = body?.companyWebContext;
-      console.log('[EVAL_API][SUCCESS] Parsed request body:', {
-        frontendCompanyWebContext,
+      const body = await request.json().catch((error) => {
+        logger.warn(
+          '[EVAL_API][BODY_PARSE_WARN] Failed to parse request body as JSON. Proceeding without frontend context.',
+          {
+            error: error instanceof Error ? error.message : String(error),
+            originalBody: request.body ? JSON.stringify(request.body) : 'N/A',
+          }
+        );
+        return {}; // Provide default empty object if parsing fails
       });
-    } catch (error) {
-      console.warn('[EVAL_API][WARN] Could not parse request body as JSON, proceeding without it.', error);
-      // This is not a fatal error, we can proceed without the frontend context
+      frontendCompanyWebContext = body?.companyWebContext;
+      logger.info('[EVAL_API][BODY_PARSE_SUCCESS] Successfully parsed request body for frontend company web context.', {
+        frontendCompanyWebContext: !!frontendCompanyWebContext,
+      });
+    } catch (error: unknown) {
+      // This outer catch handles unexpected errors during the parsing block, though the inner catch should handle most JSON parsing issues.
+      logger.warn('[EVAL_API][WARN] An unexpected error occurred during request body parsing.', {
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
     }
 
+    logger.info('[EVAL_API][NOTION_FETCH] Attempting to fetch opportunity details from Notion.', { opportunityId });
     const opportunityResult = await fetchOpportunityByIdFromNotion(opportunityId);
 
     if (!opportunityResult.success) {
+      logger.error('[EVAL_API][NOTION_FETCH_FAIL] Failed to fetch Opportunity details from Notion.', {
+        opportunityId,
+        error: opportunityResult.error,
+      });
       return NextResponse.json(
         {
           success: false,
-          error: opportunityResult.error || 'Failed to fetch OrionOpportunity details from Notion.',
+          error: opportunityResult.error || 'Failed to fetch Opportunity details from Notion.',
         },
         { status: 500 }
       );
@@ -69,20 +94,27 @@ export async function POST(
 
     const OrionOpportunity = opportunityResult.OrionOpportunity;
     if (!OrionOpportunity) {
-      return NextResponse.json({ success: false, error: 'OrionOpportunity not found.' }, { status: 404 });
+      logger.warn('[EVAL_API][NOTION_NOT_FOUND] Opportunity not found in Notion.', { opportunityId });
+      return NextResponse.json({ success: false, error: 'Opportunity not found.' }, { status: 404 });
     }
+    logger.info('[EVAL_API][NOTION_SUCCESS] Successfully fetched opportunity details.', {
+      opportunityId,
+      title: OrionOpportunity.title,
+    });
     // Normalize company/companyOrInstitution for downstream use
-    const company = (OrionOpportunity.company ?? (OrionOpportunity as any).companyOrInstitution ?? '') || '';
-    const companyOrInstitution =
-      ((OrionOpportunity as any).companyOrInstitution ?? OrionOpportunity.company ?? '') || '';
+    const companyOrInstitution = (OrionOpportunity.companyOrInstitution ?? OrionOpportunity.company ?? '') || '';
+    logger.debug('[EVAL_API][COMPANY_NORMALIZED] Company or institution name normalized.', { companyOrInstitution });
     // Use sourceUrl if available, otherwise fallback to url
     const jobUrl = OrionOpportunity.sourceUrl || OrionOpportunity.url;
+    logger.debug('[EVAL_API][JOB_URL_RESOLVED] Job URL resolved.', { jobUrl });
 
     // Fetch user profile data
     let profileError: string | null = null;
+    logger.info('[EVAL_API][PROFILE_FETCH] Attempting to fetch user profile data.');
     const profileData = await fetchUserProfile();
     let profileContext = 'User profile data not available.';
     if (profileData) {
+      logger.info('[EVAL_API][PROFILE_SUCCESS] User profile data successfully fetched.');
       // Dynamically include all fields except 'source'
       const fields = Object.entries(profileData)
         .filter(([k]) => k !== 'source')
@@ -92,18 +124,23 @@ export async function POST(
     } else {
       profileError =
         'User profile data could not be loaded from Notion or local files. Check Notion API key, URL, and local fallback files.';
+      logger.error('[EVAL_API][PROFILE_FAIL] ' + profileError);
     }
 
     // Fetch relevant memories
     let memoryResults: MemoryPayload[] = []; // Use MemoryPayload type
+    logger.info('[EVAL_API][MEMORY_FETCH] Attempting to fetch relevant memories.', {
+      opportunityTitle: OrionOpportunity.title,
+      company: companyOrInstitution,
+    });
     try {
       const memoryResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `OrionOpportunity evaluation context for ${OrionOpportunity.title} at ${companyOrInstitution}`, // Tailor memory query
+          query: `Opportunity evaluation context for ${OrionOpportunity.title} at ${companyOrInstitution}`, // Tailor memory query
           limit: 5, // Adjust limit as needed
-          // Optionally add filters here based on OrionOpportunity details or user intent
+          // Optionally add filters here based on Opportunity details or user intent
         }),
       });
 
@@ -111,33 +148,42 @@ export async function POST(
         const memoryData = await memoryResponse.json();
         if (memoryData.success && memoryData.results) {
           memoryResults = memoryData.results; // memoryData.results should be MemoryPayload[]
-          console.log('[EVAL_API] Successfully fetched memory results.', memoryResults.length);
+          logger.info('[EVAL_API][MEMORY_SUCCESS] Successfully fetched memory results.', {
+            count: memoryResults.length,
+          });
         } else {
-          console.warn('[EVAL_API] Memory search proxy returned success: false or no results.', memoryData);
+          logger.warn('[EVAL_API][MEMORY_NO_RESULTS] Memory search proxy returned success: false or no results.', {
+            memoryData,
+          });
         }
       } else {
-        console.error(
-          '[EVAL_API] Failed to call internal memory search proxy:',
-          memoryResponse.status,
-          memoryResponse.statusText
-        );
+        logger.error('[EVAL_API][MEMORY_PROXY_FAIL] Failed to call internal memory search proxy:', {
+          status: memoryResponse.status,
+          statusText: memoryResponse.statusText,
+        });
       }
     } catch (memoryError: unknown) {
-      console.error(
-        '[EVAL_API] Error calling internal memory search proxy:',
-        memoryError instanceof Error ? memoryError.message : String(memoryError)
-      );
+      logger.error('[EVAL_API][MEMORY_ERROR] Error calling internal memory search proxy:', {
+        errorMessage: memoryError instanceof Error ? memoryError.message : String(memoryError),
+      });
     }
 
     // Integrate web research (company overview) and scraping (job URL) by calling the proxy API route
     // Prioritize frontend web context if provided, otherwise perform backend search
     let combinedWebContext: string = frontendCompanyWebContext || '';
+    logger.info('[EVAL_API][WEB_CONTEXT] Determining web context for evaluation.', {
+      usingFrontendContext: !!frontendCompanyWebContext,
+    });
 
     if (!frontendCompanyWebContext) {
+      logger.info('[EVAL_API][BACKEND_RESEARCH] Frontend context not provided, performing backend web research.');
       // Only perform backend company search if frontend context was NOT provided
       const webContextParts = [];
 
       // 1. Fetch company overview using web search
+      logger.info('[EVAL_API][COMPANY_SEARCH] Initiating web search for company overview.', {
+        company: companyOrInstitution,
+      });
       try {
         const companySearchResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
           method: 'POST',
@@ -153,40 +199,49 @@ export async function POST(
         });
 
         if (!companySearchResponse.ok) {
-          console.error(
-            '[EVAL_API] Failed to call research proxy for company search:',
-            companySearchResponse.status,
-            companySearchResponse.statusText
-          );
+          logger.error('[EVAL_API][COMPANY_SEARCH_FAIL] Failed to call research proxy for company search:', {
+            status: companySearchResponse.status,
+            statusText: companySearchResponse.statusText,
+          });
         } else {
           const searchData = await companySearchResponse.json();
+          logger.debug('[EVAL_API][COMPANY_SEARCH_DATA] Received searchData:', { searchData });
           if (searchData.success && searchData.results && searchData.results.length > 0) {
-            const formattedResults = searchData.results
+            logger.debug('[EVAL_API][COMPANY_SEARCH_RESULTS] Processing searchData.results:', {
+              results: searchData.results,
+            });
+            const formattedResults = (
+              searchData.results as Array<{ url?: string; title?: string; snippet?: string; text?: string }>
+            )
               .map(
-                (result: any, index: number) =>
+                (result: { url?: string; title?: string; snippet?: string; text?: string }, index: number) =>
                   `Source ${index + 1}: ${result.url || 'N/A'}\nTitle: ${
                     result.title || 'N/A'
-                  }\nSnippet: ${result.snippet || 'No snippet'}`
+                  }\nSnippet: ${result.snippet || 'No snippet'}\nContent: ${result.text || 'No content'}`
               )
               .join('\n\n---\n\n');
             webContextParts.push(`Company Overview Search Results:\n${formattedResults}`);
-            console.log('[EVAL_API] Successfully fetched backend company web research context.');
+            logger.info(
+              '[EVAL_API][COMPANY_SEARCH_SUCCESS] Successfully fetched backend company web research context.',
+              { resultCount: searchData.results.length }
+            );
           } else {
-            console.warn(
-              '[EVAL_API] Backend company research proxy returned success: false or no results.',
-              searchData
+            logger.warn(
+              '[EVAL_API][COMPANY_SEARCH_NO_RESULTS] Backend company research proxy returned success: false or no results.',
+              { searchData }
             );
           }
         }
       } catch (companyResearchError: unknown) {
-        console.error(
-          '[EVAL_API] Error calling research proxy for backend company search:',
-          companyResearchError instanceof Error ? companyResearchError.message : String(companyResearchError)
-        );
+        logger.error('[EVAL_API][COMPANY_SEARCH_ERROR] Error calling research proxy for backend company search:', {
+          errorMessage:
+            companyResearchError instanceof Error ? companyResearchError.message : String(companyResearchError),
+        });
       }
 
       // 2. Scrape Job URL if available (always scrape job URL regardless of frontend context)
       if (jobUrl) {
+        logger.info('[EVAL_API][JOB_URL_SCRAPE] Initiating job URL scraping.', { jobUrl });
         try {
           const scrapeResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
             method: 'POST',
@@ -201,11 +256,10 @@ export async function POST(
           });
 
           if (!scrapeResponse.ok) {
-            console.error(
-              '[EVAL_API] Failed to call research proxy for URL scraping:',
-              scrapeResponse.status,
-              scrapeResponse.statusText
-            );
+            logger.error('[EVAL_API][JOB_URL_SCRAPE_FAIL] Failed to call research proxy for URL scraping:', {
+              status: scrapeResponse.status,
+              statusText: scrapeResponse.statusText,
+            });
           } else {
             const scrapeData = await scrapeResponse.json();
             // Assuming the scrape endpoint returns the main text content in results
@@ -213,28 +267,38 @@ export async function POST(
               // Append scraped job URL content to frontend context
               combinedWebContext +=
                 '\n\n---\n\n' + `Job Posting Content (Scraped from ${jobUrl}):\n${scrapeData.results}`;
-              console.log('[EVAL_API] Successfully scraped job URL and appended to frontend context.');
+              logger.info(
+                '[EVAL_API][JOB_URL_SCRAPE_SUCCESS] Successfully scraped job URL and appended to combined web context.'
+              );
             } else {
-              console.warn('[EVAL_API] Scrape proxy returned success: false or no results.', scrapeData);
+              logger.warn('[EVAL_API][JOB_URL_SCRAPE_NO_RESULTS] Scrape proxy returned success: false or no results.', {
+                scrapeData,
+              });
             }
           }
         } catch (scrapeError: unknown) {
-          console.error(
-            '[EVAL_API] Error calling research proxy for URL scraping:',
-            scrapeError instanceof Error ? scrapeError.message : String(scrapeError)
-          );
+          logger.error('[EVAL_API][JOB_URL_SCRAPE_ERROR] Error calling research proxy for URL scraping:', {
+            errorMessage: scrapeError instanceof Error ? scrapeError.message : String(scrapeError),
+          });
         }
       }
 
       // Combine backend web context parts if frontend context was not used
       if (webContextParts.length > 0) {
         combinedWebContext = webContextParts.join('\n\n---\n\n');
+        logger.debug('[EVAL_API][WEB_CONTEXT_COMBINED] Backend web context parts combined.', {
+          length: combinedWebContext.length,
+        });
       }
     } else {
       // If frontend context was provided, log that we are using it and just scrape the job URL if available
-      console.log('[EVAL_API] Using company web context provided from frontend.');
+      logger.info('[EVAL_API][FRONTEND_CONTEXT_USED] Using company web context provided from frontend.');
 
       if (jobUrl) {
+        logger.info(
+          '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE] Job URL available, initiating scraping alongside frontend context.',
+          { jobUrl }
+        );
         try {
           const scrapeResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
             method: 'POST',
@@ -249,10 +313,9 @@ export async function POST(
           });
 
           if (!scrapeResponse.ok) {
-            console.error(
-              '[EVAL_API] Failed to call research proxy for URL scraping:',
-              scrapeResponse.status,
-              scrapeResponse.statusText
+            logger.error(
+              '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_FAIL] Failed to call research proxy for URL scraping:',
+              { status: scrapeResponse.status, statusText: scrapeResponse.statusText }
             );
           } else {
             const scrapeData = await scrapeResponse.json();
@@ -261,100 +324,83 @@ export async function POST(
               // Append scraped job URL content to frontend context
               combinedWebContext +=
                 '\n\n---\n\n' + `Job Posting Content (Scraped from ${jobUrl}):\n${scrapeData.results}`;
-              console.log('[EVAL_API] Successfully scraped job URL and appended to frontend context.');
+              logger.info(
+                '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_SUCCESS] Successfully scraped job URL based on frontend context.'
+              );
             } else {
-              console.warn('[EVAL_API] Scrape proxy returned success: false or no results.', scrapeData);
+              logger.warn(
+                '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_NO_RESULTS] Scrape proxy returned success: false or no results.',
+                { scrapeData }
+              );
             }
           }
         } catch (scrapeError: unknown) {
-          console.error(
-            '[EVAL_API] Error calling research proxy for URL scraping:',
-            scrapeError instanceof Error ? scrapeError.message : String(scrapeError)
+          logger.error(
+            '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_ERROR] Error calling research proxy for URL scraping with frontend context:',
+            { errorMessage: scrapeError instanceof Error ? scrapeError.message : String(scrapeError) }
           );
         }
       }
     }
 
-    // Construct the prompt for LLM evaluation using the helper function
-    const evaluationPrompt = `Job Title: ${OrionOpportunity.title}\nCompany: ${companyOrInstitution}\n${
-      jobUrl ? `Job URL: ${jobUrl}\n` : ''
-    }\nJob Content:\n${
-      OrionOpportunity.content ?? 'No content provided.'
-    }\n\nWeb Research and Scraped Context (if available and relevant):\n${
-      combinedWebContext || 'No relevant web context found.'
-    }\n\nProvide a detailed evaluation, including:\n1. A Fit Score (0-100%).\n2. A concise Recommendation (e.g., Strong Fit, Moderate Fit, Limited Fit).\n3. Key Pros: What makes this a good fit based on the profile, JD, and context?\n4. Key Cons: What are the potential challenges or gaps?\n5. Missing Skills/Experience: Specific areas where the profile may be lacking based on the JD and context.\n6. A brief explanation for the overall score, referencing the provided context.\n\nFormat the output as a JSON object with the following keys: fitScorePercentage (number), recommendation (string), pros (string[]), cons (string[]), missingSkills (string[]), scoreExplanation (string).\n`;
+    // Define the JSON output format block as a separate string to avoid escaping issues
+    const jsonOutputFormat = `\`\`\`json
+{
+  "alignmentScore": number,
+  "keyAlignmentPoints": string[],
+  "areasForImprovement": string[],
+  "tailoredKeywords": string[]
+}
+\`\`\``;
 
-    const llmResponseContent = await generateLLMResponse(REQUEST_TYPES.OPPORTUNITY_EVALUATION, evaluationPrompt, {
-      profileContext: profileContext,
-      memoryResults: memoryResults,
-      temperature: 0.7,
-      maxTokens: 1500,
+    // Construct prompt for LLM
+    const prompt = `You are an expert career consultant specializing in helping professionals align their skills and experience with job opportunities. Your task is to analyze the provided user profile, job opportunity details, and any additional context (web research, memory data) to generate a comprehensive evaluation. This evaluation should focus on:\n\n1.  **Alignment Score**: A numerical score from 1-10 (10 being perfect alignment) indicating how well the user's profile aligns with the job opportunity. Only include the number, nothing else.\n2.  **Key Alignment Points**: Bullet points (2-3) highlighting the strongest areas of alignment.\n3.  **Areas for Improvement**: Bullet points (2-3) suggesting specific skills, experiences, or keywords the user could develop or emphasize to better align with similar opportunities.\n4.  **Tailored Keywords**: A list of 5-10 specific keywords or phrases from the job description and your analysis that the user should consider incorporating into their resume/CV or cover letter to improve ATS matching and overall relevance.\n\n\n### User Profile:\n${profileContext}\n\n### Job Opportunity Details:\nTitle: ${OrionOpportunity.title || 'N/A'}\nCompany: ${companyOrInstitution || 'N/A'}\nLocation: ${OrionOpportunity.location || 'N/A'}\nDescription: ${OrionOpportunity.content || 'N/A'}\nOriginal URL: ${OrionOpportunity.url || 'N/A'}\nSource URL: ${OrionOpportunity.sourceUrl || 'N/A'}\n\n### Additional Context:\n${combinedWebContext || 'No additional web research context available.'}\n\n### Relevant Memories:\n${
+      memoryResults.length > 0
+        ? memoryResults
+            .map((m) => `Title: ${m.title || 'No title'}\nContent: ${m.text || 'No content'}`)
+            .join('\n\n---\n\n')
+        : 'No relevant memories found.'
+    }\n\n\n### Output Format:\n${jsonOutputFormat}
+`;
+
+    // Log the prompt being sent (optional, for debugging)
+    logger.info('[EVAL_API] Sending prompt to LLM for evaluation...');
+
+    // Call LLM for evaluation
+    const llmResponse = await generateLLMResponse({
+      requestType: REQUEST_TYPES.OPPORTUNITY_EVALUATION,
+      prompt,
     });
 
-    if (!llmResponseContent.success) {
-      logger.error('[EVAL_API] LLM call failed for evaluation', { opportunityId, error: llmResponseContent.error });
-      return NextResponse.json(
-        {
-          success: false,
-          error: llmResponseContent.error || 'Failed to generate OrionOpportunity evaluation',
-        },
-        { status: 500 }
-      );
+    if (!llmResponse.success || !llmResponse.response) {
+      logger.error('[EVAL_API] LLM generation failed:', { error: llmResponse.error });
+      throw new Error(llmResponse.error || 'LLM failed to generate evaluation.');
     }
 
     // Attempt to parse the LLM response as JSON
-    let evaluation: EvaluationOutput;
-    try {
-      // Robust extraction/repair step
-      const extractedJson = extractFirstJsonObject(llmResponseContent.content);
-      console.log('[EVAL_API][DEBUG] Raw LLM output:', llmResponseContent.content);
-      console.log('[EVAL_API][DEBUG] Extracted JSON for parsing:', extractedJson);
-      if (!extractedJson) {
-        throw new Error('No JSON object found in LLM response.');
-      }
-      evaluation = JSON.parse(extractedJson) as EvaluationOutput;
-      // Basic validation to ensure parsed object matches expected structure
-      if (typeof evaluation.fitScorePercentage !== 'number' || typeof evaluation.recommendation !== 'string') {
-        // Add more comprehensive validation here if necessary
-        throw new Error('Parsed evaluation data has incorrect structure or missing key fields.');
-      }
-    } catch (parseError: unknown) {
-      console.error('[EVAL_API][ERROR] Failed to parse LLM evaluation response:', {
-        opportunityId,
-        rawContent: llmResponseContent.content,
-        parseError: parseError instanceof Error ? parseError.message : String(parseError),
-      });
-      // Return the raw output if parsing fails, or a specific error
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'LLM output was not valid JSON, returning raw text.',
-          rawContent: llmResponseContent.content,
-          parseError: parseError instanceof Error ? parseError.message : String(parseError),
-        },
-        { status: 500 }
-      );
+    const jsonString = extractFirstJsonObject(llmResponse.response);
+
+    if (!jsonString) {
+      logger.error('[EVAL_API] Failed to extract JSON from LLM response:', { response: llmResponse.response });
+      throw new Error('LLM response was not in expected JSON format.');
     }
 
-    logger.info('Evaluation generated successfully. Returning to client for local storage.', {
-      operation: 'POST /evaluation',
-      opportunityId: opportunityId,
-    });
+    const evaluation = JSON.parse(jsonString) as EvaluationOutput; // Cast to expected type
 
-    // Return the evaluation results, memory snippets, profile source, and profile error if any
+    // Return the evaluation output
     return NextResponse.json({
       success: true,
       evaluation,
-      memoryResults,
-      profileSource: profileData?.source || 'unknown',
-      profileError,
+      rawContent: llmResponse.response, // Include raw content for debugging/display
+      memoryResults, // Include memory results in the final response
     });
-  } catch (error: any) {
-    console.error('Error in POST /api/orion/OrionOpportunity/[opportunityId]/evaluation:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('[OPPORTUNITY_EVALUATION_API_ERROR]', { errorMessage });
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred during evaluation.',
+        error: `Failed to generate Opportunity evaluation: ${errorMessage}`,
       },
       { status: 500 }
     );

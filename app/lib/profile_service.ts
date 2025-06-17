@@ -4,31 +4,21 @@
  * with a fallback to local text files. It handles caching to minimize API calls and includes comprehensive logging.
  */
 
-import { readFile } from 'fs/promises';
-import path from 'path';
-/// <reference types="node-fetch" />
 import fetch from 'node-fetch';
 import logger from '@/lib/logger';
-import { UserProfileData } from '@/lib/types';
+import { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
+import { Agent as HttpAgent } from 'http';
+import { Agent as HttpsAgent } from 'https';
 
-let readFileImpl: typeof import('fs/promises').readFile | undefined;
-let pathImpl: typeof import('path') | undefined;
+let fsPromises: typeof import('fs/promises');
+let path: typeof import('path');
 
 const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
 if (isNode) {
-  readFileImpl = require('fs/promises').readFile;
-  pathImpl = require('path');
-} else {
-  // Stubs for non-Node environments
-  readFileImpl = async () => {
-    throw new Error('readFile is not available in this environment.');
-  };
-  pathImpl = {
-    join: () => {
-      throw new Error('path.join is not available in this environment.');
-    },
-  } as any;
+  // Dynamically import Node.js built-in modules
+  import('fs/promises').then((mod) => (fsPromises = mod));
+  import('path').then((mod) => (path = mod));
 }
 
 /**
@@ -40,6 +30,23 @@ export interface ProfileServiceRawData {
   profileText: string;
   /** Indicates whether the data came from Notion or local files. */
   source: 'notion' | 'local';
+}
+
+/**
+ * Represents a simplified Notion block structure for text extraction.
+ */
+interface NotionTextBlock {
+  type: string; // The type of the Notion block (e.g., 'paragraph', 'heading_1', etc.)
+  [key: string]: // Index signature for dynamic block content properties
+  { rich_text?: { plain_text: string }[] } | string; // Allow 'type' property to be a string
+}
+
+/**
+ * Represents a simplified Notion API response structure for blocks.
+ */
+interface NotionBlocksApiResponse {
+  results: NotionTextBlock[];
+  // Other properties like next_cursor, has_more, etc., can be added if needed
 }
 
 /**
@@ -61,13 +68,20 @@ function extractNotionPageId(url: string): string | null {
 /**
  * Extracts plain text from any Notion block type that contains a `rich_text` array.
  */
-function extractTextFromBlock(block: any): string {
+function extractTextFromBlock(block: NotionTextBlock): string {
   const blockType = block?.type;
   if (!blockType) return '';
 
   const blockContent = block[blockType];
-  if (blockContent?.rich_text && Array.isArray(blockContent.rich_text)) {
-    return blockContent.rich_text.map((rt: any) => rt.plain_text).join('');
+
+  // Type guard to ensure blockContent is an object with rich_text before accessing
+  if (
+    typeof blockContent === 'object' &&
+    blockContent !== null &&
+    'rich_text' in blockContent &&
+    Array.isArray(blockContent.rich_text)
+  ) {
+    return blockContent.rich_text.map((rt: { plain_text: string }) => rt.plain_text).join('');
   }
   return '';
 }
@@ -83,7 +97,7 @@ const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
  * Fetches user profile data from a primary source (Notion page with unstructured text)
  * and falls back to local files if the primary source fails.
  */
-export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> {
+export async function fetchUserProfile(): Promise<UserProfileFetchResponse> {
   const logContext = {
     operation: 'fetchUserProfile',
     timestamp: new Date().toISOString(),
@@ -96,11 +110,26 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
       ...logContext,
       source: profileCache.data?.source,
     });
-    return profileCache.data;
+    // Convert cached ProfileServiceRawData to UserProfileFetchResponse
+    if (profileCache.data) {
+      return {
+        success: true,
+        profile: profileCache.data as unknown as UserProfileData,
+        profileText: profileCache.data.profileText,
+        source: profileCache.data.source,
+      };
+    } else {
+      return { success: false, error: 'Cached data is null.' };
+    }
   }
 
   const notionUrl = process.env.USER_PROFILE_NOTION_URL;
   const notionApiKey = process.env.NOTION_API_KEY;
+
+  // Configure custom agents to prevent Node.js DEP0016 warning with older Node versions
+  // This helps ensure compatibility and stability in deployment environments.
+  const httpAgent = new HttpAgent({ keepAlive: true });
+  const httpsAgent = new HttpsAgent({ keepAlive: true });
 
   // 2. Primary Source: Attempt to fetch from Notion
   if (notionUrl && notionApiKey) {
@@ -116,6 +145,7 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
           Authorization: `Bearer ${notionApiKey}`,
           'Notion-Version': '2022-06-28',
         },
+        agent: (url: URL) => (url.protocol === 'http:' ? httpAgent : httpsAgent), // Use custom agents
       });
 
       if (!notionRes.ok) {
@@ -125,11 +155,11 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
         );
       }
 
-      const notionData = (await notionRes.json()) as any;
+      const notionData: NotionBlocksApiResponse = (await notionRes.json()) as NotionBlocksApiResponse;
 
       // REFACTORED: Concatenate text from all supported block types into a single string.
       const allText = notionData.results
-        .map((block: any) => extractTextFromBlock(block))
+        .map((block) => extractTextFromBlock(block))
         .join('\n') // Join content from different blocks with a newline
         .trim();
 
@@ -140,12 +170,21 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
         };
         profileCache = { data: profileData, timestamp: Date.now() };
         logger.success('Successfully fetched and parsed profile from Notion.', logContext);
-        return profileData;
+        return {
+          success: true,
+          profile: profileData as unknown as UserProfileData,
+          profileText: allText,
+          source: 'notion',
+        };
       } else {
         logger.warn('Notion page was fetched but contained no parsable text content. Attempting fallback.', logContext);
       }
-    } catch (error) {
-      logger.error('Error fetching/parsing user profile from Notion. Attempting fallback.', { ...logContext, error });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error('Error fetching/parsing user profile from Notion. Attempting fallback.', {
+        ...logContext,
+        error: errorMessage,
+      });
     }
   } else {
     logger.warn('Notion URL or API Key not set. Attempting local file fallback.', logContext);
@@ -156,13 +195,13 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
     logger.info('Fallback Source: Attempting local file read for user profile...', logContext);
 
     // Using process.cwd() should resolve from the root of the running application
-    const profileTextPath = pathImpl!.join(
-      process.cwd(),
-      'backend',
-      'orion_python_backend',
-      'Tomide_Adeoye_Profile.txt'
-    );
-    const personalityTextPath = pathImpl!.join(
+    // Ensure fsPromises and path are initialized before use
+    if (!fsPromises || !path) {
+      throw new Error('Node.js file system modules are not available.');
+    }
+
+    const profileTextPath = path.join(process.cwd(), 'backend', 'orion_python_backend', 'Tomide_Adeoye_Profile.txt');
+    const personalityTextPath = path.join(
       process.cwd(),
       'backend',
       'orion_python_backend',
@@ -174,8 +213,8 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
       personalityPath: personalityTextPath,
     });
 
-    const profileContent = await readFileImpl!(profileTextPath, 'utf-8');
-    const personalityContent = await readFileImpl!(personalityTextPath, 'utf-8');
+    const profileContent = await fsPromises.readFile(profileTextPath, 'utf-8');
+    const personalityContent = await fsPromises.readFile(personalityTextPath, 'utf-8');
 
     const combinedLocalText = `${profileContent}\n\n---\n\n${personalityContent}`.trim();
 
@@ -186,17 +225,23 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
       };
       profileCache = { data: profileData, timestamp: Date.now() };
       logger.success('Successfully fetched profile from local files.', logContext);
-      return profileData;
+      return {
+        success: true,
+        profile: profileData as unknown as UserProfileData,
+        profileText: combinedLocalText,
+        source: 'local',
+      };
     } else {
       logger.warn('Local profile files were read but contained no content.', logContext);
-      return null;
+      return { success: false, error: 'No content found in local profile files.', source: 'local' };
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to fetch user profile from local files. This is a critical context failure.', {
       ...logContext,
-      error,
+      error: errorMessage,
     });
-    return null;
+    return { success: false, error: `Failed to fetch profile from local files: ${errorMessage}`, source: 'local' };
   }
 }
 
@@ -205,31 +250,45 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
  * This function integrates with `fetchUserProfile` and transforms the raw text.
  * @returns A promise that resolves to UserProfileData or null.
  */
-export async function getProfileText(): Promise<UserProfileData | null> {
+export async function getProfileText(): Promise<UserProfileFetchResponse> {
   logger.info('[ProfileService] getProfileText called.', { operation: 'getProfileText' });
   try {
-    const rawProfile = await fetchUserProfile();
-    if (rawProfile && rawProfile.profileText) {
+    const rawProfileResponse = await fetchUserProfile();
+    if (rawProfileResponse.success && rawProfileResponse.profile) {
+      const rawProfile = rawProfileResponse.profile;
       // For now, we'll just put the entire profileText into a 'summary' field.
       // In a real application, you might parse this into more structured fields.
       const profileData: UserProfileData = {
         id: 'user-profile-default',
         name: 'Tomide Adeoye',
         email: 'tomide.adeoye@example.com',
-        // Assuming 'summary' or 'bio' is a field in UserProfileData
-        // You might need to adjust UserProfileData in types/index.ts to match this.
-        summary: rawProfile.profileText.substring(0, 500) + '...', // Truncate for example
-        // Add other fields as needed, potentially parsing from the raw text
+        bio: rawProfile.profileText || '', // Populate bio with full text
+        skills: [], // Initialize as empty array
+        experience: [], // Initialize as empty array
+        education: [], // Initialize as empty array
+        interests: [], // Initialize as empty array
+        values: [], // Initialize as empty array
+        goals: [], // Initialize as empty array
+        socialLinks: [], // Initialize as empty array
+        contactInfo: {}, // Initialize as empty object
+        summary: rawProfile.profileText ? rawProfile.profileText.substring(0, 500) + '...' : '', // Truncate for example
+        profileText: rawProfile.profileText,
+        source: rawProfile.source,
+        backgroundSummary: rawProfile.backgroundSummary,
+        keySkills: rawProfile.keySkills,
+        location: rawProfile.location,
       };
-      logger.success('[ProfileService] User profile text retrieved and structured.', { source: rawProfile.source });
-      return profileData;
+      return { success: true, profile: profileData, profileText: profileData.profileText, source: profileData.source };
     } else {
-      logger.warn('[ProfileService] No raw profile text found.');
-      return null;
+      // If fetchUserProfile failed or returned no profile, propagate the error/failure
+      return rawProfileResponse; // This will contain success: false and an error message
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error('[ProfileService] Error in getProfileText.', { error: errorMessage });
-    return null;
+    logger.error('[ProfileService] Error in getProfileText.', {
+      operation: 'getProfileText',
+      error: errorMessage,
+    });
+    return { success: false, error: errorMessage };
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/app/shared';
+import { generateLLMResponse } from '@/lib/orion_llm';
+import { ScoredMemoryPoint } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +32,7 @@ Description: ${OrionOpportunity.description || 'N/A'}
 ${profile ? JSON.stringify(profile, null, 2) : 'N/A'}
 
 --- User Memory (notes, highlights, evaluations) ---
-${Array.isArray(memory) && memory.length > 0 ? memory.map((m: any) => `- [${m.type}] ${m.content}`).join('\n') : 'N/A'}
+${Array.isArray(memory) && memory.length > 0 ? memory.map((m: ScoredMemoryPoint) => `- [${m.payload.type}] ${m.payload.text}`).join('\n') : 'N/A'}
 
 --- Instructions ---
 - Structure the CV as you see fit for this job.
@@ -46,12 +47,12 @@ ${Array.isArray(memory) && memory.length > 0 ? memory.map((m: any) => `- [${m.ty
     });
 
     return NextResponse.json({ success: true, cv: llmContent });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[CV ASSEMBLE][ERROR]', err);
     return NextResponse.json(
       {
         success: false,
-        error: err.message || 'Failed to generate tailored CV.',
+        error: err instanceof Error ? err.message : 'Failed to generate tailored CV.',
       },
       { status: 500 }
     );

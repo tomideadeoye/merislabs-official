@@ -1,14 +1,15 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a form to input opportunity details and trigger an AI-driven evaluation against the user's profile. Displays the evaluation results.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/OpportunityEvaluator.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityPipelinePage` (`app/(orion_admin)/admin/opportunity-pipeline/page.tsx`) in the "Evaluator" tab.
+//   - Calls backend API route `/api/orion/OrionOpportunity/evaluate` (POST) to perform the evaluation.
+//   - Uses `@/lib/types` for `OpportunityType` and `EvaluationOutput` types.
+//   - Uses `@/components/ui` components (`Input`, `Textarea`, `Button`, `Label`, `Card`).
 import { OpportunityType, EvaluationOutput, OpportunityEvaluationInput } from '@/lib/types';
 import { Input, Textarea, Button, Label, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import { Loader2, BarChart2, AlertCircle, CheckCircle } from 'lucide-react';
-/**
- * GOAL: UI component for evaluating an OrionOpportunity against the user's profile and goals.
- * - Ensures all OpportunityDetails objects include both company and companyOrInstitution.
- * - Adds context-rich, traceable logging for every operation, parameter, and result.
- * - Related files: app/api/orion/OrionOpportunity/evaluate/route.ts, types/OrionOpportunity.d.ts
- */
 import React, { useState } from 'react';
 
 interface OpportunityEvaluatorProps {

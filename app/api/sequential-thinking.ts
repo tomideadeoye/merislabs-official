@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 declare global {
-   
-  var mcp_sequentialThinking: ((params: any) => Promise<any>) | undefined;
+  var mcp_sequentialThinking: ((params: Record<string, unknown>) => Promise<unknown>) | undefined;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -21,13 +20,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         totalThoughts,
       });
       console.log('[SEQUENTIAL_THINKING] Result:', result);
-      return res.status(200).json(result);
+      return res.status(200).json(result as unknown);
     }
     // If you have a Node.js MCP client, require and use it here
     // Otherwise, return an error
     console.error('[SEQUENTIAL_THINKING] MCP tool not available on server');
     return res.status(500).json({ error: 'Sequential Thinking MCP tool is not available on the server.' });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Unknown error' });
+  } catch (err: unknown) {
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
   }
 }

@@ -31,12 +31,13 @@ export async function POST(req: NextRequest) {
     }
     console.log('[Search-Proxy] Python backend response:', JSON.stringify(data));
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Search-Proxy] Error in memory search proxy:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: errorMessage,
       },
       { status: 500 }
     );

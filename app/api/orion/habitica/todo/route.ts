@@ -4,13 +4,14 @@
  * Related: lib/habitica_client.ts, lib/database.ts, reference.md
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createTask } from '@/app/shared/habitica_client';
-import { auth } from '@/lib/auth';
-import { query } from '@/app/shared/database';
+import { createTask } from '@/lib/habitica_client';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
+import { query } from '@/lib/database';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getServerSession(authConfig);
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }

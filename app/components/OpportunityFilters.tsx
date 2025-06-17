@@ -1,8 +1,16 @@
 'use client';
 
-import { useOpportunities } from '@/app/hooks/useOpportunities';
-import { OpportunityStatus, OpportunityType, OpportunityPriority } from '@/lib/types';
-import { Button, Input } from '@headlessui/react';
+import { useOpportunities } from '../hooks/useOpportunities';
+import {
+  OpportunityStatus,
+  OpportunityType,
+  OpportunityPriority,
+  OpportunityFilterStatus,
+  OpportunityFilterType,
+  OpportunityFilterPriority,
+} from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@radix-ui/react-select';
 import { Filter, X, Tag, Search, SortAsc, SortDesc } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
@@ -10,6 +18,13 @@ import React, { useState, useEffect } from 'react';
 export const OpportunityFilters: React.FC = () => {
   // const opportunityDialog = useOpportunityDialogStore(); // Removed as it's unused
   const { refetchOpportunities } = useOpportunities();
+
+  type OpportunityDataFilters = {
+    status?: OpportunityFilterStatus;
+    type?: OpportunityFilterType;
+    priority?: OpportunityFilterPriority;
+    tag?: string;
+  };
 
   const [filters, setFilters] = useState<OpportunityDataFilters>({});
   const [sort, setSort] = useState<string>('lastStatusUpdate');

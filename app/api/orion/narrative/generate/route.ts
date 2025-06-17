@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
-import { getCareerMilestones, getValueProposition } from '../../../../lib/narrative_service';
+import { getCareerMilestones, getValueProposition } from '@/lib/narrative_service';
 import {
   NarrativeGenerationRequest,
   NarrativeGenerationResponse,
-  MemorySearchOptions, // Import MemorySearchOptions
-  ScoredMemoryPoint, // Ensure ScoredMemoryPoint is imported
+  ScoredMemoryPoint,
   UserProfileData,
-  SearchMemoryResponse, // Import SearchMemoryResponse
-  CareerMilestone, // Added import for CareerMilestone type
-  CombinedLLMResponse, // Moved CombinedLLMResponse here
-} from '@/app';
-import { searchMemory } from '@/app';
-import { fetchUserProfile } from '@/app';
-import { generateLLMResponse } from '@/app';
+  SearchMemoryResponse,
+  CareerMilestone,
+  CombinedLLMResponse,
+  UserProfileFetchResponse,
+} from '@/lib/types';
+import { searchMemory } from '@/lib/orion_memory';
+import { fetchUserProfile } from '@/lib/profile_service';
+import { generateLLMResponse } from '@/lib/orion_llm';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -22,7 +22,7 @@ import { generateLLMResponse } from '@/app';
 /**
  * API route for generating narrative content
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse<NarrativeGenerationResponse>> {
   let llmContent: string = ''; // Initialize to prevent "used before assigned"
   try {
     const body = (await req.json()) as NarrativeGenerationRequest;
@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           error: 'Narrative type is required',
+          message: 'Narrative type is required',
+          generatedNarrative: '', // Ensure all properties are present for the return type
         },
         { status: 400 }
       );
@@ -52,50 +54,55 @@ export async function POST(req: NextRequest) {
     let careerMilestones = careerMilestonesInput;
 
     if (!valueProposition) {
-      const storedValueProp = await getValueProposition();
-      if (storedValueProp) {
-        valueProposition = storedValueProp;
+      try {
+        const storedValueProp = await getValueProposition();
+        if (storedValueProp) {
+          valueProposition = storedValueProp;
+        }
+      } catch (error: unknown) {
+        console.error('[NARRATIVE_GENERATE] Error fetching value proposition:', error);
+        // Continue without value proposition if there's an error
       }
     }
 
     if (!careerMilestones || careerMilestones.length === 0) {
-      careerMilestones = await getCareerMilestones();
+      try {
+        careerMilestones = await getCareerMilestones();
+      } catch (error: unknown) {
+        console.error('[NARRATIVE_GENERATE] Error fetching career milestones:', error);
+        // Continue without career milestones if there's an error
+      }
     }
 
     // Get relevant memories
-    const searchOptions: MemorySearchOptions = {
-      query:
-        `${narrativeType} ${valueProposition?.valueStatement || ''} career achievements professional strengths` as string,
+    const queryText = `${narrativeType} ${valueProposition?.valueStatement || ''} career achievements professional strengths`;
+    const searchOptions = {
       limit: 5,
       filter: {
         must: [{ key: 'payload.tags', match: { value: 'achievement' } }],
       },
     };
-    const searchResponse: SearchMemoryResponse = await searchMemory(searchOptions);
-
-    console.log(
-      '[NARRATIVE_GENERATE] searchResponse details:',
-      searchResponse
-    );
 
     let relevantMemories: ScoredMemoryPoint[] = [];
-    if (searchResponse.success && searchResponse.results) {
-      relevantMemories = searchResponse.results;
+    try {
+      const searchResponse: SearchMemoryResponse = await searchMemory(queryText, searchOptions);
+
+      console.log('[NARRATIVE_GENERATE] searchResponse details:', searchResponse);
+
+      if (searchResponse.success && searchResponse.results) {
+        relevantMemories = searchResponse.results;
+      }
+    } catch (error: unknown) {
+      console.error('[NARRATIVE_GENERATE] Error searching memories:', error);
+      // Continue without relevant memories if there's an error
     }
 
     // Get profile data
-    // fetchUserProfile from @/app (app/src/lib/profile_service.ts) returns Promise<UserProfileData | null>
-    // UserProfileData is { profileText?: string, ... }
-    // The original code was checking for profileFetchResult.success and profileFetchResult.profile which is not the structure.
-    // It also had a fallback for profileFetchResult.profileText which is also not directly on the result of fetchUserProfile.
     let profileData: UserProfileData | null = null;
     try {
-      const profileFetchResult = await fetchUserProfile();
-      if (profileFetchResult.success && profileFetchResult.profile) {
-        profileData = profileFetchResult.profile;
-      } else if (profileFetchResult.profileText) {
-        // Fallback: If profile object is null but profileText is present, use it for profileText
-        profileData = profileFetchResult;
+      const rawProfileFetchResult: UserProfileFetchResponse = await fetchUserProfile();
+      if (rawProfileFetchResult.success && rawProfileFetchResult.profile) {
+        profileData = rawProfileFetchResult.profile;
       }
     } catch (error: unknown) {
       console.error('Error fetching profile data:', error);
@@ -128,30 +135,30 @@ ${
           (milestone: CareerMilestone) => `
 ### ${milestone.title} ${milestone.organization ? `at ${milestone.organization}` : ''}
 ${milestone.startDate ? `${milestone.startDate} - ${milestone.endDate || 'Present'}` : ''}
-${milestone.description}
+${milestone.description || ''}
 
 Key achievements:
-${milestone.achievements.map((achievement: string) => `- ${achievement}`).join('\\n')}
+${milestone.achievements.map((achievement: string) => `- ${achievement}`).join('\n')}
 
-Skills: ${milestone.skills?.join(', ')}
-Impact: ${milestone.impact}
+Skills: ${milestone.skills?.join(', ') || 'N/A'}
+Impact: ${milestone.impact || 'N/A'}
 `
         )
-        .join('\\n')
+        .join('\n')
     : 'No career milestone data available.'
 }
 
 ${
   relevantMemories.length > 0
-    ? `## Relevant Achievements and Experiences\\n${relevantMemories
+    ? `## Relevant Achievements and Experiences\n${relevantMemories
         .map((m: ScoredMemoryPoint) => `- ${m.payload.text}`)
-        .join('\\n')}`
+        .join('\n')}`
     : ''
 }
 
-${additionalContext ? `## Additional Context\\n${additionalContext}` : ''}
+${additionalContext ? `## Additional Context\n${additionalContext}` : ''}
 
-${specificRequirements ? `## Specific Requirements\\n${specificRequirements}` : ''}
+${specificRequirements ? `## Specific Requirements\n${specificRequirements}` : ''}
 
 ## Task
 Create a compelling ${narrativeType.replace(/_/g, ' ')} with the following characteristics:
@@ -165,21 +172,21 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
 `;
 
     // Generate narrative content using LLM
-    let llmResponse: CombinedLLMResponse; // Change type to CombinedLLMResponse
+    let llmResponse: CombinedLLMResponse;
     try {
       llmResponse = await generateLLMResponse('NARRATIVE_GENERATION', prompt, {
-        profileContext: profileData?.profileText || '', // Use profileData?.profileText
+        profileContext: profileData?.profileText || '',
         systemContext: '',
         memoryResults: relevantMemories,
         model: '',
         temperature: 0.7,
         maxTokens: 2000,
       });
-      // Check for success before accessing content
+
       if (!llmResponse.success) {
         throw new Error(llmResponse.error || 'LLM call failed');
       }
-      llmContent = llmResponse.content; // Assign to the outer `llmContent`
+      llmContent = llmResponse.content;
       console.log('[NARRATIVE_GENERATE] LLM content:', llmContent);
     } catch (err: unknown) {
       console.error('[NARRATIVE_GENERATE] LLM error:', err);
@@ -187,6 +194,8 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
         {
           success: false,
           error: err instanceof Error ? err.message : 'Failed to generate narrative content',
+          message: 'Failed to generate narrative content',
+          generatedNarrative: '', // Ensure all properties are present
         },
         { status: 500 }
       );
@@ -215,29 +224,26 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
       id: uuidv4(),
       generatedNarrative: llmContent,
       metadata: {
-        // Adding metadata as per type definition
-        narrativeType, // Include narrativeType in metadata
-        tone, // Include tone in metadata
-        length, // Include length in metadata
-        suggestedTitle, // Include suggestedTitle in metadata
+        narrativeType,
+        tone,
+        length,
+        suggestedTitle,
         additionalContext,
         specificRequirements,
       },
-      // Renamed 'content' to 'generatedNarrative' to match the interface.
-      // 'suggestedTitle' and 'relevantMemories' are now part of metadata or adjusted to match the interface.
-      // 'createdAt' is no longer a direct property of NarrativeGenerationResponse according to your provided type.
+      success: true, // Mark as success if reached here
+      message: 'Narrative generated successfully',
     };
 
-    return NextResponse.json({
-      success: true,
-      narrative: narrativeResponse,
-    });
+    return NextResponse.json(narrativeResponse);
   } catch (error: unknown) {
     console.error('Error in narrative/generate route:', error);
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
+        generatedNarrative: '', // Ensure all properties are present
       },
       { status: 500 }
     );

@@ -1,5 +1,13 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays a list of Persona cards. Allows selecting a persona for editing and deleting personas.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/orion/networking-hub/PersonaList.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `app/(orion_admin)/admin/networking-hub/page.tsx` (implied parent).
+//   - Uses `usePersonaStore` (`@/lib/stores/personaStore`) to access the list of personas, set the selected persona, and delete from the list.
+//   - Interacts with backend API route `/api/orion/personas/[id]` (DELETE) to remove a persona.
+//   - Uses `@/components/ui` components (`Button`, `Card`, `Badge`).
+//   - Uses `lucide-react` for icons.
 import React from 'react';
 import { Button } from '@/components/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

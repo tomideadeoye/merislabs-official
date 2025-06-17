@@ -3,9 +3,8 @@ import {
   createOpportunityInNotion,
   OpportunityNotionPayload,
   OpportunityNotionPayloadSchema,
-} from '@/app/shared/notion_next_service';
-import { auth } from '@/app/sharedauth';
-import { fetchOpportunityByIdFromNotion } from '@/app/shared/notion_service';
+} from '@/lib/notion_next_service';
+import { auth } from '@/auth';
 
 /**
  * API route for creating an OrionOpportunity in Notion
@@ -45,20 +44,20 @@ export async function POST(request: NextRequest) {
       success: true,
       OrionOpportunity: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/orion/notion/OrionOpportunity:', error);
-
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to create OrionOpportunity in Notion',
+        error: errorMessage,
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await auth();
   if (!session || !session.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

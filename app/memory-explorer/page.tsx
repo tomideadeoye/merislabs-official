@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useMemory } from '../hooks/useMemory';
-import { MemoryInput } from '../src/components/orion/MemoryInput';
-import { MemorySearch } from '../src/components/orion/MemorySearch';
+
 import {
   Tabs,
   TabsList,
@@ -19,6 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui';
+import { DedicatedAddToMemoryFormComponent } from '@/components/ui/orion/DedicatedAddToMemoryFormComponent';
 
 export default function MemoryExplorerPage() {
   const [activeTab, setActiveTab] = useState('search');
@@ -88,7 +88,28 @@ export default function MemoryExplorerPage() {
                 </Select>
               </div>
 
-              <MemorySearch />
+              {isLoading ? (
+                <p>Loading search results...</p>
+              ) : results.length === 0 ? (
+                <p>No search results found.</p>
+              ) : (
+                <div className="space-y-4 mt-4">
+                  {results.map((entry) => (
+                    <Card key={entry.payload.source_id} className="bg-gray-700 border-gray-600">
+                      <CardContent className="pt-6">
+                        <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.payload.text}</p>
+                        <div className="flex flex-wrap items-center text-xs text-gray-400 gap-4">
+                          <span>Score: {entry.score?.toFixed(4)}</span>
+                          <span>Type: {entry.payload.type}</span>
+                          {entry.payload.tags && entry.payload.tags.length > 0 && (
+                            <span>Tags: {entry.payload.tags.join(', ')}</span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -114,7 +135,11 @@ export default function MemoryExplorerPage() {
                 </Select>
               </div>
 
-              <MemoryInput type={memoryType} defaultTags={[memoryType]} onSuccess={() => setActiveTab('search')} />
+              <DedicatedAddToMemoryFormComponent
+                initialType={memoryType}
+                initialTags={memoryType}
+                onMemoryAdded={() => setActiveTab('search')}
+              />
             </CardContent>
           </Card>
         </TabsContent>

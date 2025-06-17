@@ -5,7 +5,7 @@ export interface NavItem {
   href: string;
   id?: string; // Optional, can be used for keys if needed
   link?: string; // Optional, for legacy compatibility
-  icon?: string | React.ElementType;
+  icon?: React.ReactNode;
   disabled?: boolean;
   external?: boolean;
   label?: string;

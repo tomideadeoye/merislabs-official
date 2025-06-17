@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/button';
 
 import type { OrionOpportunity } from '@/lib/types';
 import { FindStakeholdersButton } from './FindStakeholdersButton';

@@ -1,5 +1,12 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a fallback UI for unhandled errors that occur during rendering on the client side. Displays a generic error message and a button to attempt recovery by resetting the application state.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/global-error.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - This is a special Next.js file that catches errors not handled by `error.tsx` files in nested routes.
+//   - Receives `error` object and `reset` function from Next.js.
+// ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed this component should provide a basic, user-friendly error page for unexpected client-side errors.
+// NOTES: This component is a standard Next.js error boundary fallback. It does not have complex internal logic or dependencies on other custom components.
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <div

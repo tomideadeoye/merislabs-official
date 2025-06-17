@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scoreTask } from '@/app/shared/habitica_client';
+import { scoreTask } from '@/lib/habitica_client';
 
 /**
  * API route for scoring a Habitica task (marking as complete/incomplete)
  */
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { userId, apiToken, taskId, direction } = await req.json();
+    const { userId, apiToken, taskId, direction } = await request.json();
 
     if (!userId || !apiToken) {
       return NextResponse.json(
@@ -46,12 +46,12 @@ export async function POST(req: NextRequest) {
       success: true,
       result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/orion/habitica/tasks/score:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       },
       { status: 500 }
     );

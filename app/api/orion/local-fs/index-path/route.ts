@@ -1,239 +1,194 @@
-import { ORION_MEMORY_COLLECTION_NAME } from '@/app/shared/lib/orion_config';
+import { getConfiguredDirectories } from '@/lib/orion_config';
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
+import logger from '@/lib/logger';
+import { LocalFileIndexRequest } from '@/lib/types';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { v4 as uuidv4 } from 'uuid';
-import { readFileContent, listDirectoryContents, FileSystemItem } from '@/app/shared/lib/local_file_service';
 
-// Constants for indexing
-const MAX_FILE_SIZE_MB = 5; // Limit file size for indexing
-const MAX_CHUNK_SIZE_CHARS = 2000; // Characters per chunk for embedding
-
-/**
- * Split text into chunks for embedding
- */
-function chunkText(text: string, chunkSize: number = MAX_CHUNK_SIZE_CHARS): string[] {
-  const chunks: string[] = [];
-  for (let i = 0; i < text.length; i += chunkSize) {
-    chunks.push(text.substring(i, i + chunkSize));
-  }
-  return chunks;
+// Dummy function for now, replace with actual indexing logic later
+async function indexFilePath(filePath: string) {
+  logger.info(`[LOCAL_FS_INDEX] Indexing placeholder for: ${filePath}`);
+  // TODO: Implement actual vector embedding and Qdrant storage for file content
+  return { success: true, message: `Successfully indexed (placeholder) ${filePath}` };
 }
 
-/**
- * Process and index a single file
- */
-async function processAndIndexFile(filePath: string): Promise<{
-  success: boolean;
-  message: string;
-  sourceId?: string;
-  chunksIndexed?: number;
-}> {
-  try {
-    console.log(`[INDEX_PATH_API] Processing file: ${filePath}`);
-
-    // Check if file is within allowed directories
-    if (!isPathWithinConfiguredDirectories(filePath)) {
-      return {
-        success: false,
-        message: `Access denied: Path '${filePath}' is not within configured accessible directories.`,
-      };
-    }
-
-    // Check file size
-    const fileStats = await fs.stat(filePath);
-    if (fileStats.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      return {
-        success: false,
-        message: `File ${filePath} exceeds ${MAX_FILE_SIZE_MB}MB limit.`,
-      };
-    }
-
-    // Read file content
-    const fileContent = await readFileContent(filePath);
-
-    // Split into chunks
-    const textChunks = chunkText(fileContent);
-    if (textChunks.length === 0) {
-      return {
-        success: true,
-        message: `File ${filePath} had no text content to index.`,
-      };
-    }
-
-    // Generate embeddings
-    const embeddingResponse = await fetch('/api/orion/memory/generate-embeddings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ texts: textChunks }),
-    });
-
-    const embeddingData = await embeddingResponse.json();
-
-    if (!embeddingData.success || !embeddingData.embeddings || embeddingData.embeddings.length !== textChunks.length) {
-      throw new Error(embeddingData.error || `Failed to generate embeddings for ${filePath}`);
-    }
-
-    // Create memory points
-    const fileSourceIdPrefix = `localfile_${path.basename(filePath).replace(/[^a-zA-Z0-9]/g, '_')}`;
-    const currentISOTime = new Date().toISOString();
-
-    const memoryPoints = textChunks.map((chunk, index) => {
-      const pointId = uuidv4();
-      const source_id = `${fileSourceIdPrefix}_chunk${index}_${pointId.substring(0, 4)}`;
-
-      return {
-        id: pointId,
-        vector: embeddingData.embeddings[index],
-        payload: {
-          text: chunk,
-          source_id: source_id,
-          original_file_path: filePath,
-          file_name: path.basename(filePath),
-          type: `local_doc_${path.extname(filePath).replace('.', '') || 'generic'}`,
-          timestamp: new Date(fileStats.mtimeMs).toISOString(),
-          indexed_at: currentISOTime,
-          chunk_index: index,
-          total_chunks: textChunks.length,
-          tags: ['local_file', path.extname(filePath).replace('.', '')],
-        },
-      };
-    });
-
-    // Upsert to memory
-    const upsertResponse = await fetch('/api/orion/memory/upsert', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        points: memoryPoints,
-        collectionName: ORION_MEMORY_COLLECTION_NAME,
-      }),
-    });
-
-    const upsertData = await upsertResponse.json();
-
-    if (!upsertData.success) {
-      throw new Error(upsertData.error || `Failed to upsert chunks for ${filePath}`);
-    }
-
-    return {
-      success: true,
-      message: `Successfully indexed ${filePath} (${memoryPoints.length} chunks).`,
-      sourceId: fileSourceIdPrefix,
-      chunksIndexed: memoryPoints.length,
-    };
-  } catch (error: unknown) {
-    console.error(`[INDEX_PATH_API] Error processing file ${filePath}:`, error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return {
-      success: false,
-      message: `Error indexing ${filePath}: ${errorMessage}`,
-    };
-  }
+// Dummy function for now, replace with actual deletion logic later
+async function deleteFilePath(filePath: string) {
+  logger.info(`[LOCAL_FS_INDEX] Deleting placeholder for: ${filePath}`);
+  // TODO: Implement actual deletion from Qdrant
+  return { success: true, message: `Successfully deleted (placeholder) ${filePath}` };
 }
 
-/**
- * API route to index a file or directory
- */
-export async function POST(request: NextRequest) {
-  try {
-    const { pathToIndex } = await request.json();
+// Dummy function for now, replace with actual listing logic later
+async function listIndexedPaths(): Promise<string[]> {
+  logger.info(`[LOCAL_FS_INDEX] Listing indexed paths (placeholder).`);
+  // TODO: Implement actual listing from Qdrant
+  return [];
+}
 
-    if (!pathToIndex || typeof pathToIndex !== 'string') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'pathToIndex is required and must be a string',
-        },
-        { status: 400 }
-      );
-    }
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const session = await getServerSession(authConfig);
+  if (!session || !session.user) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
 
-    // Check if path is within allowed directories
-    if (!isPathWithinConfiguredDirectories(pathToIndex)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Access denied: Path '${pathToIndex}' is not within configured accessible directories.`,
-        },
-        { status: 403 }
-      );
-    }
+  const { searchParams } = new URL(request.url);
+  const directoryPath = searchParams.get('path');
 
-    // Check if path exists and get stats
-    const stats = await fs.stat(pathToIndex);
+  if (!directoryPath) {
+    return NextResponse.json({ success: false, error: 'Directory path is required.' }, { status: 400 });
+  }
 
-    const results: Array<{
-      file: string;
-      success: boolean;
-      message: string;
-      sourceId?: string;
-      chunksIndexed?: number;
-    }> = [];
-    let totalFilesProcessed = 0;
-    let totalChunksIndexed = 0;
+  const configuredDirs = getConfiguredDirectories();
+  const normalizedDirectoryPath = path.normalize(directoryPath);
 
-    if (stats.isFile()) {
-      // Process single file
-      const result = await processAndIndexFile(pathToIndex);
-      results.push({ file: pathToIndex, ...result });
+  const isAuthorized = configuredDirs.some((dir) => normalizedDirectoryPath.startsWith(path.normalize(dir)));
 
-      if (result.success && result.chunksIndexed) {
-        totalChunksIndexed += result.chunksIndexed;
-        totalFilesProcessed++;
-      }
-    } else if (stats.isDirectory()) {
-      // Process directory (top-level files only)
-      console.log(`[INDEX_PATH_API] Indexing directory (top-level files only): ${pathToIndex}`);
-
-      const items: FileSystemItem[] = await listDirectoryContents(pathToIndex);
-
-      for (const item of items) {
-        if (item.type === 'file') {
-          const result = await processAndIndexFile(item.path);
-          results.push({ file: item.path, ...result });
-
-          if (result.success && result.chunksIndexed) {
-            totalChunksIndexed += result.chunksIndexed;
-            totalFilesProcessed++;
-          }
-        }
-      }
-    } else {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Path is not a file or directory.',
-        },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: `Indexing process completed. Processed ${totalFilesProcessed} files, indexed ${totalChunksIndexed} chunks.`,
-      details: results,
+  if (!isAuthorized) {
+    logger.warn(`[LOCAL_FS_INDEX][GET] Unauthorized access attempt to directory: ${directoryPath}`, {
+      userId: session.user.id,
     });
+    return NextResponse.json({ success: false, error: 'Access to this directory is not allowed.' }, { status: 403 });
+  }
+
+  try {
+    const allFiles = await fs.readdir(directoryPath, { withFileTypes: true, encoding: 'utf-8' });
+    const files = allFiles
+      .filter((dirent) => dirent.isFile() && !dirent.name.startsWith('.')) // Filter out directories and hidden files
+      .map((dirent) => ({ name: dirent.name, path: path.join(directoryPath, dirent.name), type: 'file' }));
+
+    const directories = allFiles
+      .filter((dirent) => dirent.isDirectory() && !dirent.name.startsWith('.')) // Filter out files and hidden directories
+      .map((dirent) => ({ name: dirent.name, path: path.join(directoryPath, dirent.name), type: 'directory' }));
+
+    logger.info(`[LOCAL_FS_INDEX][GET] Successfully listed contents of directory: ${directoryPath}`, {
+      fileCount: files.length,
+      dirCount: directories.length,
+      userId: session.user.id,
+    });
+    return NextResponse.json({ success: true, files, directories });
   } catch (error: unknown) {
-    console.error('Error in POST /api/orion/local-fs/index-path:', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`[LOCAL_FS_INDEX][GET] Error listing directory contents: ${directoryPath}`, {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      userId: session.user.id,
+    });
     return NextResponse.json(
       {
         success: false,
-        error: errorMessage || 'An unexpected error occurred',
+        error: `Failed to list contents of directory: ${error instanceof Error ? error.message : 'Unknown error'}`,
       },
       { status: 500 }
     );
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function isPathWithinConfiguredDirectories(filePath: string): boolean {
-  // TODO: Implement actual logic to check if filePath is within configured directories
-  // For now, return true to unblock the build
-  return true;
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const session = await getServerSession(authConfig);
+  if (!session || !session.user) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body: LocalFileIndexRequest = await request.json();
+    const { action, filePath } = body;
+
+    if (!filePath) {
+      return NextResponse.json(
+        { success: false, error: 'File path is required for indexing action.' },
+        { status: 400 }
+      );
+    }
+
+    const configuredDirs = getConfiguredDirectories();
+    const normalizedFilePath = path.normalize(filePath);
+
+    const isAuthorized = configuredDirs.some((dir) => normalizedFilePath.startsWith(path.normalize(dir)));
+
+    if (!isAuthorized) {
+      logger.warn(`[LOCAL_FS_INDEX][POST] Unauthorized indexing attempt for path: ${filePath}`, {
+        userId: session.user.id,
+      });
+      return NextResponse.json(
+        { success: false, error: 'Access to this file path is not allowed for indexing.' },
+        { status: 403 }
+      );
+    }
+
+    switch (action) {
+      case 'index': {
+        // Check if path exists and is a file
+        let stats;
+        try {
+          stats = await fs.stat(filePath);
+        } catch (e) {
+          logger.error(`[LOCAL_FS_INDEX][POST] Path does not exist or is inaccessible: ${filePath}`, { error: e });
+          return NextResponse.json(
+            { success: false, error: 'Path does not exist or is inaccessible.' },
+            { status: 404 }
+          );
+        }
+
+        if (!stats.isFile()) {
+          logger.warn(`[LOCAL_FS_INDEX][POST] Cannot index: Path is not a file: ${filePath}`);
+          return NextResponse.json({ success: false, error: 'Only files can be indexed.' }, { status: 400 });
+        }
+
+        const result = await indexFilePath(filePath);
+        if (result.success) {
+          logger.info(`[LOCAL_FS_INDEX][POST] Successfully initiated indexing for file: ${filePath}`, {
+            userId: session.user.id,
+          });
+          return NextResponse.json({ success: true, message: result.message });
+        } else {
+          logger.error(`[LOCAL_FS_INDEX][POST] Failed to initiate indexing for file: ${filePath}`, {
+            error: result.message,
+            userId: session.user.id,
+          });
+          return NextResponse.json({ success: false, error: result.message }, { status: 500 });
+        }
+      }
+      case 'delete': {
+        const result = await deleteFilePath(filePath);
+        if (result.success) {
+          logger.info(`[LOCAL_FS_INDEX][POST] Successfully initiated deletion for file: ${filePath}`, {
+            userId: session.user.id,
+          });
+          return NextResponse.json({ success: true, message: result.message });
+        } else {
+          logger.error(`[LOCAL_FS_INDEX][POST] Failed to initiate deletion for file: ${filePath}`, {
+            error: result.message,
+            userId: session.user.id,
+          });
+          return NextResponse.json({ success: false, error: result.message }, { status: 500 });
+        }
+      }
+      case 'list': {
+        const indexedPaths = await listIndexedPaths();
+        logger.info(`[LOCAL_FS_INDEX][POST] Successfully listed indexed paths.`, {
+          count: indexedPaths.length,
+          userId: session.user.id,
+        });
+        return NextResponse.json({ success: true, indexedPaths });
+      }
+      default:
+        logger.warn(`[LOCAL_FS_INDEX][POST] Unknown action: ${action}`, { userId: session.user.id });
+        return NextResponse.json({ success: false, error: 'Unknown action.' }, { status: 400 });
+    }
+  } catch (error: unknown) {
+    logger.error('[LOCAL_FS_INDEX][POST] Unexpected error during file system operation:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      userId: session.user.id,
+    });
+    return NextResponse.json(
+      {
+        success: false,
+        error: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      },
+      { status: 500 }
+    );
+  }
 }

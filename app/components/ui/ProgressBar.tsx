@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * ProgressBar Component
  * GOAL: Visually engaging, customizable progress bar for async operations and feedback.
@@ -5,9 +7,8 @@
  * All usage and progress updates are logged for debugging and performance monitoring.
  */
 
-import { logger } from "@/styles";
-import React, { useEffect } from "react";
-
+import logger from '@/lib/logger';
+import React, { useEffect } from 'react';
 
 export interface ProgressBarProps {
   progress: number; // 0 to 100
@@ -19,15 +20,15 @@ export interface ProgressBarProps {
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
-  label = "",
-  color = "#6366f1",
+  label = '',
+  color = '#6366f1',
   height = 12,
-  className = "",
+  className = '',
 }) => {
   useEffect(() => {
-    logger.component("ProgressBar", "mounted/updated", { progress, label, color, height });
+    logger.info('[ProgressBar] mounted/updated', { progress, label, color, height });
     return () => {
-      logger.component("ProgressBar", "unmounted", { label });
+      logger.info('[ProgressBar] unmounted', { label });
     };
   }, [progress, label, color, height]);
 
@@ -44,15 +45,15 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       <div
         className="w-full bg-gray-200 rounded-full overflow-hidden"
         style={{ height }}
-        aria-label={label || "Progress"}
+        aria-label={label || 'Progress'}
       >
         <div
           className="transition-all duration-300"
           style={{
             width: `${safeProgress}%`,
             background: color,
-            height: "100%",
-            borderRadius: "inherit",
+            height: '100%',
+            borderRadius: 'inherit',
           }}
         />
       </div>

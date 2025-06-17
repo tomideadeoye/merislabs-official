@@ -4,35 +4,52 @@
  * Related: lib/orion_config.ts, lib/database.ts, reference.md
  */
 // GOAL OF FILE|FEATURES|FUNCTIONS:
-// FILEPATH:
+// This API route handles the brainstorming process for a specific idea, utilizing an LLM to generate content.
+// It persists the generated content and related logs in the Neon/Postgres database and also stores relevant context in the memory (Qdrant) for future recall.
+// FILEPATH: app/api/orion/ideas/[ideaId]/brainstorm/route.ts
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+// - `@/lib/database.ts`: Provides the PostgreSQL client for interacting with the `ideas` and `idea_logs` tables.
+// - `@/lib/orion_config.ts`: Contains constants like `ORION_MEMORY_COLLECTION_NAME` for memory storage.
+// - `@/lib/types/index.ts`: Defines shared types such as `Idea` and `IdeaLog`.
+// - `@/lib/orion_llm.ts`: Contains the `generateLLMResponse` function for interacting with the LLM.
+// - `@/lib/logger.ts`: Centralized logging utility for comprehensive tracking of operations.
+// - `/api/orion/memory/upsert`: Endpoint for persisting brainstorm content in the vector database.
 // ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
-// NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
+// - The LLM is correctly configured and accessible.
+// - The Neon/Postgres database is operational and has the `ideas` and `idea_logs` tables.
+// NOTES: This route ensures that brainstorming sessions are recorded and can be leveraged for future AI interactions.
+// TODOS: Implement more sophisticated error handling for LLM and memory storage failures.
+// SUGGESTIONS: Allow for different brainstorming models or techniques to be chosen by the user.
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/app/shared/lib/postgres';
+import { query } from '@/lib/database';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import type { IdeaLog } from '@/app/shared/types/ideas';
+import { Idea, IdeaLog } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
-import { Idea } from '@/app/shared/types/ideas';
-import { generateLLMResponse } from '@/app/shared/lib/orion_llm';
-import { REQUEST_TYPES as OriginalRequestTypes } from '@/app/shared/lib/orion_llm'; // Rename original import
-import { logger } from '@/app/shared/lib/logger';
-
-const REQUEST_TYPES = OriginalRequestTypes; // Re-assign to force type inference
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
+import logger from '@/lib/logger'; 
 
 /**
  * API route for generating brainstorming content for an idea
  */
-export async function POST(req: NextRequest, { params }: { params: { ideaId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: { ideaId: string } }) {
   logger.info('[API][IdeaBrainstorm][POST] Received request for idea brainstorming.', { ideaId: params.ideaId });
 
+  let ideaId: string | undefined; // Declare ideaId here
+
   try {
-    const { ideaId } = params;
-    const { prompt } = await req.json();
+    ideaId = params.ideaId; // Assign value here
+    const { prompt } = await request.json();
 
     if (!ideaId || !prompt) {
       logger.warn('[API][IdeaBrainstorm][POST] Missing required fields.', { ideaId, prompt: !!prompt });
-      return NextResponse.json({ success: false, error: 'Idea ID and prompt are required.' }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Idea ID and prompt are required.',
+          message: 'Please provide both an idea ID and a brainstorming prompt.',
+        },
+        { status: 400 }
+      );
     }
 
     logger.debug('[API][IdeaBrainstorm][POST] Fetching idea from database.', { ideaId });
@@ -43,7 +60,10 @@ export async function POST(req: NextRequest, { params }: { params: { ideaId: str
 
     if (!idea) {
       logger.warn('[API][IdeaBrainstorm][POST] Idea not found.', { ideaId });
-      return NextResponse.json({ success: false, error: 'Idea not found.' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Idea not found.', message: `Idea with ID ${ideaId} not found.` },
+        { status: 404 }
+      );
     }
 
     logger.info('[API][IdeaBrainstorm][POST] Idea fetched successfully. Constructing LLM prompt.', {
@@ -63,7 +83,7 @@ export async function POST(req: NextRequest, { params }: { params: { ideaId: str
 
     let brainstormContent: string;
     if (llmResponse.success) {
-      brainstormContent = llmResponse.content as string;
+      brainstormContent = llmResponse.content;
       logger.info('[API][IdeaBrainstorm][POST] LLM brainstorm content generated successfully.');
     } else {
       logger.error('[API][IdeaBrainstorm][POST] Failed to generate brainstorm content from LLM.', {
@@ -155,6 +175,7 @@ export async function POST(req: NextRequest, { params }: { params: { ideaId: str
       {
         success: false,
         error: error instanceof Error ? error.message : 'An unexpected error occurred.',
+        message: `Failed to brainstorm for idea ${ideaId || '[ID_UNKNOWN]'}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       },
       { status: 500 }
     );

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BlockType, Block, CreateBlockPayload, BLOCK_TYPES } from '../../../src/types';
 import {
   Input,
   Textarea,
@@ -15,6 +14,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from '@/components/ui';
+import { BlockType, Block, CreateBlockPayload, BLOCK_TYPES } from '@/styles';
 
 // GOAL OF FILE|FEATURES|FUNCTIONS:
 // FILEPATH:

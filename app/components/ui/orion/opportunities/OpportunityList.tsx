@@ -1,57 +1,60 @@
 'use client';
 
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
+// GOAL OF FILE|FEATURES|FUNCTIONS: Displays a list of opportunities with search, filtering, and sorting capabilities. Renders individual `OpportunityCard` components.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/OpportunityList.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `OpportunityPipelinePage` (`app/(orion_admin)/admin/opportunity-pipeline/page.tsx`).
+//   - Renders `OpportunityCard` (`./OpportunityCard`).
+//   - Uses `useOpportunityCentralStore` (`@/opportunityCentralStore`) for filters and sorting state.
+//   - Uses `@/components/ui` for basic UI elements (`Button`, `Input`).
 // Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { OpportunityCard } from './OpportunityCard';
 import { Button, Input } from '@/components/ui';
 import { Plus, Search, Loader2 } from 'lucide-react';
 import type { OrionOpportunity } from '@/lib/types';
-import { useOpportunities } from '@/hooks/useOpportunities';
 import { useOpportunityCentralStore } from '@/opportunityCentralStore';
-import { OpportunityCentralStoreType } from '@/opportunityCentralStore'; // Import directly from the store
-
-// Removed FILTERS constant as it's no longer directly used in the component
+import { OpportunityCentralStoreType } from '@/opportunityCentralStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface OpportunityListProps {
-  // Removed unused props: opportunities, isLoading, error, refetchOpportunities
+  opportunities: OrionOpportunity[];
+  isLoading: boolean;
+  error: string | null;
+  refetchOpportunities: () => void;
   onAddNew?: () => void;
 }
 
-export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) => {
+export const OpportunityList: React.FC<OpportunityListProps> = ({
+  opportunities,
+  isLoading,
+  error,
+  onAddNew,
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
-  // Use central store for filters and sorting
-  const { filters, sort, sortOrder } = useOpportunityCentralStore((state: OpportunityCentralStoreType) => ({
-    filters: state.filters,
-    sort: state.sort,
-    sortOrder: state.sortOrder,
-  }));
+  const { filters, sort, sortOrder } = useOpportunityCentralStore(
+    useShallow((state: OpportunityCentralStoreType) => ({
+      filters: state.filters,
+      sort: state.sort,
+      sortOrder: state.sortOrder,
+    }))
+  );
 
-  const { opportunities, isLoading, error, refetchOpportunities } = useOpportunities(); // No arguments here
+  // No need for an internal useEffect to refetch, as data comes from props.
+  // The parent component is responsible for refetching.
 
-  // Refetch opportunities whenever filters or sort changes - this is now a no-op if useOpportunities doesn't use them.
-  // We will keep refetchOpportunities, but it will just refetch all data. Local filtering/sorting applied below.
-  useEffect(() => {
-    refetchOpportunities();
-  }, [refetchOpportunities]); // Removed filters, sort, sortOrder from dependency array as useOpportunities does not use them.
-
-  // Derived filtered and sorted opportunities based on searchTerm and central store filters/sort
   const filteredAndSortedOpportunities = useMemo(() => {
     let filtered = opportunities;
 
-    // Apply search term filter
     if (searchTerm) {
-      filtered = filtered.filter((opp: OrionOpportunity) => {
-        return (
+      filtered = filtered.filter(
+        (opp: OrionOpportunity) =>
           opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (opp.companyOrInstitution?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-        );
-      });
+      );
     }
 
-    // Apply filters from central store
     if (filters) {
       if (filters.status && filters.status !== 'all') {
         filtered = filtered.filter((opp: OrionOpportunity) => opp.status === filters.status);
@@ -65,10 +68,8 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ onAddNew }) =>
       if (filters.tag && typeof filters.tag === 'string') {
         filtered = filtered.filter((opp: OrionOpportunity) => opp.tags?.includes(filters.tag as string));
       }
-      // Add other filters as needed
     }
 
-    // Apply sorting from central store
     const sorted = [...filtered].sort((a: OrionOpportunity, b: OrionOpportunity) => {
       const aValue = a[sort as keyof OrionOpportunity] || '';
       const bValue = b[sort as keyof OrionOpportunity] || '';

@@ -1,10 +1,21 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides top-level context providers for the Next.js application, including authentication (`SessionProvider`), theming (`ThemeProvider`), and toast notifications (`Toaster`).
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/providers.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Wraps the main application content in `app/layout.tsx`.
+//   - Provides `SessionProvider` from `next-auth/react`.
+//   - Provides `ThemeProvider` from `next-themes`.
+//   - Provides `Toaster` from `react-hot-toast`.
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from 'next-auth/react';
 
 import { Toaster } from 'react-hot-toast';
 import logger from './lib/logger';
 import { ThemeProvider } from 'next-themes';
+
+// Create a client
+const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   logger.info('[Providers] Initializing global providers: SessionProvider, ThemeProvider, MemoryProvider, Toaster');
@@ -34,7 +45,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             },
           }}
         />
-        {children}
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
       </ThemeProvider>
     </SessionProvider>
   );

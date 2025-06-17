@@ -1,8 +1,8 @@
 import { generateLLMResponse } from '@/lib/llm_providers';
 import { searchMemory } from '@/lib/orion_memory';
 import { getPersonaById } from '@/lib/persona_service';
-import { fetchUserProfile } from '@/profile_service';
-import { SearchMemoryResponse, ScoredMemoryPoint, UserProfileFetchResponse, CombinedLLMResponse } from '@/styles';
+import { fetchUserProfile } from '@/lib/profile_service';
+import { SearchMemoryResponse, ScoredMemoryPoint, UserProfileFetchResponse, CombinedLLMResponse } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GOAL:
@@ -64,22 +64,31 @@ export async function POST(req: NextRequest) {
     }
 
     // Get relevant memories
-    const relevantMemoriesResponse: SearchMemoryResponse = await searchMemory({
-      query: `${persona.name} ${persona.company || ''} ${opportunityDetails} ${goal}`,
+    const searchQuery = `${persona.name} ${persona.company || ''} ${opportunityDetails} ${goal}`;
+    const searchOptions = {
       limit: 5,
       filter: {
         must: [{ key: 'payload.tags', match: { value: 'achievement' } }],
       },
-    });
+    };
 
-    console.log(
-      '[OUTREACH_CRAFT] relevantMemoriesResponse type:',
-      typeof relevantMemoriesResponse,
-      Array.isArray(relevantMemoriesResponse) ? 'array' : 'object',
-      relevantMemoriesResponse
-    );
+    let relevantMemories: ScoredMemoryPoint[] = [];
+    try {
+      const searchResponse: SearchMemoryResponse = await searchMemory(searchQuery, searchOptions);
 
-    const relevantMemories: ScoredMemoryPoint[] = relevantMemoriesResponse.results || [];
+      console.log('[OUTREACH_CRAFT] searchResponse details:', searchResponse);
+
+      if (searchResponse.success && searchResponse.results) {
+        relevantMemories = searchResponse.results;
+      } else {
+        console.warn(
+          '[OUTREACH_CRAFT] Failed to fetch relevant memories:',
+          searchResponse.error || 'No memories found.'
+        );
+      }
+    } catch (error: unknown) {
+      console.error('[OUTREACH_CRAFT] Error fetching relevant memories:', error);
+    }
 
     // Get profile data
     let profileData = '';

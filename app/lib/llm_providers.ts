@@ -263,8 +263,6 @@ export function checkAllLlmApiKeys() {
 
 // Placeholder for generateLLMResponse. Implement the actual logic as needed.
 export function generateLLMResponse(...args: any[]): Promise<any> {
-  console.warn(
-    'generateLLMResponse: Placeholder function called. Implement actual LLM interaction logic.',
-  );
+  console.warn('generateLLMResponse: Placeholder function called. Implement actual LLM interaction logic.');
   return Promise.resolve({ success: false, message: 'Not yet implemented' });
 }

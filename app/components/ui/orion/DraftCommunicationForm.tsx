@@ -1,5 +1,13 @@
 'use client';
 
+// GOAL OF FILE|FEATURES|FUNCTIONS: Provides a form for general communication drafting and asking questions using an LLM. Allows selecting model parameters (temperature, max tokens) and uses user profile data as context.
+// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/DraftCommunicationForm.tsx
+// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+//   - Consumed by `DraftCommunicationClientWrapper` (`app/(orion_admin)/admin/draft-communication/DraftCommunicationClientWrapper.tsx`).
+//   - Interacts with the backend API route `/orion/llm` (POST) for generating responses and answers.
+//   - Calls backend API route `/orion/models` (GET) to fetch available LLM models.
+//   - Uses `apiClient` (`@/lib/apiClient`) for API calls.
+//   - Uses `toast` (`react-hot-toast`) for feedback messages.
 import { useState, useCallback, useEffect } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { DRAFT_COMMUNICATION_REQUEST_TYPE, ASK_QUESTION_REQUEST_TYPE } from '../../../lib/orion_config';
@@ -7,6 +15,7 @@ import { toast } from 'react-hot-toast';
 
 interface DraftCommunicationFormProps {
   profileData?: string | null;
+  memoryAvailable?: boolean;
 }
 
 function DraftCommunicationForm({ profileData }: DraftCommunicationFormProps) {

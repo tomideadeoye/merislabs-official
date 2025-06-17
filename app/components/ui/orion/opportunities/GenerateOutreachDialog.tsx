@@ -5,7 +5,7 @@ import { Button, Textarea } from '@/components/ui';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui';
 import { Loader2, Copy, MessageSquare, Mail } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
-import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/app/opportunityCentralStore';
+import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/opportunityCentralStore';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/lib/'; // Import LLM utility
-import { fetchCVComponents } from '@/lib/cv'; // Import function to fetch all CV components
+
 import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Import from notion_service
 import { CV_SUMMARY_TAILORING_REQUEST_TYPE } from '@/lib/orion_config'; // Import request type
-import { CVComponent } from '@/lib/';
+import { generateLLMResponse } from '@/lib/llm_providers';
+import { CVComponent } from '@/styles';
 
 /**
  * API route for tailoring a CV summary based on JD analysis using LLM
@@ -59,22 +59,22 @@ export async function POST(req: NextRequest) {
         }
       );
       return NextResponse.json({ success: true, tailored_content: llmContent });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('LLM failed to tailor summary:', err);
       return NextResponse.json(
         {
           success: false,
-          error: err.message || 'Failed to tailor summary using LLM',
+          error: err instanceof Error ? err.message : 'Failed to tailor summary using LLM',
         },
         { status: 500 }
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in CV summary tailoring API:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'An unexpected error occurred in summary tailoring API',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred in summary tailoring API',
       },
       { status: 500 }
     );

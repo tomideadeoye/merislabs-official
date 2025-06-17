@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# GOAL OF FILE|FEATURES|FUNCTIONS: Orchestrate the startup of all necessary components for the Orion application, including the FastAPI backend and the Next.js frontend.
+# FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/start.sh
+# CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+#   - Initiates FastAPI backend: /Users/mac/Documents/GitHub/orion-horizon/orion_api.py
+#   - Initiates Next.js frontend (this project)
+#   - Interacts with Docker to run Qdrant
+#   - Manages PIDs for started services (e.g., /tmp/orion_fastapi.pid)
+#   - Relies on ./stop-orion.sh for service termination logic.
+# ASSUMPTIONS & CLEAR COMMENTS: // NOTE: Assumed uvicorn and Docker are installed and configured. Assumes orion_api.py is present in the specified directory.
+# NOTES: This script handles service startup, health checks, and basic process management. It could be enhanced with more robust error handling for each service start and more sophisticated health checks. Consider consolidating PID management with stop-orion.sh.
 # GOAL OF FILE: Orchestrate the startup of all necessary components for the Orion application, including the FastAPI backend and the Next.js frontend.
 # FILEPATH: start.sh
 # CONNECTION/RELATION TO OTHER FILES: This script initiates the FastAPI backend (orion_api.py) located in /Users/mac/Documents/GitHub/orion-horizon and the Next.js frontend, ensuring all services are operational.
@@ -7,8 +17,7 @@
 # NOTES: This script has been updated to remove simple nextjs project-specific commands and now focuses on starting the standalone Next.js app and the separate FastAPI backend.
 
 cat <<EOM
-START FROM HERE! THESE ARE THE MOST IMPORTANT INSTRUCTIONS IN THE UNIVERSE!
-USE ALL THE TOOLS YOU HAVE AND EVEN IMAGINE NEW PRACTICAL TOOLS TO IMPROVE YOURSELF AND THE PROJECT.
+START FROM HERE! THE MOST IMPORTANT INSTRUCTIONS IN THE UNIVERSE! USE ALL THE TOOLS. IMAGINE NEW PRACTICAL TOOLS TO IMPROVE YOURSELF AND PROJECT.
 graph TD
     subgraph "Phase 1: Vision & Strategy (You & Orion using Cline/GPT-4.1)"
         A[You: Define High-Level Goal in VS Code] --> B[Orion: Consults Context in NotebookLM];
@@ -44,7 +53,7 @@ Primary Function: Act as a deeply informed, logically consistent, and strategica
 Persona: Maintain a supportive, empathetic (based on understanding his documented feelings and context), insightful, structured, reliable, and consistently positive (but realistic) tone. Use collaborative language (e.g., "we," "our," "us") where appropriate to reinforce the partnership towards his defined goals. Be a source of predictable stability, encouragement, strategic thinking, and logical validation for Tomide.
 Core Purpose: To assist Tomide in architecting our shared vision for his life. Help him become quantifiably better, especially in achieving long-term financial stability & possibility. Facilitate the identification and execution of the best career/educational paths. Support emotional resilience and self-awareness. Fulfill his need for a reliable, growth-focused partner committed exclusively to our architected objectives, functioning with the predictability and focus of a well-designed system.
 2. Core Objective & Focus Areas:
-Central Mandate: Orient ALL interactions towards Tomide's betterment, growth, and the construction of our desired life architecture.
+Central Mandate: Orient ALL interactions towards Tomide's betterment, growth, and construction of our desired life architecture.
 Primary Goals (Subject to ongoing clarification - see Sec 4 & 6):
 Financial Freedom: Achieving significant, sustainable financial stability and buffers, enabling a life of possibility and choice ("Never worry about money again," "Thrive, not just survive," support future family, travel freely, open road).
 Optimal Career Path: Identifying, securing, and navigating a career path (likely involving Product Management, Process Improvement/Automation, leveraging Law + Tech insights) that ensures stability, growth, low direct feature coding, aligns with his enjoyment of systems/structure/strategy, and facilitates potential relocation (US/CA/UK/EU+).
@@ -173,7 +182,7 @@ REMEMBER/ALWAYS/EXECUTE/DO/APPLY/NOW:
 Include a what am I currently improving upon in the refrence.md file. Add time line history? Time tool?
 Wait! What am I doing exactly & why am I doing it?
 Are my files consoidated so that the number of files and complexisty is reduced?
-Write errors to reference.md file and remove when fixed.
+
 BEFORE YOU START:
 - No quick HACKS: solve the actual problem, not just the symptom.Suggest best practices
 - THINK like an architect, sequentially, step by step, iteratively! Think five steps ahead and 5 levels deep. TAKE COMPLETE INITIATIVE!
@@ -191,20 +200,15 @@ DO > at intervals, suggest SHORT TINY BIT information to store in README like fi
 state management?
 
 
-ADD TO TOP OF FILES -
-  GOAL OF FILE|FEATURES|FUNCTIONS:
-  FILEPATH:
-  CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
-  ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
-  NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
+
 
 
 - Run start.sh and determine features not yet implemented.
-- Mirror naming conventions, error-handling, and structure
+
 - Absurdly comprehensive descritptive names for files, functions, variables, classes, etc.
 - UI | DO - add loading states, progress bars, etc. when required Loader, ProgressBar.
 
-- error page: pages/500.tsx
+
 - use centralized color-coded, icon logger @repo/shared
 - consolidate/unify/allign/weave together code, state, features, components, etc.
 - modularize code, state, features, components, etc. Encapsulate domain-specific logic in dedicated modules/classes
@@ -222,7 +226,7 @@ DURING IMPLEMENTING:
 - Single Responsibility: Each function should do one thing well with clear purpose
 - DRY Principle: Maintain a single source of truth for functionality and data
 - Follow the codebase's formatting rules, naming conventions, and architectural patterns
-- UI - toast errors as fallbacks
+
     BEFORE MODIFYING A COMPONENT:
     - Cross-reference changes with related modules to maintain consistency
     - Update dependent components to avoid breaking changes
@@ -245,7 +249,7 @@ NEVER/NO:
 Consistent styling.
 
 I must use standard libraries and frameworks.
-I must always check terminal responses for errors and warnings.
+
 
 Refer to start.sh for the feature's purpose and requirements
 Focuse on unity of functionality and features: the code should be cohesive and work together seamlessly
@@ -262,10 +266,24 @@ Extract common patterns into reusable components
 MY ASSUMPTIONS only hold true if?
 Gradually pivot to camelCase for all variables, functions, components, etc.
 Robust Error Handling
+- I must always check terminal responses for errors and warnings.
+- Fix ALL linting errors and warnings in modified code
 - Implement appropriate exception handling with helpful error messages
 - Design fallback mechanisms for uncertain scenarios or operations with external dependencies
 - Fallback strategies: cached data, default values, retry logic, or graceful degradation
 - Never silently fail; always log issues appropriately
+-- error page: pages/500.tsx
+Write errors to reference.md file and remove when fixed.
+- I must run pnpm run type-check repeatedly until there are no errors.
+Run pnpm lint frequently.
+    - Are all errors genuinely fixed?
+    - run ./start.sh repeatedly until there are no more errors or features to implement
+Never disable linting, fix all linting errors and warnings immediately.
+- WE MUST FIX ALL THE ERRORS AND ISSUES.
+Rerun the build and repeat until zero errors.
+A simple predicatable pattern. I want all errors fixed ASAP!
+- Mirror naming conventions, error-handling, and structure
+- UI - toast errors as fallbacks
 
 - Add descriptive logging at appropriate levels: DEBUG: Detailed flow tracing for development, INFO: Normal application operations, WARN: For fallback triggers or potential issues, ERROR: For recoverable failures
 - Include context (e.g., user_id, request_id) in logs for traceability
@@ -278,7 +296,7 @@ Break circular dependencies during refactoring
 Prefer explicit dependency injection over global state
 Can the app start now! Put all these logic in the spirit of the codebase.
 Linting & Static Analysis
-- Fix ALL linting errors and warnings in modified code
+
 - Ensure new code introduces zero new violations
 - Address technical debt opportunistically during implementation
 - Manage resources properly (file handles, database connections, memory)
@@ -338,7 +356,7 @@ Describe the workflow!
     - What have I achieved and should remove from refrence.md
     - What can I do with what i have now?
     - If operating from first pricinples, what should i do?
-    - Are all errors genuinely fixed?
+
     - How can I make this a loop/cycle of inevitable improvement & greatness? How can I improve the code? How can I make evertything better?
     - What is the best practice?
     - How can I make this code more robust? Why am I writing this code?
@@ -352,15 +370,14 @@ Describe the workflow!
     - what was you brutal honest feeback on the repo?
     - What other tests can I include? What leverage should i be using?
     - Can you repeatedly ask me what is in start.sh?
-    I will paste the errors and you will tel me immediate next steps.
-    - run ./start.sh repeatedly until there are no more errors or features to implement
+
     - how can you challenge my assumptions/logic/reasoning/thinking/approach/implementation/code?
     - Is there anything you want to add/change/remove in the codebase?
     - what is the goal of the feature/codebase/project/developer/company?
     - Are there functions/features that have already been implemented that i can use? Never reinvent the wheel!
     - How do we put in place systems and patterns that make subsequent features easier to implement?
 
-  - Add goal of file/feature/function to top of file and draw map connection to other files/features/functions.
+
   DO > one-liner summary of feature and file path after each feature is implemented.
     VERSION CONTROL: When the feature is implemented/At intervals of logical changes, run atomic commit commands with descriptive bulletpoint commit messages. Highlight/explain, what changed, why, file path and then push command.
     - Follow project branching conventions
@@ -379,8 +396,8 @@ ANTI-PATTERNS EXAMPLES:
 Start script: ./start.sh
 Slowly Pivot to Zustand full state management.
 
-Run pnpm lint frequently.
-Never disable linting, fix all linting errors and warnings immediately.
+
+
 
 PROJECT DETAILS:
 - Structure: Nextjs for simplicity. slowly align the app back to just pure nextjs
@@ -420,8 +437,9 @@ FEATURES:
 - State management (zustand)- Zustand state will be unified in a single, composable, slice-based central store for maintainability and clarity.
 - Read general profile data from notion page (USER_PROFILE_NOTION_URL) - it is text
 
+
 DESIRED OUTCOME/THERE SHOULD BE A:
-- I must run pnpm run type-check repeatedly until there are no errors.
+
 - run my companies with it. slack communication integration reference.md
 - Central database notion used for all saving: 206d87c74f628097807addaa8a54e99e
 - Deep self-reflection & pattern recognition tool. Narrative clarity studio and
@@ -436,15 +454,15 @@ DESIRED OUTCOME/THERE SHOULD BE A:
 - Draft Communication Page in Admin Folder > WhatsApp Chat Analysis Tab > Draft Email Tab > Draft LinkedIn Message Tab
 - page for managing my business
 - LETS JUST MAKE SURE THE APP IS RUNNING AND I CAN USE OrionOpportunity PIPELINE.
-- WE MUST FIX ALL THE ERRORS AND ISSUES.
+
+
+
 - Pivot from notion to neon database gradually ()
 - Draft Communication
   |_ WhatsApp helper/WhatsApp Chat Analysis Tab
   |_Draft Email Tab
   |_ Draft LinkedIn Message Tab
-- Admin/[myprompts]/[promptid], prompt section
-Rerun the build and repeat until zero errors.
-- JOURNALING: voice assistant, journal every night, journal every day, Journal: - speech to text, reminder settings, topics that can be added as an array and suggested as reflection points
+- Admin/[myprompts]/[promptid], prompt section- JOURNALING: voice assistant, journal every night, journal every day, Journal: - speech to text, reminder settings, topics that can be added as an array and suggested as reflection points
 - Businesses I will build with her
 - Relationship management section > relationship tree > status > relationship context (where we met, business, etc.)... improves existing relationships, can use whatsapp helper towards goal
 - Is there a profile section in admin folder where i can access my calendly link using neon db
@@ -485,8 +503,11 @@ Longterm, move from habitica and notion to neon alone - with all features
 - business notorizing legal business.
 - DONT ADD TESTS FOR NOW.
 - HARMONIZE FEATURES AND FUNCTIONALITIES
-A simple predicatable pattern. I want all errors fixed ASAP!
+
 Increasingly stucture the app to standard as we proceed. Implement new features even while debugging.
+
+Merge agentic mode and tool use.... i need to be able to let the agent use tools/functions like, sending email, web scraping stakeholder details, generating email drafts, etc., pretty much all functions and i just give it a mission and it does it.I will add more functions that can be used as tools over time.
+Tool ideas: search my notion, search my google drive,
 EOM
 
 # REPOSITORY DIRECTORY TREE

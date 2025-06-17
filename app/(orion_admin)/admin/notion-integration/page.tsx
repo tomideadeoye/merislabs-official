@@ -3,10 +3,8 @@
 import React, { useState } from 'react';
 import { PageHeader } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger, Button } from '@/components/ui';
-import { NotionCVComponentsList } from '../../../../components/orion/notion/NotionCVComponentsList';
-import { NotionOpportunityForm } from '../../../../components/orion/notion/NotionOpportunityForm';
-import { Database, FileText, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { checkNotionApiHealth } from '@/app/shared/lib/notion_next_service';
+import { checkNotionApiHealth } from '@/lib/notion_next_service';
+import { Database, Loader2, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 
 export default function NotionIntegrationPage() {
   const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
@@ -98,11 +96,13 @@ export default function NotionIntegrationPage() {
         </TabsList>
 
         <TabsContent value="cv-components" className="mt-4">
-          <NotionCVComponentsList />
+          {/* <NotionCVComponentsList /> */}
+          <p className="text-gray-400">CV Components list coming soon...</p>
         </TabsContent>
 
         <TabsContent value="opportunities" className="mt-4">
-          <NotionOpportunityForm />
+          {/* <NotionOpportunityForm /> */}
+          <p className="text-gray-400">Opportunity form coming soon...</p>
         </TabsContent>
       </Tabs>
     </div>

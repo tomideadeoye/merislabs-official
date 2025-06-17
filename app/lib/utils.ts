@@ -1,8 +1,25 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { promises as fs } from 'fs';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Checks if a given path is a directory.
+ * This function is designed to work only in Node.js environments.
+ * @param {string} pathString The path to check.
+ * @returns {Promise<boolean>} True if the path is a directory, false otherwise.
+ */
+export async function isDirectory(pathString: string): Promise<boolean> {
+  try {
+    const stats = await fs.stat(pathString);
+    return stats.isDirectory();
+  } catch {
+    // If path does not exist or is inaccessible, it's not a directory
+    return false;
+  }
 }
 
 /**

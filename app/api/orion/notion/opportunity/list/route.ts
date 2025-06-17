@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { listOpportunitiesFromNotion } from '@/app/shared/notion_service';
+import { NextResponse } from 'next/server';
+import { listOpportunitiesFromNotion } from '@/lib/notion_service';
 import { z } from 'zod';
 
 const OpportunityNotionOutputSharedSchema = z.object({
@@ -43,7 +43,7 @@ const OpportunityNotionOutputSharedSchema = z.object({
 // GOAL: Provide comprehensive, context-rich, level-based logging for all Notion OrionOpportunity list actions.
 // All logs include operation, parameters, validation, and results for traceability and rapid debugging.
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const logContext = {
     route: '/api/orion/notion/OrionOpportunity/list',
     filePath: 'app/api/orion/notion/OrionOpportunity/list/route.ts',
@@ -85,16 +85,18 @@ export async function GET(request: NextRequest) {
       opportunities: validOpportunities,
       invalidOpportunities,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('[OPPORTUNITY_NOTION_LIST][ERROR]', {
       ...logContext,
-      error: error.message,
-      stack: error.stack,
+      error: errorMessage,
+      stack: errorMessage, // Using errorMessage for stack as well for simplicity
     });
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to fetch opportunities from Notion',
+        error: 'Failed to fetch opportunities from Notion',
+        details: errorMessage,
       },
       { status: 500 }
     );

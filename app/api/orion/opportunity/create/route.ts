@@ -1,30 +1,34 @@
 import { OpportunityCreatePayload } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
-
+import { createOpportunityInDb } from '@/lib/opportunity_db_service';
+import logger from '@/lib/logger';
 
 // =====================
-// OrionOpportunity Pipeline Create API
+// Opportunity Pipeline Create API
 // =====================
-// GOAL: Provide comprehensive, context-rich, level-based logging for all OrionOpportunity creation actions.
+// GOAL: Provide comprehensive, context-rich, level-based logging for all opportunity creation actions.
 // All logs include operation, user/session, parameters, validation, and results for traceability and rapid debugging.
 
 export async function POST(request: NextRequest) {
   const logContext = {
-    route: '/api/orion/OrionOpportunity/create',
-    filePath: 'app/api/orion/OrionOpportunity/create/route.ts',
+    route: '/api/orion/opportunity/create',
+    filePath: 'app/api/orion/opportunity/create/route.ts',
     timestamp: new Date().toISOString(),
     user: 'public',
   };
 
-  console.info('[OPPORTUNITY_CREATE][START]', logContext);
+  logger.info('[OPPORTUNITY_CREATE][START] Initiating POST request to create an opportunity.', logContext);
 
   try {
     const body: OpportunityCreatePayload = await request.json();
-    console.info('[OPPORTUNITY_CREATE][PAYLOAD]', { ...logContext, body });
+    logger.info('[OPPORTUNITY_CREATE][PAYLOAD] Received request body for opportunity creation.', {
+      ...logContext,
+      body,
+    });
 
     // Basic validation
     if (!body.title || !body.companyOrInstitution) {
-      console.warn('[OPPORTUNITY_CREATE][VALIDATION_FAIL]', {
+      logger.warn('[OPPORTUNITY_CREATE][VALIDATION_FAIL] Missing required fields (title or companyOrInstitution).', {
         ...logContext,
         body,
       });
@@ -37,46 +41,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // This is a mock implementation - in a real app, this would save to a database
-    // For now, we'll just return success with a mock ID
-    const mockId = `opp_${Date.now()}`;
-    const currentDate = new Date().toISOString();
+    // Use the new database service to create the opportunity in Neon DB
+    const createdOpportunity = await createOpportunityInDb(body);
 
-    const mockOpportunity = {
-      id: mockId,
-      title: body.title,
-      company: body.companyOrInstitution,
-      type: body.type,
-      status: body.status,
-      dateIdentified: currentDate,
-      priority: body.priority,
-      content: body.content,
-      sourceUrl: body.sourceUrl,
-      tags: body.tags,
-      lastStatusUpdate: currentDate,
-    };
-
-    console.info('[OPPORTUNITY_CREATE][SUCCESS]', {
+    logger.info('[OPPORTUNITY_CREATE][SUCCESS] Successfully created opportunity in Neon DB.', {
       ...logContext,
-      opportunityId: mockId,
+      opportunityId: createdOpportunity.id,
+      company: createdOpportunity.company,
     });
 
     return NextResponse.json({
       success: true,
-      OrionOpportunity: mockOpportunity,
+      opportunity: createdOpportunity,
     });
-  } catch (error: any) {
-    console.error('[OPPORTUNITY_CREATE][ERROR]', {
+  } catch (error: unknown) {
+    // Robust error handling: ensure type safety for 'unknown' error, log with context-rich details
+    let errorMessage = 'Unknown error';
+    let errorStack = undefined;
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      errorStack = error.stack;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+
+    logger.error('[OPPORTUNITY_CREATE][ERROR] An error occurred during opportunity creation.', {
       ...logContext,
-      error: error.message,
-      stack: error.stack,
+      error: errorMessage,
+      stack: errorStack,
     });
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to create OrionOpportunity.',
-        details: error.message,
+        error: 'Failed to create opportunity.',
+        details: errorMessage,
       },
       { status: 500 }
     );

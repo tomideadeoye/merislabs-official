@@ -128,9 +128,10 @@ class Logger {
   }
 
   private handleProductionError(message: string, context?: LogContext) {
-    // Winston already handles error logging to files
-    // Additional error service integration can be added here
-    // Example: Sentry.captureException(new Error(message), { extra: context });
+    // This is a placeholder for integrating with a dedicated error reporting service (e.g., Sentry, Bugsnag).
+    // For now, it ensures the error message and context are logged directly to the console
+    // in production environments as a fallback for immediate visibility.
+    console.error(`[PRODUCTION_ERROR_HANDLER] Unhandled error: ${message}`, context);
   }
 
   public debug(message: string, context?: LogContext) {

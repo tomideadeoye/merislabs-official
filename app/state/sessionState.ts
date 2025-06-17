@@ -1,15 +1,21 @@
 import { create } from 'zustand';
-import { SessionStateKeys } from '../lib/app_constants';
+import { SessionStateKeys } from '@/lib/constants';
+import { OrionSessionState } from '../lib/types';
 
-interface SessionState {
-  [key: string]: any; // Allows for dynamic properties
-  setSessionValue: (key: SessionStateKeys, value: any) => void;
-  getSessionValue: (key: SessionStateKeys) => any;
+interface SessionState extends OrionSessionState {
+  [key: string]: unknown; // Explicitly add string index signature
+  setSessionValue: (key: SessionStateKeys, value: unknown) => void;
+  getSessionValue: (key: SessionStateKeys) => unknown;
   clearSession: () => void;
 }
 
 export const useSessionStateStore = create<SessionState>((set, get) => ({
   // Initial state can be empty or loaded from localStorage if needed
+  lastActivityTimestamp: '',
+  currentActiveFeature: '',
+  userPreferences: {},
+  sessionStateInitialized: false,
+
   setSessionValue: (key, value) => {
     set((state) => ({ ...state, [key]: value }));
     // Optional: Persist to localStorage here if desired
@@ -31,10 +37,15 @@ export const useSessionStateStore = create<SessionState>((set, get) => ({
         }
       }
     }
-    return get()[key];
+    return get()[key as string];
   },
   clearSession: () => {
-    set({}); // Clear all state
+    set({
+      lastActivityTimestamp: '',
+      currentActiveFeature: '',
+      userPreferences: {},
+      sessionStateInitialized: false,
+    }); // Clear all state
     if (typeof window !== 'undefined') {
       localStorage.clear(); // Clear localStorage
     }
