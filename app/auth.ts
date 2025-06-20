@@ -1,17 +1,7 @@
 import NextAuth, { type Session, type User } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { type JWT } from 'next-auth/jwt';
-import { type NextRequest, NextResponse } from 'next/server';
 import logger from './lib/logger';
-
-// Define the shape of the object returned by NextAuth for this specific usage
-interface NextAuthExports {
-  handlers: {
-    GET: (req: NextRequest, res: NextResponse) => Promise<void>;
-    POST: (req: NextRequest, res: NextResponse) => Promise<void>;
-  };
-  auth: () => Promise<Session | null>; // Assuming auth returns a Promise<Session | null>
-}
 
 export const authConfig = {
   pages: {
@@ -75,7 +65,6 @@ export const authConfig = {
   ],
 };
 
-export const {
-  handlers: { GET, POST },
-  auth,
-}: NextAuthExports = NextAuth(authConfig);
+// Export the NextAuth handler directly instead of destructuring GET and POST
+// This allows the `auth` function to be used independently without issues.
+export const { auth, handlers } = NextAuth(authConfig);

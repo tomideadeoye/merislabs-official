@@ -15,12 +15,10 @@
  * - Timestamp and log level indicators
  */
 
-import { createLogger, format, transports, Logger as WinstonLogger } from 'winston';
-
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
 
 interface LogContext {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const LOG_STYLES: Record<
@@ -28,6 +26,7 @@ const LOG_STYLES: Record<
   {
     color: string;
     icon: string;
+
     consoleMethod: 'debug' | 'info' | 'warn' | 'error' | 'log';
   }
 > = {
@@ -47,43 +46,53 @@ const WINSTON_LEVEL_MAP: Record<LogLevel, string> = {
   success: 'info', // Winston doesn't have 'success', map to 'info'
 };
 
+// Define a type for the Winston logger instance, or null if not initialized
+type WinstonLoggerInstance = import('winston').Logger | null;
+
 class Logger {
   private static instance: Logger;
   private isDevelopment: boolean;
   private readonly reset = '\x1b[0m';
-  private winstonLogger: WinstonLogger;
+  private winstonLogger: WinstonLoggerInstance = null; // Initialize as null
 
   private constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
 
-    // Initialize Winston logger
-    this.winstonLogger = createLogger({
-      level: this.isDevelopment ? 'debug' : 'info',
-      format: format.combine(format.timestamp(), format.json(), format.errors({ stack: true })),
-      defaultMeta: { service: 'orion' },
-      transports: [
-        // Write all logs to console in development and production (client-side compatible)
-        new transports.Console({
-          format: format.combine(format.colorize(), format.simple()),
-        }),
-        // Write file logs only in Node.js environment (server-side)
-        ...(typeof window === 'undefined' && !this.isDevelopment
-          ? [
-              new transports.File({
-                filename: 'logs/error.log',
-                level: 'error',
-                maxsize: 5242880, // 5MB
-                maxFiles: 5,
+    // Initialize Winston logger only on the server-side
+    if (typeof window === 'undefined') {
+      import('winston')
+        .then(({ createLogger, format, transports }) => {
+          this.winstonLogger = createLogger({
+            level: this.isDevelopment ? 'debug' : 'info',
+            format: format.combine(format.timestamp(), format.json(), format.errors({ stack: true })),
+            defaultMeta: { service: 'orion' },
+            transports: [
+              new transports.Console({
+                format: format.combine(format.colorize(), format.simple()),
               }),
-              new transports.File({
-                filename: 'logs/combined.log',
-                maxsize: 5242880, // 5MB
-                maxFiles: 5,
-              }),
-            ]
-          : []), // Conditionally add file transports
-      ],
-    });
+              // Always add file transports in a server-side non-development environment
+              ...(!this.isDevelopment
+                ? [
+                    new transports.File({
+                      filename: 'logs/error.log',
+                      level: 'error',
+                      maxsize: 5242880, // 5MB
+                      maxFiles: 5,
+                    }),
+                    new transports.File({
+                      filename: 'logs/combined.log',
+                      maxsize: 5242880, // 5MB
+                      maxFiles: 5,
+                    }),
+                  ]
+                : []), // Conditionally add file transports
+            ],
+          });
+        })
+        .catch((err) => {
+          console.error('Failed to initialize Winston logger on server:', err);
+        });
+    }
   }
 
   public static getInstance(): Logger {
@@ -96,7 +105,29 @@ class Logger {
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const { color, icon } = LOG_STYLES[level];
     const timestamp = new Date().toISOString();
-    const contextStr = context ? ` ${color}${JSON.stringify(context, null, 2)}${this.reset}` : '';
+
+    let processedContext = context;
+    if (context) {
+      processedContext = { ...context }; // Create a shallow copy to avoid modifying original context object
+      for (const key in processedContext) {
+        if (Object.prototype.hasOwnProperty.call(processedContext, key)) {
+          const value = processedContext[key];
+          if (value instanceof Error) {
+            // Custom serialization for Error objects
+            processedContext[key] = {
+              name: value.name,
+              message: value.message,
+              stack: value.stack, // Include stack for errors
+              ...(value instanceof Object && 'status' in value ? { status: (value as any).status } : {}), // For APIError
+              ...(value instanceof Object && 'data' in value ? { data: (value as any).data } : {}), // For APIError
+              ...(value instanceof Object && 'isRetryable' in value ? { isRetryable: (value as any).isRetryable } : {}), // For APIError
+            };
+          }
+        }
+      }
+    }
+
+    const contextStr = processedContext ? ` ${color}${JSON.stringify(processedContext, null, 2)}${this.reset}` : '';
     return `${color}${icon} [${level.toUpperCase()}][${timestamp}]${this.reset} ${message}${contextStr}`;
   }
 
@@ -106,13 +137,17 @@ class Logger {
       return;
     }
 
-    if (this.isDevelopment) {
-      // Use stylish console logging in development
+    if (this.isDevelopment || typeof window !== 'undefined') {
+      // Use stylish console logging in development or on the client-side
       const formattedMessage = this.formatMessage(level, message, context);
       const { consoleMethod } = LOG_STYLES[level];
+      // Add a debug log to inspect the consoleMethod
+      console.debug(`[LOGGER_DEBUG] Attempting to use console method: ${consoleMethod} for level: ${level}`);
       console[consoleMethod](formattedMessage);
-    } else {
-      // Use Winston in production
+    }
+
+    // Use Winston in production on the server-side
+    if (!this.isDevelopment && typeof window === 'undefined' && this.winstonLogger) {
       const winstonLevel = WINSTON_LEVEL_MAP[level];
       this.winstonLogger.log(winstonLevel, message, {
         ...context,
@@ -189,5 +224,5 @@ class Logger {
   }
 }
 
-const consolidatedLogger = Logger.getInstance();
-export default consolidatedLogger;
+const logger = Logger.getInstance();
+export default logger;

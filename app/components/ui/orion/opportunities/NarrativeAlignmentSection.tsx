@@ -57,7 +57,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
 
       if (memoryData.success && memoryData.results && memoryData.results.length > 0) {
         // Extract narrative content from memory results
-        const narrativePoints = memoryData.results.map((item: ScoredMemoryPoint) => (item as any).payload.text);
+        const narrativePoints = memoryData.results.map((item: ScoredMemoryPoint) => item.payload.text);
 
         // Generate narrative alignment using LLM
         const alignmentResponse = await fetch('/api/orion/llm', {
@@ -74,10 +74,13 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
               ${OrionOpportunity.content ? `Description: ${OrionOpportunity.content}` : ''}
 
               Evaluation Highlights:
-              ${evaluation?.alignmentHighlights?.join('\n') || 'No specific highlights available.'}
+              ${evaluation?.strengths && evaluation.strengths.length > 0 ? `Strengths:\n  * ${evaluation.strengths.map((s) => (typeof s === 'string' ? s : `${s.title}: ${s.reasoning}`)).join('\n  * ')}` : 'No specific strengths available.'}
 
-              Gap Analysis:
-              ${evaluation?.gapAnalysis?.join('\n') || 'No specific gaps identified.'}
+              Key Alignment Points:
+              ${evaluation?.alignmentHighlights && evaluation.alignmentHighlights.length > 0 ? `Alignment Highlights:\n  * ${evaluation.alignmentHighlights.map((ah) => (typeof ah === 'string' ? ah : `${ah.title}: ${ah.reasoning}`)).join('\n  * ')}` : 'No specific alignment highlights available.'}
+
+              Potential Gaps:
+              ${evaluation?.gaps && evaluation.gaps.length > 0 ? `Gaps:\n  * ${evaluation.gaps.map((g) => (typeof g === 'string' ? g : `${g.gap}: ${g.solution}`)).join('\n  * ')}` : 'No specific gaps identified.'}
 
               Existing Narrative Statements:
               ${narrativePoints.join('\n\n')}

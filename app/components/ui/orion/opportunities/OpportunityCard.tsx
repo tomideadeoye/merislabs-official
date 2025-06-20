@@ -16,16 +16,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { Badge, Calendar, BarChart2, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '../../card';
 
-
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // Note if any: components to merge with, similar or redundant component
 
 interface OpportunityCardProps {
   opportunity: OrionOpportunity;
+  onEdit?: (id: string) => void; // Optional edit handler
+  onDelete?: (id: string) => void; // Optional delete handler
 }
 
-export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity }) => {
+export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, onEdit, onDelete }) => {
   console.log('[OpportunityCard][RENDER]', { opportunity });
   console.log('[OpportunityCard][COMPANY]', opportunity.companyOrInstitution);
 
@@ -123,25 +124,37 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
         )}
       </CardContent>
 
-      <CardFooter className="pt-0 flex justify-between">
+      <CardFooter className="pt-0 flex justify-between items-center">
         <Link
-          href={`/admin/OrionOpportunity-pipeline/${opportunity.id}`}
+          href={`/admin/opportunity-pipeline/${opportunity.id}`}
           className="text-xs text-blue-400 hover:text-blue-300"
         >
           View details
         </Link>
 
-        {opportunity.sourceUrl && (
-          <a
-            href={opportunity.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-gray-400 hover:text-gray-300 flex items-center"
-          >
-            <ExternalLink className="h-3 w-3 mr-1" />
-            Source
-          </a>
-        )}
+        <div className="flex space-x-2">
+          {onEdit && (
+            <button onClick={() => onEdit(opportunity.id)} className="text-xs text-yellow-400 hover:text-yellow-300">
+              Edit
+            </button>
+          )}
+          {onDelete && (
+            <button onClick={() => onDelete(opportunity.id)} className="text-xs text-red-400 hover:text-red-300">
+              Delete
+            </button>
+          )}
+          {opportunity.sourceUrl && (
+            <a
+              href={opportunity.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-400 hover:text-gray-300 flex items-center"
+            >
+              <ExternalLink className="h-3 w-3 mr-1" />
+              Source
+            </a>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

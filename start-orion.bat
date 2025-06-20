@@ -26,22 +26,20 @@ echo Waiting for Qdrant to be ready...
 timeout /t 5 /nobreak > nul
 
 REM Check if port 5002 is already in use
-netstat -ano | findstr :5002 > nul
-if %ERRORLEVEL% EQU 0 (
-  echo Port 5002 is already in use. Attempting to free it...
-  for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5002') do (
-    taskkill /F /PID %%a
-  )
-  timeout /t 1 /nobreak > nul
-)
+REM netstat -ano | findstr :5002 > nul
+REM if %ERRORLEVEL% EQU 0 (
+REM   echo Port 5002 is already in use. Attempting to free it...
+REM   for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5002') do (
+REM     taskkill /F /PID %%a
+REM   )
+REM   timeout /t 1 /nobreak > nul
+REM )
 
-REM Start Python API server
-echo Starting Python API server...
-start "Python API Server" cmd /c "cd orion_python_backend && python notion_api_server.py"
+REM Start Python API server (This is now an external service, not started by this script)
+REM echo Starting Python API server...
 
-REM Wait for Python API to be ready
-echo Waiting for Python API to be ready...
-timeout /t 3 /nobreak > nul
+REM Wait for Python API to be ready (This is now an external service, not managed by this script)
+REM echo Waiting for Python API to be ready...
 
 REM Run tests
 echo Running tests...
@@ -53,7 +51,7 @@ start "Next.js Server" cmd /c "npm run dev"
 
 echo Orion system started successfully!
 echo - Qdrant is running on port 6333
-echo - Python API is running on port 5002
+REM echo - Python API is running on port 5002
 echo - Next.js is running on port 3000
 echo.
 echo To stop the system, close this window and the server windows.

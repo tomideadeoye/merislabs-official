@@ -1,13 +1,13 @@
-packages/shared/app_state.ts(2,3): error TS2305: Module '"@repo/shared"' has no exported member 'PipelineState'.
-packages/shared/app_state.ts(3,3): error TS2305: Module '"@repo/shared"' has no exported member 'EnabledSteps'.
-packages/shared/app_state.ts(4,3): error TS2305: Module '"@repo/shared"' has no exported member 'OrionSessionState'.
-packages/shared/app_state.ts(6,34): error TS2307: Cannot find module @/libhooks/useSessionState' or its corresponding type declarations.
-packages/shared/hooks/useCVTailoring.ts(9,8): error TS2307: Cannot find module @/lib/cv' or its corresponding type declarations.
-There are types at '/Users/mac/Documents/GitHub/merislabs-official/node_modules/@repo/shared/src/lib/cv.ts', but this result could not be resolved under your current 'moduleResolution' setting. Consider updating to 'node16', 'nodenext', or 'bundler'.
-packages/shared/hooks/useOpportunities.ts(2,15): error TS2305: Module '"@repo/shared"' has no exported member 'OrionOpportunity'.
-packages/shared/hooks/useSessionState.ts(5,15): error TS2305: Module '"@repo/shared"' has no exported member 'OrionSessionState'.
-packages/shared/hooks/useUserProfile.ts(6,15): error TS2305: Module '"@repo/shared"' has no exported member 'UserProfileData'.
-packages/shared/lib/notion_service.ts(4,3): error TS2305: Module '"@repo/shared"' has no exported member 'CVComponentShared'.
-packages/shared/lib/notion_service.ts(5,3): error TS2305: Module '"@repo/shared"' has no exported member 'JournalEntryNotionInput'.
-packages/shared/lib/notion_service.ts(9,54): error TS2307: Cannot find module '../types/memory' or its corresponding type declarations.
-packages/shared/src/hooks/useOpportunities.ts(2,10): error TS2305: Module '"@repo/shared"' has no exported member 'OrionOpportunity'.
+lib/app_state.ts(2,3): error TS2305: Module '"@repo/lib"' has no exported member 'PipelineState'.
+lib/app_state.ts(3,3): error TS2305: Module '"@repo/lib"' has no exported member 'EnabledSteps'.
+lib/app_state.ts(4,3): error TS2305: Module '"@repo/lib"' has no exported member 'OrionSessionState'.
+lib/app_state.ts(6,34): error TS2307: Cannot find module @/libhooks/useSessionState' or its corresponding type declarations.
+lib/hooks/useCVTailoring.ts(9,8): error TS2307: Cannot find module @/lib/cv' or its corresponding type declarations.
+There are types at '/Users/mac/Documents/GitHub/merislabs-official/node_modules/@repo/lib/src/lib/cv.ts', but this result could not be resolved under your current 'moduleResolution' setting. Consider updating to 'node16', 'nodenext', or 'bundler'.
+lib/hooks/useOpportunities.ts(2,15): error TS2305: Module '"@repo/lib"' has no exported member 'OrionOpportunity'.
+lib/hooks/useSessionState.ts(5,15): error TS2305: Module '"@repo/lib"' has no exported member 'OrionSessionState'.
+lib/hooks/useUserProfile.ts(6,15): error TS2305: Module '"@repo/lib"' has no exported member 'UserProfileData'.
+lib/notion_service.ts(4,3): error TS2305: Module '"@repo/lib"' has no exported member 'CVComponentlib'.
+lib/notion_service.ts(5,3): error TS2305: Module '"@repo/lib"' has no exported member 'JournalEntryNotionInput'.
+lib/notion_service.ts(9,54): error TS2307: Cannot find module '../types/memory' or its corresponding type declarations.
+lib/src/hooks/useOpportunities.ts(2,10): error TS2305: Module '"@repo/lib"' has no exported member 'OrionOpportunity'.

@@ -18,7 +18,6 @@
 // SUGGESTIONS:
 //   - Consider adding a mechanism to store/retrieve generated drafts from a backend if persistence is required.
 import { create } from 'zustand';
-import type { OutreachResponse } from '@/lib/types';
 import logger from '@/lib/logger';
 
 interface OutreachGenerationState {

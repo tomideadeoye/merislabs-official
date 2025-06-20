@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { FaMedium, FaXTwitter } from "react-icons/fa6";
-import { FaLinkedin, FaGithub } from "react-icons/fa";
-import { ReactNode } from "react";
+import Link from 'next/link';
+import { FaMedium, FaXTwitter } from 'react-icons/fa6';
+import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import { ReactNode } from 'react';
 
 export default function Footer() {
   interface Social {
@@ -12,43 +12,24 @@ export default function Footer() {
 
   const socials: Social[] = [
     {
-      name: "Twitter",
-      link: "https://twitter.com/Tomideadeoye",
+      name: 'Twitter',
+      link: 'https://twitter.com/Tomideadeoye',
       icon: <FaXTwitter />,
     },
     {
-      name: "LinkedIn",
-      link: "https://www.linkedin.com/company/35651921",
+      name: 'LinkedIn',
+      link: 'https://www.linkedin.com/company/35651921',
       icon: <FaLinkedin />,
     },
     {
-      name: "Github",
-      link: "https://github.com/tomideadeoye",
+      name: 'Github',
+      link: 'https://github.com/tomideadeoye',
       icon: <FaGithub />,
     },
     {
-      name: "Medium",
-      link: "https://medium.com/@tomideadeoye",
+      name: 'Medium',
+      link: 'https://medium.com/@tomideadeoye',
       icon: <FaMedium />,
-    },
-  ];
-
-  const footers = [
-    {
-      title: "Company",
-      links: [
-        { name: "About Us", href: "/about" },
-        { name: "Careers", href: "/careers" },
-        { name: "Blog", href: "/blog" },
-        { name: "Contact", href: "/contact" },
-      ],
-    },
-    {
-      title: "Legal",
-      links: [
-        { name: "Privacy Policy", href: "/privacy-policy" },
-        { name: "Terms of Service", href: "/terms-of-service" },
-      ],
     },
   ];
 
@@ -73,11 +54,9 @@ export default function Footer() {
                 </Link>
               </div>
               <div className="text-gray-400">
-                Tailored software solutions for businesses across diverse
-                industries. Our objective is simply understanding your business
-                - operations, model, customers, and goals. MerisLabs make
-                creating a business easy by aggregating needs tools in one
-                place.
+                Tailored software solutions for businesses across diverse industries. Our objective is simply
+                understanding your business - operations, model, customers, and goals. MerisLabs make creating a
+                business easy by aggregating needs tools in one place.
               </div>
             </div>
 
@@ -134,9 +113,7 @@ export default function Footer() {
               ))}
             </ul>
 
-            <div className="text-gray-400 text-sm mr-4">
-              &copy; merislabs.com. All rights reserved.
-            </div>
+            <div className="text-gray-400 text-sm mr-4">&copy; merislabs.com. All rights reserved.</div>
           </div>
         </div>
       </div>

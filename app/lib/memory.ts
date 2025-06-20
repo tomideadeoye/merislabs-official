@@ -13,7 +13,6 @@
 
 import { MemorySearchOptions, ScoredMemoryPoint, MemoryPayload, QdrantFilter } from '@/lib/types';
 import { ORION_MEMORY_COLLECTION_NAME } from './orion_config';
-import { QdrantClient } from '@qdrant/js-client-rest';
 import logger from '@/lib/logger';
 
 // Placeholder for Qdrant Client

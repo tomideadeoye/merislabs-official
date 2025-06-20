@@ -1,6 +1,16 @@
 // lib/activitywatch_service.ts
 
-import axios from "axios";
+import axios from 'axios';
+import { ActivityEvent } from './activitywatch_processor';
+
+interface ActivityWatchBucket {
+  id: string;
+  client: string;
+  type: string;
+  created_at: string;
+  last_updated: string;
+  // Add other properties as they appear in ActivityWatch bucket responses
+}
 
 /**
  * ActivityWatchService provides methods to fetch tracked activity data
@@ -11,7 +21,7 @@ import axios from "axios";
  * - Designed for extensibility and testability
  */
 
-const DEFAULT_AW_URL = "http://localhost:5600/api/0";
+const DEFAULT_AW_URL = 'http://localhost:5600/api/0';
 
 export class ActivityWatchService {
   private baseUrl: string;
@@ -24,13 +34,13 @@ export class ActivityWatchService {
    * Fetches all available buckets from ActivityWatch.
    * Buckets represent different sources of tracked data (e.g., window, afk).
    */
-  async getBuckets(): Promise<any[]> {
+  async getBuckets(): Promise<ActivityWatchBucket[]> {
     try {
       const response = await axios.get(`${this.baseUrl}/buckets`);
       return response.data;
     } catch (error) {
-      console.error("[ActivityWatchService][getBuckets][ERROR]", { error });
-      throw new Error("Failed to fetch ActivityWatch buckets");
+      console.error('[ActivityWatchService][getBuckets][ERROR]', { error });
+      throw new Error('Failed to fetch ActivityWatch buckets');
     }
   }
 
@@ -40,21 +50,16 @@ export class ActivityWatchService {
    * @param startTime - ISO string or Date for range start
    * @param endTime - ISO string or Date for range end
    */
-  async getEvents(
-    bucketId: string,
-    startTime: string | Date,
-    endTime: string | Date
-  ): Promise<any[]> {
+  async getEvents(bucketId: string, startTime: string | Date, endTime: string | Date): Promise<ActivityEvent[]> {
     try {
-      const start = typeof startTime === "string" ? startTime : startTime.toISOString();
-      const end = typeof endTime === "string" ? endTime : endTime.toISOString();
-      const response = await axios.get(
-        `${this.baseUrl}/buckets/${encodeURIComponent(bucketId)}/events`,
-        { params: { start, end } }
-      );
+      const start = typeof startTime === 'string' ? startTime : startTime.toISOString();
+      const end = typeof endTime === 'string' ? endTime : endTime.toISOString();
+      const response = await axios.get(`${this.baseUrl}/buckets/${encodeURIComponent(bucketId)}/events`, {
+        params: { start, end },
+      });
       return response.data;
     } catch (error) {
-      console.error("[ActivityWatchService][getEvents][ERROR]", { bucketId, error });
+      console.error('[ActivityWatchService][getEvents][ERROR]', { bucketId, error });
       throw new Error(`Failed to fetch events for bucket: ${bucketId}`);
     }
   }

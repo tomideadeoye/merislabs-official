@@ -8,7 +8,6 @@ import { OpportunityNotionPayloadSchema } from '@/lib/notion_next_service';
 import { updateNotionOpportunity, fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { NextResponse } from 'next/server';
 
-
 export async function PATCH(request: Request, { params }: { params: { opportunityId: string } }) {
   const { opportunityId } = params;
   console.log('[PATCH /api/orion/notion/OrionOpportunity/[opportunityId]] Received opportunityId:', opportunityId);

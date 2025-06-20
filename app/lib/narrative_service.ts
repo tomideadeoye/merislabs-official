@@ -7,10 +7,8 @@
  * todo:
  */
 
-
 import { v4 as uuidv4 } from 'uuid';
 import { NarrativeDocument, CareerMilestone, ValueProposition, NarrativeType } from '..';
-
 
 // In-memory storage for narrative documents (in a real app, this would be a database)
 let narrativeDocuments: NarrativeDocument[] = [];

@@ -1,10 +1,10 @@
 ---
 applyTo: '**'
 ---
-Coding standards, domain knowledge, and preferences that AI should follow.
----
-applyTo: "**"
----
+
+## Coding standards, domain knowledge, and preferences that AI should follow.
+
+## applyTo: "\*\*"
 
 ## Coding standards, domain knowledge, and preferences that AI should follow.
 
@@ -178,4 +178,4 @@ Anti-Pattern Examples
 ❌ Bad: Silent API failure without logging or fallback.
 ✅ Good:catch API errors, log them, and provide a fallback response.
 ❌ Bad: Duplicating validation logic across multiple controllers.
-✅ Good: Creating a shared validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
+✅ Good: Creating a lib validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.

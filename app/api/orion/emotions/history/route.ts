@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/database';
 import { EmotionalLogEntry, CognitiveDistortionAnalysisData } from '@/lib/types';
+import { PrismaClient } from '@/generated/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,25 +12,24 @@ export const dynamic = 'force-dynamic';
 //   offset: number;
 // }
 
-interface RawEmotionalLogEntry {
+const prisma = new PrismaClient();
+
+// Define a type for the selected fields from EmotionalLogs to fix 'any' implicit type
+interface EmotionalLogPrismaSelect {
   id: string;
   timestamp: string;
-  primary_emotion: string;
   primaryEmotion: string;
+  secondaryEmotions: string | null;
   intensity: number;
-  contextual_note: string;
-  contextualNote: string;
-  accompanying_thoughts?: string;
-  accompanyingThoughts?: string;
-  cognitive_distortion_analysis?: CognitiveDistortionAnalysisData;
-  cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData;
-  secondary_emotions?: string[];
-  secondaryEmotions?: string[];
-  triggers?: string[];
-  coping_mechanisms_used?: string[];
-  copingMechanismsUsed?: string[];
-  related_journal_source_id?: string;
-  relatedJournalSourceId?: string;
+  triggers: string | null;
+  physicalSensations: string | null;
+  accompanyingThoughts: string;
+  copingMechanismsUsed: string | null;
+  contextualNote: string | null;
+  relatedJournalSourceId: string | null;
+  cognitiveDistortionAnalysis: string | null;
+  emotion: string;
+  context: string;
 }
 
 /**
@@ -46,72 +45,84 @@ export async function GET(req: NextRequest) {
     const emotion = url.searchParams.get('emotion');
     const hasDistortionAnalysis = url.searchParams.get('hasDistortionAnalysis');
 
-    // Build query with filters
-    let queryStr = `SELECT * FROM emotional_logs WHERE 1=1`;
-    const params: Record<string, string | number | undefined> = {};
+    type WhereClause = {
+      timestamp?: { gte?: string; lte?: string };
+      primaryEmotion?: string;
+      cognitiveDistortionAnalysis?: { not: null } | null;
+    };
+    const whereClause: WhereClause = {};
 
     if (startDate) {
-      queryStr += ` AND timestamp >= @startDate`;
-      params.startDate = startDate;
+      whereClause.timestamp = { gte: startDate };
     }
 
     if (endDate) {
-      queryStr += ` AND timestamp <= @endDate`;
-      params.endDate = endDate;
+      whereClause.timestamp = { ...whereClause.timestamp, lte: endDate };
     }
 
     if (emotion) {
-      queryStr += ` AND primaryEmotion = @emotion`;
-      params.emotion = emotion;
+      whereClause.primaryEmotion = emotion;
     }
 
     if (hasDistortionAnalysis === 'true') {
-      queryStr += ` AND cognitiveDistortionAnalysis IS NOT NULL`;
+      whereClause.cognitiveDistortionAnalysis = { not: null };
     }
     if (hasDistortionAnalysis === 'false') {
-      queryStr += ` AND cognitiveDistortionAnalysis IS NULL`;
+      whereClause.cognitiveDistortionAnalysis = null; // Matches null explicitly
     }
 
-    // Add sorting and pagination
-    queryStr += ` ORDER BY timestamp DESC LIMIT @limit OFFSET @offset`;
-    params.limit = limit;
-    params.offset = offset;
-
-    // Execute query using Postgres
-    // Convert SQLite named parameters (@param) to Postgres ($1, $2, ...)
-    const paramKeys = Object.keys(params);
-    const values = paramKeys.map((k) => params[k]);
-    let pgQuery = queryStr;
-    paramKeys.forEach((k, i) => {
-      pgQuery = pgQuery.replaceAll(`@${k}`, `$${i + 1}`);
+    const logs = await prisma.emotionalLogs.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        timestamp: true,
+        primaryEmotion: true,
+        secondaryEmotions: true,
+        intensity: true,
+        triggers: true,
+        physicalSensations: true,
+        accompanyingThoughts: true,
+        copingMechanismsUsed: true,
+        contextualNote: true,
+        relatedJournalSourceId: true,
+        cognitiveDistortionAnalysis: true,
+        emotion: true,
+        context: true,
+      },
+      orderBy: {
+        timestamp: 'desc',
+      },
+      take: limit,
+      skip: offset,
     });
 
-    const { rows } = await query(pgQuery, values);
-
-    // Parse JSON fields
-    const logs: EmotionalLogEntry[] = rows.map((row: RawEmotionalLogEntry) => ({
-      id: row.id,
-      timestamp: row.timestamp,
-      emotion: row.primary_emotion || row.primaryEmotion,
-      primaryEmotion: row.primary_emotion || row.primaryEmotion,
-      intensity: row.intensity,
-      context: row.contextual_note || row.contextualNote,
-      accompanyingThoughts: row.accompanying_thoughts || row.accompanyingThoughts,
-      contextualNote: row.contextual_note || row.contextualNote,
-      cognitiveDistortionAnalysis: row.cognitive_distortion_analysis || row.cognitiveDistortionAnalysis,
-      secondaryEmotions: row.secondary_emotions || row.secondaryEmotions,
-      triggers: row.triggers,
-      copingMechanismsUsed: row.coping_mechanisms_used || row.copingMechanismsUsed,
-      relatedJournalSourceId: row.related_journal_source_id || row.relatedJournalSourceId,
+    const mappedLogs: EmotionalLogEntry[] = logs.map((log: EmotionalLogPrismaSelect) => ({
+      id: log.id,
+      timestamp: log.timestamp,
+      emotion: log.emotion,
+      primaryEmotion: log.primaryEmotion,
+      intensity: Number(log.intensity), // Ensure intensity is a number
+      context: log.contextualNote || log.context, // Use contextualNote primarily, fallback to context
+      accompanyingThoughts: log.accompanyingThoughts,
+      contextualNote: log.contextualNote,
+      // Parse JSON string fields back to arrays/objects
+      cognitiveDistortionAnalysis: log.cognitiveDistortionAnalysis
+        ? (JSON.parse(log.cognitiveDistortionAnalysis) as CognitiveDistortionAnalysisData)
+        : undefined,
+      secondaryEmotions: log.secondaryEmotions ? (JSON.parse(log.secondaryEmotions) as string[]) : [],
+      triggers: log.triggers ? (JSON.parse(log.triggers) as string[]) : undefined, // Match type
+      copingMechanismsUsed: log.copingMechanismsUsed ? (JSON.parse(log.copingMechanismsUsed) as string[]) : [],
+      relatedJournalSourceId: log.relatedJournalSourceId || null,
     }));
 
     // Get total count for pagination
-    const countResult = await query(`SELECT COUNT(*) as count FROM emotional_logs`);
-    const total = parseInt(countResult.rows[0]?.count || '0', 10);
+    const total = await prisma.emotionalLogs.count({
+      where: whereClause,
+    });
 
     return NextResponse.json({
       success: true,
-      logs,
+      logs: mappedLogs,
       total,
     });
   } catch (error: unknown) {

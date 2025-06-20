@@ -1,99 +1,90 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/lib/orion_llm'; // Corrected import
-import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Corrected import
-import { CV_COMPONENT_SELECTION_REQUEST_TYPE } from '@/lib/orion_config';
-import type { CVComponent, CombinedLLMResponse } from '@/lib/types'; // Corrected import
-
 /**
- * API route to suggest CV components based on JD analysis and web research context.
+ * @fileoverview API route to suggest relevant CV components based on a given opportunity's job description.
+ * @description This endpoint receives an `opportunityId`, fetches the opportunity content and all available CV components,
+ * then uses an LLM (Orion's `generateLLMResponse`) to intelligently suggest the most relevant components.
+ * It is crucial for automating the initial selection process in the CV Tailoring Studio.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide AI-powered suggestions for CV components that best match a job description.
+ *   - To integrate with Orion's LLM service (`generateLLMResponse`) for natural language processing and content matching.
+ *   - To ensure only authenticated users can access this suggestion service.
+ *   - To return a structured list of unique IDs for the suggested CV components.
+ *
+ * FILEPATH: `app/api/orion/cv/suggest-components/route.ts`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `auth.ts`: Handles user authentication and session validation.
+ *   - `@/lib/opportunity_db_service`: Used to fetch the job description content from the database via `getOpportunityByIdFromDb`.
+ *   - `@/lib/cv_components_db_service`: Used to retrieve all available CV components from the database via `fetchAllCvComponents`.
+ *   - `@/lib/orion_llm`: Provides the `generateLLMResponse` function, which interfaces with the LLM to process the prompt and generate suggestions.
+ *   - `@/lib/logger`: Used for comprehensive logging of API request, response, and error details.
+ *   - `app/components/orion/CVTailoringStudio.tsx`: This client-side component calls this API route to get component suggestions.
+ *   - `@/lib/types`: Defines `OrionOpportunity` and `CVComponent` interfaces used for data typing.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes a valid `opportunityId` is provided in the request body.
+ *   - Assumes the LLM service (`generateLLMResponse`) is operational and correctly configured to handle `REQUEST_TYPES.CV_COMPONENT_TAILORING`.
+ *   - Assumes CV component content (c.content) is JSON-parseable if it's stored as a string, as required by the prompt structure.
+ *   - The LLM is expected to return a JSON array of strings (unique IDs).
+ *   - Comprehensive logging is integrated to trace the flow and diagnose any issues during API calls or LLM interactions.
+ *
+ * NOTES:
+ *   - This API acts as an intelligent intermediary, transforming a user request into an LLM query and returning actionable suggestions.
+ *   - Security is handled by `next-auth` to ensure only authorized users can make requests.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Schema Validation**: Implement Zod or similar schema validation for the incoming request body (`opportunityId`).
+ *   - **Error Handling Granularity**: Provide more specific error messages to the client based on different failure points (e.g., LLM specific errors).
+ *   - **Caching**: Implement server-side caching for LLM responses to frequently requested opportunities or components to reduce latency and LLM costs.
+ *   - **Batch Processing**: If suggesting components for multiple opportunities at once is a use case, consider a batch processing approach.
+ *   - **LLM Prompt Optimization**: Continuously refine the LLM prompt for better suggestion accuracy and relevance.
  */
-export async function POST(req: NextRequest) {
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
+import { fetchAllCvComponents } from '@/lib/cv_components_db_service';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
+import logger from '@/lib/logger';
+
+export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
+  const { opportunityId } = await request.json();
+  if (!opportunityId)
+    return NextResponse.json({ success: false, error: 'Opportunity ID is required.' }, { status: 400 });
+
   try {
-    const body = await req.json();
-    const { jd_analysis, web_research_context } = body;
-
-    if (!jd_analysis) {
+    const opportunity = await getOpportunityByIdFromDb(opportunityId);
+    if (!opportunity?.content)
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Job description analysis is required',
-        },
-        { status: 400 }
+        { success: false, error: 'Opportunity not found or has no description.' },
+        { status: 404 }
       );
-    }
 
-    const allComponents: CVComponent[] = await getCVComponentsFromNotion();
+    const allCvComponents = await fetchAllCvComponents();
+    if (allCvComponents.length === 0)
+      return NextResponse.json({ success: false, error: 'No CV components in database.' }, { status: 404 });
 
-    // Construct the prompt for the LLM
-    const prompt = `You are an expert CV writer. Based on the provided job description analysis and any relevant web research context, suggest which of the following existing CV components are most relevant to tailoring a CV for this role. For each suggested component, provide a brief reasoning (1-2 sentences).
+    const componentsListForPrompt = allCvComponents
+      .map((c) => `- ID: ${c.uniqueId}\n  Name: ${c.name}\n  Content: ${JSON.stringify(c.content)}\n`)
+      .join('\n');
+    const prompt = `You are an expert career coach. Analyze the Job Description below and suggest the most relevant CV components from the user's library. Return ONLY a JSON array of strings containing the unique IDs of the TOP 5-7 most relevant components.\n\n**Job Description:**\n${opportunity.content}\n\n**Available CV Components:**\n${componentsListForPrompt}`;
 
-Existing CV Components:\n${allComponents
-      .map((component) => `- ID: ${component.notionPageId}, Name: ${component.name}, Type: ${component.type}`)
-      .join('\n')}
-
-Job Description Analysis:\n${jd_analysis}
-
-${web_research_context ? `Relevant Web Research Context:\n${web_research_context}\n\n` : ''}
-
-Instructions:
-List the IDs of the most relevant components as a comma-separated string, followed by a JSON array of objects, where each object has 'component_id' and 'reasoning' fields.
-
-Example Output:
-"component-id-1,component-id-2"
-[{"component_id": "component-id-1", "reasoning": "This component is highly relevant because..."}]`;
-
-    console.log('[SUGGEST_CV_COMPONENTS_API] Sending suggestion prompt to LLM...');
-
-    const llmResponse: CombinedLLMResponse = await generateLLMResponse(CV_COMPONENT_SELECTION_REQUEST_TYPE, prompt, {
-      temperature: 0.7,
-      maxTokens: 1000,
-    });
-
+    const llmResponse = await generateLLMResponse(REQUEST_TYPES.CV_COMPONENT_TAILORING, prompt);
     if (!llmResponse.success) {
-      return NextResponse.json(
-        { success: false, error: llmResponse.error || 'LLM failed to suggest components' },
-        { status: 500 }
-      );
+      throw new Error(llmResponse.error || 'LLM failed to generate suggestions.');
+    }
+    if (!llmResponse.content) {
+      throw new Error('LLM response was successful but returned no content.');
     }
 
-    const rawContent = llmResponse.content;
-    const parts = rawContent.split('\n');
-    const suggested_component_ids_raw: string = parts[0] || '';
-    const suggested_components_json = parts.slice(1).join('\n');
-
-    const suggested_component_ids: string[] = suggested_component_ids_raw
-      .split(',')
-      .map((id: string) => id.trim())
-      .filter((id: string) => id.length > 0);
-
-    let componentSuggestions: { component_id: string; reasoning: string }[] = [];
-    try {
-      if (suggested_components_json) {
-        componentSuggestions = JSON.parse(suggested_components_json);
-      }
-    } catch (parseError: unknown) {
-      console.error(
-        '[SUGGEST_CV_COMPONENTS_API] Failed to parse JSON suggestions:',
-        parseError instanceof Error ? parseError.message : String(parseError)
-      );
-      // Continue without parsed suggestions if parsing fails
-    }
-
-    console.log('[SUGGEST_CV_COMPONENTS_API] Suggested component IDs:', suggested_component_ids);
-    console.log('[SUGGEST_CV_COMPONENTS_API] Component suggestions:', componentSuggestions);
-
-    return NextResponse.json({ success: true, suggested_component_ids, componentSuggestions });
-  } catch (error: unknown) {
-    console.error(
-      '[SUGGEST_CV_COMPONENTS_API] Error in suggest CV components API:',
-      error instanceof Error ? error.message : String(error)
-    );
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
-      },
-      { status: 500 }
-    );
+    const suggestedIds = JSON.parse(llmResponse.content);
+    logger.success('[CV_SUGGEST_API] Successfully suggested CV components.', { opportunityId, suggestedIds });
+    return NextResponse.json({ success: true, suggestedComponentIds: suggestedIds });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error.';
+    logger.error('[CV_SUGGEST_API] Error', { error: msg, opportunityId });
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

@@ -7,7 +7,7 @@
 //   - Receives `error` object and `reset` function from Next.js.
 // ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed this component should provide a basic, user-friendly error page for unexpected client-side errors.
 // NOTES: This component is a standard Next.js error boundary fallback. It does not have complex internal logic or dependencies on other custom components.
-export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function GlobalError({ reset }: { _error: Error & { digest?: string }; reset: () => void }) {
   return (
     <div
       style={{

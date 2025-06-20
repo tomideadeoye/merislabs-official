@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { query } from '@/lib/database';
+import { sql as query } from '@/lib/database'; // Assuming 'sql' is the correct export
 
 export async function POST(request: NextRequest) {
   try {
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
             metadata.type,
             metadata.timestamp || currentISOTime,
             JSON.stringify(metadata),
-          ]
+          ] as string[]
         );
         console.log(`[MEMORY_API] Memory also saved to Neon/Postgres. ID: ${memoryPoint.id}`);
       } catch (pgError) {

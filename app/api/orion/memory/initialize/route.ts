@@ -36,24 +36,44 @@ export async function POST() {
       );
     }
 
-    logger.info(`[MEMORY_INIT][INFO] Attempting to connect to Qdrant at host: ${QDRANT_HOST}`, logContext);
+    // Construct the full Qdrant URL. Assuming default port 6333 if not specified otherwise.
+    const qdrantPort = process.env.QDRANT_PORT || 6333;
+    const qdrantUrl = `http://${QDRANT_HOST}:${qdrantPort}`;
+    logger.info(`[MEMORY_INIT][INFO] Attempting to connect to Qdrant at: ${qdrantUrl}`, logContext);
 
-    const qdrantClient = new QdrantClient({
-      url: QDRANT_HOST,
-      apiKey: process.env.QDRANT_API_KEY,
+    const clientOptions: ConstructorParameters<typeof QdrantClient>[0] = {
+      url: qdrantUrl,
       checkCompatibility: false,
-    });
+    };
+
+    if (process.env.QDRANT_API_KEY) {
+      clientOptions.apiKey = process.env.QDRANT_API_KEY;
+      logger.debug('[MEMORY_INIT][INFO] QDRANT_API_KEY is set, including in client options.', logContext);
+    } else {
+      logger.debug('[MEMORY_INIT][INFO] QDRANT_API_KEY is NOT set, omitting from client options.', logContext);
+    }
+
+    const qdrantClient = new QdrantClient(clientOptions);
 
     logger.debug('[MEMORY_INIT][INFO] Qdrant client created. Checking connectivity with Qdrant cluster.', logContext);
 
-    // The js-client-rest does not have a simple health check or root API endpoint exposed directly.
-    // We'll check for collections as a proxy for connectivity.
-    await qdrantClient.getCollections();
-
-    logger.success(
-      `[MEMORY_INIT][SUCCESS] Successfully connected to Qdrant and verified collections. Memory system is ready.`,
-      logContext
-    );
+    try {
+      // The js-client-rest does not have a simple health check or root API endpoint exposed directly.
+      // We'll check for collections as a proxy for connectivity.
+      await qdrantClient.getCollections();
+      logger.success(
+        `[MEMORY_INIT][SUCCESS] Successfully connected to Qdrant and verified collections. Memory system is ready.`,
+        logContext
+      );
+    } catch (qdrantError: unknown) {
+      logger.error('[MEMORY_INIT][ERROR] Failed to connect to Qdrant or get collections.', {
+        ...logContext,
+        qdrantHost: QDRANT_HOST,
+        qdrantError: qdrantError instanceof Error ? qdrantError.message : String(qdrantError),
+        qdrantErrorDetails: qdrantError,
+      });
+      throw qdrantError;
+    }
 
     return NextResponse.json({
       success: true,

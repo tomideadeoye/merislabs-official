@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 // GOAL: This component allows users to add text content to Orion's memory system,
-// with options to save to a vector database (Qdrant), Notion, and PostgreSQL.
+// with options to save to a vector database (Qdrant).
 // It handles embedding generation, data structuring, and API calls to
 // persist memory points across selected destinations.
 //
@@ -13,7 +13,7 @@ import React, { useState } from 'react';
 // - Calls backend API routes: `/api/orion/memory/generate-embeddings` (POST) and `/api/orion/memory/upsert` (POST).
 //   - `/api/orion/memory/save-to-notion`: Backend API for saving to Notion (requires implementation).
 //   - `/api/orion/memory/save-to-postgres`: Backend API for saving to PostgreSQL (requires implementation).
-//   - `@/components/ui` components: `Button`, `Textarea`, `Input`, `Label` from the shared UI library.
+//   - `@/components/ui` components: `Button`, `Textarea`, `Input`, `Label` from the lib UI library.
 //   - `lucide-react`: For icons like `Loader2`, `AlertTriangle`, `CheckCircle`, `Brain`.
 //   - `uuid`: For generating unique IDs for memory points.
 // Opportunties for improvement or consolidation.
@@ -75,6 +75,7 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
   const [saveToVectorDB, setSaveToVectorDB] = useState(true);
   const [saveToNotion, setSaveToNotion] = useState(false);
   const [saveToPostgres, setSaveToPostgres] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
   // Update session state when local state changes
   React.useEffect(() => {
@@ -88,6 +89,32 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
   React.useEffect(() => {
     setSessionValue(SessionStateKeys.ATM_TAGS_INPUT, tags);
   }, [tags, setSessionValue]);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('text/') || file.name.endsWith('.json') || file.name.endsWith('.md')) {
+        setSelectedFileName(file.name);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const fileContent = e.target?.result as string;
+          setText(fileContent);
+          setFeedback(null); // Clear previous feedback
+        };
+        reader.onerror = () => {
+          setFeedback({ type: 'error', message: 'Failed to read file.' });
+          setSelectedFileName(null);
+        };
+        reader.readAsText(file);
+      } else {
+        setFeedback({
+          type: 'error',
+          message: 'Unsupported file type. Please upload a text-based file (e.g., .txt, .md, .json).',
+        });
+        setSelectedFileName(null);
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,7 +285,7 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
   return (
     <div className="p-4 md:p-6 bg-gray-800 rounded-lg shadow-xl">
       <h2 className="text-xl font-bold text-gray-100 mb-4 flex items-center">
-        <Brain className="w-6 h-6 mr-2 text-blue-400" /> Add to Orion's Memory
+        <Brain className="w-6 h-6 mr-2 text-blue-400" /> Add to Orion&apos;s Memory
       </h2>
 
       {feedback && (
@@ -272,8 +299,33 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="memoryText" className="block text-sm font-medium text-gray-300 mb-1">
-            Memory Content:
+            Memory Content (Paste or Upload File):
           </Label>
+          <Input
+            type="file"
+            id="fileUpload"
+            onChange={handleFileChange}
+            className="mb-2 w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
+            accept=".txt,.md,.json,text/*"
+            disabled={isSaving}
+          />
+          {selectedFileName && (
+            <p className="text-xs text-gray-400 mb-2">
+              Uploaded: {selectedFileName}{' '}
+              <Button
+                variant="link"
+                size="sm"
+                className="p-0 h-auto text-red-400 hover:text-red-300"
+                onClick={() => {
+                  setSelectedFileName(null);
+                  setText(initialText);
+                  (document.getElementById('fileUpload') as HTMLInputElement).value = '';
+                }}
+              >
+                Remove
+              </Button>
+            </p>
+          )}
           <Textarea
             id="memoryText"
             value={text}

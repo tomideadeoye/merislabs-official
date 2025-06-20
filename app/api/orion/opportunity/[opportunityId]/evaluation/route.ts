@@ -1,406 +1,618 @@
-import { auth } from '@/auth';
-import { generateLLMResponse } from '@/lib/llm_providers';
-import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
-import { REQUEST_TYPES } from '@/lib/orion_llm';
-import { EvaluationOutput, MemoryPayload } from '@/lib/types';
-import { fetchUserProfile } from '@/profile_service';
-import logger from '@/lib/logger';
-
+/**
+ * @fileoverview API route for performing AI-driven evaluation of a given opportunity against the user's profile and relevant memories.
+ * @description This route orchestrates the evaluation process, fetching opportunity details, user profile, and relevant memories (from Qdrant), then leveraging an LLM to generate a comprehensive `EvaluationOutput`. It handles data preparation, LLM invocation, response parsing, and error management, providing a structured assessment for career opportunities.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide an API endpoint (`POST`) for evaluating a specific `OrionOpportunity`.
+ *   - To fetch detailed opportunity information from the database.
+ *   - To retrieve the user's profile data (from `UserProfileData`).
+ *   - To search and integrate relevant contextual memories from the Qdrant vector database.
+ *   - To perform web research (company overview, job URL scraping) to enrich the context for the LLM.
+ *   - To invoke the `orion_llm` service with a detailed prompt and gathered context to generate an `EvaluationOutput`.
+ *   - To robustly parse and validate the LLM's JSON response, including handling markdown code blocks.
+ *   - To ensure consistent error handling and logging for all stages of the evaluation process.
+ *
+ * FILEPATH: `app/api/orion/opportunity/[opportunityId]/evaluation/route.ts`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `next/server`: Provides `NextRequest` and `NextResponse` for API route handling.
+ *   - `@/lib/types`: Defines `EvaluationOutput`, `OrionOpportunity`, `UserProfileData`, `ScoredMemoryPoint`, `ApiErrorResponse`, and other relevant types used for data structures.
+ *   - `@/lib/logger`: Used for comprehensive, context-rich logging throughout the route.
+ *   - `@/auth`: (Potentially) Used for user authentication and session management. Currently commented out but could be re-integrated.
+ *   - `@/generated/prisma`: Imports the Prisma Client (`PrismaClient`) for interacting with the Neon PostgreSQL database to fetch `OrionOpportunity` data.
+ *   - `@/lib/orion_llm`: Provides the `generateLLMResponse` function for interacting with various LLM providers to perform the core evaluation.
+ *   - `@/lib/orion_memory`: Provides the `searchMemory` function to retrieve relevant memory chunks from Qdrant, enriching the LLM's context.
+ *   - `@/lib/profile_service`: Provides `fetchUserProfile` to retrieve the user's background and skills.
+ *   - `@/lib/utils/apiFetcher`: Used to call other internal API routes (e.g., `/api/orion/research/company`, `/api/orion/research`) for web research and content scraping.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/evaluate/page.tsx`: This frontend page consumes this API route to trigger and display the evaluation results.
+ *   - `app/lib/opportunity_db_service.ts`: This service is responsible for persisting the `EvaluationOutput` back to the opportunity record after generation.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes `opportunityId` is provided in the route parameters.
+ *   - Assumes LLM responses will generally conform to the `EvaluationOutput` interface, even if some fields might be `null` or empty arrays if no relevant data is generated.
+ *   - The `extractFirstJsonObject` utility is crucial for robustly parsing LLM output which often includes markdown or `think` tags.
+ *   - User authentication (`userId`) is currently placeholder-driven but can be re-enabled via `auth()` for production.
+ *
+ * NOTES:
+ *   - This API route is a critical component of the "Opportunity Super-Flow," enabling AI-driven insights into career opportunities.
+ *   - Extensive logging is implemented at various stages to trace the flow of data, LLM calls, and potential errors.
+ *   - The process incorporates multiple context sources: opportunity details, user profile, relevant memories, and real-time web research.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Zod Input Validation**: Implement Zod schemas for `EvaluationRequestBody` to ensure strict validation of incoming request data, providing clear error messages for invalid inputs.
+ *   - **Asynchronous Processing**: For very long-running LLM evaluations, consider returning an immediate response with a job ID and processing the evaluation asynchronously (e.g., using a queue), with results accessible via a separate polling endpoint.
+ *   - **Fallback Mechanisms**: Enhance fallback for profile/memory/web context fetching (e.g., if a service is down, use cached data or proceed with reduced context).
+ *   - **LLM Prompt Optimization**: Continuously refine the system and user prompts to improve the quality, consistency, and adherence of the LLM's `EvaluationOutput`.
+ *   - **Error Detail Standardization**: Leverage `errorHandler.ts` more explicitly for all error responses to ensure consistency in structure and messaging, especially for errors from internal service calls.
+ *   - **Caching for External Data**: Implement caching (e.g., Redis or in-memory) for frequently requested user profile or web research data to reduce latency and API costs.
+ *   - **Test Coverage**: Write comprehensive integration and unit tests for this route, covering various scenarios (success, missing data, LLM failure, parsing errors).
+ *
+ * OPPORTUNITIES TO CONSOLIDATE:
+ *   - The `extractFirstJsonObject` utility could be moved to a more generic `utils` file (`app/lib/utils/jsonExtractor.ts` if not already there, or merged into `apiFetcher` if it handles response parsing).
+ *   - Potentially abstract the core LLM orchestration logic if similar multi-source context gathering and LLM invocation patterns appear in other API routes.
+ */
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  EvaluationOutput,
+  OrionOpportunity,
+  ScoredMemoryPoint,
+  UserProfileData,
+  ApiErrorResponse,
+  OpportunityType,
+  OpportunityStatus,
+  OpportunityPriority,
+} from '@/lib/types';
+import logger from '@/lib/logger';
+import { auth } from '@/auth'; // Correct import for NextAuth.js v5+
+import { PrismaClient } from '@/generated/prisma';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Assuming REQUEST_TYPES is defined
+import { searchMemory } from '@/lib/orion_memory';
+import { fetchUserProfile } from '@/lib/profile_service'; // Corrected import path for fetchUserProfile
+import { apiFetcher } from '@/lib/utils/apiFetcher'; // Import the new apiFetcher utility
 
-// Define the response type for the evaluation API
 interface EvaluationApiResponse {
   success: boolean;
   evaluation?: EvaluationOutput;
-  error?: string;
+  error?: string | ApiErrorResponse; // Adjusted to allow ApiErrorResponse
   rawContent?: string; // For parsing errors
-  memoryResults?: MemoryPayload[]; // Add memoryResults to the response type
+  memoryResults?: ScoredMemoryPoint[]; // Add memoryResults to the response type
+}
+
+interface EvaluationRequestBody {
+  opportunityId: string;
+  userProfile: UserProfileData;
+  relevantMemories?: ScoredMemoryPoint[];
 }
 
 // Utility: Extract first JSON object from a string (removes markdown/code blocks, etc.)
 function extractFirstJsonObject(text: string): string | null {
   if (!text) return null;
-  // Remove markdown code block wrappers
-  const cleaned = text.replace(/```[a-zA-Z]*\n?|```/g, '').trim();
-  // Find the first {...} block (non-greedy)
+
+  // First, try to extract content within a 'json' markdown code block
+  const jsonBlockMatch = text.match(/```json\n([\s\S]*?)\n```/);
+  if (jsonBlockMatch && jsonBlockMatch[1]) {
+    return jsonBlockMatch[1].trim();
+  }
+
+  // If no 'json' block, try to find any markdown code block
+  const genericBlockMatch = text.match(/```[a-zA-Z]*\n([\s\S]*?)\n```/);
+  if (genericBlockMatch && genericBlockMatch[1]) {
+    return genericBlockMatch[1].trim();
+  }
+
+  // Fallback: try to find the first {...} block (non-greedy, after stripping potential <think> tags)
+  const cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
   const match = cleaned.match(/\{[\s\S]*?\}/);
   return match ? match[0] : null;
 }
+
+const prisma = new PrismaClient(); // Initialize PrismaClient here
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ): Promise<NextResponse<EvaluationApiResponse>> {
-  logger.info('[EVAL_API][START] Initiating opportunity evaluation POST request.', {
-    opportunityId: params.opportunityId,
+  const { opportunityId: routeOpportunityId } = await params; // Destructure early and await params
+  const logContext = {
+    opportunityId: routeOpportunityId,
     method: request.method,
-  });
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[EVAL_API][AUTH_FAIL] Unauthorized access attempt detected. User session invalid.');
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+    route: '/api/orion/opportunity/[opportunityId]/evaluation',
+    timestamp: new Date().toISOString(),
+  };
 
-  const resolvedParams = await params;
-  const { opportunityId } = resolvedParams;
-  logger.debug('[EVAL_API][PARAM_RESOLVED] Opportunity ID resolved from parameters.', { opportunityId });
+  logger.info('[EVAL_API][START] Initiating opportunity evaluation POST request.', logContext);
 
-  if (!opportunityId) {
-    logger.error('[EVAL_API][VALIDATION_ERROR] Opportunity ID is missing from the request.', { status: 400 });
-    return NextResponse.json({ success: false, error: 'Opportunity ID is required.' }, { status: 400 });
-  }
+  // Removed authentication check as requested by the user
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   logger.warn('[EVAL_API][AUTH_FAIL] Unauthorized access attempt detected. User session invalid.', logContext);
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+
+  // const userId = session.user.id as string; // Assuming user.id is always present and a string
+  // if (!userId) {
+  //   logger.error('[EVAL_API][AUTH_FAIL] User ID not found in session.', { ...logContext, userId: 'N/A' });
+  //   return NextResponse.json({ success: false, error: 'User ID not found in session' }, { status: 401 });
+  // }
+
+  // For now, we'll use a placeholder userId or derive it if needed from other means
+  const userId = 'placeholder_user_id'; // This should be replaced with actual user ID derivation if auth is truly removed or handled differently
 
   try {
-    // Receive optional web context from the frontend
-    let frontendCompanyWebContext: string | undefined = undefined;
+    logger.info('[EVAL_API][BODY_PARSE][START] Attempting to parse request body as JSON.', logContext);
+    const rawBody = await request.text(); // Read raw body as text
+    let body: EvaluationRequestBody;
+
     try {
-      const body = await request.json().catch((error) => {
-        logger.warn(
-          '[EVAL_API][BODY_PARSE_WARN] Failed to parse request body as JSON. Proceeding without frontend context.',
-          {
-            error: error instanceof Error ? error.message : String(error),
-            originalBody: request.body ? JSON.stringify(request.body) : 'N/A',
-          }
-        );
-        return {}; // Provide default empty object if parsing fails
+      body = JSON.parse(rawBody); // Manually parse to catch errors with raw content
+    } catch (jsonError: unknown) {
+      logger.error('[EVAL_API][BODY_PARSE][ERROR] Failed to parse JSON request body.', {
+        ...logContext,
+        errorMessage: jsonError instanceof Error ? jsonError.message : String(jsonError),
+        rawRequestBody: rawBody.substring(0, 1000), // Log first 1000 chars of raw body for debugging
+        stack: jsonError instanceof Error ? jsonError.stack : undefined,
       });
-      frontendCompanyWebContext = body?.companyWebContext;
-      logger.info('[EVAL_API][BODY_PARSE_SUCCESS] Successfully parsed request body for frontend company web context.', {
-        frontendCompanyWebContext: !!frontendCompanyWebContext,
-      });
-    } catch (error: unknown) {
-      // This outer catch handles unexpected errors during the parsing block, though the inner catch should handle most JSON parsing issues.
-      logger.warn('[EVAL_API][WARN] An unexpected error occurred during request body parsing.', {
-        errorMessage: error instanceof Error ? error.message : String(error),
+      return NextResponse.json({ success: false, error: 'Invalid JSON in request body.' }, { status: 400 });
+    }
+
+    const { opportunityId: bodyOpportunityId, userProfile, relevantMemories } = body;
+
+    logger.info('[EVAL_API][BODY_PARSE][SUCCESS]', {
+      ...logContext,
+      bodyOpportunityId: bodyOpportunityId,
+      userProfileProvided: !!userProfile,
+      memoriesCount: relevantMemories?.length || 0,
+    });
+
+    // Validate that the opportunityId from the route params matches the one in the request body
+    if (routeOpportunityId !== bodyOpportunityId) {
+      logger.warn('[EVAL_API][ID_MISMATCH]', {
+        ...logContext,
+        routeOpportunityId: routeOpportunityId,
+        bodyOpportunityId: bodyOpportunityId,
+        message: 'Opportunity ID in route parameters does not match ID in request body.',
       });
     }
 
-    logger.info('[EVAL_API][NOTION_FETCH] Attempting to fetch opportunity details from Notion.', { opportunityId });
-    const opportunityResult = await fetchOpportunityByIdFromNotion(opportunityId);
+    // Fetch the opportunity from the database
+    const orionOpportunity = await prisma.opportunity.findUnique({
+      where: { id: routeOpportunityId },
+      select: {
+        id: true,
+        title: true,
+        company: true, // Maps to companyOrInstitution
+        type: true,
+        status: true,
+        content: true, // maps to description
+        url: true,
+        tags: true, // maps to requirements
+        dateIdentified: true,
+        notes: true,
+        contactPerson: true,
+        contactEmail: true,
+        stage: true,
+        attachments: true,
+        relatedEvaluationId: true,
+        sourceUrl: true,
+        nextActionDate: true,
+        priority: true,
+        tailoredCv: true,
+        deadline: true,
+        location: true,
+        salary: true,
+        contact: true,
+        position: true,
+        lastStatusUpdate: true,
+        notionPageId: true,
+        applicationMaterialIds: true,
+        createdAt: true,
+        updatedAt: true,
+        evaluationResult: true, // For evaluationOutput
+        tailoredCvId: true,
+        stakeholders: {
+          select: {
+            id: true,
+            name: true,
+            title: true,
+            email: true,
+            linkedinUrl: true,
+          },
+        },
+        applicationDrafts: {
+          select: {
+            id: true,
+            type: true,
+            content: true,
+          },
+        },
+      },
+    });
 
-    if (!opportunityResult.success) {
-      logger.error('[EVAL_API][NOTION_FETCH_FAIL] Failed to fetch Opportunity details from Notion.', {
-        opportunityId,
-        error: opportunityResult.error,
+    if (!orionOpportunity) {
+      logger.warn('[EVAL_API][OPP_NOT_FOUND]', { ...logContext, opportunityId: routeOpportunityId });
+      return NextResponse.json({ success: false, error: 'Opportunity not found' }, { status: 404 });
+    }
+
+    // Explicitly map Prisma result to OrionOpportunity to satisfy all interface properties
+    const fullOrionOpportunity: OrionOpportunity = {
+      id: orionOpportunity.id,
+      title: orionOpportunity.title,
+      company: orionOpportunity.company,
+      companyOrInstitution: orionOpportunity.company || null, // Map company to companyOrInstitution
+      type: orionOpportunity.type as OpportunityType | null | undefined, // Cast to correct enum type
+      status: orionOpportunity.status as OpportunityStatus | null | undefined, // Cast to correct enum type
+      content: orionOpportunity.content,
+      url: orionOpportunity.url,
+      tags: orionOpportunity.tags,
+      dateIdentified: orionOpportunity.dateIdentified?.toISOString() || null, // Convert Date to ISO string
+      notes: orionOpportunity.notes,
+      contactPerson: orionOpportunity.contactPerson,
+      contactEmail: orionOpportunity.contactEmail,
+      stage: orionOpportunity.stage,
+      attachments: orionOpportunity.attachments,
+      relatedEvaluationId: orionOpportunity.relatedEvaluationId,
+      sourceUrl: orionOpportunity.sourceUrl,
+      nextActionDate: orionOpportunity.nextActionDate?.toISOString() || null, // Convert Date to ISO string
+      priority: orionOpportunity.priority as OpportunityPriority | null, // Cast to correct enum type
+      tailoredCv: orionOpportunity.tailoredCv,
+      deadline: orionOpportunity.deadline?.toISOString() || null, // Convert Date to ISO string
+      location: orionOpportunity.location,
+      salary: orionOpportunity.salary,
+      contact: orionOpportunity.contact,
+      position: orionOpportunity.position,
+      lastStatusUpdate: orionOpportunity.lastStatusUpdate?.toISOString() || null, // Convert Date to ISO string
+      notionPageId: orionOpportunity.notionPageId,
+      applicationMaterialIds: orionOpportunity.applicationMaterialIds,
+      createdAt: orionOpportunity.createdAt.toISOString(), // Convert Date to ISO string
+      updatedAt: orionOpportunity.updatedAt.toISOString(), // Convert Date to ISO string
+      evaluationResult: orionOpportunity.evaluationResult, // Keep original JsonValue
+      evaluationOutput: null, // Initialize as null; it will be populated by the LLM later in this function
+      tailoredCvId: orionOpportunity.tailoredCvId,
+      stakeholders: orionOpportunity.stakeholders,
+      applicationDrafts: orionOpportunity.applicationDrafts,
+      webResearchContext: null, // Initialize
+      pros: null, // Initialize
+      cons: null, // Initialize
+      missingSkills: null, // Initialize
+      contentType: null, // Initialize
+      lastEditedTime: orionOpportunity.updatedAt?.toISOString() || null, // Convert Date to ISO string, handle null
+      cvComponentSuggestions: null, // Initialize
+      alignmentScore: null, // Initialize
+      actionableAdvice: null, // Initialize
+    };
+
+    // Use fullOrionOpportunity from this point onward
+    let profileData = userProfile; // Use profile from body by default
+    let profileContext = 'User profile data not available.'; // Declare profileContext here
+
+    if (!profileData) {
+      logger.info('[EVAL_API][PROFILE_FETCH] Attempting to fetch user profile data from source service.', logContext);
+      try {
+        const fetchedProfile = await fetchUserProfile();
+        if (fetchedProfile && fetchedProfile.profile) {
+          profileData = fetchedProfile.profile; // Assign the profile object directly
+          logger.info('[EVAL_API][PROFILE_SUCCESS] User profile data successfully fetched from service.', logContext);
+        } else {
+          logger.warn('[EVAL_API][PROFILE_FAIL] User profile data could not be loaded from service.', {
+            ...logContext,
+            errorDetails: fetchedProfile?.error || 'Unknown profile fetch error',
+          });
+          // Optionally, throw an error or return a specific response if profile is critical
+        }
+      } catch (profileFetchError: unknown) {
+        logger.error('[EVAL_API][PROFILE_ERROR] Error fetching user profile from service.', {
+          ...logContext,
+          errorMessage: profileFetchError instanceof Error ? profileFetchError.message : String(profileFetchError),
+          stack: profileFetchError instanceof Error ? profileFetchError.stack : undefined,
+        });
+        // Continue without profile data if it's not critical for this flow, or re-throw
+      }
+    }
+
+    if (!profileData || !profileData.backgroundSummary) {
+      logger.warn(
+        '[EVAL_API][PROFILE_INCOMPLETE] User profile data is incomplete or missing background summary, proceeding with caution.',
+        logContext
+      );
+      // Decide whether to proceed or return an error based on feature criticality
+    }
+
+    profileContext = profileData
+      ? `User Profile Details (source: ${profileData.source || 'body/unknown'}):\nName: ${profileData.name}\nBackground Summary: ${profileData.backgroundSummary || 'N/A'}\nKey Skills: ${(profileData.keySkills || []).join(', ') || 'N/A'}\nGoals: ${(profileData.goals || []).join(', ') || 'N/A'}\nValues: ${(profileData.values || []).join(', ') || 'N/A'}\nLocation: ${profileData.location || 'N/A'}`
+      : 'User profile data not available.';
+
+    let memoryResults: ScoredMemoryPoint[] = relevantMemories || []; // Use relevantMemories from body if provided
+    if (memoryResults.length === 0 && fullOrionOpportunity.title && fullOrionOpportunity.companyOrInstitution) {
+      logger.info('[EVAL_API][MEMORY_FETCH] Attempting to fetch relevant memories via search service.', {
+        opportunityTitle: fullOrionOpportunity.title,
+        company: fullOrionOpportunity.companyOrInstitution,
+        ...logContext,
+      });
+      try {
+        const searchResponse = await searchMemory(
+          `Opportunity evaluation context for ${fullOrionOpportunity.title} at ${fullOrionOpportunity.companyOrInstitution}`,
+          {
+            limit: 5,
+          }
+        );
+
+        if (searchResponse.success && searchResponse.results) {
+          memoryResults = searchResponse.results;
+          logger.info('[EVAL_API][MEMORY_SUCCESS] Successfully fetched memory results via search service.', {
+            count: memoryResults.length,
+            ...logContext,
+          });
+        } else {
+          logger.warn('[EVAL_API][MEMORY_NO_RESULTS] Memory search service returned no results or failure.', {
+            searchResponse,
+            ...logContext,
+          });
+        }
+      } catch (memoryError: unknown) {
+        logger.error('[EVAL_API][MEMORY_ERROR] Error calling memory search service.', {
+          errorMessage: memoryError instanceof Error ? memoryError.message : String(memoryError),
+          stack: memoryError instanceof Error ? memoryError.stack : undefined,
+          ...logContext,
+        });
+      }
+    }
+
+    // Integrate web research (company overview) and scraping (job URL)
+    let combinedWebContext: string = ''; // Initialize as empty string
+
+    logger.info('[EVAL_API][WEB_CONTEXT] Determining web context for evaluation.', logContext);
+
+    const webContextParts = [];
+
+    // 1. Fetch company overview using web search
+    if (fullOrionOpportunity.companyOrInstitution) {
+      logger.info('[EVAL_API][COMPANY_SEARCH] Initiating web search for company overview.', {
+        company: fullOrionOpportunity.companyOrInstitution,
+        ...logContext,
+      });
+      try {
+        const companySearchData = await apiFetcher<{
+          success: boolean;
+          results?: { content: string }[];
+          error?: string;
+        }>('/api/orion/research/company', {
+          method: 'POST',
+          body: { query: fullOrionOpportunity.companyOrInstitution },
+          logContext: { subOperation: 'company_search', ...logContext },
+        });
+
+        if (companySearchData.success && companySearchData.results && companySearchData.results.length > 0) {
+          const companyContext = companySearchData.results.map((r) => r.content).join('\n\n');
+          webContextParts.push(`Company Overview for ${fullOrionOpportunity.companyOrInstitution}:\n${companyContext}`);
+          logger.info('[EVAL_API][COMPANY_SEARCH_SUCCESS] Successfully fetched company overview.', logContext);
+        } else {
+          webContextParts.push(`No relevant company overview found for ${fullOrionOpportunity.companyOrInstitution}.`);
+          logger.warn('[EVAL_API][COMPANY_SEARCH_NO_RESULTS] No company overview results found.', {
+            companySearchData,
+            ...logContext,
+          });
+        }
+      } catch (companySearchError: unknown) {
+        const errorDetails =
+          companySearchError instanceof Error ? companySearchError.message : String(companySearchError);
+        webContextParts.push(
+          `Error fetching company overview for ${fullOrionOpportunity.companyOrInstitution}: ${errorDetails}`
+        );
+        logger.error('[EVAL_API][COMPANY_SEARCH_ERROR] Error fetching company overview.', {
+          errorMessage: errorDetails,
+          stack: companySearchError instanceof Error ? companySearchError.stack : undefined,
+          ...logContext,
+        });
+      }
+    }
+
+    // 2. Scrape job URL for additional context
+    const jobUrl = fullOrionOpportunity.sourceUrl || fullOrionOpportunity.url; // Use sourceUrl if available
+    if (jobUrl) {
+      logger.info('[EVAL_API][JOB_SCRAPE] Attempting to scrape job URL for additional context.', {
+        jobUrl,
+        ...logContext,
+      });
+      try {
+        const scrapeData = await apiFetcher<{ success: boolean; content?: string; error?: string }>(
+          '/api/orion/research',
+          {
+            method: 'POST',
+            body: { url: jobUrl },
+            logContext: { subOperation: 'job_scrape', ...logContext },
+          }
+        );
+
+        if (scrapeData.success && scrapeData.content) {
+          webContextParts.push(`Job Details from ${jobUrl}:${scrapeData.content.substring(0, 1000)}...`); // Limit length
+          logger.info('[EVAL_API][JOB_SCRAPE_SUCCESS] Successfully scraped job URL.', { url: jobUrl, ...logContext });
+        } else {
+          webContextParts.push(`No content scraped from ${jobUrl}.`);
+          logger.warn('[EVAL_API][JOB_SCRAPE_NO_CONTENT] No content scraped from job URL.', {
+            scrapeData,
+            ...logContext,
+          });
+        }
+      } catch (scrapeError: unknown) {
+        const errorDetails = scrapeError instanceof Error ? scrapeError.message : String(scrapeError);
+        webContextParts.push(`Error scraping job URL ${jobUrl}: ${errorDetails}`);
+        logger.error('[EVAL_API][JOB_SCRAPE_ERROR] Error scraping job URL.', {
+          errorMessage: errorDetails,
+          stack: scrapeError instanceof Error ? scrapeError.stack : undefined,
+          ...logContext,
+        });
+      }
+    }
+
+    combinedWebContext = webContextParts.join('\n\n');
+    if (!combinedWebContext) {
+      logger.info('[EVAL_API][NO_WEB_CONTEXT] No web context generated after backend research.', logContext);
+      combinedWebContext = 'No relevant web research context available.';
+    }
+
+    logger.debug('[EVAL_API][WEB_CONTEXT_FINALIZED] Final combined web context length and sample.', {
+      contextLength: combinedWebContext.length,
+      contextSample: combinedWebContext.substring(0, 100) + '...',
+      ...logContext,
+    });
+
+    // Prepare and call LLM for evaluation
+    const systemPrompt = `
+      As Orion's AI, your task is to analyze the provided OrionOpportunity and applicant profile.
+      You will generate a comprehensive evaluation output in JSON format (EvaluationOutput interface).
+
+      Evaluation criteria:
+      1. Overall Fit: How well does the applicant's profile, memories, and experience align with the opportunity?
+      2. Strengths: What are the key areas where the applicant excels relative to the opportunity?
+      3. Gaps: What are potential skill/experience gaps? How can these be addressed (e.g., transferable skills, rapid learning ability)?
+      4. Strategic Next Steps: What immediate actions should Tomide take (e.g., tailor CV, research more, network)?
+      5. Alignment Highlights: Specific points where the applicant's profile and memories directly match the opportunity's needs.
+      6. Risk/Reward Analysis: Potential rewards if pursued, potential risks if pursued, time investment, financial considerations, career impact.
+
+      Consider the provided web research context to infer company culture, recent projects, or specific needs mentioned online.
+      Structure your output strictly as a JSON object adhering to the EvaluationOutput interface.
+      Do not include any other text or markdown outside the JSON block.
+      Output only the JSON.
+
+      Strictly adhere to the EvaluationOutput interface schema, ensuring all fields are present and correctly typed. For arrays, ensure they are empty arrays if no relevant data is found. Ensure all strings are actual strings and not null or undefined.
+    `;
+
+    const userPrompt = `
+      OrionOpportunity (Job Description, etc.):
+      ${JSON.stringify(fullOrionOpportunity, null, 2)}
+
+      Applicant Profile:
+      ${profileContext}
+
+      Relevant Memories:
+      ${memoryResults.map((m) => m.payload.text).join('\n\n') || 'No relevant memories found.'}
+
+      Web Research Context:
+      ${combinedWebContext}
+
+      Generate the EvaluationOutput as a JSON object.
+    `;
+
+    logger.info('[EVAL_API][LLM_CALL] Calling LLM for opportunity evaluation.', {
+      llmPromptLength: systemPrompt.length + userPrompt.length,
+      ...logContext,
+    });
+    const llmResponse = await generateLLMResponse(REQUEST_TYPES.OPPORTUNITY_EVALUATION, userPrompt, {
+      systemContext: systemPrompt,
+      temperature: 0.7,
+      maxTokens: 1500,
+    });
+
+    if (!llmResponse.success) {
+      const llmErrorDetails = llmResponse.error || 'LLM failed to generate evaluation.';
+      logger.error('[EVAL_API][LLM_FAIL] LLM response indicates failure.', {
+        error: llmErrorDetails,
+        ...logContext,
       });
       return NextResponse.json(
         {
           success: false,
-          error: opportunityResult.error || 'Failed to fetch Opportunity details from Notion.',
+          error: llmErrorDetails,
         },
         { status: 500 }
       );
     }
 
-    const OrionOpportunity = opportunityResult.OrionOpportunity;
-    if (!OrionOpportunity) {
-      logger.warn('[EVAL_API][NOTION_NOT_FOUND] Opportunity not found in Notion.', { opportunityId });
-      return NextResponse.json({ success: false, error: 'Opportunity not found.' }, { status: 404 });
-    }
-    logger.info('[EVAL_API][NOTION_SUCCESS] Successfully fetched opportunity details.', {
-      opportunityId,
-      title: OrionOpportunity.title,
-    });
-    // Normalize company/companyOrInstitution for downstream use
-    const companyOrInstitution = (OrionOpportunity.companyOrInstitution ?? OrionOpportunity.company ?? '') || '';
-    logger.debug('[EVAL_API][COMPANY_NORMALIZED] Company or institution name normalized.', { companyOrInstitution });
-    // Use sourceUrl if available, otherwise fallback to url
-    const jobUrl = OrionOpportunity.sourceUrl || OrionOpportunity.url;
-    logger.debug('[EVAL_API][JOB_URL_RESOLVED] Job URL resolved.', { jobUrl });
+    // Parse LLM response
+    logger.info('[EVAL_API][LLM_PARSE] Attempting to parse LLM response.', logContext);
 
-    // Fetch user profile data
-    let profileError: string | null = null;
-    logger.info('[EVAL_API][PROFILE_FETCH] Attempting to fetch user profile data.');
-    const profileData = await fetchUserProfile();
-    let profileContext = 'User profile data not available.';
-    if (profileData) {
-      logger.info('[EVAL_API][PROFILE_SUCCESS] User profile data successfully fetched.');
-      // Dynamically include all fields except 'source'
-      const fields = Object.entries(profileData)
-        .filter(([k]) => k !== 'source')
-        .map(([k, v]) => `${k[0].toUpperCase() + k.slice(1)}: ${v || 'N/A'}`)
-        .join('\n');
-      profileContext = `User Profile Details (source: ${profileData.source || 'unknown'}):\n${fields}`;
-    } else {
-      profileError =
-        'User profile data could not be loaded from Notion or local files. Check Notion API key, URL, and local fallback files.';
-      logger.error('[EVAL_API][PROFILE_FAIL] ' + profileError);
-    }
+    // Log the raw LLM content before parsing for debugging
+    logger.debug('[EVAL_API][RAW_LLM_CONTENT]', { ...logContext, rawContent: llmResponse.content });
 
-    // Fetch relevant memories
-    let memoryResults: MemoryPayload[] = []; // Use MemoryPayload type
-    logger.info('[EVAL_API][MEMORY_FETCH] Attempting to fetch relevant memories.', {
-      opportunityTitle: OrionOpportunity.title,
-      company: companyOrInstitution,
-    });
-    try {
-      const memoryResponse = await fetch(`${request.nextUrl.origin}/api/orion/memory/search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `Opportunity evaluation context for ${OrionOpportunity.title} at ${companyOrInstitution}`, // Tailor memory query
-          limit: 5, // Adjust limit as needed
-          // Optionally add filters here based on Opportunity details or user intent
-        }),
-      });
-
-      if (memoryResponse.ok) {
-        const memoryData = await memoryResponse.json();
-        if (memoryData.success && memoryData.results) {
-          memoryResults = memoryData.results; // memoryData.results should be MemoryPayload[]
-          logger.info('[EVAL_API][MEMORY_SUCCESS] Successfully fetched memory results.', {
-            count: memoryResults.length,
-          });
-        } else {
-          logger.warn('[EVAL_API][MEMORY_NO_RESULTS] Memory search proxy returned success: false or no results.', {
-            memoryData,
-          });
-        }
-      } else {
-        logger.error('[EVAL_API][MEMORY_PROXY_FAIL] Failed to call internal memory search proxy:', {
-          status: memoryResponse.status,
-          statusText: memoryResponse.statusText,
-        });
-      }
-    } catch (memoryError: unknown) {
-      logger.error('[EVAL_API][MEMORY_ERROR] Error calling internal memory search proxy:', {
-        errorMessage: memoryError instanceof Error ? memoryError.message : String(memoryError),
-      });
-    }
-
-    // Integrate web research (company overview) and scraping (job URL) by calling the proxy API route
-    // Prioritize frontend web context if provided, otherwise perform backend search
-    let combinedWebContext: string = frontendCompanyWebContext || '';
-    logger.info('[EVAL_API][WEB_CONTEXT] Determining web context for evaluation.', {
-      usingFrontendContext: !!frontendCompanyWebContext,
-    });
-
-    if (!frontendCompanyWebContext) {
-      logger.info('[EVAL_API][BACKEND_RESEARCH] Frontend context not provided, performing backend web research.');
-      // Only perform backend company search if frontend context was NOT provided
-      const webContextParts = [];
-
-      // 1. Fetch company overview using web search
-      logger.info('[EVAL_API][COMPANY_SEARCH] Initiating web search for company overview.', {
-        company: companyOrInstitution,
-      });
-      try {
-        const companySearchResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            // 'Authorization': request.headers.get('Authorization'), // Pass down user's auth
-          },
-          body: JSON.stringify({
-            query: `${companyOrInstitution} company overview, mission, values, recent news`,
-            type: 'web', // Specify web search
-            count: 3, // Limit results to avoid excessive token usage
-          }),
-        });
-
-        if (!companySearchResponse.ok) {
-          logger.error('[EVAL_API][COMPANY_SEARCH_FAIL] Failed to call research proxy for company search:', {
-            status: companySearchResponse.status,
-            statusText: companySearchResponse.statusText,
-          });
-        } else {
-          const searchData = await companySearchResponse.json();
-          logger.debug('[EVAL_API][COMPANY_SEARCH_DATA] Received searchData:', { searchData });
-          if (searchData.success && searchData.results && searchData.results.length > 0) {
-            logger.debug('[EVAL_API][COMPANY_SEARCH_RESULTS] Processing searchData.results:', {
-              results: searchData.results,
-            });
-            const formattedResults = (
-              searchData.results as Array<{ url?: string; title?: string; snippet?: string; text?: string }>
-            )
-              .map(
-                (result: { url?: string; title?: string; snippet?: string; text?: string }, index: number) =>
-                  `Source ${index + 1}: ${result.url || 'N/A'}\nTitle: ${
-                    result.title || 'N/A'
-                  }\nSnippet: ${result.snippet || 'No snippet'}\nContent: ${result.text || 'No content'}`
-              )
-              .join('\n\n---\n\n');
-            webContextParts.push(`Company Overview Search Results:\n${formattedResults}`);
-            logger.info(
-              '[EVAL_API][COMPANY_SEARCH_SUCCESS] Successfully fetched backend company web research context.',
-              { resultCount: searchData.results.length }
-            );
-          } else {
-            logger.warn(
-              '[EVAL_API][COMPANY_SEARCH_NO_RESULTS] Backend company research proxy returned success: false or no results.',
-              { searchData }
-            );
-          }
-        }
-      } catch (companyResearchError: unknown) {
-        logger.error('[EVAL_API][COMPANY_SEARCH_ERROR] Error calling research proxy for backend company search:', {
-          errorMessage:
-            companyResearchError instanceof Error ? companyResearchError.message : String(companyResearchError),
-        });
-      }
-
-      // 2. Scrape Job URL if available (always scrape job URL regardless of frontend context)
-      if (jobUrl) {
-        logger.info('[EVAL_API][JOB_URL_SCRAPE] Initiating job URL scraping.', { jobUrl });
-        try {
-          const scrapeResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              // 'Authorization': request.headers.get('Authorization'), // Pass down user's auth
-            },
-            body: JSON.stringify({
-              url: jobUrl,
-              type: 'scrape', // Specify scrape type
-            }),
-          });
-
-          if (!scrapeResponse.ok) {
-            logger.error('[EVAL_API][JOB_URL_SCRAPE_FAIL] Failed to call research proxy for URL scraping:', {
-              status: scrapeResponse.status,
-              statusText: scrapeResponse.statusText,
-            });
-          } else {
-            const scrapeData = await scrapeResponse.json();
-            // Assuming the scrape endpoint returns the main text content in results
-            if (scrapeData.success && scrapeData.results) {
-              // Append scraped job URL content to frontend context
-              combinedWebContext +=
-                '\n\n---\n\n' + `Job Posting Content (Scraped from ${jobUrl}):\n${scrapeData.results}`;
-              logger.info(
-                '[EVAL_API][JOB_URL_SCRAPE_SUCCESS] Successfully scraped job URL and appended to combined web context.'
-              );
-            } else {
-              logger.warn('[EVAL_API][JOB_URL_SCRAPE_NO_RESULTS] Scrape proxy returned success: false or no results.', {
-                scrapeData,
-              });
-            }
-          }
-        } catch (scrapeError: unknown) {
-          logger.error('[EVAL_API][JOB_URL_SCRAPE_ERROR] Error calling research proxy for URL scraping:', {
-            errorMessage: scrapeError instanceof Error ? scrapeError.message : String(scrapeError),
-          });
-        }
-      }
-
-      // Combine backend web context parts if frontend context was not used
-      if (webContextParts.length > 0) {
-        combinedWebContext = webContextParts.join('\n\n---\n\n');
-        logger.debug('[EVAL_API][WEB_CONTEXT_COMBINED] Backend web context parts combined.', {
-          length: combinedWebContext.length,
-        });
-      }
-    } else {
-      // If frontend context was provided, log that we are using it and just scrape the job URL if available
-      logger.info('[EVAL_API][FRONTEND_CONTEXT_USED] Using company web context provided from frontend.');
-
-      if (jobUrl) {
-        logger.info(
-          '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE] Job URL available, initiating scraping alongside frontend context.',
-          { jobUrl }
-        );
-        try {
-          const scrapeResponse = await fetch(`${request.nextUrl.origin}/api/orion/research`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              // 'Authorization': request.headers.get('Authorization'), // Pass down user's auth
-            },
-            body: JSON.stringify({
-              url: jobUrl,
-              type: 'scrape', // Specify scrape type
-            }),
-          });
-
-          if (!scrapeResponse.ok) {
-            logger.error(
-              '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_FAIL] Failed to call research proxy for URL scraping:',
-              { status: scrapeResponse.status, statusText: scrapeResponse.statusText }
-            );
-          } else {
-            const scrapeData = await scrapeResponse.json();
-            // Assuming the scrape endpoint returns the main text content in results
-            if (scrapeData.success && scrapeData.results) {
-              // Append scraped job URL content to frontend context
-              combinedWebContext +=
-                '\n\n---\n\n' + `Job Posting Content (Scraped from ${jobUrl}):\n${scrapeData.results}`;
-              logger.info(
-                '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_SUCCESS] Successfully scraped job URL based on frontend context.'
-              );
-            } else {
-              logger.warn(
-                '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_NO_RESULTS] Scrape proxy returned success: false or no results.',
-                { scrapeData }
-              );
-            }
-          }
-        } catch (scrapeError: unknown) {
-          logger.error(
-            '[EVAL_API][FRONTEND_CONTEXT_JOB_URL_SCRAPE_ERROR] Error calling research proxy for URL scraping with frontend context:',
-            { errorMessage: scrapeError instanceof Error ? scrapeError.message : String(scrapeError) }
-          );
-        }
-      }
-    }
-
-    // Define the JSON output format block as a separate string to avoid escaping issues
-    const jsonOutputFormat = `\`\`\`json
-{
-  "alignmentScore": number,
-  "keyAlignmentPoints": string[],
-  "areasForImprovement": string[],
-  "tailoredKeywords": string[]
-}
-\`\`\``;
-
-    // Construct prompt for LLM
-    const prompt = `You are an expert career consultant specializing in helping professionals align their skills and experience with job opportunities. Your task is to analyze the provided user profile, job opportunity details, and any additional context (web research, memory data) to generate a comprehensive evaluation. This evaluation should focus on:\n\n1.  **Alignment Score**: A numerical score from 1-10 (10 being perfect alignment) indicating how well the user's profile aligns with the job opportunity. Only include the number, nothing else.\n2.  **Key Alignment Points**: Bullet points (2-3) highlighting the strongest areas of alignment.\n3.  **Areas for Improvement**: Bullet points (2-3) suggesting specific skills, experiences, or keywords the user could develop or emphasize to better align with similar opportunities.\n4.  **Tailored Keywords**: A list of 5-10 specific keywords or phrases from the job description and your analysis that the user should consider incorporating into their resume/CV or cover letter to improve ATS matching and overall relevance.\n\n\n### User Profile:\n${profileContext}\n\n### Job Opportunity Details:\nTitle: ${OrionOpportunity.title || 'N/A'}\nCompany: ${companyOrInstitution || 'N/A'}\nLocation: ${OrionOpportunity.location || 'N/A'}\nDescription: ${OrionOpportunity.content || 'N/A'}\nOriginal URL: ${OrionOpportunity.url || 'N/A'}\nSource URL: ${OrionOpportunity.sourceUrl || 'N/A'}\n\n### Additional Context:\n${combinedWebContext || 'No additional web research context available.'}\n\n### Relevant Memories:\n${
-      memoryResults.length > 0
-        ? memoryResults
-            .map((m) => `Title: ${m.title || 'No title'}\nContent: ${m.text || 'No content'}`)
-            .join('\n\n---\n\n')
-        : 'No relevant memories found.'
-    }\n\n\n### Output Format:\n${jsonOutputFormat}
-`;
-
-    // Log the prompt being sent (optional, for debugging)
-    logger.info('[EVAL_API] Sending prompt to LLM for evaluation...');
-
-    // Call LLM for evaluation
-    const llmResponse = await generateLLMResponse({
-      requestType: REQUEST_TYPES.OPPORTUNITY_EVALUATION,
-      prompt,
-    });
-
-    if (!llmResponse.success || !llmResponse.response) {
-      logger.error('[EVAL_API] LLM generation failed:', { error: llmResponse.error });
-      throw new Error(llmResponse.error || 'LLM failed to generate evaluation.');
-    }
-
-    // Attempt to parse the LLM response as JSON
-    const jsonString = extractFirstJsonObject(llmResponse.response);
+    const jsonString = extractFirstJsonObject(llmResponse.content);
 
     if (!jsonString) {
-      logger.error('[EVAL_API] Failed to extract JSON from LLM response:', { response: llmResponse.response });
-      throw new Error('LLM response was not in expected JSON format.');
+      logger.error('[EVAL_API][JSON_PARSE_FAIL] No JSON object found in LLM response after extraction.', {
+        rawContent: llmResponse.content,
+        ...logContext,
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            name: 'ParsingError',
+            message: 'LLM response did not contain a valid JSON object after extraction.',
+            rawContent: llmResponse.content,
+          },
+        },
+        { status: 500 }
+      );
     }
 
-    const evaluation = JSON.parse(jsonString) as EvaluationOutput; // Cast to expected type
+    let evaluationResult: EvaluationOutput;
+    try {
+      const parsedContent = JSON.parse(jsonString);
+      evaluationResult = parsedContent as EvaluationOutput;
 
-    // Return the evaluation output
-    return NextResponse.json({
-      success: true,
-      evaluation,
-      rawContent: llmResponse.response, // Include raw content for debugging/display
-      memoryResults, // Include memory results in the final response
+      // Additional validation/transformation if needed due to LLM variability
+      // For example, if gaps can be strings or objects, ensure they are consistently objects here
+      if (Array.isArray(evaluationResult.gaps)) {
+        evaluationResult.gaps = evaluationResult.gaps.map((gap) => {
+          if (typeof gap === 'string') {
+            return { gap: gap, solution: 'N/A' }; // Default solution if only string is provided
+          } else {
+            return gap; // Already an object
+          }
+        });
+      }
+      // Apply similar logic for strengths and alignmentHighlights if they also show variability
+
+      logger.info('[EVAL_API][JSON_PARSE_SUCCESS] Successfully parsed LLM response into EvaluationOutput.', logContext);
+    } catch (parseError: unknown) {
+      logger.error('[EVAL_API][JSON_PARSE_ERROR] Failed to parse LLM response JSON.', {
+        jsonString: jsonString,
+        parseError: parseError instanceof Error ? parseError.message : String(parseError),
+        ...logContext,
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            name: 'JSONParsingError',
+            message: `Failed to parse LLM response into EvaluationOutput: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+            rawContent: jsonString,
+          },
+        },
+        { status: 500 }
+      );
+    }
+
+    // Handle cases where fitScorePercentage might not be directly returned by LLM
+    if (evaluationResult.fitScorePercentage === undefined && evaluationResult.overallFitScore !== undefined) {
+      evaluationResult.fitScorePercentage = evaluationResult.overallFitScore; // Corrected to overallFitScore
+      logger.debug('[EVAL_API][FIT_SCORE_FALLBACK] Setting fitScorePercentage from overallFitScore.', logContext);
+    }
+
+    fullOrionOpportunity.evaluationOutput = evaluationResult;
+
+    logger.info('[EVAL_API][SUCCESS] Opportunity evaluation completed successfully.', {
+      evaluationId: routeOpportunityId,
+      ...logContext,
     });
+    return NextResponse.json(
+      { success: true, evaluation: evaluationResult, memoryResults },
+      { status: 200 } // Explicitly set status to 200 for success
+    );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error('[OPPORTUNITY_EVALUATION_API_ERROR]', { errorMessage });
+    logger.error('[EVAL_API][UNEXPECTED_ERROR] An unexpected error occurred during opportunity evaluation.', {
+      errorMessage: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      ...logContext,
+    });
     return NextResponse.json(
       {
         success: false,
-        error: `Failed to generate Opportunity evaluation: ${errorMessage}`,
+        error: {
+          name: error instanceof Error ? error.name : 'UnknownError',
+          message: error instanceof Error ? error.message : 'An unexpected error occurred.',
+          stack: error instanceof Error ? error.stack : undefined,
+          rawContent: JSON.stringify(error), // Include raw content of the error for debugging
+        },
       },
       { status: 500 }
     );

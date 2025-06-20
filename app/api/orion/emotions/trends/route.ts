@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/database';
+import { sql } from '@/lib/database';
 import logger from '@/lib/logger';
 import { z } from 'zod';
 // Assuming a direct function call for LLM is better than a fetch
@@ -95,9 +95,9 @@ export async function GET(req: NextRequest) {
       params.push(new Date(endDate));
     }
     queryStr += ` GROUP BY "primaryEmotion" ORDER BY count DESC`;
-    const emotionCountsResult = await query<EmotionCount>(queryStr, params);
+    const emotionCountsResult = (await sql(queryStr, params)) as EmotionCount[][];
     logger.info('[EMOTIONS_TRENDS][DB][EMOTION_COUNTS]', {
-      rowCount: emotionCountsResult.rowCount,
+      rowCount: emotionCountsResult.length,
       ...logContext,
     });
 
@@ -118,9 +118,9 @@ export async function GET(req: NextRequest) {
       triggerParams.push(new Date(endDate));
     }
     triggerQuery += ` GROUP BY value ORDER BY count DESC LIMIT 10`;
-    const commonTriggersResult = await query<CommonTrigger>(triggerQuery, triggerParams);
+    const commonTriggersResult = (await sql(triggerQuery, triggerParams)) as CommonTrigger[][];
     logger.info('[EMOTIONS_TRENDS][DB][TRIGGERS]', {
-      rowCount: commonTriggersResult.rowCount,
+      rowCount: commonTriggersResult.length,
       ...logContext,
     });
 
@@ -144,9 +144,9 @@ export async function GET(req: NextRequest) {
       timelineParams.push(new Date(endDate));
     }
     timelineQuery += ` GROUP BY date, "primaryEmotion" ORDER BY date`;
-    const emotionTimelineResult = await query<EmotionTimelinePoint>(timelineQuery, timelineParams);
+    const emotionTimelineResult = (await sql(timelineQuery, timelineParams)) as EmotionTimelinePoint[][];
     logger.info('[EMOTIONS_TRENDS][DB][TIMELINE]', {
-      rowCount: emotionTimelineResult.rowCount,
+      rowCount: emotionTimelineResult.length,
       ...logContext,
     });
 
@@ -169,9 +169,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        emotionCounts: emotionCountsResult.rows,
-        commonTriggers: commonTriggersResult.rows,
-        emotionTimeline: emotionTimelineResult.rows,
+        emotionCounts: emotionCountsResult,
+        commonTriggers: commonTriggersResult,
+        emotionTimeline: emotionTimelineResult,
         insights,
       },
     });

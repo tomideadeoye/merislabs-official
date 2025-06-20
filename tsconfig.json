@@ -24,9 +24,10 @@
       "@/components/*": ["./app/components/*"],
       "@/lib/*": ["./app/lib/*"],
       "@/hooks/*": ["./app/hooks/*"],
-      "@/types/*": ["./app/lib/types/*"]
+      "@/types/*": ["./app/lib/types/*"],
+      "@/generated/*": ["./generated/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "api/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "**/*.tsx", "api/**/*.ts", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next", "generated"]
 }

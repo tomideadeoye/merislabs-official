@@ -8,10 +8,10 @@
 //   apps/nextjs/app/(orion_admin)/admin/journal/page.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Uses:
-//       - useSessionState (from @repo/shared/hooks/useSessionState)
+//       - useSessionState (from @repo/lib/hooks/useSessionState)
 //       - JournalEntryForm, JournalEntryDisplay, AddTaskFromReflection, JournalList (from components/orion/)
 //       - UI components from '@/components/ui
-//       - SessionStateKeys, JournalEntryNotionInput (from @repo/shared/types/orion)
+//       - SessionStateKeys, JournalEntryNotionInput (from @repo/lib/types/orion)
 //   - Related to: Habitica integration, journal API endpoints, admin dashboard navigation.
 // ASSUMPTIONS & CLEAR COMMENTS
 //   - Assumes all imported hooks/components are implemented and stable.

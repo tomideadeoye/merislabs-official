@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       tags: task.tags,
     };
 
-    // Create task using the shared client
+    // Create task using the lib client
     // Note: This uses the client configured with environment variables, not the provided userId/apiToken
     const createdTask = await createTask(taskParams);
 

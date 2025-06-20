@@ -1,4 +1,56 @@
 /**
+ * @fileoverview Core module for interacting with various Large Language Models (LLMs) within the Orion system.
+ * @description This file centralizes the logic for constructing LLM messages, calling external LLM APIs (like Azure, Groq, Gemini, OpenRouter, Mistral, Cohere, Together AI), handling model fallbacks, implementing retry mechanisms, and managing tool/function calls for agentic workflows. It ensures consistent LLM interaction patterns across the application.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide a unified interface for generating responses from multiple LLM providers.
+ *   - To manage and configure different LLM models and their respective API keys/endpoints.
+ *   - To implement robust retry logic with exponential backoff for transient API failures.
+ *   - To support model fallback mechanisms, allowing Orion to gracefully switch to alternative models if a primary one fails or is unavailable.
+ *   - To dynamically construct LLM messages based on request type, integrating various contexts (system, user profile, retrieved memories, primary prompt).
+ *   - To enable tool/function calling capabilities for advanced agentic workflows.
+ *   - To categorize and manage LLM request types (e.g., `OPPORTUNITY_EVALUATION`, `DRAFT_COMMUNICATION`).
+ *   - To provide helper functions for selecting appropriate models and handling API requests.
+ *
+ * FILEPATH: `app/lib/orion_llm.ts`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `@/lib/types`: Imports core types such as `OutreachRequest`, `OutreachResponse`, `UserProfileData`, `CombinedLLMResponse`, `ScoredMemoryPoint`, `Message`, `CreateChatCompletionResponse`, and `LLMSequentialThinkingResponse`, ensuring type safety throughout LLM interactions.
+ *   - `@/lib/types/llm`: Imports `LLMModelConfig` for defining model-specific configurations.
+ *   - `@/lib/orion_config.ts`: Consumes constants like `REQUEST_TYPES` (although defined locally here as well for immediate access), and implicitly relies on `process.env` for API keys and endpoints.
+ *   - `app/api/orion/opportunity/[opportunityId]/evaluation/route.ts`: Calls `generateLLMResponse` to perform opportunity evaluations.
+ *   - `app/api/orion/sequential-thinking.ts`: Calls `callSequentialThinking` for multi-step reasoning processes.
+ *   - `app/components/orion/networking-hub/PersonaOutreachForm.tsx`: Calls `generateOutreachMessage` for drafting outreach communications.
+ *   - `app/lib/profile_service.ts`: Provides user profile data (`UserProfileData`) which is often included in LLM context.
+ *   - `app/lib/orion_memory.ts`: Provides `ScoredMemoryPoint` data (retrieved memories) which are integrated into LLM prompts.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that required API keys for configured LLM providers are set as environment variables (e.g., `GROQ_API_KEY`, `GEMINI_API_KEY`).
+ *   - Assumes external LLM APIs are accessible and generally conform to the OpenAI Chat Completion API specification.
+ *   - The `retry` mechanism handles transient network issues or rate limits, but persistent configuration errors (e.g., wrong API key) will eventually fail.
+ *   - Model fallback logic ensures that if a preferred model fails, Orion attempts to use a less preferred but functional alternative.
+ *   - The `REQUEST_TYPES` constant, though defined here for immediate use, should ideally be consolidated with `orion_config.ts` for a single source of truth across the application.
+ *
+ * NOTES:
+ *   - This module is crucial for Orion's core intelligence, enabling all AI-driven features from opportunity evaluation to communication drafting.
+ *   - Extensive `console.log`/`console.warn`/`console.error` statements are used for debugging LLM interactions, including API call details, retry attempts, and errors.
+ *   - The separation of concerns within this file (model configs, retry logic, message construction, API calls) promotes modularity and testability.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Unified Request Typing**: Refactor `REQUEST_TYPES` to be exclusively defined in `orion_config.ts` and imported here, ensuring a single source of truth and avoiding potential inconsistencies.
+ *   - **Cost-Based Model Selection**: Implement more sophisticated model selection logic in `selectPrimaryModelForRequestType` that considers dynamic factors like cost-per-token and real-time latency, not just predefined preferences.
+ *   - **Streaming Responses**: Enhance `callExternalLLM` and related functions to support streaming LLM responses for faster perceived performance in the UI, especially for long generations.
+ *   - **Enhanced Error Handling**: Integrate `handleApiError` from `app/lib/utils/errorHandler.ts` for a more consistent API error handling approach, including returning structured `ApiErrorResponse` objects.
+ *   - **Dynamic Tool Definitions**: Allow `tools` to be dynamically loaded or generated based on the agent's current task rather than being hardcoded.
+ *   - **Observability**: Integrate with a more robust logging framework (beyond `console.log`) that can send LLM interaction data (prompts, responses, tokens used, latency, model chosen) to a centralized observability platform.
+ *   - **Token Management**: Implement explicit token counting and truncation logic to ensure prompts fit within model context windows and to manage costs effectively, especially for `maxTokens`.
+ *   - **Unit and Integration Tests**: Develop comprehensive test suites for each function within this module, covering successful calls, API failures, fallback scenarios, message construction, and tool calling.
+ *
+ * OPPORTUNITIES TO CONSOLIDATE:
+ *   - The `PROVIDER_MODEL_CONFIGS` and related model selection logic could potentially be abstracted into a dedicated `llm_models_service.ts` if model management becomes highly complex.
+ *   - The `checkAllLlmApiKeys` function, while useful, could be part of a broader system health check utility rather than solely within `orion_llm.ts`.
+ */
+/**
  * GOAL:
  * LLM integration module for Orion system in Next.js
  * Handles LLM interactions and message construction
@@ -877,10 +929,6 @@ export async function callLLMWithFallback(
   );
 }
 
-/**
- * Select the primary model for a given request type, using strict order of preference from config.
- * Future: Add cost/speed-based override logic here if needed.
- */
 export async function selectPrimaryModelForRequestType(requestType: string, healthyModels: string[]): Promise<string> {
   const defaultModel = getDefaultModelForRequestType(requestType);
   if (healthyModels.includes(defaultModel)) {
@@ -1014,7 +1062,6 @@ export async function callSequentialThinking({
     throw new Error(`Failed to call sequential thinking tool: ${errorMessage}`);
   }
 }
-
 // Model provider configurations
 // This was moved from llm_providers.ts as part of consolidation
 // export { PROVIDER_MODEL_CONFIGS }; // Removed duplicate export

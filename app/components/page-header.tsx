@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
 interface PageHeaderProps {
   title: string;
@@ -19,12 +19,12 @@ export function PageHeader({
 }: PageHeaderProps) {
   // Use state to handle client-side rendering
   const [isClient, setIsClient] = useState(false);
-  
+
   // Only update the state after component mounts on client
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
+
   return (
     <header className="mb-6 flex items-center space-x-4">
       <div className="text-blue-400">{icon}</div>
@@ -35,12 +35,10 @@ export function PageHeader({
           <p
             className={`mt-1 text-sm ${
               // Only show dynamic styling on client-side to prevent hydration mismatch
-              isClient 
-                ? (memoryInitialized ? "text-green-400" : "text-yellow-400")
-                : "text-gray-400" // Neutral color for server rendering
+              isClient ? (memoryInitialized ? 'text-green-400' : 'text-yellow-400') : 'text-gray-400' // Neutral color for server rendering
             }`}
           >
-            Memory Status: {isClient ? (memoryInitialized ? "Initialized" : "Not Initialized") : "Loading..."}
+            Memory Status: {isClient ? (memoryInitialized ? 'Initialized' : 'Not Initialized') : 'Loading...'}
           </p>
         )}
       </div>

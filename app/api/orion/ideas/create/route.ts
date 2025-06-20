@@ -7,158 +7,187 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/database';
-import type { Idea, IdeaLog } from '@/lib/types';
-import { v4 as uuidv4 } from 'uuid';
 import { auth } from '@/auth';
+import logger from '@/lib/logger';
+import { Client, APIResponseError } from '@notionhq/client';
+import { generateLLMResponse } from '@/lib/orion_llm';
+import { CreatePageParameters } from '@notionhq/client/build/src/api-endpoints';
+
+const NOTION_API_KEY = process.env.NOTION_API_KEY;
+const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
+
+// Interface for LLM-enriched idea data
+interface LLMEnrichedIdea {
+  sentiment: 'positive' | 'negative' | 'neutral' | 'mixed';
+  keywords: string[];
+  categories: string[];
+  brainstormingStarter: string;
+}
+
+// Function to construct the LLM prompt
+function constructLLMAnalysisPrompt(title: string, description?: string, tags?: string[]): string {
+  let prompt = `Analyze the following idea and provide structured insights to help Tomide develop it further.\n\nIdea:\nTitle: ${title}\n`;
+  if (description) {
+    prompt += `Description: ${description}\n`;
+  }
+  if (tags && tags.length > 0) {
+    prompt += `Tags: ${tags.join(', ')}\n`;
+  }
+  prompt += `\nProvide your response in JSON format with the following fields:\n{\n  "sentiment": "(positive|negative|neutral|mixed)",\n  "keywords": ["keyword1", "keyword2"],\n  "categories": ["category1", "category2"],\n  "brainstormingStarter": "A few sentences or bullet points to kickstart brainstorming."\n}\n\nDo not include any additional text outside the JSON.`;
+  return prompt;
+}
 
 export async function POST(req: NextRequest) {
   const logContext = {
     route: '/api/orion/ideas/create',
     timestamp: new Date().toISOString(),
   };
-  try {
-    console.info('[IDEAS_CREATE][START]', logContext);
+  logger.info('[IDEAS_CREATE][START] Request received for new idea creation.', logContext);
 
-    // Fetch the session here
+  try {
     const session = await auth();
     if (!session || !session.user) {
-      console.warn('[IDEAS_CREATE][AUTH_FAIL] Unauthorized access attempt.', logContext);
+      logger.warn('[IDEAS_CREATE][AUTH_FAIL] Unauthorized access attempt.', logContext);
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!notion || !NOTION_DATABASE_ID) {
+      logger.error('[IDEAS_CREATE][NOTION_CONFIG_FAIL] Notion client or Database ID not configured.', logContext);
+      return NextResponse.json(
+        { success: false, error: 'Notion client or Database ID not configured.' },
+        { status: 500 }
+      );
     }
 
     const body = await req.json();
     const { title, description, tags = [], priority, dueDate } = body;
 
     if (!title || typeof title !== 'string' || title.trim() === '') {
-      console.warn('[IDEAS_CREATE][VALIDATION_FAIL] Missing or invalid title.', { ...logContext, body });
+      logger.warn('[IDEAS_CREATE][VALIDATION_FAIL] Missing or invalid title.', { ...logContext, body });
       return NextResponse.json({ success: false, error: 'Idea title is required' }, { status: 400 });
     }
 
-    const now = new Date().toISOString();
+    let enrichedIdea: LLMEnrichedIdea | null = null;
 
-    // Construct new idea object
-    const newIdea: Idea = {
-      id: uuidv4(),
-      title: title.trim(),
-      description: description?.trim(),
-      status: 'raw_spark',
-      tags: Array.isArray(tags) ? tags.map((t: string) => t.trim()).filter(Boolean) : [],
-      createdAt: now,
-      updatedAt: now,
-      userId: session.user.id || '',
-      dueDate,
-      priority,
-    };
-
-    // Insert idea into Postgres
-    const insertIdeaSQL = `
-      INSERT INTO ideas (
-        id, title, description, status, tags,
-        createdAt, updatedAt, dueDate, priority, userId
-      ) VALUES (
-        $1, $2, $3, $4, $5,
-        $6, $7, $8, $9, $10
-      )
-    `;
-    const ideaParams = [
-      newIdea.id,
-      newIdea.title,
-      newIdea.description,
-      newIdea.status,
-      JSON.stringify(newIdea.tags),
-      newIdea.createdAt,
-      newIdea.updatedAt,
-      newIdea.dueDate,
-      newIdea.priority,
-      newIdea.userId,
-    ];
-
+    // --- Step 1: Enrich idea with LLM ---
+    logger.info('[IDEAS_CREATE][LLM_ENRICHMENT] Initiating LLM analysis for idea enrichment.', logContext);
     try {
-      const res = await query(insertIdeaSQL, ideaParams);
-      console.info('[IDEAS_CREATE][DB][IDEA_INSERTED]', {
-        ...logContext,
-        rowCount: res.rowCount,
-        ideaId: newIdea.id,
+      const llmPrompt = constructLLMAnalysisPrompt(title, description, tags);
+      const llmResponse = await generateLLMResponse('IDEA_ANALYSIS', llmPrompt, {
+        systemContext:
+          'You are an expert idea analyst and brainstorming assistant. Your task is to analyze new ideas and provide structured insights to help Tomide develop them further.',
       });
-    } catch (dbErr: unknown) {
-      console.error('[IDEAS_CREATE][DB][ERROR_INSERT_IDEA]', {
+
+      if (llmResponse.success && llmResponse.content) {
+        try {
+          enrichedIdea = JSON.parse(llmResponse.content) as LLMEnrichedIdea;
+          logger.success('[IDEAS_CREATE][LLM_ENRICHMENT_SUCCESS] Idea successfully enriched by LLM.', {
+            ...logContext,
+            llmResponse: enrichedIdea,
+          });
+        } catch (parseError: unknown) {
+          logger.error('[IDEAS_CREATE][LLM_PARSE_ERROR] Failed to parse LLM response JSON.', {
+            ...logContext,
+            error: parseError,
+            rawContent: llmResponse.content,
+          });
+        }
+      } else {
+        // If LLM call itself failed (success is false)
+        if (!llmResponse.success) {
+          logger.warn('[IDEAS_CREATE][LLM_ENRICHMENT_FAIL] LLM call was not successful.', {
+            ...logContext,
+            llmError: llmResponse.error || 'No specific error message provided', // Safely access error
+          });
+        } else {
+          // If llmResponse.success is true but llmResponse.content is missing
+          logger.warn('[IDEAS_CREATE][LLM_ENRICHMENT_FAIL] LLM returned success but content was missing.', {
+            ...logContext,
+            llmResponse: llmResponse, // Log the full response to debug missing content
+          });
+        }
+      }
+    } catch (llmCallError: unknown) {
+      logger.error('[IDEAS_CREATE][LLM_CALL_ERROR] Error calling LLM service for idea enrichment.', {
         ...logContext,
-        dbErr: dbErr instanceof Error ? dbErr.message : String(dbErr),
-        ideaParams,
+        error: llmCallError,
       });
-      throw dbErr;
     }
 
-    // Create initial log entry
-    const initialLog: IdeaLog = {
-      id: uuidv4(),
-      ideaId: newIdea.id,
-      timestamp: now,
-      logType: 'initial_capture',
-      details: 'Idea initially captured.',
-      action: 'CREATE_IDEA',
-      type: 'idea_log',
-      content: newIdea.description || '',
-      author: session.user.email || 'unknown',
+    // --- Step 2: Persist enriched idea to Notion ---
+    logger.info('[IDEAS_CREATE][NOTION_PERSISTENCE] Saving idea to Notion database.', logContext);
+    const notionProperties: NonNullable<CreatePageParameters['properties']> = {
+      Title: { title: [{ text: { content: title.trim() } }] },
+      Status: { select: { name: 'Raw Spark' } }, // Default status
+      Type: { select: { name: 'Idea' } }, // Set 'Type' property for central database
     };
 
-    // Insert log into Postgres
-    const insertLogSQL = `
-      INSERT INTO idea_logs (
-        id, ideaId, timestamp, logType, details, action, type, content, author
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9
-      )
-    `;
-    const logParams = [
-      initialLog.id,
-      initialLog.ideaId,
-      initialLog.timestamp,
-      initialLog.logType,
-      initialLog.details,
-      initialLog.action,
-      initialLog.type,
-      initialLog.content,
-      initialLog.author,
-    ];
-
-    try {
-      const logRes = await query(insertLogSQL, logParams);
-      console.info('[IDEAS_CREATE][DB][LOG_INSERTED]', {
-        ...logContext,
-        rowCount: logRes.rowCount,
-        logId: initialLog.id,
-      });
-    } catch (logDbErr: unknown) {
-      console.error('[IDEAS_CREATE][DB][ERROR_INSERT_LOG]', {
-        ...logContext,
-        logDbErr: logDbErr instanceof Error ? logDbErr.message : String(logDbErr),
-        logParams,
-      });
-      throw logDbErr;
+    if (description) {
+      notionProperties['Description'] = { rich_text: [{ text: { content: description.trim() } }] };
+    }
+    if (tags && tags.length > 0) {
+      notionProperties['Tags'] = { multi_select: tags.map((t: string) => ({ name: t.trim() })) };
+    }
+    if (priority) {
+      notionProperties['Priority'] = { select: { name: priority } };
+    }
+    if (dueDate) {
+      notionProperties['Due Date'] = { date: { start: new Date(dueDate).toISOString().split('T')[0] } };
     }
 
-    console.info('[IDEAS_CREATE][SUCCESS] New idea created.', {
-      ...logContext,
-      ideaId: newIdea.id,
-      title: newIdea.title,
+    // Add LLM enriched data to Notion properties
+    if (enrichedIdea) {
+      notionProperties['Sentiment'] = { select: { name: enrichedIdea.sentiment } };
+      notionProperties['Keywords (AI)'] = { multi_select: enrichedIdea.keywords.map((k) => ({ name: k })) };
+      notionProperties['Categories (AI)'] = { multi_select: enrichedIdea.categories.map((c) => ({ name: c })) };
+      notionProperties['Brainstorming Starter (AI)'] = {
+        rich_text: [{ text: { content: enrichedIdea.brainstormingStarter } }],
+      };
+    }
+
+    const notionResponse = await notion.pages.create({
+      parent: { database_id: NOTION_DATABASE_ID! },
+      properties: notionProperties,
     });
 
+    logger.success('[IDEAS_CREATE][NOTION_PERSISTENCE_SUCCESS] Idea successfully saved to Notion.', {
+      ...logContext,
+      notionPageId: notionResponse.id,
+    });
+
+    // Respond with success
     return NextResponse.json({
       success: true,
-      message: 'Idea captured successfully!',
-      idea: newIdea,
+      message: 'Idea captured and enriched successfully!',
+      idea: { id: notionResponse.id, title, description, tags, priority, dueDate, ...enrichedIdea },
     });
   } catch (error: unknown) {
-    console.error('[IDEAS_CREATE][ERROR]', {
-      ...logContext,
-      error: error instanceof Error ? error.message : String(error),
-    });
+    let errorMessage = 'An unexpected error occurred';
+    let errorDetails: {
+      code?: string;
+      status?: number;
+      body?: unknown;
+      stack?: string;
+    } = {}; // Explicitly type errorDetails
+
+    if (error instanceof APIResponseError) {
+      errorMessage = `Notion API Error: ${error.message}`;
+      errorDetails = { code: error.code, status: error.status, body: error.body };
+      logger.error('[IDEAS_CREATE][NOTION_API_ERROR]', { ...logContext, error: errorMessage, details: errorDetails });
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+      errorDetails = { stack: error.stack };
+      logger.error('[IDEAS_CREATE][GENERAL_ERROR]', { ...logContext, error: errorMessage, details: errorDetails });
+    } else {
+      logger.error('[IDEAS_CREATE][UNKNOWN_ERROR]', { ...logContext, error: String(error) });
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        error: errorMessage,
+        details: errorDetails,
       },
       { status: 500 }
     );

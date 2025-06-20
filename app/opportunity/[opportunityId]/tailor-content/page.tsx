@@ -1,7 +1,49 @@
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// FILE PATH
-
+/**
+ * @fileoverview Page for generating tailored CV content based on job descriptions, user profile, and relevant memories.
+ * @description This client-side page orchestrates the fetching of opportunity details and CV components,
+ * and then triggers an AI content generation process to create a tailored CV section.
+ * It integrates various data sources to provide a highly personalized output.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide a user interface where Tomide can review the job description, his CV components, and relevant memories
+ *     before triggering the AI to generate a tailored content piece (e.g., a custom summary, experience bullet points).
+ *   - To streamline the process of adapting CVs for specific job opportunities by leveraging Orion's memory and LLM capabilities.
+ *   - To display the generated tailored content and raw LLM output for review and further action (e.g., copying).
+ *
+ * FILEPATH: `app/opportunity/[opportunityId]/tailor-content/page.tsx`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/components/ui`: Utilizes Shadcn UI components like `Card`, `CardContent`, `CardHeader`, `CardTitle` for consistent styling.
+ *   - `app/lib/hooks/useOpportunityMemory.ts`: Custom hook to fetch and provide relevant memories associated with the current opportunity, enriching the context for LLM generation.
+ *   - `app/lib/hooks/useSessionState.ts`: Custom hook to access `TOMIDES_PROFILE_DATA` from session state, ensuring the LLM has access to Tomide's personal and professional context.
+ *   - `app/lib/types.ts`: Defines core types like `CVComponent` and `OrionOpportunity` for data consistency.
+ *   - `app/lib/logger.ts`: Used for comprehensive, context-rich logging throughout the component's lifecycle, aiding in debugging and traceability.
+ *   - `app/api/orion/opportunities/[opportunityId]/route.ts`: API endpoint for fetching detailed opportunity information.
+ *   - `app/api/orion/cv-components/route.ts`: API endpoint for fetching available CV components.
+ *   - `app/api/orion/generate-tailored-content/route.ts`: The backend API endpoint responsible for calling the LLM to generate the tailored content. This is the core intelligence integration point.
+ *   - `app/opportunity/[opportunityId]/cv-tailoring/page.tsx`: This page is typically navigated to from the `CV Tailoring Studio` where the auto-generate button is present.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes `opportunityId` is correctly passed via Next.js `useParams`.
+ *   - Assumes user profile data (`TOMIDES_PROFILE_DATA`) is pre-loaded into session state.
+ *   - Assumes relevant API endpoints (`/api/orion/opportunities/[opportunityId]`, `/api/orion/cv-components`, `/api/orion/generate-tailored-content`) are fully functional and return data in the expected format.
+ *   - Error and loading states are handled gracefully in the UI.
+ *
+ * NOTES:
+ *   - This component relies heavily on client-side fetching due to its interactive nature and the need to access session state and trigger dynamic content generation.
+ *   - Extensive logging is in place to track the flow of data and potential issues during content generation.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Input Validation**: Implement client-side validation for the presence of `profile` and `opportunityData` before attempting content generation to provide immediate user feedback.
+ *   - **Content Editing**: Add an rich text editor (e.g., TipTap) for the `generatedContent` field to allow Tomide to directly edit and refine the AI-generated output.
+ *   - **Version History**: Implement a mechanism to save and retrieve different versions of generated content, allowing comparison and iteration.
+ *   - **Contextual Prompts**: Allow dynamic adjustment of prompts sent to `generate-tailored-content` based on user preferences or specific tailoring goals (e.g., "make it more concise," "focus on leadership").
+ *   - **Streamlined Feedback**: Integrate `react-hot-toast` for more immediate and visually appealing user feedback on loading, success, and error states, consistent with other parts of the application.
+ *   - **API Client Integration**: Utilize `apiClient` and `handleApiError` for more consistent and centralized API calls and error handling, reducing boilerplate in `useEffect` and `handleGenerateContent`.
+ *   - **Progress Visualization**: For long-running LLM calls, consider adding a progress bar or more detailed status messages to enhance the user experience.
+ *   - **Memory Interaction**: Allow Tomide to manually select which specific `opportunityMemories` to include in the content generation context for finer control.
+ *   - **Cache Generated Content**: Implement caching of generated content (e.g., in local storage or a dedicated state management solution) to prevent re-generation on reloads or re-visits.
+ */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -171,7 +213,7 @@ export default function TailorContentPage() {
             <ul className="list-disc list-inside text-gray-400">
               {cvComponents.map((component) => (
                 <li key={component.id} className="mb-1">
-                  <strong>{component.name}:</strong> {component.content}
+                  <strong>{component.name}:</strong> {JSON.stringify(component.content)}
                 </li>
               ))}
             </ul>

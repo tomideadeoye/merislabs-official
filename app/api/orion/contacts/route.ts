@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { Contact } from '@/lib/types';
 import { fetchContactsFromNeon, saveContactToNeon } from '@/lib/contact_service';
-import consolidatedLogger from '@/lib/logger';
+import logger from '@/lib/logger';
 
 /**
  * GOAL: Provide a public API endpoint to fetch and save contact data from the Neon/PostgreSQL database.
@@ -24,13 +24,13 @@ interface ContactsApiResponse {
 }
 
 export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
-  consolidatedLogger.info('[API][GET][contacts][START]', {
+  logger.info('[API][GET][contacts][START]', {
     operation: 'fetchContacts',
     message: 'Attempting to fetch contacts via API.',
   });
   const session = await auth();
   if (!session || !session.user) {
-    consolidatedLogger.warn('[API][GET][contacts][UNAUTHORIZED]', {
+    logger.warn('[API][GET][contacts][UNAUTHORIZED]', {
       operation: 'fetchContacts',
       message: 'Unauthorized access attempt.',
     });
@@ -39,7 +39,7 @@ export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
 
   try {
     const contacts = await fetchContactsFromNeon();
-    consolidatedLogger.info('[API][GET][contacts][SUCCESS]', {
+    logger.info('[API][GET][contacts][SUCCESS]', {
       operation: 'fetchContacts',
       message: `Successfully fetched ${contacts.length} contacts.`,
       count: contacts.length,
@@ -48,7 +48,7 @@ export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
     return NextResponse.json({ success: true, contacts: contacts });
   } catch (error: unknown) {
     const errorMessage = (error instanceof Error ? error.message : String(error)) || 'Failed to fetch contacts';
-    consolidatedLogger.error('[API][GET][contacts][ERROR]', {
+    logger.error('[API][GET][contacts][ERROR]', {
       operation: 'fetchContacts',
       message: `Error fetching contacts: ${errorMessage}`,
       error: errorMessage,
@@ -60,13 +60,13 @@ export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<ContactsApiResponse>> {
-  consolidatedLogger.info('[API][POST][contacts][START]', {
+  logger.info('[API][POST][contacts][START]', {
     operation: 'saveContact',
     message: 'Attempting to save a new contact via API.',
   });
   const session = await auth();
   if (!session || !session.user) {
-    consolidatedLogger.warn('[API][POST][contacts][UNAUTHORIZED]', {
+    logger.warn('[API][POST][contacts][UNAUTHORIZED]', {
       operation: 'saveContact',
       message: 'Unauthorized access attempt.',
     });
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
     const { name, email, linkedinUrl, role, company } = body;
 
     if (!name) {
-      consolidatedLogger.warn('[API][POST][contacts][VALIDATION_ERROR]', {
+      logger.warn('[API][POST][contacts][VALIDATION_ERROR]', {
         operation: 'saveContact',
         message: 'Contact name is required.',
         userId: session.user.id,
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
 
     const savedContact = await saveContactToNeon(newContactData);
 
-    consolidatedLogger.info('[API][POST][contacts][SUCCESS]', {
+    logger.info('[API][POST][contacts][SUCCESS]', {
       operation: 'saveContact',
       message: `Successfully saved contact ${savedContact.name}.`,
       contactId: savedContact.id,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
     return NextResponse.json({ success: true, contact: savedContact }, { status: 201 });
   } catch (error: unknown) {
     const errorMessage = (error instanceof Error ? error.message : String(error)) || 'Failed to save contact';
-    consolidatedLogger.error('[API][POST][contacts][ERROR]', {
+    logger.error('[API][POST][contacts][ERROR]', {
       operation: 'saveContact',
       message: `Error saving contact: ${errorMessage}`,
       error: errorMessage,

@@ -23,7 +23,6 @@ export default function WallPaper() {
   );
 
   const [quoteIndex, setQuoteIndex] = useState(0);
-  const [backgroundImage, setBackgroundImage] = useState('');
   const [quote, setQuote] = useLocalStorage('quote', quotes[quoteIndex].text);
 
   useEffect(() => {

@@ -1,24 +1,29 @@
-import axios, { AxiosError, AxiosRequestConfig } from 'axios';
-
-// Pure client-side logger stub
-const logger = {
-  debug: (...args: any[]) => console.debug('[DEBUG]', ...args),
-  info: (...args: any[]) => console.info('[INFO]', ...args),
-  warn: (...args: any[]) => console.warn('[WARN]', ...args),
-  error: (...args: any[]) => console.error('[ERROR]', ...args),
-  success: (...args: any[]) => console.log('[SUCCESS]', ...args),
-};
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import logger from '@/lib/logger';
 
 // Custom error types
 export class APIError extends Error {
-  constructor(
-    public status: number,
-    public message: string,
-    public data?: any,
-    public isRetryable: boolean = false
-  ) {
-    super(message);
+  public status: number;
+  public data: unknown;
+  public isRetryable: boolean;
+  public url?: string;
+  public method?: string;
+
+  constructor(message?: string, status?: number, data?: unknown) {
+    const finalStatus = status || 500; // Default to 500 if status is not provided
+    const defaultMessage = finalStatus ? `Server responded with status ${finalStatus}` : 'API request failed';
+    super(message || defaultMessage);
+
     this.name = 'APIError';
+    this.status = finalStatus;
+    this.data = data === undefined ? null : data;
+    // Determine retryability based on status code
+    this.isRetryable =
+      this.status === 429 || // Too Many Requests
+      this.status === 503 || // Service Unavailable
+      this.status === 504 || // Gateway Timeout
+      (typeof this.status === 'number' && this.status >= 500);
+    Object.setPrototypeOf(this, APIError.prototype);
   }
 }
 
@@ -43,7 +48,7 @@ const isRetryableError = (error: AxiosError): boolean => {
     status === 429 || // Too Many Requests
     status === 503 || // Service Unavailable
     status === 504 || // Gateway Timeout
-    (typeof status === "number" && status >= 500) // Any 5xx error
+    (typeof status === 'number' && status >= 500) // Any 5xx error
   );
 };
 
@@ -92,12 +97,22 @@ apiClient.interceptors.response.use(
       // Server responded with error status
       const status = error.response.status;
       const data = error.response.data;
+      const url = error.config?.url;
+      const method = error.config?.method;
+
+      // Attempt to stringify data, otherwise use it as is or provide a placeholder
+      let responseDataStringified: string | unknown = data;
+      try {
+        responseDataStringified = typeof data === 'object' && data !== null ? JSON.stringify(data, null, 2) : data;
+      } catch (e) {
+        responseDataStringified = '[Unserializable Response Data]';
+      }
 
       logger.error('API Error Response', {
         status,
-        data,
-        url: error.config?.url,
-        method: error.config?.method,
+        data: responseDataStringified,
+        url,
+        method,
         isRetryable,
       });
 
@@ -115,7 +130,10 @@ apiClient.interceptors.response.use(
 
       const message = errorMessages[status] || 'An error occurred while processing your request.';
 
-      return Promise.reject(new APIError(status, message, data, isRetryable));
+      const apiError = new APIError(message, status, data);
+      apiError.url = url;
+      apiError.method = method;
+      return Promise.reject(apiError);
     } else if (error.request) {
       // Request was made but no response received
       logger.error('API No Response', {
@@ -138,7 +156,7 @@ apiClient.interceptors.response.use(
 );
 
 // Retry logic for retryable errors
-const retryRequest = async (config: AxiosRequestConfig, retries = 3, delay = 1000): Promise<any> => {
+const retryRequest = async <T>(config: AxiosRequestConfig, retries = 3, delay = 1000): Promise<AxiosResponse<T>> => {
   try {
     return await apiClient(config);
   } catch (error) {
@@ -152,7 +170,7 @@ const retryRequest = async (config: AxiosRequestConfig, retries = 3, delay = 100
       retriesLeft: retries,
     });
 
-    await new Promise(resolve => setTimeout(resolve, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
     return retryRequest(config, retries - 1, delay * 2);
   }
 };
@@ -160,8 +178,8 @@ const retryRequest = async (config: AxiosRequestConfig, retries = 3, delay = 100
 // Enhanced request method with retry logic
 const request = async <T>(config: AxiosRequestConfig): Promise<T> => {
   try {
-    const response = await retryRequest(config);
-    return response.data;
+    const response = await retryRequest<T>(config);
+    return response.data as T;
   } catch (error) {
     if (error instanceof APIError) {
       throw error;

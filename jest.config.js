@@ -11,7 +11,7 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
-    '^canvas$': '<rootDir>/tests/mocks/canvas.js'
+    '^canvas$': '<rootDir>/tests/mocks/canvas.js',
   },
   testMatch: ['**/tests/**/*.test.[jt]s?(x)'],
   collectCoverage: true,

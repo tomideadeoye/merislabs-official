@@ -1,8 +1,8 @@
 /**
- * This file serves as a central export point for shared utilities and types within the Next.js application.
+ * This file serves as a central export point for lib utilities and types within the Next.js application.
  * It is designed to ensure consistent imports and prevent pathing issues.
  *
- * For internal imports within this shared directory, prefer relative paths.
+ * For internal imports within this lib directory, prefer relative paths.
  * E.g., `import { someFunction } from './lib/someFile';`
  *
  * This file explicitly re-exports what is intended for consumption by other parts of the Next.js app.
@@ -36,7 +36,7 @@ export {
   type QdrantFilter,
   type OpportunityUpdatePayload,
   type OpportunityCreatePayload,
-  type OpportunityNotionOutputShared,
+  type OpportunityNotionOutputlib,
   type CVComponent,
   type OpportunityNotionInput,
   type NotionPageProperties,
@@ -160,15 +160,16 @@ export {
 } from '@/lib/habitica_client';
 export { apiClient } from '@/lib/apiClient';
 
-// Hooks
-export { useSessionState } from '@/hooks/useSessionState';
-export { useUserProfile } from '@/hooks/useUserProfile';
-export { useOpportunities } from '@/hooks/useOpportunities';
-export { useCVTailoring } from '@/hooks/useCVTailoring';
-export { useOpportunityMemory } from '@/hooks/useOpportunityMemory';
-export { useMemory } from '@/hooks/useMemory';
-export { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
-export { useLocalStorage } from '@/hooks/useLocalStorage';
+// Hooks - Removed explicit re-exports of client-side hooks from here to prevent server-side import issues.
+// These hooks should be imported directly where they are used in client components.
+// export { useSessionState } from '@/hooks/useSessionState';
+// export { useUserProfile } from '@/hooks/useUserProfile';
+// export { useOpportunities } from '@/hooks/useOpportunities';
+// export { useCVTailoring } from '@/hooks/useCVTailoring';
+// export { useOpportunityMemory } from '@/hooks/useOpportunityMemory';
+// export { useMemory } from '@/hooks/useMemory';
+// export { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
+// export { useLocalStorage } from '@/hooks/useLocalStorage';
 export { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 export { useOpportunityCentralStore } from './lib/opportunityCentralStore';
 
@@ -176,4 +177,4 @@ export { useOpportunityCentralStore } from './lib/opportunityCentralStore';
 // export { PageNames, SessionStateKeys } from './lib/app_constants'; // Removed due to 'export * from' above
 
 // Emotions
-// Removed emotionalLogStore export as it appears to be an application-specific store not intended for the shared package.
+// Removed emotionalLogStore export as it appears to be an application-specific store not intended for the lib package.

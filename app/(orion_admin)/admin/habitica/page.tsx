@@ -8,7 +8,7 @@
 //   apps/nextjs/app/(orion_admin)/admin/habitica/page.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Uses:
-//       - useSessionState (from @repo/shared/hooks/useSessionState)
+//       - useSessionState (from @repo/lib/hooks/useSessionState)
 //       - HabiticaCredentialsForm, HabiticaStatsContainer, HabiticaTaskList, HabiticaTaskForm (from components/orion/)
 //       - UI components from '@/components/ui
 //   - Related to: User authentication/session state, Habitica API integration, admin dashboard features, journal task extraction.
@@ -60,7 +60,7 @@ export default function HabiticaPage() {
         description="Connect Orion to your Habitica account to manage tasks and bridge insights with action."
       />
 
-      <HabiticaCredentialsForm onCredentialsSet={handleCredentialsUpdated} />
+      <HabiticaCredentialsForm _onCredentialsSet={handleCredentialsUpdated} />
 
       {credentialsAreSet ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -73,7 +73,7 @@ export default function HabiticaPage() {
                 <CardDescription className="text-gray-400">Add a new task to your Habitica account</CardDescription>
               </CardHeader>
               <CardContent>
-                <HabiticaTaskForm key={`form-${refreshKey}`} onTaskCreated={handleTaskCreated} />
+                <HabiticaTaskForm key={`form-${refreshKey}`} _onTaskCreated={handleTaskCreated} />
               </CardContent>
             </Card>
           </div>

@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Score task using the shared client
+    // Score task using the lib client
     // Note: This uses the client configured with environment variables, not the provided userId/apiToken
     const result = await scoreTask(taskId, direction);
 

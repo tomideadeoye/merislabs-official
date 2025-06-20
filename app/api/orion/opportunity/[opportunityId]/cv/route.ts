@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/database';
+import { sql } from '@/lib/database';
 
 export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   try {
@@ -17,10 +17,7 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
     }
 
     // Store the CV in your database
-    await query('UPDATE OrionOpportunity SET "tailoredCV" = $1, "updatedAt" = NOW() WHERE id = $2', [
-      cv,
-      opportunityId,
-    ]);
+    await sql('UPDATE OrionOpportunity SET "tailoredCV" = $1, "updatedAt" = NOW() WHERE id = $2', [cv, opportunityId]);
 
     return NextResponse.json({
       success: true,
@@ -45,8 +42,8 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
     const opportunityId = params.opportunityId;
 
     // Fetch the CV from your database
-    const result = await query('SELECT "tailoredCV" FROM OrionOpportunity WHERE id = $1', [opportunityId]);
-    const tailoredCV = result.rows[0]?.tailoredCV;
+    const result = await sql('SELECT "tailoredCV" FROM OrionOpportunity WHERE id = $1', [opportunityId]);
+    const tailoredCV = result[0]?.[0];
 
     if (!tailoredCV) {
       return NextResponse.json({ success: false, error: 'No CV found for this OrionOpportunity' }, { status: 404 });

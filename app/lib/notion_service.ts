@@ -1,9 +1,57 @@
+/**
+ * @fileoverview Provides a service layer for interacting with the Notion API for various Orion data types.
+ * @description This file encapsulates all direct Notion API calls for managing opportunities, CV components, journal entries, and contacts. It handles authentication, data mapping from Notion's complex property structures to Orion's internal types, and robust error handling. It aims to centralize Notion interactions, providing a clean interface for other parts of the application.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To abstract Notion API complexities, offering simplified functions for common data operations.
+ *   - To manage Notion API client initialization and authentication using `NOTION_API_KEY`.
+ *   - To map Notion property values to appropriate TypeScript types for various entities (Opportunities, CV Components, Journal Entries, Contacts).
+ *   - To provide CRUD-like functionalities for Notion data: creating, listing, retrieving details, and updating status/properties.
+ *   - To handle Notion-specific data structures like rich text, multi-selects, and dates, converting them into usable formats.
+ *   - To provide comprehensive logging for all Notion interactions, aiding in debugging and traceability.
+ *
+ * FILEPATH: `app/lib/notion_service.ts`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `@notionhq/client`: The official Notion API client library used for all interactions.
+ *   - `@/lib/types`: Defines `OpportunityStatus`, `OpportunityType`, `OpportunityPriority`, `OrionOpportunity`, `CVComponent`, `JournalEntryNotionInput`, and `Contact` interfaces/enums, ensuring strict type consistency.
+ *   - `@/lib/logger`: Used for all logging within this service, adhering to Orion's centralized logging standards.
+ *   - Environment Variables (`.env`): Relies on `NOTION_API_KEY`, `NOTION_DATABASE_ID` (for main data), and `NOTION_CV_DATABASE_ID` for configuration.
+ *   - `app/api/orion/opportunities/list/route.ts`: Consumes `listOpportunitiesFromNotion` for fetching data.
+ *   - `app/api/orion/opportunity/create/route.ts`: Uses `createOpportunityInNotion` for new entries.
+ *   - `app/api/orion/cv-components/route.ts`: Uses `getCVComponentsFromNotion` to fetch CV data.
+ *   - `app/api/orion/journal/list/route.ts` & `app/api/orion/journal/save/route.ts`: Interact with `getJournalEntriesFromNotion` and `createJournalEntryInNotion`.
+ *   - `app/api/orion/contacts/route.ts`: Previously used `fetchContactsFromNotion` (now largely migrated to Neon).
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes Notion API keys and database IDs are correctly set in environment variables. If not, Notion integration functions will be disabled.
+ *   - Assumes Notion database properties (e.g., 'Aa Title', 'Status', 'Type', 'Content') match the expected names and types for correct data mapping.
+ *   - Error handling is robust, logging details and re-throwing errors for upstream handling.
+ *   - The service currently supports reading Notion page content block by block, but not writing/updating content blocks (only page properties).
+ *
+ * NOTES:
+ *   - This service is undergoing a gradual migration from Notion to the Neon PostgreSQL database for core data like opportunities and contacts. Notion remains a source for some data (e.g., CV Components, Journals) until fully migrated.
+ *   - Property mapping functions (`getPropertyValue`) are crucial for handling Notion's diverse property types safely.
+ *   - `updateNotionDatabaseSchema` is currently a placeholder as direct schema modification via the Notion API is complex and not fully supported by the client library in a simple manner.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Centralize Notion Client**: The Notion client is initialized globally. For a larger application, consider a dedicated utility function to initialize and return the client, potentially with retry logic or more robust error handling for connection failures.
+ *   - **Refine Property Mapping**: Create a more generic and configurable property mapping utility or schema for Notion properties to reduce boilerplate in `listOpportunitiesFromNotion` and `getOpportunityDetails`.
+ *   - **Pagination**: Implement robust pagination for `listOpportunitiesFromNotion`, `getJournalEntriesFromNotion`, and `getCVComponentsFromNotion` to handle large datasets efficiently.
+ *   - **Batch Operations**: Add support for batch creation/updates to reduce API calls when dealing with multiple items.
+ *   - **Content Block Writing**: Extend functionality to allow creating/updating Notion page content (blocks), not just properties.
+ *   - **Error Handling Details**: While errors are caught and logged, consider integrating with `errorHandler.ts` for consistent error response formatting across all API calls, similar to other services.
+ *   - **Zod Validation**: Implement Zod schemas for Notion input/output to provide even stricter runtime validation and parsing.
+ *   - **Caching**: Implement a caching layer for frequently accessed Notion data to reduce API calls and improve performance, especially for lists.
+ *   - **Consolidation with Neon Services**: As more data moves to Neon, this service should gracefully deprecate or streamline its Notion-specific functions to avoid redundancy.
+ */
+
 import {
   OpportunityStatus,
   OpportunityType,
   OpportunityPriority,
   OrionOpportunity,
-  OpportunityNotionOutputShared,
+  OpportunityNotionOutputlib,
   CVComponent,
   JournalEntryNotionInput,
   Contact,
@@ -379,7 +427,7 @@ export async function listOpportunitiesFromNotion(
       (item): item is PageObjectResponse => 'properties' in item && 'id' in item && item.object === 'page'
     );
 
-    const opportunities: OpportunityNotionOutputShared[] = pageResults.map((page) => {
+    const opportunities: OpportunityNotionOutputlib[] = pageResults.map((page) => {
       const properties = page.properties;
 
       const title = getPropertyValue(properties, 'Aa Title', 'title') as string;
@@ -438,7 +486,6 @@ export async function listOpportunitiesFromNotion(
               suggestedCvComponents: [],
               suggestedNextSteps: [],
               alignmentHighlights: [],
-              gapAnalysis: [],
               fitScorePercentage: 0,
             }
           : null, // Providing a basic EvaluationOutput if summary exists
@@ -525,7 +572,7 @@ export async function getOpportunityDetails(pageId: string) {
     const createdAt = page.created_time; // Directly from page, not properties
     const updatedAt = page.last_edited_time; // Directly from page, not properties
 
-    const opportunity: OpportunityNotionOutputShared = {
+    const opportunity: OpportunityNotionOutputlib = {
       id: page.id,
       title: title,
       company: company,
@@ -547,7 +594,6 @@ export async function getOpportunityDetails(pageId: string) {
             suggestedCvComponents: [],
             suggestedNextSteps: [],
             alignmentHighlights: [],
-            gapAnalysis: [],
             fitScorePercentage: 0,
           }
         : null, // Providing a basic EvaluationOutput if summary exists
@@ -857,7 +903,7 @@ export async function getCVComponentsFromNotion(): Promise<CVComponent[]> {
 
 export async function fetchOpportunityByIdFromNotion(opportunityId: string): Promise<{
   success: boolean;
-  OrionOpportunity?: OpportunityNotionOutputShared | null;
+  OrionOpportunity?: OpportunityNotionOutputlib | null;
   error?: string;
 }> {
   logger.info('[NOTION][fetchOpportunityByIdFromNotion][START]', {
@@ -919,7 +965,7 @@ export async function fetchOpportunityByIdFromNotion(opportunityId: string): Pro
     const createdAt = response.created_time; // Directly from page, not properties
     const updatedAt = response.last_edited_time; // Directly from page, not properties
 
-    const opportunity: OpportunityNotionOutputShared = {
+    const opportunity: OpportunityNotionOutputlib = {
       id: response.id,
       title: title,
       company: company,
@@ -941,7 +987,6 @@ export async function fetchOpportunityByIdFromNotion(opportunityId: string): Pro
             suggestedCvComponents: [],
             suggestedNextSteps: [],
             alignmentHighlights: [],
-            gapAnalysis: [],
             fitScorePercentage: 0,
           }
         : null, // Providing a basic EvaluationOutput if summary exists

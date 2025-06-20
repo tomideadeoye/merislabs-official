@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
-import { query } from '@/lib/database';
+import { sql } from '@/lib/database';
 import { auth } from '@/auth';
 
 interface ActionReflectionRequestBody {
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       console.log(
         `[ACTION_REFLECTION_API][VERBOSE] Inserting reflection link into Neon/Postgres for habiticaTaskId: ${habiticaTaskId}`
       );
-      await query(
+      await sql(
         `INSERT INTO habitica_task_links (
           id, habiticaTaskId, orionSourceModule, orionSourceReferenceId, orionTaskText, createdAt, reflectionId, reflectionText
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)

@@ -11,10 +11,12 @@ export const EveningRoutine: React.FC = () => {
   return (
     <CardContent className="p-0">
       <p className="text-lg font-semibold mb-4 text-gray-200">Good Evening, Tomide!</p>
-      <p className="text-sm text-gray-400 mb-6">Let's wind down your day with reflection and peace, guided by Orion.</p>
+      <p className="text-sm text-gray-400 mb-6">
+        Let&apos;s wind down your day with reflection and peace, guided by Orion.
+      </p>
       {/* Placeholder for evening routine steps */}
       <ul className="list-disc list-inside space-y-2 text-gray-300">
-        <li>Review day's activities (Coming Soon)</li>
+        <li>Review day&apos;s activities (Coming Soon)</li>
         <li>Capture key insights (Coming Soon)</li>
         <li>Plan for tomorrow (Coming Soon)</li>
       </ul>

@@ -16,11 +16,13 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { query } from '@/lib/database';
+import { PrismaClient, Prisma } from '@/generated/prisma'; // Import Prisma type directly from generated client
 import logger from '@/lib/logger';
-import { Idea } from '@/lib/types';
+// import { Idea } from '@/lib/types'; // Removed as no longer needed
 
 export const dynamic = 'force-dynamic';
+
+const prisma = new PrismaClient(); // Initialize PrismaClient
 
 /**
  * API route for fetching ideas
@@ -36,7 +38,7 @@ export async function GET(req: NextRequest) {
     // Validate query parameters
     const schema = z.object({
       status: z
-        .enum(['raw_spark', 'fleshing_out', 'researching', 'prototyping', 'on_hold', 'archived', 'completed'])
+        .enum(['raw_spark', 'researching', 'developing', 'launched', 'abandoned']) // Aligned with Prisma Enum
         .optional(),
       tag: z.string().optional(),
       page: z.coerce.number().int().min(1).default(1),
@@ -61,47 +63,41 @@ export async function GET(req: NextRequest) {
     const { status, tag, page, limit } = parseResult.data;
     logger.info('Request received', { status, tag, page, limit });
 
-    let pgQuery = 'SELECT * FROM ideas';
-    const queryParams: unknown[] = [];
-    let paramIndex = 1;
+    const whereClause: Prisma.IdeaWhereInput = {}; // Explicitly type whereClause
 
     if (status) {
-      pgQuery += ` WHERE status = $${paramIndex++}`;
-      queryParams.push(status);
+      whereClause.status = status;
     }
 
-    pgQuery += ` ORDER BY "updatedAt" DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
-    queryParams.push(limit);
-    queryParams.push((page - 1) * limit);
+    if (tag) {
+      whereClause.tags = {
+        has: tag, // Prisma way to check if an array contains a value
+      };
+    }
 
-    logger.debug('Constructed SQL query', { pgQuery, queryParams });
+    const ideas = await prisma.idea.findMany({
+      where: whereClause,
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
 
-    const result = await query<Idea>(pgQuery, queryParams);
-    const ideas: Idea[] = result.rows.map((row: Idea) => ({
-      id: row.id,
-      title: row.title,
-      description: row.description, // Use 'description' as per updated Idea interface
-      status: row.status,
-      tags: Array.isArray(row.tags) ? row.tags : row.tags ? JSON.parse(row.tags) : [], // Handle tags as array or JSON string
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      userId: row.userId, // Include userId
-      dueDate: row.dueDate, // Include dueDate
-      priority: row.priority, // Include priority
-    }));
+    // No need for separate filtering by tag as Prisma's `has` operator handles it.
+    // No need for row mapping as Prisma returns typed objects.
 
-    const filteredIdeas = tag
-      ? ideas.filter((idea) => idea.tags?.some((t: string) => t.toLowerCase() === tag.toLowerCase()))
-      : ideas;
-
-    logger.info('Returning ideas', { count: filteredIdeas.length });
+    logger.info('Returning ideas', { count: ideas.length });
 
     return NextResponse.json({
       success: true,
-      ideas: filteredIdeas,
+      ideas: ideas,
     });
   } catch (error: unknown) {
-    logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    logger.error('Request failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'N/A',
+    });
     return NextResponse.json(
       {
         success: false,

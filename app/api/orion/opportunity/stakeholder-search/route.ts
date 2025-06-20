@@ -2,7 +2,6 @@ import { auth } from '@/auth';
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { NextRequest, NextResponse } from 'next/server';
 
-
 interface StakeholderSearchRequestBody {
   company: string;
   roles: string[];
@@ -67,14 +66,14 @@ export async function POST(request: NextRequest) {
       success: true,
       stakeholders: outreachDrafts,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[STAKEHOLDER_SEARCH_API_ERROR]', error);
 
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to search for stakeholders.',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

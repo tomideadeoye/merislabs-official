@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { X } from "lucide-react";
-import { Badge } from "./badge";
-import { Command, CommandGroup, CommandItem } from "./command";
-import { Command as CommandPrimitive } from "cmdk";
+import * as React from 'react';
+import { X } from 'lucide-react';
+import { Badge } from './badge';
+import { Command, CommandGroup, CommandItem } from './command';
+import { Command as CommandPrimitive } from 'cmdk';
 
-import { useMultiSelectStore } from "./multiSelectStore";
+import { useMultiSelectStore } from './multiSelectStore';
 
 interface MultiSelectProps {
   id: string;
@@ -14,16 +14,12 @@ interface MultiSelectProps {
   placeholder?: string;
 }
 
-export function MultiSelect({
-  id,
-  className,
-  placeholder = "Select options..."
-}: MultiSelectProps) {
+export function MultiSelect({ id, className, placeholder = 'Select options...' }: MultiSelectProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState("");
+  const [inputValue, setInputValue] = React.useState('');
 
-  const store = useMultiSelectStore(id);
+  const store = useMultiSelectStore(); // Call the hook without arguments
   const options = store((state) => state.options);
   const selected = store((state) => state.selected);
   const removeSelected = store((state) => state.removeSelected);
@@ -37,12 +33,12 @@ export function MultiSelect({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const input = inputRef.current;
     if (input) {
-      if (e.key === "Delete" || e.key === "Backspace") {
-        if (input.value === "" && selected.length > 0) {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (input.value === '' && selected.length > 0) {
           setSelected(selected.slice(0, -1));
         }
       }
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         input.blur();
       }
     }
@@ -51,24 +47,18 @@ export function MultiSelect({
   const selectables = options.filter((option) => !selected.includes(option.value));
 
   return (
-    <Command
-      onKeyDown={handleKeyDown}
-      className={`overflow-visible bg-transparent ${className}`}
-    >
+    <Command onKeyDown={handleKeyDown} className={`overflow-visible bg-transparent ${className}`}>
       <div className="group border border-input px-3 py-2 text-sm ring-offset-background rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
         <div className="flex gap-1 flex-wrap">
           {selected.map((item) => {
             const option = options.find((o) => o.value === item);
             return (
-              <Badge
-                key={item}
-                className="bg-gray-700 hover:bg-gray-600 text-gray-200"
-              >
+              <Badge key={item} className="bg-gray-700 hover:bg-gray-600 text-gray-200">
                 {option?.label || item}
                 <button
                   className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       handleUnselect(item);
                     }
                   }}
@@ -89,7 +79,7 @@ export function MultiSelect({
             onValueChange={setInputValue}
             onBlur={() => setOpen(false)}
             onFocus={() => setOpen(true)}
-            placeholder={selected.length === 0 ? placeholder : ""}
+            placeholder={selected.length === 0 ? placeholder : ''}
             className="ml-2 bg-transparent outline-none placeholder:text-gray-500 flex-1"
           />
         </div>
@@ -107,7 +97,7 @@ export function MultiSelect({
                       e.stopPropagation();
                     }}
                     onSelect={() => {
-                      setInputValue("");
+                      setInputValue('');
                       addSelected(option.value);
                     }}
                     className="cursor-pointer"

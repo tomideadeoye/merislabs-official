@@ -3,9 +3,39 @@
  * Related: lib/database.ts, reference.md, types/ideas.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/database';
+import { sql } from '@/lib/database';
 import { Idea, IdeaLog } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
+
+type IdeaStatus = 'new' | 'researching' | 'developing' | 'launched' | 'abandoned' | 'raw_spark';
+type IdeaLogType = 'status_change' | 'note' | 'llm_brainstorm' | 'initial_capture';
+
+// Helper function to convert database row to Idea
+const rowToIdea = (row: Record<string, unknown>): Idea => ({
+  id: row.id as string,
+  title: row.title as string,
+  description: row.description as string,
+  status: row.status as IdeaStatus,
+  tags: Array.isArray(row.tags) ? row.tags : JSON.parse((row.tags as string) || '[]'),
+  createdAt: row.createdat as string,
+  updatedAt: row.updatedat as string,
+  userId: row.userid as string,
+  dueDate: row.duedate as string,
+  priority: row.priority as string,
+});
+
+// Helper function to convert database row to IdeaLog
+const rowToIdeaLog = (row: Record<string, unknown>): IdeaLog => ({
+  id: row.id as string,
+  ideaId: row.ideaId as string,
+  timestamp: row.timestamp as string,
+  logType: (row.logType || row.type) as IdeaLogType,
+  details: (row.details || `Log entry of type ${row.type}`) as string,
+  action: (row.action || `Logged ${row.type}`) as string,
+  type: row.type as string,
+  content: row.content as string,
+  author: row.author as string,
+});
 
 /**
  * API route for fetching a specific idea and its logs
@@ -27,8 +57,8 @@ export async function GET(request: NextRequest, { params }: { params: { ideaId: 
 
     // Fetch idea
     const ideaQuery = 'SELECT * FROM ideas WHERE id = $1';
-    const ideaResult = await query(ideaQuery, [ideaId]);
-    const ideaRow = ideaResult.rows[0];
+    const ideaResult = await sql(ideaQuery, [ideaId]);
+    const ideaRow = ideaResult[0] ? rowToIdea(ideaResult[0] as unknown as Record<string, unknown>) : null;
 
     if (!ideaRow) {
       return NextResponse.json(
@@ -41,38 +71,14 @@ export async function GET(request: NextRequest, { params }: { params: { ideaId: 
       );
     }
 
-    // Parse idea data
-    const idea: Idea = {
-      id: ideaRow.id,
-      title: ideaRow.title,
-      description: ideaRow.description,
-      status: ideaRow.status,
-      tags: Array.isArray(ideaRow.tags) ? ideaRow.tags : JSON.parse(ideaRow.tags || '[]'),
-      createdAt: ideaRow.createdat,
-      updatedAt: ideaRow.updatedat,
-      userId: ideaRow.userid,
-      dueDate: ideaRow.duedate,
-      priority: ideaRow.priority,
-    };
-
     // Fetch idea logs
     const logsQuery = 'SELECT * FROM idea_logs WHERE ideaId = $1 ORDER BY timestamp ASC';
-    const logsResult = await query(logsQuery, [ideaId]);
-    const logs: IdeaLog[] = logsResult.rows.map((row: IdeaLog) => ({
-      id: row.id,
-      ideaId: row.ideaId,
-      timestamp: row.timestamp,
-      logType: row.logType || row.type,
-      details: row.details || `Log entry of type ${row.type}`,
-      action: row.action || `Logged ${row.type}`,
-      type: row.type,
-      content: row.content,
-      author: row.author,
-    }));
+    const logsResult = await sql(logsQuery, [ideaId]);
+    const logs: IdeaLog[] = logsResult.map((row) => rowToIdeaLog(row as unknown as Record<string, unknown>));
 
     return NextResponse.json({
       success: true,
-      idea,
+      idea: ideaRow,
       logs,
     });
   } catch (error: unknown) {
@@ -110,8 +116,10 @@ export async function PUT(request: NextRequest, { params }: { params: { ideaId: 
 
     // Check if idea exists
     const checkQuery = 'SELECT id FROM ideas WHERE id = $1';
-    const checkResult = await query(checkQuery, [ideaId]);
-    const existingIdea = checkResult.rows[0];
+    const checkResult = await sql(checkQuery, [ideaId]);
+    const existingIdea = checkResult[0]
+      ? { id: (checkResult[0] as unknown as Record<string, unknown>).id as string }
+      : null;
 
     if (!existingIdea) {
       return NextResponse.json(
@@ -138,7 +146,7 @@ export async function PUT(request: NextRequest, { params }: { params: { ideaId: 
         priority = COALESCE($7, priority)
       WHERE id = $8
     `;
-    await query(updateQuery, [
+    await sql(updateQuery, [
       title,
       description,
       status,
@@ -156,7 +164,7 @@ export async function PUT(request: NextRequest, { params }: { params: { ideaId: 
           id, "ideaId", timestamp, "logType", details, action, type, content, author
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `;
-      await query(statusLogQuery, [
+      await sql(statusLogQuery, [
         uuidv4(),
         ideaId,
         now,
@@ -176,41 +184,17 @@ export async function PUT(request: NextRequest, { params }: { params: { ideaId: 
           id, "ideaId", timestamp, "logType", details, action, type, content, author
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `;
-      await query(noteLogQuery, [
-        uuidv4(),
-        ideaId,
-        now,
-        'note',
-        note.trim(),
-        'Add Note',
-        'note',
-        note.trim(),
-        'Tomide',
-      ]);
+      await sql(noteLogQuery, [uuidv4(), ideaId, now, 'note', note.trim(), 'Add Note', 'note', note.trim(), 'Tomide']);
     }
 
     // Fetch updated idea
     const updatedIdeaQuery = 'SELECT * FROM ideas WHERE id = $1';
-    const updatedIdeaResult = await query(updatedIdeaQuery, [ideaId]);
-    const ideaRow = updatedIdeaResult.rows[0];
-
-    // Parse idea data
-    const updatedIdea: Idea = {
-      id: ideaRow.id,
-      title: ideaRow.title,
-      description: ideaRow.description,
-      status: ideaRow.status,
-      tags: Array.isArray(ideaRow.tags) ? ideaRow.tags : JSON.parse(ideaRow.tags || '[]'),
-      createdAt: ideaRow.createdat,
-      updatedAt: ideaRow.updatedat,
-      userId: ideaRow.userid,
-      dueDate: ideaRow.duedate,
-      priority: ideaRow.priority,
-    };
+    const updatedIdeaResult = await sql(updatedIdeaQuery, [ideaId]);
+    const ideaRow = updatedIdeaResult[0] ? rowToIdea(updatedIdeaResult[0] as unknown as Record<string, unknown>) : null;
 
     return NextResponse.json({
       success: true,
-      idea: updatedIdea,
+      idea: ideaRow,
     });
   } catch (error: unknown) {
     console.error(`Error in PUT /api/orion/ideas/${params.ideaId}:`, error);

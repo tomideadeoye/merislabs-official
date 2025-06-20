@@ -23,10 +23,10 @@ import React from 'react';
 // - May integrate with a generic `TaskForm` component if similar task creation forms exist elsewhere.
 
 interface HabiticaTaskFormProps {
-  onTaskCreated: () => void;
+  _onTaskCreated?: () => void;
 }
 
-export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = ({ onTaskCreated }) => {
+export const HabiticaTaskForm: React.FC<HabiticaTaskFormProps> = () => {
   return (
     <div>
       <h3>Habitica Task Form</h3>

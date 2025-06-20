@@ -117,8 +117,8 @@ export async function callSequentialThinking({
   totalThoughts?: number;
 }) {
   // Use the MCP client if available in the browser
-  if (typeof window !== 'undefined' && (window as any).mcp_sequentialThinking) {
-    return await (window as any).mcp_sequentialThinking({
+  if (typeof window !== 'undefined' && window.mcp_sequentialThinking) {
+    return await window.mcp_sequentialThinking({
       thought,
       nextThoughtNeeded,
       thoughtNumber,

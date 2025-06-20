@@ -37,7 +37,7 @@ export async function GET() {
         operation: 'GET /api/orion/profile',
         timestamp: new Date().toISOString(),
       });
-      return NextResponse.json(profileData);
+      return NextResponse.json({ success: true, profile: profileData });
     }
 
     logger.error('Profile not found', {
@@ -46,6 +46,7 @@ export async function GET() {
     });
     return NextResponse.json(
       {
+        success: false,
         error: 'Profile not found',
         message: 'The user profile could not be found. Please check your Notion configuration or local files.',
       },

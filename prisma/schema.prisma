@@ -1,0 +1,255 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums from app/lib/types/index.ts that will map to PostgreSQL ENUM types
+
+enum OpportunityType {
+  job
+  project
+  collaboration
+  gig
+  other
+  educationProgram
+  projectCollaboration
+  funding
+  negotiating
+  declined
+  applicationReady
+  outreachPlanned
+  outreachSent
+  offerReceived
+}
+
+enum OpportunityStatus {
+  IDENTIFIED
+  RESEARCHING
+  APPLYING
+  INTERVIEWING
+  OFFERED
+  REJECTED
+  ACCEPTED
+  ARCHIVED
+  EVALUATING
+  EVALUATED_POSITIVE @map("evaluatedPositive")
+  EVALUATED_NEGATIVE @map("evaluatedNegative")
+  APPLICATION_DRAFTING @map("applicationDrafting")
+  INTERVIEW_SCHEDULED @map("interviewScheduled")
+  INTERVIEW_COMPLETED @map("interviewCompleted")
+  APPLIED
+  PURSUING
+  NEGOTIATING
+  DECLINED
+  APPLICATION_READY @map("applicationReady")
+  OUTREACH_PLANNED @map("outreachPlanned")
+  OUTREACH_SENT @map("outreachSent")
+  FOLLOW_UP_NEEDED @map("followUpNeeded")
+  FOLLOW_UP_SENT @map("followUpSent")
+  OFFER_RECEIVED @map("offerReceived")
+  APPLYING_NEXT_STEP @map("applyingNextStep")
+  INTERVIEWING_ROUND_1 @map("interviewingRound1")
+  INTERVIEWING_ROUND_2 @map("interviewingRound2")
+  FINAL_INTERVIEW @map("finalInterview")
+  OFFER_RECEIVED_PENDING_REVIEW @map("offerReceivedPendingReview")
+  OFFER_ACCEPTED @map("offerAccepted")
+  OFFER_REJECTED @map("offerRejected")
+  ACTIVE_OUTREACH @map("activeOutreach")
+  FOLLOW_UP
+  ON_HOLD @map("onHold")
+  CONVERTED
+  REJECTED_BY_THEM @map("rejectedByThem")
+  DECLINED_BY_ME @map("declinedByMe")
+}
+
+enum OpportunityPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// Models corresponding to tables in app/database/schema.sql
+
+model Opportunity {
+  id                    String            @id @default(uuid()) @db.Uuid
+  title                 String
+  company               String? // Represents companyOrInstitution
+  type                  OpportunityType?
+  status                OpportunityStatus?
+  content               String?           @map("description") // maps to description column
+  url                   String?
+  tags                  String[]          @map("requirements") // maps to requirements column
+  dateIdentified        DateTime?         @map("date_identified") @db.Timestamptz
+  notes                 String?
+  contactPerson         String?           @map("contact_person")
+  contactEmail          String?           @map("contact_email")
+  stage                 String? // Can be derived from status, but if kept separate
+  attachments           String[]
+  relatedEvaluationId   String?           @map("related_evaluation_id") @db.Uuid
+  sourceUrl             String?           @map("source_url")
+  nextActionDate        DateTime?         @map("next_action_date") @db.Timestamptz
+  priority              OpportunityPriority?
+  tailoredCv            String?           @map("tailored_cv")
+  deadline              DateTime?         @map("deadline") @db.Timestamptz
+  location              String?
+  salary                String?
+  contact               String? // Maps to a contact column
+  position              String? // Make position optional
+  lastStatusUpdate      DateTime?         @map("last_status_update") @db.Timestamptz
+  notionPageId          String?           @map("notion_page_id")
+  applicationMaterialIds String[]          @default([])
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+  evaluationResult      Json?             // For storing AI evaluation JSON
+  tailoredCvId          String?           // ID of a tailored CV, potentially linking to another model later
+  userId                String?           // Add userId to link opportunities to users
+
+  // Relationships
+  stakeholders          Stakeholder[]
+  applicationDrafts     ApplicationDraft[]
+
+  @@map("opportunities") // Maps Prisma model name to SQL table name
+}
+
+model Stakeholder {
+  id            String   @id @default(uuid()) @db.Uuid
+  opportunityId String   @map("opportunity_id") @db.Uuid
+  name          String
+  title         String
+  email         String?
+  linkedinUrl   String?  @map("linkedin_url")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relationship to Opportunity
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@map("stakeholders")
+}
+
+model ApplicationDraft {
+  id            String   @id @default(uuid()) @db.Uuid
+  opportunityId String   @map("opportunity_id") @db.Uuid
+  type          String // Maps to VARCHAR(50) in SQL, 'email' or 'linkedin'
+  content       String
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relationship to Opportunity
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@map("application_drafts")
+}
+
+model EmotionalLogs {
+  id                          String    @id @default(uuid())
+  timestamp                   String
+  primaryEmotion              String
+  secondaryEmotions           String?   @db.Text
+  intensity                   Int
+  triggers                    String?   @db.Text
+  physicalSensations          String?   @db.Text
+  accompanyingThoughts        String
+  copingMechanismsUsed        String?   @db.Text
+  contextualNote              String?   @db.Text
+  relatedJournalSourceId      String?
+  cognitiveDistortionAnalysis String?   @db.Text
+  emotion                     String
+  context                     String
+
+  @@map("emotional_logs")
+}
+
+model HabiticaTaskLink {
+  id                   String @id @default(uuid())
+  habiticaTaskId       String
+  orionSourceModule    String
+  orionSourceReferenceId String
+  orionTaskText        String
+  createdAt            DateTime @default(now())
+
+  @@map("habitica_task_links")
+}
+
+model Idea {
+  id               String      @id @default(uuid()) @db.Uuid
+  title            String
+  description      String?
+  status           IdeaStatus  @default(raw_spark)
+  tags             String[]    @default([])
+  createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  dueDate          DateTime?   @map("due_date") @db.Timestamptz
+  priority         IdeaPriority?
+  userId           String
+  // Relations
+  logs             IdeaLog[]
+
+  @@map("ideas")
+}
+
+model IdeaLog {
+  id               String     @id @default(uuid()) @db.Uuid
+  ideaId           String     @map("idea_id") @db.Uuid
+  timestamp        DateTime   @default(now())
+  logType          String     @map("log_type") // e.g., initial_capture, brainstorming, status_update
+  details          String
+  action           String
+  type             String // e.g., idea_log
+  content          String?
+  author           String?
+  // Relations
+  idea             Idea       @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@map("idea_logs")
+}
+
+model CVComponent {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  type      String // e.g., "experience", "project", "skill_summary", "education"
+  content   Json     // Store structured content (e.g., bullet points, dates, descriptions)
+  tags      String[] @default([])
+  userId    String   // To associate with a user (assuming a User model exists or will be added)
+  uniqueId  String?  @unique // To store the UniqueID from the JSON file
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("cv_components")
+}
+
+model JournalEntry {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String
+  date      DateTime
+  content   String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("journal_entries")
+}
+
+enum IdeaStatus {
+  raw_spark
+  researching
+  developing
+  launched
+  abandoned
+}
+
+enum IdeaPriority {
+  high
+  medium
+  low
+}

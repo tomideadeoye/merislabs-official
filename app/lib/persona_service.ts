@@ -7,11 +7,7 @@
  * This module provides functions to manage persona maps for strategic outreach.
  */
 
-import { Persona } from "./types";
-
-
-
-
+import { Persona } from './types';
 
 // In-memory storage for personas (in a real app, this would be a database)
 let personas: Persona[] = [];
@@ -19,11 +15,8 @@ let personas: Persona[] = [];
 /**
  * Create a new persona map
  */
-export async function createPersona(
-  personaData: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>,
-): Promise<Persona> {
-  const { name, description, traits, goals, ...otherProps } =
-    personaData as Persona;
+export async function createPersona(personaData: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>): Promise<Persona> {
+  const { name, description, traits, goals, ...otherProps } = personaData as Persona;
 
   const newPersona: Persona = {
     name,
@@ -56,10 +49,7 @@ export async function getPersonaById(id: string): Promise<Persona | null> {
 /**
  * Update a persona map
  */
-export async function updatePersona(
-  id: string,
-  personaData: Partial<Persona>,
-): Promise<Persona | null> {
+export async function updatePersona(id: string, personaData: Partial<Persona>): Promise<Persona | null> {
   const index = personas.findIndex((p) => p.id === id);
   if (index === -1) return null;
   personas[index] = {
@@ -89,6 +79,6 @@ export async function searchPersonas(query: string): Promise<Persona[]> {
       (p.name && p.name.toLowerCase().includes(lowerQuery)) ||
       (p.company && p.company.toLowerCase().includes(lowerQuery)) ||
       (p.role && p.role.toLowerCase().includes(lowerQuery)) ||
-      (p.tags && p.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))),
+      (p.tags && p.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)))
   );
 }

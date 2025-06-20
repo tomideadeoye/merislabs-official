@@ -16,7 +16,6 @@ export interface Persona {
   tags?: string[];
 }
 
-
 export interface PatternAnalysisRequest {
   userId: string;
   patterns: string[];

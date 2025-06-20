@@ -1,7 +1,7 @@
 import { parseWhatsAppChat } from './whatsapp_parser';
 import { generateLLMResponse, REQUEST_TYPES } from './orion_llm';
 import { UserProfileFetchResponse } from './types';
-import consolidatedLogger from './logger';
+import logger from './logger';
 
 /**
  * GOAL: Define the structure for WhatsApp chat analysis data.
@@ -66,7 +66,7 @@ export async function analyzeWhatsAppChat(
     try {
       analysisResult = JSON.parse(llmResponse.content);
     } catch (parseError) {
-      consolidatedLogger.error('Error parsing LLM response as JSON, treating as raw summary.', {
+      logger.error('Error parsing LLM response as JSON, treating as raw summary.', {
         operation: 'analyzeWhatsAppChat:parseLLMResponse',
         error: parseError instanceof Error ? parseError.message : String(parseError),
         llmContent: llmResponse.content,

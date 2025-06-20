@@ -1,5 +1,5 @@
 /**
- * @repo/shared/lib/routes.ts
+ * @repo/lib/lib/routes.ts
  * Goal: Centralized route definitions and navigation items for the Orion application.
  * This file aims to provide a single source of truth for all application routes,
  * making navigation consistent and easy to manage across the simple nextjs project.
@@ -91,11 +91,11 @@ export const ROUTES = {
     href: '/admin/narrative',
     title: 'Narrative Studio',
   },
-  // Add other routes as needed
-  DECKS: {
-    href: '/decks',
-    title: 'Decks',
+  BUSINESS_MANAGEMENT: {
+    href: '/admin/business-management',
+    title: 'Business Management',
   },
+  // Add other routes as needed
 };
 
 // Example navigation items for a common layout or sidebar
@@ -129,10 +129,6 @@ export const navItems: NavItem[] = [
     href: ROUTES.NARRATIVE_CLARITY_STUDIO.href,
   },
   {
-    title: ROUTES.DECKS.title,
-    href: ROUTES.DECKS.href,
-  },
-  {
     title: ROUTES.HABITICA.title,
     href: ROUTES.HABITICA.href,
   },
@@ -143,6 +139,10 @@ export const navItems: NavItem[] = [
   {
     title: ROUTES.SYSTEM_SETTINGS.title,
     href: ROUTES.SYSTEM_SETTINGS.href,
+  },
+  {
+    title: ROUTES.BUSINESS_MANAGEMENT.title,
+    href: ROUTES.BUSINESS_MANAGEMENT.href,
   },
 ];
 

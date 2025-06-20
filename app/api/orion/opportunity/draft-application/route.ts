@@ -1,3 +1,31 @@
+/**
+ * FILEPATH: `app/api/orion/opportunity/draft-application/route.ts`
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - Provides the API endpoint for generating tailored application drafts (cover letters or emails) for a given opportunity.
+ *   - Integrates with an internal LLM service (`/api/orion/llm`) to generate persuasive and relevant content based on opportunity details, applicant profile, and memory snippets.
+ *   - Dynamically adapts the tone and style of the generated drafts based on inferred company culture.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/drafts/page.tsx`: This frontend page likely consumes this API to trigger and display application draft generation.
+ *   - `@/auth`: Used for `getServerSession` to authenticate the user before processing the request.
+ *   - `@/lib/types`: Defines `DraftApplicationRequestBody`, `DraftApplicationResponseBody`, `OrionOpportunity`, `UserProfileData`, `EvaluationOutput`, and `ScoredMemoryPoint` for request/response payloads and data structures.
+ *   - `@/lib/index` (implicitly `DRAFT_APPLICATION_REQUEST_TYPE`): Defines constants for LLM request types.
+ *   - `/api/orion/llm`: The internal LLM API endpoint this route calls to perform the actual text generation.
+ *   - `@/lib/logger.ts`: Although direct `console` calls are used, future integration with this centralized logger is intended for consistent and context-rich logging.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that `process.env.NEXTAUTH_URL` is correctly configured for internal API calls.
+ *   - The `SYSTEM_PROMPT_DRAFT_APPLICATION` is a critical part of the LLM's instruction set, providing the persona and guidelines for generating high-quality drafts.
+ *   - Handles cases where `orionOpportunity.company` or `orionOpportunity.content` might be `null` or `undefined` gracefully.
+ *   - Includes basic parsing logic (`parseDraftsFromLLMResponse`) to extract distinct drafts from the LLM's raw output.
+ *
+ * NOTES:
+ *   - This API is a core component of Orion's automation and opportunity management features, significantly streamlining the application process.
+ *   - The prompt construction is highly dynamic, incorporating various pieces of contextual information to produce personalized outputs.
+ *   - Future improvements could involve more sophisticated LLM parsing, A/B testing of prompt variations, and integrating more advanced feedback loops for draft quality.
+ *   - Consider integrating the lib `logger` utility for all console output for unified logging and enhanced observability.
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authConfig } from '@/auth';
@@ -37,7 +65,7 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
 
   // Determine company tone/culture based on available information
   let companyTone = 'professional';
-  const companyLower = orionOpportunity.company.toLowerCase();
+  const companyLower = orionOpportunity.company?.toLowerCase() || '';
   const contentLower = orionOpportunity.content?.toLowerCase() || '';
 
   if (
@@ -90,7 +118,7 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
   return `
 I need you to craft ${numberOfDrafts} distinct, highly effective application materials (cover letter or application email) for the following OrionOpportunity. Each draft should take a fundamentally different approach while maintaining excellence in persuasion and relevance.
 
-## OrionOpportunity CONTEXT
+## Opportunity CONTEXT
 - Position: ${orionOpportunity.title}
 - Organization: ${orionOpportunity.company} (appears to have a ${companyTone} culture)
 - Key Requirements:
@@ -116,15 +144,15 @@ ${
 ## STRATEGIC INSIGHTS
 ${evaluationSummary?.fitScorePercentage ? `- OrionOpportunity Fit Score: ${evaluationSummary.fitScorePercentage}%` : ''}
 ${
-  evaluationSummary?.alignmentHighlights && evaluationSummary.alignmentHighlights.length > 0
-    ? `- Key Alignment Points to Emphasize:
-  * ${evaluationSummary.alignmentHighlights.join('\n  * ')}`
+  evaluationSummary?.strengths && evaluationSummary.strengths.length > 0
+    ? `- Key Strengths Identified:
+  * ${evaluationSummary.strengths.map((s) => (typeof s === 'string' ? s : `${s.title}: ${s.reasoning}`)).join('\n  * ')}`
     : ''
 }
 ${
-  evaluationSummary?.gapAnalysis && evaluationSummary.gapAnalysis.length > 0
+  evaluationSummary?.gaps && evaluationSummary.gaps.length > 0
     ? `- Potential Gaps to Address:
-  * ${evaluationSummary.gapAnalysis.map((g) => `${g.skill}: ${g.reasoning}`).join('\n  * ')}`
+  * ${evaluationSummary.gaps.map((g) => (typeof g === 'string' ? g : `${g.gap}: ${g.solution}`)).join('\n  * ')}`
     : ''
 }
 ${
@@ -133,7 +161,7 @@ ${
   * ${evaluationSummary.suggestedNextSteps.join('\n  * ')}`
     : ''
 }
-
+## APPLICANT BACKGROUND & MEMORIES
 ## RELEVANT EXPERIENCES
 ${memoryContext}
 
@@ -199,7 +227,7 @@ export async function POST(request: NextRequest) {
     const userPrompt = constructUserPrompt(requestBody);
 
     const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/orion/llm`, {
-      method: 'POST',
+      method: 'POST', // Ensure method is POST
       headers: {
         'Content-Type': 'application/json',
       },
@@ -207,7 +235,7 @@ export async function POST(request: NextRequest) {
         requestType: DRAFT_APPLICATION_REQUEST_TYPE,
         primaryContext: userPrompt,
         system_prompt_override: SYSTEM_PROMPT_DRAFT_APPLICATION,
-        temperature: 0.7,
+        temperature: 0.7, // Use a reasonable temperature
         maxTokens: 1500,
       }),
     });
@@ -221,7 +249,10 @@ export async function POST(request: NextRequest) {
     const drafts = parseDraftsFromLLMResponse(llmResponseData.content);
 
     if (!drafts) {
-      console.warn('[DRAFT_APP_API] LLM output parsing yielded no drafts. Raw output:', llmResponseData.content);
+      console.warn(
+        '[DRAFT_APP_API] LLM output parsing yielded no distinct drafts. Raw output:',
+        llmResponseData.content
+      );
 
       return NextResponse.json({
         success: true,
@@ -234,7 +265,7 @@ export async function POST(request: NextRequest) {
 
     const responsePayload: DraftApplicationResponseBody = {
       success: true,
-      drafts: [drafts],
+      drafts: [drafts], // Assuming drafts is a single string containing all parsed drafts
       modelUsed: llmResponseData.model,
       message: 'Application drafts generated successfully.',
     };

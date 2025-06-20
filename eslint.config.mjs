@@ -16,6 +16,8 @@ export default [
       'dist/',
       '**/*.js', // Ignoring JS files for now to focus on TS
       '**/*.cjs',
+      'generated/', // Ignore the generated Prisma client directory
+      '**/*.d.ts', // Ignore all TypeScript declaration files
     ],
   },
   pluginJs.configs.recommended,
@@ -40,6 +42,7 @@ export default [
     },
     rules: {
       ...pluginReact.configs.recommended.rules,
+      'react/prop-types': 'off',
       ...pluginReactHooks.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs['core-web-vitals'].rules,

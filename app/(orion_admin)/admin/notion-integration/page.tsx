@@ -70,16 +70,9 @@ export default function NotionIntegrationPage() {
             Python Notion API Server is Offline
           </h3>
           <p className="mt-2">
-            The Python Notion API server is not running. Please start it by running the following command in your
-            terminal:
+            The Python Notion API server is not running or accessible. Please ensure your external Python API service is
+            running and reachable at its configured URL (e.g., `http://localhost:8000`).
           </p>
-          <pre className="bg-gray-900 p-3 rounded mt-2 text-sm overflow-x-auto">
-            cd /Users/mac/Documents/GitHub/merislabs-official/orion_python_backend
-            <br />
-            source notion_api_venv/bin/activate
-            <br />
-            python notion_api_server.py
-          </pre>
         </div>
       )}
 

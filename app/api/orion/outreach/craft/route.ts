@@ -1,4 +1,4 @@
-import { generateLLMResponse } from '@/lib/llm_providers';
+import { generateLLMResponse } from '@/lib/orion_llm';
 import { searchMemory } from '@/lib/orion_memory';
 import { getPersonaById } from '@/lib/persona_service';
 import { fetchUserProfile } from '@/lib/profile_service';
@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Note if any: components to merge with, similar or redundant component
 /**
  * Define OutreachRequest and OutreachResponse interfaces directly in this file
- * as they are not exported from @repo/shared/types/strategic-outreach.
+ * as they are not exported from @repo/lib/types/strategic-outreach.
  */
 interface OutreachRequest {
   personaId: string;
@@ -159,12 +159,9 @@ Write the complete ${communicationType} content, ready to send.
     // Generate outreach content using LLM
     try {
       const llmResponse: CombinedLLMResponse = await generateLLMResponse('OUTREACH_CRAFT', prompt, {
-        profileContext: profileData,
-        systemContext: '',
-        memoryResults: relevantMemories.map((m: ScoredMemoryPoint) => ({
-          id: m.id,
-          text: m.payload.text,
-        })),
+        profileContext: profileData, // Pass profileData directly
+        systemContext: '', // Pass systemContext directly
+        memoryResults: relevantMemories, // Pass the full ScoredMemoryPoint[] array
         temperature: 0.7,
         maxTokens: 1500,
       });

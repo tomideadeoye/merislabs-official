@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import logger from '@/lib/logger';
 
-
 // GOAL OF FILE: Display the current status of daily routines within the Orion admin dashboard.
 // RELATION TO OTHER FILES: This component is used in `app/(orion_admin)/admin/routines/page.tsx`.
 // It receives `className` for styling.

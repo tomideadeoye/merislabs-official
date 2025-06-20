@@ -2,24 +2,13 @@
  * @fileoverview Service for fetching user profile data.
  * @description This service fetches Tomide's unstructured profile text from a primary Notion page,
  * with a fallback to local text files. It handles caching to minimize API calls and includes comprehensive logging.
+ *profile sources - cv components from neon postgres, notion profile.
+ *
  */
 
 import fetch from 'node-fetch';
 import logger from '@/lib/logger';
 import { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
-import { Agent as HttpAgent } from 'http';
-import { Agent as HttpsAgent } from 'https';
-
-let fsPromises: typeof import('fs/promises');
-let path: typeof import('path');
-
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
-
-if (isNode) {
-  // Dynamically import Node.js built-in modules
-  import('fs/promises').then((mod) => (fsPromises = mod));
-  import('path').then((mod) => (path = mod));
-}
 
 /**
  * Defines the structure for the fetched user profile data.
@@ -93,6 +82,9 @@ let profileCache: {
 } | null = null;
 const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
+// Import the server-side utility for local file fetching
+import { fetchLocalProfileData } from './server_profile_utils';
+
 /**
  * Fetches user profile data from a primary source (Notion page with unstructured text)
  * and falls back to local files if the primary source fails.
@@ -126,11 +118,6 @@ export async function fetchUserProfile(): Promise<UserProfileFetchResponse> {
   const notionUrl = process.env.USER_PROFILE_NOTION_URL;
   const notionApiKey = process.env.NOTION_API_KEY;
 
-  // Configure custom agents to prevent Node.js DEP0016 warning with older Node versions
-  // This helps ensure compatibility and stability in deployment environments.
-  const httpAgent = new HttpAgent({ keepAlive: true });
-  const httpsAgent = new HttpsAgent({ keepAlive: true });
-
   // 2. Primary Source: Attempt to fetch from Notion
   if (notionUrl && notionApiKey) {
     try {
@@ -145,7 +132,6 @@ export async function fetchUserProfile(): Promise<UserProfileFetchResponse> {
           Authorization: `Bearer ${notionApiKey}`,
           'Notion-Version': '2022-06-28',
         },
-        agent: (url: URL) => (url.protocol === 'http:' ? httpAgent : httpsAgent), // Use custom agents
       });
 
       if (!notionRes.ok) {
@@ -190,59 +176,14 @@ export async function fetchUserProfile(): Promise<UserProfileFetchResponse> {
     logger.warn('Notion URL or API Key not set. Attempting local file fallback.', logContext);
   }
 
-  // 3. Fallback Source: Attempt to fetch from local files
-  try {
-    logger.info('Fallback Source: Attempting local file read for user profile...', logContext);
+  // 3. Fallback Source: Attempt to fetch from local files using server-only utility
+  logger.info('Falling back to server-side local file profile fetch.', logContext);
+  const localProfileResponse = await fetchLocalProfileData(logContext);
 
-    // Using process.cwd() should resolve from the root of the running application
-    // Ensure fsPromises and path are initialized before use
-    if (!fsPromises || !path) {
-      throw new Error('Node.js file system modules are not available.');
-    }
-
-    const profileTextPath = path.join(process.cwd(), 'backend', 'orion_python_backend', 'Tomide_Adeoye_Profile.txt');
-    const personalityTextPath = path.join(
-      process.cwd(),
-      'backend',
-      'orion_python_backend',
-      'Tomide_Adeoye_personality.txt'
-    );
-
-    logger.debug('Attempting to read profile files from paths:', {
-      profilePath: profileTextPath,
-      personalityPath: personalityTextPath,
-    });
-
-    const profileContent = await fsPromises.readFile(profileTextPath, 'utf-8');
-    const personalityContent = await fsPromises.readFile(personalityTextPath, 'utf-8');
-
-    const combinedLocalText = `${profileContent}\n\n---\n\n${personalityContent}`.trim();
-
-    if (combinedLocalText) {
-      const profileData: ProfileServiceRawData = {
-        profileText: combinedLocalText,
-        source: 'local',
-      };
-      profileCache = { data: profileData, timestamp: Date.now() };
-      logger.success('Successfully fetched profile from local files.', logContext);
-      return {
-        success: true,
-        profile: profileData as unknown as UserProfileData,
-        profileText: combinedLocalText,
-        source: 'local',
-      };
-    } else {
-      logger.warn('Local profile files were read but contained no content.', logContext);
-      return { success: false, error: 'No content found in local profile files.', source: 'local' };
-    }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error('Failed to fetch user profile from local files. This is a critical context failure.', {
-      ...logContext,
-      error: errorMessage,
-    });
-    return { success: false, error: `Failed to fetch profile from local files: ${errorMessage}`, source: 'local' };
+  if (localProfileResponse.success && localProfileResponse.profile) {
+    profileCache = { data: localProfileResponse.profile as unknown as ProfileServiceRawData, timestamp: Date.now() };
   }
+  return localProfileResponse;
 }
 
 /**

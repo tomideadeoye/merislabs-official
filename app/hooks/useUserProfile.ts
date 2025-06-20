@@ -3,7 +3,7 @@
 import apiClient from '@/lib/apiClient';
 import { UserProfileData } from '@/lib/types';
 import { useQuery } from '@tanstack/react-query';
-import consolidatedLogger from '@/lib/logger';
+import logger from '@/lib/logger';
 import toast from 'react-hot-toast';
 
 const CACHE_KEY = 'userProfile';
@@ -19,7 +19,7 @@ const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 export function useUserProfile() {
   // Function to fetch profile from API
   const fetchProfileFromApi = async (): Promise<UserProfileData> => {
-    consolidatedLogger.info('Fetching profile from /api/orion/profile', {
+    logger.info('Fetching profile from /api/orion/profile', {
       operation: 'useUserProfile',
       timestamp: new Date().toISOString(),
     });
@@ -27,7 +27,7 @@ export function useUserProfile() {
     if (!response.data) {
       throw new Error('Failed to fetch profile data: Response data is empty.');
     }
-    consolidatedLogger.info('Profile fetched successfully from API', {
+    logger.info('Profile fetched successfully from API', {
       operation: 'useUserProfile',
       timestamp: new Date().toISOString(),
     });
@@ -43,14 +43,14 @@ export function useUserProfile() {
         try {
           const { data, timestamp } = JSON.parse(cachedItem);
           if (Date.now() - timestamp < CACHE_TTL_MS) {
-            consolidatedLogger.info('Loaded profile from localStorage cache', {
+            logger.info('Loaded profile from localStorage cache', {
               operation: 'useUserProfile',
               timestamp: new Date().toISOString(),
             });
             return data; // Return cached data if valid and within TTL
           }
         } catch (parseError) {
-          consolidatedLogger.error('Error parsing cached profile data, fetching fresh.', {
+          logger.error('Error parsing cached profile data, fetching fresh.', {
             operation: 'useUserProfile',
             error: parseError instanceof Error ? parseError.message : String(parseError),
           });
@@ -65,7 +65,7 @@ export function useUserProfile() {
     onSuccess: (data: UserProfileData) => {
       // Store data in local storage and show toast only upon successful fetch and update by TanStack Query
       localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
-      consolidatedLogger.info('Profile cached in localStorage after successful API fetch', {
+      logger.info('Profile cached in localStorage after successful API fetch', {
         operation: 'useUserProfile:onSuccess',
         timestamp: new Date().toISOString(),
       });
@@ -79,7 +79,7 @@ export function useUserProfile() {
     // This function will primarily handle local state updates or trigger API calls for persistence.
     // For a full implementation, you'd likely have a POST/PATCH API endpoint for updating the profile
     // and then use queryClient.invalidateQueries(['userProfile']) or mutate to update the cache.
-    consolidatedLogger.info('Updating profile locally via useUserProfile hook', {
+    logger.info('Updating profile locally via useUserProfile hook', {
       updates,
       operation: 'useUserProfile:updateProfile',
       timestamp: new Date().toISOString(),
@@ -92,7 +92,7 @@ export function useUserProfile() {
       localStorage.setItem(CACHE_KEY, JSON.stringify({ data: newProfile, timestamp: Date.now() }));
       // Manually update the query cache without a refetch, if desired
       // queryClient.setQueryData(['userProfile'], newProfile);
-      consolidatedLogger.info('Profile updated locally and cached.', {
+      logger.info('Profile updated locally and cached.', {
         operation: 'useUserProfile:updateProfile',
         timestamp: new Date().toISOString(),
       });

@@ -81,7 +81,7 @@ export function PersonaList({ personas, isLoading, error }: PersonaListProps) {
       <Card className="bg-gray-800 border-gray-700">
         <CardContent className="py-8 text-center text-gray-400">
           <Users className="h-12 w-12 mx-auto mb-4 opacity-30" />
-          <p>No personas created yet. Use the \"Add New Persona\" button to get started!</p>
+          <p>No personas created yet. Use the &quot;Add New Persona&quot; button to get started!</p>
         </CardContent>
       </Card>
     );

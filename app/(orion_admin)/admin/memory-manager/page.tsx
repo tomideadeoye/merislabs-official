@@ -3,14 +3,13 @@
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS AND FEATURES:
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { PageHeader } from '@/components/ui';
-import { PageNames, SessionStateKeys } from '@/lib/constants';
-import { useSessionState } from '@/hooks/useSessionState';
+import { PageNames } from '@/lib/constants';
 import { DatabaseZap, Search, Loader2, AlertTriangle, Info, PlusCircle } from 'lucide-react';
 import { Input } from '@/components/ui';
 import { Button } from '@/components/ui';
-import type { ScoredMemoryPoint, QdrantFilter, QdrantFilterCondition } from '@/lib/types';
+import type { QdrantFilter, QdrantFilterCondition, ScoredMemoryPoint } from '@/lib/types/memory';
 // import { JournalEntryWithMemory } from '@/components/orion/JournalEntryWithMemory';
 import { DedicatedAddToMemoryFormComponent } from '@/components/ui/orion/DedicatedAddToMemoryFormComponent';
 
@@ -18,10 +17,11 @@ import { ScrollArea } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
+import { useMemoryContext } from '@/components/orion/MemoryProvider';
+import logger from '@/lib/logger';
 
 export default function MemoryManagerFeaturePage() {
-  const { selectSessionValue } = useSessionState();
-  const memoryInitialized = selectSessionValue<boolean>(SessionStateKeys.MEMORY_INITIALIZED);
+  const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
@@ -33,6 +33,14 @@ export default function MemoryManagerFeaturePage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    logger.debug('[MemoryManagerFeaturePage] Memory context status update', {
+      memoryInitialized,
+      memoryLoading,
+      memoryError,
+    });
+  }, [memoryInitialized, memoryLoading, memoryError]);
 
   const handleSearch = useCallback(
     async (event?: React.FormEvent) => {
@@ -66,31 +74,41 @@ export default function MemoryManagerFeaturePage() {
 
         const filter: QdrantFilter | null = filterConditions.length > 0 ? { must: filterConditions } : null;
 
+        // If we have filters but no search query, use a wildcard query
+        const finalQueryText = searchQuery.trim() || (filterConditions.length > 0 ? 'all' : '');
+
+        if (!finalQueryText) {
+          setError('Search query cannot be empty if no filters are applied.');
+          setIsLoading(false);
+          setHasSearched(true);
+          return;
+        }
+
+        const requestBody = {
+          query: finalQueryText,
+          collectionName: ORION_MEMORY_COLLECTION_NAME,
+          limit: limit,
+          filter: filter,
+        };
+
+        logger.debug('[MemoryManagerFeaturePage] Sending search request', { requestBody });
+
         const response = await fetch('/api/orion/memory/search', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            queryText: searchQuery.trim() || '*',
-            collectionName: ORION_MEMORY_COLLECTION_NAME,
-            limit: limit,
-            filter: filter,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         const data = await response.json();
-
         if (data.success) {
           setSearchResults(data.results || []);
-          if ((data.results || []).length === 0) {
-            setError('No results found for your query and filters.');
-          }
         } else {
           throw new Error(data.error || 'Failed to search memory.');
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error('Error searching memory:', err);
         setError(errorMessage);
       } finally {
@@ -264,19 +282,30 @@ export default function MemoryManagerFeaturePage() {
       {searchResults.length > 0 && (
         <div className="mt-8">
           <h3 className="text-xl font-semibold text-gray-200 mb-4">Search Results ({searchResults.length})</h3>
-          <ScrollArea className="h-[calc(100vh-25rem)] md:h-[calc(100vh-20rem)]">
+          <ScrollArea className="h-[400px]">
             <div className="space-y-4 pr-3">
               {searchResults.map((result) => {
+                if (!result.payload) {
+                  logger.warn('[MEMORY_MANAGER][RENDER] Skipping search result due to missing or invalid payload.', {
+                    result,
+                  });
+                  return null; // Don't render this item if payload is missing
+                }
+
                 const memoryId =
                   result.id ||
-                  (typeof result.payload?.source_id === 'string'
+                  (typeof result.payload.source_id === 'string'
                     ? result.payload.source_id
-                    : String(result.payload?.source_id ?? ''));
-                if (!memoryId) return null; // Don't render if no valid ID
+                    : String(result.payload.source_id ?? ''));
+
+                if (!memoryId) {
+                  logger.warn('[MEMORY_MANAGER][RENDER] Skipping search result due to missing ID.', { result });
+                  return null; // Don't render if no valid ID
+                }
                 return (
                   <div key={memoryId} className="relative group border border-gray-700 rounded-lg bg-gray-900/80 p-4">
                     <h3 className="text-lg font-semibold text-gray-100">{result.payload.title || 'No Title'}</h3>
-                    <p className="text-sm text-gray-300 mt-1">{String(result.payload.content) || 'No Content'}</p>
+                    <p className="text-sm text-gray-300 mt-1">{String(result.content) || 'No Content'}</p>
                     <p className="text-xs text-gray-400 mt-2">Type: {result.payload.type || 'N/A'}</p>
                     {result.payload.tags && result.payload.tags.length > 0 && (
                       <p className="text-xs text-gray-400 mt-1">Tags: {result.payload.tags.join(', ')}</p>

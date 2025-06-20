@@ -4,7 +4,9 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { query } from '@/lib/database';
+import { PrismaClient } from '@/generated/prisma';
+
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   const session = await auth();
@@ -15,12 +17,13 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
   try {
     const { opportunityId } = params;
 
-    // Get the OrionOpportunity to find the application material IDs
-    const opportunityQuery = 'SELECT applicationMaterialIds FROM opportunities WHERE id = $1';
-    const opportunityResult = await query(opportunityQuery, [opportunityId]);
-    const OrionOpportunity = opportunityResult.rows[0];
+    // Get the OrionOpportunity to find the application material IDs using Prisma
+    const opportunity = await prisma.opportunity.findUnique({
+      where: { id: opportunityId },
+      select: { applicationMaterialIds: true },
+    });
 
-    if (!OrionOpportunity || !OrionOpportunity.applicationmaterialids) {
+    if (!opportunity || !opportunity.applicationMaterialIds) {
       return NextResponse.json(
         {
           success: false,
@@ -96,7 +99,7 @@ Tomide Adeoye`,
     return NextResponse.json({
       success: true,
       drafts: mockDrafts,
-      draftIds: JSON.parse(OrionOpportunity.applicationmaterialids),
+      draftIds: opportunity.applicationMaterialIds || [],
     });
   } catch (error: unknown) {
     console.error('[OPPORTUNITY_DRAFTS_GET_API_ERROR]', error);

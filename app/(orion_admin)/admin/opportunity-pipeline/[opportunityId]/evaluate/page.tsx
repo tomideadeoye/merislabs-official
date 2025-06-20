@@ -16,7 +16,8 @@ import { PageHeader, Button, Card, CardContent, CardHeader, CardTitle } from '@/
 import { Loader2, ArrowLeft, BarChart2 } from 'lucide-react';
 // Corrected to direct relative import due to persistent alias resolution issues in deep paths
 import Link from 'next/link';
-import { OrionOpportunity, EvaluationOutput } from '@/lib/types';
+import { OrionOpportunity, EvaluationOutput, UserProfileData } from '@/lib/types';
+import { fetchUserProfile } from '@/lib/profile_service';
 
 export default function EvaluateOpportunityPage() {
   const params = useParams();
@@ -25,31 +26,46 @@ export default function EvaluateOpportunityPage() {
   // Renamed variable to avoid conflict with the imported type
   const [opportunityDetails, setOpportunityDetails] = useState<OrionOpportunity | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationOutput | null>(null);
+  const [userProfileData, setUserProfileData] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [evaluating, setEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchOpportunity = async () => {
+    const fetchData = async () => {
       if (!opportunityId) {
         setError('Opportunity ID is missing.');
         setLoading(false);
         return;
       }
+
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await fetch(`/api/orion/notion/opportunity/${opportunityId}`);
-        const data = await response.json();
-        if (data.success && data.opportunity) {
-          setOpportunityDetails(data.opportunity);
+        // Fetch Opportunity Details
+        const opportunityResponse = await fetch(`/api/orion/notion/opportunity/${opportunityId}`);
+        const opportunityData = await opportunityResponse.json();
+
+        if (opportunityData.success && opportunityData.opportunity) {
+          setOpportunityDetails(opportunityData.opportunity);
         } else {
-          setError(data.error || 'Failed to fetch Opportunity details.');
+          setError(opportunityData.error || 'Failed to fetch Opportunity details.');
+        }
+
+        // Fetch User Profile
+        const profileResult = await fetchUserProfile();
+        if (profileResult && profileResult.profile) {
+          setUserProfileData(profileResult.profile);
+        } else {
+          console.warn('[EvaluateOpportunityPage] User profile data could not be loaded from service.', {
+            errorDetails: profileResult?.error || 'Unknown profile fetch error',
+          });
+          // Do not set an error here, as the API route handles fetching if not provided.
         }
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unexpected error occurred while fetching Opportunity.');
+          setError('An unexpected error occurred while fetching data.');
         }
       } finally {
         setLoading(false);
@@ -57,7 +73,7 @@ export default function EvaluateOpportunityPage() {
     };
 
     if (opportunityId) {
-      fetchOpportunity();
+      fetchData();
     }
   }, [opportunityId]);
 
@@ -74,8 +90,8 @@ export default function EvaluateOpportunityPage() {
         },
         body: JSON.stringify({
           opportunityId: opportunityDetails.id, // Assuming the API needs the Opportunity ID
-          // Include any other necessary data like JD, profile, etc.
-          // For now, let's assume the API fetches JD/profile internally
+          userProfile: userProfileData, // Include the fetched user profile data
+          // relevantMemories: [], // Potentially include relevant memories if available from context
         }),
       });
 
@@ -235,9 +251,9 @@ export default function EvaluateOpportunityPage() {
               <h4 className="text-sm font-medium text-gray-400 mb-1">Areas for Improvement</h4>
               {evaluation.gaps && evaluation.gaps.length > 0 ? (
                 <ul className="list-disc list-inside text-gray-300 space-y-1">
-                  {evaluation.gaps.map((item: { skill: string; reasoning: string }) => (
-                    <li key={item.skill}>
-                      {item.skill}: {item.reasoning}
+                  {evaluation.gaps.map((item, index) => (
+                    <li key={typeof item === 'string' ? `gap-${index}` : item.gap}>
+                      {typeof item === 'string' ? item : `${item.gap}: ${item.solution}`}
                     </li>
                   ))}
                 </ul>

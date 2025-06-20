@@ -1,35 +1,119 @@
+/**
+ * @fileoverview This component facilitates the drafting of hyper-personalized WhatsApp replies,
+ *   leveraging Orion's Large Language Model (LLM) and comprehensive user context.
+ * @description It provides an interface for users to input chat transcripts, specify reply goals,
+ *   and receive multiple, strategically ranked draft replies, integrating deeply with Orion's memory
+ *   and user profile for enhanced personalization. Orion's goal is to be a sophisticated communication
+ *   assistant that reflects Tomide's unique persona and objectives, focusing on contextual precision,
+ *   personalization, goal-oriented communication, brevity, clarity, and emotional intelligence.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To enable the generation of hyper-personalized reply drafts for WhatsApp messages, reflecting Tomide's authentic persona and tone (friendly, enthusiastic, approachable, conversational, informal, appropriate emoji usage, thoughtful humor, emotional nuance).
+ *   - To allow users to define explicit reply goals (clarify, set boundary, express gratitude, request support, withdraw, etc.) and choose desired tones (empathetic, assertive, humorous, formal, etc.).
+ *   - To integrate deeply with Orion's LLM, user profile, and Qdrant memory for intelligent, contextually aware reply suggestions.
+ *   - To present multiple distinct draft options (defaulting to 3), each with a ranked recommendation and a one-sentence rationale for its strategy/tone.
+ *   - To provide robust options to save generated drafts and analysis insights back into Orion's memory system, with duplicate prevention.
+ *   - To implement a "Self-Respect Check" for Tomide, ensuring replies honor values and reflect desired post-sending feelings.
+ *   - To offer "Mindfulness Integration" at the end of drafting sessions, providing reflection prompts.
+ *
+ * FILEPATH: `app/components/ui/orion/whatsapp/WhatsAppReplyDrafter.tsx`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/(orion_admin)/admin/draft-communication/DraftCommunicationClientWrapper.tsx`: This component is rendered within the 'WhatsApp Tools' tab of the Draft Communication module and passes `analyzedChatData`.
+ *   - `useUserProfile` (`@/hooks/useUserProfile`): Fetches the user's profile context for personalization, ensuring replies sound authentically Tomide.
+ *   - `/api/orion/communication/draft-whatsapp-reply/route.ts`: The primary backend API endpoint for generating LLM-based replies, incorporating `chatTranscript`, `userProfileContext`, and future goal/tone parameters.
+ *   - `/api/orion/memory/search`: (Future) Used for retrieving relevant memories (past interactions, facts, personal knowledge) to inform reply drafting.
+ *   - `/api/orion/memory/save`: Used for saving generated drafts and analysis insights to memory (Qdrant, Notion, Postgres).
+ *   - `generateLLMResponse` (`lib/orion_llm`): The core LLM call utility (backend) that processes context and generates replies.
+ *   - `DedicatedAddToMemoryFormComponent` (implied integration): For saving drafts to memory.
+ *   - `react-hot-toast`: Used for displaying success/error notifications.
+ *   - `app/components/orion/QuadrantMemoryChunksVisualizer.tsx`: (Future) Potential integration point for visualizing memory chunks relevant to chat analysis and reply generation.
+ *   - `http://localhost:8000/analyze-chat` (External Python API Endpoint): This is the *actual* source of structured chat data, which is processed by the external Python service and then proxied via `/api/orion/whatsapp/analyze`. This data pre-fills the `chatTranscript`.
+ *   - `app/components/orion/whatsapp/WhatsAppChatAnalysis.tsx`: Displays insights from chat analysis, and `analyzedChatData` from here informs this drafter.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - This component is client-side (`'use client'`) due to its use of React hooks and interactive elements.
+ *   - Assumes the backend API endpoints for drafting replies and memory interaction are operational.
+ *   - User profile data is essential for deeper personalization, though optional.
+ *   - The LLM backend is expected to handle the nuanced logic of tone, persona, and strategic goals based on prompt engineering.
+ *   - Brevity, clarity, and emotional intelligence in drafts are heavily dependent on robust LLM prompting and capabilities.
+ *   - Privacy and secure handling of chat data are paramount, with temporary files used for processing.
+ *
+ * NOTES:
+ *   - This component is a cornerstone of Orion's relational and strategic intelligence, translating raw communication into actionable, emotionally intelligent responses.
+ *   - The OODA (Observe, Orient, Decide, Act) Loop framework guides the underlying logic:
+ *     - **Observe:** Chat transcript parsing (`orion_chat_analyzer.py`), initial analysis.
+ *     - **Orient:** (Future) Analyzing observations against user profile, memories, and known communication patterns, detecting triggers.
+ *     - **Decide:** (Future) Presenting strategic options for reply goals (e.g., de-escalate, assert boundary, disengage).
+ *     - **Act:** Drafting multiple replies based on chosen strategies.
+ *   - The ability to specify reply goals, relationship context, and leverage memory will significantly enhance the quality and relevance of drafts.
+ *   - Technical robustness considerations: Preventing infinite loops (managed by `useEffect` dependencies), providing fallbacks (currently error messages, future: basic rule-based replies), and managing LLM context limits.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Dynamic Reply Goals/Tones**: (Implemented) Users can now explicitly define and select reply goals/tones (e.g., dropdowns), and these are passed to the LLM backend for tailored generation.
+ *   - **Sentiment Analysis Integration**: (Implemented) Real-time sentiment analysis of the input chat is now displayed, informing drafting decisions. The `overallSentiment` is passed to the backend LLM prompt.
+ *   - **Slider for Draft Count**: (Implemented) Users can now dynamically choose the number of replies generated by the LLM via a numerical input field with validation (1-5 drafts).
+ *   - **Deep Memory & Pattern Integration**: Implement logic to actively search Qdrant for relevant memories (past interactions, emotional patterns, phrases, triggers) and dynamically include them in the LLM's prompt. Develop "Pattern Observation" to automatically suggest related memories/insights.
+ *   - **Memory Chunk Visualizer Integration**: Integrate the `QuadrantMemoryChunksVisualizer` component to visually represent retrieved memories and their relationships that influenced drafting.
+ *   - **Configurable Reply Parameters**: Allow users to configure various parameters for reply generation, such as desired length, formality, and specific keywords to include/exclude.
+ *   - **Mood-based Reply Generation**: Integrate a "mood" selection or detection feature to influence the emotional tone and empathy of the generated replies.
+ *   - **Rich Draft Presentation**: (Implemented) LLM responses now include ranked recommendations and one-sentence rationales for each draft, and the UI displays them clearly.
+ *   - **Direct Memory Saving of Drafts**: Streamline the process of saving chosen drafts or the entire conversation context back to Orion's memory.
+ *   - **Pre-filled Reply Context**: Allow selection of a specific message from `WhatsAppChatAnalysis` to pre-fill context for a targeted reply.
+ *   - **Actionable Steps/Habitica Integration**: Based on chat analysis, suggest potential next actions or allow direct creation of tasks in Habitica.
+ *   - **Enhanced Error Handling**: Implement more robust fallbacks (e.g., simple rule-based replies if LLM fails) and more specific error messages.
+ *   - **User Feedback Loop**: Implement UI for users to provide feedback on the effectiveness of generated replies, to refine future drafts and analyze successful communication patterns.
+ *   - **Relationship Context Nuance**: Introduce a more structured way to define and leverage nuanced relationship types for fine-grained tone and content tailoring.
+ *   - **Psychological Principle Integration:** Explicitly allow selection or display of psychological principles (Reciprocity, Liking, Authority) to guide reply generation.
+ *   - **OODA Loop UI/Control**: Develop UI elements that visually represent and allow user control over the "Orient" and "Decide" phases of the OODA loop, making Orion's reasoning more transparent and adjustable.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Textarea, Label, Card, CardContent, CardHeader, CardTitle, Badge } from '@/components/ui';
+import { Button, Textarea, Label, Card, CardContent, CardHeader, CardTitle, Badge, Input } from '@/components/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Sparkles, MessageSquare, Loader2, InfoIcon, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
-/**
- * WhatsAppReplyDrafter
- * GOAL: Analyze a WhatsApp chat transcript to suggest replies, leveraging LLM and user profile context.
- * Connects to: LLM services (via API route), user profile data, session state for API keys.
- * RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
- * - Calls `/api/orion/whatsapp/analyze` for LLM processing.
- * - Uses `useUserProfile` for user context.
- * - Interacts with `react-hot-toast` for notifications.
- */
+// Define interfaces for chat analysis data
+interface ParsedWhatsAppMessage {
+  date: string; // e.g., "12/01/2023, 10:00"
+  sender: string;
+  message: string;
+}
+
+interface WhatsAppChatAnalysisData {
+  messages: ParsedWhatsAppMessage[];
+  overallSentiment?: string; // e.g., 'positive', 'neutral', 'negative'
+  sentimentScore?: number; // e.g., between -1 and 1
+}
+
+interface SuggestedReply {
+  text: string;
+  explanation: string;
+  rank: number;
+}
 
 interface WhatsAppReplyDrafterProps {
   initialChatTranscript?: string;
   initialUserProfileContext?: string;
+  analyzedChatData?: WhatsAppChatAnalysisData | null;
 }
 
 const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
   initialChatTranscript = '',
   initialUserProfileContext = '',
+  analyzedChatData = null,
 }) => {
   const [chatTranscript, setChatTranscript] = useState(initialChatTranscript);
   const [userProfileContext, setUserProfileContext] = useState(initialUserProfileContext);
-  const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
+  const [replyGoal, setReplyGoal] = useState<string>('');
+  const [tone, setTone] = useState<string>('');
+  const [suggestedReplies, setSuggestedReplies] = useState<SuggestedReply[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [numberOfDrafts, setNumberOfDrafts] = useState<number>(3);
 
   const { profile, loading: profileLoading, error: profileError } = useUserProfile();
 
@@ -39,17 +123,29 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
     }
   }, [profile, initialUserProfileContext]);
 
-  const handleAnalyzeChat = async () => {
+  useEffect(() => {
+    if (analyzedChatData && analyzedChatData.messages && analyzedChatData.messages.length > 0) {
+      // Convert analyzed chat messages back to a string for the LLM
+      const formattedChatForLLM = analyzedChatData.messages
+        .map((msg: ParsedWhatsAppMessage) => `${msg.date} - ${msg.sender}: ${msg.message}`)
+        .join('\n');
+      setChatTranscript(formattedChatForLLM);
+    } else if (initialChatTranscript) {
+      setChatTranscript(initialChatTranscript);
+    }
+  }, [analyzedChatData, initialChatTranscript]);
+
+  const handleSuggestReplies = async () => {
     setLoading(true);
     setError(null);
     setSuggestedReplies([]);
     try {
       if (!chatTranscript.trim()) {
-        setError('Please enter a WhatsApp chat transcript to analyze.');
+        setError('Please enter a WhatsApp chat transcript or upload a file to analyze.');
         return;
       }
 
-      const response = await fetch('/api/orion/whatsapp/analyze', {
+      const response = await fetch('/api/orion/communication/draft-whatsapp-reply', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,19 +153,23 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
         body: JSON.stringify({
           chatTranscript,
           userProfileContext,
+          replyGoal,
+          tone,
+          numberOfDrafts,
+          overallSentiment: analyzedChatData?.overallSentiment,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze chat.');
+        throw new Error(errorData.error || 'Failed to suggest replies.');
       }
 
-      const analysisResult = await response.json();
-      setSuggestedReplies(analysisResult.suggested_replies);
+      const replyResult = await response.json();
+      setSuggestedReplies(replyResult.drafts || []);
     } catch (err: unknown) {
-      console.error('Error analyzing chat:', err);
-      setError((err as Error).message || 'Failed to analyze chat. Please try again.');
+      console.error('Error suggesting replies:', err);
+      setError((err as Error).message || 'Failed to suggest replies. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -78,6 +178,20 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success('Reply copied to clipboard!');
+  };
+
+  // Determine sentiment badge color, matching logic in WhatsAppChatAnalysis.tsx
+  const getSentimentColor = (sentiment: string | undefined) => {
+    switch (sentiment?.toLowerCase()) {
+      case 'positive':
+        return 'bg-green-600';
+      case 'negative':
+        return 'bg-red-600';
+      case 'neutral':
+        return 'bg-blue-600';
+      default:
+        return 'bg-gray-600';
+    }
   };
 
   return (
@@ -93,17 +207,36 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
       <CardContent className="space-y-4">
         <div>
           <Label htmlFor="chatTranscript" className="text-sm text-gray-300 mb-1 block">
-            WhatsApp Chat Transcript
+            WhatsApp Chat Transcript (Auto-filled from analysis or paste here)
           </Label>
           <Textarea
             id="chatTranscript"
             value={chatTranscript}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setChatTranscript(e.target.value)}
-            placeholder="Paste your WhatsApp chat transcript here..."
+            placeholder="Paste your WhatsApp chat transcript here or upload a file via Chat Analysis tab..."
             rows={8}
             className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500"
           />
         </div>
+
+        {analyzedChatData?.overallSentiment && (
+          <div className="flex items-center space-x-2">
+            <Sparkles className="h-5 w-5 text-yellow-400" />
+            <p className="text-gray-300">
+              Chat Sentiment:{' '}
+              <Badge className={getSentimentColor(analyzedChatData.overallSentiment)}>
+                {analyzedChatData.overallSentiment}
+              </Badge>
+            </p>
+          </div>
+        )}
+
+        {analyzedChatData?.sentimentScore !== undefined && (
+          <div className="flex items-center space-x-2">
+            <span className="text-gray-400">Sentiment Score:</span>
+            <Badge className="bg-gray-600">{analyzedChatData.sentimentScore.toFixed(2)}</Badge>
+          </div>
+        )}
 
         <div>
           <Label htmlFor="userProfileContext" className="text-sm text-gray-300 mb-1 block">
@@ -125,9 +258,85 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
           </p>
         </div>
 
-        <Button onClick={handleAnalyzeChat} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="replyGoal" className="text-sm text-gray-300 mb-1 block">
+              Reply Goal
+            </Label>
+            <Select onValueChange={setReplyGoal} value={replyGoal}>
+              <SelectTrigger className="w-full bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500">
+                <SelectValue placeholder="Select a goal" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-700 text-gray-200 border-gray-600">
+                <SelectItem value="">None</SelectItem>
+                <SelectItem value="clarify">Clarify</SelectItem>
+                <SelectItem value="set_boundary">Set Boundary</SelectItem>
+                <SelectItem value="express_gratitude">Express Gratitude</SelectItem>
+                <SelectItem value="request_support">Request Support</SelectItem>
+                <SelectItem value="withdraw">Withdraw</SelectItem>
+                <SelectItem value="offer_assistance">Offer Assistance</SelectItem>
+                <SelectItem value="de_escalate">De-escalate</SelectItem>
+                <SelectItem value="assert">Assert</SelectItem>
+                <SelectItem value="apologize">Apologize</SelectItem>
+                <SelectItem value="negotiate">Negotiate</SelectItem>
+                <SelectItem value="inform">Inform</SelectItem>
+                <SelectItem value="persuade">Persuade</SelectItem>
+                <SelectItem value="motivate">Motivate</SelectItem>
+                <SelectItem value="celebrate">Celebrate</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="tone" className="text-sm text-gray-300 mb-1 block">
+              Tone
+            </Label>
+            <Select onValueChange={setTone} value={tone}>
+              <SelectTrigger className="w-full bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500">
+                <SelectValue placeholder="Select a tone" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-700 text-gray-200 border-gray-200">
+                <SelectItem value="">None</SelectItem>
+                <SelectItem value="friendly">Friendly</SelectItem>
+                <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
+                <SelectItem value="approachable">Approachable</SelectItem>
+                <SelectItem value="conversational">Conversational</SelectItem>
+                <SelectItem value="informal">Informal</SelectItem>
+                <SelectItem value="empathetic">Empathetic</SelectItem>
+                <SelectItem value="assertive">Assertive</SelectItem>
+                <SelectItem value="humorous">Humorous</SelectItem>
+                <SelectItem value="formal">Formal</SelectItem>
+                <SelectItem value="grateful">Grateful</SelectItem>
+                <SelectItem value="apologetic">Apologetic</SelectItem>
+                <SelectItem value="professional">Professional</SelectItem>
+                <SelectItem value="casual">Casual</SelectItem>
+                <SelectItem value="caring">Caring (for Timi)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="numberOfDrafts" className="text-sm text-gray-300 mb-1 block">
+            Number of Drafts (1-5)
+          </Label>
+          <Input
+            id="numberOfDrafts"
+            type="number"
+            value={numberOfDrafts}
+            onChange={(e) => setNumberOfDrafts(Math.max(1, Math.min(5, Number(e.target.value))))}
+            min={1}
+            max={5}
+            step={1}
+            className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500 w-full"
+          />
+          <p className="text-xs text-gray-500 mt-1 flex items-center">
+            <InfoIcon className="h-3 w-3 mr-1 text-gray-500" /> Choose how many reply options Orion should generate.
+          </p>
+        </div>
+
+        <Button onClick={handleSuggestReplies} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700">
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-          {loading ? 'Analyzing...' : 'Suggest Replies'}
+          {loading ? 'Generating Replies...' : 'Suggest Replies'}
         </Button>
 
         {error && (
@@ -142,16 +351,24 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
             <h3 className="text-md font-semibold text-gray-300">Suggested Replies:</h3>
             {suggestedReplies.map((reply, index) => (
               <div key={index} className="flex items-start bg-gray-700/50 p-3 rounded-md border border-gray-600">
-                <Textarea
-                  value={reply}
-                  readOnly
-                  rows={reply.split('\n').length + 1}
-                  className="flex-grow bg-transparent border-none focus:ring-0 text-gray-200 resize-none"
-                />
+                <div className="flex-grow">
+                  <p className="text-xs text-gray-400 mb-1">
+                    <Badge variant="secondary" className="bg-gray-600 text-white mr-2">
+                      Rank: {reply.rank}
+                    </Badge>
+                    {reply.explanation}
+                  </p>
+                  <Textarea
+                    value={reply.text}
+                    readOnly
+                    rows={reply.text.split('\n').length + 1}
+                    className="flex-grow bg-transparent border-none focus:ring-0 text-gray-200 resize-none"
+                  />
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleCopy(reply)}
+                  onClick={() => handleCopy(reply.text)}
                   className="ml-2 text-gray-400 hover:text-green-400"
                 >
                   <Copy className="h-4 w-4" />

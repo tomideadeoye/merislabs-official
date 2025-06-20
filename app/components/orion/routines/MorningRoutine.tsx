@@ -11,7 +11,7 @@ export const MorningRoutine: React.FC = () => {
   return (
     <CardContent className="p-0">
       <p className="text-lg font-semibold mb-4 text-gray-200">Good Morning, Tomide!</p>
-      <p className="text-sm text-gray-400 mb-6">Let's kickstart your day with intention and clarity.</p>
+      <p className="text-sm text-gray-400 mb-6">Let&apos;s kickstart your day with intention and clarity.</p>
       {/* Placeholder for morning routine steps */}
       <ul className="list-disc list-inside space-y-2 text-gray-300">
         <li>Review daily goals (Coming Soon)</li>

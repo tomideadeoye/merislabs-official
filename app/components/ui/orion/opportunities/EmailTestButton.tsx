@@ -8,7 +8,6 @@
 //   - Uses `@/components/ui/button` for the button UI.
 import React from 'react';
 
-
 import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEmailTestDialogStore, EmailTestDialogStore } from '../../../emailTestDialogStore';

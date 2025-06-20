@@ -1,75 +1,41 @@
-
-// GOAL:
-// This page displays the detailed view of a single opportunity. It fetches the opportunity data and any existing evaluation server-side via API routes and renders the `OpportunityDetailView` component.
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx
-// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
-// - Fetches opportunity data from `/api/orion/opportunity/[opportunityId]`.
-// - Fetches existing evaluation data from `/api/orion/OrionOpportunity/[opportunityId]/evaluation`.
-// - Renders `OpportunityDetailView` from `../../../../../components/orion/OpportunityDetailView`.
-// next steps if any:
-// components to merge with if any:
-
-import { OpportunityDetailView } from "@/components/ui/orion";
-import { OpportunityNotionOutputShared, EvaluationOutput } from "@/styles";
-import { notFound } from "next/navigation";
+/**
+ * @fileoverview Server Component to fetch data for a single opportunity and render the client view.
+ * @description This page acts as the data-loading entry point for the Opportunity Command Center.
+ */
+import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
+import { OpportunityDetailView } from '@/components/ui/orion/opportunities/OpportunityDetailView';
+import { notFound } from 'next/navigation';
+import { PageHeader } from '@/components/ui/page-header';
+import { Briefcase } from 'lucide-react';
 
 interface Props {
-  params: {
-    opportunityId: string;
-  };
+  params: { opportunityId: string };
 }
 
-export default async function OpportunityPipelinePage({ params }: Props) {
-  const resolvedParams = await params;
-  const { opportunityId } = resolvedParams;
+export default async function OpportunityDetailPage({ params }: Props) {
+  const { opportunityId } = await params; // Destructure for clarity, satisfies linter hint
 
-  let OrionOpportunity: OpportunityNotionOutputShared | null = null;
-  let evaluation: EvaluationOutput | undefined = undefined;
-
-  try {
-    const opportunityRes = await fetch(`/api/orion/opportunity/${opportunityId}`);
-    if (!opportunityRes.ok) {
-      console.error(`Failed to fetch opportunity ${opportunityId}:`, opportunityRes.status, opportunityRes.statusText);
-      notFound();
-    }
-    const opportunityData = await opportunityRes.json();
-
-    if (opportunityData.success && opportunityData.opportunity) {
-      OrionOpportunity = opportunityData.opportunity;
-    } else {
-      console.error('API returned error for opportunity:', opportunityData.error);
-      notFound();
-    }
-
-    // Attempt to load an existing evaluation for this OrionOpportunity
-    const evaluationRes = await fetch(`/api/orion/OrionOpportunity/${opportunityId}/evaluation`, {
-      method: 'POST',
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (evaluationRes.ok) {
-      const evaluationData = await evaluationRes.json();
-      evaluation = evaluationData as EvaluationOutput;
-    } else {
-      console.error('Failed to fetch evaluation:', evaluationRes.statusText);
-    }
-  } catch (error: unknown) {
-    console.error('Error fetching opportunity or evaluation:', error);
+  // Basic validation to prevent processing .map files or other non-UUID-like strings
+  // A more robust UUID validation regex could be used if needed.
+  if (!opportunityId || opportunityId.includes('.') || opportunityId.length < 36) {
+    console.warn(`[OpportunityDetailPage] Invalid opportunityId format received: ${opportunityId}. Returning 404.`);
     notFound();
   }
 
-  if (!OrionOpportunity) {
+  const opportunity = await getOpportunityByIdFromDb(opportunityId);
+
+  if (!opportunity) {
     notFound();
   }
 
   return (
-    <div className="px-4 py-6">
-      <OpportunityDetailView
-        OrionOpportunity={OrionOpportunity}
-        evaluation={evaluation}
-        opportunityId={opportunityId}
+    <div className="space-y-6 container mx-auto py-8">
+      <PageHeader
+        title={opportunity.title}
+        icon={<Briefcase className="h-7 w-7" />}
+        description={`Command Center for your opportunity at ${opportunity.company}.`}
       />
+      <OpportunityDetailView opportunity={opportunity} />
     </div>
   );
 }

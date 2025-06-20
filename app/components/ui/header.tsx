@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui';
 import { Sun, Moon } from 'lucide-react';
-import consolidatedLogger from '@/lib/logger';
+import logger from '@/lib/logger';
 import { useTheme } from 'next-themes';
 // GOAL OF FILE|FEATURES|FUNCTIONS:
 // FILEPATH:
@@ -27,25 +27,35 @@ export function Header({ navItems }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  // Filter navigation items based on the current page
+  const displayedNavItems =
+    currentPage === '/'
+      ? navItems.filter((item) => item.href === '/' || item.href === '/admin' || item.href === '/decks')
+      : navItems;
+
   // Comprehensive logging to debug header visibility
-  consolidatedLogger.info('[Header Component] Initializing. Current path:', {
+  logger.info('[Header Component] Initializing. Current path:', {
     currentPage,
     theme,
   });
-  consolidatedLogger.debug('[Header Component] Received navItems:', {
+  logger.debug('[Header Component] Received navItems:', {
     navItems,
     itemCount: navItems?.length,
   });
+  logger.debug('[Header Component] Displayed navItems:', {
+    displayedNavItems,
+    itemCount: displayedNavItems?.length,
+  });
 
   // Log the Meris Labs logo rendering here, outside JSX
-  consolidatedLogger.debug('[Header Component] Rendering Meris Labs logo.', {
+  logger.debug('[Header Component] Rendering Meris Labs logo.', {
     src: '/images/merislabswhite.png',
   });
 
   useEffect(() => {
     setMounted(true);
-    consolidatedLogger.info('[Header Component] Mounted successfully.');
-    consolidatedLogger.debug('[Header Component] Final theme state after mount:', {
+    logger.info('[Header Component] Mounted successfully.');
+    logger.debug('[Header Component] Final theme state after mount:', {
       theme,
     });
   }, [theme]);
@@ -55,7 +65,7 @@ export function Header({ navItems }: HeaderProps) {
   const handleThemeToggle = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    consolidatedLogger.info(`[Header Component] Theme changed to ${newTheme}`);
+    logger.info(`[Header Component] Theme changed to ${newTheme}`);
   };
 
   return (
@@ -69,7 +79,7 @@ export function Header({ navItems }: HeaderProps) {
           </div>
           <nav className="hidden md:flex md:grow">
             <ul className="flex grow justify-end flex-wrap items-center">
-              {navItems.map((item) => (
+              {displayedNavItems.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href || '/'}

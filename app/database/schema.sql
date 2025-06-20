@@ -1,10 +1,33 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Define the ENUM type for opportunity_type
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'opportunity_type_enum') THEN
+        CREATE TYPE opportunity_type_enum AS ENUM (
+            'job',
+            'project',
+            'collaboration',
+            'gig',
+            'other',
+            'educationProgram',
+            'projectCollaboration',
+            'funding',
+            'negotiating',
+            'declined',
+            'applicationReady',
+            'outreachPlanned',
+            'outreachSent',
+            'offerReceived'
+        );
+    END IF;
+END $$;
+
 -- Create opportunities table
 CREATE TABLE IF NOT EXISTS opportunities (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   company VARCHAR(255) NOT NULL,
+  type opportunity_type_enum NOT NULL,
   position VARCHAR(255) NOT NULL,
   status VARCHAR(50) NOT NULL CHECK (status IN ('new', 'applied', 'interviewing', 'offered', 'rejected')),
   location VARCHAR(255) NOT NULL,

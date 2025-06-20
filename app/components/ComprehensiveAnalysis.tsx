@@ -88,8 +88,8 @@ export const ComprehensiveAnalysis: React.FC<ComprehensiveAnalysisProps> = ({ ev
                 Gaps
               </h4>
               <ul className="list-disc list-inside space-y-1">
-                {gaps.map((item: { skill: string; reasoning: string }, index: number) => (
-                  <li key={index}>{item.skill}</li>
+                {gaps.map((item, index) => (
+                  <li key={index}>{typeof item === 'string' ? item : `${item.gap}: ${item.solution}`}</li>
                 ))}
               </ul>
             </div>

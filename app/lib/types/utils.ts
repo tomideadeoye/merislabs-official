@@ -1,3 +1,3 @@
-export type createLogger = (...args: any[]) => any;
-export type validateRequest = (...args: any[]) => any;
-export type errorResponse = (...args: any[]) => any;
+export type createLogger = (...args: unknown[]) => unknown;
+export type validateRequest = (...args: unknown[]) => unknown;
+export type errorResponse = (...args: unknown[]) => unknown;

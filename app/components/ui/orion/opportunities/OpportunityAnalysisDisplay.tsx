@@ -5,53 +5,64 @@
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
 //   - Calls backend API route `/api/orion/OrionOpportunity/[opportunityId]/evaluation` (POST) to fetch or trigger evaluation.
-//   - Uses `@/lib/types` for `OpportunityNotionOutputShared` and `EvaluationOutput` types.
+//   - Uses `@/lib/types` for `OpportunityNotionOutputlib` and `EvaluationOutput` types.
 // Note if any: components to merge with, similar or redundant component
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 
-import { Loader2, AlertTriangle, RefreshCw, BarChartBig, CheckCircle, Lightbulb } from 'lucide-react';
+import { Loader2, AlertTriangle, RefreshCw, BarChartBig } from 'lucide-react';
 import { z } from 'zod';
-import { OpportunityNotionOutputShared, EvaluationOutput } from '@/lib/types';
+import {
+  OrionOpportunity,
+  EvaluationOutput,
+  EvaluationGapDetail,
+  OpportunityType,
+  OpportunityStatus,
+  OpportunityPriority,
+} from '@/lib/types';
 
 interface OpportunityAnalysisDisplayProps {
-  OrionOpportunity: OpportunityNotionOutputShared | null;
+  OrionOpportunity: OrionOpportunity | null;
   initialEvaluation?: EvaluationOutput | { rawOutput?: string };
 }
 
-const OpportunityNotionOutputSharedSchema = z.object({
+const OrionOpportunitySchema = z.object({
   id: z.string(),
-  notion_page_id: z.string().optional(),
+  notionPageId: z.string().optional(),
   title: z.string(),
-  company: z.string(),
+  company: z.string().nullable().optional(),
   content: z.string().nullable().optional(),
-  descriptionSummary: z.string().nullable().optional(),
-  type: z.union([z.string(), z.null()]).optional(),
-  status: z.union([z.string(), z.null()]).optional(),
-  priority: z.union([z.string(), z.null()]).optional(),
+  type: z.union([z.nativeEnum(OpportunityType), z.null()]).optional(), // Use nativeEnum for enum types
+  status: z.union([z.nativeEnum(OpportunityStatus), z.null()]).optional(),
+  priority: z.union([z.nativeEnum(OpportunityPriority), z.null()]).optional(),
   url: z.string().nullable().optional(),
-  jobUrl: z.string().nullable().optional(),
-  sourceURL: z.string().nullable().optional(),
+  dateIdentified: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  contactPerson: z.string().nullable().optional(),
+  contactEmail: z.string().nullable().optional(),
+  stage: z.string().nullable().optional(),
+  attachments: z.array(z.string()).optional(),
+  relatedEvaluationId: z.string().nullable().optional(),
+  sourceUrl: z.string().nullable().optional(),
+  nextActionDate: z.string().nullable().optional(),
+  tailoredCv: z.string().nullable().optional(),
   deadline: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
   salary: z.string().nullable().optional(),
   contact: z.string().nullable().optional(),
-  notes: z.string().nullable().optional(),
-  createdAt: z.string().nullable().optional(),
-  updatedAt: z.string().nullable().optional(),
-  dateIdentified: z.string().nullable().optional(),
-  nextActionDate: z.string().nullable().optional(),
+  position: z.string().nullable().optional(),
+  lastStatusUpdate: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  applicationMaterialIds: z.array(z.string()).optional(),
   evaluationOutput: z.any().nullable().optional(),
-  tailoredCV: z.string().nullable().optional(),
   webResearchContext: z.string().nullable().optional(),
-  tags: z.array(z.string()).optional(),
   pros: z.array(z.string()).nullable().optional(),
   cons: z.array(z.string()).nullable().optional(),
   missingSkills: z.array(z.string()).nullable().optional(),
   contentType: z.string().nullable().optional(),
-  relatedEvaluationId: z.string().nullable().optional(),
-  lastStatusUpdate: z.string().nullable().optional(),
-  last_edited_time: z.union([z.string(), z.date(), z.null()]).optional(),
+  lastEditedTime: z.union([z.string(), z.date(), z.null()]).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProps> = ({
@@ -65,14 +76,14 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
   const [error, setError] = useState<string | null>(null);
 
   if (OrionOpportunity) {
-    const parseResult = OpportunityNotionOutputSharedSchema.safeParse(OrionOpportunity);
+    const parseResult = OrionOpportunitySchema.safeParse(OrionOpportunity);
     if (!parseResult.success) {
       console.error(
-        '[OpportunityNotionOutputShared] Invalid data in OpportunityAnalysisDisplay:',
+        '[OpportunityAnalysisDisplay] Invalid data in OrionOpportunity:',
         parseResult.error.format(),
         OrionOpportunity
       );
-      throw new Error('Invalid OpportunityNotionOutputShared: ' + JSON.stringify(parseResult.error.format()));
+      throw new Error('Invalid OrionOpportunity: ' + JSON.stringify(parseResult.error.format()));
     }
   }
 
@@ -106,7 +117,7 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
   }, []);
 
   useEffect(() => {
-    if (OrionOpportunity && !initialEvaluation) {
+    if (OrionOpportunity && OrionOpportunity.id && !initialEvaluation) {
       fetchEvaluation(OrionOpportunity.id);
     } else if (initialEvaluation) {
       setEvaluation(initialEvaluation);
@@ -253,14 +264,12 @@ export const OpportunityAnalysisDisplay: React.FC<OpportunityAnalysisDisplayProp
                     </ul>
                   </div>
                 )}
-                {evalOut.gapAnalysis && (
+                {evalOut.gaps && (
                   <div className="mb-2">
-                    <span className="font-semibold text-sm text-gray-300">Gap Analysis:</span>
+                    <span className="font-semibold text-sm text-gray-300">Gaps:</span>
                     <ul className="list-disc ml-6 text-gray-400 text-sm">
-                      {evalOut.gapAnalysis.map((g: { skill: string; reasoning: string }, i: number) => (
-                        <li key={i}>
-                          <strong>{g.skill}</strong>: {g.reasoning}
-                        </li>
+                      {evalOut.gaps.map((g, i: number) => (
+                        <li key={i}>{typeof g === 'string' ? g : `${g.gap}: ${g.solution}`}</li>
                       ))}
                     </ul>
                   </div>

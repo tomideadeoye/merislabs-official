@@ -6,127 +6,240 @@
  * FILEPATH: `app/lib/opportunity_db_service.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/lib/database.ts`: Exports the `sql` tagged template literal for database interaction.
- *   - `app/lib/postgres.ts`: The underlying Neon client and connection logic, re-exported via `database.ts`.
- *   - `app/lib/types/index.ts`: Defines `OrionOpportunity`, `OpportunityCreatePayload`, and `OpportunityStatus` interfaces, crucial for type consistency.
+ *   - `../generated/prisma`: Imports the Prisma Client for type-safe database interactions.
+ *   - `app/lib/types/index.ts`: Defines `OrionOpportunity`, `OpportunityCreatePayload`, `OpportunityStatus`, `OpportunityType`, and `OpportunityPriority` interfaces/enums, crucial for type consistency with Prisma.
  *   - `app/lib/logger.ts`: Used for comprehensive, context-rich logging of all database operations within this service.
  *   - `app/api/orion/opportunity/list/route.ts`: Consumes `listOpportunitiesFromDb` to fetch opportunities for the API.
  *   - `app/api/orion/opportunity/create/route.ts`: Consumes `createOpportunityInDb` to add new opportunities via the API.
  *   - `app/api/orion/opportunity/update-status/route.ts`: Consumes `updateOpportunityStatusInDb` to modify opportunity statuses via the API.
  *   - `app/hooks/useOpportunities.ts`: Indirectly uses these database functions via the API routes to manage opportunity data in the UI.
- *   - `app/database/schema.sql`: Defines the `opportunities` table schema, dictating data structure and constraints.
+ *   - `prisma/schema.prisma`: Defines the Prisma schema, dictating data structure and constraints, and from which the Prisma Client is generated.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes the Neon database is correctly configured and accessible via `DATABASE_URL` environment variable.
- *   - Assumes `requirements` column in the `opportunities` table is of type `TEXT[]` in PostgreSQL, allowing direct array insertion/retrieval with the Neon client.
+ *   - Prisma now handles mapping `TEXT[]` to `String[]` and custom ENUM types.
  *   - NOTE: Error handling is robust, logging details and re-throwing custom errors for upstream consumption.
  *
  * NOTES:
  *   - COMPONENTS TO MERGE WITH: This service acts as a single point of data access for opportunities, centralizing logic previously spread across Notion API calls and mock data.
- *   - OPPORTUNITIES FOR IMPROVEMENT: Implement more advanced filtering, pagination, and sorting directly at the database query level for large datasets. Consider adding transaction support for multi-step operations.
- *   - OPPORTUNITIES TO CONSOLIDATE: This service is a consolidation of opportunity data persistence logic.
+ *   - **Performance Optimization**: Implement more advanced filtering, pagination, and sorting directly at the database query level for large datasets.
+ *   - **Transaction Support**: Consider adding transaction support for multi-step operations to ensure atomicity and data consistency.
+ *   - **Soft Deletion**: For opportunities, instead of hard deleting, consider implementing a soft delete mechanism (e.g., using a `deletedAt` timestamp) to retain historical data and allow for recovery.
+ *   - **Auditing Fields**: Introduce common auditing fields (e.g., `createdBy`, `updatedBy`, `createdAt`, `updatedAt` for records beyond just the standard Prisma ones) to track changes and responsible users.
+ *   - **Batch Operations**: Implement functions for batch creation, updating, or deleting opportunities to improve efficiency for bulk operations.
+ *   - **Data Caching**: For frequently accessed opportunities or lists, explore adding a caching layer (e.g., Redis or in-memory cache) to reduce database load and improve response times.
+ *
+ * OPPORTUNITIES TO CONSOLIDATE:
+ *   - **Generic Database Service**: If similar database interaction patterns emerge for other entities (e.g., journal entries, ideas), consider abstracting common CRUD operations into a more generic database service utility.
+ *   - **Type Mapping Utility**: Refine the `mapPrismaOpportunityToOrionOpportunity` into a more generic, reusable utility if similar mapping logic is required for other Prisma models to application-specific types.
+ *   - This service is a consolidation of opportunity data persistence logic.
  */
-import { sql } from './database';
-import { OrionOpportunity, OpportunityCreatePayload, OpportunityStatus } from './types';
+import { Prisma, OpportunityStatus as PrismaOpportunityStatus } from '@/generated/prisma';
+import {
+  OrionOpportunity,
+  OpportunityCreatePayload,
+  OpportunityStatus,
+  OpportunityType,
+  EvaluationOutput,
+  OpportunityPriority,
+  EvaluationGapDetail,
+} from './types';
 import logger from './logger';
+import prisma from './prisma'; // Import the lib Prisma Client instance
+import { handleApiError } from './utils/errorHandler'; // Import centralized error handler
 
-// GOAL: Provide a dedicated service for interacting with the Neon PostgreSQL database for opportunity management.
-// This service abstracts direct SQL queries, ensuring type safety, consistent data mapping, and robust error handling.
-//
-// RELATION TO OTHER FILES, FUNCTIONS, COMPONENTS, AND FEATURES:
-// - `app/lib/database.ts`: Provides the `sql` tagged template literal for database interaction.
-// - `app/lib/types/index.ts`: Defines the `OrionOpportunity` and `OpportunityCreatePayload` interfaces, ensuring type consistency.
-// - `app/lib/logger.ts`: Used for comprehensive logging of database operations.
-// - `app/api/orion/opportunity/list/route.ts` (future): Will consume `listOpportunitiesFromDb` to fetch opportunities.
-// - `app/api/orion/opportunity/create/route.ts` (future): Will consume `createOpportunityInDb` to add new opportunities.
-// - `app/hooks/useOpportunities.ts` (future): Will indirectly use these functions via API routes.
-// - `app/database/schema.sql`: Defines the `opportunities` table schema.
+// Helper function to map Prisma Opportunity to OrionOpportunity
+const mapPrismaOpportunityToOrionOpportunity = (opportunity: any): OrionOpportunity => {
+  const evaluationResult = opportunity.evaluationResult
+    ? (JSON.parse(opportunity.evaluationResult as string) as EvaluationOutput)
+    : null;
+
+  // Ensure 'gaps' are always in the { gap: string, solution: string } format
+  if (evaluationResult && Array.isArray(evaluationResult.gaps)) {
+    evaluationResult.gaps = evaluationResult.gaps.map((gap: string | EvaluationGapDetail) => {
+      if (typeof gap === 'string') {
+        return { gap: gap, solution: 'N/A' };
+      }
+      return gap;
+    });
+  }
+
+  // Ensure 'strengths' are always in the { title: string, reasoning: string } format if they also show variability
+  if (evaluationResult && Array.isArray(evaluationResult.strengths)) {
+    evaluationResult.strengths = evaluationResult.strengths.map((strength: any) => {
+      if (typeof strength === 'string') {
+        return { title: strength, reasoning: 'N/A' };
+      }
+      return strength;
+    });
+  }
+
+  // Ensure 'alignmentHighlights' are always in the { title: string, reasoning: string } format if they also show variability
+  if (evaluationResult && Array.isArray(evaluationResult.alignmentHighlights)) {
+    evaluationResult.alignmentHighlights = evaluationResult.alignmentHighlights.map((highlight: any) => {
+      if (typeof highlight === 'string') {
+        return { title: highlight, reasoning: 'N/A' };
+      }
+      return highlight;
+    });
+  }
+
+  return {
+    id: opportunity.id,
+    title: opportunity.title,
+    company: opportunity.company || null,
+    type: (opportunity.type || null) as OpportunityType | null,
+    status: (opportunity.status || null) as OpportunityStatus | null,
+    content: opportunity.content || null,
+    url: opportunity.url || null,
+    tags: opportunity.tags || null,
+    dateIdentified: opportunity.dateIdentified?.toISOString() || null,
+    notes: opportunity.notes || null,
+    contactPerson: opportunity.contactPerson || null,
+    contactEmail: opportunity.contactEmail || null,
+    stage: opportunity.stage || null,
+    attachments: opportunity.attachments || null,
+    companyOrInstitution: opportunity.company || null,
+    relatedEvaluationId: opportunity.relatedEvaluationId || null,
+    sourceUrl: opportunity.sourceUrl || null,
+    nextActionDate: opportunity.nextActionDate?.toISOString() || null,
+    priority: (opportunity.priority || null) as OpportunityPriority | null,
+    tailoredCv: opportunity.tailoredCv || null,
+    deadline: opportunity.deadline?.toISOString() || null,
+    location: opportunity.location || null,
+    salary: opportunity.salary || null,
+    contact: opportunity.contact || null,
+    position: opportunity.position || null,
+    lastStatusUpdate: opportunity.lastStatusUpdate?.toISOString() || null,
+    notionPageId: opportunity.notionPageId || null,
+    createdAt: opportunity.createdAt.toISOString(),
+    updatedAt: opportunity.updatedAt.toISOString(),
+    evaluationOutput: evaluationResult,
+    webResearchContext: null,
+    pros: null,
+    cons: null,
+    missingSkills: null,
+    contentType: null,
+    lastEditedTime: opportunity.updatedAt.toISOString(),
+    cvComponentSuggestions: null,
+    alignmentScore: null,
+    actionableAdvice: null,
+    applicationMaterialIds: opportunity.applicationMaterialIds || null,
+  };
+};
+
+export async function getOpportunityByIdFromDb(id: string): Promise<OrionOpportunity | null> {
+  const logContext = { service: 'opportunity_db_service', function: 'getOpportunityByIdFromDb', opportunityId: id };
+  logger.info('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][START]', logContext);
+  try {
+    const opportunity = await prisma.opportunity.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        type: true,
+        position: true,
+        status: true,
+        location: true,
+        salary: true,
+        content: true,
+        tags: true,
+        url: true,
+        dateIdentified: true,
+        notes: true,
+        contactPerson: true,
+        contactEmail: true,
+        stage: true,
+        attachments: true,
+        relatedEvaluationId: true,
+        sourceUrl: true,
+        nextActionDate: true,
+        priority: true,
+        tailoredCv: true,
+        deadline: true,
+        contact: true,
+        lastStatusUpdate: true,
+        notionPageId: true,
+        createdAt: true,
+        updatedAt: true,
+        applicationMaterialIds: true,
+        evaluationResult: true,
+      },
+    });
+    if (!opportunity) {
+      logger.warn('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][NOT_FOUND]', logContext);
+      return null;
+    }
+    logger.info('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][SUCCESS]', logContext);
+    return mapPrismaOpportunityToOrionOpportunity(opportunity);
+  } catch (error: unknown) {
+    const handledError = handleApiError(error, logContext);
+    throw handledError.originalError;
+  }
+}
 
 /**
  * Fetches a list of opportunities from the Neon database.
  * @returns A promise that resolves to an array of OrionOpportunity objects.
  */
 export async function listOpportunitiesFromDb(): Promise<OrionOpportunity[]> {
-  logger.info('[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][START] Attempting to fetch opportunities from Neon DB.');
+  const logContext = { service: 'opportunity_db_service', function: 'listOpportunitiesFromDb' };
+  logger.info(
+    '[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][START] Attempting to fetch opportunities from Neon DB.',
+    logContext
+  );
+
   try {
-    const result = await sql<OrionOpportunity[]>`
-      SELECT
-        id,
-        company,
-        position,
-        status,
-        location,
-        salary,
-        description,
-        requirements,
-        notes,
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM opportunities
-      ORDER BY created_at DESC;
-    `;
-
-    logger.debug('[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][DB_QUERY_SUCCESS]', {
-      rowCount: result.length, // result from direct sql call is an array, length is rowCount
+    const opportunities = await prisma.opportunity.findMany({
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        type: true,
+        position: true,
+        status: true,
+        location: true,
+        salary: true,
+        content: true,
+        tags: true,
+        url: true,
+        dateIdentified: true,
+        notes: true,
+        contactPerson: true,
+        contactEmail: true,
+        stage: true,
+        attachments: true,
+        relatedEvaluationId: true,
+        sourceUrl: true,
+        nextActionDate: true,
+        priority: true,
+        tailoredCv: true,
+        deadline: true,
+        contact: true,
+        lastStatusUpdate: true,
+        notionPageId: true,
+        createdAt: true,
+        updatedAt: true,
+        applicationMaterialIds: true,
+        evaluationResult: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
-
-    const opportunities: OrionOpportunity[] = result.map((row) => ({
-      id: row.id,
-      company: row.company,
-      position: row.position,
-      status: row.status as OpportunityStatus, // Type assertion based on schema CHECK constraint
-      location: row.location,
-      salary: row.salary,
-      description: row.description,
-      requirements: row.requirements || undefined, // Ensure it's an array or undefined
-      notes: row.notes || undefined,
-      createdAt: row.createdAt || undefined, // Already a string from DB
-      updatedAt: row.updatedAt || undefined, // Already a string from DB
-      title: row.position || row.company || undefined,
-      type: undefined,
-      content: row.description,
-      url: undefined,
-      tags: row.requirements || undefined, // Use requirements as tags, as it is a TEXT[] column
-      dateIdentified: row.createdAt || undefined,
-      contactPerson: undefined,
-      contactEmail: undefined,
-      stage: row.status,
-      attachments: undefined,
-      companyOrInstitution: row.company,
-      relatedEvaluationId: undefined,
-      sourceUrl: undefined,
-      nextActionDate: undefined,
-      priority: undefined,
-      tailoredCv: undefined,
-      deadline: undefined,
-      contact: undefined,
-      lastStatusUpdate: row.updatedAt || undefined,
-      notionPageId: undefined,
-      evaluationOutput: undefined,
-      webResearchContext: undefined,
-      pros: undefined,
-      cons: undefined,
-      missingSkills: undefined,
-      contentType: undefined,
-      lastEditedTime:
-        row.lastEditedTime instanceof Date ? row.lastEditedTime.toISOString() : row.lastEditedTime || undefined, // Handle Date or string
-      cvComponentSuggestions: undefined,
-      alignmentScore: undefined,
-      actionableAdvice: undefined,
-    }));
 
     logger.info('[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][SUCCESS]', {
+      ...logContext,
       opportunitiesCount: opportunities.length,
     });
-    return opportunities;
-  } catch (error) {
-    logger.error('[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][ERROR]', {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : 'N/A',
-    });
-    throw new Error(
-      `Failed to list opportunities from database: ${error instanceof Error ? error.message : String(error)}`
-    );
+
+    const mappedOpportunities: OrionOpportunity[] = opportunities.map(mapPrismaOpportunityToOrionOpportunity);
+
+    return mappedOpportunities;
+  } catch (error: unknown) {
+    const handledError = handleApiError(error, logContext);
+    throw handledError.originalError;
   }
 }
 
@@ -136,86 +249,53 @@ export async function listOpportunitiesFromDb(): Promise<OrionOpportunity[]> {
  * @returns A promise that resolves to the created OrionOpportunity object.
  */
 export async function createOpportunityInDb(payload: OpportunityCreatePayload): Promise<OrionOpportunity> {
-  logger.info('[OPPORTUNITY_DB_SERVICE][CREATE_OPPORTUNITY][START]', { payload });
+  const logContext = { service: 'opportunity_db_service', function: 'createOpportunityInDb', payload };
+  logger.info('[OPPORTUNITY_DB_SERVICE][CREATE_OPPORTUNITY][START]', logContext);
+
   try {
-    const {
-      companyOrInstitution,
-      position,
-      status,
-      location,
-      salary,
-      content, // Maps to description
-      tags, // Maps to requirements
-      url,
-      type,
-      dateIdentified,
-      nextActionDate,
-      priority,
-      tailoredCv,
-      deadline,
-      contact,
-      cvComponentSuggestions,
-      alignmentScore,
-      pros,
-      cons,
-      actionableAdvice,
-    } = payload;
+    const dataToCreate: Prisma.OpportunityCreateInput = {
+      title: payload.title,
+      company: payload.companyOrInstitution || null,
+      type: payload.type || null,
+      position: payload.position || null,
+      status: payload.status as unknown as PrismaOpportunityStatus, // Ensure correct casting to Prisma's enum
+      location: payload.location || null,
+      salary: payload.salary || null,
+      content: payload.content || null,
+      tags: payload.tags || [],
+      url: payload.url || null,
+      dateIdentified: payload.dateIdentified ? new Date(payload.dateIdentified) : null,
+      notes: payload.notes || null,
+      contactPerson: payload.contactPerson || null,
+      contactEmail: payload.contactEmail || null,
+      stage: payload.stage || null,
+      attachments: payload.attachments || [],
+      relatedEvaluationId: payload.relatedEvaluationId || null,
+      sourceUrl: payload.sourceUrl || null,
+      nextActionDate: payload.nextActionDate ? new Date(payload.nextActionDate) : null,
+      priority: payload.priority || null,
+      tailoredCv: payload.tailoredCv || null,
+      deadline: payload.deadline ? new Date(payload.deadline) : null,
+      contact: payload.contact || null,
+      lastStatusUpdate: payload.lastStatusUpdate ? new Date(payload.lastStatusUpdate) : null,
+      notionPageId: payload.notionPageId || null,
+      applicationMaterialIds: payload.applicationMaterialIds || [],
+    };
 
-    // Ensure tags is an array for direct insertion into TEXT[] column
-    const requirementsArray = Array.isArray(tags) ? tags : [];
-
-    const result = await sql<OrionOpportunity[]>`
-      INSERT INTO opportunities (
-        company,
-        position,
-        status,
-        location,
-        salary,
-        description,
-        requirements
-      ) VALUES (
-        ${companyOrInstitution},
-        ${position},
-        ${status},
-        ${location},
-        ${salary},
-        ${content},
-        ${requirementsArray} -- Pass array directly for TEXT[] column
-      )
-      RETURNING
-        id,
-        company,
-        position,
-        status,
-        location,
-        salary,
-        description,
-        requirements,
-        created_at as "createdAt",
-        updated_at as "updatedAt";
-    `;
-
-    logger.info('[OPPORTUNITY_DB_SERVICE][CREATE_OPPORTUNITY][DB_QUERY_SUCCESS]', { createdRow: result[0] });
-
-    const createdOpportunity: OrionOpportunity = result[0]; // Explicitly type the result of the first row
-    if (!createdOpportunity) {
-      throw new Error('Failed to retrieve created opportunity after insert.');
-    }
+    const createdOpportunity = await prisma.opportunity.create({
+      data: dataToCreate,
+    });
 
     logger.info('[OPPORTUNITY_DB_SERVICE][CREATE_OPPORTUNITY][SUCCESS]', {
+      ...logContext,
       opportunityId: createdOpportunity.id,
       company: createdOpportunity.company,
     });
-    return createdOpportunity;
-  } catch (error) {
-    logger.error('[OPPORTUNITY_DB_SERVICE][CREATE_OPPORTUNITY][ERROR]', {
-      error: error instanceof Error ? error.message : String(error),
-      payload,
-      stack: error instanceof Error ? error.stack : 'N/A',
-    });
-    throw new Error(
-      `Failed to create opportunity in database: ${error instanceof Error ? error.message : String(error)}`
-    );
+
+    return mapPrismaOpportunityToOrionOpportunity(createdOpportunity);
+  } catch (error: unknown) {
+    const handledError = handleApiError(error, logContext);
+    throw handledError.originalError;
   }
 }
 
@@ -225,40 +305,35 @@ export async function createOpportunityInDb(payload: OpportunityCreatePayload): 
  * @param newStatus The new status to set for the opportunity.
  * @returns A promise that resolves when the update is complete.
  */
-export async function updateOpportunityStatusInDb(opportunityId: string, newStatus: string): Promise<void> {
-  logger.info('[OPPORTUNITY_DB_SERVICE][UPDATE_STATUS][START]', { opportunityId, newStatus });
-  try {
-    const result = await sql<Array<{ id: string }>>`
-      UPDATE opportunities
-      SET
-        status = ${newStatus},
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = ${opportunityId}
-      RETURNING id; -- Return id to check if a row was affected
-    `;
+export async function updateOpportunityStatusInDb(opportunityId: string, newStatus: OpportunityStatus): Promise<void> {
+  const logContext = {
+    service: 'opportunity_db_service',
+    function: 'updateOpportunityStatusInDb',
+    opportunityId,
+    newStatus,
+  };
+  logger.info('[OPPORTUNITY_DB_SERVICE][UPDATE_STATUS][START]', logContext);
 
-    if (result.length === 0) {
+  try {
+    const updatedOpportunity = await prisma.opportunity.update({
+      where: { id: opportunityId },
+      data: {
+        status: newStatus as unknown as PrismaOpportunityStatus, // Ensure correct casting to Prisma's enum
+        updatedAt: new Date(),
+      },
+    });
+
+    if (!updatedOpportunity) {
       logger.warn('[OPPORTUNITY_DB_SERVICE][UPDATE_STATUS][NOT_FOUND]', {
-        opportunityId,
-        newStatus,
+        ...logContext,
         message: 'No opportunity found with the given ID to update.',
       });
       throw new Error(`Opportunity with ID ${opportunityId} not found.`);
     }
 
-    logger.info('[OPPORTUNITY_DB_SERVICE][UPDATE_STATUS][SUCCESS]', {
-      opportunityId,
-      newStatus,
-    });
-  } catch (error) {
-    logger.error('[OPPORTUNITY_DB_SERVICE][UPDATE_STATUS][ERROR]', {
-      error: error instanceof Error ? error.message : String(error),
-      opportunityId,
-      newStatus,
-      stack: error instanceof Error ? error.stack : 'N/A',
-    });
-    throw new Error(
-      `Failed to update opportunity status in database: ${error instanceof Error ? error.message : String(error)}`
-    );
+    logger.info('[OPPORTUNITY_DB_SERVICE][UPDATE_STATUS][SUCCESS]', logContext);
+  } catch (error: unknown) {
+    const handledError = handleApiError(error, logContext);
+    throw handledError.originalError;
   }
 }

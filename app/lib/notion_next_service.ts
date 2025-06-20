@@ -5,12 +5,12 @@
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
 
-
 import axios from 'axios';
 import { z } from 'zod';
 
 // Define the base URL for the Python Notion API
-const PYTHON_NOTION_API_BASE_URL = process.env.NEXT_PUBLIC_PYTHON_NOTION_API_BASE_URL || 'http://localhost:5002/api/notion';
+const PYTHON_NOTION_API_BASE_URL =
+  process.env.NEXT_PUBLIC_PYTHON_NOTION_API_BASE_URL || 'http://localhost:5002/api/notion';
 
 // Define types for CV components
 export interface CVComponent {

@@ -1,13 +1,13 @@
 > merislabs-official@0.1.0 build /Users/mac/Documents/GitHub/merislabs-official
-> pnpm --filter @repo/shared build && pnpm --filter @/app/src/components/ui build && next build --filter \@repo/shared... --filter \@/app/src/components/ui... --filter \@repo/nextjs...
+> pnpm --filter @repo/lib build && pnpm --filter @/app/src/components/ui build && next build --filter \@repo/lib... --filter \@/app/src/components/ui... --filter \@repo/nextjs...
 
-> @repo/shared@0.1.0 build /Users/mac/Documents/GitHub/merislabs-official/packages/shared
+> @repo/lib@0.1.0 build /Users/mac/Documents/GitHub/merislabs-official/packages/lib
 > tsup
 
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.0
-CLI Using tsup config: /Users/mac/Documents/GitHub/merislabs-official/packages/shared/tsup.config.ts
+CLI Using tsup config: /Users/mac/Documents/GitHub/merislabs-official/lib/tsup.config.ts
 CLI Target: esnext
 CLI Cleaning output folder
 CJS Build start
@@ -19,7 +19,7 @@ ESM dist/index.mjs 320.90 KB
 ESM dist/index.mjs.map 557.57 KB
 ESM ⚡️ Build success in 63ms
 DTS Build start
-/Users/mac/Documents/GitHub/merislabs-official/packages/shared:
- ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @repo/shared@0.1.0 build: `tsup`
+/Users/mac/Documents/GitHub/merislabs-official/packages/lib:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @repo/lib@0.1.0 build: `tsup`
 Exit status 1
  ELIFECYCLE  Command failed with exit code 1.

@@ -1,12 +1,9 @@
 'use client';
 
-import React, { useEffect, Suspense, useState } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { SessionStateKeys } from '@/lib/constants';
-import { useSessionState } from '@/hooks/useSessionState';
 import { cn } from '@/components/ui';
-import { apiClient } from '@/lib/apiClient';
 import { Loader } from '@/components/ui'; // Correct import from the UI package
 import { ROUTES } from '@/lib/routes'; // Import ROUTES
 import { NavItem } from '@/types/nav'; // Import NavItem
@@ -14,7 +11,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // Imp
 
 import {
   LayoutDashboard,
-  MessageSquare,
   BookOpenText,
   Network,
   Briefcase,
@@ -29,8 +25,10 @@ import {
   Layers,
   Mail,
   Brain, // Added Brain icon
-  HelpCircle, // Added BrainCircle icon
+  HelpCircle,
 } from 'lucide-react';
+import { useMemoryContext } from '@/components/orion/MemoryProvider'; // Import useMemoryContext
+import logger from '@/lib/logger'; // Assuming logger is available
 
 const adminNavItems: NavItem[] = [
   { href: ROUTES.ADMIN_DASHBOARD.href, title: ROUTES.ADMIN_DASHBOARD.title, icon: <LayoutDashboard /> },
@@ -91,59 +89,17 @@ const AdminSidebar: React.FC = () => {
 const queryClient = new QueryClient(); // Create a client
 
 export default function OrionAdminLayout({ children }: { children: React.ReactNode }) {
-  const sessionStore = useSessionState();
-  const memoryInitialized = sessionStore.selectSessionValue<boolean>(SessionStateKeys.MEMORY_INITIALIZED);
-  const [initializationAttempted, setInitializationAttempted] = useState(false);
+  // Consume memoryInitialized state from MemoryProvider
+  const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
 
   useEffect(() => {
-    let isMounted = true;
-
-    const initMemory = async () => {
-      // Only attempt if memory is false AND we haven't attempted in this component lifecycle yet
-      if (memoryInitialized === false && !initializationAttempted) {
-        setInitializationAttempted(true); // Mark that an attempt is being made
-        try {
-          const response = await apiClient.post('/api/orion/memory/initialize');
-          if (!isMounted) return;
-          if (response.data.success) {
-            sessionStore.setSessionValue(SessionStateKeys.MEMORY_INITIALIZED, true);
-            console.info('[OrionAdminLayout] Orion Memory Backend Initialized/Verified via API.', {
-              operation: 'memory/initialize',
-              result: 'success',
-            });
-          } else {
-            sessionStore.setSessionValue(SessionStateKeys.MEMORY_INITIALIZED, false);
-            console.error('[OrionAdminLayout] Failed to initialize memory backend via API:', response.data.error, {
-              operation: 'memory/initialize',
-              result: 'fail',
-            });
-          }
-        } catch (error) {
-          if (!isMounted) return;
-          sessionStore.setSessionValue(SessionStateKeys.MEMORY_INITIALIZED, false);
-          console.error('[OrionAdminLayout] Error calling memory initialize API:', error, {
-            operation: 'memory/initialize',
-            result: 'error',
-          });
-        }
-      } else {
-        console.info(`[OrionAdminLayout] Memory status: ${memoryInitialized}. Initialization attempt flag: ${initializationAttempted}.`, {
-          operation: 'memory/initialize',
-          result: memoryInitialized ? 'already-initialized-true' : 'already-initialized-false-or-attempted',
-        });
-      }
-    };
-
-    if (typeof window !== 'undefined') {
-      initMemory();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-    // Add initializationAttempted to dependencies.
-    // If memoryInitialized becomes true, we might want to reset initializationAttempted if needed for future scenarios.
-  }, [memoryInitialized, sessionStore, initializationAttempted]);
+    // Log memory status from context for debugging
+    logger.info('[OrionAdminLayout] Memory context status update.', {
+      memoryInitialized,
+      memoryLoading,
+      memoryError,
+    });
+  }, [memoryInitialized, memoryLoading, memoryError]);
 
   return (
     <QueryClientProvider client={queryClient}>

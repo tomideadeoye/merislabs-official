@@ -24,10 +24,10 @@ import React from 'react';
 // - Potentially integrate with a generic `SettingsForm` component if a pattern emerges for various configuration forms.
 
 interface HabiticaCredentialsFormProps {
-  onCredentialsSet: () => void;
+  _onCredentialsSet?: () => void;
 }
 
-export const HabiticaCredentialsForm: React.FC<HabiticaCredentialsFormProps> = ({ onCredentialsSet }) => {
+export const HabiticaCredentialsForm: React.FC<HabiticaCredentialsFormProps> = () => {
   return (
     <div>
       <h3>Habitica Credentials Form</h3>

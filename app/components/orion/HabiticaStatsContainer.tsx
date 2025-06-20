@@ -5,9 +5,8 @@ import React from 'react';
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Consumed by a page component (likely related to task management or dashboard - implied).
 //   - Uses `@/components/ui/card` for basic container styling.
-interface HabiticaStatsContainerProps {
-  // Define props if any
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface HabiticaStatsContainerProps {}
 
 export const HabiticaStatsContainer: React.FC<HabiticaStatsContainerProps> = () => {
   // Placeholder component for Habitica Stats Container

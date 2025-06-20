@@ -10,6 +10,7 @@
  *   - `app/lib/postgres.ts`: The core Neon client and connection logic are defined and exported from here.
  *   - All database service files (e.g., `app/lib/opportunity_db_service.ts`, `app/lib/memory.ts`) import `sql` from this file.
  *   - `app/database/schema.sql`: Defines the database schema that `sql` queries interact with.
+ * - prisma ORM, neon, postgres
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes that the underlying `app/lib/postgres.ts` correctly establishes and manages the database connection.
@@ -32,7 +33,7 @@ export const handleDatabaseOperation = async () => {
   console.warn('handleDatabaseOperation: Placeholder function called.');
   return { success: false, error: 'Not implemented' };
 };
-export const normalizeError = (error: any) => {
+export const normalizeError = (error: unknown) => {
   console.warn('normalizeError: Placeholder function called.');
-  return { message: error.message || 'An unknown error occurred' };
+  return { message: error instanceof Error ? error.message : String(error) || 'An unknown error occurred' };
 };

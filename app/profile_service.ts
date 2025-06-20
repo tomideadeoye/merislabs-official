@@ -1,44 +1,62 @@
 /**
  * @fileoverview Service for fetching user profile data.
- * @description This service fetches Tomide's unstructured profile text from a primary Notion page,
- * with a fallback to local text files. It handles caching to minimize API calls and includes comprehensive logging.
+ * @description This service primarily fetches Tomide's unstructured profile text from a Notion page.
+ *   As a fallback, if Notion data is unavailable or inaccessible, it gracefully retrieves the profile
+ *   from an external Python profile service. This ensures robust and continuous access to core user context.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To act as the centralized service for retrieving Tomide's comprehensive user profile and personality text.
+ *   - To prioritize fetching profile data from the Notion API (using `USER_PROFILE_NOTION_URL`).
+ *   - To implement a robust fallback mechanism to fetch profile data from an external Python API (`PYTHON_PROFILE_API_URL`)
+ *     if the Notion fetch fails or Notion credentials are not configured.
+ *   - To cache fetched profile data in-memory for a defined TTL (`PROFILE_CACHE_TTL_MS`) to minimize redundant API calls.
+ *   - To provide comprehensive logging at each stage of the data fetching process for traceability and debugging.
+ *   - To return a consistent `ProfileServiceRawData` structure, indicating the source of the data.
+ *
+ * FILEPATH: `app/profile_service.ts`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/lib/server_profile_utils.ts`: This file is imported by `server_profile_utils.ts` for server-side fetching of profile data.
+ *   - `UserProfileData` and `UserProfileFetchResponse` (`@/lib/types`): These interfaces define the expected structure of profile data consumed and returned by this service.
+ *   - `logger` (`@/lib/logger`): Used for all logging operations within this service, providing detailed insights into data flow and errors.
+ *   - `USER_PROFILE_NOTION_URL` and `NOTION_API_KEY` (Environment Variables): Configures the primary Notion data source.
+ *   - `PYTHON_PROFILE_API_URL` (Environment Variable): Configures the fallback external Python service endpoint.
+ *   - Notion API (`api.notion.com`): The external API endpoint for fetching Notion page content.
+ *   - External Python Profile Service (`http://localhost:8000/get-profile-data`): The external API endpoint for retrieving profile data when Notion is not the source.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that `USER_PROFILE_NOTION_URL` points to a Notion *page* (not a database) containing unstructured text for the profile.
+ *   - Assumes the Notion API key (`NOTION_API_KEY`) has the necessary permissions to read the specified Notion page.
+ *   - Assumes the external Python profile service (if used) is running at the configured `PYTHON_PROFILE_API_URL` (defaulting to `http://localhost:8000/get-profile-data`).
+ *   - The Python service is expected to return a JSON object with `profile_text` and `personality_text` fields.
+ *   - Caching is implemented to optimize performance for repeated requests within the TTL.
+ *   - This service runs on the server-side, handling sensitive API keys securely.
+ *
+ * NOTES:
+ *   - This service is crucial for centralizing user profile context, which is fundamental for personalization across all of Orion's LLM-powered features.
+ *   - The dual-source strategy (Notion + External Python Service) provides high availability and flexibility for managing Tomide's core context.
+ *   - The `extractNotionPageId` and `extractTextFromBlock` functions ensure robust parsing of Notion block content.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Asynchronous Caching**: Implement persistent caching (e.g., Redis, database) for profile data beyond in-memory, especially for serverless environments.
+ *   - **Notion Block Type Expansion**: Extend `extractTextFromBlock` to support more Notion block types (e.g., lists, code blocks) if profile data is structured in complex ways.
+ *   - **Health Checks**: Implement health checks for both Notion API and the Python profile service to proactively detect and report outages.
+ *   - **API Key Management**: Explore more secure ways to manage API keys, potentially integrating with a secrets management service.
+ *   - **Rate Limiting/Circuit Breaker**: Implement rate limiting and circuit breaker patterns for external API calls to prevent abuse or cascading failures.
+ *   - **Version Control for Profile**: Potentially integrate with a Git-based system for versioning changes to the local profile text, if that becomes a primary source again.
  */
-
-import { logger } from './styles';
-
-let readFileImpl: typeof import('fs/promises').readFile | undefined;
-interface PathModuleStub {
-  join: (...paths: string[]) => string;
-}
-let pathImpl: typeof import('path') | PathModuleStub | undefined;
-
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
-
-if (isNode) {
-  readFileImpl = require('fs/promises').readFile;
-  pathImpl = require('path');
-} else {
-  // Stubs for non-Node environments
-  readFileImpl = async () => {
-    throw new Error('readFile is not available in this environment.');
-  };
-  pathImpl = {
-    join: (...paths: string[]) => {
-      // Simple join for demonstration; in a real scenario, use a proper path library or Node.js path module.
-      return paths.join('/');
-    },
-  };
-}
+import logger from '@/lib/logger';
+import { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
 
 /**
  * Defines the structure for the fetched user profile data.
- * It's designed to hold unstructured text from either Notion or local files.
+ * It's designed to hold unstructured text from either Notion, local files, or an external service.
  */
 export interface ProfileServiceRawData {
   /** The full, concatenated unstructured text from the profile source. */
   profileText: string;
-  /** Indicates whether the data came from Notion or local files. */
-  source: 'notion' | 'local';
+  /** Indicates whether the data came from Notion, local files, or an external service. */
+  source: 'notion' | 'local' | 'external_service';
 }
 
 /**
@@ -60,13 +78,13 @@ function extractNotionPageId(url: string): string | null {
 /**
  * Extracts plain text from any Notion block type that contains a `rich_text` array.
  */
-function extractTextFromBlock(block: { type: string; [key: string]: any }): string {
+function extractTextFromBlock(block: { type: string; [key: string]: unknown }): string {
   const blockType = block?.type;
   if (!blockType) return '';
 
-  const blockContent = block[blockType];
+  const blockContent = block[blockType] as { rich_text?: { plain_text: string }[] };
   if (blockContent?.rich_text && Array.isArray(blockContent.rich_text)) {
-    return blockContent.rich_text.map((rt: { plain_text: string }) => rt.plain_text).join('');
+    return blockContent.rich_text.map((rt) => rt.plain_text).join('');
   }
   return '';
 }
@@ -80,7 +98,7 @@ const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 /**
  * Fetches user profile data from a primary source (Notion page with unstructured text)
- * and falls back to local files if the primary source fails.
+ * and falls back to an external Python service if the primary source fails.
  */
 export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> {
   const logContext = {
@@ -100,6 +118,7 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
 
   const notionUrl = process.env.USER_PROFILE_NOTION_URL;
   const notionApiKey = process.env.NOTION_API_KEY;
+  const pythonProfileApiUrl = process.env.PYTHON_PROFILE_API_URL || 'http://localhost:8000/get-profile-data';
 
   // 2. Primary Source: Attempt to fetch from Notion
   if (notionUrl && notionApiKey) {
@@ -124,7 +143,7 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
         );
       }
 
-      const notionData = (await notionRes.json()) as { results: { type: string; [key: string]: any }[] };
+      const notionData = (await notionRes.json()) as { results: { type: string; [key: string]: unknown }[] };
 
       // REFACTORED: Concatenate text from all supported block types into a single string.
       const allText = notionData.results
@@ -147,54 +166,84 @@ export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> 
       logger.error('Error fetching/parsing user profile from Notion. Attempting fallback.', { ...logContext, error });
     }
   } else {
-    logger.warn('Notion URL or API Key not set. Attempting local file fallback.', logContext);
+    logger.warn('Notion URL or API Key not set. Attempting external service fallback.', logContext);
   }
 
-  // 3. Fallback Source: Attempt to fetch from local files
+  // 3. Fallback Source: Attempt to fetch from external Python service
+  if (pythonProfileApiUrl) {
+    try {
+      logger.info('Fallback Source: Attempting to fetch user profile from external Python service.', logContext);
+
+      const response = await fetch(pythonProfileApiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // Consider adding a timeout for robustness
+        // signal: AbortSignal.timeout(5000) // 5 second timeout
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || errorData.error || `Failed to fetch profile: ${response.statusText}`);
+      }
+
+      const data: { profile_text: string; personality_text: string } = await response.json();
+
+      const combinedProfileText = `${data.profile_text}\n\n---\n\n${data.personality_text}`.trim();
+
+      if (combinedProfileText) {
+        const profileData: ProfileServiceRawData = {
+          profileText: combinedProfileText,
+          source: 'external_service',
+        };
+        profileCache = { data: profileData, timestamp: Date.now() };
+        logger.success('Successfully fetched profile from external Python service.', logContext);
+        return profileData;
+      } else {
+        logger.warn('External profile service returned no content.', logContext);
+        throw new Error('External profile service returned no content.');
+      }
+    } catch (error: unknown) {
+      logger.error('Error fetching user profile from external Python service. This is a critical context failure.', {
+        ...logContext,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  logger.error(
+    'Failed to fetch user profile from all sources (Notion and external service). This is a critical context failure.',
+    { ...logContext }
+  );
+  return null;
+}
+
+export async function getProfileText(): Promise<UserProfileFetchResponse> {
+  const logContext = {
+    operation: 'getProfileText',
+    timestamp: new Date().toISOString(),
+  };
+
   try {
-    logger.info('Fallback Source: Attempting local file read for user profile...', logContext);
+    logger.info('Attempting to retrieve profile text.', logContext);
+    const profileData = await fetchUserProfile();
 
-    // Using process.cwd() should resolve from the root of the running application
-    const profileTextPath = pathImpl!.join(
-      process.cwd(),
-      'backend',
-      'orion_python_backend',
-      'Tomide_Adeoye_Profile.txt'
-    );
-    const personalityTextPath = pathImpl!.join(
-      process.cwd(),
-      'backend',
-      'orion_python_backend',
-      'Tomide_Adeoye_personality.txt'
-    );
-
-    logger.debug('Attempting to read profile files from paths:', {
-      profilePath: profileTextPath,
-      personalityPath: personalityTextPath,
-    });
-
-    const profileContent = await readFileImpl!(profileTextPath, 'utf-8');
-    const personalityContent = await readFileImpl!(personalityTextPath, 'utf-8');
-
-    const combinedLocalText = `${profileContent}\n\n---\n\n${personalityContent}`.trim();
-
-    if (combinedLocalText) {
-      const profileData: ProfileServiceRawData = {
-        profileText: combinedLocalText,
-        source: 'local',
+    if (profileData && profileData.profileText) {
+      logger.success('Successfully retrieved profile text.', { ...logContext, source: profileData.source });
+      return {
+        success: true,
+        profileText: profileData.profileText,
+        profile: { profileText: profileData.profileText, source: profileData.source } as unknown as UserProfileData,
+        source: profileData.source,
       };
-      profileCache = { data: profileData, timestamp: Date.now() };
-      logger.success('Successfully fetched profile from local files.', logContext);
-      return profileData;
     } else {
-      throw new Error('Local profile files were found but are empty.');
+      logger.warn('No profile text available after fetching from all sources.', logContext);
+      return { success: false, error: 'No profile text available.', source: 'none' };
     }
   } catch (error: unknown) {
-    logger.error(
-      'Failed to fetch user profile from all sources (Notion and local files). This is a critical context failure.',
-      { ...logContext, error: error instanceof Error ? error.message : String(error) }
-    );
-    // This will now be the final point of failure if local files are also missing.
-    return null;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('Error in getProfileText.', { ...logContext, error: errorMessage });
+    return { success: false, error: `Error retrieving profile text: ${errorMessage}`, source: 'error' };
   }
 }

@@ -50,13 +50,6 @@ packages/**/dist/
 __pycache__/
 *.py[cod]
 *.egg-info/
-backend/orion_python_backend/__pycache__/
-backend/orion_python_backend/.venv/
-backend/orion_python_backend/venv/
-backend/orion_python_backend/.mypy_cache/
-backend/orion_python_backend/.pytest_cache/
-backend/orion_python_backend/*.egg-info/
-backend/orion_python_backend/.env*
 
 
 # Testing & coverage
@@ -151,16 +144,7 @@ Thumbs.db
 *.sublime-workspace
 *.sublime-project
 
-# Python backend
-backend/orion_python_backend/__pycache__/
-backend/orion_python_backend/.venv/
-backend/orion_python_backend/venv/
-backend/orion_python_backend/.mypy_cache/
-backend/orion_python_backend/.pytest_cache/
-backend/orion_python_backend/*.pyc
-backend/orion_python_backend/*.pyo
-backend/orion_python_backend/*.egg-info/
-backend/orion_python_backend/.env*
+# Python backend (Now removed as it's an external service)
 
 # simple nextjs project workspace artifacts
 pnpm-lock.yaml
@@ -193,17 +177,10 @@ components.json.bak
 # Ignore build info
 *.tsbuildinfo
 
-# Ignore coverage
-coverage/
-
 # Ignore generated files
 *.generated.*
 
 # Ignore secret and credential files
-backend/orion_python_backend/client_secret_*.json
-backend/orion_python_backend/*.pem
-backend/orion_python_backend/*.key
-backend/orion_python_backend/*.crt
 
 # Ignore environment variable files
 .env
@@ -232,3 +209,5 @@ coverage/
 *.db
 
 # Add more patterns as needed for your project
+
+/generated/prisma

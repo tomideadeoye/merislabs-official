@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import logger from '@/lib/logger';
-import { UserProfileData, OrionOpportunity, EvaluationOutput } from '@/lib/types';
+import { UserProfileData, EvaluationOutput } from '@/lib/types';
 
 /**
  * Goal: This Zustand store manages the persistent session state for the Orion application.
@@ -12,7 +12,7 @@ import { UserProfileData, OrionOpportunity, EvaluationOutput } from '@/lib/types
  *   to manage UI state, form data, and cached information (e.g., user profile, opportunity details).
  * - `SessionStateKeys` enum defines the keys for easy access to specific state slices.
  * - It integrates with `@/lib/logger` for comprehensive logging of state changes and operations.
- * - It uses `UserProfileData`, `OrionOpportunity`, and `EvaluationOutput` types from `@/lib/types` for type safety.
+ * - It uses `UserProfileData`, and `EvaluationOutput` types from `@/lib/types` for type safety.
  */
 
 export enum SessionStateKeys {
@@ -206,7 +206,7 @@ const initialState = {
 
 export const useSessionState = create<SessionState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       state: initialState,
       setState: (key, value) => {
         logger.debug(`Attempting to set state key: ${key} with value:`, { value });

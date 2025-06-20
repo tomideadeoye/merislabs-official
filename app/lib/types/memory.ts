@@ -1,17 +1,69 @@
+/**
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - Defines the data structures for memory points stored in and retrieved from Qdrant, ensuring type consistency between the API layer and the UI.
+ *   - Provides interfaces for `MemoryMetadataPayload`, `ScoredMemoryPoint`, `QdrantFilter`, and `QdrantFilterCondition` to standardize memory interactions.
+ *
+ * FILEPATH: `app/lib/types/memory.ts`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/api/orion/memory/search/route.ts`: Consumes these types for defining request/response bodies and handling Qdrant search results.
+ *   - `app/api/orion/orion/memory/vector-search.ts`: Uses these types for defining direct vector search parameters and results.
+ *   - `app/(orion_admin)/admin/memory-manager/page.tsx`: Consumes `ScoredMemoryPoint` to display memory search results in the UI.
+ *   - `app/lib/types/index.ts`: Re-exports these types as part of the central type definitions for the Orion project.
+ *   - Qdrant Client (`@qdrant/js-client-rest`): These interfaces mirror the structure of data sent to and received from the Qdrant database.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that `MemoryMetadataPayload` directly corresponds to the `payload` field within Qdrant memory points.
+ *   - `ScoredMemoryPoint` includes both `id`, `score`, `content`, and the `payload` (metadata) for comprehensive representation of a search result.
+ *
+ * NOTES:
+ *   - This file is critical for maintaining type safety and data consistency across all memory-related functionalities in Orion.
+ *   - The `[key: string]: unknown;` index signature in `MemoryMetadataPayload` allows for flexibility to include additional metadata fields from Qdrant without strict type enforcement for every possible field.
+ *   - The `payload` property in `ScoredMemoryPoint` was intentionally named to align with the Qdrant client's response structure.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Schema Validation**: Consider integrating a schema validation library (e.g., Zod) for runtime validation of memory payloads, especially when receiving data from external sources or APIs.
+ *   - **Detailed Metadata Types**: As the application evolves, more specific interfaces could be defined for different `type` values within `MemoryMetadataPayload` (e.g., `JournalMemoryPayload`, `OpportunityMemoryPayload`) to provide stricter type checking for type-specific fields.
+ *   - **Documentation**: Expand comments for each field within the interfaces to provide clearer explanations of their purpose and origin.
+ *
+ * OPPORTUNITIES TO CONSOLIDATE:
+ *   - This file already consolidates all memory-specific type definitions, preventing scattering of related types across the codebase.
+ *   - There is no immediate opportunity to consolidate this file further without sacrificing clarity or introducing circular dependencies.
+ */
 
-
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// Note if any: components to merge with, similar or redundant component, usage patterns, next steps if any
-export interface MemoryPoint {
-  id: string;
-  content: string;
-  embedding: number[];
-  metadata: Record<string, any>;
+/**
+ * Defines the structure of the metadata payload stored within a Qdrant memory point.
+ * This directly corresponds to the `payload` field from Qdrant, which contains
+ * rich contextual information about the memory.
+ */
+export interface MemoryMetadataPayload {
+  text: string; // The original text content (also mapped to 'content' at top-level of ScoredMemoryPoint)
+  source_id: string;
+  timestamp: string;
+  indexedAt: string;
+  type: string; // e.g., 'journal_entry', 'general_note'
+  tags?: string[];
+  mood?: string;
+  original_entry_id?: string;
+  originalTaskText?: string;
+  title?: string; // Critical for display in UI, comes from Qdrant payload
+  opportunityId?: string;
+  company?: string;
+  status?: string;
+  outcome?: string;
+  [key: string]: unknown; // Allows for additional flexible fields
 }
 
-export interface ScoredMemoryPoint extends MemoryPoint {
-  score: number;
+/**
+ * Defines the structure of a memory point as returned by the Qdrant search API
+ * and consumed by the frontend. This is the "scored" result.
+ */
+export interface ScoredMemoryPoint {
+  id: string; // Unique ID of the memory point
+  score: number; // Relevance score from Qdrant
+  content: string; // Extracted primary text content for display (from metadata.text)
+  embedding?: number[]; // Optional vector embedding (usually not returned by search `with_vector: false`)
+  payload: MemoryMetadataPayload; // The full metadata payload from Qdrant
 }
 
 export interface QdrantFilter {

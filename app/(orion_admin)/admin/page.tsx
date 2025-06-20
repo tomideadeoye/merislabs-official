@@ -9,7 +9,7 @@
 //   apps/nextjs/app/(orion_admin)/admin/page.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Uses:
-//       - useSessionState, useUserProfile, PageNames, SessionStateKeys (from @repo/shared)
+//       - useSessionState, useUserProfile, PageNames, SessionStateKeys (from @repo/lib)
 //       - DashboardRoutineStatus, HabiticaStatsContainer (from components/orion/)
 //       - UI components from @/components/ui/index
 //       - checkAllLlmApiKeys, PROVIDER_MODEL_CONFIGS (from @/lib/llm_providers)
@@ -48,7 +48,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { PageNames, SessionStateKeys } from '@/lib/constants';
-import consolidatedLogger from '@/lib/logger';
+import logger from '@/lib/logger';
 import { useSessionState } from '@/hooks/useSessionState';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
@@ -82,14 +82,13 @@ export default function AdminDashboardPage() {
   // Refresh profile from API
   const handleRefreshProfile = async () => {
     try {
-      consolidatedLogger.info('[ProfileUI][ACTION] Triggering profile refetch...');
+      logger.info('[ProfileUI][ACTION] Triggering profile refetch...');
       await refetch();
-      consolidatedLogger.info('[ProfileUI][ACTION] Profile refetched successfully.');
+      logger.info('[ProfileUI][ACTION] Profile refetched successfully.');
     } catch (err: unknown) {
-      consolidatedLogger.error(
-        '[ProfileUI][ERROR] Failed to refresh profile:',
-        err instanceof Error ? err : new Error(String(err))
-      );
+      logger.error('[ProfileUI][ERROR] Failed to refresh profile:', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   };
 

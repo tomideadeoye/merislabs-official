@@ -1,11 +1,33 @@
 /**
- * GOAL: This is the single source of truth for all shared type definitions.
- * It exports everything from the other type files in this directory.
- *GOAL:
- * RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
- * Canonical Orion types are in './orion'.
- * Generic/legacy opportunity types are in './opportunity' and use the 'Generic' prefix.
+ * FILEPATH: `app/lib/types/index.ts`
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - Serves as the **single source of truth** for all lib TypeScript type definitions and interfaces across the entire Orion project.
+ *   - Centralizes the definition of data structures for API responses, UI component props, database models (via Prisma), and internal logic.
+ *   - Ensures strict type safety, consistency, and clarity in data flow throughout the application.
+ *   - Re-exports types from specialized type files within this directory (`./blocks`, `./habitica`, etc.) for easier consumption by other modules.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - **Canonical Orion Types**: Core application-specific types (e.g., `OrionOpportunity`, `CVComponent`, `EmotionalLogEntry`) are defined directly in this file or explicitly re-exported from sub-files.
+ *   - **API Routes (`/api/orion/...`)**: All API request and response bodies rely heavily on the interfaces defined here.
+ *   - **UI Components (`app/components/orion/...`)**: Components consume props typed by interfaces from this file.
+ *   - **Prisma Integration (`@/generated/prisma`, `prisma/schema.prisma`)**: Prisma-generated types are often integrated or mirrored here for broader application use.
+ *   - **lib Libraries (`app/lib/...`)**: Utility functions and services leverage these types for internal data handling.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that any new data structures or modifications to existing ones will be defined or updated in this central file.
+ *   - Types are designed to be compatible with both frontend (React) and backend (Next.js API routes, Prisma) contexts.
+ *   - `Prisma.JsonValue` is used for fields that can store arbitrary JSON structures, ensuring flexibility while maintaining type safety.
+ *   - Explicit `null` and `undefined` allowances are made where database fields or API responses can legitimately be optional or absent.
+ *
+ * NOTES:
+ *   - This file is crucial for maintaining the robustness and scalability of the Orion project by enforcing clear data contracts.
+ *   - Regular review and updates are essential to reflect evolving data models and feature requirements.
+ *   - The export strategy (`export * from ...`) simplifies imports for consumers but requires careful management to avoid naming conflicts.
  */
+
+import type { HabiticaTask } from './habitica';
+import { Prisma } from '@/generated/prisma';
 
 // Explicitly export types to avoid duplicate identifier errors
 export * from './blocks';
@@ -18,7 +40,7 @@ export * from './nav';
 export * from './strategic-outreach';
 export * from './memory';
 export * from './email';
-import type { HabiticaTask } from './habitica';
+export * from './gamification';
 
 // Explicitly export types to avoid duplicate identifier errors
 export * from './blocks';
@@ -45,54 +67,55 @@ export interface LLMAPIKeyStatus {
 // It ensures type safety, consistency, and clear data structures for all features, from API responses to UI components.
 //
 // Relation to other files, functions and features:
-// This file is imported by almost every other file in the `shared` package (via `index.ts`) and by many files in `apps/nextjs` and `packages/ui`.
+// This file is imported by almost every other file in the `lib` package (via `index.ts`) and by many files in `apps/nextjs` and `packages/ui`.
 // Changes here will affect type checking across the entire project.
 
 export interface OrionOpportunity {
   id: string;
   title: string;
-  company: string; // company or institution
-  type?: OpportunityType | null;
-  status?: OpportunityStatus | null;
-  content?: string | null; // Job description or related content - Made optional and allows null
-  url?: string | null; // Allow null
-  tags?: string[] | null;
-  dateIdentified?: string | null; // ISO date string - Allow null
-  notes?: string | null; // Allow null to align with OpportunityNotionOutputShared
-  contactPerson?: string;
-  contactEmail?: string;
-  stage?: string;
-  attachments?: string[];
-  companyOrInstitution?: string;
-  relatedEvaluationId?: string | null; // Allow null
-  sourceUrl?: string;
-  nextActionDate?: string | null; // Allow null for nextActionDate
-  priority?: OpportunityPriority | null;
-  tailoredCv?: string;
-  deadline?: string | null; // Explicitly allow null for deadline
-  location?: string | null; // Explicitly allow null for location
-  salary?: string | null; // Explicitly allow null for salary
-  contact?: string | null; // Explicitly allow null for contact
-  position?: string | null; // Explicitly allow null for position
-  lastStatusUpdate?: string | null; // Allow null
-  notionPageId?: string;
-  createdAt?: string | null; // Allow null to align with OpportunityNotionOutputShared
-  updatedAt?: string | null; // Allow null to align with OpportunityNotionOutputShared
-  evaluationOutput?: EvaluationOutput | null; // Allow null here
-  webResearchContext?: string | null; // Allow null to align with OpportunityNotionOutputShared
-  pros?: string[] | null;
-  cons?: string[] | null;
-  missingSkills?: string[] | null;
-  contentType?: string | null; // Allow null here to align with OpportunityNotionOutputShared
-  lastEditedTime?: string | Date | null; // Explicitly allow null
-  cvComponentSuggestions?: { component: string; reasoning: string }[];
-  alignmentScore?: number | null | undefined; // Ensure optional and nullable
-  actionableAdvice?: string[];
+  company: string | null; // company or institution - Made nullable
+  type: OpportunityType | null | undefined; // Made nullable and optional for Prisma compatibility
+  status: OpportunityStatus | null | undefined; // Made nullable and optional for Prisma compatibility
+  content: string | null; // Job description or related content - Made optional and allows null
+  url: string | null; // Allow null
+  tags: string[] | null; // Allow null
+  dateIdentified: string | null; // ISO date string - Allow null
+  notes: string | null; // Allow null to align with OpportunityNotionOutputlib
+  contactPerson: string | null;
+  contactEmail: string | null;
+  stage: string | null;
+  attachments: string[] | null;
+  companyOrInstitution: string | null; // Assuming this maps to 'company' in Prisma, made nullable
+  relatedEvaluationId: string | null; // Allow null
+  sourceUrl: string | null;
+  nextActionDate: string | null; // Allow null for nextActionDate
+  priority: OpportunityPriority | null; // Allow null as per Prisma schema
+  tailoredCv: string | null;
+  deadline: string | null; // Explicitly allow null for deadline
+  location: string | null; // Made nullable
+  salary: string | null;
+  contact: string | null;
+  position: string | null; // Made nullable
+  lastStatusUpdate: string | null; // Allow null
+  notionPageId: string | null;
+  createdAt: string; // Made required as per Prisma schema
+  updatedAt: string; // Made required as per Prisma schema
+  evaluationOutput: EvaluationOutput | null; // Allow null here
+  webResearchContext: string | null; // Allow null to align with OpportunityNotionOutputlib
+  pros: string[] | null;
+  cons: string[] | null;
+  missingSkills: string[] | null;
+  contentType: string | null; // Allow null here to align with OpportunityNotionOutputlib
+  lastEditedTime: string | Date | null; // Explicitly allow null
+  cvComponentSuggestions: { component: string; reasoning: string }[] | null;
+  alignmentScore: number | null | undefined; // Ensure optional and nullable
+  actionableAdvice: string[] | null;
+  applicationMaterialIds?: string[]; // Made optional, but must be string[] if present
   [key: string]: unknown; // Changed from any to unknown for broader type safety
 }
 
 export enum OpportunityType {
-  JOB = 'job',
+  JOB = 'job', // Prisma schema uses lowercase for this specific enum
   PROJECT = 'project',
   COLLABORATION = 'collaboration',
   GIG = 'gig',
@@ -100,12 +123,12 @@ export enum OpportunityType {
   EDUCATION_PROGRAM = 'educationProgram',
   PROJECT_COLLABORATION = 'projectCollaboration',
   FUNDING = 'funding',
-  NEGOTIATING = 'negotiating',
-  DECLINED = 'declined',
-  APPLICATION_READY = 'applicationReady',
-  OUTREACH_PLANNED = 'outreachPlanned',
-  OUTREACH_SENT = 'outreachSent',
-  OFFER_RECEIVED = 'offerReceived',
+  NEGOTIATING = 'negotiating', // Note: Prisma schema has this as 'negotiating' (lowercase)
+  DECLINED = 'declined', // Note: Prisma schema has this as 'declined' (lowercase)
+  APPLICATION_READY = 'applicationReady', // Note: Prisma schema has this as 'applicationReady' (camelCase)
+  OUTREACH_PLANNED = 'outreachPlanned', // Note: Prisma schema has this as 'outreachPlanned' (camelCase)
+  OUTREACH_SENT = 'outreachSent', // Note: Prisma schema has this as 'outreachSent' (camelCase)
+  OFFER_RECEIVED = 'offerReceived', // Note: Prisma schema has this as 'offerReceived' (camelCase)
 }
 
 export enum OpportunityStatus {
@@ -118,40 +141,40 @@ export enum OpportunityStatus {
   ACCEPTED = 'accepted',
   ARCHIVED = 'archived',
   EVALUATING = 'evaluating',
-  EVALUATED_POSITIVE = 'evaluatedPositive',
-  EVALUATED_NEGATIVE = 'evaluatedNegative',
-  APPLICATION_DRAFTING = 'applicationDrafting',
-  INTERVIEW_SCHEDULED = 'interviewScheduled',
-  INTERVIEW_COMPLETED = 'interviewCompleted',
+  EVALUATED_POSITIVE = 'evaluatedPositive', // Matches Prisma @map value
+  EVALUATED_NEGATIVE = 'evaluatedNegative', // Matches Prisma @map value
+  APPLICATION_DRAFTING = 'applicationDrafting', // Matches Prisma @map value
+  INTERVIEW_SCHEDULED = 'interviewScheduled', // Matches Prisma @map value
+  INTERVIEW_COMPLETED = 'interviewCompleted', // Matches Prisma @map value
   APPLIED = 'applied',
   PURSUING = 'pursuing',
-  NEGOTIATING = 'negotiating',
-  DECLINED = 'declined',
-  APPLICATION_READY = 'applicationReady',
-  OUTREACH_PLANNED = 'outreachPlanned',
-  OUTREACH_SENT = 'outreachSent',
-  FOLLOW_UP_NEEDED = 'followUpNeeded',
-  FOLLOW_UP_SENT = 'followUpSent',
-  OFFER_RECEIVED = 'offerReceived',
-  APPLYING_NEXT_STEP = 'applyingNextStep',
-  INTERVIEWING_ROUND_1 = 'interviewingRound1',
-  INTERVIEWING_ROUND_2 = 'interviewingRound2',
-  FINAL_INTERVIEW = 'finalInterview',
-  OFFER_RECEIVED_PENDING_REVIEW = 'offerReceivedPendingReview',
-  OFFER_ACCEPTED = 'offerAccepted',
-  OFFER_REJECTED = 'offerRejected',
-  ACTIVE_OUTREACH = 'activeOutreach',
-  FOLLOW_UP = 'followUp',
-  ON_HOLD = 'onHold',
-  CONVERTED = 'converted',
-  REJECTED_BY_THEM = 'rejectedByThem',
-  DECLINED_BY_ME = 'declinedByMe',
+  NEGOTIATING = 'negotiating', // Matches Prisma value
+  DECLINED = 'declined', // Matches Prisma value
+  APPLICATION_READY = 'applicationReady', // Matches Prisma @map value
+  OUTREACH_PLANNED = 'outreachPlanned', // Matches Prisma @map value
+  OUTREACH_SENT = 'outreachSent', // Matches Prisma @map value
+  FOLLOW_UP_NEEDED = 'followUpNeeded', // Matches Prisma @map value
+  FOLLOW_UP_SENT = 'followUpSent', // Matches Prisma @map value
+  OFFER_RECEIVED = 'offerReceived', // Matches Prisma @map value
+  APPLYING_NEXT_STEP = 'applyingNextStep', // Matches Prisma @map value
+  INTERVIEWING_ROUND_1 = 'interviewingRound1', // Matches Prisma @map value
+  INTERVIEWING_ROUND_2 = 'interviewingRound2', // Matches Prisma @map value
+  FINAL_INTERVIEW = 'finalInterview', // Matches Prisma @map value
+  OFFER_RECEIVED_PENDING_REVIEW = 'offerReceivedPendingReview', // Matches Prisma @map value
+  OFFER_ACCEPTED = 'offerAccepted', // Matches Prisma @map value
+  OFFER_REJECTED = 'offerRejected', // Matches Prisma @map value
+  ACTIVE_OUTREACH = 'activeOutreach', // Matches Prisma @map value
+  FOLLOW_UP = 'followUp', // Matches Prisma value
+  ON_HOLD = 'onHold', // Matches Prisma @map value
+  CONVERTED = 'converted', // Matches Prisma value
+  REJECTED_BY_THEM = 'rejectedByThem', // Matches Prisma @map value
+  DECLINED_BY_ME = 'declinedByMe', // Matches Prisma @map value
 }
 
 export enum OpportunityPriority {
-  HIGH = 'high',
-  MEDIUM = 'medium',
-  LOW = 'low',
+  HIGH = 'HIGH',
+  MEDIUM = 'MEDIUM',
+  LOW = 'LOW',
 }
 
 export type OpportunityFilterStatus = OpportunityStatus | 'all';
@@ -170,15 +193,19 @@ export interface OpportunityEvaluationInput {
   url?: string;
 }
 
+export interface EvaluationGapDetail {
+  gap: string;
+  solution: string;
+}
+
 export interface EvaluationOutput {
   overallFitScore: number;
   summary: string;
   strengths: { title: string; reasoning: string }[];
-  gaps: { skill: string; reasoning: string }[];
+  gaps: (string | EvaluationGapDetail)[];
   suggestedCvComponents: { component: string; reasoning: string }[];
   suggestedNextSteps: string[];
   alignmentHighlights: { title: string; reasoning: string }[];
-  gapAnalysis: { skill: string; reasoning: string }[];
   fitScorePercentage: number;
   recommendation?: 'Proceed' | 'Caution' | 'Not Evaluated';
   reasoning?: string;
@@ -246,12 +273,13 @@ export interface DraftApplicationRequestBody {
  * Response body for drafting an application.
  */
 export interface DraftApplicationResponseBody {
+  success: boolean;
   drafts?: string[];
   modelUsed?: string;
-  message: string;
-  success: boolean;
   error?: string;
   details?: string;
+  warning?: string;
+  message?: string; // Added message property
 }
 
 export interface SearchMemoryResponse {
@@ -333,13 +361,13 @@ export interface EmotionalLogEntry {
   intensity: number;
   context: string;
   accompanyingThoughts?: string;
-  contextualNote?: string;
+  contextualNote?: string | null;
   cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData;
   secondaryEmotions?: string[];
   triggers?: string[];
   physicalSensations?: string[];
   copingMechanismsUsed?: string[];
-  relatedJournalSourceId?: string;
+  relatedJournalSourceId?: string | null; // Allow null for consistency
 }
 
 export interface MemoryPayload {
@@ -420,42 +448,51 @@ export interface OpportunityUpdatePayload {
   removeStakeholderContactId?: string;
   addRelatedHabiticaTaskId?: string;
   removeRelatedHabiticaTaskId?: string;
+  deadline?: string | null;
+  location?: string | null;
+  salary?: string | null;
+  position?: string | null;
 }
 
 export interface OpportunityCreatePayload {
   title: string;
-  companyOrInstitution: string;
-  type: OpportunityType;
-  status: OpportunityStatus;
-  content: string;
-  url: string;
-  tags: string[];
-  dateIdentified: string;
-  sourceUrl?: string;
-  nextActionDate?: string;
-  priority?: OpportunityPriority;
-  tailoredCv?: string;
+  companyOrInstitution?: string | null; // Make optional and nullable
+  type?: OpportunityType | null | undefined; // Make optional, nullable, and undefined for Prisma compatibility
+  status?: OpportunityStatus | null | undefined; // Make optional, nullable, and undefined for Prisma compatibility
+  content?: string | null; // Maps to description in DB, optional and nullable
+  url?: string | null;
+  tags?: string[] | null; // Maps to requirements in DB, optional and nullable
+  dateIdentified?: string | null;
+  sourceUrl?: string | null;
+  nextActionDate?: string | null;
+  priority?: OpportunityPriority | null; // Make optional and nullable
+  tailoredCv?: string | null;
   deadline?: string | null;
-  location?: string;
-  salary?: string;
-  contact?: string;
-  position?: string;
-  cvComponentSuggestions?: { component: string; reasoning: string }[];
-  alignmentScore?: number | null | undefined;
-  pros?: string[] | null;
-  cons?: string[] | null;
-  actionableAdvice?: string[];
+  location?: string | null; // Make optional and nullable
+  salary?: string | null;
+  contact?: string | null;
+  position?: string | null; // Make optional and nullable
+  cvComponentSuggestions?: { component: string; reasoning: string }[] | null;
+  notes?: string | null;
+  contactPerson?: string | null;
+  contactEmail?: string | null;
+  stage?: string | null;
+  attachments?: string[] | null;
+  relatedEvaluationId?: string | null;
+  lastStatusUpdate?: string | null;
+  notionPageId?: string | null;
+  applicationMaterialIds?: string[]; // Made optional, but must be string[] if present
 }
 
-export interface OpportunityNotionOutputShared extends OrionOpportunity {
+export interface OpportunityNotionOutputlib {
   type?: OpportunityType | null;
   status?: OpportunityStatus | null;
   priority?: OpportunityPriority | null;
   content?: string | null; // Explicitly allow null for content
   tags?: string[] | null; // Explicitly allow null for tags
-  pros?: string[] | null; // Explicitly allow null for pros
-  cons?: string[] | null; // Explicitly allow null for cons
-  missingSkills?: string[] | null; // Explicitly allow null for missingSkills
+  pros?: string[] | null;
+  cons?: string[] | null;
+  missingSkills?: string[] | null;
   notes?: string | null; // Explicitly allow null for notes
   relatedEvaluationId?: string | null; // Explicitly allow null
   lastStatusUpdate?: string | null; // Explicitly allow null
@@ -469,16 +506,35 @@ export interface OpportunityNotionOutputShared extends OrionOpportunity {
   evaluationOutput?: EvaluationOutput | null; // Allow null here
   webResearchContext?: string | null; // This was already correctly set in RawNotionOpportunityData, ensuring consistency
   contentType?: string | null; // Allow null here
+  // Add all other properties from OrionOpportunity that are relevant to Notion output here, and mark them as optional/nullable if Notion provides them that way.
+  id?: string;
+  title?: string;
+  company?: string;
+  companyOrInstitution?: string;
+  cvComponentSuggestions?: { component: string; reasoning: string }[] | null;
+  alignmentScore?: number | null | undefined;
+  actionableAdvice?: string[] | null;
+  url?: string | null;
+  dateIdentified?: string | null;
+  contactPerson?: string | null;
+  contactEmail?: string | null;
+  stage?: string | null;
+  attachments?: string[] | null;
+  sourceUrl?: string | null;
+  nextActionDate?: string | null;
+  tailoredCv?: string | null;
+  salary?: string | null;
+  notionPageId?: string | null;
   [key: string]: unknown; // Add index signature
 }
 
 export interface CVComponent {
   id: string;
   name: string;
-  content: string;
+  content: Prisma.JsonValue | null;
   type: string;
   keywords?: string[];
-  uniqueId?: string;
+  uniqueId?: string | null;
   notionPageId?: string;
   componentName?: string; // Used in load-cv-data/route.ts
   componentType?: string; // Used in load-cv-data/route.ts and NotionCVComponentsList.tsx
@@ -1036,7 +1092,7 @@ export interface UserProfileFetchResponse {
   profileText?: string | null;
   profile?: UserProfileData | null;
   error?: string;
-  source?: 'notion' | 'local';
+  source?: 'notion' | 'local' | 'external_service' | 'none' | 'error';
 }
 
 export interface EmailResponse {
@@ -1371,4 +1427,64 @@ export interface Contact {
   createdAt: string;
   updatedAt: string;
   [key: string]: unknown; // Allow for additional Notion properties
+}
+
+export interface CVComponentData {
+  id: string;
+  name: string;
+  type: string;
+  content: Prisma.JsonValue | null; // Content can be JSON string or plain text, allow null
+  tags: string[];
+  userId: string;
+  uniqueId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CVComponentCreatePayload {
+  name: string;
+  type: string;
+  content: Prisma.JsonValue; // Should be Prisma.JsonValue for structured data
+  tags?: string[];
+  userId: string;
+  uniqueId?: string | null;
+}
+
+export interface RawCvComponentJsonData {
+  'Component Name': string;
+  'Component Type': string;
+  'Content (Primary)': string;
+  Keywords?: string[];
+  'Target Role Tags'?: string[];
+  'Associated Company/Institution'?: string;
+  'Start Date'?: string;
+  'End Date'?: string;
+  'Quantifiable Result/Metric'?: string;
+  UniqueID: string;
+}
+
+export interface ApiErrorResponse {
+  name?: string;
+  message: string;
+  stack?: string;
+  status?: number;
+  data?: unknown; // Additional error data, if any
+  rawContent?: string; // For API response errors that return raw content
+}
+
+// Define the response type for the evaluation API
+export interface EvaluationApiResponse {
+  success: boolean;
+  evaluation?: EvaluationOutput;
+  error?: string | ApiErrorResponse; // Allow error to be a string or a structured object
+  rawContent?: string; // For parsing errors
+  memoryResults?: ScoredMemoryPoint[]; // Changed to ScoredMemoryPoint[]
+}
+
+export interface LLMModelConfig {
+  id: string; // Unique ID for the model (e.g., 'openai/gpt-4o', 'groq/llama3-70b-8192')
+  name: string; // User-friendly display name (e.g., 'GPT-4o', 'Llama 3 70B')
+  provider: string; // The LLM provider (e.g., 'openai', 'groq', 'google', 'mistral', 'cohere', 'together', 'lmstudio')
+  supportsTools: boolean; // Whether the model supports tool calling
+  supportsJson: boolean; // Whether the model reliably supports JSON mode
 }

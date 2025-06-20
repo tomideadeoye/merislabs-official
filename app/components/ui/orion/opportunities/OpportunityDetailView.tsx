@@ -1,362 +1,342 @@
+/**
+ * @fileoverview The interactive client-side view for a single opportunity, serving as the central "Command Center" for managing and progressing through the Opportunity Super-Flow.
+ * @description This component displays detailed information about a specific `OrionOpportunity` and provides interactive buttons to trigger key actions within the opportunity lifecycle, such as AI evaluation and transitioning to CV tailoring. It now features a tabbed interface to manage various aspects of an opportunity, including job description, AI evaluation, and future communication tools.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To display comprehensive details of a selected `OrionOpportunity` within a tabbed interface.
+ *   - To initiate and manage the AI-driven evaluation process for the opportunity by calling the relevant backend API.
+ *   - To store the AI evaluation results in local storage for persistence and quick access.
+ *   - To provide clear visual feedback to the user on loading states, evaluation progress, and any errors.
+ *   - To serve as the navigation hub for the subsequent stages of the Opportunity Super-Flow, which are accessible independently and non-sequentially, through distinct tabs.
+ *
+ * FULL OPPORTUNITY SUPER-FLOW WORKFLOW (Non-Sequential & Tab-Based Access):
+ *   Orion's Opportunity Super-Flow is designed for flexibility. While a natural progression exists, each major step can be initiated independently or revisited as needed. Data dependencies are handled gracefully (e.g., if evaluation isn't complete, LLMs will prioritize available profile and web data).
+ *   These steps are envisioned as distinct 'tabs' or action points from the Opportunity Detail 'Command Center':
+ *   1. View Details (this component - now within "Job Description" tab)
+ *   2. Generate AI Evaluation (triggered from within "AI Evaluation" tab, not a prerequisite for other steps)
+ *   3. Enter CV Tailoring Studio (navigated from this component, can be accessed without prior evaluation)
+ *   4. Get AI Component Suggestions (within CV Tailoring Studio)
+ *   5. Assemble Tailored CV (within CV Tailoring Studio)
+ *   6. Draft Personalized Email (future functionality, within a dedicated tab in this component)
+ *   7. Send Email with CV Attached (future functionality, triggered from this component)
+ *   8. Engage Stakeholders (merge outreach folder, python api 8000 /api/find_stakeholders, within a dedicated tab in this component)
+ *
+ * the opportunity type could be a propsal
+ *
+ * FILEPATH: `app/components/ui/orion/opportunities/OpportunityDetailView.tsx`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `next/navigation`: Uses `useRouter` for programmatic navigation between pages.
+ *   - `@/hooks/useLocalStorage`: Persists evaluation results locally to improve user experience.
+ *   - `@/lib/types`: Imports `OrionOpportunity` and `EvaluationOutput` for strict type-checking of data models.
+ *   - `@/lib/apiClient`: Used to make HTTP requests to backend API routes (e.g., `/api/orion/profile`, `/api/orion/opportunity/[opportunityId]/evaluation`).
+ *   - `@/lib/logger`: Provides comprehensive logging for actions and states within the component.
+ *   - `react-hot-toast`: Used for displaying user-friendly success, loading, and error notifications.
+ *   - `@/components/ui/button`, `@/components/ui/card`, `@/components/ui/tabs`: Imports Shadcn UI components for consistent styling and interaction, including the new tab system.
+ *   - `lucide-react`: Provides icons (`Loader2`, `Sparkles`, `FileText`, `Send`, `BarChart2`, `AlertTriangle`) for visual feedback.
+ *   - `@/lib/utils/errorHandler`: Centralized utility for consistent API error handling and message extraction.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`: This is the parent page that renders this `OpportunityDetailView` component, passing the `opportunity` prop.
+ *   - `app/api/orion/profile/route.ts`: API endpoint for fetching user profile data.
+ *   - `app/api/orion/opportunity/[opportunityId]/evaluation/route.ts`: API endpoint for generating AI evaluation of an opportunity.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/cv-tailoring/page.tsx`: The target page for navigating to the CV tailoring studio.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that the `opportunity` prop is provided and contains valid `OrionOpportunity` data.
+ *   - Assumes backend API endpoints (`/api/orion/profile`, `/api/orion/opportunity/[opportunityId]/evaluation`) are operational and return data in the expected format.
+ *   - Evaluation results are stored in the browser's local storage; this means they are client-specific and not persisted across devices or browsers.
+ *   - The component actively manages its own loading and error states for user feedback.
+ *   - Crucially, the workflow allows for non-linear progression: actions like 'Draft Personalized Email' or 'Engage Stakeholders' can proceed using available profile, opportunity, and web data, even if a formal AI evaluation hasn't been explicitly triggered or completed.
+ *   - The new tabs enhance the modularity and user experience, allowing quick access to different opportunity-related functionalities.
+ *
+ * NOTES:
+ *   - This component centralizes the user interaction flow for individual opportunities, streamlining the process of evaluation, application preparation, and communication management.
+ *   - Comprehensive logging helps in debugging the client-side flow and API interactions.
+ *   - The use of `react-hot-toast` provides a delightful and consistent user feedback experience.
+ *   - The tabbed interface improves the organization of features related to an opportunity.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Server-Side Evaluation Persistence**: Instead of relying solely on local storage, persist the `evaluationOutput` directly to the `OrionOpportunity` record in the Neon database via the `opportunity_db_service` or a dedicated API endpoint after a successful evaluation.
+ *   - **Progress Indicators**: For longer evaluation times, consider a more granular progress indicator (e.g., a progress bar or step-by-step messages).
+ *   - **Debounce Evaluation Trigger**: If `handleGenerateEvaluation` can be called rapidly, consider debouncing the function to prevent multiple concurrent API calls.
+ *   - **Refine Error Display**: While `toast.error` is present, consider displaying more specific error details in the UI for advanced debugging by the user, perhaps in an expandable alert.
+ *   - **Offline Mode/Optimistic UI**: For a truly seamless experience, explore optimistic UI updates or basic offline capabilities if `useLocalStorage` is extended for more features.
+ *   - **Test Coverage**: Implement comprehensive unit and integration tests for this component, focusing on user interaction flows, state changes, API call handling, and error display.
+ *   - **Dynamic Tab Content Loading**: For performance, consider lazily loading tab content only when a tab is activated, especially for complex or data-intensive tabs.
+ *
+ * OPPORTUNITIES TO CONSOLIDATE:
+ *   - The `handleGenerateEvaluation` logic, especially the profile fetching and API calling, could potentially be extracted into a custom hook (`useOpportunityEvaluation`) to reduce component-level boilerplate and promote reusability if similar evaluation triggers appear elsewhere.
+ *   - Error handling and toast notifications could be further centralized or wrapped in a custom hook for even greater consistency across the application's client-side.
+ */
 'use client';
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// GOAL OF FILE|FEATURES|FUNCTIONS: Displays the detailed information for a single opportunity, including its description, key details, status, tags, and links to related actions (Tailor CV, Stakeholders, Communications). Renders evaluation summary and full evaluation in separate tabs.
-// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/OpportunityDetailView.tsx
-// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
-//   - Consumed by the opportunity detail page (`app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`).
-//   - Receives `OrionOpportunity` and `evaluation` data as props.
-//   - Uses `StatusUpdateButton` (`./StatusUpdateButton`) to change the opportunity status.
-//   - Uses `OpportunityAnalysisDisplay` (`./OpportunityAnalysisDisplay`) to show evaluation details.
-// Note if any: components to merge with, similar or redundant component
+
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { OrionOpportunity, EvaluationOutput } from '@/lib/types';
+import { apiClient } from '@/lib/apiClient';
+import logger from '@/lib/logger';
+import { toast } from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Sparkles, FileText, Send, BarChart2 } from 'lucide-react';
+import { handleApiError, HandledError } from '@/lib/utils/errorHandler';
+import { AlertTriangle } from 'lucide-react';
 
-import { EvaluationOutput, OpportunityNotionOutputShared } from '@/lib/types';
-import { Calendar, ExternalLink, Edit, Trash2, BarChart2, FileText, MessageSquare, Users } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
-import { StatusUpdateButton } from './StatusUpdateButton';
-import { OpportunityAnalysisDisplay } from './OpportunityAnalysisDisplay';
-import Link from 'next/link';
-import { Button } from '../../button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
-import { Card, CardHeader, CardTitle, CardContent } from '../../card';
-import { Badge } from '../../badge';
-
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
-// Note if any: components to merge with, similar or redundant component
-
-interface OpportunityDetailViewProps {
-  OrionOpportunity: OpportunityNotionOutputShared;
-  evaluation?: EvaluationOutput;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  opportunityId: string;
+interface Props {
+  opportunity: OrionOpportunity;
 }
 
-export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
-  OrionOpportunity,
-  evaluation,
-  onEdit,
-  onDelete,
-  opportunityId,
-}) => {
-  const [activeTab, setActiveTab] = useState('overview');
+export function OpportunityDetailView({ opportunity }: Props) {
+  logger.info('[OpportunityDetailView][RENDER]', { opportunityId: opportunity.id, function: 'OpportunityDetailView' });
+  const router = useRouter();
+  const localStorageKey = `orion_evaluation_${opportunity.id}`;
+  const [evaluationResult, setEvaluationResult] = useLocalStorage<EvaluationOutput | null>(localStorageKey, null);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'identified':
-        return 'bg-gray-500';
-      case 'researching':
-        return 'bg-blue-400';
-      case 'evaluating':
-        return 'bg-blue-500';
-      case 'evaluated_positive':
-        return 'bg-green-500';
-      case 'evaluated_negative':
-        return 'bg-red-500';
-      case 'application_drafting':
-        return 'bg-indigo-400';
-      case 'application_ready':
-        return 'bg-indigo-500';
-      case 'applied':
-        return 'bg-purple-500';
-      case 'outreach_planned':
-        return 'bg-cyan-400';
-      case 'outreach_sent':
-        return 'bg-cyan-500';
-      case 'follow_up_needed':
-        return 'bg-amber-400';
-      case 'follow_up_sent':
-        return 'bg-amber-500';
-      case 'interview_scheduled':
-        return 'bg-yellow-500';
-      case 'interview_completed':
-        return 'bg-yellow-600';
-      case 'offer_received':
-        return 'bg-emerald-400';
-      case 'negotiating':
-        return 'bg-emerald-500';
-      case 'accepted':
-        return 'bg-emerald-600';
-      case 'rejected_by_them':
-        return 'bg-red-400';
-      case 'declined_by_me':
-        return 'bg-red-500';
-      case 'on_hold':
-        return 'bg-gray-400';
-      case 'archived':
-        return 'bg-gray-600';
-      default:
-        return 'bg-gray-500';
+  const handleGenerateEvaluation = async () => {
+    logger.info('[OpportunityDetailView][handleGenerateEvaluation][START]', { opportunityId: opportunity.id });
+    setIsEvaluating(true);
+    setError(null);
+    toast.loading('Orion is analyzing the opportunity...');
+
+    let userProfile;
+    try {
+      const profileResponse = await apiClient.get('/api/orion/profile');
+      if (profileResponse.data?.success && profileResponse.data?.profile) {
+        userProfile = profileResponse.data.profile;
+        logger.info('[OpportunityDetailView][handleGenerateEvaluation][PROFILE_FETCH_SUCCESS]', {
+          opportunityId: opportunity.id,
+          profileSource: profileResponse.data.source,
+        });
+      } else {
+        logger.warn('[OpportunityDetailView][handleGenerateEvaluation][PROFILE_FETCH_FAIL]', {
+          opportunityId: opportunity.id,
+          error: profileResponse.data?.error || 'Unknown profile fetch error',
+        });
+        toast.error('Could not load user profile. Evaluation might be incomplete.');
+      }
+    } catch (profileError: unknown) {
+      const handledProfileError = handleApiError(profileError, {
+        opportunityId: opportunity.id,
+        stage: 'profile_fetch',
+      });
+      setError(handledProfileError.message);
+      toast.error(`Error fetching user profile: ${handledProfileError.message}. Evaluation might be incomplete.`);
     }
-  };
 
-  const formatStatus = (status: string): string => {
-    return status
-      .split('_')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
+    const requestBody = {
+      opportunityId: opportunity.id,
+      userProfile: userProfile,
+    };
 
-  const formatType = (type: string | null | undefined): string => {
-    if (!type) {
-      return 'Unknown Type'; // Or return ''; or handle as appropriate
+    logger.debug('[OpportunityDetailView][handleGenerateEvaluation][REQUEST_BODY]', {
+      opportunityId: opportunity.id,
+      requestBody: requestBody,
+    });
+
+    try {
+      logger.info('[OpportunityDetailView][handleGenerateEvaluation][API_CALL_START]', {
+        opportunityId: opportunity.id,
+        url: `/api/orion/opportunity/${opportunity.id}/evaluation`,
+        method: 'POST',
+      });
+      const response = await apiClient.post(`/api/orion/opportunity/${opportunity.id}/evaluation`, requestBody);
+
+      logger.info('[OpportunityDetailView][handleGenerateEvaluation][API_CALL_RESPONSE]', {
+        opportunityId: opportunity.id,
+        responseStatus: response.status,
+        responseData: response.data,
+      });
+
+      if (response.data?.success && response.data.evaluation) {
+        setEvaluationResult(response.data.evaluation);
+        toast.success('Evaluation Complete! Results saved to local browser storage.');
+        logger.info(`[OpportunityDetailView] Evaluation successful for opportunity: ${opportunity.id}`);
+      } else {
+        throw new Error(
+          response.data?.error || 'Failed to generate evaluation. The server did not provide a specific error message.'
+        );
+      }
+    } catch (err: unknown) {
+      const handledError = handleApiError(err, { opportunityId: opportunity.id, stage: 'evaluation_api_call' });
+      setError(handledError.message);
+      toast.error(`Evaluation Failed: ${handledError.message}`);
+    } finally {
+      setIsEvaluating(false);
+      toast.dismiss();
+      logger.info('[OpportunityDetailView][handleGenerateEvaluation][END]', { opportunityId: opportunity.id });
     }
-    return type
-      .split('_')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-100">{OrionOpportunity.title}</h1>
-          <p className="text-lg text-gray-300 mt-1">{OrionOpportunity.company}</p>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-2 space-y-6">
+        <Tabs defaultValue="job-description" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="job-description">Job Description</TabsTrigger>
+            <TabsTrigger value="ai-evaluation">AI Evaluation</TabsTrigger>
+            <TabsTrigger value="stakeholders">Stakeholders</TabsTrigger>
+            <TabsTrigger value="email-linkedin-draft">Email & LinkedIn Drafts</TabsTrigger>
+          </TabsList>
+          <TabsContent value="job-description" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Job Description</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="whitespace-pre-wrap">{opportunity.content || 'No description available.'}</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <div className="flex items-center space-x-2">
-          <StatusUpdateButton opportunityId={OrionOpportunity.id} currentStatus={OrionOpportunity.status || ''} />
+          <TabsContent value="ai-evaluation" className="space-y-6">
+            {isEvaluating && (
+              <div className="flex items-center justify-center text-lg p-4">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Generating Evaluation...
+              </div>
+            )}
 
-          {onEdit && (
-            <Button variant="outline" size="sm" onClick={onEdit} className="border-gray-600">
-              <Edit className="h-4 w-4 mr-1" />
-              Edit
-            </Button>
-          )}
+            {error && (
+              <div className="bg-red-900/20 border border-red-700 text-red-300 p-4 rounded-lg flex items-center shadow-lg">
+                <AlertTriangle className="h-6 w-6 mr-3" />
+                <div>
+                  <h3 className="font-bold mb-1">Error</h3>
+                  <div>{error}</div>
+                </div>
+              </div>
+            )}
 
-          {onDelete && (
-            <Button variant="destructive" size="sm" onClick={onDelete}>
-              <Trash2 className="h-4 w-4 mr-1" />
-              Delete
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {OrionOpportunity.status ? (
-          <Badge className={`${getStatusColor(OrionOpportunity.status)} text-white`}>
-            {formatStatus(OrionOpportunity.status)}
-          </Badge>
-        ) : (
-          <Badge className="bg-gray-500 text-white">Unknown</Badge>
-        )}
-
-        <Badge variant="outline" className="border-gray-600 text-gray-300">
-          {formatType(OrionOpportunity.type)}
-        </Badge>
-
-        {OrionOpportunity.tags &&
-          OrionOpportunity.tags.map((tag: string) => (
-            <Badge key={tag} variant="secondary" className="bg-gray-700 text-gray-300">
-              {tag}
-            </Badge>
-          ))}
-      </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="bg-gray-800 border-gray-700">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="evaluation" disabled={!evaluation}>
-            Evaluation
-          </TabsTrigger>
-          <TabsTrigger value="applications">Applications</TabsTrigger>
-          <TabsTrigger value="stakeholders">Stakeholders</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-6">
-              {OrionOpportunity.content && (
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-gray-200">Description</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-gray-300 whitespace-pre-wrap">{OrionOpportunity.content}</div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {evaluation && (
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-gray-200">Evaluation Summary</CardTitle>
-                    <Button variant="outline" size="sm" asChild className="border-gray-600">
-                      <Link href={`#evaluation`} onClick={() => setActiveTab('evaluation')}>
-                        <BarChart2 className="h-4 w-4 mr-1" />
-                        View Full Evaluation
-                      </Link>
-                    </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-400 mb-1">Fit Score</h4>
-                        <div className="w-full bg-gray-700 rounded-full h-2.5">
-                          <div
-                            className="bg-blue-600 h-2.5 rounded-full"
-                            style={{
-                              width: `${evaluation.fitScorePercentage}%`,
-                            }}
-                          ></div>
-                        </div>
-                        <p className="text-right text-sm text-gray-400 mt-1">{evaluation.fitScorePercentage}%</p>
-                      </div>
-
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-400 mb-1">Recommendation</h4>
-                        <p className="text-gray-200">{evaluation.recommendation}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            <div className="space-y-6">
-              <Card className="bg-gray-800 border-gray-700">
+            {evaluationResult && !isEvaluating && (
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-gray-200">Details</CardTitle>
+                  <CardTitle>AI Evaluation Results</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-400 mb-1">Date Identified</h4>
-                    <p className="text-gray-300 flex items-center">
-                      <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                      {OrionOpportunity.dateIdentified ? (
-                        <>
-                          {format(new Date(OrionOpportunity.dateIdentified), 'PPP')}
-                          <span className="text-gray-500 text-sm ml-2">
-                            ({formatDistanceToNow(new Date(OrionOpportunity.dateIdentified))} ago)
-                          </span>
-                        </>
-                      ) : (
-                        <span>Unknown date</span>
-                      )}
-                    </p>
-                  </div>
+                <CardContent>
+                  <h4 className="font-semibold text-lg mb-2">Key Strengths:</h4>
+                  <ul className="list-disc list-inside space-y-1 mb-4">
+                    {evaluationResult.strengths?.map(
+                      (strength: { title: string; reasoning: string }, index: number) => (
+                        <li key={index}>{strength.title}</li>
+                      )
+                    )}
+                  </ul>
 
-                  {OrionOpportunity.nextActionDate && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400 mb-1">Next Action Date</h4>
-                      <p className="text-gray-300">{format(new Date(OrionOpportunity.nextActionDate), 'PPP')}</p>
-                    </div>
-                  )}
+                  <h4 className="font-semibold text-lg mb-2">Areas for Improvement:</h4>
+                  <ul className="list-disc list-inside space-y-1 mb-4">
+                    {evaluationResult.gaps?.map((gap: string | { gap: string; solution: string }, index: number) => (
+                      <li key={index}>{typeof gap === 'string' ? gap : gap.gap}</li>
+                    ))}
+                  </ul>
 
-                  {OrionOpportunity.priority && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400 mb-1">Priority</h4>
-                      <Badge
-                        className={
-                          OrionOpportunity.priority === 'high'
-                            ? 'bg-red-500'
-                            : OrionOpportunity.priority === 'medium'
-                              ? 'bg-yellow-500'
-                              : 'bg-blue-500'
-                        }
-                      >
-                        {OrionOpportunity.priority.charAt(0).toUpperCase() + OrionOpportunity.priority.slice(1)}
-                      </Badge>
-                    </div>
-                  )}
-
-                  {OrionOpportunity.sourceUrl && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400 mb-1">Source</h4>
-                      <a
-                        href={OrionOpportunity.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 flex items-center"
-                      >
-                        <ExternalLink className="h-4 w-4 mr-1" />
-                        View Source
-                      </a>
-                    </div>
-                  )}
+                  <h4 className="font-semibold text-lg mb-2">Actionable Advice:</h4>
+                  <p className="whitespace-pre-wrap">{evaluationResult.actionableAdvice?.join('\n')}</p>
                 </CardContent>
               </Card>
+            )}
 
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-gray-200">Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-gray-300">
-                    Below you&apos;ll find various actions you can take related to this opportunity.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Link href={`/opportunity/${opportunityId}/cv-tailoring`} passHref>
-                      <Button variant="outline" className="border-gray-600">
-                        <FileText className="h-4 w-4 mr-1" />
-                        Tailor CV
-                      </Button>
-                    </Link>
-                    <Link href={`/opportunity/${opportunityId}/stakeholders`} passHref>
-                      <Button variant="outline" className="border-gray-600">
-                        <Users className="h-4 w-4 mr-1" />
-                        Find & Manage Stakeholders
-                      </Button>
-                    </Link>
-                    <Link href={`/opportunity/${opportunityId}/communications`} passHref>
-                      <Button variant="outline" className="border-gray-600">
-                        <MessageSquare className="h-4 w-4 mr-1" />
-                        Draft Communications
-                      </Button>
-                    </Link>
-                    {/* Add more action buttons here */}
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Buttons for AI Evaluation and CV Tailoring */}
+            <div className="flex space-x-4 mt-6">
+              <Button onClick={handleGenerateEvaluation} disabled={isEvaluating} className="flex items-center">
+                {isEvaluating ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Evaluating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Generate AI Evaluation
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => {
+                  logger.info('[OpportunityDetailView][NAVIGATE_TO_CV_TAILORING]', { opportunityId: opportunity.id });
+                  router.push(`/admin/opportunity-pipeline/${opportunity.id}/cv-tailoring`);
+                }}
+                className="flex items-center"
+              >
+                <FileText className="mr-2 h-5 w-5" />
+                Go to CV Tailoring Studio
+              </Button>
             </div>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="evaluation" className="mt-6">
-          <OpportunityAnalysisDisplay OrionOpportunity={OrionOpportunity} initialEvaluation={evaluation} />
-        </TabsContent>
+          {/* Placeholder for future tabs */}
+          <TabsContent value="stakeholders" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Stakeholder Engagement (Future)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">This section will allow you to identify and engage key stakeholders.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="applications" className="mt-6">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-gray-200">Applications</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-300">Manage applications for this opportunity.</p>
-              {/* Future: List applications, provide links to draft new ones */}
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="email-linkedin-draft" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Email & LinkedIn Drafts (Future)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">
+                  This section will enable drafting personalized emails and LinkedIn messages.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
 
-        <TabsContent value="stakeholders" className="mt-6">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-gray-200">Stakeholders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-300">Identify and manage key stakeholders for this opportunity.</p>
-              {/* Future: List stakeholders, allow adding/editing */}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="notes" className="mt-6">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-gray-200">Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-300">Detailed notes and thoughts about this opportunity.</p>
-              {/* Future: Rich text editor for notes */}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <div className="md:col-span-1 space-y-6">
+        {/* Opportunity Details Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Opportunity Details</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>
+              <strong>Company:</strong> {opportunity.company}
+            </p>
+            <p>
+              <strong>Status:</strong> {opportunity.status}
+            </p>
+            {opportunity.type && (
+              <p>
+                <strong>Type:</strong> {opportunity.type}
+              </p>
+            )}
+            {opportunity.sourceUrl && (
+              <p>
+                <strong>Source:</strong> {opportunity.sourceUrl}
+              </p>
+            )}
+            {opportunity.url && (
+              <p>
+                <strong>Link:</strong>{' '}
+                <a
+                  href={opportunity.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {opportunity.url}
+                </a>
+              </p>
+            )}
+            {opportunity.notes && (
+              <>
+                <h4 className="font-semibold mt-4 mb-2">Notes:</h4>
+                <p className="whitespace-pre-wrap">{opportunity.notes}</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-};
+}

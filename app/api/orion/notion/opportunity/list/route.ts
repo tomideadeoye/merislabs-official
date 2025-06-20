@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { listOpportunitiesFromNotion } from '@/lib/notion_service';
 import { z } from 'zod';
 
-const OpportunityNotionOutputSharedSchema = z.object({
+const OpportunityNotionOutputlibSchema = z.object({
   id: z.string(),
   notion_page_id: z.string().optional(),
   title: z.string(),
@@ -58,7 +58,7 @@ export async function GET() {
     const validOpportunities = [];
     const invalidOpportunities = [];
     for (const opp of opportunities) {
-      const parseResult = OpportunityNotionOutputSharedSchema.safeParse(opp);
+      const parseResult = OpportunityNotionOutputlibSchema.safeParse(opp);
       if (parseResult.success) {
         validOpportunities.push(parseResult.data);
       } else {

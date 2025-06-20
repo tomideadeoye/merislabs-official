@@ -11,6 +11,7 @@ import logger from '@/lib/logger';
 // GOAL OF FILE: Provide a form for new journal entries and integrate with memory features.
 // RELATION TO OTHER FILES: This component is used in `app/journal/page.tsx`.
 // It will allow users to input journal text, which will then be processed and added to Orion's memory.
+//  add a mind map to the memory manager so i can view connections between my memories
 
 export const JournalEntryWithMemory: React.FC = () => {
   const [journalText, setJournalText] = React.useState('');

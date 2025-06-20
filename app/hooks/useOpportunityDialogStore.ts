@@ -10,10 +10,8 @@ export interface OpportunityDialogStore {
   close: () => void;
 }
 
-export const useOpportunityDialogStore = create<OpportunityDialogStore>(
-  (set) => ({
-    isOpen: false,
-    open: () => set({ isOpen: true }),
-    close: () => set({ isOpen: false }),
-  }),
-);
+export const useOpportunityDialogStore = create<OpportunityDialogStore>((set) => ({
+  isOpen: false,
+  open: () => set({ isOpen: true }),
+  close: () => set({ isOpen: false }),
+}));

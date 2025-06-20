@@ -4,7 +4,7 @@
 
 // This is a placeholder for the actual PDF generation logic
 // In a real implementation, you would use a library like jspdf or react-pdf
-export async function generatePDF(cvContent: string, template: string): Promise<Blob> {
+export async function generatePDF(cvContent: string): Promise<Blob> {
   // In a real implementation, this would use a PDF library
   // For now, we'll create a simple text-based PDF using Blob
   const pdfContent = `
@@ -27,9 +27,9 @@ stream
 BT
 /F1 12 Tf
 72 720 Td
-(${template} CV Template) Tj
+(CV Template) Tj
 72 700 Td
-(${cvContent.replace(/\n/g, '\\n')}) Tj
+(${cvContent.replace(/\\n/g, '\\n')}) Tj
 ET
 endstream
 endobj
@@ -51,12 +51,12 @@ startxref
 436
 %%EOF
   `;
-  
+
   return new Blob([pdfContent], { type: 'application/pdf' });
 }
 
 // Format CV content for PDF based on template
-export function formatCVForPDF(cvContent: string, template: string): string {
+export function formatCVForPDF(cvContent: string): string {
   // In a real implementation, this would format the CV content based on the template
   // For now, we'll just return the content as is
   return cvContent;

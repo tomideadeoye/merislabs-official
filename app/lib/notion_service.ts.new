@@ -1,6 +1,6 @@
 import { Client } from '@notionhq/client';
 import { NOTION_API_KEY, NOTION_DATABASE_ID } from './orion_server_config';
-import type { CVComponentShared } from '@/lib/types';
+import type { CVComponentlib } from '@/lib/types';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 let notion: Client | null = null;
@@ -171,7 +171,7 @@ ${outreach.message}
   }
 }
 
-export const getCVComponentsFromNotion = async (databaseId: string): Promise<CVComponentShared[]> => {
+export const getCVComponentsFromNotion = async (databaseId: string): Promise<CVComponentlib[]> => {
   if (!notion) {
     console.error('Notion client is not initialized.');
     return [];
@@ -181,7 +181,7 @@ export const getCVComponentsFromNotion = async (databaseId: string): Promise<CVC
       database_id: databaseId,
     });
 
-    const components: CVComponentShared[] = response.results.map((page) => {
+    const components: CVComponentlib[] = response.results.map((page) => {
       const p = page as PageObjectResponse;
       const properties = p.properties as any;
 

@@ -4,14 +4,14 @@
 
 // This is a placeholder for the actual Word document generation logic
 // In a real implementation, you would use a library like docx
-export async function generateWordDoc(content: string, template: string): Promise<Blob> {
-  console.info('[word-generator] generateWordDoc called', { contentLength: content.length, template });
+export async function generateWordDoc(content: string): Promise<Blob> {
+  console.info('[word-generator] generateWordDoc called', { contentLength: content.length });
   // Return a dummy Blob for now
   return new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 }
 
 // Format CV content for Word document based on template
-export function formatCVForWord(cvContent: string, template: string): string {
+export function formatCVForWord(cvContent: string): string {
   // In a real implementation, this would format the CV content based on the template
   // For now, we'll just return the content as is
   return cvContent;

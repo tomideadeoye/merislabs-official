@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch user data (including stats) using the shared client
+    // Fetch user data (including stats) using the lib client
     // Note: This uses the client configured with environment variables, not the provided userId/apiToken
     const stats = await getUserData();
 

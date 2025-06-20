@@ -8,7 +8,7 @@
  */
 
 import axios from 'axios';
-import { ORION_MEMORY_COLLECTION_NAME } from './orion_config';
+import { ORION_MEMORY_COLLECTION_NAME, APP_BASE_URL } from './orion_config';
 import { QdrantFilter, SearchMemoryResponse } from '..';
 
 const MEMORY_API_ENDPOINT = '/api/orion/memory';
@@ -18,7 +18,7 @@ const MEMORY_API_ENDPOINT = '/api/orion/memory';
  */
 export async function processTextForIndexing(text: string, sourceId: string, tags: string[] = []) {
   try {
-    const response = await axios.post(`${MEMORY_API_ENDPOINT}/add-memory`, {
+    const response = await axios.post(`${APP_BASE_URL}${MEMORY_API_ENDPOINT}/add-memory`, {
       text,
       sourceId,
       tags,
@@ -45,7 +45,7 @@ export async function searchMemory(
   // Specify return type
   try {
     // Call the dedicated search API route instead of the internal search endpoint
-    const response = await axios.post(`${MEMORY_API_ENDPOINT}/search`, {
+    const response = await axios.post(`${APP_BASE_URL}${MEMORY_API_ENDPOINT}/search`, {
       // Call /api/orion/memory/search
       query: query,
       limit: options?.limit ?? 5, // Use default if not provided

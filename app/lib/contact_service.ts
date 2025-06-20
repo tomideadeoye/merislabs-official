@@ -7,30 +7,32 @@
  * - `lib/database.ts`: Provides the `query` function for database interaction.
  * - `lib/types/index.ts`: Defines the `Contact` interface for type safety.
  * - `app/api/orion/contacts/route.ts` (future): Will consume these functions to serve contact data.
+ * - prisma ORM, neon, postgres
  */
 
-import { query } from '@/lib/database';
+import { sql } from '@/lib/database';
 import { Contact } from '@/lib/types';
-import consolidatedLogger from '@/lib/logger';
+import logger from '@/lib/logger';
 import { v4 as uuidv4 } from 'uuid';
 
-interface ContactRow {
-  id: string;
-  name: string;
-  email: string | null;
-  linkedin_url: string | null;
-  role: string | null;
-  company: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// Helper function to convert database row (array of unknown values) to Contact type
+const rowToContact = (row: unknown[]): Contact => ({
+  id: row[0] as string,
+  name: row[1] as string,
+  email: row[2] as string | null,
+  linkedinUrl: row[3] as string | null,
+  role: row[4] as string | null,
+  company: row[5] as string | null,
+  createdAt: row[6] as string,
+  updatedAt: row[7] as string,
+});
 
 /**
  * Fetches all contacts from the Neon/PostgreSQL database.
  * @returns A promise that resolves to an array of Contact objects.
  */
 export async function fetchContactsFromNeon(): Promise<Contact[]> {
-  consolidatedLogger.info('[CONTACT_SERVICE][fetchContactsFromNeon][START]', {
+  logger.info('[CONTACT_SERVICE][fetchContactsFromNeon][START]', {
     operation: 'fetchContactsFromNeon',
     message: 'Attempting to fetch all contacts from Neon database.',
   });
@@ -49,20 +51,11 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
       FROM contacts
       ORDER BY name ASC;
     `;
-    const result = await query(SELECT_CONTACTS_QUERY);
+    const result = (await sql(SELECT_CONTACTS_QUERY)) as unknown[][];
 
-    const contacts: Contact[] = result.rows.map((row: ContactRow) => ({
-      id: row.id,
-      name: row.name,
-      email: row.email,
-      linkedinUrl: row.linkedin_url,
-      role: row.role,
-      company: row.company,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }));
+    const contacts: Contact[] = result.map((row) => rowToContact(row));
 
-    consolidatedLogger.info('[CONTACT_SERVICE][fetchContactsFromNeon][SUCCESS]', {
+    logger.info('[CONTACT_SERVICE][fetchContactsFromNeon][SUCCESS]', {
       operation: 'fetchContactsFromNeon',
       message: `Successfully fetched ${contacts.length} contacts from Neon database.`,
       count: contacts.length,
@@ -70,7 +63,7 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
     return contacts;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    consolidatedLogger.error('[CONTACT_SERVICE][fetchContactsFromNeon][ERROR]', {
+    logger.error('[CONTACT_SERVICE][fetchContactsFromNeon][ERROR]', {
       operation: 'fetchContactsFromNeon',
       message: `Failed to fetch contacts from Neon database: ${errorMessage}`,
       error: errorMessage,
@@ -82,11 +75,11 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
 
 /**
  * Saves a new contact to the Neon/PostgreSQL database.
- * @param contact The contact object to save (excluding id, createdAt, updatedAt).
+ * @param newContact The contact object to save (excluding id, createdAt, updatedAt).
  * @returns A promise that resolves to the newly created Contact object, including its ID and timestamps.
  */
 export async function saveContactToNeon(newContact: Omit<Contact, 'id' | 'createdAt' | 'updatedAt'>): Promise<Contact> {
-  consolidatedLogger.info('[CONTACT_SERVICE][saveContactToNeon][START]', {
+  logger.info('[CONTACT_SERVICE][saveContactToNeon][START]', {
     operation: 'saveContactToNeon',
     message: 'Attempting to save a new contact to Neon database.',
     contactName: newContact.name,
@@ -120,10 +113,10 @@ export async function saveContactToNeon(newContact: Omit<Contact, 'id' | 'create
       now,
     ];
 
-    const result = await query(INSERT_CONTACT_QUERY, values);
-    const savedContact: Contact = result.rows[0]; // Assuming RETURNING * gives the full row
+    const result = (await sql(INSERT_CONTACT_QUERY, values)) as unknown[][];
+    const savedContact: Contact = rowToContact(result[0]);
 
-    consolidatedLogger.info('[CONTACT_SERVICE][saveContactToNeon][SUCCESS]', {
+    logger.info('[CONTACT_SERVICE][saveContactToNeon][SUCCESS]', {
       operation: 'saveContactToNeon',
       message: `Successfully saved contact ${savedContact.name} to Neon database.`,
       contactId: savedContact.id,
@@ -131,7 +124,7 @@ export async function saveContactToNeon(newContact: Omit<Contact, 'id' | 'create
     return savedContact;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    consolidatedLogger.error('[CONTACT_SERVICE][saveContactToNeon][ERROR]', {
+    logger.error('[CONTACT_SERVICE][saveContactToNeon][ERROR]', {
       operation: 'saveContactToNeon',
       message: `Failed to save contact to Neon database: ${errorMessage}`,
       contactName: newContact.name,

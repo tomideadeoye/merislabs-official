@@ -1,16 +1,33 @@
+/**
+ * FILEPATH: `app/components/orion/opportunity-pipeline/OpportunityKanbanView.tsx`
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - Provides an interactive Kanban board interface for visualizing and managing opportunities within the Opportunity Pipeline.
+ *   - Enables users to change the status of opportunities via intuitive drag-and-drop functionality, powered by `react-beautiful-dnd`.
+ *   - Displays key opportunity details, including company, title, status, priority, and due dates, with appropriate styling and badges.
+ *   - Implements optimistic UI updates for drag-and-drop actions, with a rollback mechanism in case of backend update failures.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/page.tsx`: This is the parent page component that consumes and renders the `OpportunityKanbanView`, passing in opportunity data and status change handlers.
+ *   - `@/lib/types`: Defines core data structures like `OrionOpportunity` and `OpportunityStatus` enum, which are crucial for rendering and filtering opportunities into Kanban columns.
+ *   - `react-beautiful-dnd`: The external library providing the drag-and-drop capabilities.
+ *   - `@/components/ui/*`: Utilizes various Shadcn UI components (e.g., `Card`, `Badge`) for visual presentation.
+ *   - `@/lib/logger`: Integrates with the centralized logging utility for comprehensive tracking of component lifecycle, drag-and-drop events, and status updates.
+ *   - `date-fns`: Used for safe and localized formatting of date properties like `dueDate`.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that `react-beautiful-dnd` is correctly configured and compatible with the Next.js environment.
+ *   - The `onStatusChange` prop is expected to be provided by the parent component and is responsible for communicating status updates to the backend (e.g., an API route or database service).
+ *   - The component manages its internal column state for optimistic UI updates, which helps in providing a smooth user experience.
+ *   - Includes robust checks for `dueDate` validity before rendering to prevent UI errors.
+ *
+ * NOTES:
+ *   - This Kanban view is a central component for managing the sales/opportunity pipeline, offering a visual and interactive way to track progress.
+ *   - Comprehensive logging ensures that every significant user action and data flow within the component is recorded for debugging and monitoring.
+ *   - The `kanbanColumnsDef` array defines the structure and mapping of opportunity statuses to visual columns, making the board highly configurable.
+ *   - Future enhancements could include more dynamic column configuration, filtering options directly within the Kanban, and richer card details.
+ */
 'use client';
-
-// GOAL OF FILE|FEATURES|FUNCTIONS: Provides an interactive Kanban board for the Opportunity Pipeline, allowing users to visualize and manage opportunities via drag-and-drop. Leverages `react-beautiful-dnd`.
-// FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/orion/opportunity-pipeline/OpportunityKanbanView.tsx
-// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
-//   - Consumed by `OpportunityPipelinePage` (`app/(orion_admin)/admin/opportunity-pipeline/page.tsx`).
-//   - Receives `opportunities` data and `onStatusChange` handler from the parent (likely using `useOpportunities`).
-//   - Uses `react-beautiful-dnd` for drag-and-drop functionality.
-//   - Uses `OpportunityStatus` enum (`@/lib/types`) to define column groupings.
-//   - Uses `@/components/ui` components (`Card`, `Badge`) for visual structure.
-//   - Uses `logger` (`@/lib/logger`) for logging.
-// ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed `react-beautiful-dnd` is compatible with the Next.js version and environment. Assumed `onStatusChange` prop is provided and handles backend updates.
-// NOTES: This component manages its internal column state for optimistic UI updates during drag-and-drop. It includes error handling and logging for the drag-and-drop process and status updates. There is a duplicate `StatusUpdateButton` component (`app/components/ui/orion/opportunities/StatusUpdateButton.tsx` and `app/components/orion/opportunity-pipeline/StatusUpdateButton.tsx`) which should be consolidated, although this component doesn't directly use it, the parent might.
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import isEqual from 'lodash.isequal';
@@ -18,10 +35,27 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import type { DropResult } from 'react-beautiful-dnd';
 import Link from 'next/link';
 import logger from '@/lib/logger';
-
+import { format } from 'date-fns';
 import { AlertTriangle } from 'lucide-react';
-import { Badge, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { Badge } from '@/components/ui/badge';
 import { OpportunityStatus, OrionOpportunity } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
+import { StatusDisplay } from '@/components/ui/orion/StatusDisplay';
+
+// Helper function to render due date safely
+const renderDueDateBadge = (dueDate: string | null): React.ReactNode => {
+  if (dueDate && typeof dueDate === 'string') {
+    const date = new Date(dueDate);
+    if (!isNaN(date.getTime())) {
+      return (
+        <Badge variant="outline" className="border-amber-500 text-amber-200">
+          Due: {date.toLocaleDateString()}
+        </Badge>
+      );
+    }
+  }
+  return null; // Return null if date is invalid or not a string
+};
 
 interface KanbanColumn {
   id: string;
@@ -33,15 +67,26 @@ interface KanbanColumn {
 interface OpportunityKanbanViewProps {
   opportunities: OrionOpportunity[];
   onStatusChange?: (opportunityId: string, newStatus: OpportunityStatus) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
 }
 
 export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
   opportunities: parentOpportunities,
   onStatusChange,
+  isLoading,
+  error: initialError,
 }) => {
-  logger.debug('[KANBAN_VIEW][RENDER] Component rendering.', { opportunitiesCount: parentOpportunities.length });
-  const [error, setError] = useState<string | null>(null);
   const [columns, setColumns] = useState<Record<string, KanbanColumn>>({});
+  const [internalError, setInternalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialError) {
+      setInternalError(initialError);
+    } else {
+      setInternalError(null);
+    }
+  }, [initialError]);
 
   const kanbanColumnsDef: KanbanColumn[] = useMemo(
     () => [
@@ -164,7 +209,6 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
     } else {
       logger.debug('[KANBAN_VIEW][USE_EFFECT][COLUMNS_STATE_NO_CHANGE] No material change in columns state.');
     }
-    setError(null);
   }, [parentOpportunities, kanbanColumnsDef, columns]); // Include columns in dependency array for deep comparison
 
   const onDragEnd = useCallback(
@@ -199,7 +243,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
 
       const movedOpportunity = startCol.items.find((item) => item.id === draggableId);
       if (!movedOpportunity) {
-        logger.error('[KANBAN_VIEW][DRAG_END][OPPORTUNITY_NOT_FOUND] Moved opportunity not found.', {
+        logger.error('[KANBAN_VIEW][DRAG_END][OPPORTUNITY_NOT_FOUND] Moved opportunity not found in source column.', {
           draggableId,
           sourceColId,
         });
@@ -207,129 +251,148 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
       }
 
       // Optimistic UI update
-      logger.info('[KANBAN_VIEW][DRAG_END][OPTIMISTIC_UPDATE] Applying optimistic UI update.', {
-        opportunityId: movedOpportunity.id,
-        from: sourceColId,
-        to: destColId,
-      });
-      const newStartItems = Array.from(startCol.items);
-      newStartItems.splice(source.index, 1);
-
-      const newEndItems = Array.from(endCol.items);
-      newEndItems.splice(destination.index, 0, movedOpportunity);
-
-      const newColumnsState = {
-        ...columns,
-        [sourceColId]: { ...startCol, items: newStartItems },
-        [destColId]: { ...endCol, items: newEndItems },
+      const newColumns = { ...columns };
+      const newStartColItems = Array.from(startCol.items);
+      const [removed] = newStartColItems.splice(source.index, 1);
+      newColumns[sourceColId] = {
+        ...newColumns[sourceColId],
+        items: newStartColItems,
       };
-      setColumns(newColumnsState);
 
-      const newStatus = endCol.statusValues[0]; // Take the first status value as the primary for the column
+      const newDestColItems = Array.from(endCol.items);
+      newDestColItems.splice(destination.index, 0, removed);
+      newColumns[destColId] = {
+        ...newColumns[destColId],
+        items: newDestColItems,
+      };
+      setColumns(newColumns);
+
+      // Update status in the backend
       if (onStatusChange) {
+        const newStatus = endCol.statusValues[0]; // Assuming the first status value is the primary one for the column
+        logger.info('[KANBAN_VIEW][DRAG_END][STATUS_UPDATE] Attempting to update opportunity status via prop.', {
+          opportunityId: draggableId,
+          newStatus,
+        });
         try {
-          logger.info('[KANBAN_VIEW][DRAG_END][STATUS_CHANGE_CALL] Calling onStatusChange prop.', {
-            id: movedOpportunity.id,
+          await onStatusChange(draggableId, newStatus);
+          // If successful, the parent prop update should trigger useEffect to re-sync columns
+          logger.success('[KANBAN_VIEW][DRAG_END][STATUS_UPDATE_SUCCESS] Opportunity status updated successfully.', {
+            opportunityId: draggableId,
             newStatus,
           });
-          await onStatusChange(movedOpportunity.id, newStatus);
-          logger.success(
-            '[KANBAN_VIEW][DRAG_END][STATUS_CHANGE_SUCCESS] OrionOpportunity status updated successfully via parent prop.',
-            {
-              id: movedOpportunity.id,
-              newStatus,
-            }
-          );
-          setError(null);
         } catch (err: unknown) {
           const errorMessage = err instanceof Error ? err.message : String(err);
-          logger.error(
-            '[KANBAN_VIEW][DRAG_END][STATUS_CHANGE_FAILURE] Failed to update OrionOpportunity status via parent prop.',
-            {
-              id: movedOpportunity.id,
-              newStatus,
-              error: errorMessage,
-            }
-          );
-          setError(errorMessage);
+          logger.error('[KANBAN_VIEW][DRAG_END][STATUS_UPDATE_FAILURE] Failed to update opportunity status.', {
+            opportunityId: draggableId,
+            newStatus,
+            error: errorMessage,
+          });
           // Revert UI on failure
           logger.warn('[KANBAN_VIEW][DRAG_END][UI_REVERT] Reverting UI due to status update failure.');
-          setColumns(columns); // Revert to previous state on error
+          setColumns(columns); // Revert to previous state
+          setInternalError(`Failed to update status for ${movedOpportunity.title}: ${errorMessage}`);
         }
       } else {
         logger.warn(
-          '[KANBAN_VIEW][DRAG_END][NO_STATUS_HANDLER] onStatusChange prop not provided. Status update not performed via parent.',
-          {
-            id: movedOpportunity.id,
-          }
+          '[KANBAN_VIEW][DRAG_END][NO_STATUS_HANDLER] Status change handler not provided to Kanban view. Cannot update status in backend.'
         );
         // Revert UI if no onStatusChange is provided and status cannot be updated
         setColumns(columns); // Revert to previous state
-        setError('Status change handler not provided to Kanban view. Cannot update status.');
+        setInternalError('Status change handler not provided to Kanban view. Cannot update status.');
       }
       logger.info('[KANBAN_VIEW][DRAG_END][END] Drag-and-drop operation completed.');
     },
-    [columns, onStatusChange] // Depend on columns for accurate state and onStatusChange prop stability
+    [columns, onStatusChange]
   );
 
-  if (error) {
-    logger.error('[KANBAN_VIEW][RENDER_ERROR] Displaying error message.', { error });
+  const combinedError = initialError || internalError;
+
+  if (isLoading || combinedError) {
     return (
-      <div className="text-center py-10 bg-gray-800 p-4 rounded-md border border-red-500/50">
-        <AlertTriangle className="h-10 w-10 text-red-400 mx-auto mb-2" />
-        <p className="text-red-400">Error loading Kanban view: {error}</p>
-      </div>
+      <StatusDisplay
+        isLoading={isLoading}
+        error={combinedError}
+        loadingMessage="Loading kanban board..."
+        errorMessage={combinedError ? String(combinedError) : 'An unknown error occurred.'}
+      />
     );
   }
 
-  logger.debug('[KANBAN_VIEW][RENDER] Returning JSX for DragDropContext.');
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="flex overflow-x-auto p-4 space-x-4 bg-gray-900 rounded-lg shadow-inner min-h-[500px]">
         {kanbanColumnsDef.map((column) => (
           <Droppable droppableId={column.id} key={column.id}>
-            {(provided) => (
-              <Card
+            {(provided, snapshot) => (
+              <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg flex flex-col"
+                className={`flex-shrink-0 w-80 p-4 rounded-lg shadow-md transition-all duration-200
+                  ${snapshot.isDraggingOver ? 'bg-indigo-900/50' : 'bg-gray-800/50'}
+                  flex flex-col border border-gray-700`}
               >
-                <CardHeader className="px-4 py-3 border-b border-gray-700 bg-gray-750 rounded-t-lg sticky top-0 z-10">
-                  <CardTitle className="text-lg font-semibold text-gray-100 flex justify-between items-center">
-                    {column.title}
-                    <Badge className="bg-blue-600 text-white ml-2 rounded-full px-2 py-0.5 text-xs">
-                      {(columns[column.id]?.items || []).length}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow p-3 space-y-3 overflow-y-auto max-h-[calc(100vh-200px)] custom-scrollbar">
-                  {columns[column.id]?.items.length === 0 ? (
-                    <p className="text-gray-500 text-sm text-center py-4">No opportunities in this stage.</p>
-                  ) : (
-                    (columns[column.id]?.items || []).map((item, index) => (
-                      <Draggable key={item.id} draggableId={item.id} index={index}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="bg-gray-900 border border-gray-700 rounded-md shadow-sm p-3 hover:shadow-md transition-shadow duration-200 ease-in-out"
-                          >
-                            <Link href={`/admin/opportunity-pipeline/${item.id}`}>
-                              <p className="text-gray-200 font-medium leading-tight mb-1">{item.title}</p>
-                              <p className="text-gray-400 text-sm mb-2">{item.companyOrInstitution}</p>
-                              <Badge variant="outline" className="bg-gray-700 text-gray-300 border-gray-600">
-                                {item.status}
+                <h2 className="text-lg font-semibold mb-4 text-purple-300 border-b border-purple-500 pb-2 flex justify-between items-center">
+                  {column.title}
+                  <Badge className="bg-purple-700 text-purple-100 px-2 py-1 rounded-full text-xs">
+                    {columns[column.id]?.items.length || 0}
+                  </Badge>
+                </h2>
+                <div className="flex-grow overflow-y-auto space-y-3 pr-2 scrollbar-thumb-purple-500 scrollbar-track-transparent scrollbar-thin">
+                  {columns[column.id]?.items.map((opportunity, index) => (
+                    <Draggable key={opportunity.id} draggableId={opportunity.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={`bg-gray-700 p-3 rounded-lg shadow-md transition-all duration-200
+                            ${snapshot.isDragging ? 'bg-blue-600/70' : 'hover:bg-gray-600'}
+                            border border-gray-600 text-white`}
+                        >
+                          <Link href={`/admin/opportunity/${opportunity.id}/analyze`} passHref>
+                            <h3 className="font-semibold text-lg text-gold mb-1 hover:underline cursor-pointer">
+                              {opportunity.title}
+                            </h3>
+                          </Link>
+                          {opportunity.companyOrInstitution && (
+                            <p className="text-sm text-gray-300">{opportunity.companyOrInstitution}</p>
+                          )}
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {opportunity.status && (
+                              <Badge variant="outline" className="border-purple-500 text-purple-200">
+                                {column.statusValues.includes(opportunity.status as OpportunityStatus)
+                                  ? opportunity.status
+                                  : 'Unknown Status'}
                               </Badge>
-                            </Link>
+                            )}
+                            {opportunity.priority && opportunity.priority !== 'LOW' && (
+                              <Badge
+                                variant="secondary"
+                                className={
+                                  opportunity.priority === 'HIGH'
+                                    ? 'bg-red-600 text-red-100'
+                                    : 'bg-yellow-600 text-yellow-100'
+                                }
+                              >
+                                Priority: {opportunity.priority}
+                              </Badge>
+                            )}
+                            {renderDueDateBadge(opportunity.dueDate as string | null)}
+                            {opportunity.tags &&
+                              opportunity.tags.map((tag, i) => (
+                                <Badge key={i} variant="outline" className="border-gray-500 text-gray-300">
+                                  {tag}
+                                </Badge>
+                              ))}
                           </div>
-                        )}
-                      </Draggable>
-                    ))
-                  )}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
                   {provided.placeholder}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </Droppable>
         ))}

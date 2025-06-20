@@ -13,7 +13,7 @@ export type ActivityEvent = {
   data: {
     app: string;
     title?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 };
 
@@ -36,46 +36,46 @@ export type ProductivitySummary = {
  * Supports user-defined overrides via the second argument to categorizeEvent.
  */
 const DEFAULT_APP_CATEGORY_MAP: Record<string, string> = {
-  "Code": "work",
-  "Terminal": "work",
-  "Slack": "communication",
-  "Discord": "social",
-  "Chrome": "browsing",
-  "Safari": "browsing",
-  "YouTube": "entertainment",
-  "Spotify": "entertainment",
-  "Notion": "productivity",
-  "Figma": "design",
-  "Photoshop": "design",
-  "Excel": "work",
-  "Word": "work",
-  "PowerPoint": "work",
-  "Teams": "communication",
-  "Zoom": "communication",
-  "Gmail": "communication",
-  "Outlook": "communication",
-  "Twitter": "social",
-  "Facebook": "social",
-  "Instagram": "social",
-  "Reddit": "browsing",
-  "VSCode": "work",
-  "IntelliJ": "work",
-  "Jupyter": "work",
-  "Steam": "gaming",
-  "Minecraft": "gaming",
-  "League of Legends": "gaming",
+  Code: 'work',
+  Terminal: 'work',
+  Slack: 'communication',
+  Discord: 'social',
+  Chrome: 'browsing',
+  Safari: 'browsing',
+  YouTube: 'entertainment',
+  Spotify: 'entertainment',
+  Notion: 'productivity',
+  Figma: 'design',
+  Photoshop: 'design',
+  Excel: 'work',
+  Word: 'work',
+  PowerPoint: 'work',
+  Teams: 'communication',
+  Zoom: 'communication',
+  Gmail: 'communication',
+  Outlook: 'communication',
+  Twitter: 'social',
+  Facebook: 'social',
+  Instagram: 'social',
+  Reddit: 'browsing',
+  VSCode: 'work',
+  IntelliJ: 'work',
+  Jupyter: 'work',
+  Steam: 'gaming',
+  Minecraft: 'gaming',
+  'League of Legends': 'gaming',
   // Add more mappings as needed
 };
 
 const DEFAULT_CATEGORY_PRODUCTIVITY: Record<string, number> = {
-  "work": 1.0,
-  "productivity": 0.9,
-  "design": 0.8,
-  "communication": 0.7,
-  "browsing": 0.5,
-  "social": 0.3,
-  "entertainment": 0.1,
-  "gaming": 0.05,
+  work: 1.0,
+  productivity: 0.9,
+  design: 0.8,
+  communication: 0.7,
+  browsing: 0.5,
+  social: 0.3,
+  entertainment: 0.1,
+  gaming: 0.05,
 };
 
 export class ActivityWatchProcessor {
@@ -93,10 +93,10 @@ export class ActivityWatchProcessor {
     userCategoryMap?: Record<string, string>,
     userProductivityMap?: Record<string, number>
   ): CategorizedEvent {
-    const app = event.data.app || "";
+    const app = event.data.app || '';
     const categoryMap = { ...DEFAULT_APP_CATEGORY_MAP, ...(userCategoryMap || {}) };
     const productivityMap = { ...DEFAULT_CATEGORY_PRODUCTIVITY, ...(userProductivityMap || {}) };
-    const category = categoryMap[app] || "other";
+    const category = categoryMap[app] || 'other';
     const productivityScore = productivityMap[category] ?? 0.0;
     return {
       ...event,
@@ -111,15 +111,13 @@ export class ActivityWatchProcessor {
    */
   static detectAnomalies(events: CategorizedEvent[]): CategorizedEvent[] {
     const appCounts: Record<string, number> = {};
-    events.forEach(e => {
+    events.forEach((e) => {
       appCounts[e.data.app] = (appCounts[e.data.app] || 0) + 1;
     });
     const total = events.length;
-    return events.map(e => {
+    return events.map((e) => {
       // Anomaly if productivity is very low or app is rarely used (<5% of total)
-      const isAnomaly =
-        e.productivityScore < 0.2 ||
-        (appCounts[e.data.app] / total < 0.05);
+      const isAnomaly = e.productivityScore < 0.2 || appCounts[e.data.app] / total < 0.05;
       return { ...e, anomaly: isAnomaly };
     });
   }
@@ -135,10 +133,10 @@ export class ActivityWatchProcessor {
     let weightedProductivity = 0;
 
     // Assume each event has a 'duration' field in seconds (fallback to 60s if missing)
-    const categorized = events.map(e => {
+    const categorized = events.map((e) => {
       // Optionally, pass user-defined mappings here in the future
       const ce = this.categorizeEvent(e);
-      const duration = e.data.duration ?? 60;
+      const duration = (e.data.duration as number) ?? 60;
       totalTime += duration;
       byCategory[ce.category] = (byCategory[ce.category] || 0) + duration;
       weightedProductivity += ce.productivityScore * duration;
@@ -152,7 +150,7 @@ export class ActivityWatchProcessor {
       totalTime,
       byCategory,
       productivityScore: Number(overallProductivity.toFixed(2)),
-      anomalies: anomalies.filter(e => e.anomaly),
+      anomalies: anomalies.filter((e) => e.anomaly),
     };
   }
 }

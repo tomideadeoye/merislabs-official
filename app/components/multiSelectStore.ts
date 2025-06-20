@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface MultiSelectState {
   options: { label: string; value: string }[];
@@ -12,7 +12,7 @@ interface MultiSelectState {
   setOnChangeCallback: (cb: (selected: string[]) => void) => void;
 }
 
-export const useMultiSelectStore = (id: string) =>
+export const useMultiSelectStore = () =>
   create<MultiSelectState>((set, get) => ({
     options: [],
     selected: [],

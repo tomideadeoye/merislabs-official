@@ -7,7 +7,6 @@
 // TODOS:
 // SUGGESTIONS:
 const ignoreDirs = [
-  'orion_python_backend',
   'venv',
   '.venv',
   'notion_api_venv',
@@ -37,7 +36,38 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+        buffer: false,
+        http: false,
+        https: false,
+        path: false,
+        process: false,
+        stream: false,
+        url: false,
+        util: false,
+        zlib: false,
       };
+
+      // Explicitly mark server-only modules as external for client build
+      config.externals.push(
+        'node-fetch',
+        'winston',
+        'pg',
+        'puppeteer',
+        'cheerio',
+        'docx',
+        'openai',
+        'litellm',
+        'langchain',
+        '@qdrant/js-client-rest',
+        'undici',
+        // Treat all node: prefixed imports as external for client build
+        ({ request }, callback) => {
+          if (request && request.startsWith('node:')) {
+            return callback(null, `commonjs ${request}`);
+          }
+          callback();
+        }
+      );
     }
 
     if (isServer) {

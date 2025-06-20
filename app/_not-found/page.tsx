@@ -1,5 +1,6 @@
 'use client';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function NotFoundPage() {
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function NotFoundPage() {
         <br />
         Please check the URL or return to the homepage.
       </p>
-      <a
+      <Link
         href="/"
         style={{
           background: '#0ea5e9',
@@ -47,16 +48,9 @@ export default function NotFoundPage() {
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
           transition: 'background 0.2s',
         }}
-        onClick={() => {
-          if (window?.console) {
-            console.info('[404] User clicked return to homepage', {
-              path: window.location.pathname,
-            });
-          }
-        }}
       >
         Return Home
-      </a>
+      </Link>
       <div style={{ marginTop: '2rem', opacity: 0.7, fontSize: '1rem' }}>
         If you believe this is an error, please contact support.
         <br />

@@ -21,7 +21,7 @@ import { cookies } from 'next/headers';
  */
 export async function GET() {
   try {
-    const cookieStore = cookies(); // Await cookies() directly, remove 'any' type assertion
+    const cookieStore = await cookies();
     const userId = cookieStore.get('HABITICA_USER_ID')?.value;
     const apiToken = cookieStore.get('HABITICA_API_TOKEN')?.value;
     console.info('[HabiticaUserAPI][GET] Read cookies', { userId, apiToken });
@@ -38,7 +38,7 @@ export async function GET() {
       );
     }
 
-    // Get user stats using the shared client
+    // Get user stats using the lib client
     const userStats = await getUserData();
 
     if (!userStats) {
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Test the credentials by fetching user stats using the shared client
+    // Test the credentials by fetching user stats using the lib client
     const userStats = await getUserData();
 
     if (!userStats) {

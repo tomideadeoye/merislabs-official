@@ -29,7 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useOutreachGenerationStore } from '@/lib/stores/outreachGenerationStore';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import type { Persona, OutreachRequest, UserProfileData } from '@/lib/types';
+import type { Persona, OutreachRequest } from '@/lib/types';
 import { Loader2, Mail, Linkedin, MessageCircle, XCircle } from 'lucide-react';
 import logger from '@/lib/logger';
 

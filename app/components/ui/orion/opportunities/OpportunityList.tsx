@@ -26,12 +26,7 @@ interface OpportunityListProps {
   onAddNew?: () => void;
 }
 
-export const OpportunityList: React.FC<OpportunityListProps> = ({
-  opportunities,
-  isLoading,
-  error,
-  onAddNew,
-}) => {
+export const OpportunityList: React.FC<OpportunityListProps> = ({ opportunities, isLoading, error, onAddNew }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const { filters, sort, sortOrder } = useOpportunityCentralStore(
     useShallow((state: OpportunityCentralStoreType) => ({

@@ -6,8 +6,8 @@ import { SessionStateKeys } from '@/lib/constants';
 import { useSessionStateStore } from '@/state/sessionState';
 
 interface UseSessionState {
-  setSessionValue: (key: SessionStateKeys, value: any) => void;
-  getSessionValue: (key: SessionStateKeys) => any;
+  setSessionValue: (key: SessionStateKeys, value: unknown) => void;
+  getSessionValue: (key: SessionStateKeys) => unknown;
   clearSession: () => void;
   selectSessionValue: <T>(key: SessionStateKeys) => T | undefined;
 }

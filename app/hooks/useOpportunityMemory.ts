@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 
@@ -22,7 +22,7 @@ export function useOpportunityMemory(opportunityId: string) {
         id: `mem_${Date.now()}`,
         timestamp: new Date().toISOString(),
       };
-      setMemories(prev => [...prev, newMemory]);
+      setMemories((prev) => [...prev, newMemory]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add memory');
     } finally {
@@ -33,7 +33,7 @@ export function useOpportunityMemory(opportunityId: string) {
   const removeMemory = async (memoryId: string) => {
     try {
       setLoading(true);
-      setMemories(prev => prev.filter(m => m.id !== memoryId));
+      setMemories((prev) => prev.filter((m) => m.id !== memoryId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to remove memory');
     } finally {

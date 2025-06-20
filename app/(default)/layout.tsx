@@ -2,7 +2,7 @@
  * GOAL OF FILE|FEATURES|FUNCTIONS:
  *   - This layout component serves as the default global layout for parts of the Orion application.
  *   - It initializes global client-side libraries like AOS for animations.
- *   - Crucially, it now provides the `MemoryProvider` to ensure that all child components (like JournalPage) have access to the shared memory context, resolving "useMemoryContext must be used within a MemoryProvider" errors.
+ *   - Crucially, it now provides the `MemoryProvider` to ensure that all child components (like JournalPage) have access to the lib memory context, resolving "useMemoryContext must be used within a MemoryProvider" errors.
  *
  * FILEPATH: `app/(default)/layout.tsx`
  *
@@ -29,8 +29,7 @@ import { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Footer } from '@/components/ui';
-import PageIllustration from '@/components/ui/page-illustration';
-import { MemoryProvider } from '@/components/orion/MemoryProvider';
+import PageIllustration from '@/components/ui/page-illustration'; // MemoryProvider is already in the root layout
 
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -45,7 +44,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
     <>
       <main className="grow">
         <PageIllustration />
-        <MemoryProvider> {children} </MemoryProvider>
+        {children} {/* MemoryProvider removed from here, it's in app/layout.tsx */}
       </main>
 
       <Footer />
