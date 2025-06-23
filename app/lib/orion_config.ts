@@ -30,7 +30,7 @@
  *   - The `checkAuthorization` function is currently a placeholder and requires a robust implementation for production use.
  *
  * NOTES:
- *   - This file uses `console.info` for initial debug logging of Notion environment variables, aiding in rapid troubleshooting during startup.
+ *   - This file uses `console.info` for initial debug logging of Notion env variables, aiding in rapid troubleshooting during startup.
  *   - It explicitly defines the `VECTOR_SIZE` (384) which is critical for consistency with the embedding model used by Qdrant.
  *   - Consolidation of LLM default providers here centralizes model routing logic.
  *
@@ -55,7 +55,7 @@ console.info(
 // API URLs
 export const PYTHON_API_URL = process.env.NEXT_PUBLIC_PYTHON_API_URL || 'http://localhost:8000';
 export const QDRANT_URL = process.env.NEXT_PUBLIC_QDRANT_URL || 'http://localhost:6333';
-export const QDRANT_HOST = process.env.NEXT_PUBLIC_QDRANT_HOST || 'localhost';
+export const QDRANT_HOST = process.env.NEXT_PUBLIC_QDRANT_HOST || '127.0.0.1';
 export const QDRANT_PORT = Number(process.env.NEXT_PUBLIC_QDRANT_PORT || 6333);
 export const VECTOR_SIZE = 384; // Default vector size for embeddings
 
@@ -84,6 +84,7 @@ export const CV_SUMMARY_TAILORING_REQUEST_TYPE = 'cv_summary_tailoring';
 export const DRAFT_APPLICATION_REQUEST_TYPE = 'draft_application';
 export const DRAFT_COMMUNICATION_REQUEST_TYPE = 'draft_communication';
 export const WHATSAPP_REPLY_HELPER_REQUEST_TYPE = 'whatsapp_reply_helper';
+export const DRAFT_LINKEDIN_MESSAGE_REQUEST_TYPE = 'draft_linkedin_message';
 export const DAILY_REFLECTION_REQUEST_TYPE = 'daily_reflection';
 export const THOUGHT_FOR_THE_DAY_REQUEST_TYPE = 'thought_for_the_day';
 
@@ -205,6 +206,13 @@ export const AVAILABLE_LLM_MODELS: LLMModelConfig[] = [
   },
   // Azure OpenAI (placeholder, deployment IDs vary)
   { id: 'azure/gpt-4', name: 'GPT-4 (Azure)', provider: 'azure', supportsTools: true, supportsJson: true },
+  {
+    id: 'azure/gpt-4.1-turbo',
+    name: 'GPT-4.1 Turbo (Azure)',
+    provider: 'azure',
+    supportsTools: true,
+    supportsJson: true,
+  }, // Added as an Azure model
   // LM Studio (local models)
   {
     id: 'lm-studio/local-model',

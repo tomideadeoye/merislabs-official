@@ -60,7 +60,7 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
 
     const prompt = `Generate an outreach message to ${stakeholder.name}, a ${stakeholder.role} at ${stakeholder.company}. The message should be tailored for the opportunity: "${opportunity.title}". My profile: ${profileResponse.profileText}`;
 
-    const llmResponse = await generateLLMResponse(REQUEST_TYPES.DRAFT_COMMUNICATION, prompt);
+    const llmResponse = await generateLLMResponse(REQUEST_TYPES.DRAFT_COMMUNICATION, prompt, session.user.id!);
 
     if (!llmResponse.success) {
       return NextResponse.json({ success: false, error: (llmResponse as LLMResponseFailure).error }, { status: 500 });

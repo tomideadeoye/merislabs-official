@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchUserProfile } from '@/lib/profile_service';
 import logger from '@/lib/logger';
+import { fetchServerUserProfile } from '@/lib/server_profile_fetcher';
 
 export const revalidate = 300; // Revalidate every 5 minutes
 
@@ -31,13 +32,34 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
 
-    const profileData = await fetchUserProfile();
-    if (profileData) {
+    const profileData = await fetchServerUserProfile();
+    if (profileData.success && profileData.profile) {
+      // Attempt to extract email from profileText if profile.email is not directly available
+      let userEmail = profileData.profile.email;
+      if (!userEmail && profileData.profileText) {
+        const emailMatch = profileData.profileText.match(/Email: (\S+@\S+\.\S+)/);
+        if (emailMatch && emailMatch[1]) {
+          userEmail = emailMatch[1];
+          logger.info('[GET /api/orion/profile] Extracted email from profileText', { email: userEmail });
+        }
+      }
+
+      // Ensure the profile object has an email property for frontend consumption
+      const responseProfile = {
+        ...profileData.profile,
+        email: userEmail || profileData.profile.email || 'not-provided@example.com', // Ensure email is always present
+      };
+
       logger.success('Successfully fetched user profile', {
         operation: 'GET /api/orion/profile',
         timestamp: new Date().toISOString(),
       });
-      return NextResponse.json({ success: true, profile: profileData });
+      return NextResponse.json({
+        success: true,
+        profile: responseProfile,
+        profileText: profileData.profileText,
+        source: profileData.source,
+      });
     }
 
     logger.error('Profile not found', {

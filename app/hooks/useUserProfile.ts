@@ -1,114 +1,176 @@
 'use client';
 
-import apiClient from '@/lib/apiClient';
-import { UserProfileData } from '@/lib/types';
-import { useQuery } from '@tanstack/react-query';
-import logger from '@/lib/logger';
-import toast from 'react-hot-toast';
+// GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
 
-const CACHE_KEY = 'userProfile';
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+import { useState, useEffect, useCallback } from 'react';
+import { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
+import { request } from '@/lib/apiClient'; // Use the enhanced request with retry logic
+import logger from '@/lib/logger';
+import { useLocalStorage } from './useLocalStorage';
 
 /**
- * Custom hook to fetch user profile data using TanStack Query.
- * Fetches data from the /api/orion/profile endpoint with client-side caching
- * via local storage for initial load, then manages state with TanStack Query.
+ * @fileoverview Custom React hook for fetching and managing user profile data, with local storage caching.
+ * @description This hook provides a centralized way to access and cache Tomide's user profile data. It first
+ *   attempts to retrieve the profile from local storage to minimize API calls and provide a fast initial load.
+ *   If not found or if the cached data is stale, it fetches from the `/api/orion/profile` endpoint and
+ *   stores the fresh data in local storage. Includes comprehensive logging for traceability.
  *
- * @returns An object containing the profile data, loading state, and any errors.
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - Provide a consistent and efficient mechanism for accessing user profile data in client-side components.
+ *   - Implement client-side caching using `localStorage` to improve performance and reduce server load.
+ *   - Ensure data freshness through a Time-To-Live (TTL) mechanism for cached data.
+ *   - Handle loading states and errors gracefully, providing immediate feedback to the UI.
+ *   - Integrate with the existing logging utility for detailed operational insights.
+ *
+ * FILEPATH: `app/hooks/useUserProfile.ts`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/lib/apiClient.ts`: Used for making API requests to the backend.
+ *   - `app/lib/logger.ts`: Utilized for structured logging of all profile data operations.
+ *   - `app/hooks/useLocalStorage.ts`: Leveraged for persistent client-side data storage.
+ *   - `app/api/orion/profile/route.ts`: The API endpoint from which profile data is fetched.
+ *   - `@/lib/types/profile.ts`: Defines the `UserProfileData` and `UserProfileFetchResponse` types.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes `UserProfileData` includes an `email` field for initial identification/fallback.
+ *   - The `PROFILE_CACHE_KEY` and `PROFILE_CACHE_TTL_MS` are constants defined within the hook.
+ *   - Assumes JSON.parse and JSON.stringify will handle the profile data correctly.
+ *
+ * NOTES:
+ *   - This hook is designed for client-side consumption. Server-side fetching is handled by `server_profile_fetcher.ts`.
+ *   - The TTL for cached data is set to 10 minutes, balancing freshness with performance.
+ *   - COMPONENTS TO MERGE WITH: Potentially integrate with a global state management solution (e.g., Zustand store) if profile data needs to be accessed by many disparate components without prop drilling.
+ *   - PERFORMANCE OPTIMIZATIONS: The `useLocalStorage` hook inherently optimizes by reducing repeated API calls.
+ *   - ERROR HANDLING ROBUSTNESS: Provides distinct error states for network issues vs. API-specific errors.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - Implement a revalidation strategy (e.g., stale-while-revalidate) for more nuanced caching.
+ *   - Add an option to force refresh the profile data, bypassing the cache.
+ *   - Enhance error reporting to a centralized error tracking service.
+ *   - Use Zod for runtime validation of fetched profile data.
  */
-export function useUserProfile() {
-  // Function to fetch profile from API
-  const fetchProfileFromApi = async (): Promise<UserProfileData> => {
-    logger.info('Fetching profile from /api/orion/profile', {
-      operation: 'useUserProfile',
-      timestamp: new Date().toISOString(),
-    });
-    const response = await apiClient.get<UserProfileData>('/api/orion/profile');
-    if (!response.data) {
-      throw new Error('Failed to fetch profile data: Response data is empty.');
-    }
-    logger.info('Profile fetched successfully from API', {
-      operation: 'useUserProfile',
-      timestamp: new Date().toISOString(),
-    });
-    return response.data;
-  };
 
-  const queryOptions = {
-    queryKey: ['userProfile'],
-    queryFn: async () => {
-      // Attempt to load from local storage first
-      const cachedItem = localStorage.getItem(CACHE_KEY);
-      if (cachedItem) {
-        try {
-          const { data, timestamp } = JSON.parse(cachedItem);
-          if (Date.now() - timestamp < CACHE_TTL_MS) {
-            logger.info('Loaded profile from localStorage cache', {
-              operation: 'useUserProfile',
-              timestamp: new Date().toISOString(),
-            });
-            return data; // Return cached data if valid and within TTL
-          }
-        } catch (parseError) {
-          logger.error('Error parsing cached profile data, fetching fresh.', {
-            operation: 'useUserProfile',
-            error: parseError instanceof Error ? parseError.message : String(parseError),
-          });
-          localStorage.removeItem(CACHE_KEY); // Clear invalid cache
-        }
-      }
-      // If no valid cache, fetch from API
-      return await fetchProfileFromApi();
-    },
-    staleTime: CACHE_TTL_MS, // Data considered fresh for 10 minutes
-    refetchOnWindowFocus: false, // Prevent refetching on window focus for stability
-    onSuccess: (data: UserProfileData) => {
-      // Store data in local storage and show toast only upon successful fetch and update by TanStack Query
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
-      logger.info('Profile cached in localStorage after successful API fetch', {
-        operation: 'useUserProfile:onSuccess',
-        timestamp: new Date().toISOString(),
-      });
-      toast.success('Profile loaded successfully!');
-    },
-  };
+// Constants for local storage key and cache TTL
+const PROFILE_CACHE_KEY = 'orion_user_profile';
+const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
-  const { data: profile, isLoading, error, refetch } = useQuery<UserProfileData, Error>(queryOptions);
-
-  const updateProfile = async (updates: Partial<UserProfileData>) => {
-    // This function will primarily handle local state updates or trigger API calls for persistence.
-    // For a full implementation, you'd likely have a POST/PATCH API endpoint for updating the profile
-    // and then use queryClient.invalidateQueries(['userProfile']) or mutate to update the cache.
-    logger.info('Updating profile locally via useUserProfile hook', {
-      updates,
-      operation: 'useUserProfile:updateProfile',
-      timestamp: new Date().toISOString(),
-    });
-
-    // Optimistically update local storage and the TanStack Query cache
-    const currentProfile = profile; // Use the data from useQuery
-    if (currentProfile) {
-      const newProfile = { ...currentProfile, ...updates };
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ data: newProfile, timestamp: Date.now() }));
-      // Manually update the query cache without a refetch, if desired
-      // queryClient.setQueryData(['userProfile'], newProfile);
-      logger.info('Profile updated locally and cached.', {
-        operation: 'useUserProfile:updateProfile',
-        timestamp: new Date().toISOString(),
-      });
-      toast.success('Profile updated locally!');
-    }
-
-    // If you had a backend API to persist updates, you would call it here:
-    // try {
-    //   await apiClient.patch('/api/orion/profile/update', updates);
-    //   refetch(); // Refetch to ensure data is in sync with backend
-    //   toast.success('Profile saved to backend!');
-    // } catch (backendError) {
-    //   consolidatedLogger.error('Failed to save profile to backend', { error: backendError });
-    //   toast.error('Failed to save profile to backend.');
-    // }
-  };
-
-  return { profile, loading: isLoading, error, updateProfile, refetch };
+interface UseUserProfileResult {
+  profile: UserProfileData | null;
+  profileText: string | null;
+  isLoading: boolean;
+  error: string | null;
+  source: 'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | null;
+  refetch: () => void;
 }
+
+const useUserProfile = (): UseUserProfileResult => {
+  const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const [profileText, setProfileText] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [source, setSource] = useState<'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | null>(
+    null
+  );
+  const [storedProfileCache, setStoredProfileCache] = useLocalStorage<{
+    profile: UserProfileData;
+    profileText: string;
+    timestamp: number;
+  } | null>(PROFILE_CACHE_KEY, null);
+
+  const fetchProfile = useCallback(async () => {
+    const logContext = { operation: 'fetchUserProfileHook', timestamp: new Date().toISOString() };
+    setIsLoading(true);
+    setError(null);
+
+    // 1. Attempt to load from local storage
+    try {
+      if (storedProfileCache) {
+        if (Date.now() - storedProfileCache.timestamp < PROFILE_CACHE_TTL_MS) {
+          logger.info('User profile loaded from local storage cache.', { ...logContext, source: 'cache' });
+          setProfile(storedProfileCache.profile);
+          setProfileText(storedProfileCache.profileText);
+          setSource('cache');
+          setIsLoading(false);
+          return;
+        } else {
+          logger.warn('Cached user profile is stale, fetching new data.', { ...logContext, source: 'cache_stale' });
+        }
+      } else {
+        logger.info('No user profile found in local storage cache.', { ...logContext, source: 'cache_miss' });
+      }
+    } catch (e: unknown) {
+      const parseError = e instanceof Error ? e.message : String(e);
+      logger.error('Error parsing cached user profile from local storage.', {
+        ...logContext,
+        error: parseError,
+        details: e,
+        source: 'cache_error',
+      });
+      // Continue to fetch from API if cache read fails
+    }
+
+    // 2. Fetch from API if not in cache or cache is stale/invalid
+    try {
+      logger.info('Fetching user profile from API endpoint.', { ...logContext, source: 'api_fetch_init' });
+      const response = await request<UserProfileFetchResponse>({ url: '/api/orion/profile', method: 'GET' });
+
+      if (response.success && response.profile && response.profileText) {
+        setProfile(response.profile);
+        setProfileText(response.profileText);
+        setSource(response.source || null);
+        setIsLoading(false);
+
+        // Cache the fresh data
+        const dataToCache = {
+          profile: response.profile,
+          profileText: response.profileText,
+          timestamp: Date.now(),
+        };
+        setStoredProfileCache(dataToCache);
+        logger.success('Successfully fetched and cached user profile from API.', {
+          ...logContext,
+          source: response.source,
+        });
+      } else {
+        const errorMessage = response.error || 'Failed to fetch user profile from API.';
+        logger.error('API returned an unsuccessful response for user profile.', {
+          ...logContext,
+          error: errorMessage,
+          apiResponse: response,
+        });
+        setError(errorMessage);
+        setSource(response.source || 'error');
+        setIsLoading(false);
+      }
+    } catch (apiError: unknown) {
+      const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
+      logger.error('Error fetching user profile from API.', {
+        ...logContext,
+        error: errorMessage,
+        stack: apiError instanceof Error ? apiError.stack : undefined,
+        source: 'api_fetch_error',
+      });
+      setError(`Failed to load profile: ${errorMessage}`);
+      setSource('error');
+      setIsLoading(false);
+    }
+  }, [storedProfileCache, setStoredProfileCache, setProfile, setProfileText, setSource, setIsLoading, setError]);
+
+  useEffect(() => {
+    logger.debug('useUserProfile useEffect triggered, initiating profile fetch.', {
+      timestamp: new Date().toISOString(),
+    });
+    fetchProfile();
+  }, [fetchProfile]);
+
+  const refetch = useCallback(() => {
+    logger.info('Refetching user profile initiated by component.', { timestamp: new Date().toISOString() });
+    setIsLoading(true); // Ensure loading state is true on refetch
+    fetchProfile();
+  }, [fetchProfile]);
+
+  return { profile, profileText, isLoading, error, source, refetch };
+};
+
+export default useUserProfile;

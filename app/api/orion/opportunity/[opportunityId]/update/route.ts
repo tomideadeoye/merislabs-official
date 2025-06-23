@@ -8,16 +8,10 @@ import logger from '@/lib/logger';
 import { auth } from '@/auth';
 import { Client, APIResponseError } from '@notionhq/client';
 import { UpdatePageParameters } from '@notionhq/client/build/src/api-endpoints';
-import {
-  OpportunityUpdatePayload,
-  OpportunityType,
-  OpportunityStatus,
-  OpportunityPriority,
-  OrionOpportunity,
-} from '@/lib/types';
+import { OpportunityUpdatePayload, OpportunityType, OpportunityStatus, OpportunityPriority } from '@/lib/types';
 
 const NOTION_API_KEY = process.env.NOTION_API_KEY;
-const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID; // Assuming this is used for validating database type, though not directly in page update
+// const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID; // Assuming this is used for validating database type, though not directly in page update
 const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
 
 interface RouteParams {
@@ -254,6 +248,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (body.position !== undefined) {
       propertiesToUpdate['Position'] = { rich_text: [{ text: { content: body.position ?? '' } }] };
     }
+    if (body.tailoredCv !== undefined) {
+      propertiesToUpdate['Tailored CV'] = {
+        rich_text: [{ text: { content: (body as { tailoredCv: string }).tailoredCv } }],
+      };
+    }
     // Handle relations for applicationMaterialIds, stakeholderContactIds, relatedHabiticaTaskId
     // These require fetching the current page, modifying the relation, and then updating.
     // Given the complexity for a PATCH endpoint, these might be better handled by separate specific endpoints,
@@ -304,7 +303,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true, message: 'Opportunity updated successfully.', opportunityId });
   } catch (error: unknown) {
     let errorMessage = 'An unexpected error occurred';
-    let errorDetails: any = {};
+    let errorDetails: Record<string, unknown> = {};
 
     if (error instanceof APIResponseError) {
       errorMessage = `Notion API Error (${error.status}): ${error.message}`;

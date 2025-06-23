@@ -1,161 +1,203 @@
+/**
+ * @fileoverview API route for generating personalized outreach messages using Large Language Models (LLMs).
+ * @description This file handles the API request for generating outreach messages for sales, networking, or general communication based on provided opportunity details, stakeholder information, and the user's profile. It leverages LLMs to draft messages with specific tones and goals, and interacts with the server-side profile fetcher to personalize the output. It ensures input validation using Zod and comprehensive logging for traceability.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide an endpoint for clients to request LLM-generated outreach messages.
+ *   - To validate incoming request data using Zod schemas, ensuring data integrity.
+ *   - To fetch the user's profile data from a server-side service for personalization.
+ *   - To call the core LLM utility (`generateOutreachMessage`) with all necessary context to produce message drafts.
+ *   - To return generated drafts to the client in a structured format.
+ *
+ * FILEPATH: `app/api/orion/networking/generate-outreach/route.ts`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `@/lib/logger.ts`: Used for all logging operations, providing detailed context for debugging and monitoring.
+ *   - `@/lib/orion_llm.ts`: Contains the `generateOutreachMessage` function, which is the core LLM interaction logic.
+ *   - `@/lib/server_profile_fetcher.ts`: Provides `fetchServerUserProfile` to securely retrieve the user's profile data.
+ *   - `@/lib/types/index.ts`: Defines critical interfaces such as `OutreachRequest`, `UserProfileFetchResponse`, `UserProfileData`, and `OutreachResponse`, ensuring type consistency.
+ *   - `zod`: Used for robust runtime schema validation of incoming API request bodies.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes that `fetchServerUserProfile` successfully retrieves user profile text or an error indicates a complete failure.
+ *   - The `userId` is currently a placeholder (`'unauthenticated_user'`) as per the authentication removal strategy. This should be replaced with actual user authentication in production.
+ *   - The `OutreachRequestSchema` now comprehensively reflects all required fields for `OutreachRequest`, implying the client must provide these.
+ *   - The `userProfileForLLM` object is constructed with placeholder values for `UserProfileData` fields not directly provided by `fetchServerUserProfile`, as `generateOutreachMessage` primarily uses `profileText` and `source`.
+ *
+ * NOTES:
+ *   - This API route acts as a crucial intermediary between the client-side UI and the LLM generation logic, orchestrating data flow and validation.
+ *   - The integration of Zod ensures that API consumers provide correctly structured data, leading to fewer runtime errors.
+ *   - **COMPONENTS TO MERGE WITH / OPPORTUNITIES TO CONSOLIDATE**: Consider if `OutreachRequestSchema` could be generated from the `OutreachRequest` TypeScript interface using a library like `ts-to-zod` to avoid manual synchronization issues.
+ *   - **PERFORMANCE OPTIMIZATIONS**: For very high traffic, consider adding caching for `fetchServerUserProfile` results beyond the in-memory cache, perhaps a distributed cache if not already present.
+ *   - **ERROR HANDLING ROBUSTNESS**: Enhance error messages to provide more specific guidance to the client on what went wrong (e.g., specific missing fields).
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - Implement proper user authentication to replace the `userId` placeholder.
+ *   - Refine the `UserProfileData` object passed to `generateOutreachMessage` if more detailed profile attributes are needed by the LLM in the future.
+ *   - Add more specific error logging for the `generateOutreachMessage` call, including details about its input and the LLM response.
+ *   - Explore using the `numberOfDrafts` from the schema to request multiple drafts from the LLM, if `generateOutreachMessage` can support it, and return them to the client.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authConfig } from '@/lib/auth';
-import { generateLLMResponse } from '@/lib/orion_llm';
-import { CombinedLLMResponse } from '@/lib/types';
+// import { getServerSession } from 'next-auth/next';
+import logger from '@/lib/logger';
+import { generateOutreachMessage } from '@/lib/orion_llm';
+import { fetchServerUserProfile } from '@/lib/server_profile_fetcher';
+import { UserProfileFetchResponse, OutreachRequest, UserProfileData, OutreachResponse } from '@/lib/types';
+// import { authConfig } from '@/lib/auth';
+import { z } from 'zod';
 
-// GOAL:
-// RELATION TO OTHER FILES, FUNCTIONS AND FEATURES:
-
-interface OutreachRequestBody {
-  stakeholder: {
-    name: string;
-    role: string;
-    company: string;
-    linkedin_url?: string;
-    email?: string;
-    person_snippet?: string;
-  };
-  context?: string;
-  profileData?: string;
-  additionalInfo?: string;
-  jobTitle?: string;
-  companyResearch?: string;
+interface LogContextType {
+  route: string;
+  timestamp: string;
+  userId?: string;
+  operation?: string;
+  [key: string]: unknown;
 }
 
-// Enhanced system prompt for networking outreach
-const SYSTEM_PROMPT_NETWORKING_OUTREACH = `
-You are an expert networking strategist who specializes in crafting personalized, effective outreach messages that build meaningful professional connections. You understand the nuances of different platforms (LinkedIn vs. Email) and how to adapt your approach accordingly.
-
-Your strengths include:
-1. Creating authentic, non-generic messages that demonstrate genuine interest
-2. Establishing credibility and relevance without appearing desperate
-3. Finding subtle connection points between the sender and recipient
-4. Balancing professionalism with approachability
-5. Crafting messages that are concise yet impactful
-6. Providing clear value propositions for why the connection would be mutually beneficial
-
-Focus on establishing genuine connection, demonstrating credible interest, and proposing a clear, low-friction next step (e.g., a brief chat). Messages should be concise and tailored to the platform.
-
-For LinkedIn messages:
-- Keep under 300 characters (LinkedIn's limit)
-- Be specific about why you're connecting with this particular person
-- Reference their work, role, or company specifically
-- Avoid generic templates or obvious mass outreach language
-
-For email outreach:
-- Be brief but substantive (4-6 sentences)
-- Include a specific reference to the recipient's role or recent work if available
-- Clearly articulate why this connection would be valuable to both parties
-- End with a specific, low-commitment call to action
-
-You excel at helping professionals initiate conversations that lead to meaningful relationships rather than transactional exchanges.`;
+const OutreachRequestSchema = z.object({
+  opportunityId: z.string().min(1, 'Opportunity ID is required.').optional(),
+  stakeholderName: z.string().min(1, 'Stakeholder name is required.'),
+  stakeholderRole: z.string().optional(),
+  persona: z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    traits: z.array(z.string()),
+    goals: z.array(z.string()),
+    email: z.string().optional(),
+    role: z.string().optional(),
+    company: z.string().optional(),
+    industry: z.string().optional(),
+    interests: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional(),
+    notes: z.string().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    values: z.array(z.string()).optional(),
+    challenges: z.array(z.string()).optional(),
+    valueProposition: z.string().optional(),
+  }),
+  outreachGoal: z.string().min(1, 'Outreach goal is required.'),
+  messageType: z.enum(['email', 'linkedin', 'whatsapp']),
+  tone: z.enum(['professional', 'friendly', 'formal', 'casual', 'persuasive', 'curious']),
+  length: z.enum(['short', 'standard', 'detailed']),
+  personalizationContext: z.string().optional(),
+  specificContext: z.string().optional(),
+  callToAction: z.string().optional(),
+  numberOfDrafts: z.number().int().min(1).max(5).optional(),
+});
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authConfig);
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const logContext: LogContextType = {
+    route: '/api/orion/networking/generate-outreach',
+    timestamp: new Date().toISOString(),
+    operation: 'POST',
+  };
+  logger.info('[GENERATE_OUTREACH_API][POST][START] Received request to generate outreach message.', logContext);
+
+  // Authentication check removed as per the authentication removal strategy
+  // const session = await getServerSession(authConfig);
+  // if (!session || !session.user || !session.user.id) {
+  //   logger.warn('[GENERATE_OUTREACH_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+
+  // Use a placeholder userId since authentication is removed
+  const userId = 'unauthenticated_user';
+  logContext.userId = userId;
 
   try {
-    const requestBody: OutreachRequestBody = await request.json();
-    const { stakeholder, context, profileData, additionalInfo, jobTitle, companyResearch } = requestBody;
+    const body = await request.json();
+    logger.debug('[GENERATE_OUTREACH_API][POST][REQUEST_BODY]', { ...logContext, body });
 
-    // Basic validation
-    if (!stakeholder || !stakeholder.name || !stakeholder.company) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Stakeholder information is required.',
-        },
-        { status: 400 }
-      );
+    const validationResult = OutreachRequestSchema.safeParse(body);
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((err) => err.message).join(', ');
+      logger.warn('[GENERATE_OUTREACH_API][POST][VALIDATION_FAIL]', { ...logContext, errors });
+      return NextResponse.json({ success: false, error: `Validation Error: ${errors}` }, { status: 400 });
     }
 
-    // Generate outreach email
-    const emailDraft = await generateOutreachEmail(
-      stakeholder,
-      profileData || '',
-      context || '',
-      additionalInfo,
-      jobTitle,
-      companyResearch
-    );
+    const {
+      opportunityId,
+      stakeholderName,
+      stakeholderRole,
+      persona,
+      outreachGoal,
+      messageType,
+      tone,
+      length,
+      personalizationContext,
+      specificContext,
+      callToAction,
+    } = validationResult.data;
+    const numberOfDrafts = validationResult.data.numberOfDrafts;
 
-    return NextResponse.json({
-      success: true,
-      emailDraft,
+    // Fetch user profile data
+    const profileData: UserProfileFetchResponse | null = await fetchServerUserProfile();
+
+    if (!profileData || !profileData.success || !profileData.profileText) {
+      logger.error(
+        '[GENERATE_OUTREACH_API][POST][PROFILE_FETCH_FAIL] Failed to fetch user profile for outreach generation.',
+        logContext
+      );
+      return NextResponse.json({ success: false, error: 'Failed to fetch user profile.' }, { status: 500 });
+    }
+
+    const userProfileForLLM: UserProfileData = {
+      id: userId,
+      name: 'Unauthenticated User',
+      email: '',
+      bio: profileData.profileText || '',
+      skills: [],
+      experience: [],
+      education: [],
+      interests: [],
+      values: [],
+      goals: [],
+      socialLinks: [],
+      contactInfo: {},
+      profileText: profileData.profileText,
+      source: profileData.source,
+    };
+
+    const outreachRequestForLLM: OutreachRequest = {
+      opportunityId,
+      stakeholder: stakeholderName,
+      outreachType: messageType === 'whatsapp' ? undefined : messageType, // 'whatsapp' is not a valid outreachType, map to undefined
+      personalizationContext,
+      persona,
+      outreachGoal,
+      messageType,
+      tone,
+      length,
+      specificContext,
+      callToAction,
+      userProfile: userProfileForLLM,
+    };
+
+    logger.debug('[GENERATE_OUTREACH_API][POST][PROCESSING] Generating outreach message.', {
+      ...logContext,
+      outreachRequest: outreachRequestForLLM,
     });
+
+    const response: OutreachResponse = await generateOutreachMessage({
+      outreachRequest: outreachRequestForLLM,
+      userProfileData: userProfileForLLM,
+    });
+
+    if (response.success) {
+      logger.success('[GENERATE_OUTREACH_API][POST][SUCCESS] Outreach message generated successfully.', logContext);
+      return NextResponse.json({ success: true, message: response.message, draft: response.draft });
+    } else {
+      throw new Error(response.message || 'Failed to generate outreach message.');
+    }
   } catch (error: unknown) {
-    console.error('[OUTREACH_EMAIL_API_ERROR]', error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to generate outreach email.',
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * Generate an outreach email for a stakeholder with enhanced prompting
- */
-async function generateOutreachEmail(
-  stakeholder: OutreachRequestBody['stakeholder'],
-  profileData: string,
-  context: string,
-  additionalInfo?: string,
-  jobTitle?: string,
-  companyResearch?: string
-): Promise<string> {
-  const hasJobInterest = !!jobTitle;
-  const hasEmail = !!stakeholder.email;
-  const personInfo = stakeholder.person_snippet || '';
-
-  // Build a detailed context for the LLM
-  let conversationStarters = '';
-  if (personInfo) {
-    conversationStarters = `Based on their profile: "${personInfo.substring(0, 200)}..."`;
-  } else if (companyResearch) {
-    conversationStarters = `Based on company research: "${companyResearch.substring(0, 200)}..."`;
-  }
-
-  const platform = hasEmail ? 'Email' : 'LinkedIn';
-  let intro = `You are drafting a ${platform} outreach message to connect with ${stakeholder.name}, a ${stakeholder.role} at ${stakeholder.company}.`;
-  if (stakeholder.linkedin_url) {
-    intro += ` Their LinkedIn: ${stakeholder.linkedin_url}.`;
-  }
-  if (stakeholder.email) {
-    intro += ` Their email: ${stakeholder.email}.`;
-  }
-  if (hasJobInterest && jobTitle) {
-    intro += ` The sender is interested in the role: ${jobTitle}.`;
-  }
-
-  let contextBlock = '';
-  if (context) contextBlock += `\nContext: ${context}`;
-  if (profileData) contextBlock += `\nSender Profile: ${profileData}`;
-  if (additionalInfo) contextBlock += `\nAdditional Info: ${additionalInfo}`;
-  if (companyResearch) contextBlock += `\nCompany Research: ${companyResearch}`;
-  if (conversationStarters) contextBlock += `\n${conversationStarters}`;
-
-  const primaryContext = `${intro}\n${contextBlock}\n\nDraft a concise, authentic, and effective outreach message for this scenario. Follow the system prompt's best practices for the chosen platform.`;
-
-  // Call the LLM
-  const result: CombinedLLMResponse = await generateLLMResponse('NETWORKING_OUTREACH', primaryContext, {
-    profileContext: profileData,
-    systemContext: SYSTEM_PROMPT_NETWORKING_OUTREACH,
-    model: undefined, // Use default for this request type
-    temperature: 0.7,
-    maxTokens: hasEmail ? 400 : 120, // LinkedIn is shorter
-  });
-
-  if (result.success) {
-    return result.content;
-  } else {
-    throw new Error(result.error || 'Failed to generate outreach content from LLM.');
+    logger.error('[GENERATE_OUTREACH_API][POST][ERROR] Failed to generate outreach message.', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+      details: error,
+    });
+    return NextResponse.json({ success: false, error: 'Failed to generate outreach message.' }, { status: 500 });
   }
 }

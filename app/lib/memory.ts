@@ -74,13 +74,19 @@ export async function searchMemory(
 }
 
 /**
+ * @function addMemory
+ * @description Adds a new memory to the system.
+ * @param text The text content of the memory.
+ * @param sourceId A unique identifier for the source of the memory.
+ */
+/**
  * Add memory to the system
  */
 export async function addMemory(
   text: string,
   sourceId: string,
   type: string,
-  tags: string[] = [],
+  tags?: string[],
   additionalFields: Record<string, unknown> = {}
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -151,6 +157,13 @@ export async function addMemory(
 }
 
 /**
+ * @function findMemoriesByField
+ * @description Finds memories by exact match on a specific field.
+ * @param field The field to search within the memory payload.
+ * @param value The value to match in the specified field.
+ * @param limit The maximum number of memories to return.
+ */
+/**
  * Find memories by exact match on a field
  */
 export async function findMemoriesByField(
@@ -173,6 +186,12 @@ export async function findMemoriesByField(
 }
 
 /**
+ * @function findMemoriesByType
+ * @description Finds memories of a specific type.
+ * @param type The type of memory to search for.
+ * @param limit The maximum number of memories to return.
+ */
+/**
  * Find memories by type
  */
 export async function findMemoriesByType(
@@ -187,6 +206,12 @@ export async function findMemoriesByType(
 }
 
 /**
+ * @function findMemoriesByTag
+ * @description Finds memories associated with a specific tag.
+ * @param tag The tag to search for.
+ * @param limit The maximum number of memories to return.
+ */
+/**
  * Find memories by tag
  */
 export async function findMemoriesByTag(
@@ -200,6 +225,10 @@ export async function findMemoriesByTag(
   return findMemoriesByField('payload.tags', tag, limit);
 }
 
+/**
+ * @function initializeOrionMemory
+ * @description Initializes the Qdrant client and ensures the memory collection exists.
+ */
 /**
  * Initializes the Qdrant client and ensures the memory collection exists.
  */
@@ -229,6 +258,13 @@ export async function initializeOrionMemory(): Promise<void> {
   }
 }
 
+/**
+ * @function findRelevantMemories
+ * @description Searches Qdrant memory for relevant content based on a query.
+ * @param query The search query string.
+ * @param limit The maximum number of memories to return.
+ * @param filter Optional filter to refine the search.
+ */
 /**
  * Searches Qdrant memory for relevant content based on a query.
  * NOTE: This is a direct Qdrant search. For full RAG, it should integrate with an embedding model.

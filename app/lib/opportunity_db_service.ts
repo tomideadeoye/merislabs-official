@@ -1,4 +1,7 @@
 /**
+ * @fileoverview Database service layer for opportunity management operations.
+ * @description Provides type-safe, transactional operations for CRUD operations on opportunities within Orion's PostgreSQL database. Integrates Prisma ORM with application-specific business logic.
+ *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
  *   - Provides a dedicated service for interacting with the Neon PostgreSQL database for opportunity management.
  *   - Abstracts direct SQL queries, ensuring type safety, consistent data mapping, and robust error handling for opportunity-related operations (list, create, update).
@@ -34,7 +37,8 @@
  *   - **Type Mapping Utility**: Refine the `mapPrismaOpportunityToOrionOpportunity` into a more generic, reusable utility if similar mapping logic is required for other Prisma models to application-specific types.
  *   - This service is a consolidation of opportunity data persistence logic.
  */
-import { Prisma, OpportunityStatus as PrismaOpportunityStatus } from '@/generated/prisma';
+import { Prisma, OpportunityStatus as PrismaOpportunityStatus, Opportunity } from '@/generated/prisma';
+import { JsonValue } from '@prisma/client/runtime/library';
 import {
   OrionOpportunity,
   OpportunityCreatePayload,
@@ -43,13 +47,48 @@ import {
   EvaluationOutput,
   OpportunityPriority,
   EvaluationGapDetail,
+  HandledApplicationError,
 } from './types';
 import logger from './logger';
 import prisma from './prisma'; // Import the lib Prisma Client instance
 import { handleApiError } from './utils/errorHandler'; // Import centralized error handler
 
+// Define a type that matches the fields selected in Prisma queries
+interface PrismaSelectedOpportunity {
+  id: string;
+  title: string;
+  company: string | null;
+  type: string | null;
+  position: string | null;
+  status: string | null;
+  location: string | null;
+  salary: string | null;
+  content: string | null;
+  tags: string[] | null;
+  url: string | null;
+  dateIdentified: Date | null;
+  notes: string | null;
+  contactPerson: string | null;
+  contactEmail: string | null;
+  stage: string | null;
+  attachments: string[] | null;
+  relatedEvaluationId: string | null;
+  sourceUrl: string | null;
+  nextActionDate: Date | null;
+  priority: string | null;
+  tailoredCv: string | null;
+  deadline: Date | null;
+  contact: string | null;
+  lastStatusUpdate: Date | null;
+  notionPageId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  applicationMaterialIds?: string[];
+  evaluationResult: JsonValue | null;
+}
+
 // Helper function to map Prisma Opportunity to OrionOpportunity
-const mapPrismaOpportunityToOrionOpportunity = (opportunity: any): OrionOpportunity => {
+const mapPrismaOpportunityToOrionOpportunity = (opportunity: PrismaSelectedOpportunity): OrionOpportunity => {
   const evaluationResult = opportunity.evaluationResult
     ? (JSON.parse(opportunity.evaluationResult as string) as EvaluationOutput)
     : null;
@@ -66,21 +105,21 @@ const mapPrismaOpportunityToOrionOpportunity = (opportunity: any): OrionOpportun
 
   // Ensure 'strengths' are always in the { title: string, reasoning: string } format if they also show variability
   if (evaluationResult && Array.isArray(evaluationResult.strengths)) {
-    evaluationResult.strengths = evaluationResult.strengths.map((strength: any) => {
+    evaluationResult.strengths = evaluationResult.strengths.map((strength: unknown) => {
       if (typeof strength === 'string') {
         return { title: strength, reasoning: 'N/A' };
       }
-      return strength;
+      return strength as { title: string; reasoning: string };
     });
   }
 
   // Ensure 'alignmentHighlights' are always in the { title: string, reasoning: string } format if they also show variability
   if (evaluationResult && Array.isArray(evaluationResult.alignmentHighlights)) {
-    evaluationResult.alignmentHighlights = evaluationResult.alignmentHighlights.map((highlight: any) => {
+    evaluationResult.alignmentHighlights = evaluationResult.alignmentHighlights.map((highlight: unknown) => {
       if (typeof highlight === 'string') {
         return { title: highlight, reasoning: 'N/A' };
       }
-      return highlight;
+      return highlight as { title: string; reasoning: string };
     });
   }
 
@@ -128,9 +167,27 @@ const mapPrismaOpportunityToOrionOpportunity = (opportunity: any): OrionOpportun
   };
 };
 
-export async function getOpportunityByIdFromDb(id: string): Promise<OrionOpportunity | null> {
-  const logContext = { service: 'opportunity_db_service', function: 'getOpportunityByIdFromDb', opportunityId: id };
+/**
+ * @function getOpportunityByIdFromDb
+ * @description Fetches an opportunity by its ID from the database.
+ * @param id The ID of the opportunity to fetch.
+ * @returns The OrionOpportunity object if found, null if not found, or a HandledApplicationError on database error.
+ */
+/**
+ * Fetches an opportunity by its ID from the database.
+ * @param id The ID of the opportunity to fetch.
+ * @returns The OrionOpportunity object if found, null if not found, or a HandledApplicationError on database error.
+ */
+export async function getOpportunityByIdFromDb(id: string): Promise<OrionOpportunity | null | HandledApplicationError> {
+  const logContext = {
+    service: 'opportunity_db_service',
+    function: 'getOpportunityByIdFromDb',
+    opportunityId: id,
+    queryComplexity: 'SINGLE_RECORD',
+    cacheStatus: 'NONE'
+  };
   logger.info('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][START]', logContext);
+  const startTime = Date.now();
   try {
     const opportunity = await prisma.opportunity.findUnique({
       where: { id },
@@ -175,15 +232,21 @@ export async function getOpportunityByIdFromDb(id: string): Promise<OrionOpportu
     return mapPrismaOpportunityToOrionOpportunity(opportunity);
   } catch (error: unknown) {
     const handledError = handleApiError(error, logContext);
-    throw handledError.originalError;
+    logger.error('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][ERROR] Failed to fetch opportunity.', handledError.logContext);
+    return handledError;
   }
 }
 
 /**
- * Fetches a list of opportunities from the Neon database.
- * @returns A promise that resolves to an array of OrionOpportunity objects.
+ * @function listOpportunitiesFromDb
+ * @description Fetches a list of opportunities from the Neon database.
+ * @returns A promise that resolves to an array of OrionOpportunity objects or a HandledApplicationError.
  */
-export async function listOpportunitiesFromDb(): Promise<OrionOpportunity[]> {
+/**
+ * Fetches a list of opportunities from the Neon database.
+ * @returns A promise that resolves to an array of OrionOpportunity objects or a HandledApplicationError.
+ */
+export async function listOpportunitiesFromDb(): Promise<OrionOpportunity[] | HandledApplicationError> {
   const logContext = { service: 'opportunity_db_service', function: 'listOpportunitiesFromDb' };
   logger.info(
     '[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][START] Attempting to fetch opportunities from Neon DB.',
@@ -239,10 +302,20 @@ export async function listOpportunitiesFromDb(): Promise<OrionOpportunity[]> {
     return mappedOpportunities;
   } catch (error: unknown) {
     const handledError = handleApiError(error, logContext);
-    throw handledError.originalError;
+    logger.error(
+      '[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][ERROR] Failed to list opportunities.',
+      handledError.logContext
+    );
+    return handledError;
   }
 }
 
+/**
+ * @function createOpportunityInDb
+ * @description Creates a new opportunity in the Neon database.
+ * @param payload The data for the new opportunity.
+ * @returns A promise that resolves to the created OrionOpportunity object.
+ */
 /**
  * Creates a new opportunity in the Neon database.
  * @param payload The data for the new opportunity.
@@ -299,6 +372,12 @@ export async function createOpportunityInDb(payload: OpportunityCreatePayload): 
   }
 }
 
+/**
+ * @function updateOpportunityStatusInDb
+ * @description Updates the status of an existing opportunity in the Neon database.
+ * @param opportunityId The ID of the opportunity to update.
+ * @param newStatus The new status to set for the opportunity.
+ */
 /**
  * Updates the status of an existing opportunity in the Neon database.
  * @param opportunityId The ID of the opportunity to update.

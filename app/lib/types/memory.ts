@@ -1,4 +1,7 @@
 /**
+ * GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
+ *
+ *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
  *   - Defines the data structures for memory points stored in and retrieved from Qdrant, ensuring type consistency between the API layer and the UI.
  *   - Provides interfaces for `MemoryMetadataPayload`, `ScoredMemoryPoint`, `QdrantFilter`, and `QdrantFilterCondition` to standardize memory interactions.
@@ -51,6 +54,7 @@ export interface MemoryMetadataPayload {
   company?: string;
   status?: string;
   outcome?: string;
+  quadrant?: string; // Explicitly define the quadrant property
   [key: string]: unknown; // Allows for additional flexible fields
 }
 

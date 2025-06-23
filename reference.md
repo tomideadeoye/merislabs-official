@@ -153,6 +153,38 @@ catch breakage. rewire logic. log test cases.
 - trigger: `[what caused it?]`
 - logs: `[copy the full error here if available]`
 
+**Error Log (2024-06-25 - Runtime Error: Element type is invalid):**
+
+```
+Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+    at renderElement (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:141963)
+    at retryNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:147220)
+    at renderNodeDestructive (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:146483)
+    at finishFunctionComponent (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:71864)
+    at renderElement (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:87063)
+    at renderElement (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:141661)
+    at retryNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:147220)
+    at renderNodeDestructive (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:146483)
+    at renderNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:156530)
+    at renderChildrenArray (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:153781)
+    at retryNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:147686)
+    at renderNodeDestructive (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:146483)
+    at renderElement (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:133543)
+    at retryNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:147220)
+    at renderNodeDestructive (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:146483)
+    at renderNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:156530)
+    at renderChildrenArray (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:153781)
+    at retryNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:147686)
+    at renderNodeDestructive (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:146483)
+    at renderElement (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:139974)
+    at retryNode (/Users/mac/Documents/GitHub/merislabs-official/node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:150:147220)
+    at AppDevOverlay (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/client/components/react-dev-overlay/app/app-dev-overlay.js:86:55)
+    at HotReload (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:488:46)
+    at Router (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/client/components/app-router.js:425:53)
+    at AppRouter (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/client/components/app-router.js:467:53)
+    at ServerRoot (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.3.3_@babel+core@7.27.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/client/app-index.js:140:54)
+```
+
 **💬 prompts to diagnose:**
 
 ```txt
@@ -1684,5 +1716,77 @@ We are committed to delivering a perfect, functional solution!
 - Defined `RawCvComponentJsonData` interface in `app/lib/types/index.ts`.
 - Refactored `app/lib/cv_components_db_service.ts` for robust CV component management (find/update/create, fetch all, delete, find by unique ID).
 - Corrected Prisma import paths and refined data mapping logic in `app/lib/cv_components_db_service.ts`.
+
+---
+
+## Implemented Features
+
+### 1. Global Error Handling (Client-Side)
+
+**Goal:** To provide a comprehensive, system-wide safety net that prevents application crashes due to unexpected errors, displays user-friendly fallback messages, and meticulously logs all error details for efficient debugging and monitoring.
+
+**Files Modified:**
+
+- **`app/components/ErrorBoundary.tsx`**:
+  - **Purpose:** A new React component designed to catch JavaScript errors in its child component tree.
+  - **Modifications Made:** Created from scratch with standard React Error Boundary lifecycle methods (`componentDidCatch`, `getDerivedStateFromError`) to capture errors, set an error state, and display a fallback UI. It also integrates our `logger` for detailed error reporting.
+- **`app/layout.tsx`**:
+  - **Purpose:** The root layout file for the Next.js application, defining the global structure and providers.
+  - **Modifications Made:**
+    - Wrapped the main application content with the `<ErrorBoundary>` component to provide top-level UI error catching.
+    - Implemented global `window.onerror` and `window.onunhandledrejection` listeners to catch all uncaught JavaScript errors and unhandled promise rejections across the client-side.
+    - Ensured these global errors are logged using our centralized `logger` and formatted via `errorHandler.ts` for consistency.
+    - Updated the file's header documentation to reflect its new role in global error handling.
+
+**Why Modifications Were Made:**
+Prior to this implementation, uncaught errors in the frontend could lead to a blank screen or a complete application crash, severely impacting user experience. By implementing a global error handler, we ensure:
+
+- **Graceful Degradation:** The application can continue running, albeit with a fallback UI in the affected area, rather than crashing entirely.
+- **Enhanced User Experience:** Users are presented with a friendly message instead of technical errors, improving perceived reliability.
+- **Improved Debuggability:** All client-side errors, regardless of where they originate, are systematically logged with detailed context, enabling rapid identification and resolution of issues.
+- **Proactive Monitoring:** This lays the groundwork for future error monitoring and alerting systems, allowing us to identify and address problems before they significantly impact user sessions.
+
+---
+
+### 2. Words of Affirmation (Narrative Clarity Zone)
+
+**Goal:** To integrate personalized, Qdrant-powered words of affirmation directly into the Narrative Clarity Zone, fostering self-reflection, empowerment, and a positive mindset based on the user's historical context.
+
+**Files Modified:**
+
+- **`app/api/orion/narrative/affirmations/route.ts`**:
+  - **Purpose:** A new API route for generating personalized words of affirmation.
+  - **Modifications Made:** Created this route to:
+    - Receive requests for affirmations, optionally including a user-provided context prompt.
+    - Utilize `app/lib/orion_memory.ts` (`searchMemory`) to retrieve relevant historical data from the Qdrant database based on the user's ID and the provided context.
+    - Employ `app/lib/orion_llm.ts` (`generateLLMResponse`) to generate 5 concise, impactful affirmations from the retrieved memories and context, ensuring a JSON array of strings is returned.
+    - Implemented robust error handling for API calls, LLM failures, and JSON parsing.
+    - Added comprehensive logging for traceability.
+- **`app/lib/orion_llm.ts`**:
+  - **Purpose:** Centralized utility for interacting with LLM models.
+  - **Modifications Made:**
+    - Added `WORDS_OF_AFFIRMATION: 'WORDS_OF_AFFIRMATION'` to the `REQUEST_TYPES` enum to support the new affirmation generation type.
+    - Refactored `callLLMWithFallback` to correctly select a `primaryModel` using `checkAllLlmApiKeys` and `selectPrimaryModelForRequestType`, ensuring a robust fallback mechanism and resolving previous type errors.
+- **`app/components/orion/narrative-clarity-studio/AffirmationsGenerator.tsx`**:
+  - **Purpose:** A new React component for generating and displaying affirmations.
+  - **Modifications Made:** Created this client-side component to:
+    - Provide a textarea for an optional `contextPrompt` to guide affirmation generation.
+    - Utilize `apiClient.post` to call the `/api/orion/narrative/affirmations` backend route.
+    - Manage loading states, display generated affirmations, and show user-friendly error messages using `react-hot-toast` and `logger`.
+    - Implemented a visually engaging UI with Shadcn components and Lucide icons.
+- **`app/(orion_admin)/admin/narrative-clarity-studio/page.tsx`**:
+  - **Purpose:** The main UI page for the Narrative Clarity Studio.
+  - **Modifications Made:**
+    - Imported the new `AffirmationsGenerator` component.
+    - Integrated `<AffirmationsGenerator />` into a new dedicated section titled "Words of Affirmation" directly on the page, ensuring it's immediately visible without requiring navigation to a separate page or tab.
+    - Resolved several linter errors related to prop mismatches for `NarrativeGenerationForm`, `CareerMilestoneProvider`, `CareerMilestoneList`, and `CareerMilestoneForm`, and added missing `Sparkles` icon import, ensuring the page's overall functionality and type safety.
+
+**Why Modifications Were Made:**
+This feature directly addresses your desire for an immediate, on-page source of positive reinforcement based on your personal history. By:
+
+- **Leveraging Qdrant:** We're making affirmations deeply personal and relevant by drawing from your unique memories.
+- **Integrating LLMs:** The AI crafts nuanced and powerful messages that resonate with your specific context.
+- **Seamless UI Integration:** Placing it directly in the Narrative Clarity Zone ensures a frictionless and intuitive user experience, making daily affirmations a natural part of your self-reflection routine.
+- **Robust Backend:** The dedicated API ensures that the affirmation generation is scalable, secure, and performant.
 
 ---

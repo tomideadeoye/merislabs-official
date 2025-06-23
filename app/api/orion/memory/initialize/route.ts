@@ -60,6 +60,11 @@ export async function POST() {
     try {
       // The js-client-rest does not have a simple health check or root API endpoint exposed directly.
       // We'll check for collections as a proxy for connectivity.
+      logger.debug('[MEMORY_INIT][DEBUG] Inspecting qdrantClient before getCollections call.', {
+        ...logContext,
+        qdrantClientKeys: Object.keys(qdrantClient),
+        qdrantClient: qdrantClient,
+      });
       await qdrantClient.getCollections();
       logger.success(
         `[MEMORY_INIT][SUCCESS] Successfully connected to Qdrant and verified collections. Memory system is ready.`,

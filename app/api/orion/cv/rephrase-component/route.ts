@@ -1,88 +1,118 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse } from '@/lib/orion_llm'; // Corrected import
-import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Corrected import
-import { CV_COMPONENT_REPHRASING_REQUEST_TYPE } from '@/lib/orion_config';
-import type { CVComponent, CombinedLLMResponse } from '@/lib/types'; // Corrected import
-
 /**
- * API route for rephrasing a CV component based on JD analysis using LLM
+ * @fileoverview API route for AI-powered rephrasing of CV components.
+ * @description This endpoint receives content from a CV component and a job description, then uses
+ * Orion's LLM (`generateLLMResponse`) to rephrase the component content to better align with the job description.
+ * This directly supports the "In-Place Tailoring" functionality (FR-4) of the CV Tailoring Studio, enabling
+ * hyper-personalization of CV content.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - **FR-4.1:** To provide a "Rephrase with AI" capability for each selected CV component in the UI.
+ *   - **FR-4.2:** To act as the new API endpoint `/api/orion/cv/rephrase-component` that is triggered when the rephrase action is initiated.
+ *   - **FR-4.3 (API Logic):** To receive `componentContent` and `jobDescription`, and send a prompt to the LLM
+ *     to "rephrase the following text to better align with the tone and keywords of the job description."
+ *   - **FR-4.4 (UI Update Support):** To return the rephrased text, allowing the UI to display it with
+ *     options to "Accept" or "Revert."
+ *   - To ensure only authenticated users can access this rephrasing service.
+ *
+ * FILEPATH: `app/api/orion/cv/rephrase-component/route.ts`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `auth.ts`: Handles user authentication and session validation.
+ *   - `@/lib/opportunity_db_service`: Used to fetch the job description content from the database via `getOpportunityByIdFromDb` (if `jobDescription` needs to be fetched based on `opportunityId`).
+ *   - `@/lib/orion_llm`: Provides the `generateLLMResponse` function, which interfaces with the LLM to process the rephrasing prompt.
+ *   - `@/lib/logger`: Used for comprehensive logging of API request, response, and error details.
+ *   - `app/components/orion/CVTailoringStudio.tsx`: This client-side component will call this API route to rephrase component content (FR-4.2).
+ *   - `@/lib/utils/errorHandler`: Used for consistent error handling and message extraction.
+ *   - Zod: Used for request body validation.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes `componentContent` and `jobDescription` are provided in the request body.
+ *   - Assumes the LLM service (`generateLLMResponse`) is operational and correctly configured for rephrasing tasks.
+ *   - The LLM is expected to return the rephrased text directly.
+ *   - Comprehensive logging is integrated to trace the flow and diagnose any issues during API calls or LLM interactions.
+ *   - `jobDescription` is passed directly for the rephrasing prompt; fetching from DB is an alternative if only `opportunityId` is provided.
+ *
+ * NON-FUNCTIONAL REQUIREMENTS:
+ *   - Performance: The LLM response time should be optimized to ensure responsive UI, with clear loading indicators in the frontend.
+ *   - Reliability: Robust error handling to gracefully manage LLM failures or invalid input.
+ *   - Security: Protected by authentication to ensure only authorized users can trigger AI rephrasing.
+ *
+ * NOTES:
+ *   - This API is a key enabler for deep personalization within the CV tailoring process, allowing for nuanced content adjustments.
+ *   - The prompt explicitly guides the LLM to align with the job description's tone and keywords.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Advanced Prompt Engineering**: Explore more sophisticated prompt techniques to control the rephrasing style (e.g., formal, concise, impactful).
+ *   - **Contextual Rephrasing**: Integrate more context about the user's overall profile or other selected CV components to ensure consistency across the entire CV.
+ *   - **Usage Quotas/Rate Limiting**: Implement limits on rephrasing requests to manage LLM costs and prevent abuse.
+ *   - **Feedback Loop**: Potentially allow users to rate the quality of rephrased content to improve future AI performance.
  */
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { component_id, jd_analysis, web_research_context } = body;
 
-    if (!component_id || !jd_analysis) {
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
+import logger from '@/lib/logger';
+import { z } from 'zod';
+import { HandledApplicationError } from '@/lib/types';
+import { handleServerError } from '@/lib/utils/serverErrorHandler';
+
+// Define the schema for the request body using Zod
+const rephraseRequestSchema = z.object({
+  componentContent: z.string().min(1, 'Component content cannot be empty.'),
+  jobDescription: z.string().min(1, 'Job description cannot be empty.'),
+});
+
+export async function POST(request: NextRequest) {
+  const logContext = {
+    route: '/api/orion/cv/rephrase-component',
+    timestamp: new Date().toISOString(),
+  };
+  logger.info('[CV_REPHRASE_API][POST][START]', logContext);
+
+  try {
+    const session = await auth();
+    if (!session || !session.user || !session.user.id) {
+      logger.warn('[CV_REPHRASE_API][POST][AUTH_FAIL]', logContext);
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    (logContext as { user?: string }).user = session.user.id;
+
+    const body = await request.json();
+    const { componentContent, jobDescription } = rephraseRequestSchema.parse(body);
+
+    const prompt = `Rephrase the following CV component content to better align with the tone and keywords of the provided Job Description. Focus on making it impactful and relevant to the role.\n\n**CV Component Content:**\n${componentContent}\n\n**Job Description:**\n${jobDescription}\n\nReturn ONLY the rephrased text.`;
+
+    logger.debug('[CV_REPHRASE_API][POST][LLM_PROMPT_GENERATED]', { ...logContext, promptLength: prompt.length });
+
+    const llmResponse = await generateLLMResponse(REQUEST_TYPES.CV_COMPONENT_TAILORING, prompt, session.user.id!);
+
+    if (!llmResponse.success) {
+      const errorMsg = llmResponse.error || 'LLM failed to rephrase content.';
+      logger.error('[CV_REPHRASE_API][POST][LLM_ERROR]', { ...logContext, error: errorMsg });
+      throw new Error(errorMsg);
+    }
+
+    if (!llmResponse.content) {
+      logger.warn('[CV_REPHRASE_API][POST][NO_LLM_CONTENT]', logContext);
+      throw new Error('LLM response was successful but returned no rephrased content.');
+    }
+
+    logger.success('[CV_REPHRASE_API][POST][SUCCESS]', { ...logContext, rephrasedLength: llmResponse.content.length });
+    return NextResponse.json({ success: true, rephrasedContent: llmResponse.content });
+  } catch (error: unknown) {
+    const handledError: HandledApplicationError = handleServerError(error, {
+      ...logContext,
+      stage: 'rephrase_api_call',
+    });
+    logger.error('[CV_REPHRASE_API][POST][CATCH_ERROR]', { ...logContext, error: handledError.message });
+
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Component ID and JD analysis are required',
-        },
+        { success: false, error: 'Invalid input for rephrasing.', details: handledError.data ?? error.errors },
         { status: 400 }
       );
     }
 
-    const allComponents: CVComponent[] = await getCVComponentsFromNotion();
-    const componentToRephrase = allComponents.find(
-      (c) => c.uniqueId === component_id || c.notionPageId === component_id
-    );
-
-    if (!componentToRephrase) {
-      return NextResponse.json({ success: false, error: 'CV component not found.' }, { status: 404 });
-    }
-
-    const componentContent = componentToRephrase.contentPrimary;
-    const componentName = componentToRephrase.componentName;
-
-    // Construct the prompt for the LLM
-    const prompt = `You are an expert CV writer. Rephrase the following CV component content to be highly relevant to the provided job description analysis. Incorporate keywords and themes from the analysis. \n\n**CV Component Name:** ${componentName}\n**Original Content:**\n${componentContent}\n\n**Job Description Analysis:**\n${jd_analysis}\n\n${
-      web_research_context ? `**Relevant Web Research Context:**\n${web_research_context}\n\n` : ''
-    }**Instructions:**\nRephrase the Original Content. Focus on highlighting relevant skills and experiences. Maintain a professional tone. Provide ONLY the rephrased content, without any introductory or concluding remarks.`;
-
-    console.log(`Sending rephrasing prompt for component ${component_id} to LLM...`);
-
-    // Call the LLM
-    try {
-      const llmResponse: CombinedLLMResponse = await generateLLMResponse(
-        CV_COMPONENT_REPHRASING_REQUEST_TYPE, // Use specific request type
-        prompt, // Pass the constructed prompt
-        {
-          temperature: 0.7, // Moderate temperature for creative rephrasing
-          maxTokens: 500, // Adjust based on expected length of rephrased content
-        }
-      );
-      if (llmResponse.success) {
-        return NextResponse.json({
-          success: true,
-          rephrased_content: llmResponse.content,
-        });
-      } else {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'LLM failed to rephrase component',
-          },
-          { status: 500 }
-        );
-      }
-    } catch (err: unknown) {
-      console.error('LLM failed to rephrase component:', err);
-      return NextResponse.json(
-        {
-          success: false,
-          error: err instanceof Error ? err.message : 'Failed to rephrase component using LLM',
-        },
-        { status: 500 }
-      );
-    }
-  } catch (error: unknown) {
-    console.error('Error in CV component rephrasing API:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred in rephrasing API',
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: handledError.message }, { status: handledError.status || 500 });
   }
 }

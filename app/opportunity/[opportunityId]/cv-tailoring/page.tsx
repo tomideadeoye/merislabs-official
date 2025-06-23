@@ -1,179 +1,154 @@
 /**
- * @fileoverview Client-side page for initiating the CV Tailoring process for a specific opportunity.
- * @description This page serves as an entry point to the CV tailoring workflow. It fetches the relevant opportunity details
- * and provides an "Auto Generate CV" button to navigate to the more detailed `tailor-content` page,
- * where the actual content generation occurs.
- * View Details -> Generate AI Evaluation -> Enter CV Tailoring Studio -> Get AI Component Suggestions -> Assemble Tailored CV -> Draft Personalized Email -> Send Email with CV Attached
- * GOAL OF FILE|FEATURES|FUNCTIONS:i want these as tabs and i don't want one process to necessarily be complete before the other. they can be orchestrated in any other.... i may not need an evaluation for an application and would then solely use web data on company and my profile. or i may want to reach out to stakeholders without generating a cv
- *   - To display a brief overview of the selected opportunity.
- *   - To act as a navigational hub for the CV tailoring process, specifically linking to the content generation step.
- *   - To provide an "Auto Generate CV" action that directs the user to `tailor-content` for AI-assisted CV content creation.
- *   - To manage loading and error states during the initial opportunity data fetch.
+ * @fileoverview CV Tailoring Page for a specific opportunity.
+ * @description This file renders the main CV tailoring studio page, allowing users to select, rephrase, and assemble CV components tailored to a specific job opportunity. It fetches opportunity details and available CV components, passing them to the `CVTailoringStudio` component.
  *
- * FILEPATH: `app/opportunity/[opportunityId]/cv-tailoring/page.tsx`
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To display a dedicated interface for users to tailor their CV for a specific job opportunity.
+ *   - To fetch and present details of the selected opportunity, including its job description.
+ *   - To load the user's available CV components from the database.
+ *   - To handle various loading and error states during data fetching.
+ *   - To pass necessary data (`opportunityData`, `cvComponents`, authentication status) to the `CVTailoringStudio` child component.
+ *
+ * FILEPATH: `app/opportunity/[opportunityId]/cv-tailoring/page.tsx`.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `next/navigation`: Used for `useParams` to extract the `opportunityId` from the URL.
- *   - `next/router`: Although `next/navigation` is preferred, `useRouter` is currently used here for programmatic navigation.
- *   - `app/components/ui`: Utilizes Shadcn UI components like `Card`, `CardHeader`, `CardTitle`, `CardContent` for consistent styling.
- *   - `lucide-react`: Provides the `Loader2` icon for visual feedback during loading states.
- *   - `app/lib/types.ts`: Defines the `OrionOpportunity` type for data consistency.
- *   - `app/api/orion/opportunities/[opportunityId]/route.ts`: API endpoint for fetching detailed opportunity information.
- *   - `app/api/orion/cv-components/route.ts`: This API is called (though its data is not directly used on this page currently) before navigating to `tailor-content`.
- *   - `app/opportunity/[opportunityId]/tailor-content/page.tsx`: The primary destination after clicking "Auto Generate CV", where the core AI tailoring logic resides.
- *   - `@/components/orion/CVTailoringStudio`: This component is rendered on this page, providing the core UI for CV component selection and assembly.
+ *   - `@/components/orion/CVTailoringStudio.tsx`: The primary UI component rendered by this page, responsible for the interactive CV tailoring logic.
+ *   - `@/lib/opportunity_db_service.ts`: Used to `getOpportunityByIdFromDb` to fetch the specific opportunity details.
+ *   - `@/lib/cv.ts`: Used to `fetchCVComponents` to retrieve all available CV components for the user.
+ *   - `@/auth.ts`: Utilized for server-side authentication (`auth()`) to determine user session and ID.
+ *   - `@/lib/logger.ts`: For comprehensive logging of page load events, data fetching, and errors.
+ *   - `@/lib/types.ts` & `@/lib/types/cv.ts`: Define the `OrionOpportunity` and `CVComponent` types used throughout this page and its children.
+ *   - `@/lib/utils/errorHandler.ts`: Provides `HandledApplicationError` for robust error handling during data fetching.
+ *   - `app/api/orion/cv/assemble/route.ts`: This page sets up the data for the API calls made by `CVTailoringStudio` (e.g., auto-generation).
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes `opportunityId` is correctly passed via Next.js `useParams`.
- *   - Assumes the `/api/orion/OrionOpportunity/[opportunityId]` API is functional and returns valid opportunity data.
- *   - The navigation to `tailor-content` implies that the data fetched by `cv-components` on this page (currently `cvComponents={[]}`) might be re-fetched on the destination page, which could be optimized.
- *   - Error and loading states are handled in the UI.
+ *   - Assumes a valid `opportunityId` is provided in the URL parameters.
+ *   - Assumes the `auth()` function correctly retrieves the user session.
+ *   - Assumes `getOpportunityByIdFromDb` and `fetchCVComponents` are robust and return data in expected formats or `HandledApplicationError`.
+ *   - Error handling ensures a graceful user experience even if data fetching fails or an opportunity is not found.
  *
  * NOTES:
- *   - This page primarily acts as a gateway to the more detailed `tailor-content` functionality.
- *   - The `router.push` call within the `onClick` handler of the "Auto Generate CV" button directly navigates the user, bypassing explicit data passing to the next page, assuming the next page will handle its own data fetching.
- *   - The use of `useRouter` from `next/router` is an older pattern; `next/navigation`'s `useRouter` should be preferred for new development in the App Router.
+ *   - This is a server component responsible for initial data fetching and setting up the client-side `CVTailoringStudio`.
+ *   - It consolidates data loading for both opportunity details and CV components into a single entry point for this feature.
+ *   - The `initialError` state is crucial for displaying user-friendly messages for various failure scenarios (e.g., opportunity not found, authentication).
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
- *   - **Unified Data Fetching**: Consider fetching both opportunity data and CV components in a single, batched API call if possible, or using `react-query` to manage caching and prevent redundant fetches between this page and `tailor-content`.
- *   - **Direct Data Passing**: Instead of relying on the `tailor-content` page to re-fetch data, consider passing the fetched `opportunityData` and `cvComponents` directly via URL parameters (if small) or a shared state/context, if feasible, to optimize load times.
- *   - **Refactor `useRouter`**: Update `useRouter` import from `next/router` to `next/navigation` for consistency with App Router best practices.
- *   - **Consolidate `autoGenLoading`**: The `autoGenLoading` state could potentially be managed more globally or within a shared context if the auto-generation process involves multiple steps across pages.
- *   - **Enhanced UI Feedback**: Implement `react-hot-toast` for more immediate and visually appealing user feedback on success and error messages.
- *   - **Error Handling Consistency**: Utilize `handleApiError` from `app/lib/utils/errorHandler.ts` for consistent and centralized error handling.
+ *   - **Loading Skeletons**: Implement loading skeletons for better UX while `opportunityData` and `cvComponents` are being fetched.
+ *   - **Caching Strategy**: Introduce a more explicit caching strategy for `fetchCVComponents` if components are static or change infrequently, to reduce database load.
+ *   - **Streaming UI**: Consider using Next.js Suspense for data fetching to progressively stream UI and improve perceived performance.
+ *   - **Centralized Error Display**: Integrate with a global toast or error notification system to display `initialError` more prominently across the application.
  */
-'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
-import { Loader2 } from 'lucide-react';
-import { useParams } from 'next/navigation';
-import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
 import { CVTailoringStudio } from '@/components/orion/CVTailoringStudio';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
+import { auth } from '@/auth';
+import logger from '@/lib/logger';
+import { fetchCVComponents } from '@/lib/cv';
+import { CVComponent } from '@/lib/types/cv';
 import { OrionOpportunity } from '@/lib/types';
+import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
-// GOAL:
-// RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
+interface CVTailoringPageProps {
+  params: {
+    opportunityId: string;
+  };
+}
 
-export default function CVTailoringPage() {
-  const params = useParams();
-  const opportunityId = params?.id as string;
+export default async function CVTailoringPage({ params }: CVTailoringPageProps) {
+  const { opportunityId } = params;
+  const session = await auth();
 
-  const [opportunityData, setOpportunity] = useState<OrionOpportunity | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const logContext = {
+    route: `/opportunity/${opportunityId}/cv-tailoring`,
+    operation: 'page_load',
+    timestamp: new Date().toISOString(),
+    opportunityId,
+    userId: session?.user?.id || 'unauthenticated',
+  };
 
-  const [autoGenLoading, setAutoGenLoading] = useState(false);
-  const [autoGenError, setAutoGenError] = useState<string | null>(null);
+  logger.info('[CV_TAILORING_PAGE][LOAD][START]', logContext);
 
-  const router = useRouter();
+  let opportunityData: OrionOpportunity | null = null;
+  let cvComponents: CVComponent[] = [];
+  let initialError: string | null = null;
 
-  useEffect(() => {
-    async function fetchOpportunity() {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/orion/OrionOpportunity/${opportunityId}`);
-        const data = await response.json();
+  try {
+    const opportunityResult = await getOpportunityByIdFromDb(opportunityId);
 
-        if (data.success) {
-          setOpportunity(data.OrionOpportunity);
-        } else {
-          setError(data.error || 'Failed to fetch OrionOpportunity');
-        }
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
+    if (opportunityResult === null) {
+      initialError = 'Opportunity not found.';
+      logger.warn('[CV_TAILORING_PAGE][OPPORTUNITY_NOT_FOUND]', logContext);
+    } else if (opportunityResult instanceof HandledApplicationError) {
+      // It's a HandledApplicationError
+      initialError = opportunityResult.message;
+      logger.error('[CV_TAILORING_PAGE][OPPORTUNITY_FETCH_ERROR_HANDLED]', {
+        ...logContext,
+        error: initialError,
+        details: opportunityResult,
+      });
+    } else {
+      // It's a valid OrionOpportunity
+      opportunityData = opportunityResult;
+      logger.debug('[CV_TAILORING_PAGE][OPPORTUNITY_FETCHED]', { opportunityFound: !!opportunityData, ...logContext });
+
+      if (session?.user?.id) {
+        // Only fetch CV components if user is authenticated and opportunity is valid
+        const fetchedComponents = await fetchCVComponents();
+        cvComponents = fetchedComponents; // Assign fetched components
+        logger.info('[CV_TAILORING_PAGE][CV_COMPONENTS_FETCHED]', {
+          count: fetchedComponents.length,
+          ...logContext,
+        });
+      } else {
+        logger.warn('[CV_TAILORING_PAGE][UNAUTHENTICATED_ACCESS]', logContext);
+        initialError = 'Authentication required to load CV components.';
       }
     }
-
-    if (opportunityId) {
-      fetchOpportunity();
-    }
-  }, [opportunityId]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-      </div>
-    );
+  } catch (error: unknown) {
+    initialError = error instanceof Error ? error.message : String(error);
+    logger.error('[CV_TAILORING_PAGE][LOAD_ERROR]', {
+      ...logContext,
+      error: initialError,
+      details: error,
+    });
   }
 
-  if (error) {
+  logger.info('[CV_TAILORING_PAGE][LOAD][END]', logContext);
+
+  if (initialError || !opportunityData) {
+    // If there's an initial error or no opportunity data after processing
     return (
-      <Card>
+      <Card className="bg-gray-800 border-gray-700 text-gray-200">
         <CardHeader>
-          <CardTitle className="text-red-500">Error</CardTitle>
+          <CardTitle>{initialError ? 'Error Loading Page' : 'Opportunity Not Found'}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{error}</p>
+          <p className="text-red-500">
+            {initialError || 'The requested opportunity could not be found or you do not have access.'}
+          </p>
         </CardContent>
       </Card>
     );
   }
 
-  if (!opportunityData) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Opportunity Not Found</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>The requested opportunity could not be found.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  // At this point, opportunityData is guaranteed to be OrionOpportunity
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-gray-800 border-gray-700 text-gray-200">
         <CardHeader>
           <CardTitle>CV Tailoring for {opportunityData.title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-400 mb-4">
             Tailor your CV for this opportunity using AI assistance. The system will suggest relevant components, help
             you rephrase content to match the job requirements, and assemble a final CV.
           </p>
-          {/* Auto Generate CV Button */}
-          <div className="mb-4">
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition disabled:opacity-50"
-              disabled={autoGenLoading}
-              onClick={async () => {
-                setAutoGenLoading(true);
-                setAutoGenError(null);
-                try {
-                  // Fetch all CV components for this opportunity
-                  const res = await fetch(`/api/orion/cv-components?opportunityId=${opportunityId}`);
-                  const data = await res.json();
-                  if (!data.success) {
-                    throw new Error(data.error || 'Failed to fetch CV components');
-                  }
-                  // Navigate to tailor content page (data will be fetched again on that page)
-                  router.push(`/opportunity/${opportunityId}/tailor-content`);
-                } catch (err: unknown) {
-                  setAutoGenError(err instanceof Error ? err.message : 'Failed to auto-generate CV');
-                } finally {
-                  setAutoGenLoading(false);
-                }
-              }}
-            >
-              {autoGenLoading ? (
-                <span className="flex items-center">
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  Generating CV...
-                </span>
-              ) : (
-                'Auto Generate CV'
-              )}
-            </button>
-            {autoGenError && <p className="text-red-500 mt-2">{autoGenError}</p>}
-          </div>
-
-          <CVTailoringStudio opportunity={opportunityData} cvComponents={[]} />
+          <CVTailoringStudio
+            opportunity={opportunityData}
+            cvComponents={cvComponents}
+            isAuthenticated={!!session?.user?.id}
+          />
         </CardContent>
       </Card>
     </div>

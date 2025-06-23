@@ -11,9 +11,9 @@
 
 import Image from 'next/image';
 
-import TestimonialImage01 from '/public/images/hero-image-01.jpg';
-import TestimonialImage02 from '/public/images/features-03-image-01.png';
-import TestimonialImage03 from '/public/images/features-03-image-02.png';
+// import TestimonialImage01 from '/public/images/hero-image-01.jpg';
+// import TestimonialImage02 from '/public/images/features-03-image-01.png';
+// import TestimonialImage03 from '/public/images/features-03-image-02.png';
 
 export default function Testimonials() {
   return (
@@ -35,13 +35,13 @@ export default function Testimonials() {
             <div className="flex flex-col h-full p-6 bg-gray-800" data-aos="fade-up">
               <div>
                 <div className="relative inline-flex flex-col mb-4">
-                  <Image
+                  {/* <Image
                     className="rounded-full"
                     src={TestimonialImage01}
                     width={48}
                     height={48}
                     alt="Testimonial 01"
-                  />
+                  /> */}
                   <svg
                     className="absolute top-0 right-0 -mr-3 w-6 h-5 fill-current text-purple-600"
                     viewBox="0 0 24 20"
@@ -68,13 +68,13 @@ export default function Testimonials() {
             <div className="flex flex-col h-full p-6 bg-gray-800" data-aos="fade-up" data-aos-delay="200">
               <div>
                 <div className="relative inline-flex flex-col mb-4">
-                  <Image
+                  {/* <Image
                     className="rounded-full"
                     src={TestimonialImage02}
                     width={48}
                     height={48}
                     alt="Testimonial 02"
-                  />
+                  /> */}
                   <svg
                     className="absolute top-0 right-0 -mr-3 w-6 h-5 fill-current text-purple-600"
                     viewBox="0 0 24 20"
@@ -101,13 +101,13 @@ export default function Testimonials() {
             <div className="flex flex-col h-full p-6 bg-gray-800" data-aos="fade-up" data-aos-delay="400">
               <div>
                 <div className="relative inline-flex flex-col mb-4">
-                  <Image
+                  {/* <Image
                     className="rounded-full"
                     src={TestimonialImage03}
                     width={48}
                     height={48}
                     alt="Testimonial 03"
-                  />
+                  /> */}
                   <svg
                     className="absolute top-0 right-0 -mr-3 w-6 h-5 fill-current text-purple-600"
                     viewBox="0 0 24 20"

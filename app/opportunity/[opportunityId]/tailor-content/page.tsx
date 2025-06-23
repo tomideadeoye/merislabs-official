@@ -52,7 +52,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Loader2 } from 'lucide-react';
 import { useOpportunityMemory } from '@/lib/hooks/useOpportunityMemory';
 import { useSessionState, SessionStateKeys, SessionState } from '@/lib/hooks/useSessionState';
-import { CVComponent, OrionOpportunity } from '@/lib/types';
+import { OrionOpportunity } from '@/lib/types';
+import { CVComponent } from '@/lib/types/cv';
 import logger from '@/lib/logger';
 
 export default function TailorContentPage() {
@@ -206,6 +207,7 @@ export default function TailorContentPage() {
             rows={10}
             value={jobDescription}
             readOnly
+            placeholder="Job description content..."
           />
 
           <p className="text-gray-500">Your CV Components:</p>
@@ -256,6 +258,7 @@ export default function TailorContentPage() {
                 rows={15}
                 value={generatedContent}
                 readOnly
+                placeholder="AI-generated tailored content..."
               />
               <button
                 onClick={() => navigator.clipboard.writeText(generatedContent)}
@@ -273,6 +276,7 @@ export default function TailorContentPage() {
                 rows={10}
                 value={llmOutput}
                 readOnly
+                placeholder="Raw LLM output for debugging..."
               />
             </div>
           )}

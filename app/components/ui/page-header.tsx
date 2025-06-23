@@ -8,6 +8,8 @@ interface PageHeaderProps {
   description?: string;
   showMemoryStatus?: boolean;
   memoryInitialized?: boolean;
+  isLoggedIn?: boolean;
+  currentLlmModel?: string;
 }
 
 export function PageHeader({
@@ -16,6 +18,8 @@ export function PageHeader({
   description,
   showMemoryStatus = false,
   memoryInitialized = false,
+  isLoggedIn = false,
+  currentLlmModel,
 }: PageHeaderProps) {
   // Use state to handle client-side rendering
   const [isClient, setIsClient] = useState(false);
@@ -31,6 +35,14 @@ export function PageHeader({
       <div>
         <h1 className="text-2xl font-semibold text-gray-100">{title}</h1>
         {description && <p className="text-gray-400">{description}</p>}
+        {isClient && (
+          <p className={`mt-1 text-sm ${isLoggedIn ? 'text-green-400' : 'text-red-400'}`}>
+            Login Status: {isLoggedIn ? 'Logged In' : 'Logged Out'}
+          </p>
+        )}
+        {isClient && currentLlmModel && (
+          <p className="mt-1 text-sm text-blue-400">Current LLM Model: {currentLlmModel}</p>
+        )}
         {showMemoryStatus && (
           <p
             className={`mt-1 text-sm ${

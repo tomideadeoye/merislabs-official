@@ -5,6 +5,8 @@
 // NOTES: Consider consolidating hero assets and logic if similar hero sections exist elsewhere. Opportunities for improvement: modularize SVG, add robust error handling for missing assets, and ensure all imports are up to date.
 
 import BlocksSection from '@/components/BlocksSection';
+// import ModalVideo from '../../components/modal-video';
+// import VideoThumb from '../../public/images/hero-image-01.png';
 
 export default function Hero() {
   return (
@@ -144,8 +146,8 @@ c-11.054-1.338-23.584-2.855-37.688-4.97-94.204-14.122-106.775 48.314-129.594 161
               </div> */}
             </div>
           </div>
-          {/*
-          <ModalVideo
+
+          {/* <ModalVideo
             thumb={VideoThumb}
             thumbWidth={1024}
             thumbHeight={576}

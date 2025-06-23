@@ -1,3 +1,7 @@
+import { ScoredMemoryPoint } from './memory';
+import { Prisma } from '@/generated/prisma';
+import { CVComponent } from './cv';
+
 // LLM integration types
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -122,4 +126,47 @@ export interface LLMRequestOptions {
   maxTokens?: number;
   stream?: boolean;
   responseFormat?: 'text' | 'json_object';
+}
+
+export interface LLMOptions extends LLMRequestOptions {
+  profileContext?: string;
+  systemContext?: string;
+  memoryResults?: ScoredMemoryPoint[];
+  replyGoal?: string;
+  tone?: string;
+  numberOfDrafts?: number;
+  overallSentiment?: string;
+  allCvComponents?: CVComponent[];
+  jobDescription?: string;
+  model?: string;
+}
+
+export interface CombinedLLMResponse {
+  success: boolean;
+  content: string;
+  error?: string;
+  model?: string;
+  temperature?: number;
+  maxTokens?: number;
+  tool_calls?: LLMToolCall[];
+  memoryResults?: ScoredMemoryPoint[];
+  structuredResponse?: CvAutoGenerateOutput;
+}
+
+export interface CvAutoGenerateOutputComponent {
+  id: string;
+  name: string;
+  type: string;
+  content: string;
+}
+
+export interface CvAutoGenerateOutput {
+  selectedComponents: CvAutoGenerateOutputComponent[];
+  rephrasedContent?: string;
+  summary?: string;
+}
+
+export interface PreferredModels {
+  globalDefault?: string;
+  requestTypeOverrides?: Record<string, string>;
 }

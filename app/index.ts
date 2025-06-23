@@ -1,4 +1,30 @@
 /**
+ * @fileoverview Authentication Removal Note
+ * @description This file is part of the ongoing effort to gradually remove all authentication from the Orion application.
+ *   As a central application entry point or configuration file, its purpose will shift to accommodate
+ *   an unauthenticated, local-first model.
+ *   For detailed strategy, refer to `docs/authentication_removal_strategy.md`.
+ *
+ *   Original File Purpose:
+ *   [Original file purpose comments from app/index.ts will follow below this section.]
+ */
+/**
+ * CURRENT MODIFICATION RATIONALE:
+ *   - This modification is a comprehensive refactoring aimed at resolving multiple TypeScript errors
+ *     within this central `index.ts` file, specifically "Duplicate identifier" and "Re-exporting a type
+ *     when 'isolatedModules' is enabled requires using 'export type'."
+ *   - The core issue is an incorrect pattern of re-exporting types, leading to conflicts when `isolatedModules` is active.
+ *   - The goal is to unify all type re-exports under a single, correct `export type { ... } } from './path'` structure,
+ *     ensuring that all types are properly exposed without duplication or module resolution issues.
+ *   - This refactoring is crucial for maintaining type safety and a clean build in the monorepo setup,
+ *     and for providing a stable, unambiguous import source for types across the application.
+ *   - It also aims to verify and correct all import paths for the types to ensure they are pointing to existing files.
+ *
+ * NOTE: This section documents the *specific changes currently being applied*, not the overall file purpose.
+ * It will be updated or removed upon completion of the current task.
+ */
+
+/**
  * This file serves as a central export point for lib utilities and types within the Next.js application.
  * It is designed to ensure consistent imports and prevent pathing issues.
  *
@@ -10,91 +36,127 @@
  * RELATION TO OTHER FILES, FUNCTIONS AND FEATURES:
  */
 
-// Explicitly re-export types from the central type definition files
-export {
-  type OrionOpportunity,
+import { type ReadonlyURLSearchParams } from 'next/navigation';
+
+// All specific internal type imports are removed to prevent duplication and centralize re-exports.
+// These types will be re-exported from the main './lib/types' or their specific modules below.
+
+// Explicitly re-export types that are aggregated in app/lib/types/index.ts
+export type {
+  ApiErrorResponse,
+  EvaluationApiResponse,
+  LLMTool,
+  JournalEntryNotionInput,
+  HabiticaUserStats,
+  HabiticaTask,
+  HabiticaTodo,
+  HabiticaDaily,
+  HabiticaHabit,
+  HabiticaReward,
+  HabiticaTaskCount,
+  HabiticaStats,
+  LLMModelConfig,
+  Block,
+  BlockType,
+  CreateBlockPayload,
+  EmotionalLogEntry,
+  LogEmotionRequestBody,
+  EmotionalTrend,
+  MemoryMetadataPayload,
+  ScoredMemoryPoint,
+  QdrantFilter,
+  QdrantFilterCondition,
+  MemorySearchOptions,
+  LLMAPIKeyStatus,
+  PreferredModels,
+  LlmSettingsPayload,
+  UserProfileData,
+  UserProfileFetchResponse,
+  OrionOpportunity,
   OpportunityType,
   OpportunityStatus,
   OpportunityPriority,
-  type OrionOpportunityDetails,
-  type OpportunityEvaluationInput,
-  type EvaluationOutput,
-  type UserProfileData,
-  type DraftApplicationRequestBody,
-  type DraftApplicationResponseBody,
-  type SearchMemoryResponse,
-  type GenerateLLMResponse,
-  type NarrativeDocument,
-  type ValueProposition,
-  type CareerMilestone,
-  type JournalEntryNotionInput,
-  type EmotionalLogEntry,
-  type MemoryPayload,
-  type MemoryPoint,
-  type ScoredMemoryPoint,
-  type QdrantFilterCondition,
-  type QdrantFilter,
-  type OpportunityUpdatePayload,
-  type OpportunityCreatePayload,
-  type OpportunityNotionOutputlib,
-  type CVComponent,
-  type OpportunityNotionInput,
-  type NotionPageProperties,
-  type RiskRewardAnalysis,
-  type EmotionalLog,
-  type EmotionalTrend,
-  type MemoryEntry,
-  type CognitiveDistortionAnalysis,
-  type CognitiveDistortionId,
-  type CognitiveDistortion,
-  type CognitiveDistortionAnalysisData,
-  type LogEmotionRequestBody,
-  type EvaluationResult,
-  type Agent,
-  type Task,
-  type Crew,
-  type CrewManagerConfig,
-  type CrewTemplate,
-  type CrewExecutionResult,
-  type CrewProcessConfig,
-  type NarrativeType,
-  type NarrativeTone,
-  type NarrativeLength,
-  type NarrativeGenerationRequest,
-  type NarrativeGenerationResponse,
-  type PipelineState,
-  type KanbanStatus,
-  type DetailedPipelineState,
-  type EnabledSteps,
-  type OrionSessionState,
-  type IdentifiedPattern,
-  type Persona,
-  type Stakeholder,
-  type OutreachRequest,
-  type OutreachResponse,
-  type ActivityWatchStorage,
-  type AnalyticsSnapshot,
-  type MemorySearchOptions,
-  type AddTaskFromReflectionProps,
-  type InputProps,
-  type LLMResponseSuccess,
-  type LLMResponseFailure,
-  type CombinedLLMResponse,
-  type SortableOpportunityKeys,
+  OpportunityFilterStatus,
+  OpportunityFilterType,
+  OpportunityFilterPriority,
+  OrionOpportunityDetails,
+  OpportunityEvaluationInput,
+  EvaluationGapDetail,
+  EvaluationOutput,
+  EvaluationResult,
+  OpportunityUpdatePayload,
+  OpportunityCreatePayload,
+  OpportunityNotionOutputlib,
+  OpportunityNotionInput,
+  NotionPageProperties,
+  RiskRewardAnalysis,
+  OpportunitySearchCriteria,
+  Filters,
+  SortOrder,
+  SortableOpportunityKeys,
+  Agent,
+  Task,
+  Crew,
+  CrewManagerConfig,
+  CrewTemplate,
+  CrewExecutionResult,
+  CrewProcessConfig,
+  NarrativeType,
+  NarrativeTone,
+  NarrativeLength,
+  NarrativeGenerationRequest,
+  NarrativeGenerationResponse,
+  NarrativeClarityOutput,
+  PipelineState,
+  KanbanStatus,
+  DetailedPipelineState,
+  EnabledSteps,
+  OrionSessionState,
+  SessionStateKeys,
+  IdentifiedPattern,
+  Insight,
+  Persona,
+  Stakeholder,
+  OutreachRequest,
+  OutreachResponse,
+  StrategicOutreachPlan,
+  StrategicOutreachExecutionResult,
+  Contact,
+  ActivityWatchStorage,
+  AnalyticsSnapshot,
+  AddTaskFromReflectionProps,
+  InputProps,
+  LLMResponseSuccess,
+  LLMResponseFailure,
+  CombinedLLMResponse,
+  Message,
+  LLMResponse,
+  CreateChatCompletionRequest,
+  CreateChatCompletionResponse,
+  LLMRequestOptions,
+  SendEmailResponse,
+  EmailResponse,
+  Idea,
+  NavItem,
+  NavGroup,
+  Prompt,
+  CustomPrompt,
+  LocalFileIndexRequest,
+  FilePath,
+  LocalFileIndexResponse,
+  LLMSequentialThinkingResponse,
+  RawCvComponentJsonData,
+  CVComponentCreatePayload,
 } from './lib/types';
 
-// Email-related types, now from their dedicated file
+// Specific re-exports for types defined in their own files or external modules
+export type { CVComponent } from './lib/types/cv';
+export type { JournalEntry } from '@/generated/prisma';
+export type { ReadonlyURLSearchParams };
 export type { SendEmailParams, EmailAttachment } from '@/types/email';
 
-export { type HabiticaTask, type HabiticaUserStats } from '@/types/habitica';
-
-// Export constants, functions, and classes from lib/ and hooks/ explicitly.
-// This prevents unintended re-exports and module resolution ambiguities
-// that can arise from 'export * from' statements on directories.
-
-// LLM Providers related exports
+// Specific re-exports for values or functions (these imports were already in place)
 export {
-  type LLMModelConfig,
   PROVIDER_MODEL_CONFIGS,
   DEFAULT_GENERATION_PROVIDERS,
   SYNTHESIZER_PROVIDER,
@@ -104,77 +166,72 @@ export {
   BROWSER_CONTEXT_MAX_CHARS,
   MIN_DRAFT_LENGTH,
   checkAllLlmApiKeys,
-} from '@/lib/llm_providers';
+} from './lib/llm_providers';
 
-// Orion LLM related exports (including generateLLMResponse, getFallbackModels, REQUEST_TYPES)
+export { useSessionState, initialState } from './lib/hooks/useSessionState';
+
 export {
-  generateLLMResponse,
-  getFallbackModels,
-  REQUEST_TYPES,
-  constructLlmMessages,
-  callExternalLLM,
-} from '@/lib/orion_llm';
+  type ActivityEvent,
+  type CategorizedEvent,
+  type ProductivitySummary,
+  ActivityWatchProcessor,
+} from './lib/activitywatch_processor';
 
-// Profile Service
-export { fetchUserProfile } from '@/lib/profile_service';
+export { ActivityWatchService } from './lib/activitywatch_service';
 
-// WhatsApp Parser
-export { parseWhatsAppChat } from '@/lib/whatsapp_parser';
-export { analyzeWhatsAppChat } from '@/lib/whatsapp_analyzer';
+export { generateLLMResponse, REQUEST_TYPES } from './lib/orion_llm';
 
-// Orion Memory
-export { processTextForIndexing, searchMemory } from '@/lib/orion_memory';
-
-// Orion Tools
-export { AVAILABLE_ORION_TOOLS as ORION_TOOLS, callSequentialThinking } from '@/lib/orion_tools';
-
-// CBT Constants
-export { COGNITIVE_DISTORTIONS_LIST, DISTORTION_DESCRIPTIONS } from '@/lib/cbtConstants';
-
-// Notion Service (Removed direct exports to prevent client-side bundling)
-
-// CV related exports
 export {
-  fetchCVComponents,
-  suggestCVComponents,
-  rephraseComponent,
-  tailorSummary as generateTailoredSummary,
-  assembleCV,
-  generateWordDoc,
-  generateWordFilename,
-} from '@/lib/cv';
+  getOpportunityByIdFromDb,
+  listOpportunitiesFromDb,
+  createOpportunityInDb,
+  updateOpportunityStatusInDb,
+} from './lib/opportunity_db_service';
 
-// Utility functions
-export { cn, getOrionSourceUrl } from './lib/utils';
-export { default as logger } from './lib/logger';
+export { fetchUserProfile } from './lib/profile_service';
 
-// Clients
 export {
-  default as habiticaClient,
-  getUserData,
-  getTasks,
-  createTask,
-  scoreTask,
-  updateTask,
-  deleteTask,
-} from '@/lib/habitica_client';
-export { apiClient } from '@/lib/apiClient';
+  addMemory,
+  searchMemory,
+  findMemoriesByField,
+  findMemoriesByType,
+  findMemoriesByTag,
+  initializeOrionMemory,
+  findRelevantMemories,
+} from './lib/memory';
 
-// Hooks - Removed explicit re-exports of client-side hooks from here to prevent server-side import issues.
-// These hooks should be imported directly where they are used in client components.
-// export { useSessionState } from '@/hooks/useSessionState';
-// export { useUserProfile } from '@/hooks/useUserProfile';
-// export { useOpportunities } from '@/hooks/useOpportunities';
-// export { useCVTailoring } from '@/hooks/useCVTailoring';
-// export { useOpportunityMemory } from '@/hooks/useOpportunityMemory';
-// export { useMemory } from '@/hooks/useMemory';
-// export { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
-// export { useLocalStorage } from '@/hooks/useLocalStorage';
-export { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-export { useOpportunityCentralStore } from './lib/opportunityCentralStore';
+export {
+  getUserData as fetchHabiticaUserStats,
+  getTasks as fetchHabiticaTasks,
+  createTask as createHabiticaTask,
+  scoreTask as updateHabiticaTaskScore,
+  updateTask as updateHabiticaTask,
+  deleteTask as deleteHabiticaTask,
+} from './lib/habitica_client';
 
-// App State & Constants
-// export { PageNames, SessionStateKeys } from './lib/app_constants'; // Removed due to 'export * from' above
+export {
+  createNarrativeDocument,
+  getNarrativeDocuments,
+  getNarrativeDocumentById,
+  updateNarrativeDocument,
+  deleteNarrativeDocument,
+  getNarrativeDocumentsByType,
+  saveCareerMilestone,
+  getCareerMilestones,
+  updateCareerMilestone,
+  deleteCareerMilestone,
+  saveValueProposition,
+  getValueProposition,
+} from './lib/narrative_service';
 
-// Emotions
-// Removed emotionalLogStore export as it appears to be an application-specific store not intended for the lib package.
+export {
+  saveOrUpdateCvComponent,
+  fetchAllCvComponents,
+  deleteCvComponent,
+  findCvComponentByUniqueId,
+} from './lib/cv_components_db_service';
+
+export { handleApiError, HandledApplicationError } from './lib/utils/errorHandler';
+
+export { type AxiosError } from 'axios';
+export { type ZodError } from 'zod';

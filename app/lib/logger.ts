@@ -1,24 +1,58 @@
 /**
- * Enhanced Logger for Orion
- * Combines Winston for production logging with stylish console output for development.
- * usage:
- * connection to other
+ * @fileoverview Centralized logging utility for the Orion application.
+ * @description This module provides a robust, level-based logging system with rich context support, designed to work consistently across both client-side (browser) and server-side (Node.js/Next.js API routes) environments. It integrates with Winston for server-side production logging and uses console methods for development and client-side, ensuring traceable and debuggable application behavior.
  *
- * Features:
- * - Color-coded output with icons in development
- * - Winston-based structured logging in production
- * - Development/Production mode awareness
- * - Singleton pattern for consistent logging
- * - Structured context logging
- * - Production error service integration ready
- * - Additional log levels (success)
- * - Timestamp and log level indicators
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide a unified logging interface (`debug`, `info`, `warn`, `error`, `success`, `api`, `component`, `state`).
+ *   - To ensure consistent log formatting and context enrichment (e.g., timestamps, component names, API details).
+ *   - To differentiate logging behavior based on environment (development vs. production) and execution context (client vs. server).
+ *   - To integrate with Winston for advanced server-side logging capabilities (e.g., file transports, log rotation).
+ *   - To facilitate rapid debugging and monitoring by providing traceable log messages with unique IDs (e.g., errorId in `handleApiError`).
+ *   - To handle and serialize complex data types within log contexts, specifically `Error` objects and custom error types like `APIError`.
+ *
+ * FILEPATH: `app/lib/logger.ts`
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `winston` (npm package): Used for robust server-side logging, including file transports and log rotation.
+ *   - `@/lib/orion_config.ts`: May provide configuration parameters related to logging levels or destinations.
+ *   - `app/lib/utils/errorHandler.ts`: The `handleApiError` utility heavily relies on this logger for structured error reporting.
+ *   - `app/lib/apiClient.ts`: Defines `APIError` and `NetworkError` which are processed and serialized by this logger.
+ *   - All API Routes (`app/api/orion/.../route.ts`): Directly import and use this logger for server-side operation tracing.
+ *   - All Client-Side Components (`app/components/orion/...`): Directly import and use this logger for client-side event tracking and debugging.
+ *   - Other Services/Utilities (`app/lib/...`): Integrate with this logger for consistent internal logging.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes `process.env.NODE_ENV` is correctly set to determine the environment.
+ *   - Winston is only initialized on the server-side to avoid client-side bundling issues and unnecessary overhead.
+ *   - Log context objects are shallow-copied before modification to prevent side effects.
+ *   - Custom serialization for `Error` objects and `APIError` instances ensures all relevant details (message, stack, status, data) are captured.
+ *   - The console methods are dynamically accessed with a defensive check to ensure they are valid functions.
+ *
+ * NOTES:
+ *   - This logging system is foundational for Orion's observability, enabling developers to understand application flow, debug issues, and monitor performance.
+ *   - The distinction between development/client-side and production/server-side logging is critical for both developer experience and production robustness.
+ *   - Proper serialization of error objects within log contexts is essential for effective error analysis.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Asynchronous Logging**: For very high-volume logging scenarios, consider implementing asynchronous logging to prevent blocking the main thread.
+ *   - **External Log Aggregation**: Integrate with external log aggregation services (e.g., Datadog, ELK Stack, Splunk) for centralized log management, querying, and alerting in production.
+ *   - **Log Level Configuration**: Allow log levels to be configured dynamically (e.g., via environment variables or a runtime setting) without requiring a redeploy.
+ *   - **Performance Optimization**: Profile logging performance in production to identify and optimize any bottlenecks, especially for high-frequency logs.
+ *   - **Sensitive Data Redaction**: Implement automatic redaction of sensitive information (e.g., API keys, PII) from log contexts before they are written to prevent data leaks.
+ *   - **Structured Logging Schema**: Enforce a more rigid structured logging schema (e.g., JSON Schema) for better compatibility with log parsers and analytics tools.
+ *
+ * OPPORTUNITIES TO CONSOLIDATE:
+ *   - Ensure all custom error types throughout the codebase are consistently handled and serialized by this logger's `formatMessage` method.
+ *   - Promote the use of the `api`, `component`, and `state` convenience methods to standardize log messages across different application layers.
  */
+
+import { APIError } from './apiClient'; // Import APIError
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
 
-interface LogContext {
+export interface LogContext {
   [key: string]: unknown;
+  disableConsole?: boolean; // New flag to disable console output for this log entry
 }
 
 const LOG_STYLES: Record<
@@ -118,9 +152,24 @@ class Logger {
               name: value.name,
               message: value.message,
               stack: value.stack, // Include stack for errors
-              ...(value instanceof Object && 'status' in value ? { status: (value as any).status } : {}), // For APIError
-              ...(value instanceof Object && 'data' in value ? { data: (value as any).data } : {}), // For APIError
-              ...(value instanceof Object && 'isRetryable' in value ? { isRetryable: (value as any).isRetryable } : {}), // For APIError
+              ...(value instanceof APIError
+                ? { status: value.status, data: value.data, isRetryable: value.isRetryable }
+                : {}),
+            };
+          } else if (
+            typeof value === 'object' &&
+            value !== null &&
+            'status' in value &&
+            'data' in value &&
+            'isRetryable' in value
+          ) {
+            // Fallback for objects that look like APIError but are not instances
+            processedContext[key] = {
+              name: 'ApiErrorObject',
+              message: (value as { message?: string }).message || 'API Error Object',
+              status: (value as { status?: number }).status,
+              data: (value as { data?: unknown }).data,
+              isRetryable: (value as { isRetryable?: boolean }).isRetryable,
             };
           }
         }
@@ -137,13 +186,36 @@ class Logger {
       return;
     }
 
+    // If disableConsole is true in context, skip console logging
+    if (context?.disableConsole && typeof window !== 'undefined') {
+      // For now, we will still log to Winston if it's initialized on the server-side
+      // This allows errors to be captured in files even if not in console
+      if (
+        this.winstonLogger &&
+        this.winstonLogger.levels[WINSTON_LEVEL_MAP[level]] >= this.winstonLogger.levels.error
+      ) {
+        this.winstonLogger.log(WINSTON_LEVEL_MAP[level], message, context);
+      }
+      return; // Skip console logging
+    }
+
     if (this.isDevelopment || typeof window !== 'undefined') {
       // Use stylish console logging in development or on the client-side
       const formattedMessage = this.formatMessage(level, message, context);
       const { consoleMethod } = LOG_STYLES[level];
       // Add a debug log to inspect the consoleMethod
       console.debug(`[LOGGER_DEBUG] Attempting to use console method: ${consoleMethod} for level: ${level}`);
-      console[consoleMethod](formattedMessage);
+
+      // Defensive check to ensure the console method is a function
+      const logFunction = console[consoleMethod] as
+        | ((message?: unknown, ...optionalParams: unknown[]) => void)
+        | undefined;
+      if (typeof logFunction === 'function') {
+        logFunction(formattedMessage);
+      } else {
+        // Fallback to console.log if the specific method is not a function
+        console.log(`[LOGGER_FALLBACK][${level.toUpperCase()}] ${formattedMessage}`);
+      }
     }
 
     // Use Winston in production on the server-side

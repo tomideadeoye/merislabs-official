@@ -6,8 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { Client, APIResponseError } from '@notionhq/client';
-import { GetPageResponse, QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints';
-import { Stakeholder, OrionOpportunity } from '@/lib/types';
+import { GetPageResponse, UpdatePageParameters } from '@notionhq/client/build/src/api-endpoints';
+import { Stakeholder } from '@/lib/types';
 
 const NOTION_API_KEY = process.env.NOTION_API_KEY;
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID; // This is the central database ID
@@ -16,17 +16,19 @@ const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
 // Helper function to extract Notion page properties into a Stakeholder object
 // Assumes Notion database has properties: 'Name' (title), 'Job Title' (rich_text), 'Email' (email), 'LinkedIn URL' (url)
 const notionPageToStakeholder = (page: GetPageResponse): Stakeholder => {
-  const properties: any = (page as any).properties; // Cast to any to access properties dynamically
+  const properties: Record<string, unknown> = (page as { properties: Record<string, unknown> }).properties; // Cast to Record<string, unknown> to access properties dynamically
 
   return {
     id: page.id,
-    name: properties['Name']?.title[0]?.plain_text || '',
-    title: properties['Job Title']?.rich_text[0]?.plain_text || '',
-    email: properties['Email']?.email || undefined,
-    linkedinUrl: properties['LinkedIn URL']?.url || undefined,
+    name: (properties['Name'] as { title: { plain_text: string }[] })?.title[0]?.plain_text || '',
+    title: (properties['Job Title'] as { rich_text: { plain_text: string }[] })?.rich_text[0]?.plain_text || '',
+    email: (properties['Email'] as { email: string | null | undefined })?.email || undefined,
+    linkedinUrl: (properties['LinkedIn URL'] as { url: string | null | undefined })?.url || undefined,
     // Assuming 'Company' is a text property on the Stakeholder page, or a relation to a Company DB
     // For simplicity, let's assume it's a rich_text for now
-    company: properties['Company']?.rich_text[0]?.plain_text || undefined,
+    company:
+      (properties['Company'] as { rich_text: { plain_text: string | null | undefined }[] })?.rich_text[0]?.plain_text ||
+      undefined,
     // Add other relevant properties as needed
   };
 };
@@ -54,13 +56,11 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
   }
 
   try {
-    const { opportunityId } = params;
-
     // --- Step 1: Fetch the Opportunity Notion Page ---
     logger.debug('[STAKEHOLDERS_GET][NOTION_FETCH_OPPORTUNITY] Fetching opportunity from Notion.', logContext);
     let opportunityPage: GetPageResponse;
     try {
-      opportunityPage = await notion.pages.retrieve({ page_id: opportunityId });
+      opportunityPage = await notion.pages.retrieve({ page_id: params.opportunityId }); // Use params.opportunityId here
     } catch (notionFetchError: unknown) {
       logger.error('[STAKEHOLDERS_GET][NOTION_FETCH_OPPORTUNITY_ERROR] Error fetching opportunity page from Notion.', {
         ...logContext,
@@ -76,12 +76,15 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
       );
     }
 
-    const opportunityProperties: any = (opportunityPage as any).properties; // Cast to any for dynamic access
+    const opportunityProperties: Record<string, unknown> = (opportunityPage as { properties: Record<string, unknown> })
+      .properties; // Cast to Record<string, unknown> for dynamic access
 
     // --- Step 2: Extract Stakeholder Relation IDs from Opportunity Page ---
     // Assuming a relation property named 'Stakeholders' on the Opportunity page
     const stakeholderRelationIds =
-      opportunityProperties['Stakeholders']?.relation?.map((rel: { id: string }) => rel.id) || [];
+      (opportunityProperties['Stakeholders'] as { relation: { id: string }[] })?.relation?.map(
+        (rel: { id: string }) => rel.id
+      ) || [];
 
     logger.debug('[STAKEHOLDERS_GET][EXTRACT_RELATION_IDS] Extracted stakeholder relation IDs.', {
       ...logContext,
@@ -128,7 +131,7 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
     return NextResponse.json({ success: true, stakeholders });
   } catch (error: unknown) {
     let errorMessage = 'An unexpected error occurred';
-    let errorDetails: any = {};
+    let errorDetails: Record<string, unknown> = {};
 
     if (error instanceof APIResponseError) {
       errorMessage = `Notion API Error: ${error.message}`;
@@ -181,7 +184,6 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
   }
 
   try {
-    const { opportunityId } = params;
     const body = await request.json();
     const { name, title, email, linkedinUrl, company } = body;
 
@@ -233,39 +235,43 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
     logger.debug('[STAKEHOLDERS_POST][NOTION_LINK_OPPORTUNITY] Linking new stakeholder to opportunity page.', {
       ...logContext,
       newStakeholderId: newStakeholderPage.id,
-      opportunityId,
+      opportunityId: params.opportunityId, // Use params.opportunityId directly
     });
 
     try {
-      const opportunityPage = await notion.pages.retrieve({ page_id: opportunityId });
-      const currentStakeholderRelations = (opportunityPage as any).properties['Stakeholders']?.relation || [];
+      const opportunityPage = await notion.pages.retrieve({ page_id: params.opportunityId });
+      const stakeholderProperty = (opportunityPage as { properties: Record<string, unknown> }).properties[
+        'Stakeholders'
+      ];
+
+      const currentStakeholderRelations =
+        stakeholderProperty &&
+        typeof stakeholderProperty === 'object' &&
+        'relation' in stakeholderProperty &&
+        Array.isArray((stakeholderProperty as { relation: { id: string }[] }).relation)
+          ? (stakeholderProperty as { relation: { id: string }[] }).relation
+          : [];
 
       const updatedStakeholderRelations = [...currentStakeholderRelations, { id: newStakeholderPage.id }];
 
       await notion.pages.update({
-        page_id: opportunityId,
+        page_id: params.opportunityId,
         properties: {
           Stakeholders: {
             relation: updatedStakeholderRelations,
           },
         },
       });
-      logger.success(
-        '[STAKEHOLDERS_POST][NOTION_LINK_OPPORTUNITY_SUCCESS] Stakeholder successfully linked to opportunity.',
-        {
-          ...logContext,
-          newStakeholderId: newStakeholderPage.id,
-          opportunityId,
-        }
-      );
+      logger.success('[STAKEHOLDERS_POST][NOTION_LINK_SUCCESS] New stakeholder linked to opportunity page.', {
+        ...logContext,
+        newStakeholderId: newStakeholderPage.id,
+        opportunityId: params.opportunityId,
+      });
     } catch (notionLinkError: unknown) {
-      logger.error('[STAKEHOLDERS_POST][NOTION_LINK_OPPORTUNITY_ERROR] Error linking stakeholder to opportunity.', {
+      logger.error('[STAKEHOLDERS_POST][NOTION_LINK_ERROR] Error linking stakeholder to opportunity page.', {
         ...logContext,
         error: notionLinkError,
       });
-      // This is critical, but we might still return success for stakeholder creation if link fails
-      // based on whether the stakeholder themselves was created successfully.
-      // For now, consider it a failure of the overall POST operation if linking fails.
       return NextResponse.json(
         {
           success: false,
@@ -276,18 +282,14 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
       );
     }
 
-    const createdStakeholder = notionPageToStakeholder(newStakeholderPage);
-
-    logger.success('[STAKEHOLDERS_POST][SUCCESS] Stakeholder created and linked successfully.', {
-      ...logContext,
-      stakeholderId: createdStakeholder.id,
-      name: createdStakeholder.name,
+    return NextResponse.json({
+      success: true,
+      stakeholder: notionPageToStakeholder(newStakeholderPage),
+      message: 'Stakeholder created and linked successfully.',
     });
-
-    return NextResponse.json({ success: true, stakeholder: createdStakeholder });
   } catch (error: unknown) {
     let errorMessage = 'An unexpected error occurred';
-    let errorDetails: any = {};
+    let errorDetails: Record<string, unknown> = {};
 
     if (error instanceof APIResponseError) {
       errorMessage = `Notion API Error: ${error.message}`;
@@ -340,27 +342,21 @@ export async function PATCH(request: NextRequest, { params }: { params: { opport
   }
 
   try {
-    const { opportunityId } = params; // opportunityId is relevant for logging context, but not for stakeholder update directly
     const body = await request.json();
-    const { id: stakeholderId, name, title, email, linkedinUrl, company } = body; // Expecting stakeholderId in body
+    const { stakeholderId, name, title, email, linkedinUrl, company } = body;
 
-    // --- Step 1: Validate Incoming Data ---
     if (!stakeholderId || typeof stakeholderId !== 'string' || stakeholderId.trim() === '') {
-      logger.warn('[STAKEHOLDERS_PATCH][VALIDATION_FAIL] Stakeholder ID is required for update.', {
-        ...logContext,
-        body,
-      });
-      return NextResponse.json({ success: false, error: 'Stakeholder ID is required for update.' }, { status: 400 });
+      logger.warn('[STAKEHOLDERS_PATCH][VALIDATION_FAIL] Stakeholder ID is required.', { ...logContext, body });
+      return NextResponse.json({ success: false, error: 'Stakeholder ID is required.' }, { status: 400 });
     }
 
-    if (Object.keys(body).length < 2) {
-      // id + at least one other field
-      logger.warn('[STAKEHOLDERS_PATCH][VALIDATION_FAIL] No update fields provided.', { ...logContext, body });
-      return NextResponse.json({ success: false, error: 'No update fields provided.' }, { status: 400 });
-    }
+    logger.debug('[STAKEHOLDERS_PATCH][NOTION_UPDATE] Updating stakeholder page in Notion.', {
+      ...logContext,
+      stakeholderId,
+    });
 
-    // --- Step 2: Construct Notion Properties for Update ---
-    const propertiesToUpdate: any = {};
+    // --- Step 1: Construct Notion Properties for Update ---
+    const propertiesToUpdate: UpdatePageParameters['properties'] = {};
     if (name !== undefined) {
       propertiesToUpdate['Name'] = { title: [{ text: { content: name.trim() } }] };
     }
@@ -380,58 +376,26 @@ export async function PATCH(request: NextRequest, { params }: { params: { opport
     }
 
     if (Object.keys(propertiesToUpdate).length === 0) {
-      logger.warn('[STAKEHOLDERS_PATCH][NO_VALID_FIELDS] No valid fields to update found in request body.', {
-        ...logContext,
-        body,
-      });
-      return NextResponse.json({ success: false, error: 'No valid fields to update provided.' }, { status: 400 });
+      logger.warn('[STAKEHOLDERS_PATCH][NO_CHANGES] No valid properties provided for update.', { ...logContext, body });
+      return NextResponse.json({ success: true, message: 'No changes to apply.' });
     }
 
-    // --- Step 3: Update Stakeholder Page in Notion ---
-    logger.debug('[STAKEHOLDERS_PATCH][NOTION_UPDATE] Updating stakeholder page in Notion.', {
-      ...logContext,
-      stakeholderId,
-      propertiesToUpdate,
+    await notion.pages.update({
+      page_id: stakeholderId,
+      properties: propertiesToUpdate,
     });
-
-    let updatedStakeholderPage;
-    try {
-      updatedStakeholderPage = await notion.pages.update({
-        page_id: stakeholderId,
-        properties: propertiesToUpdate,
-      });
-      logger.success('[STAKEHOLDERS_PATCH][NOTION_UPDATE_SUCCESS] Stakeholder page updated in Notion.', {
-        ...logContext,
-        stakeholderId: updatedStakeholderPage.id,
-      });
-    } catch (notionUpdateError: unknown) {
-      logger.error('[STAKEHOLDERS_PATCH][NOTION_UPDATE_ERROR] Error updating stakeholder page in Notion.', {
-        ...logContext,
-        stakeholderId,
-        error: notionUpdateError,
-      });
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to update stakeholder in Notion.',
-          details: notionUpdateError instanceof Error ? notionUpdateError.message : String(notionUpdateError),
-        },
-        { status: 500 }
-      );
-    }
-
-    const updatedStakeholder = notionPageToStakeholder(updatedStakeholderPage);
 
     logger.success('[STAKEHOLDERS_PATCH][SUCCESS] Stakeholder updated successfully.', {
       ...logContext,
-      stakeholderId: updatedStakeholder.id,
-      name: updatedStakeholder.name,
+      stakeholderId,
     });
-
-    return NextResponse.json({ success: true, stakeholder: updatedStakeholder });
+    return NextResponse.json({
+      success: true,
+      message: 'Stakeholder updated successfully.',
+    });
   } catch (error: unknown) {
     let errorMessage = 'An unexpected error occurred';
-    let errorDetails: any = {};
+    let errorDetails: Record<string, unknown> = {};
 
     if (error instanceof APIResponseError) {
       errorMessage = `Notion API Error: ${error.message}`;
@@ -488,108 +452,91 @@ export async function DELETE(request: NextRequest, { params }: { params: { oppor
   }
 
   try {
-    const { opportunityId } = params;
     const body = await request.json();
-    const { stakeholderId } = body; // Expecting stakeholderId in body
+    const { stakeholderId } = body;
 
-    // --- Step 1: Validate Incoming Data ---
     if (!stakeholderId || typeof stakeholderId !== 'string' || stakeholderId.trim() === '') {
       logger.warn('[STAKEHOLDERS_DELETE][VALIDATION_FAIL] Stakeholder ID is required for deletion.', {
         ...logContext,
         body,
       });
-      return NextResponse.json({ success: false, error: 'Stakeholder ID is required for deletion.' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Stakeholder ID is required.' }, { status: 400 });
     }
 
-    // --- Step 2: Remove Relation from Opportunity Page in Notion ---
-    logger.debug('[STAKEHOLDERS_DELETE][NOTION_REMOVE_LINK] Removing stakeholder link from opportunity page.', {
+    logger.debug('[STAKEHOLDERS_DELETE][NOTION_UNLINK] Unlinking stakeholder from opportunity in Notion.', {
       ...logContext,
       stakeholderId,
-      opportunityId,
+      opportunityId: params.opportunityId, // Use params.opportunityId directly
     });
+
     try {
-      const opportunityPage = await notion.pages.retrieve({ page_id: opportunityId });
-      const currentStakeholderRelations = (opportunityPage as any).properties['Stakeholders']?.relation || [];
+      const opportunityPage = await notion.pages.retrieve({ page_id: params.opportunityId });
+      const stakeholderProperty = (opportunityPage as { properties: Record<string, unknown> }).properties[
+        'Stakeholders'
+      ];
+
+      const currentStakeholderRelations =
+        stakeholderProperty &&
+        typeof stakeholderProperty === 'object' &&
+        'relation' in stakeholderProperty &&
+        Array.isArray((stakeholderProperty as { relation: { id: string }[] }).relation)
+          ? (stakeholderProperty as { relation: { id: string }[] }).relation
+          : [];
 
       const updatedStakeholderRelations = currentStakeholderRelations.filter(
         (rel: { id: string }) => rel.id !== stakeholderId
       );
 
       await notion.pages.update({
-        page_id: opportunityId,
+        page_id: params.opportunityId,
         properties: {
           Stakeholders: {
             relation: updatedStakeholderRelations,
           },
         },
       });
-      logger.success('[STAKEHOLDERS_DELETE][NOTION_REMOVE_LINK_SUCCESS] Stakeholder link removed from opportunity.', {
+      logger.success('[STAKEHOLDERS_DELETE][NOTION_UNLINK_SUCCESS] Stakeholder unlinked from opportunity.', {
         ...logContext,
         stakeholderId,
-        opportunityId,
+        opportunityId: params.opportunityId,
       });
-    } catch (notionRemoveLinkError: unknown) {
-      logger.error(
-        '[STAKEHOLDERS_DELETE][NOTION_REMOVE_LINK_ERROR] Error removing stakeholder link from opportunity.',
-        {
-          ...logContext,
-          error: notionRemoveLinkError,
-        }
-      );
-      // Proceed to archive stakeholder even if unlink fails, but log the error
-      // For now, consider it a failure of the overall DELETE operation if unlinking fails.
+    } catch (notionUnlinkError: unknown) {
+      logger.error('[STAKEHOLDERS_DELETE][NOTION_UNLINK_ERROR] Error unlinking stakeholder from opportunity.', {
+        ...logContext,
+        error: notionUnlinkError,
+      });
       return NextResponse.json(
         {
           success: false,
           error: 'Failed to unlink stakeholder from opportunity.',
-          details:
-            notionRemoveLinkError instanceof Error ? notionRemoveLinkError.message : String(notionRemoveLinkError),
+          details: notionUnlinkError instanceof Error ? notionUnlinkError.message : String(notionUnlinkError),
         },
         { status: 500 }
       );
     }
 
-    // --- Step 3: Archive Stakeholder Page in Notion ---
-    logger.debug('[STAKEHOLDERS_DELETE][NOTION_ARCHIVE] Archiving stakeholder page in Notion.', {
+    // --- Step 3: Delete Stakeholder Page in Notion ---
+    logger.debug('[STAKEHOLDERS_DELETE][NOTION_DELETE] Deleting stakeholder page in Notion.', {
       ...logContext,
       stakeholderId,
     });
 
-    let archivedStakeholderPage;
-    try {
-      archivedStakeholderPage = await notion.pages.update({
-        page_id: stakeholderId,
-        archived: true,
-      });
-      logger.success('[STAKEHOLDERS_DELETE][NOTION_ARCHIVE_SUCCESS] Stakeholder page archived in Notion.', {
-        ...logContext,
-        stakeholderId: archivedStakeholderPage.id,
-      });
-    } catch (notionArchiveError: unknown) {
-      logger.error('[STAKEHOLDERS_DELETE][NOTION_ARCHIVE_ERROR] Error archiving stakeholder page in Notion.', {
-        ...logContext,
-        stakeholderId,
-        error: notionArchiveError,
-      });
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to archive stakeholder in Notion.',
-          details: notionArchiveError instanceof Error ? notionArchiveError.message : String(notionArchiveError),
-        },
-        { status: 500 }
-      );
-    }
+    await notion.pages.update({
+      page_id: stakeholderId,
+      archived: true, // Archive the page instead of directly deleting
+    });
 
-    logger.success('[STAKEHOLDERS_DELETE][SUCCESS] Stakeholder archived and unlinked successfully.', {
+    logger.success('[STAKEHOLDERS_DELETE][SUCCESS] Stakeholder page archived successfully.', {
       ...logContext,
       stakeholderId,
     });
-
-    return NextResponse.json({ success: true, message: 'Stakeholder archived and unlinked successfully.' });
+    return NextResponse.json({
+      success: true,
+      message: 'Stakeholder archived successfully.',
+    });
   } catch (error: unknown) {
     let errorMessage = 'An unexpected error occurred';
-    let errorDetails: any = {};
+    let errorDetails: Record<string, unknown> = {};
 
     if (error instanceof APIResponseError) {
       errorMessage = `Notion API Error: ${error.message}`;

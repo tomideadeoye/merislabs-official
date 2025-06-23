@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import logger from '@/lib/logger';
-import { ScoredMemoryPoint } from '@/lib/types';
+import { ScoredMemoryPoint, QdrantFilter, SearchMemoryResponse } from '@/lib/types';
+import { apiFetcher } from '@/lib/utils/apiFetcher';
 
 interface UseOpportunityMemoryResult {
   opportunityMemories: ScoredMemoryPoint[];
@@ -26,47 +27,59 @@ export const useOpportunityMemory = (opportunityId: string): UseOpportunityMemor
       setIsLoading(true);
       setError(null);
       try {
-        // Simulate API call to fetch memories related to the opportunity
-        // In a real scenario, this would be an API call to your /api/orion/memory endpoint
-        // Example: const response = await fetch(`/api/orion/memory/search?opportunityId=${opportunityId}`);
-        // const data = await response.json();
+        // Construct the Qdrant filter to fetch memories for the specific opportunity
+        const filter: QdrantFilter = {
+          must: [
+            {
+              key: 'opportunityId',
+              match: { value: opportunityId },
+            },
+            {
+              // Optionally, filter by relevant memory types for opportunities
+              key: 'type',
+              match: { value: 'opportunity_research' }, // Example type
+            },
+            {
+              key: 'type',
+              match: { value: 'stakeholder_interaction' }, // Example type
+            },
+            {
+              // Add other relevant memory types here as needed
+              key: 'type',
+              match: { value: 'journal_entry' },
+            },
+            {
+              key: 'type',
+              match: { value: 'general_note' },
+            },
+          ],
+        };
 
-        const simulatedMemories: ScoredMemoryPoint[] = [
-          {
-            id: 'mem1',
-            score: 0.95,
-            payload: {
-              text: 'Key details from initial research about company X, focusing on their AI division and recent projects.',
-              source_id: `opportunity-${opportunityId}-research-1`,
-              timestamp: new Date().toISOString(),
-              indexedAt: new Date().toISOString(),
-              type: 'opportunity_research',
-              tags: ['opportunity', 'research', 'companyX'],
-              title: 'Company X Research Overview',
-            },
-          },
-          {
-            id: 'mem2',
-            score: 0.88,
-            payload: {
-              text: "Notes from a previous conversation with John Doe about company X's culture and hiring process.",
-              source_id: `opportunity-${opportunityId}-stakeholder-notes-1`,
-              timestamp: new Date().toISOString(),
-              indexedAt: new Date().toISOString(),
-              type: 'stakeholder_interaction',
-              tags: ['opportunity', 'stakeholder', 'johnDoe'],
-              title: 'John Doe Conversation Summary',
-            },
-          },
-        ];
-        setOpportunityMemories(simulatedMemories);
-        logger.success('Opportunity memories fetched successfully.', {
-          opportunityId,
-          count: simulatedMemories.length,
+        logger.debug('Calling /api/orion/memory/search with filter', { filter });
+
+        const response = await apiFetcher<SearchMemoryResponse>('/api/orion/memory/search', {
+          method: 'POST',
+          body: { filter, limit: 100 }, // Adjust limit as needed
         });
-      } catch (err) {
-        logger.error('Failed to fetch opportunity memories.', { error: err, opportunityId });
-        setError('Failed to load opportunity memories. Please try again.');
+
+        if (response.success && response.results) {
+          setOpportunityMemories(response.results);
+          logger.success('Opportunity memories fetched successfully.', {
+            opportunityId,
+            count: response.results.length,
+          });
+        } else {
+          const errorMessage = response.error || 'Unknown error fetching memories.';
+          logger.error('Failed to fetch opportunity memories from API.', {
+            error: errorMessage,
+            opportunityId,
+          });
+          setError(errorMessage);
+        }
+      } catch (err: unknown) {
+        const errorMessage = `Failed to load opportunity memories: ${(err as Error).message}`;
+        logger.error('Error in fetchOpportunityMemories:', { error: err, opportunityId });
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }

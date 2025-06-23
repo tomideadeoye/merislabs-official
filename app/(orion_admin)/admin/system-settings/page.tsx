@@ -14,6 +14,7 @@ import {
 } from '@/components/ui';
 import { Cog, Mail, Database, Cloud, Key } from 'lucide-react';
 import { EmailTestButton } from '@/components/ui/orion';
+import LlmModelSettings from './components/LlmModelSettings';
 
 export default function SystemSettingsPage() {
   return (
@@ -30,8 +31,9 @@ export default function SystemSettingsPage() {
           <TabsTrigger value="database">Database</TabsTrigger>
           <TabsTrigger value="api">API Keys</TabsTrigger>
           <TabsTrigger value="cloud">Cloud Services</TabsTrigger>
+          <TabsTrigger value="llm-models">LLM Models</TabsTrigger>
         </TabsList>
-
+        w
         <TabsContent value="email" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -55,7 +57,6 @@ export default function SystemSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="database" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -69,7 +70,6 @@ export default function SystemSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="api" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -83,7 +83,6 @@ export default function SystemSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="cloud" className="mt-6">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -96,6 +95,9 @@ export default function SystemSettingsPage() {
               <p className="text-gray-400">Cloud service settings will be configured here.</p>
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="llm-models" className="mt-6">
+          <LlmModelSettings />
         </TabsContent>
       </Tabs>
     </div>

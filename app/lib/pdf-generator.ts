@@ -2,6 +2,12 @@
  * PDF generation utilities for CV export
  */
 
+/**
+ * @function generatePDF
+ * @description Generates a PDF document from the provided CV content.
+ * @param cvContent The content of the CV to be included in the PDF.
+ */
+
 // This is a placeholder for the actual PDF generation logic
 // In a real implementation, you would use a library like jspdf or react-pdf
 export async function generatePDF(cvContent: string): Promise<Blob> {
@@ -55,12 +61,24 @@ startxref
   return new Blob([pdfContent], { type: 'application/pdf' });
 }
 
+/**
+ * @function formatCVForPDF
+ * @description Formats CV content for PDF generation based on a template.
+ * @param cvContent The content of the CV to be formatted.
+ */
+
 // Format CV content for PDF based on template
 export function formatCVForPDF(cvContent: string): string {
   // In a real implementation, this would format the CV content based on the template
   // For now, we'll just return the content as is
   return cvContent;
 }
+
+/**
+ * @function generatePDFFilename
+ * @description Generates a filename for the PDF document based on the job title.
+ * @param jobTitle The title of the job the CV is tailored for.
+ */
 
 // Generate a filename for the PDF
 export function generatePDFFilename(jobTitle: string): string {

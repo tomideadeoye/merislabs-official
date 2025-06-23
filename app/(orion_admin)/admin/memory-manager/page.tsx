@@ -1,3 +1,51 @@
+/**
+ * @fileoverview React client component for managing Orion's memory (knowledge base).
+ * @description This page serves as the central hub for interacting with Orion's memory system,
+ *   allowing users to search, add, and filter memory chunks. It integrates with the Qdrant
+ *   vector database via the `MemoryProvider` context and displays real-time status updates
+ *   for both memory initialization and user login status.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - **Memory Search**: Provides an interface for semantic search over stored memory points.
+ *   - **Memory Filtering**: Enables filtering search results by type and tags for precise retrieval.
+ *   - **Add New Memory**: Offers a dedicated component (`DedicatedAddToMemoryFormComponent`) for capturing and adding new information to the knowledge base.
+ *   - **Memory Deletion**: Allows users to delete individual memory items.
+ *   - **Status Display**: Shows the initialization status of the Qdrant memory backend and the user's current login status.
+ *   - **User Feedback**: Provides loading indicators and toast notifications for various operations.
+ *
+ * FILEPATH: `app/(orion_admin)/admin/memory-manager/page.tsx`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/components/orion/MemoryProvider.tsx`: Consumes the `MemoryContext` for all memory-related state and functions (e.g., `memoryInitialized`, `memoryLoading`, `isLoggedIn`, `handleSearch`).
+ *   - `app/components/ui/page-header.tsx`: Renders the page title, description, and dynamic memory/login status indicators, receiving props from this page.
+ *   - `app/components/ui/orion/DedicatedAddToMemoryFormComponent.tsx`: Embedded component for adding new memory entries.
+ *   - `app/lib/apiClient.ts`: Used implicitly via `useMemoryContext` and direct `fetch` calls for backend API interactions (e.g., `/api/orion/memory/search`, `/api/orion/memory/delete`).
+ *   - `app/lib/logger.ts`: Centralized logging utility for comprehensive debugging and tracing of page interactions and data flows.
+ *   - `app/lib/constants.ts`: Imports `PageNames` for consistent page titling.
+ *   - `app/lib/orion_config.ts`: Accesses `ORION_MEMORY_COLLECTION_NAME` for Qdrant operations.
+ *   - `@/components/ui/`: Utilizes various Shadcn UI components (Input, Button, Card, Label, ScrollArea, etc.) for a cohesive UI.
+ *   - `lucide-react`: Provides icons (`DatabaseZap`, `Search`, `Loader2`, `AlertTriangle`, `Info`, `PlusCircle`) for visual enhancement.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes `MemoryProvider` is correctly configured and provides reliable memory and user profile status.
+ *   - Assumes backend API endpoints for memory search, add, and delete operations are accessible and functional.
+ *   - User authentication state (`isLoggedIn`) is managed by `MemoryProvider` via `useUserProfile`.
+ *   - Environment variables for Qdrant connection are correctly set (managed by the backend and Qdrant Docker container).
+ *
+ * NOTES:
+ *   - **Enhanced User Feedback**: Includes loading states, error displays, and success messages to guide the user.
+ *   - **Centralized Status**: The `PageHeader` now acts as a consolidated status display for core application components (login and memory).
+ *   - **Modular Design**: Separates concerns by using dedicated components for adding memory and UI elements.
+ *   - **Logging**: Extensive `logger.debug` and `logger.info` calls ensure traceability of user interactions and API requests/responses.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Pagination/Infinite Scrolling**: For large search results, implement pagination or infinite scrolling to improve performance and user experience.
+ *   - **Advanced Filtering**: Add more complex filtering options (e.g., date range, source, score range) for memory search.
+ *   - **Memory Visualization**: Integrate a visual component (like `QuadrantMemoryChunksVisualizer.tsx`) directly on this page to provide an interactive view of memory relationships.
+ *   - **Batch Operations**: Allow users to select multiple memory items for bulk deletion or tagging.
+ *   - **Error Recovery UI**: Provide more explicit guidance or actions for users when memory initialization fails (e.g., "Check Qdrant status", "Configure .env").
+ */
+
 'use client';
 
 // GOAL:
@@ -19,9 +67,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { useMemoryContext } from '@/components/orion/MemoryProvider';
 import logger from '@/lib/logger';
+import { REQUEST_TYPES } from '@/lib/orion_llm'; // Import REQUEST_TYPES
 
 export default function MemoryManagerFeaturePage() {
-  const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
+  const { memoryInitialized, loading: memoryLoading, error: memoryError, isLoggedIn } = useMemoryContext();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
@@ -33,14 +82,38 @@ export default function MemoryManagerFeaturePage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
+  const [currentLlmModel, setCurrentLlmModel] = useState<string | null>(null);
 
   useEffect(() => {
     logger.debug('[MemoryManagerFeaturePage] Memory context status update', {
       memoryInitialized,
       memoryLoading,
       memoryError,
+      isLoggedIn,
     });
-  }, [memoryInitialized, memoryLoading, memoryError]);
+
+    // Fetch current LLM model when component mounts or relevant dependencies change
+    const fetchCurrentLlmModel = async () => {
+      try {
+        // Use a relevant request type for this page, e.g., ASK_QUESTION or MEMORY_INDEXING
+        const response = await fetch(`/api/orion/llm/current-model?requestType=${REQUEST_TYPES.MEMORY_INDEXING}`);
+        const data = await response.json();
+        if (data.success) {
+          setCurrentLlmModel(data.currentLlmModel);
+          logger.info('[MemoryManagerFeaturePage] Fetched current LLM model', { model: data.currentLlmModel });
+        } else {
+          logger.error('[MemoryManagerFeaturePage] Failed to fetch current LLM model', { error: data.error });
+          setCurrentLlmModel('N/A');
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        logger.error('[MemoryManagerFeaturePage] Error fetching current LLM model', { error: errorMessage });
+        setCurrentLlmModel('N/A');
+      }
+    };
+
+    fetchCurrentLlmModel();
+  }, [memoryInitialized, memoryLoading, memoryError, isLoggedIn]);
 
   const handleSearch = useCallback(
     async (event?: React.FormEvent) => {
@@ -156,6 +229,8 @@ export default function MemoryManagerFeaturePage() {
         description="Search, view, and manage Orion's knowledge base."
         showMemoryStatus={true}
         memoryInitialized={memoryInitialized}
+        isLoggedIn={isLoggedIn}
+        currentLlmModel={currentLlmModel || undefined}
       />
 
       {/* Section to Add New Memory Item */}

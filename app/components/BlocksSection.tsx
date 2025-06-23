@@ -12,6 +12,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { IoMdBookmark } from 'react-icons/io';
+import Image from 'next/image';
 
 export type Project = {
   name: string;
@@ -63,17 +64,15 @@ type BackgroundImageProps = {
 
 // Internal BackgroundImage component (not exported)
 const BackgroundImage = ({ transitionData, currentSlideData }: BackgroundImageProps) => {
-  const [currentGradient] = useState(() => {
-    const gradients = [
-      'bg-gradient-to-r from-purple-600 to-blue-500',
-      'bg-gradient-to-l from-blue-500 to-purple-600',
-      'bg-gradient-to-r from-indigo-500 to-pink-500',
-      'bg-gradient-to-l from-green-500 to-blue-600',
-      'bg-gradient-to-r from-red-500 to-yellow-500',
-    ];
-    const randomIndex = Math.floor(Math.random() * gradients.length);
-    return gradients[randomIndex];
-  });
+  const gradients = [
+    'bg-gradient-to-r from-purple-600 to-blue-500',
+    'bg-gradient-to-l from-blue-500 to-purple-600',
+    'bg-gradient-to-r from-indigo-500 to-pink-500',
+    'bg-gradient-to-l from-green-500 to-blue-600',
+    'bg-gradient-to-r from-red-500 to-yellow-500',
+  ];
+  // Deterministically select gradient based on index to avoid hydration mismatch
+  const currentGradient = gradients[currentSlideData.index % gradients.length];
   console.log(
     '[BLOCKS] Rendering BackgroundImage with gradient:',
     currentGradient,
@@ -174,7 +173,11 @@ export default function BlocksSection() {
               <motion.span layout className=" mb-2 h-1 w-5 rounded-full bg-white " />
               <OtherInfo data={transitionData ? transitionData : currentSlideData.data} />
               <motion.div layout className=" mt-5 flex items-center gap-3">
-                <button className="flex h-[41px] w-[41px] items-center justify-center rounded-full bg-yellow-500 text-xs transition duration-300 ease-in-out hover:opacity-80 ">
+                <button
+                  type="button"
+                  aria-label="Bookmark"
+                  className="flex h-[41px] w-[41px] items-center justify-center rounded-full bg-yellow-500 text-xs transition duration-300 ease-in-out hover:opacity-80 "
+                >
                   <IoMdBookmark className=" text-xl" />
                 </button>
                 <a
@@ -189,7 +192,7 @@ export default function BlocksSection() {
             </div>
             <div className=" col-span-6 flex h-full flex-1 flex-col justify-start p-4 md:justify-center md:p-10">
               <div className=" flex w-full gap-6">
-                {data.map((project: Project, index: number) => {
+                {data.map((project: Project) => {
                   return (
                     <motion.div
                       className=" relative h-52 min-w-[250px] rounded-2xl shadow-md md:h-80 md:min-w-[208px]"
@@ -213,7 +216,13 @@ export default function BlocksSection() {
                         setData(projects.filter((_, i) => i !== projects.indexOf(project)));
                       }}
                     >
-                      <img src={project.img} alt="" className="h-full w-full object-cover" />
+                      <Image
+                        src={project.img}
+                        alt={project.name}
+                        layout="fill"
+                        objectFit="cover"
+                        className="rounded-2xl"
+                      />
                       <div className="absolute left-0 top-0 h-full w-full bg-black/20" />
                       <div className="absolute bottom-0 left-0 p-5">
                         <OtherInfo data={project} />

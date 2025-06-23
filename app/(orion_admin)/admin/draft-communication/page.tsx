@@ -73,7 +73,7 @@
  */
 'use client';
 import { PageHeader, Tabs, TabsList, TabsTrigger } from '@/components/ui';
-import { MessageSquare, Smartphone } from 'lucide-react';
+import { MessageSquare, Smartphone, Lightbulb } from 'lucide-react';
 import DraftCommunicationClientWrapper from './DraftCommunicationClientWrapper';
 import { PageNames } from '@/lib/constants';
 import React, { useState } from 'react';
@@ -95,6 +95,9 @@ export default function DraftCommunicationFeaturePage() {
           </TabsTrigger>
           <TabsTrigger value="whatsapp-tools">
             <Smartphone className="inline-block mr-1 w-4 h-4" /> WhatsApp Tools
+          </TabsTrigger>
+          <TabsTrigger value="communication-patterns">
+            <Lightbulb className="inline-block mr-1 w-4 h-4" /> Communication Patterns
           </TabsTrigger>
         </TabsList>
 

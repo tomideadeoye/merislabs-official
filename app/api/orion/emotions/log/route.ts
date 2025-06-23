@@ -1,27 +1,41 @@
 /**
- * FILEPATH: `app/api/orion/emotions/log/route.ts`
+ * @fileoverview API route for logging user emotional states and cognitive distortion analysis.
+ * @description This endpoint provides the functionality to receive emotional log entries from the frontend,
+ *   validate essential fields, and persist this data securely to the PostgreSQL (Neon) database using Prisma.
+ *   It plays a central role in the Emotional Tracker feature by enabling the recording of granular emotional data.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - Provides the API endpoint for logging user emotional states and cognitive distortion analysis.
- *   - Receives emotional log entries, validates required fields, and persists the data to the PostgreSQL (Neon) database via Prisma.
- *   - Ensures data integrity and type safety for emotional log entries.
+ *   - To serve as the API endpoint (`POST`) for saving new `EmotionalLogEntry` records.
+ *   - To validate that each log entry contains either a primary emotion or a cognitive thought for context.
+ *   - To serialize complex fields (arrays, objects) into JSON strings for database storage.
+ *   - To ensure data integrity and type compatibility with the Prisma `EmotionalLogs` model.
+ *
+ * FILEPATH: `app/api/orion/emotions/log/route.ts`.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/(orion_admin)/admin/emotional-tracker/page.tsx`: This frontend page likely consumes this API to save emotional logs.
- *   - `@/lib/types`: Defines the `EmotionalLogEntry` and `LogEmotionRequestBody` interfaces used for data structures.
- *   - `@/generated/prisma`: Provides the `PrismaClient` for database interactions.
- *   - `prisma/schema.prisma`: Defines the `EmotionalLogs` model, which this API interacts with.
- *   - `lib/logger.ts`: Although direct `console.error` is currently used, future improvements should integrate the centralized logger here for consistent, context-rich logging.
+ *   - `app/(orion_admin)/admin/emotional-tracker/page.tsx`: This frontend page sends emotional log data to this API.
+ *   - `@/lib/types/index.ts`: Defines `EmotionalLogEntry` and `LogEmotionRequestBody` for strict type enforcement.
+ *   - `@/generated/prisma`: Imports `PrismaClient` for ORM-based interaction with the `EmotionalLogs` table.
+ *   - `prisma/schema.prisma`: Defines the `EmotionalLogs` database schema, which this route adheres to.
+ *   - `lib/logger.ts`: Although currently using `console.error`, this file should integrate with `logger` for consistent, context-rich logging.
+ *   - `uuid`: Used for generating unique identifiers for new emotional log entries.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes `uuid` is correctly generating unique IDs for new entries.
- *   - Handles cases where `primaryEmotion` or `cognitiveDistortionAnalysis.automaticThought` might be missing.
- *   - Explicitly handles potential `undefined` values for string fields by providing empty string fallbacks before Prisma insertion, ensuring type compatibility.
+ *   - Assumes that optional array/object fields will be `JSON.stringify`-ed before saving to database columns defined as `Json` or `String`.
+ *   - `runtime = 'nodejs'` is specified, indicating this route runs in a Node.js environment.
+ *   - This route currently uses `console.error`; it should be refactored to use the centralized `logger` for consistency.
  *
  * NOTES:
- *   - This API is a critical component of the Emotional Tracker feature, providing the backend for recording and analyzing user's emotional data over time.
- *   - Future enhancements could include more granular input validation and advanced error response structures.
- *   - Consider integrating the lib `logger` utility for all console output for unified logging and observability.
+ *   - This API is fundamental for the Emotional Tracker, providing the write functionality to build a historical record of emotional states.
+ *   - The data transformation logic ensures that complex JavaScript types are correctly stored in the database.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Authentication**: Implement robust authentication to ensure only authenticated users can log emotions.
+ *   - **Unified Logging**: Replace `console.error` with `logger.error` for all logging within this file.
+ *   - **Zod Validation**: Introduce Zod for comprehensive input validation of the `LogEmotionRequestBody`.
+ *   - **Error Handling**: Integrate `handleApiError` from `app/lib/utils/errorHandler.ts` for standardized error responses.
+ *   - **Data Enrichment**: Explore opportunities to enrich log entries (e.g., sentiment analysis on notes) before saving.
+ *   - **Performance**: Optimize database write operations for high-volume logging, if applicable.
  */
 export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
@@ -58,13 +72,15 @@ export async function POST(req: NextRequest) {
       intensity: body.intensity || 5,
       triggers: body.triggers || [],
       physicalSensations: body.physicalSensations || [],
-      accompanyingThoughts: body.accompanyingThoughts || body.cognitiveDistortionAnalysis?.automaticThought || '', // accompanyingThoughts is string | undefined in type, but Prisma expects string | null
+      accompanyingThoughts: String(
+        body.accompanyingThoughts || body.cognitiveDistortionAnalysis?.automaticThought || ''
+      ).trim(),
       copingMechanismsUsed: body.copingMechanismsUsed || [],
-      contextualNote: body.contextualNote || '',
+      contextualNote: String(body.contextualNote || '').trim(),
       relatedJournalSourceId: body.relatedJournalSourceId || null,
       cognitiveDistortionAnalysis: body.cognitiveDistortionAnalysis,
       emotion: body.primaryEmotion || 'N/A (Distortion Analysis)',
-      context: body.contextualNote || '',
+      context: String(body.contextualNote || '').trim(),
     };
 
     // Insert into Postgres using Prisma
@@ -79,7 +95,7 @@ export async function POST(req: NextRequest) {
         physicalSensations: newEntry.physicalSensations
           ? JSON.stringify(newEntry.physicalSensations)
           : JSON.stringify([]),
-        accompanyingThoughts: newEntry.accompanyingThoughts || '',
+        accompanyingThoughts: String(newEntry.accompanyingThoughts).trim(),
         copingMechanismsUsed: newEntry.copingMechanismsUsed
           ? JSON.stringify(newEntry.copingMechanismsUsed)
           : JSON.stringify([]),
@@ -87,9 +103,9 @@ export async function POST(req: NextRequest) {
         relatedJournalSourceId: newEntry.relatedJournalSourceId,
         cognitiveDistortionAnalysis: newEntry.cognitiveDistortionAnalysis
           ? JSON.stringify(newEntry.cognitiveDistortionAnalysis)
-          : null,
-        emotion: newEntry.emotion,
-        context: newEntry.context,
+          : JSON.stringify({}),
+        emotion: newEntry.primaryEmotion,
+        context: String(newEntry.contextualNote).trim(),
       },
     });
 

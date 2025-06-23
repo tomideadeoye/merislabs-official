@@ -47,8 +47,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import logger from '@/lib/logger';
-import { ScoredMemoryPoint, MemoryMetadataPayload } from '@/lib/types/memory';
-import { handleApiError, HandledError } from '@/lib/utils/errorHandler';
+import { ScoredMemoryPoint } from '@/lib/types/memory';
+import { handleApiError } from '@/lib/utils/errorHandler';
 
 interface LogContextType {
   route: string;
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
         logger.warn('[MEMORY_UPSERT][FILTERED_POINT] Skipping memory point due to missing or empty embedding.', {
           ...logContext,
           pointId: point.id, // Log the ID of the skipped point if available
-          pointTitle: (point.payload as any)?.title, // Attempt to log title from payload
+          pointTitle: point.payload.title, // Attempt to log title from payload
         });
         return false;
       }

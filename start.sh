@@ -242,6 +242,7 @@ DURING IMPLEMENTING:
     - Cross-reference changes with related modules to maintain consistency
     - Update dependent components to avoid breaking changes
 add to reference.md
+it jsut got interesting.
 
 What feature feels like a good next step?
 what feature feels like a related feature?
@@ -252,6 +253,7 @@ After full impelementations, always ask me what i want to achieve next.
 Use hapy excited aprooach in all things... variable names for example. how can our growth catalyze faster
 Logic gates? How can i make this more fun? how can i optimze for absurdly rapid sel-improvement?
 i like features that work. no mocks or palceholders
+add why something is implemented in logs, documentations, comments, etc.
 
 Let's infuse some more brilliance!
 Global UI Feedback (A Delightful User Experience!):
@@ -262,7 +264,7 @@ NEVER/NO:
 - Never delete features or components without a clear plan for replacement. suggest more robust feature implementation.
 - No @ts-ignore - we love complete type safety.
 Consistent styling.
-
+type safe api routes
 Use standard libraries and frameworks.
 Refer to start.sh for the feature's purpose and requirements
 Focuse on unity of functionality and features: the code should be cohesive and work together seamlessly
@@ -392,6 +394,13 @@ Describe the workflow!
     - What other tests can I include? What leverage should i be using?
     - Can you repeatedly ask me what is in start.sh?
 
+    Always add documentation to file top and comment exhaustively
+    toast @react-hot-toast
+ Global ErrorBoundary Componen
+ making mistakes should be hard
+
+    enhance
+
     - how can you challenge my assumptions/logic/reasoning/thinking/approach/implementation/code?
     - Is there anything you want to add/change/remove in the codebase?
     - what is the goal of the feature/codebase/project/developer/company?
@@ -413,6 +422,7 @@ ANTI-PATTERNS EXAMPLES:
 - Good:catch API errors, log them, and provide a fallback response. Robust builds.
 - Bad: Duplicating validation logic across multiple controllers.
 - Good: Creating a lib validator middleware or service.RetryClaude does not have the ability to run the code it generates yet.
+add numbered step by steps to logs of workflows
 
 Start script: ./start.sh
 Slowly Pivot to Zustand full state management.
@@ -479,13 +489,14 @@ Integrate memory search directly into the Opportunity Details page. When viewing
 Explore automating "next actions" or "smart reminders" for opportunities based on their status and related memories.
 sketching out ideas for interactive visualizations for memory chunks. How can we represent the semantic relationships between memories? Can we show "memory density" over time or by category?
 Integrate Memory into Other Features:
-
+Add a lot of notes to functions and features before implementing
 Idea: Memory shouldn't just be a standalone feature! It should permeate Orion.
 Suggestion: Brainstorm specific features where direct memory integration would be a game-changer. For example:
 Journaling: Auto-suggest memories based on journal content being written.
 Idea Incubator: Link new ideas to relevant memories for context and inspiration.
 Opportunity Pipeline: Automatically pull relevant memories (e.g., related to a company, industry, or role) when viewing an opportunity.
 - Pivot from notion to neon database gradually ()
+everything should look ery nice and amazing and fun and engaging.
 - Draft Communication
   |_ WhatsApp helper/WhatsApp Chat Analysis Tab
   |_Draft Email Tab
@@ -506,7 +517,9 @@ Have a wonderful life. Build lots of APPs to make so much money.
 - ensure website is published and acccessible (google my business, seo, advertisements, partnerships...)
 - Affirmations section: text to speech - my life is a work of ART. Add affirmations, generate affirmations from journal and memory, save affirmations, view my affirmations, play affirmations TTS, Memory-Augmented Journaling,
 - Begin sketching ideas for how Orion can proactively offer "copilot" style assistance based on the user's current context (e.g., open files, active applications), leveraging its memory.
-
+ui components: @/components/ui
+Eliminate Redundancy
+never rm -rf .next unless i explicityl ask you to do so
 BUSINESSES:
 - law firm
 - web development agency
@@ -533,11 +546,13 @@ Longterm, move from habitica and notion to neon alone - with all features
 - business notorizing legal business.
 - DONT ADD TESTS FOR NOW.
 - HARMONIZE FEATURES AND FUNCTIONALITIES
+make me addictted to my goals and complete success.
 
 Increasingly stucture the app to standard as we proceed. Implement new features even while debugging.
 
 Merge agentic mode and tool use.... i need to be able to let the agent use tools/functions like, sending email, web scraping stakeholder details, generating email drafts, etc., pretty much all functions and i just give it a mission and it does it.I will add more functions that can be used as tools over time.
-Tool ideas: search my notion, search my google drive,
+Tool ideas: search my notion, search my google drive, write emails for me
+When you find a solution to a common problem, add it to the codebase in-file/comment documentation
 EOM
 
 # REPOSITORY DIRECTORY TREE

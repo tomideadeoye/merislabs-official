@@ -23,6 +23,12 @@ export async function isDirectory(pathString: string): Promise<boolean> {
 }
 
 /**
+ * @function getOrionSourceUrl
+ * @description Generates a URL to the source of a task within the Orion system.
+ * @param sourceModule The module or feature where the task originated (e.g., "Journal Reflection").
+ * @param referenceId A unique identifier for the specific task or item within the source module.
+ */
+/**
  * Generate a URL to the source of a task in Orion
  */
 export function getOrionSourceUrl(sourceModule?: string, referenceId?: string): string {

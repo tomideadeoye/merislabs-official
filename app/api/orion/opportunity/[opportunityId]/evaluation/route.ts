@@ -63,12 +63,14 @@ import {
   OpportunityPriority,
 } from '@/lib/types';
 import logger from '@/lib/logger';
-import { auth } from '@/auth'; // Correct import for NextAuth.js v5+
 import { PrismaClient } from '@/generated/prisma';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Assuming REQUEST_TYPES is defined
 import { searchMemory } from '@/lib/orion_memory';
 import { fetchUserProfile } from '@/lib/profile_service'; // Corrected import path for fetchUserProfile
 import { apiFetcher } from '@/lib/utils/apiFetcher'; // Import the new apiFetcher utility
+
+// Temporary placeholder userId as auth is removed. This should be replaced with proper authentication.
+const TEMP_USER_ID = 'default_orion_user_id';
 
 interface EvaluationApiResponse {
   success: boolean;
@@ -129,14 +131,8 @@ export async function POST(
   //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   // }
 
-  // const userId = session.user.id as string; // Assuming user.id is always present and a string
-  // if (!userId) {
-  //   logger.error('[EVAL_API][AUTH_FAIL] User ID not found in session.', { ...logContext, userId: 'N/A' });
-  //   return NextResponse.json({ success: false, error: 'User ID not found in session' }, { status: 401 });
-  // }
-
   // For now, we'll use a placeholder userId or derive it if needed from other means
-  const userId = 'placeholder_user_id'; // This should be replaced with actual user ID derivation if auth is truly removed or handled differently
+  // const userId = 'placeholder_user_id'; // This should be replaced with actual user ID derivation if auth is truly removed or handled differently
 
   try {
     logger.info('[EVAL_API][BODY_PARSE][START] Attempting to parse request body as JSON.', logContext);
@@ -172,9 +168,11 @@ export async function POST(
         bodyOpportunityId: bodyOpportunityId,
         message: 'Opportunity ID in route parameters does not match ID in request body.',
       });
+      return NextResponse.json({ success: false, error: 'Opportunity ID mismatch' }, { status: 400 });
     }
 
     // Fetch the opportunity from the database
+    logger.info('[EVAL_API][DB_FETCH_OPPORTUNITY][START] Fetching opportunity from database.', logContext);
     const orionOpportunity = await prisma.opportunity.findUnique({
       where: { id: routeOpportunityId },
       select: {
@@ -232,53 +230,54 @@ export async function POST(
       logger.warn('[EVAL_API][OPP_NOT_FOUND]', { ...logContext, opportunityId: routeOpportunityId });
       return NextResponse.json({ success: false, error: 'Opportunity not found' }, { status: 404 });
     }
+    logger.info('[EVAL_API][DB_FETCH_OPPORTUNITY][SUCCESS]', {
+      ...logContext,
+      opportunityTitle: orionOpportunity.title,
+    });
 
     // Explicitly map Prisma result to OrionOpportunity to satisfy all interface properties
     const fullOrionOpportunity: OrionOpportunity = {
       id: orionOpportunity.id,
       title: orionOpportunity.title,
-      company: orionOpportunity.company,
-      companyOrInstitution: orionOpportunity.company || null, // Map company to companyOrInstitution
-      type: orionOpportunity.type as OpportunityType | null | undefined, // Cast to correct enum type
-      status: orionOpportunity.status as OpportunityStatus | null | undefined, // Cast to correct enum type
-      content: orionOpportunity.content,
-      url: orionOpportunity.url,
-      tags: orionOpportunity.tags,
-      dateIdentified: orionOpportunity.dateIdentified?.toISOString() || null, // Convert Date to ISO string
-      notes: orionOpportunity.notes,
-      contactPerson: orionOpportunity.contactPerson,
-      contactEmail: orionOpportunity.contactEmail,
-      stage: orionOpportunity.stage,
-      attachments: orionOpportunity.attachments,
-      relatedEvaluationId: orionOpportunity.relatedEvaluationId,
-      sourceUrl: orionOpportunity.sourceUrl,
-      nextActionDate: orionOpportunity.nextActionDate?.toISOString() || null, // Convert Date to ISO string
-      priority: orionOpportunity.priority as OpportunityPriority | null, // Cast to correct enum type
-      tailoredCv: orionOpportunity.tailoredCv,
-      deadline: orionOpportunity.deadline?.toISOString() || null, // Convert Date to ISO string
-      location: orionOpportunity.location,
-      salary: orionOpportunity.salary,
-      contact: orionOpportunity.contact,
-      position: orionOpportunity.position,
-      lastStatusUpdate: orionOpportunity.lastStatusUpdate?.toISOString() || null, // Convert Date to ISO string
-      notionPageId: orionOpportunity.notionPageId,
-      applicationMaterialIds: orionOpportunity.applicationMaterialIds,
-      createdAt: orionOpportunity.createdAt.toISOString(), // Convert Date to ISO string
-      updatedAt: orionOpportunity.updatedAt.toISOString(), // Convert Date to ISO string
-      evaluationResult: orionOpportunity.evaluationResult, // Keep original JsonValue
-      evaluationOutput: null, // Initialize as null; it will be populated by the LLM later in this function
-      tailoredCvId: orionOpportunity.tailoredCvId,
-      stakeholders: orionOpportunity.stakeholders,
-      applicationDrafts: orionOpportunity.applicationDrafts,
-      webResearchContext: null, // Initialize
-      pros: null, // Initialize
-      cons: null, // Initialize
-      missingSkills: null, // Initialize
-      contentType: null, // Initialize
-      lastEditedTime: orionOpportunity.updatedAt?.toISOString() || null, // Convert Date to ISO string, handle null
-      cvComponentSuggestions: null, // Initialize
-      alignmentScore: null, // Initialize
-      actionableAdvice: null, // Initialize
+      company: orionOpportunity.company || null,
+      companyOrInstitution: orionOpportunity.company || null,
+      type: orionOpportunity.type as OpportunityType | null | undefined,
+      status: orionOpportunity.status as OpportunityStatus | null | undefined,
+      content: orionOpportunity.content || null,
+      url: orionOpportunity.url || null,
+      tags: orionOpportunity.tags || [],
+      dateIdentified: orionOpportunity.dateIdentified?.toISOString() || null,
+      notes: orionOpportunity.notes || null,
+      contactPerson: orionOpportunity.contactPerson || null,
+      contactEmail: orionOpportunity.contactEmail || null,
+      stage: orionOpportunity.stage || null,
+      attachments: orionOpportunity.attachments || [],
+      relatedEvaluationId: orionOpportunity.relatedEvaluationId || null,
+      sourceUrl: orionOpportunity.sourceUrl || null,
+      nextActionDate: orionOpportunity.nextActionDate?.toISOString() || null,
+      priority: orionOpportunity.priority as OpportunityPriority | null,
+      tailoredCv: orionOpportunity.tailoredCv || null,
+      deadline: orionOpportunity.deadline?.toISOString() || null,
+      location: orionOpportunity.location || null,
+      salary: orionOpportunity.salary || null,
+      contact: orionOpportunity.contact || null,
+      position: orionOpportunity.position || null,
+      lastStatusUpdate: orionOpportunity.lastStatusUpdate?.toISOString() || null,
+      notionPageId: orionOpportunity.notionPageId || null,
+      applicationMaterialIds: orionOpportunity.applicationMaterialIds || [],
+      createdAt: orionOpportunity.createdAt.toISOString(),
+      updatedAt: orionOpportunity.updatedAt.toISOString(),
+      evaluationOutput: (orionOpportunity.evaluationResult as unknown as EvaluationOutput) || null,
+      // Initialize other optional properties that might be missing from the Prisma query result
+      webResearchContext: null,
+      pros: null,
+      cons: null,
+      missingSkills: null,
+      contentType: null,
+      lastEditedTime: null,
+      cvComponentSuggestions: null,
+      alignmentScore: null,
+      actionableAdvice: null,
     };
 
     // Use fullOrionOpportunity from this point onward
@@ -497,22 +496,30 @@ export async function POST(
       llmPromptLength: systemPrompt.length + userPrompt.length,
       ...logContext,
     });
-    const llmResponse = await generateLLMResponse(REQUEST_TYPES.OPPORTUNITY_EVALUATION, userPrompt, {
-      systemContext: systemPrompt,
-      temperature: 0.7,
-      maxTokens: 1500,
-    });
+    const llmResponse = await generateLLMResponse(
+      REQUEST_TYPES.OPPORTUNITY_EVALUATION,
+      userPrompt, // primaryContext
+      TEMP_USER_ID, // userId
+      {
+        systemContext: systemPrompt,
+        profileContext: userProfile?.profileText ?? '', // Ensure profileText is not null
+        memoryResults: relevantMemories,
+        temperature: 0.7,
+        maxTokens: 1500,
+      }
+    );
 
     if (!llmResponse.success) {
-      const llmErrorDetails = llmResponse.error || 'LLM failed to generate evaluation.';
       logger.error('[EVAL_API][LLM_FAIL] LLM response indicates failure.', {
-        error: llmErrorDetails,
         ...logContext,
+        error: llmResponse.error || 'Unknown LLM failure',
+        rawContent: llmResponse.content, // Pass the raw content here
       });
       return NextResponse.json(
         {
           success: false,
-          error: llmErrorDetails,
+          error: llmResponse.error || 'Failed to get a valid LLM evaluation.',
+          rawContent: llmResponse.content, // Return raw content in API response
         },
         { status: 500 }
       );

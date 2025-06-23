@@ -2,18 +2,7 @@
  * CV component management and tailoring functionality
  */
 
-export interface CVComponent {
-  notionPageId: string;
-  unique_id: string;
-  component_name: string;
-  component_type: string;
-  content_primary: string;
-  keywords?: string[];
-  associated_company_institution?: string;
-  start_date?: string;
-  end_date?: string;
-  contentType?: string;
-}
+import { CVComponent } from '@/lib/types/cv'; // Import the canonical CVComponent type
 
 const BASE_URL = typeof window === 'undefined' ? process.env.NEXTAUTH_URL || 'http://localhost:3000' : '';
 

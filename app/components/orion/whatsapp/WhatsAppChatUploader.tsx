@@ -50,11 +50,13 @@ import { useDropzone } from 'react-dropzone';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, UploadCloud, CheckCircle, XCircle } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 import logger from '@/lib/logger';
+import { toast } from 'react-hot-toast';
+
+import type { WhatsAppChatAnalysisData } from './WhatsAppChatAnalysis';
 
 interface WhatsAppChatUploaderProps {
-  onTranscriptUploaded: (data: any) => void; // Expecting parsed data back
+  onTranscriptUploaded: (data: WhatsAppChatAnalysisData) => void; // Expecting parsed data back
 }
 
 const WhatsAppChatUploader: React.FC<WhatsAppChatUploaderProps> = ({ onTranscriptUploaded }) => {
@@ -123,12 +125,16 @@ const WhatsAppChatUploader: React.FC<WhatsAppChatUploaderProps> = ({ onTranscrip
           onTranscriptUploaded(analysisResult);
           setSuccess('Chat transcript uploaded and analyzed successfully!');
           logger.success(
-            `Operation: API Call | Status: Success | Endpoint: /api/orion/whatsapp/analyze | File: ${file.name} | Message: Chat analysis successful.`
+            `Operation: API Call | Status: Success | Endpoint: /api/orion/whatsapp/analyze | File: ${file.name} | Message: Chat analysis successful.`,
+            { analysis: analysisResult }
           );
         } catch (err: any) {
-          setError(err.message || 'An unknown error occurred during analysis.');
+          const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred during analysis.';
+          setError(errorMessage);
+          toast.error(errorMessage);
           logger.error(
-            `Operation: API Call | Status: Failed | Endpoint: /api/orion/whatsapp/analyze | File: ${file.name} | Error: ${err.message} | Message: Error during chat analysis API call.`
+            `Operation: API Call | Status: Failed | Endpoint: /api/orion/whatsapp/analyze | File: ${file.name} | Error: ${err.message} | Message: Error during chat analysis API call.`,
+            { error: err }
           );
         } finally {
           setLoading(false);
@@ -137,8 +143,13 @@ const WhatsAppChatUploader: React.FC<WhatsAppChatUploaderProps> = ({ onTranscrip
 
       reader.onerror = (errorEvent) => {
         setError('Error reading file.');
+        const errorMessage =
+          errorEvent.target?.error instanceof Error
+            ? errorEvent.target.error.message
+            : String(errorEvent.target?.error);
         logger.error(
-          `Operation: FileReader.onerror | Status: Failed | File: ${file.name} | Error: ${errorEvent.target?.error} | Message: Error occurred during file read.`
+          `Operation: FileReader.onerror | Status: Failed | File: ${file.name} | Error: ${errorMessage} | Message: Error occurred during file read.`,
+          { error: errorMessage }
         );
         setLoading(false);
       };

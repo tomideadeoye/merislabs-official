@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { generateLLMResponse } from '@/lib/orion_llm';
-import { AVAILABLE_ORION_TOOLS as ORION_TOOLS } from '@/lib/orion_tools';
-import type { CombinedLLMResponse, LLMToolCall, Message, LLMResponseSuccess } from '@/lib/types';
+import { generateLLMResponse, generateLLMResponseWithTools } from '@/lib/orion_llm';
+import { getToolSchemas, executeTool } from '@/lib/orion_tools';
+import type { CombinedLLMResponse, LLMToolCall, Message, LLMResponseSuccess, LLMTool } from '@/lib/types';
+import logger from '@/lib/logger';
 
 // Define the structure of a tool call received from the LLM
 // interface LLMToolCall {
@@ -97,70 +98,18 @@ function parseAndValidateToolCalls(responseContent: string): LLMToolCall[] {
 }
 
 // Helper to execute tool calls by calling internal API endpoints
-async function executeToolCall(toolCall: LLMToolCall, req: NextRequest): Promise<unknown> {
-  const toolName = toolCall.function.name;
-  const toolArgs: Record<string, unknown> = JSON.parse(toolCall.function.arguments);
-  const internalApiUrlBase = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-
+// This function now directly uses the executeTool from orion_tools.ts
+async function executeProposedToolCall(toolCall: LLMToolCall): Promise<unknown> {
+  logger.info(`[AGENT_EXECUTE] Executing proposed tool call: ${toolCall.function.name}`);
   try {
-    if (toolName === 'search_orion_memory') {
-      const searchResponse = await fetch(`${internalApiUrlBase}/api/orion/memory/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: req.headers.get('Authorization') || '',
-        },
-        body: JSON.stringify({
-          queryText: toolArgs.queryText,
-          filter: {
-            must: [
-              ...(Array.isArray(toolArgs.memorySourceTypes)
-                ? (toolArgs.memorySourceTypes as string[]).map((t: string) => ({
-                    key: 'type',
-                    match: { value: t },
-                  }))
-                : []),
-              ...(Array.isArray(toolArgs.memorySourceTags)
-                ? (toolArgs.memorySourceTags as string[]).map((t: string) => ({
-                    key: 'tags',
-                    match: { value: t.toLowerCase() },
-                  }))
-                : []),
-            ],
-          },
-          limit: (toolArgs.limit as number) || 5,
-        }),
-      });
-      const searchData = await searchResponse.json();
-      return searchData.success ? searchData.results : { error: searchData.error || 'Memory search failed' };
-    } else if (toolName === 'create_habitica_todo') {
-      // TODO: Securely fetch Habitica credentials for the user
-      const todoResponse = await fetch(`${internalApiUrlBase}/api/orion/habitica/todo`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: req.headers.get('Authorization') || '',
-        },
-        body: JSON.stringify({
-          // userId and apiToken should be securely retrieved per user/session
-          taskData: {
-            text: toolArgs.taskText,
-            notes: toolArgs.taskNotes,
-            priority: toolArgs.priority,
-          },
-          orionSourceModule: toolArgs.orionSourceModule,
-          orionSourceReferenceId: toolArgs.orionSourceReferenceId,
-        }),
-      });
-      const todoData = await todoResponse.json();
-      return todoData.success ? todoData.todo : { error: todoData.error || 'Failed to create Habitica task' };
-    } else {
-      return { error: `Tool ${toolName} not implemented.` };
-    }
+    const toolOutput = await executeTool(toolCall);
+    return toolOutput;
   } catch (error: unknown) {
-    return {
-      error: `Execution failed for tool ${toolName}: ` + (error instanceof Error ? error.message : 'Unknown error'),
-    };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`[AGENT_EXECUTE] Failed to execute proposed tool call ${toolCall.function.name}:`, {
+      error: errorMessage,
+    });
+    return { error: `Execution failed for proposed tool ${toolCall.function.name}: ${errorMessage}` };
   }
 }
 
@@ -176,111 +125,130 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { userQuery } = body;
+    const { userQuery, selectedTools, numOptions = 1, preDeterminedToolCall } = body; // Default numOptions to 1
+
+    // If a pre-determined tool call is provided, execute it directly.
+    if (preDeterminedToolCall) {
+      if (!isLLMFunctionCall(preDeterminedToolCall.function)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid pre-determined tool call format.' },
+          { status: 400 }
+        );
+      }
+      const toolOutput = await executeProposedToolCall(preDeterminedToolCall as LLMToolCall);
+      const assistantMessage: Message = { role: 'assistant', content: 'Executing pre-determined action.' };
+      const toolMessage: Message = {
+        role: 'tool',
+        content: JSON.stringify(toolOutput, null, 2),
+        tool_call_id: preDeterminedToolCall.id || 'pre-determined-call',
+      };
+      return NextResponse.json({
+        success: true,
+        answer: 'Pre-determined action executed.',
+        current_messages: [assistantMessage, toolMessage],
+      });
+    }
+
+    // Proceed with normal LLM generation if no pre-determined tool call
     if (!userQuery) {
       return NextResponse.json({ success: false, error: 'userQuery is required.' }, { status: 400 });
     }
 
-    // Initial LLM message history
-    const messages: Message[] = [
-      // Use Message[] type
-      {
-        role: 'system',
-        content:
-          "You are Orion, an AI assistant that can use tools to answer questions and perform actions. When a tool is needed, call it. Then use the tool's result to formulate your final answer to the user.",
-      },
-      {
-        role: 'user',
-        content: userQuery,
-      },
-    ];
+    const availableToolSchemas = getToolSchemas(selectedTools || []) as object[];
+    logger.info('[AGENT_EXECUTE] Available tool schemas for LLM.', {
+      schemas: availableToolSchemas.map((s) => (s as LLMTool).function.name),
+    });
 
-    const MAX_ITERATIONS = 5;
-    for (let i = 0; i < MAX_ITERATIONS; i++) {
-      const llmParams = {
-        requestType: 'AGENTIC_TASK_STEP',
-        messages,
-        tools: ORION_TOOLS,
-        tool_choice: 'auto',
-        modelOverride: 'gpt-4-turbo-preview',
-        temperature: 0.5,
-        maxTokens: 1500,
-      };
+    const generatedStrategies: { answer: string; messages: Message[] }[] = [];
 
-      let llmResponse: CombinedLLMResponse;
-      try {
-        const primaryContext = messages && messages.length > 0 ? messages.map((m) => m.content).join('\n') : ''; // m is already typed as Message
-        const options: Record<string, unknown> = {};
-        if (llmParams.modelOverride) options.model = llmParams.modelOverride;
-        if (llmParams.temperature) options.temperature = llmParams.temperature;
-        if (llmParams.maxTokens) options.maxTokens = llmParams.maxTokens;
+    // Outer loop for generating multiple strategies
+    for (let strategyIndex = 0; strategyIndex < numOptions; strategyIndex++) {
+      logger.info(`[AGENT_EXECUTE] Generating Strategy ${strategyIndex + 1}/${numOptions}.`, { userQuery });
 
-        llmResponse = await generateLLMResponse(llmParams.requestType, primaryContext, options);
+      const messages: Message[] = [
+        {
+          role: 'system',
+          content:
+            "You are Orion, an AI assistant that can use tools to answer questions and perform actions. When a tool is needed, call it. Then use the tool's result to formulate your final answer to the user. Generate a distinct strategy or approach for the user's query.", // Added prompt for distinct strategy
+        },
+        {
+          role: 'user',
+          content: userQuery,
+        },
+      ];
 
-        if (!llmResponse.success) {
-          throw new Error(llmResponse.error || 'LLM call failed');
-        }
-      } catch (err: unknown) {
-        console.error('[AGENT_EXECUTE] LLM error:', err);
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'LLM call failed in agent loop.',
-            details: err instanceof Error ? err.message : 'Unknown LLM error',
-          },
-          { status: 500 }
-        );
-      }
+      const currentMessages: Message[] = [...messages]; // To keep track of conversation flow for this strategy
+      const MAX_ITERATIONS = 5;
+      let finalAnswer: string | undefined;
 
-      // Type narrow llmResponse to LLMResponseSuccess after successful check
-      const successfulLLMResponse = llmResponse as LLMResponseSuccess;
-      const responseContent = successfulLLMResponse.content;
+      for (let i = 0; i < MAX_ITERATIONS; i++) {
+        const llmParams = {
+          requestType: 'agent_workflow',
+          primaryContext: userQuery,
+          userId: session.user.id!,
+          tools: availableToolSchemas,
+          tool_choice: 'auto' as 'auto' | 'none' | object,
+          // numOptions is not passed here directly as it's handled by the outer loop
+        };
 
-      // Attempt to parse tool calls from the LLM's response
-      const toolCalls: LLMToolCall[] = parseAndValidateToolCalls(responseContent);
-
-      if (toolCalls.length > 0) {
-        const toolOutputs: unknown[] = [];
-        for (const toolCall of toolCalls) {
-          const toolOutput = await executeToolCall(toolCall, request);
-          toolOutputs.push(toolOutput);
-        }
-
-        // Add tool message and tool output to history
-        messages.push({ role: 'assistant', content: null, tool_calls: toolCalls });
-        for (let j = 0; j < toolCalls.length; j++) {
-          messages.push({
-            role: 'tool',
-            tool_call_id: toolCalls[j].id || toolCalls[j].function.name,
-            content: JSON.stringify(toolOutputs[j]),
-          });
-        }
-      } else {
-        // If no tool calls, it's a final answer.
-        messages.push({ role: 'assistant', content: responseContent });
-        return NextResponse.json({ success: true, answer: responseContent });
-      }
-
-      if (i === MAX_ITERATIONS - 1) {
-        return NextResponse.json({
-          success: false,
-          error: 'Max tool call iterations reached. No final answer provided.',
-          current_messages: messages,
+        logger.debug('[AGENT_EXECUTE] Calling LLM with params.', { iteration: i, llmParams });
+        const llmResponse: CombinedLLMResponse = await generateLLMResponseWithTools({
+          requestType: llmParams.requestType,
+          primaryContext: llmParams.primaryContext,
+          userId: llmParams.userId,
+          tools: llmParams.tools,
+          tool_choice: llmParams.tool_choice,
         });
+
+        if (llmResponse.success) {
+          currentMessages.push({ role: 'assistant', content: llmResponse.content });
+
+          if (llmResponse.tool_calls && llmResponse.tool_calls.length > 0) {
+            logger.info('[AGENT_EXECUTE] LLM requested tool calls.', { toolCalls: llmResponse.tool_calls });
+
+            for (const toolCall of llmResponse.tool_calls) {
+              logger.info(`[AGENT_EXECUTE] Executing tool: ${toolCall.function.name}.`);
+              const toolOutput = await executeTool(toolCall);
+              currentMessages.push({ role: 'tool', tool_call_id: toolCall.id, content: JSON.stringify(toolOutput) });
+              logger.success(`[AGENT_EXECUTE] Tool ${toolCall.function.name} executed.`, { output: toolOutput });
+            }
+          } else {
+            logger.info('[AGENT_EXECUTE] LLM provided a final answer.', { answer: llmResponse.content });
+            finalAnswer = llmResponse.content;
+            break; // Exit loop if LLM provides a final answer
+          }
+        } else {
+          logger.error('[AGENT_EXECUTE] LLM generation failed.', {
+            error: llmResponse.error,
+            details: llmResponse.details,
+          });
+          // If one strategy fails, we might still want to try other strategies,
+          // but for now, we'll propagate the error for this specific strategy.
+          finalAnswer = `Error generating strategy: ${llmResponse.error}. Details: ${llmResponse.details || 'N/A'}`;
+          break; // Break from inner loop if LLM generation fails for this strategy
+        }
       }
-    }
+
+      if (!finalAnswer) {
+        finalAnswer =
+          "I've completed my analysis and tool executions for this strategy. Please review the conversation history for details.";
+        logger.warn('[AGENT_EXECUTE] Max iterations reached without a final answer for this strategy.');
+      }
+      generatedStrategies.push({ answer: finalAnswer, messages: currentMessages });
+    } // End of outer loop for strategies
+
+    logger.success('[AGENT_EXECUTE] Agent execution complete. Generated multiple strategies.', {
+      numStrategies: generatedStrategies.length,
+    });
     return NextResponse.json({
-      success: false,
-      error: 'Agentic loop finished without a direct answer after tool calls.',
+      success: true,
+      strategies: generatedStrategies, // Return an array of strategies
     });
   } catch (error: unknown) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Agent execution failed.',
-        details: error instanceof Error ? error.message : 'Unknown agent execution error',
-      },
-      { status: 500 }
-    );
+    logger.error('[AGENT_EXECUTE] Uncaught error during agent execution.', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : 'N/A',
+    });
+    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }

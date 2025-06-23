@@ -5,15 +5,42 @@ import { fetchContactsFromNeon, saveContactToNeon } from '@/lib/contact_service'
 import logger from '@/lib/logger';
 
 /**
- * GOAL: Provide a public API endpoint to fetch and save contact data from the Neon/PostgreSQL database.
- * This route replaces the previous Notion-based contact fetching and adds functionality to persist new contacts.
+ * @fileoverview API route for managing user contacts: fetching and saving contact data.
+ * @description This route serves as the central API endpoint for interacting with user contact information.
+ *   It provides functionalities to retrieve all stored contacts from the Neon/PostgreSQL database
+ *   and to persist new contact records. It replaces any previous Notion-based contact handling
+ *   and ensures data is stored reliably and accessibly.
  *
- * RELATION TO OTHER FILES, FUNCTIONS, COMPONENTS, AND FEATURES:
- * - `lib/contact_service.ts`: Contains the core logic for fetching and saving contacts from Neon.
- * - `lib/auth.ts`: Used for user authentication and authorization.
- * - `lib/types/index.ts`: Defines the `Contact` interface for response typing.
- * - `@/components/FindStakeholdersButton.tsx` (or similar components): Will consume this API endpoint.
- * - `lib/logger.ts`: For comprehensive logging of API requests and responses.
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide a secure API endpoint (`GET`) for fetching all `Contact` records associated with a user.
+ *   - To provide a secure API endpoint (`POST`) for creating new `Contact` records.
+ *   - To ensure data integrity by handling and logging potential errors during database operations.
+ *   - To leverage Neon/PostgreSQL for scalable and reliable contact data storage.
+ *
+ * FILEPATH: `app/api/orion/contacts/route.ts`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `app/lib/contact_service.ts`: Contains the core business logic for `fetchContactsFromNeon` and `saveContactToNeon`.
+ *   - `app/lib/auth.ts`: Used for authenticating and authorizing user requests to ensure data security.
+ *   - `app/lib/types/index.ts`: Defines the `Contact` interface, ensuring type consistency across the application.
+ *   - `@/components/orion/networking-hub/NetworkingContactCard.tsx` (or similar): Frontend components that consume this API.
+ *   - `app/lib/logger.ts`: Provides comprehensive, context-rich logging for every operation and error.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes the Neon/PostgreSQL database is properly configured and accessible via `contact_service.ts`.
+ *   - Assumes user sessions are valid and provide a `session.user.id` for authorization.
+ *   - `POST` requests include `name`, and optionally `email`, `linkedinUrl`, `role`, and `company`.
+ *
+ * NOTES:
+ *   - This API is crucial for the Networking Hub feature, enabling users to manage their professional connections.
+ *   - Error handling is integrated to provide informative responses while logging detailed diagnostics.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Input Validation**: Implement Zod schema validation for the `POST` request body to ensure robust data integrity before persistence.
+ *   - **Pagination/Filtering (GET)**: Enhance the `GET` endpoint to support pagination and filtering (e.g., by name, company) for large contact lists.
+ *   - **De-duplication Logic**: Implement server-side logic to detect and prevent duplicate contact entries (e.g., based on email or LinkedIn URL).
+ *   - **Unified Error Handling**: Integrate `handleApiError` from `app/lib/utils/errorHandler.ts` for more consistent and standardized API error responses.
+ *   - **Associated Data**: Allow for associating contacts directly with opportunities or other entities during creation, rather than just standalone contacts.
  */
 
 interface ContactsApiResponse {

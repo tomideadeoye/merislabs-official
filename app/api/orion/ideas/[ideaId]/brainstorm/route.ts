@@ -27,7 +27,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import logger from '@/lib/logger';
 import { Client, APIResponseError } from '@notionhq/client';
-import { QueryDatabaseParameters, UpdatePageParameters } from '@notionhq/client/build/src/api-endpoints';
+import { auth } from '@/auth'; // Import auth for session
+import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import server error handler
+import { HandledApplicationError } from '@/lib/types'; // Import HandledApplicationError
 
 const NOTION_API_KEY = process.env.NOTION_API_KEY;
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
@@ -36,20 +38,24 @@ const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
 type IdeaStatus = 'new' | 'researching' | 'developing' | 'launched' | 'abandoned' | 'raw_spark';
 
 // Helper function to extract Notion page properties into an Idea object
-const notionPageToIdea = (page: any): Idea => {
-  const properties = page.properties;
+const notionPageToIdea = (page: unknown): Idea => {
+  const properties = (page as { properties: Record<string, unknown> }).properties;
   return {
-    id: page.id,
-    title: properties['Title']?.title[0]?.plain_text || '',
-    description: properties['Description']?.rich_text[0]?.plain_text || '',
-    status: (properties['Status']?.select?.name as IdeaStatus) || 'raw_spark',
-    tags: properties['Tags']?.multi_select?.map((tag: { name: string }) => tag.name) || [],
-    createdAt: page.created_time,
-    updatedAt: page.last_edited_time,
-    brainstormingNotes: properties['Brainstorming Notes']?.rich_text[0]?.plain_text || '',
-    dueDate: properties['Due Date']?.date?.start || null,
-    priority: properties['Priority']?.select?.name || null,
-    userId: properties['User ID']?.rich_text[0]?.plain_text || null, // Assuming a User ID property in Notion
+    id: (page as { id: string }).id,
+    title: (properties['Title'] as { title: { plain_text: string }[] })?.title[0]?.plain_text || '',
+    description: (properties['Description'] as { rich_text: { plain_text: string }[] })?.rich_text[0]?.plain_text || '',
+    status: ((properties['Status'] as { select: { name: IdeaStatus } })?.select?.name as IdeaStatus) || 'raw_spark',
+    tags:
+      (properties['Tags'] as { multi_select: { name: string }[] })?.multi_select?.map(
+        (tag: { name: string }) => tag.name
+      ) || [],
+    createdAt: (page as { created_time: string }).created_time,
+    updatedAt: (page as { last_edited_time: string }).last_edited_time,
+    brainstormingNotes:
+      (properties['Brainstorming Notes'] as { rich_text: { plain_text: string }[] })?.rich_text[0]?.plain_text || '',
+    dueDate: (properties['Due Date'] as { date: { start: string } })?.date?.start || null,
+    priority: (properties['Priority'] as { select: { name: string } })?.select?.name || null,
+    userId: (properties['User ID'] as { rich_text: { plain_text: string }[] })?.rich_text[0]?.plain_text || null,
   };
 };
 
@@ -65,6 +71,13 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
     ...logContext,
     ideaId: params.ideaId,
   });
+
+  const session = await auth(); // Get session
+  if (!session || !session.user || !session.user.id) {
+    logger.warn('[API][IdeaBrainstorm][POST] Unauthorized access attempt.', logContext);
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  (logContext as { user?: string }).user = session.user.id; // Add user ID to log context
 
   let ideaId: string | undefined; // Declare ideaId here
 
@@ -101,18 +114,20 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
     try {
       ideaPage = await notion.pages.retrieve({ page_id: ideaId });
     } catch (notionFetchError: unknown) {
+      const handledError = handleServerError(notionFetchError, { ...logContext, stage: 'notion_fetch' }); // Use handleServerError
       logger.error('[API][IdeaBrainstorm][NOTION_FETCH_ERROR] Error fetching idea from Notion.', {
         ...logContext,
         ideaId,
-        error: notionFetchError,
+        error: handledError.message,
+        stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to fetch idea from Notion.',
-          details: notionFetchError instanceof Error ? notionFetchError.message : String(notionFetchError),
+          error: handledError.message,
+          details: handledError.data,
         },
-        { status: 500 }
+        { status: handledError.status || 500 }
       );
     }
 
@@ -141,7 +156,7 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
     });
     // Construct prompt for LLM
     const llmPrompt = `
-      As an AI assistant, your task is to brainstorm and generate detailed, creative ideas related to the following prompt, focusing on expanding the concept of the idea. Ensure the output is well-structured and provides actionable insights or further questions. Provide different angles or perspectives.\n\n      Idea Title: ${idea.title}\n      Idea Description: ${idea.description || 'No description provided.'}\n      User Prompt: ${prompt}\n\n      Generate a comprehensive brainstorm response based on the above. Structure your response clearly.
+      As an AI assistant, your task is to brainstorm and generate detailed, creative ideas related to the following prompt, focusing on expanding the concept of the idea. Ensure the output is well-structured and provides actionable insights or further questions. Provide different angles or perspectives.\n\n      Idea Title: ${idea.title}\n      Idea Description: ${idea.description || 'No description provided.'}\n      User Prompt: ${prompt}\n\n      Generate a comprehensive brainstorm response based on the above.
     `;
 
     logger.debug('[API][IdeaBrainstorm][POST] Calling LLM for brainstorm content.', {
@@ -149,18 +164,20 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
       requestType: REQUEST_TYPES.IDEA_BRAINSTORM,
     });
     // Call LLM for brainstorm content
-    const llmResponse = await generateLLMResponse(REQUEST_TYPES.IDEA_BRAINSTORM, llmPrompt);
+    const llmResponse = await generateLLMResponse(REQUEST_TYPES.IDEA_BRAINSTORM, llmPrompt, session.user.id!); // Add userId
 
     let brainstormContent: string;
     if (llmResponse.success) {
       brainstormContent = llmResponse.content;
       logger.info('[API][IdeaBrainstorm][POST] LLM brainstorm content generated successfully.', logContext);
     } else {
+      const handledError = handleServerError(llmResponse.error, { ...logContext, stage: 'llm_generation' }); // Use handleServerError
       logger.error('[API][IdeaBrainstorm][POST] Failed to generate brainstorm content from LLM.', {
         ...logContext,
-        error: llmResponse.error,
+        error: handledError.message,
+        stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
-      throw new Error(llmResponse.error || 'Failed to generate brainstorm content from LLM.');
+      throw new HandledApplicationError(handledError.message, { ...handledError });
     }
 
     logger.debug('[API][IdeaBrainstorm][POST] Updating Notion page with brainstorm content.', {
@@ -189,10 +206,12 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
         ideaId,
       });
     } catch (notionUpdateError: unknown) {
+      const handledError = handleServerError(notionUpdateError, { ...logContext, stage: 'notion_update' }); // Use handleServerError
       logger.error('[API][IdeaBrainstorm][NOTION_UPDATE_ERROR] Error updating Notion page with brainstorm content.', {
         ...logContext,
         ideaId,
-        error: notionUpdateError,
+        error: handledError.message,
+        stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
       // Continue even if Notion update fails, as the brainstorm was generated.
     }
@@ -228,9 +247,11 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
         memoryPointId: memoryPoint.id,
       });
     } catch (memoryError: unknown) {
+      const handledError = handleServerError(memoryError, { ...logContext, stage: 'memory_storage' }); // Use handleServerError
       logger.error('[API][IdeaBrainstorm][MEMORY_STORAGE_ERROR] Error storing brainstorm in memory (Qdrant):', {
         ...logContext,
-        error: memoryError instanceof Error ? memoryError.message : String(memoryError),
+        error: handledError.message,
+        stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
       // Continue even if memory storage fails
     }
@@ -238,37 +259,15 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
     logger.info('[API][IdeaBrainstorm][POST] Brainstorm process completed successfully.', { ...logContext, ideaId });
     return NextResponse.json({ success: true, brainstorm: brainstormContent });
   } catch (error: unknown) {
-    let errorMessage = 'An unexpected error occurred';
-    let errorDetails: any = {};
-
-    if (error instanceof APIResponseError) {
-      errorMessage = `Notion API Error: ${error.message}`;
-      errorDetails = { code: error.code, status: error.status, body: error.body };
-      logger.error('[API][IdeaBrainstorm][NOTION_API_ERROR]', {
-        ...logContext,
-        error: errorMessage,
-        details: errorDetails,
-      });
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-      errorDetails = { stack: error.stack };
-      logger.error('[API][IdeaBrainstorm][GENERAL_ERROR]', {
-        ...logContext,
-        error: errorMessage,
-        details: errorDetails,
-      });
-    } else {
-      logger.error('[API][IdeaBrainstorm][UNKNOWN_ERROR]', { ...logContext, error: String(error) });
-    }
-
+    const handledError = handleServerError(error, { ...logContext, stage: 'overall_brainstorm_process' }); // Use handleServerError for overall catch
+    logger.error('[API][IdeaBrainstorm][FATAL_ERROR]', {
+      ...logContext,
+      error: handledError.message,
+      stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
+    });
     return NextResponse.json(
-      {
-        success: false,
-        error: errorMessage,
-        message: `Failed to brainstorm for idea ${ideaId || '[ID_UNKNOWN]'}: ${errorMessage}`,
-        details: errorDetails,
-      },
-      { status: 500 }
+      { success: false, error: handledError.message, details: handledError.data },
+      { status: handledError.status || 500 }
     );
   }
 }

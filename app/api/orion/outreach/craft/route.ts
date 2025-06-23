@@ -4,6 +4,7 @@ import { getPersonaById } from '@/lib/persona_service';
 import { fetchUserProfile } from '@/lib/profile_service';
 import { SearchMemoryResponse, ScoredMemoryPoint, UserProfileFetchResponse, CombinedLLMResponse } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -33,6 +34,12 @@ interface OutreachResponse {
  */
 export async function POST(req: NextRequest) {
   let llmContent: string = '';
+
+  const session = await auth();
+  if (!session || !session.user || !session.user.id) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  const userId = session.user.id;
 
   try {
     const body = (await req.json()) as OutreachRequest;
@@ -158,10 +165,10 @@ Write the complete ${communicationType} content, ready to send.
 
     // Generate outreach content using LLM
     try {
-      const llmResponse: CombinedLLMResponse = await generateLLMResponse('OUTREACH_CRAFT', prompt, {
-        profileContext: profileData, // Pass profileData directly
-        systemContext: '', // Pass systemContext directly
-        memoryResults: relevantMemories, // Pass the full ScoredMemoryPoint[] array
+      const llmResponse: CombinedLLMResponse = await generateLLMResponse('OUTREACH_CRAFT', prompt, userId, {
+        profileContext: profileData,
+        systemContext: '',
+        memoryResults: relevantMemories,
         temperature: 0.7,
         maxTokens: 1500,
       });

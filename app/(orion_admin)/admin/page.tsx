@@ -50,14 +50,14 @@ import Link from 'next/link';
 import { PageNames, SessionStateKeys } from '@/lib/constants';
 import logger from '@/lib/logger';
 import { useSessionState } from '@/hooks/useSessionState';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import useUserProfile from '@/hooks/useUserProfile';
 import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
 import { Badge } from '@/components/ui/badge';
 
 export default function AdminDashboardPage() {
   const { selectSessionValue } = useSessionState();
   const memoryInitialized = selectSessionValue<boolean>(SessionStateKeys.MEMORY_INITIALIZED);
-  const { profile, loading: profileLoading, error: profileError, refetch } = useUserProfile();
+  const { profile, isLoading: profileLoading, error: profileError, refetch } = useUserProfile();
 
   // Simple password protection
   const [username, setUsername] = useState('');
@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
             Welcome, {profileLoading ? 'loading...' : profile?.name || 'Architect'}!
           </CardTitle>
           <CardDescription className="text-gray-400">
-            {profileError ? `Error: ${profileError.message}` : 'Ready to conquer your goals?'}
+            {profileError ? `Error: ${profileError}` : 'Ready to conquer your goals?'}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -186,7 +186,7 @@ export default function AdminDashboardPage() {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-wrap gap-2">
-                      {profile.keySkills.map((skill, index) => (
+                      {profile.keySkills.map((skill: string, index: number) => (
                         <Badge key={index} variant="secondary" className="bg-blue-700 text-blue-200">
                           {skill}
                         </Badge>
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
                   </AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc list-inside space-y-1 text-gray-200">
-                      {profile.goals.map((goal, index) => (
+                      {profile.goals.map((goal: string, index: number) => (
                         <li key={index}>{goal}</li>
                       ))}
                     </ul>

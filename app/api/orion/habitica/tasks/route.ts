@@ -35,12 +35,6 @@ import logger from '@/lib/logger';
 
 const prisma = new PrismaClient();
 
-interface HabiticaTaskLinkRow {
-  orionSourceModule: string;
-  orionSourceReferenceId: string;
-  createdAt: Date; // Or string, depending on how dates are handled from DB
-}
-
 export async function POST(req: NextRequest) {
   const logContext = {
     route: '/api/orion/habitica/tasks',

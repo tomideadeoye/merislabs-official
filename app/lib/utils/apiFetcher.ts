@@ -28,7 +28,8 @@
 import { ApiErrorResponse } from '@/lib/types';
 import logger from '@/lib/logger';
 import { NextRequest } from 'next/server'; // Used for request.nextUrl.origin
-import { handleApiError } from '@/lib/utils/errorHandler'; // Import the new error handler
+import { handleClientError } from './clientErrorHandler'; // Changed from handleApiError
+import { toast } from 'react-hot-toast';
 
 interface ApiFetcherOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -96,8 +97,8 @@ export async function apiFetcher<T>(path: string, options: ApiFetcherOptions = {
       }
 
       const errorMessage = `[API_FETCHER][RESPONSE_ERROR] API request to ${path} failed with status ${response.status}: ${response.statusText}.`;
-      // Instead of throwing ApiErrorResponse directly, use the handleApiError to log and standardize
-      const handledApiError = handleApiError(
+      // Instead of throwing ApiErrorResponse directly, use the handleClientError to log and standardize
+      const handledError = handleClientError(
         {
           name: 'ApiError',
           message: errorMessage,
@@ -105,17 +106,37 @@ export async function apiFetcher<T>(path: string, options: ApiFetcherOptions = {
           data: errorData,
           rawContent: typeof errorData === 'string' ? errorData : JSON.stringify(errorData),
         },
-        logContext
+        { method, url, status: response.status }
       );
-      throw handledApiError.originalError; // Re-throw the original error to maintain current APIError handling flow
+      logger.error('[API_FETCHER][ERROR]', {
+        ...handledError, // Spread the HandledError properties
+        method,
+        url,
+        status: response.status,
+      });
+      throw handledError.originalError; // Re-throw the original error after logging and standardization
     }
 
     const data: T = await response.json();
     logger.info(`[API_FETCHER][SUCCESS] Request to ${path} successful.`, { status: response.status, ...logContext });
     return data;
   } catch (error: unknown) {
-    // Use the new error handler for all caught errors
-    const handledError = handleApiError(error, logContext);
+    if (error instanceof Error && error.name === 'UnauthorizedError') {
+      console.warn('[apiClient][ERROR] Unauthorized access. Redirecting to login.');
+      // In a client-side context, `window.location` is safe.
+      window.location.href = '/login';
+    }
+    const handledError = handleClientError(error, {
+      method,
+      url,
+      status: error instanceof Error ? error.name : undefined,
+    });
+    logger.error('[API_FETCHER][ERROR]', {
+      ...handledError, // Spread the HandledError properties
+      method,
+      url,
+      status: error instanceof Error ? error.name : undefined,
+    });
     throw handledError.originalError; // Re-throw the original error after logging and standardization
   }
 }

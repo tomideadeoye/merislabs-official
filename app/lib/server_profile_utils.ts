@@ -18,7 +18,7 @@ interface ProfileServiceRawData {
  * Fetches user profile data from the external Python profile service.
  * This function should only be called in a server environment.
  */
-export async function fetchLocalProfileData(logContext: any): Promise<UserProfileFetchResponse> {
+export async function fetchLocalProfileData(logContext: Record<string, unknown>): Promise<UserProfileFetchResponse> {
   try {
     logger.info('Attempting to fetch user profile from external Python service...', logContext);
 

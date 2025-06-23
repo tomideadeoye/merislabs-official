@@ -68,47 +68,220 @@ import {
   DAILY_REFLECTION_REQUEST_TYPE,
   THOUGHT_FOR_THE_DAY_REQUEST_TYPE,
 } from '@/lib/orion_config';
+import { LLMModelConfig, PreferredModels, LlmSettingsPayload } from '@/lib/types';
+import { Settings2, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { apiClient } from '@/lib/apiClient';
+import logger from '@/lib/logger';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { LLMModelConfig } from '@/lib/types';
-import { Sparkles, Settings2 } from 'lucide-react';
-import { Cog, Mail, Database, Cloud, Key } from 'lucide-react';
-import { EmailTestButton } from '@/components/ui/orion';
-
-// Define the structure for storing user-preferred models
-interface PreferredModels {
-  globalDefault?: string;
-  [requestType: string]: string | undefined; // Allows specific overrides per request type
-}
 
 const LLM_MODEL_PREFERENCES_KEY = 'orion_llm_model_preferences';
 
 export default function LlmModelSettings() {
-  const [preferences, setPreferences] = useLocalStorage<PreferredModels>(LLM_MODEL_PREFERENCES_KEY, {});
   const [currentSelections, setCurrentSelections] = useState<PreferredModels>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Initialize currentSelections state from preferences when component mounts
+  const [cachedSettings, setCachedSettings] = useLocalStorage<PreferredModels | null>(LLM_MODEL_PREFERENCES_KEY, null);
+
   useEffect(() => {
-    setCurrentSelections(preferences);
-  }, [preferences]);
+    const fetchLlmSettings = async () => {
+      logger.info('[LlmModelSettings][fetchLlmSettings][START]', { operation: 'fetchLlmSettings' });
+      setIsLoading(true);
+      setError(null);
+
+      // 1. Try to load from local storage first
+      if (cachedSettings) {
+        setCurrentSelections(cachedSettings);
+        logger.debug('[LlmModelSettings][fetchLlmSettings][LOCAL_STORAGE_LOAD]', {
+          cachedSettings,
+        });
+        setIsLoading(false); // Optimistically set loading to false
+      }
+
+      // 2. Fetch from API to get latest settings
+      try {
+        const response = await apiClient.get<{
+          success: boolean;
+          settings?: PreferredModels;
+          error?: string;
+        }>('/api/orion/llm-settings');
+
+        if (response.data.success && response.data.settings) {
+          const fetchedSettings = response.data.settings;
+          setCurrentSelections(fetchedSettings);
+          setCachedSettings(fetchedSettings); // Update local storage with latest
+          logger.success('[LlmModelSettings][fetchLlmSettings][SUCCESS]', { fetchedSettings });
+        } else {
+          // If no settings from API, and no cached settings, reset to empty
+          if (!cachedSettings) {
+            setCurrentSelections({});
+          }
+          logger.info('[LlmModelSettings][fetchLlmSettings][NO_SETTINGS] No settings found for user from API.');
+        }
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+        logger.error('[LlmModelSettings][fetchLlmSettings][API_ERROR]', { error: errorMessage, originalError: err });
+        // If API fails and no cached settings were loaded, show error
+        if (!cachedSettings) {
+          setError('Failed to load LLM settings. Please try again later.');
+          toast.error('Failed to load LLM settings.');
+        } else {
+          logger.warn(
+            '[LlmModelSettings][fetchLlmSettings][API_ERROR_WITH_CACHE] API fetch failed, but cached settings are available.',
+            {
+              error: errorMessage,
+            }
+          );
+          toast.error('Failed to fetch latest LLM settings. Using cached data.');
+        }
+      } finally {
+        setIsLoading(false);
+        logger.info('[LlmModelSettings][fetchLlmSettings][END]', { operation: 'fetchLlmSettings' });
+      }
+    };
+
+    fetchLlmSettings();
+  }, [cachedSettings, setCachedSettings]); // Added setCachedSettings to dependencies
 
   const handleGlobalDefaultChange = (value: string) => {
-    setCurrentSelections((prev) => ({ ...prev, globalDefault: value }));
+    setCurrentSelections((prev) => ({
+      ...prev,
+      globalDefault: value === '__DEFAULT__' ? undefined : value,
+    }));
+    logger.debug('[LlmModelSettings][handleGlobalDefaultChange]', { newGlobalDefault: value });
   };
 
   const handleRequestTypeChange = (requestType: string, value: string) => {
-    setCurrentSelections((prev) => ({ ...prev, [requestType]: value }));
+    setCurrentSelections((prev) => {
+      // Ensure requestTypeOverrides is an object before spreading
+      const currentOverrides = prev.requestTypeOverrides || {};
+      const newRequestTypeOverrides: Record<string, string | undefined> = {
+        ...currentOverrides,
+        [requestType]: value === '__DEFAULT__' ? undefined : value,
+      };
+
+      // Clean up undefined entries
+      Object.keys(newRequestTypeOverrides).forEach((key) => {
+        if (newRequestTypeOverrides[key] === undefined) {
+          delete newRequestTypeOverrides[key];
+        }
+      });
+
+      return {
+        ...prev,
+        requestTypeOverrides: Object.keys(newRequestTypeOverrides).length === 0 ? undefined : newRequestTypeOverrides,
+      };
+    });
+    logger.debug('[LlmModelSettings][handleRequestTypeChange]', { requestType, newValue: value });
   };
 
-  const handleSavePreferences = () => {
-    setPreferences(currentSelections);
-    // You might want to add a toast notification here for user feedback
-    console.log('[LLM_MODEL_SETTINGS] Preferences saved:', currentSelections);
+  const handleSavePreferences = async () => {
+    logger.info('[LlmModelSettings][handleSavePreferences][START]', { currentSelections });
+    setIsSaving(true);
+    setError(null);
+    toast.loading('Saving LLM preferences...');
+
+    try {
+      const payload: LlmSettingsPayload = {
+        globalDefaultModel: currentSelections.globalDefault,
+        requestTypeOverrides: currentSelections.requestTypeOverrides
+          ? (Object.fromEntries(Object.entries(currentSelections.requestTypeOverrides || {})) as Record<string, string>)
+          : undefined,
+      };
+
+      // Filter out undefined requestTypeOverrides to ensure a clean payload
+      if (payload.requestTypeOverrides) {
+        for (const key in payload.requestTypeOverrides) {
+          if (payload.requestTypeOverrides[key] === undefined) {
+            delete payload.requestTypeOverrides[key];
+          }
+        }
+        if (Object.keys(payload.requestTypeOverrides).length === 0) {
+          payload.requestTypeOverrides = undefined;
+        }
+      }
+
+      const response = await apiClient.patch<{
+        success: boolean;
+        message?: string;
+        error?: string;
+        settings?: PreferredModels; // Add settings to response type
+      }>('/api/orion/llm-settings', payload);
+
+      if (response.data.success) {
+        toast.success('LLM preferences saved successfully!');
+        logger.success('[LlmModelSettings][handleSavePreferences][SUCCESS]');
+        // Update local storage with the settings returned from the API
+        if (response.data.settings) {
+          setCurrentSelections(response.data.settings);
+          setCachedSettings(response.data.settings);
+          logger.debug('[LlmModelSettings][handleSavePreferences][LOCAL_STORAGE_UPDATE]', {
+            updatedSettings: response.data.settings,
+          });
+        } else {
+          // If API doesn't return settings, clear cache or use current client state
+          setCachedSettings(null);
+          logger.warn(
+            '[LlmModelSettings][handleSavePreferences][NO_SETTINGS_FROM_API] API did not return settings, clearing cache.'
+          );
+        }
+      } else {
+        logger.error('[LlmModelSettings][handleSavePreferences][API_ERROR]', { error: response.data.error });
+        throw new Error(response.data.error || 'Failed to save LLM preferences.');
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      logger.error('[LlmModelSettings][handleSavePreferences][ERROR]', { error: errorMessage, originalError: err });
+      setError('Failed to save LLM preferences. Please try again.');
+      toast.error(`Failed to save LLM preferences: ${errorMessage}`);
+    } finally {
+      setIsSaving(false);
+      toast.dismiss();
+      logger.info('[LlmModelSettings][handleSavePreferences][END]');
+    }
   };
 
-  const handleResetToDefaults = () => {
-    setPreferences({}); // Clears local storage, falling back to orion_config defaults
-    setCurrentSelections({});
-    console.log('[LLM_MODEL_SETTINGS] Preferences reset to application defaults.');
+  const handleResetToDefaults = async () => {
+    logger.info('[LlmModelSettings][handleResetToDefaults][START]');
+    setIsSaving(true);
+    setError(null);
+    toast.loading('Resetting LLM preferences...');
+
+    try {
+      const payload: LlmSettingsPayload = {
+        globalDefaultModel: undefined,
+        requestTypeOverrides: undefined,
+      };
+
+      const response = await apiClient.patch<{
+        success: boolean;
+        message?: string;
+        error?: string;
+        settings?: PreferredModels; // Add settings to response type
+      }>('/api/orion/llm-settings', payload);
+
+      if (response.data.success) {
+        const resetSettings = response.data.settings || {}; // Use response settings or empty
+        setCurrentSelections(resetSettings);
+        setCachedSettings(resetSettings); // Update local storage
+        toast.success('LLM preferences reset to application defaults.');
+        logger.success('[LlmModelSettings][handleResetToDefaults][SUCCESS]', { resetSettings });
+      } else {
+        logger.error('[LlmModelSettings][handleResetToDefaults][API_ERROR]', { error: response.data.error });
+        throw new Error(response.data.error || 'Failed to reset LLM preferences.');
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      logger.error('[LlmModelSettings][handleResetToDefaults][ERROR]', { error: errorMessage, originalError: err });
+      setError('Failed to reset LLM preferences. Please try again.');
+      toast.error(`Failed to reset LLM preferences: ${errorMessage}`);
+    } finally {
+      setIsSaving(false);
+      toast.dismiss();
+      logger.info('[LlmModelSettings][handleResetToDefaults][END]');
+    }
   };
 
   const requestTypes = [
@@ -134,88 +307,112 @@ export default function LlmModelSettings() {
     return model ? model.name : modelId;
   };
 
+  if (isLoading) {
+    return (
+      <Card className="bg-gray-800 border-gray-700 text-gray-200">
+        <CardContent className="flex flex-col items-center justify-center h-48">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-400" />
+          <p className="mt-4 text-lg">Loading LLM Settings...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="bg-gray-800 border-gray-700 text-gray-200">
+        <CardContent className="flex flex-col items-center justify-center h-48 text-red-500">
+          <p className="text-lg">Error: {error}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-gray-800 border-gray-700 text-gray-200">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-blue-400">
-          <Settings2 className="h-6 w-6" /> LLM Model Settings
+        <CardTitle className="flex items-center space-x-2">
+          <Settings2 size={20} />
+          <span>LLM Model Preferences</span>
         </CardTitle>
         <CardDescription className="text-gray-400">
-          Configure default and specific AI models for various Orion tasks.
+          Configure your preferred Large Language Models for different tasks. These settings will be applied across
+          Orion for AI-driven features.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Global Default Model */}
-        <div>
-          <Label htmlFor="global-default-model" className="text-gray-300 mb-2 block">
-            <Sparkles className="inline-block h-4 w-4 mr-1 text-yellow-400" /> Global Default Model
+      <CardContent>
+        {error && <p className="text-red-500 mb-4">Error: {error}</p>}
+
+        <div className="mb-6">
+          <Label htmlFor="global-default-model" className="block text-sm font-medium text-gray-300 mb-2">
+            Global Default Model
           </Label>
-          <Select onValueChange={handleGlobalDefaultChange} value={currentSelections.globalDefault || ''}>
-            <SelectTrigger id="global-default-model" className="w-full bg-gray-700 text-gray-200 border-gray-600">
+          <Select value={currentSelections.globalDefault || '__DEFAULT__'} onValueChange={handleGlobalDefaultChange}>
+            <SelectTrigger id="global-default-model" className="w-full bg-gray-700 border-gray-600 text-gray-100">
               <SelectValue placeholder="Select a global default model" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-700 text-gray-200 border-gray-600">
-              <SelectItem value="">Use application default (from config)</SelectItem>
+            <SelectContent className="bg-gray-700 border-gray-600 text-gray-100">
+              <SelectItem value="__DEFAULT__">Application Default</SelectItem>
               {AVAILABLE_LLM_MODELS.map((model: LLMModelConfig) => (
                 <SelectItem key={model.id} value={model.id}>
-                  {model.name} ({model.provider})
-                  {model.supportsTools && <span className="ml-2 text-xs text-green-400">[Tools]</span>}
-                  {model.supportsJson && <span className="ml-1 text-xs text-purple-400">[JSON]</span>}
+                  {model.name} ({model.id})
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <p className="text-sm text-gray-400 mt-1">This model will be used unless a specific override is set below.</p>
+          <p className="text-xs text-gray-400 mt-1">
+            This model will be used for all tasks unless a specific override is set below.
+          </p>
         </div>
 
-        {/* Request Type Overrides */}
+        <h3 className="text-lg font-semibold text-gray-100 mb-4">Request Type Overrides</h3>
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-200 border-b border-gray-700 pb-2">
-            <Sparkles className="inline-block h-5 w-5 mr-1 text-yellow-400" /> Specific Task Overrides
-          </h3>
           {requestTypes.map((type) => (
-            <div key={type.id}>
-              <Label htmlFor={`model-${type.id}`} className="text-gray-300 mb-2 block">
+            <div key={type.id} className="flex flex-col">
+              <Label htmlFor={`model-${type.id}`} className="block text-sm font-medium text-gray-300 mb-2">
                 {type.name}
               </Label>
               <Select
+                value={currentSelections.requestTypeOverrides?.[type.id] || '__DEFAULT__'}
                 onValueChange={(value) => handleRequestTypeChange(type.id, value)}
-                value={currentSelections[type.id] || ''}
               >
-                <SelectTrigger id={`model-${type.id}`} className="w-full bg-gray-700 text-gray-200 border-gray-600">
-                  <SelectValue
-                    placeholder={`Use global default (${getModelDisplayName(currentSelections.globalDefault || preferences.globalDefault)})`}
-                  />
+                <SelectTrigger id={`model-${type.id}`} className="w-full bg-gray-700 border-gray-600 text-gray-100">
+                  <SelectValue placeholder={`Select model for ${type.name}`} />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-700 text-gray-200 border-gray-600">
-                  <SelectItem value="">
-                    Use Global Default (
-                    {getModelDisplayName(currentSelections.globalDefault || preferences.globalDefault)})
+                <SelectContent className="bg-gray-700 border-gray-600 text-gray-100">
+                  <SelectItem value="__DEFAULT__">
+                    Global Default ({getModelDisplayName(currentSelections.globalDefault)})
                   </SelectItem>
                   {AVAILABLE_LLM_MODELS.map((model: LLMModelConfig) => (
                     <SelectItem key={model.id} value={model.id}>
-                      {model.name} ({model.provider})
-                      {model.supportsTools && <span className="ml-2 text-xs text-green-400">[Tools]</span>}
-                      {model.supportsJson && <span className="ml-1 text-xs text-purple-400">[JSON]</span>}
+                      {model.name} ({model.id})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-gray-400 mt-1">Override the global default for {type.name} tasks.</p>
             </div>
           ))}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4 pt-4">
-          <Button onClick={handleSavePreferences} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
-            Save Preferences
-          </Button>
+        <div className="mt-8 flex justify-end space-x-4">
           <Button
             onClick={handleResetToDefaults}
+            disabled={isSaving || isLoading}
             variant="outline"
-            className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="border-gray-600 text-gray-200 hover:bg-gray-700"
           >
-            Reset to App Defaults
+            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Reset to Application Defaults
+          </Button>
+          <Button
+            onClick={handleSavePreferences}
+            disabled={isSaving || isLoading}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Save Preferences
           </Button>
         </div>
       </CardContent>

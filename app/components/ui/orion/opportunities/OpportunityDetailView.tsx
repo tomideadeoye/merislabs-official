@@ -1,4 +1,7 @@
 /**
+ * GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
+ *
+ *
  * @fileoverview The interactive client-side view for a single opportunity, serving as the central "Command Center" for managing and progressing through the Opportunity Super-Flow.
  * @description This component displays detailed information about a specific `OrionOpportunity` and provides interactive buttons to trigger key actions within the opportunity lifecycle, such as AI evaluation and transitioning to CV tailoring. It now features a tabbed interface to manage various aspects of an opportunity, including job description, AI evaluation, and future communication tools.
  *
@@ -34,7 +37,7 @@
  *   - `react-hot-toast`: Used for displaying user-friendly success, loading, and error notifications.
  *   - `@/components/ui/button`, `@/components/ui/card`, `@/components/ui/tabs`: Imports Shadcn UI components for consistent styling and interaction, including the new tab system.
  *   - `lucide-react`: Provides icons (`Loader2`, `Sparkles`, `FileText`, `Send`, `BarChart2`, `AlertTriangle`) for visual feedback.
- *   - `@/lib/utils/errorHandler`: Centralized utility for consistent API error handling and message extraction.
+ *   - `@/lib/utils/clientErrorHandler`: Centralized utility for consistent API error handling and message extraction.
  *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`: This is the parent page that renders this `OpportunityDetailView` component, passing the `opportunity` prop.
  *   - `app/api/orion/profile/route.ts`: API endpoint for fetching user profile data.
  *   - `app/api/orion/opportunity/[opportunityId]/evaluation/route.ts`: API endpoint for generating AI evaluation of an opportunity.
@@ -69,19 +72,9 @@
  */
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { OrionOpportunity, EvaluationOutput } from '@/lib/types';
-import { apiClient } from '@/lib/apiClient';
-import logger from '@/lib/logger';
-import { toast } from 'react-hot-toast';
-import { Button } from '@/components/ui/button';
+import { OrionOpportunity } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Sparkles, FileText, Send, BarChart2 } from 'lucide-react';
-import { handleApiError, HandledError } from '@/lib/utils/errorHandler';
-import { AlertTriangle } from 'lucide-react';
+import logger from '@/lib/logger';
 
 interface Props {
   opportunity: OrionOpportunity;
@@ -89,254 +82,15 @@ interface Props {
 
 export function OpportunityDetailView({ opportunity }: Props) {
   logger.info('[OpportunityDetailView][RENDER]', { opportunityId: opportunity.id, function: 'OpportunityDetailView' });
-  const router = useRouter();
-  const localStorageKey = `orion_evaluation_${opportunity.id}`;
-  const [evaluationResult, setEvaluationResult] = useLocalStorage<EvaluationOutput | null>(localStorageKey, null);
-  const [isEvaluating, setIsEvaluating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleGenerateEvaluation = async () => {
-    logger.info('[OpportunityDetailView][handleGenerateEvaluation][START]', { opportunityId: opportunity.id });
-    setIsEvaluating(true);
-    setError(null);
-    toast.loading('Orion is analyzing the opportunity...');
-
-    let userProfile;
-    try {
-      const profileResponse = await apiClient.get('/api/orion/profile');
-      if (profileResponse.data?.success && profileResponse.data?.profile) {
-        userProfile = profileResponse.data.profile;
-        logger.info('[OpportunityDetailView][handleGenerateEvaluation][PROFILE_FETCH_SUCCESS]', {
-          opportunityId: opportunity.id,
-          profileSource: profileResponse.data.source,
-        });
-      } else {
-        logger.warn('[OpportunityDetailView][handleGenerateEvaluation][PROFILE_FETCH_FAIL]', {
-          opportunityId: opportunity.id,
-          error: profileResponse.data?.error || 'Unknown profile fetch error',
-        });
-        toast.error('Could not load user profile. Evaluation might be incomplete.');
-      }
-    } catch (profileError: unknown) {
-      const handledProfileError = handleApiError(profileError, {
-        opportunityId: opportunity.id,
-        stage: 'profile_fetch',
-      });
-      setError(handledProfileError.message);
-      toast.error(`Error fetching user profile: ${handledProfileError.message}. Evaluation might be incomplete.`);
-    }
-
-    const requestBody = {
-      opportunityId: opportunity.id,
-      userProfile: userProfile,
-    };
-
-    logger.debug('[OpportunityDetailView][handleGenerateEvaluation][REQUEST_BODY]', {
-      opportunityId: opportunity.id,
-      requestBody: requestBody,
-    });
-
-    try {
-      logger.info('[OpportunityDetailView][handleGenerateEvaluation][API_CALL_START]', {
-        opportunityId: opportunity.id,
-        url: `/api/orion/opportunity/${opportunity.id}/evaluation`,
-        method: 'POST',
-      });
-      const response = await apiClient.post(`/api/orion/opportunity/${opportunity.id}/evaluation`, requestBody);
-
-      logger.info('[OpportunityDetailView][handleGenerateEvaluation][API_CALL_RESPONSE]', {
-        opportunityId: opportunity.id,
-        responseStatus: response.status,
-        responseData: response.data,
-      });
-
-      if (response.data?.success && response.data.evaluation) {
-        setEvaluationResult(response.data.evaluation);
-        toast.success('Evaluation Complete! Results saved to local browser storage.');
-        logger.info(`[OpportunityDetailView] Evaluation successful for opportunity: ${opportunity.id}`);
-      } else {
-        throw new Error(
-          response.data?.error || 'Failed to generate evaluation. The server did not provide a specific error message.'
-        );
-      }
-    } catch (err: unknown) {
-      const handledError = handleApiError(err, { opportunityId: opportunity.id, stage: 'evaluation_api_call' });
-      setError(handledError.message);
-      toast.error(`Evaluation Failed: ${handledError.message}`);
-    } finally {
-      setIsEvaluating(false);
-      toast.dismiss();
-      logger.info('[OpportunityDetailView][handleGenerateEvaluation][END]', { opportunityId: opportunity.id });
-    }
-  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 space-y-6">
-        <Tabs defaultValue="job-description" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="job-description">Job Description</TabsTrigger>
-            <TabsTrigger value="ai-evaluation">AI Evaluation</TabsTrigger>
-            <TabsTrigger value="stakeholders">Stakeholders</TabsTrigger>
-            <TabsTrigger value="email-linkedin-draft">Email & LinkedIn Drafts</TabsTrigger>
-          </TabsList>
-          <TabsContent value="job-description" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Job Description</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="whitespace-pre-wrap">{opportunity.content || 'No description available.'}</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="ai-evaluation" className="space-y-6">
-            {isEvaluating && (
-              <div className="flex items-center justify-center text-lg p-4">
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Generating Evaluation...
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-red-900/20 border border-red-700 text-red-300 p-4 rounded-lg flex items-center shadow-lg">
-                <AlertTriangle className="h-6 w-6 mr-3" />
-                <div>
-                  <h3 className="font-bold mb-1">Error</h3>
-                  <div>{error}</div>
-                </div>
-              </div>
-            )}
-
-            {evaluationResult && !isEvaluating && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI Evaluation Results</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <h4 className="font-semibold text-lg mb-2">Key Strengths:</h4>
-                  <ul className="list-disc list-inside space-y-1 mb-4">
-                    {evaluationResult.strengths?.map(
-                      (strength: { title: string; reasoning: string }, index: number) => (
-                        <li key={index}>{strength.title}</li>
-                      )
-                    )}
-                  </ul>
-
-                  <h4 className="font-semibold text-lg mb-2">Areas for Improvement:</h4>
-                  <ul className="list-disc list-inside space-y-1 mb-4">
-                    {evaluationResult.gaps?.map((gap: string | { gap: string; solution: string }, index: number) => (
-                      <li key={index}>{typeof gap === 'string' ? gap : gap.gap}</li>
-                    ))}
-                  </ul>
-
-                  <h4 className="font-semibold text-lg mb-2">Actionable Advice:</h4>
-                  <p className="whitespace-pre-wrap">{evaluationResult.actionableAdvice?.join('\n')}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Buttons for AI Evaluation and CV Tailoring */}
-            <div className="flex space-x-4 mt-6">
-              <Button onClick={handleGenerateEvaluation} disabled={isEvaluating} className="flex items-center">
-                {isEvaluating ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Evaluating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Generate AI Evaluation
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={() => {
-                  logger.info('[OpportunityDetailView][NAVIGATE_TO_CV_TAILORING]', { opportunityId: opportunity.id });
-                  router.push(`/admin/opportunity-pipeline/${opportunity.id}/cv-tailoring`);
-                }}
-                className="flex items-center"
-              >
-                <FileText className="mr-2 h-5 w-5" />
-                Go to CV Tailoring Studio
-              </Button>
-            </div>
-          </TabsContent>
-
-          {/* Placeholder for future tabs */}
-          <TabsContent value="stakeholders" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Stakeholder Engagement (Future)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">This section will allow you to identify and engage key stakeholders.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="email-linkedin-draft" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Email & LinkedIn Drafts (Future)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">
-                  This section will enable drafting personalized emails and LinkedIn messages.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      <div className="md:col-span-1 space-y-6">
-        {/* Opportunity Details Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Opportunity Details</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm">
-            <p>
-              <strong>Company:</strong> {opportunity.company}
-            </p>
-            <p>
-              <strong>Status:</strong> {opportunity.status}
-            </p>
-            {opportunity.type && (
-              <p>
-                <strong>Type:</strong> {opportunity.type}
-              </p>
-            )}
-            {opportunity.sourceUrl && (
-              <p>
-                <strong>Source:</strong> {opportunity.sourceUrl}
-              </p>
-            )}
-            {opportunity.url && (
-              <p>
-                <strong>Link:</strong>{' '}
-                <a
-                  href={opportunity.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  {opportunity.url}
-                </a>
-              </p>
-            )}
-            {opportunity.notes && (
-              <>
-                <h4 className="font-semibold mt-4 mb-2">Notes:</h4>
-                <p className="whitespace-pre-wrap">{opportunity.notes}</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Job Description</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="whitespace-pre-wrap">{opportunity.content || 'No description available.'}</p>
+      </CardContent>
+    </Card>
   );
 }

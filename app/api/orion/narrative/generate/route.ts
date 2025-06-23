@@ -15,6 +15,7 @@ import {
 import { searchMemory } from '@/lib/orion_memory';
 import { fetchUserProfile } from '@/lib/profile_service';
 import { generateLLMResponse } from '@/lib/orion_llm';
+import { auth } from '@/auth';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -25,6 +26,11 @@ import { generateLLMResponse } from '@/lib/orion_llm';
 export async function POST(req: NextRequest): Promise<NextResponse<NarrativeGenerationResponse>> {
   let llmContent: string = ''; // Initialize to prevent "used before assigned"
   try {
+    const session = await auth();
+    if (!session || !session.user || !session.user.id) {
+      console.error('[NARRATIVE_GENERATE][AUTH_FAIL] Unauthorized access attempt.');
+      return NextResponse.json({ success: false, error: 'Unauthorized', generatedNarrative: '' }, { status: 401 });
+    }
     const body = (await req.json()) as NarrativeGenerationRequest;
     const {
       narrativeType,
@@ -174,7 +180,7 @@ Write the complete ${narrativeType.replace(/_/g, ' ')} content, ready to use.
     // Generate narrative content using LLM
     let llmResponse: CombinedLLMResponse;
     try {
-      llmResponse = await generateLLMResponse('NARRATIVE_GENERATION', prompt, {
+      llmResponse = await generateLLMResponse('NARRATIVE_GENERATION', prompt, session.user.id!, {
         profileContext: profileData?.profileText || '',
         systemContext: '',
         memoryResults: relevantMemories,

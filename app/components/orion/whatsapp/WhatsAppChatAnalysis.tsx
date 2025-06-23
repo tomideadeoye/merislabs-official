@@ -1,4 +1,7 @@
 /**
+ * GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
+ *
+ *
  * @fileoverview This component is responsible for visually displaying the analytical results and insights derived from uploaded WhatsApp chat data.
  * @description It transforms raw chat transcripts, processed by Orion's backend (`orion_chat_analyzer.py`),
  *   into a structured and human-readable representation, highlighting communication patterns, key statistics,

@@ -52,10 +52,10 @@ import {
   OpportunityPriority,
   OrionOpportunity,
   OpportunityNotionOutputlib,
-  CVComponent,
   JournalEntryNotionInput,
   Contact,
 } from '@/lib/types';
+import { CVComponent } from '@/lib/types/cv';
 import {
   RichTextItemResponse,
   PageObjectResponse,
@@ -885,6 +885,7 @@ export async function getCVComponentsFromNotion(): Promise<CVComponent[]> {
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         associatedCompanyInstitution: associatedCompanyInstitution || undefined,
+        userId: 'orion_default_user', // Add a default userId to satisfy the CVComponent interface
       };
     });
 

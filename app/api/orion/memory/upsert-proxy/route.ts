@@ -37,7 +37,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
-import { handleApiError, HandledError } from '@/lib/utils/errorHandler';
+import { handleApiError } from '@/lib/utils/errorHandler';
 
 /**
  * Proxy endpoint for upserting memory

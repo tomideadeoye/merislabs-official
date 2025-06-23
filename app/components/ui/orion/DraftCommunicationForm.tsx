@@ -35,7 +35,7 @@ function DraftCommunicationForm({ profileData }: DraftCommunicationFormProps) {
   useEffect(() => {
     async function fetchModels() {
       try {
-        const response = await apiClient.get('/orion/models');
+        const response = await apiClient.get('/api/orion/llm/models');
         if (response.data.success) {
           setModelList(response.data.models);
           if (response.data.models.length > 0) {

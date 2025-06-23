@@ -1,4 +1,5 @@
-import { suggestCVComponents, rephraseComponent, tailorSummary, assembleCV, CVComponent } from '@/lib/cv';
+import { suggestCVComponents, rephraseComponent, tailorSummary, assembleCV } from '@/lib/cv';
+import { CVComponent } from '@/lib/types/cv';
 import { useState, useCallback } from 'react';
 
 export function useCVTailoring() {
@@ -156,7 +157,7 @@ export function useCVTailoring() {
   // Helper to get a component by ID
   const getComponentById = useCallback(
     (id: string) => {
-      return components.find((c) => c.unique_id === id);
+      return components.find((c) => c.uniqueId === id);
     },
     [components]
   );

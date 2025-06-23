@@ -53,15 +53,14 @@
  */
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useSessionState } from '@/hooks/useSessionState';
-import { SessionStateKeys, PageNames } from '@/lib/constants'; // Import PageNames
+import { SessionStateKeys } from '@/lib/constants'; // Import PageNames
 import WhatsAppChatAnalysis from '@/components/orion/whatsapp/WhatsAppChatAnalysis';
 import DraftCommunicationForm from '@/components/ui/orion/DraftCommunicationForm';
 import WhatsAppReplyDrafter from '@/components/ui/orion/whatsapp/WhatsAppReplyDrafter';
+import CommunicationPatternsAnalyzer from '@/components/orion/whatsapp/CommunicationPatternsAnalyzer'; // New import
 import { UserProfileData } from '@/lib/types';
-import { PageHeader } from '@/components/ui'; // Import PageHeader
-import { Users } from 'lucide-react'; // Import Users icon
 import { TabsContent } from '@/components/ui'; // Import TabsContent
 import WhatsAppChatUploader from '@/components/orion/whatsapp/WhatsAppChatUploader';
 import { WhatsAppChatAnalysisData } from '@/components/orion/whatsapp/WhatsAppChatAnalysis'; // Import the interface
@@ -111,6 +110,12 @@ export default function DraftCommunicationClientWrapper({ selectedTab }: DraftCo
             <WhatsAppChatUploader onTranscriptUploaded={handleTranscriptUploaded} />
             <WhatsAppChatAnalysis analysisData={analysisData} />
           </div>
+        </TabsContent>
+      )}
+
+      {selectedTab === 'communication-patterns' && (
+        <TabsContent value="communication-patterns">
+          <CommunicationPatternsAnalyzer />
         </TabsContent>
       )}
     </>

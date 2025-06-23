@@ -9,7 +9,7 @@
  *   - To interact with `app/lib/opportunity_db_service.ts` for database operations (list and create).
  *   - To manage the creation of associated stakeholders directly within the POST request.
  *   - To provide consistent logging and error handling for all operations.
- *
+ *add notees comments everywhere
  * FILEPATH: `app/api/orion/opportunities/route.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
@@ -40,7 +40,7 @@
  *   - **Transaction for Stakeholders**: While `Promise.all` works, wrapping opportunity and stakeholder creation in a single Prisma transaction would ensure atomicity (either both succeed or both fail), preventing orphaned records in case of a partial failure.
  *   - **Type Inference Robustness**: Further ensure that Zod schema infers types (`z.infer`) are robustly used throughout the logic to catch potential discrepancies early.
  *   - **Test Coverage**: Implement comprehensive unit and integration tests for both `GET` and `POST` endpoints, covering valid inputs, invalid inputs, edge cases, and error scenarios.
- *
+ * dry principle
  * OPPORTUNITIES TO CONSOLIDATE:
  *   - If similar patterns for creating associated nested records (like stakeholders) emerge for other entities, consider abstracting this pattern into a reusable utility.
  *   - This route is already a consolidation point for listing and creating opportunities, avoiding separate API routes for each operation on the collection.
@@ -51,6 +51,8 @@ import { z } from 'zod';
 import { OpportunityStatus, OpportunityType, OpportunityPriority } from '@/lib/types';
 import { listOpportunitiesFromDb, createOpportunityInDb } from '@/lib/opportunity_db_service';
 import { PrismaClient } from '@/generated/prisma';
+import { HandledApplicationError } from '@/lib/utils/errorHandler';
+import { handleServerError } from '@/lib/utils/serverErrorHandler';
 
 const prisma = new PrismaClient();
 
@@ -109,21 +111,35 @@ export async function GET() {
 
   try {
     const opportunities = await listOpportunitiesFromDb();
+
+    if (opportunities instanceof HandledApplicationError) {
+      logger.error('[OPPORTUNITY_API][GET_LIST][ERROR] Received HandledApplicationError from DB service.', {
+        ...logContext,
+        error: opportunities.message,
+        name: opportunities.type ?? 'UnknownHandledError', // Access name directly
+        details: opportunities.data ?? opportunities.originalError ?? 'No specific details provided',
+      });
+      return NextResponse.json(
+        { success: false, error: opportunities.message, details: opportunities.data ?? 'Unknown error' },
+        { status: opportunities.status || 500 }
+      );
+    }
+
     logger.info('[OPPORTUNITY_API][GET_LIST][SUCCESS] Successfully fetched opportunities.', {
       ...logContext,
-      count: opportunities.length,
+      count: opportunities.length, // Now 'opportunities' is guaranteed to be OrionOpportunity[]
     });
     return NextResponse.json(opportunities);
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const handledError = handleServerError(error, logContext);
     logger.error('[OPPORTUNITY_API][GET_LIST][ERROR] Failed to fetch opportunities.', {
       ...logContext,
-      error: errorMessage,
-      stack: error instanceof Error ? error.stack : 'N/A',
+      error: handledError.message,
+      stack: handledError.originalError instanceof Error ? handledError.originalError.stack : 'N/A',
     });
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch opportunities', details: errorMessage },
-      { status: 500 }
+      { success: false, error: 'Failed to fetch opportunities', details: handledError.message },
+      { status: handledError.status || 500 }
     );
   }
 }
@@ -202,21 +218,21 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(newOpportunity, { status: 201 });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const handledError = handleServerError(error, logContext);
     logger.error('[OPPORTUNITY_API][POST_CREATE][ERROR] Failed to create opportunity.', {
       ...logContext,
-      error: errorMessage,
-      stack: error instanceof Error ? error.stack : 'N/A',
+      error: handledError.message,
+      stack: handledError.originalError instanceof Error ? handledError.originalError.stack : 'N/A',
     });
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid opportunity data', details: error.errors },
+        { success: false, error: 'Invalid opportunity data', details: handledError.data },
         { status: 400 }
       );
     }
     return NextResponse.json(
-      { success: false, error: 'Failed to create opportunity', details: errorMessage },
-      { status: 500 }
+      { success: false, error: 'Failed to create opportunity', details: handledError.message },
+      { status: handledError.status || 500 }
     );
   }
 }

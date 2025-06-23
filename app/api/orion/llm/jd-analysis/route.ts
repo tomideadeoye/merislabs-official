@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CombinedLLMResponse } from '@/lib/types';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import logger from '@/lib/logger';
+import { auth } from '@/auth'; // Import auth
 
 /**
  * API route for performing Job Description (JD) analysis using LLM.
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth(); // Get session
+    if (!session || !session.user || !session.user.id) {
+      logger.warn('[JD_ANALYSIS_API][AUTH_FAIL] Unauthorized access attempt.');
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { job_description, opportunity_title, company_name } = body; // Expect job_description, and optionally title/company
 
@@ -31,9 +38,14 @@ export async function POST(req: NextRequest) {
     logger.info('[JD_ANALYSIS_API] Sending JD analysis prompt to LLM...');
 
     try {
-      const llmResponse: CombinedLLMResponse = await generateLLMResponse(REQUEST_TYPES.JD_ANALYSIS, prompt, {
-        maxTokens: 1000, // Only pass defined options
-      });
+      const llmResponse: CombinedLLMResponse = await generateLLMResponse(
+        REQUEST_TYPES.JD_ANALYSIS,
+        prompt,
+        session.user.id!, // Add userId here
+        {
+          maxTokens: 1000, // Only pass defined options
+        }
+      );
 
       if (!llmResponse.success) {
         // Handle LLM failure

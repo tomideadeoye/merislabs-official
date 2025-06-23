@@ -28,36 +28,38 @@
 
 import type { HabiticaTask } from './habitica';
 import { Prisma } from '@/generated/prisma';
+import { MemoryMetadataPayload, ScoredMemoryPoint } from './memory';
+import { CvAutoGenerateOutput } from './llm'; // Import the new type
 
-// Explicitly export types to avoid duplicate identifier errors
-export * from './blocks';
-export * from './habitica';
-export * from './ideas';
-export * from './insights';
-export * from './llm';
-export * from './narrative-clarity';
-export * from './nav';
-export * from './strategic-outreach';
-export * from './memory';
-export * from './email';
-export * from './gamification';
-
-// Explicitly export types to avoid duplicate identifier errors
-export * from './blocks';
-export * from './habitica';
-export * from './ideas';
-export * from './insights';
-export * from './llm';
-export * from './narrative-clarity';
-export * from './nav';
-export * from './strategic-outreach';
-export * from './memory';
-export * from './email';
+// Explicitly export types for isolatedModules compliance
+export type * from './blocks';
+export type * from './habitica';
+export type * from './ideas';
+export type * from './insights';
+export type * from './llm';
+export type * from './narrative-clarity';
+export type * from './nav';
+export type * from './strategic-outreach';
+export type * from './memory';
+export type * from './email';
+export type * from './gamification';
 
 export interface LLMAPIKeyStatus {
   modelId: string;
   present: boolean;
   reason?: string;
+}
+
+// Define the structure for storing user-preferred models
+export interface PreferredModels {
+  globalDefault?: string;
+  requestTypeOverrides?: Record<string, string | undefined>; // Allows specific overrides per request type
+}
+
+// Define the payload for updating LLM settings via API
+export interface LlmSettingsPayload {
+  globalDefaultModel?: string;
+  requestTypeOverrides?: Record<string, string>; // Ensure this aligns with JSON storage
 }
 
 // NOTE: If any types were intended to be defined in ./orion.ts but that file does not exist,
@@ -110,7 +112,7 @@ export interface OrionOpportunity {
   cvComponentSuggestions: { component: string; reasoning: string }[] | null;
   alignmentScore: number | null | undefined; // Ensure optional and nullable
   actionableAdvice: string[] | null;
-  applicationMaterialIds?: string[]; // Made optional, but must be string[] if present
+  applicationMaterialIds: string[] | null; // Changed to allow null for consistency with database
   [key: string]: unknown; // Changed from any to unknown for broader type safety
 }
 
@@ -243,7 +245,7 @@ export interface UserProfileData {
   contactInfo: { phone?: string; address?: string };
   summary?: string; // Add summary as optional
   profileText?: string;
-  source?: 'notion' | 'local'; // Used in evaluation/route.ts
+  source?: 'notion' | 'local' | 'external_service' | 'none' | 'error'; // Updated to include all possible source types
   backgroundSummary?: string;
   keySkills?: string[];
   location?: string; // Used in draft-application/route.ts
@@ -335,6 +337,13 @@ export interface CareerMilestone {
   impact?: string;
   unique_id?: string;
   notionPageId?: string;
+  quantifiableResults?: string;
+  lessonsLearned?: string;
+  challengesFaced?: string;
+  keyTakeaways?: string;
+  associatedSkills?: string[];
+  recognitionAwards?: string[];
+  status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
 }
 
 export interface JournalEntryNotionInput {
@@ -395,13 +404,6 @@ export interface MemoryPoint {
   payload: MemoryPayload;
 }
 
-export interface ScoredMemoryPoint {
-  id?: string;
-  score: number;
-  payload: MemoryPayload; // Use the harmonized MemoryPayload
-  vector?: number[];
-}
-
 export interface QdrantFilterCondition {
   key: string;
   match?: {
@@ -452,6 +454,7 @@ export interface OpportunityUpdatePayload {
   location?: string | null;
   salary?: string | null;
   position?: string | null;
+  tailoredCv?: string | null;
 }
 
 export interface OpportunityCreatePayload {
@@ -526,22 +529,6 @@ export interface OpportunityNotionOutputlib {
   salary?: string | null;
   notionPageId?: string | null;
   [key: string]: unknown; // Add index signature
-}
-
-export interface CVComponent {
-  id: string;
-  name: string;
-  content: Prisma.JsonValue | null;
-  type: string;
-  keywords?: string[];
-  uniqueId?: string | null;
-  notionPageId?: string;
-  componentName?: string; // Used in load-cv-data/route.ts
-  componentType?: string; // Used in load-cv-data/route.ts and NotionCVComponentsList.tsx
-  contentPrimary?: string; // Used in load-cv-data/route.ts
-  startDate?: string | null; // Used in load-cv-data/route.ts
-  endDate?: string | null; // Used in load-cv-data/route.ts
-  associatedCompanyInstitution?: string; // Used in load-cv-data/route.ts
 }
 
 export interface OpportunityNotionInput {
@@ -667,11 +654,15 @@ export interface Agent {
 
 export interface Task {
   id: string;
-  description: string;
-  agentId?: string;
-  expected_output: string;
-  tools?: string[];
-  async?: boolean;
+  userId: string;
+  title: string;
+  description?: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  steps: TaskStep[];
 }
 
 export interface Crew {
@@ -986,7 +977,7 @@ export interface Stakeholder {
   id: string;
   name: string;
   title: string;
-  company: string;
+  company?: string;
   email?: string;
   linkedinUrl?: string;
   role?: string;
@@ -1070,11 +1061,15 @@ export interface LLMResponseSuccess {
   temperature: number;
   maxTokens: number;
   tool_calls?: LLMToolCall[];
+  memoryResults?: ScoredMemoryPoint[];
+  structuredResponse?: CvAutoGenerateOutput; // Added for structured LLM outputs like CV auto-generation
 }
 
 export interface LLMResponseFailure {
   success: false;
   error?: string;
+  content?: string; // Add this line to include raw content on failure
+  details?: string; // Added details property
 }
 
 export type CombinedLLMResponse = LLMResponseSuccess | LLMResponseFailure;
@@ -1197,9 +1192,9 @@ export interface Idea {
   createdAt: string;
   updatedAt: string;
   brainstormingNotes?: string;
-  dueDate?: string;
-  priority?: string;
-  userId?: string;
+  dueDate?: string | null;
+  priority?: string | null;
+  userId?: string | null;
 }
 
 export interface Insight {
@@ -1228,12 +1223,11 @@ export interface LLMRequest {
 }
 
 export interface LLMToolCall {
-  id?: string;
+  id: string;
   function: {
     name: string;
     arguments: string;
   };
-  type: 'function'; // Explicitly add the type property
 }
 
 export interface LLMToolOutput {
@@ -1350,17 +1344,26 @@ export type SortableOpportunityKeys = keyof OrionOpportunity | 'dateIdentified' 
 
 export interface Prompt {
   id: string;
+  uniqueId: string;
+  userId: string;
   name: string;
   content: string;
-  category: string;
-  tags: string[];
+  category: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CustomPrompt {
   id: string;
+  uniqueId: string;
+  userId: string;
   name: string;
-  prompt: string;
-  variables: string[];
+  content: string;
+  category: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  prompt?: string;
+  variables?: string[];
 }
 
 export interface StrategicOutreachPlan {
@@ -1429,18 +1432,6 @@ export interface Contact {
   [key: string]: unknown; // Allow for additional Notion properties
 }
 
-export interface CVComponentData {
-  id: string;
-  name: string;
-  type: string;
-  content: Prisma.JsonValue | null; // Content can be JSON string or plain text, allow null
-  tags: string[];
-  userId: string;
-  uniqueId?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface CVComponentCreatePayload {
   name: string;
   type: string;
@@ -1486,5 +1477,60 @@ export interface LLMModelConfig {
   name: string; // User-friendly display name (e.g., 'GPT-4o', 'Llama 3 70B')
   provider: string; // The LLM provider (e.g., 'openai', 'groq', 'google', 'mistral', 'cohere', 'together', 'lmstudio')
   supportsTools: boolean; // Whether the model supports tool calling
-  supportsJson: boolean; // Whether the model reliably supports JSON mode
+  supportsJson: boolean; // Whether the model supports JSON mode
+}
+
+// Export HandledApplicationError from errorHandler.ts for global use
+export { HandledApplicationError } from '../utils/errorHandler';
+
+export interface LLMTool {
+  function: {
+    name: string;
+    description: string;
+    parameters: object; // Assuming 'parameters' is an object for JSON schema
+  };
+  type: 'function'; // This will always be 'function' for LLM tools
+}
+
+export type { MemoryMetadataPayload, ScoredMemoryPoint };
+
+export enum TaskStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum TaskPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
+}
+
+export interface TaskStep {
+  id: string;
+  stepNumber: number;
+  prompt: string;
+  generatedOptions: Prisma.JsonValue[];
+  chosenAction?: string;
+  chosenJustification?: string;
+  toolCalls?: Prisma.JsonArray;
+  memoryReferences?: Prisma.JsonArray;
+  relatedLinks?: Prisma.JsonArray;
+  relatedPhoneNumbers?: Prisma.JsonArray;
+  finalLog?: Prisma.JsonValue;
+  createdAt: Date;
+  updatedAt: Date;
+  taskId: string;
+}
+
+export interface MemoryChunk {
+  id: string;
+  payload: {
+    title: string;
+    text: string;
+    [key: string]: any; // Allow for other metadata in payload
+  };
+  [key: string]: any; // Allow for other top-level properties
 }

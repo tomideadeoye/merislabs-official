@@ -39,18 +39,47 @@
 import logger from '@/lib/logger';
 import { APIError, NetworkError } from '@/lib/apiClient'; // Correct import for APIError and NetworkError
 
-interface AppErrorContext {
-  [key: string]: any;
+export interface AppErrorContext {
+  [key: string]: unknown;
 }
 
-export interface HandledError {
-  message: string;
-  status?: number;
-  data?: any;
-  isRetryable?: boolean;
-  type: 'API_ERROR' | 'NETWORK_ERROR' | 'CLIENT_ERROR' | 'UNKNOWN_ERROR';
-  originalError: unknown;
-  logContext: AppErrorContext;
+/**
+ * Custom error class for handling application-specific errors.
+ * This extends the native Error object to include additional context and properties.
+ */
+export class HandledApplicationError extends Error {
+  public status?: number;
+  public data?: unknown;
+  public isRetryable?: boolean;
+  public type: string;
+  public originalError?: unknown;
+  public logContext: AppErrorContext;
+
+  constructor(
+    message: string,
+    options: {
+      status?: number;
+      data?: unknown;
+      isRetryable?: boolean;
+      type?: string;
+      originalError?: unknown;
+      logContext: AppErrorContext;
+    }
+  ) {
+    super(message);
+    this.name = 'HandledApplicationError'; // Set custom error name
+    this.status = options.status;
+    this.data = options.data;
+    this.isRetryable = options.isRetryable;
+    this.type = options.type || 'UNKNOWN_ERROR';
+    this.originalError = options.originalError;
+    this.logContext = options.logContext;
+
+    // This is needed to correctly capture the stack trace in V8 (Node.js)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, HandledApplicationError);
+    }
+  }
 }
 
 /**
@@ -59,26 +88,35 @@ export interface HandledError {
  *
  * @param error The raw error object caught from an API call (e.g., AxiosError, Error).
  * @param context Additional context to include in logs (e.g., URL, method, opportunityId).
- * @returns A standardized HandledError object.
+ * @returns A standardized HandledApplicationError object.
  */
-export function handleApiError(error: unknown, context: AppErrorContext = {}): HandledError {
+export function handleApiError(error: unknown, context: AppErrorContext = {}): HandledApplicationError {
   let message: string;
   let status: number | undefined;
-  let data: any;
+  let data: unknown;
   let isRetryable: boolean | undefined;
-  let errorType: HandledError['type'];
+  let errorType: string;
 
   // Add a unique ID for each error for easier traceability in logs
   const errorId = `err_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const logContext = { errorId, ...context, operation: 'handleApiError' };
 
+  let userFriendlyMessage: string | undefined;
+
   if (error instanceof APIError) {
-    const apiError = error as APIError; // Explicitly cast to APIError
+    const apiError = error as APIError;
     message = apiError.message;
     status = apiError.status;
     data = apiError.data;
     isRetryable = apiError.isRetryable;
     errorType = 'API_ERROR';
+
+    // Check for specific database connection issues within APIError
+    if (message.includes("Can't reach database server") || message.includes('timed out')) {
+      userFriendlyMessage =
+        'Database connection issue: Please wait a moment and try again. The database might be waking up.';
+      errorType = 'DB_CONNECTION_ERROR';
+    }
 
     logger.error(`[ERROR_HANDLER][API_ERROR] ${message}`, {
       ...logContext,
@@ -90,10 +128,17 @@ export function handleApiError(error: unknown, context: AppErrorContext = {}): H
       stack: apiError.stack,
     });
   } else if (error instanceof NetworkError) {
-    const networkError = error as NetworkError; // Explicitly cast to NetworkError
+    const networkError = error as NetworkError;
     message = `Network Error: ${networkError.message}`;
-    status = 500; // General status for network issues
+    status = 500;
     errorType = 'NETWORK_ERROR';
+
+    // Check for specific database connection issues within NetworkError
+    if (networkError.message.includes("Can't reach database server") || networkError.message.includes('timed out')) {
+      userFriendlyMessage =
+        'Database connection issue: Please wait a moment and try again. The database might be waking up.';
+      errorType = 'DB_CONNECTION_ERROR';
+    }
 
     logger.error(`[ERROR_HANDLER][NETWORK_ERROR] ${message}`, {
       ...logContext,
@@ -101,10 +146,17 @@ export function handleApiError(error: unknown, context: AppErrorContext = {}): H
       stack: networkError.stack,
     });
   } else if (error instanceof Error) {
-    const generalError = error as Error; // Explicitly cast to Error
+    const generalError = error as Error;
     message = `Client Error: ${generalError.message}`;
-    status = undefined; // Or a specific client-side error code if applicable
+    status = undefined;
     errorType = 'CLIENT_ERROR';
+
+    // Check for specific database connection issues within general Error
+    if (generalError.message.includes("Can't reach database server") || generalError.message.includes('timed out')) {
+      userFriendlyMessage =
+        'Database connection issue: Please wait a moment and try again. The database might be waking up.';
+      errorType = 'DB_CONNECTION_ERROR';
+    }
 
     logger.error(`[ERROR_HANDLER][CLIENT_ERROR] ${message}`, {
       ...logContext,
@@ -122,13 +174,16 @@ export function handleApiError(error: unknown, context: AppErrorContext = {}): H
     });
   }
 
-  return {
-    message,
+  // Use the userFriendlyMessage if it was set, otherwise use the original message
+  const finalMessage = userFriendlyMessage || message;
+
+  // Return a new HandledApplicationError object with the determined message and properties
+  return new HandledApplicationError(finalMessage, {
     status,
     data,
     isRetryable,
     type: errorType,
     originalError: error,
     logContext,
-  };
+  });
 }

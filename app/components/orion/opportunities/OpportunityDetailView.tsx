@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Authentication Removal Note
+ * @description This file is part of the ongoing effort to gradually remove all authentication from the Orion application.
+ *   Client-side components should eventually operate without requiring a logged-in user.
+ *   For detailed strategy, refer to `docs/authentication_removal_strategy.md`.
+ *
+ *   Specifically, this component's reliance on `fetchUserProfile` will need to be refactored
+ *   to handle cases where no authenticated user profile exists, ensuring it either proceeds
+ *   with a default/placeholder profile or gracefully disables authentication-dependent features.
+ *
+ *   Original File Purpose:
+ *   [Original file purpose comments from OpportunityDetailView.tsx will follow below this section.]
+ */
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import logger from '@/lib/logger';

@@ -24,13 +24,22 @@ export interface WhatsAppAnalysisResult {
 }
 
 /**
+ * @function analyzeWhatsAppChat
+ * @description Analyzes a WhatsApp chat transcript using LLM and user profile context.
+ * @param chatTranscript The raw WhatsApp chat export text.
+ * @param userId The user ID for personalization.
+ * @param userProfileContext User profile information for personalization.
+ */
+/**
  * Analyzes a WhatsApp chat transcript using LLM and user profile context.
  * @param chatTranscript The raw WhatsApp chat export text.
+ * @param userId The user ID for personalization.
  * @param userProfileContext User profile information for personalization.
  * @returns An object containing the analysis result, or an error.
  */
 export async function analyzeWhatsAppChat(
   chatTranscript: string,
+  userId: string,
   userProfileContext?: UserProfileFetchResponse
 ): Promise<WhatsAppAnalysisResult> {
   try {
@@ -54,7 +63,7 @@ export async function analyzeWhatsAppChat(
     }
 
     // Call LLM for analysis
-    const llmResponse = await generateLLMResponse(REQUEST_TYPES.WHATSAPP_CHAT_ANALYSIS, prompt);
+    const llmResponse = await generateLLMResponse(REQUEST_TYPES.WHATSAPP_CHAT_ANALYSIS, prompt, userId);
 
     if (!llmResponse.success) {
       throw new Error(llmResponse.error || 'LLM analysis failed.');

@@ -12,6 +12,8 @@ import logger from '@/lib/logger';
 import { Client, APIResponseError } from '@notionhq/client';
 import { generateLLMResponse } from '@/lib/orion_llm';
 import { CreatePageParameters } from '@notionhq/client/build/src/api-endpoints';
+import { HandledApplicationError } from '@/lib/types';
+import { handleServerError } from '@/lib/utils/serverErrorHandler';
 
 const NOTION_API_KEY = process.env.NOTION_API_KEY;
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
@@ -34,7 +36,12 @@ function constructLLMAnalysisPrompt(title: string, description?: string, tags?: 
   if (tags && tags.length > 0) {
     prompt += `Tags: ${tags.join(', ')}\n`;
   }
-  prompt += `\nProvide your response in JSON format with the following fields:\n{\n  "sentiment": "(positive|negative|neutral|mixed)",\n  "keywords": ["keyword1", "keyword2"],\n  "categories": ["category1", "category2"],\n  "brainstormingStarter": "A few sentences or bullet points to kickstart brainstorming."\n}\n\nDo not include any additional text outside the JSON.`;
+  prompt += `\nProvide your response in JSON format with the following fields:\n{
+  "sentiment": "(positive|negative|neutral|mixed)",
+  "keywords": ["keyword1", "keyword2"],
+  "categories": ["category1", "category2"],
+  "brainstormingStarter": "A few sentences or bullet points to kickstart brainstorming."
+}\n\nDo not include any additional text outside the JSON.`;
   return prompt;
 }
 
@@ -74,7 +81,7 @@ export async function POST(req: NextRequest) {
     logger.info('[IDEAS_CREATE][LLM_ENRICHMENT] Initiating LLM analysis for idea enrichment.', logContext);
     try {
       const llmPrompt = constructLLMAnalysisPrompt(title, description, tags);
-      const llmResponse = await generateLLMResponse('IDEA_ANALYSIS', llmPrompt, {
+      const llmResponse = await generateLLMResponse('IDEA_ANALYSIS', llmPrompt, session.user.id!, {
         systemContext:
           'You are an expert idea analyst and brainstorming assistant. Your task is to analyze new ideas and provide structured insights to help Tomide develop them further.',
       });
@@ -87,18 +94,22 @@ export async function POST(req: NextRequest) {
             llmResponse: enrichedIdea,
           });
         } catch (parseError: unknown) {
+          const handledError = handleServerError(parseError, { ...logContext, stage: 'llm_parse' });
           logger.error('[IDEAS_CREATE][LLM_PARSE_ERROR] Failed to parse LLM response JSON.', {
             ...logContext,
-            error: parseError,
+            error: handledError.message,
             rawContent: llmResponse.content,
+            stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
           });
         }
       } else {
         // If LLM call itself failed (success is false)
         if (!llmResponse.success) {
+          const handledError = handleServerError(llmResponse.error, { ...logContext, stage: 'llm_call' });
           logger.warn('[IDEAS_CREATE][LLM_ENRICHMENT_FAIL] LLM call was not successful.', {
             ...logContext,
-            llmError: llmResponse.error || 'No specific error message provided', // Safely access error
+            llmError: handledError.message,
+            stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
           });
         } else {
           // If llmResponse.success is true but llmResponse.content is missing
@@ -109,9 +120,11 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch (llmCallError: unknown) {
+      const handledError = handleServerError(llmCallError, { ...logContext, stage: 'llm_call_overall' });
       logger.error('[IDEAS_CREATE][LLM_CALL_ERROR] Error calling LLM service for idea enrichment.', {
         ...logContext,
-        error: llmCallError,
+        error: handledError.message,
+        stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
     }
 
@@ -163,33 +176,15 @@ export async function POST(req: NextRequest) {
       idea: { id: notionResponse.id, title, description, tags, priority, dueDate, ...enrichedIdea },
     });
   } catch (error: unknown) {
-    let errorMessage = 'An unexpected error occurred';
-    let errorDetails: {
-      code?: string;
-      status?: number;
-      body?: unknown;
-      stack?: string;
-    } = {}; // Explicitly type errorDetails
-
-    if (error instanceof APIResponseError) {
-      errorMessage = `Notion API Error: ${error.message}`;
-      errorDetails = { code: error.code, status: error.status, body: error.body };
-      logger.error('[IDEAS_CREATE][NOTION_API_ERROR]', { ...logContext, error: errorMessage, details: errorDetails });
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-      errorDetails = { stack: error.stack };
-      logger.error('[IDEAS_CREATE][GENERAL_ERROR]', { ...logContext, error: errorMessage, details: errorDetails });
-    } else {
-      logger.error('[IDEAS_CREATE][UNKNOWN_ERROR]', { ...logContext, error: String(error) });
-    }
-
+    const handledError = handleServerError(error, { ...logContext, stage: 'overall_create_process' });
+    logger.error('[IDEAS_CREATE][FATAL_ERROR]', {
+      ...logContext,
+      error: handledError.message,
+      stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
+    });
     return NextResponse.json(
-      {
-        success: false,
-        error: errorMessage,
-        details: errorDetails,
-      },
-      { status: 500 }
+      { success: false, error: handledError.message, details: handledError.data },
+      { status: handledError.status || 500 }
     );
   }
 }

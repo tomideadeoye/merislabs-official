@@ -187,7 +187,7 @@ export interface SessionState {
   resetState: () => void;
 }
 
-const initialState = {
+export const initialState = {
   lastActivityTimestamp: new Date().toISOString(),
   currentActiveFeature: 'None',
   userPreferences: {},

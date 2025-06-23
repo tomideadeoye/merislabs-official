@@ -28,7 +28,7 @@ import { Button, Input, Label, Textarea, RadioGroup, RadioGroupItem } from '@/co
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useOutreachGenerationStore } from '@/lib/stores/outreachGenerationStore';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import useUserProfile from '@/hooks/useUserProfile';
 import type { Persona, OutreachRequest } from '@/lib/types';
 import { Loader2, Mail, Linkedin, MessageCircle, XCircle } from 'lucide-react';
 import logger from '@/lib/logger';
@@ -43,7 +43,7 @@ type MessageFormat = 'email' | 'linkedin' | 'whatsapp';
 
 export function OutreachForm({ persona }: OutreachFormProps) {
   const { setLatestOutreach, setIsLoading, setError, isLoading, error } = useOutreachGenerationStore();
-  const { profile: userProfile, loading: profileLoading, error: profileError } = useUserProfile();
+  const { profile: userProfile, isLoading: profileLoading, error: profileError } = useUserProfile();
 
   const [messageType, setMessageType] = useState<MessageFormat>('email');
   const [outreachGoal, setOutreachGoal] = useState<string>('');

@@ -48,7 +48,7 @@ import { fetchUserProfile } from '@/profile_service';
 import { ScoredMemoryPoint } from '@/lib/types/memory';
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
-import { handleApiError, HandledError } from '@/lib/utils/errorHandler';
+import { handleApiError } from '@/lib/utils/errorHandler';
 
 /**
  * API route for drafting application materials for a specific OrionOpportunity using LLM.
@@ -233,12 +233,17 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
         draftIndex: i + 1,
         promptLength: prompt.length,
       });
-      const llmResponseContent = await generateLLMResponse(REQUEST_TYPES.DRAFT_COMMUNICATION, prompt, {
-        profileContext: profileContext,
-        memoryResults: memoryResults,
-        temperature: 0.7 + i * 0.1,
-        maxTokens: 1500,
-      });
+      const llmResponseContent = await generateLLMResponse(
+        REQUEST_TYPES.DRAFT_COMMUNICATION,
+        prompt,
+        session.user.id!,
+        {
+          profileContext: profileContext,
+          memoryResults: memoryResults,
+          temperature: 0.7 + i * 0.1,
+          maxTokens: 1500,
+        }
+      );
 
       if (llmResponseContent.success) {
         drafts.push({

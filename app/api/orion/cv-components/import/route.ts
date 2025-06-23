@@ -1,19 +1,43 @@
 /**
  * @fileoverview API route for bulk importing CV components from a local JSON file into the database.
- * @description This is intended as a one-time or occasional utility to seed the database.
- * It reads from `data/cv-data.json` and uses the cv_components_db_service.
+ * @description This route provides a utility to seed the database with CV components from `data/cv-data.json`.
+ *   It is designed for one-time or occasional use, primarily by administrators, to populate the system
+ *   with initial CV data. It ensures that components are properly saved or updated using the
+ *   `cv_components_db_service`.
  *
- * RELATION TO OTHER FILES, FUNCTIONS, COMPONENTS, AND FEATURES:
- * - `@/lib/cv_components_db_service.ts`: Consumes `saveOrUpdateCvComponent` to persist data.
- * - `data/cv-data.json`: The source file for CV components.
- * - `@/lib/logger`: For logging the import process.
- * - `@/lib/types/index.ts`: Uses `RawCvComponentJsonData`.
- * - Triggered by `ImportCvComponentsButton.tsx` on the admin dashboard.
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To read CV component data from a specified local JSON file (`data/cv-data.json`).
+ *   - To iterate through the parsed data and save or update each CV component in the Neon/PostgreSQL database.
+ *   - To provide robust logging for the import process, including success and failure counts.
+ *   - To serve as a utility for initializing the CV component database.
  *
- * FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/api/orion/cv-components/import/route.ts
+ * FILEPATH: `app/api/orion/cv-components/import/route.ts`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `@/lib/cv_components_db_service.ts`: Consumes `saveOrUpdateCvComponent` to interact with the database.
+ *   - `data/cv-data.json`: The external JSON file containing the raw CV component data to be imported.
+ *   - `@/lib/logger.ts`: Used for comprehensive logging of the import operation's progress and errors.
+ *   - `@/lib/types/index.ts`: Defines `RawCvComponentJsonData` for type consistency with the incoming JSON data.
+ *   - `@/lib/prisma.ts`: Provides the Prisma client for direct database interactions (e.g., counting records).
+ *   - `app/components/orion/admin/ImportCvComponentsButton.tsx` (hypothetical): A frontend component might trigger this route.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes `data/cv-data.json` exists in the project root and contains a valid JSON array of CV components.
+ *   - Assumes the structure of JSON data in `cv-data.json` conforms to `RawCvComponentJsonData`.
+ *   - This endpoint is intended for administrative use and should ideally be protected by authentication/authorization (currently logging as 'unauthenticated_import').
+ *
  * NOTES:
- * - This endpoint should be protected and ideally used only by administrators.
- * - Error handling is included for individual component import failures and critical file read/parse errors.
+ *   - This is primarily a data seeding utility, not a core application feature for end-users.
+ *   - Error handling is implemented for file reading, JSON parsing, and individual component import failures.
+ *   - The `userId` is currently a placeholder (`unauthenticated_import`); proper authentication should be enforced for production use.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Authentication**: Implement full authentication for this endpoint to restrict access to authorized users only.
+ *   - **Zod Validation**: Add Zod schema validation for the incoming JSON data from `cv-data.json` to ensure its structure before processing.
+ *   - **Asynchronous Processing**: For very large import files, consider implementing a background job or streaming approach to prevent API timeouts.
+ *   - **User Feedback**: Provide more detailed feedback to the user on import progress and specific errors for failed components.
+ *   - **Rollback Mechanism**: Implement a transaction or a rollback mechanism in case of partial import failures to ensure data consistency.
+ *   - **Dynamic File Selection**: Allow administrators to specify the import file path via the request, instead of hardcoding `data/cv-data.json`.
  */
 
 import { NextResponse } from 'next/server';

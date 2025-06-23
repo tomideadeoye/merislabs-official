@@ -1,4 +1,7 @@
 /**
+ * GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
+ *
+ *
  * GOAL: Provide a service to interact with the Neon/PostgreSQL database for contact management.
  * This file centralizes all database operations related to contacts, ensuring consistency
  * and separation of concerns from API routes.
@@ -27,6 +30,11 @@ const rowToContact = (row: unknown[]): Contact => ({
   updatedAt: row[7] as string,
 });
 
+/**
+ * @function fetchContactsFromNeon
+ * @description Fetches all contacts from the Neon/PostgreSQL database.
+ * @returns A promise that resolves to an array of Contact objects.
+ */
 /**
  * Fetches all contacts from the Neon/PostgreSQL database.
  * @returns A promise that resolves to an array of Contact objects.
@@ -73,6 +81,12 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
   }
 }
 
+/**
+ * @function saveContactToNeon
+ * @description Saves a new contact to the Neon/PostgreSQL database.
+ * @param newContact The contact object to save (excluding id, createdAt, updatedAt).
+ * @returns A promise that resolves to the newly created Contact object, including its ID and timestamps.
+ */
 /**
  * Saves a new contact to the Neon/PostgreSQL database.
  * @param newContact The contact object to save (excluding id, createdAt, updatedAt).

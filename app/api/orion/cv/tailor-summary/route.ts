@@ -51,9 +51,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Import from notion_service
 import { CV_SUMMARY_TAILORING_REQUEST_TYPE } from '@/lib/orion_config'; // Import request type
-import { CVComponent } from '@/lib/types'; // Corrected import for CVComponent type
-import { generateLLMResponse } from '@/lib/orion_llm'; // Corrected import for generateLLMResponse
+import { CVComponent } from '@/lib/types/cv'; // Explicitly import CVComponent from its defining file
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Corrected import for generateLLMResponse
 import logger from '@/lib/logger'; // Import logger
+import { auth } from '@/auth'; // Import auth
+import { HandledApplicationError, OrionOpportunity, UserProfileData } from '@/lib/types'; // Import HandledApplicationError from types
+import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import handleServerError
 
 /**
  * API route for tailoring a CV summary based on JD analysis using LLM
@@ -65,6 +68,13 @@ export async function POST(req: NextRequest) {
   };
   logger.info('[CV_SUMMARY_API][START] Initiating CV summary tailoring request.', logContext);
   try {
+    const session = await auth(); // Get session
+    if (!session || !session.user || !session.user.id) {
+      logger.warn('[CV_SUMMARY_API][AUTH_FAIL] Unauthorized access attempt.', logContext);
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    (logContext as { user?: string }).user = session.user.id; // Add user ID to log context
+
     const body = await req.json();
     const { component_id, jd_analysis, web_research_context } = body;
 
@@ -90,7 +100,7 @@ export async function POST(req: NextRequest) {
     // Fetch the specific component (assuming it's the profile summary)
     const allComponents = await getCVComponentsFromNotion();
     const summaryComponent = allComponents.find(
-      (comp: CVComponent) => comp.uniqueId === component_id && comp.componentType === 'Profile Summary'
+      (comp: CVComponent) => comp.uniqueId === component_id && comp.type === 'Profile Summary'
     );
 
     if (!summaryComponent) {
@@ -106,7 +116,7 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
     }
-    if (!summaryComponent.contentPrimary) {
+    if (summaryComponent.content === null || summaryComponent.content === undefined) {
       logger.warn('[CV_SUMMARY_API][EMPTY_CONTENT] Profile Summary component has no primary content.', {
         ...logContext,
         component_id,
@@ -120,7 +130,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const originalSummaryContent = summaryComponent.contentPrimary;
+    const originalSummaryContent =
+      typeof summaryComponent.content === 'string'
+        ? summaryComponent.content
+        : JSON.stringify(summaryComponent.content);
 
     // Construct the prompt for the LLM
     const prompt = `You are an expert CV writer. Tailor the following profile summary to be highly relevant to the provided job description analysis and company. Focus on aligning my skills and experience with the job requirements and the company's context. \n\n**Original Profile Summary:**\n${originalSummaryContent}\n\n**Job Description Analysis:**\n${jd_analysis}\n\n${
@@ -138,9 +151,10 @@ export async function POST(req: NextRequest) {
       const llmContent = await generateLLMResponse(
         CV_SUMMARY_TAILORING_REQUEST_TYPE, // Use specific request type
         prompt, // Pass the constructed prompt
+        session.user.id!,
         {
-          temperature: 0.7, // Moderate temperature for creative tailoring
-          maxTokens: 200, // Limit response length for a concise summary
+          temperature: 0.7,
+          maxTokens: 200,
         }
       );
       // Safely access length from llmContent.content if it's a successful response
@@ -155,32 +169,34 @@ export async function POST(req: NextRequest) {
       });
       return NextResponse.json({ success: true, tailored_content: llmContent });
     } catch (err: unknown) {
+      const handledError = handleServerError(err, { ...logContext, stage: 'llm_call' }); // Use handleServerError
       logger.error('[CV_SUMMARY_API][LLM_FAIL] LLM failed to tailor summary.', {
         ...logContext,
         component_id,
-        errorMessage: err instanceof Error ? err.message : String(err),
-        stack: err instanceof Error ? err.stack : undefined,
+        errorMessage: handledError.message,
+        stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
       return NextResponse.json(
         {
           success: false,
-          error: err instanceof Error ? err.message : 'Failed to tailor summary using LLM',
+          error: handledError.message,
         },
-        { status: 500 }
+        { status: handledError.status || 500 }
       );
     }
   } catch (error: unknown) {
+    const handledError = handleServerError(error, { ...logContext, stage: 'cv_summary_api_route' }); // Use handleServerError
     logger.error('[CV_SUMMARY_API][FATAL_ERROR] Error in CV summary tailoring API.', {
       ...logContext,
-      errorMessage: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
+      errorMessage: handledError.message,
+      stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
     });
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred in summary tailoring API',
+        error: handledError.message,
       },
-      { status: 500 }
+      { status: handledError.status || 500 }
     );
   }
 }

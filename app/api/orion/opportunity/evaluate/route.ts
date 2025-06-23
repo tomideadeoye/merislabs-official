@@ -42,7 +42,7 @@
  *   - **Evaluation History**: Persist the generated evaluation results to the database, linking them to the `Opportunity` record, to build an evaluation history.
  */
 import { ORION_MEMORY_COLLECTION_NAME, OPPORTUNITY_EVALUATION_REQUEST_TYPE } from '@/lib';
-import { OrionOpportunityDetails, ScoredMemoryPoint, EvaluationOutput, EvaluationGapDetail } from '@/lib/types';
+import { OrionOpportunityDetails, ScoredMemoryPoint, EvaluationOutput } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger'; // Import logger
 import { handleApiError } from '@/lib/utils/errorHandler'; // Import centralized error handler
@@ -194,14 +194,16 @@ export async function POST(req: NextRequest) {
       const parsedEvaluation = JSON.parse(jsonString) as EvaluationOutput;
 
       // Apply robust mapping for strengths, gaps, and alignmentHighlights
-      parsedEvaluation.strengths = (parsedEvaluation.strengths || []).map((s: any) =>
-        typeof s === 'string' ? { title: s, reasoning: 'N/A' } : s
+      parsedEvaluation.strengths = (parsedEvaluation.strengths || []).map(
+        (s: { title: string; reasoning: string } | string) =>
+          typeof s === 'string' ? { title: s, reasoning: 'N/A' } : s
       );
-      parsedEvaluation.gaps = (parsedEvaluation.gaps || []).map((g: any) =>
+      parsedEvaluation.gaps = (parsedEvaluation.gaps || []).map((g: { gap: string; solution: string } | string) =>
         typeof g === 'string' ? { gap: g, solution: 'N/A' } : g
       );
-      parsedEvaluation.alignmentHighlights = (parsedEvaluation.alignmentHighlights || []).map((ah: any) =>
-        typeof ah === 'string' ? { title: ah, reasoning: 'N/A' } : ah
+      parsedEvaluation.alignmentHighlights = (parsedEvaluation.alignmentHighlights || []).map(
+        (ah: { title: string; reasoning: string } | string) =>
+          typeof ah === 'string' ? { title: ah, reasoning: 'N/A' } : ah
       );
 
       evaluation = parsedEvaluation;

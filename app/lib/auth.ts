@@ -2,6 +2,7 @@ import Credentials from 'next-auth/providers/credentials';
 import type { NextAuthOptions } from 'next-auth';
 // No longer need to import Session, User, JWT directly here as they are augmented in next-auth.d.ts
 
+// NOTE: Strict authentication is not a high priority for the application at this stage. Features should generally be accessible.
 export const authConfig = {
   providers: [
     Credentials({

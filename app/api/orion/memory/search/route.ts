@@ -46,7 +46,7 @@ import { ORION_MEMORY_COLLECTION_NAME, QDRANT_HOST } from '@/lib/orion_config';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import logger from '@/lib/logger';
 import { QdrantFilter, ScoredMemoryPoint, MemoryMetadataPayload } from '@/lib/types/memory';
-import { handleApiError, HandledError } from '@/lib/utils/errorHandler';
+import { handleApiError } from '@/lib/utils/errorHandler';
 
 interface SearchRequestBody {
   query: string;
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
     const mappedResults: ScoredMemoryPoint[] = searchResults.map((point) => ({
       id: point.id.toString(), // Ensure id is string
       score: point.score,
-      content: (point.payload?.text as string) || '', // Assuming text is in payload
+      content: (point.payload?.text as string) || '', // Extract content from payload.text
       ...(point.vector && { embedding: point.vector as number[] }), // Conditionally include embedding if vector exists
       payload: point.payload as MemoryMetadataPayload, // Assign full payload as metadata
     }));
@@ -191,10 +191,18 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     const handledError = handleApiError(error, logContext);
+
+    // Check if the error is a database connection issue based on the type set in handleApiError
+    let userFriendlyMessage = handledError.message;
+    if (handledError.type === 'DB_CONNECTION_ERROR') {
+      userFriendlyMessage =
+        'Memory database connection issue: Please wait a moment and try again. The memory database might be waking up.';
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error: handledError.message,
+        error: userFriendlyMessage,
         details: handledError.data,
       },
       { status: handledError.status || 500 }

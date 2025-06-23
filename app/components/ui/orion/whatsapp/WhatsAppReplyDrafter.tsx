@@ -10,54 +10,51 @@
  * GOAL OF FILE|FEATURES|FUNCTIONS:
  *   - To enable the generation of hyper-personalized reply drafts for WhatsApp messages, reflecting Tomide's authentic persona and tone (friendly, enthusiastic, approachable, conversational, informal, appropriate emoji usage, thoughtful humor, emotional nuance).
  *   - To allow users to define explicit reply goals (clarify, set boundary, express gratitude, request support, withdraw, etc.) and choose desired tones (empathetic, assertive, humorous, formal, etc.).
- *   - To integrate deeply with Orion's LLM, user profile, and Qdrant memory for intelligent, contextually aware reply suggestions.
+ *   - To integrate deeply with Orion's LLM, user profile, and Qdrant memory for intelligent, contextually aware reply suggestions. This now includes fetching and displaying relevant memory chunks.
  *   - To present multiple distinct draft options (defaulting to 3), each with a ranked recommendation and a one-sentence rationale for its strategy/tone.
  *   - To provide robust options to save generated drafts and analysis insights back into Orion's memory system, with duplicate prevention.
  *   - To implement a "Self-Respect Check" for Tomide, ensuring replies honor values and reflect desired post-sending feelings.
  *   - To offer "Mindfulness Integration" at the end of drafting sessions, providing reflection prompts.
+ *   - **Memory Visualization**: To display the specific memory chunks (from Orion's Qdrant database) that were retrieved and utilized by the LLM during the reply generation process, enhancing transparency and user understanding.
  *
  * FILEPATH: `app/components/ui/orion/whatsapp/WhatsAppReplyDrafter.tsx`.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `app/(orion_admin)/admin/draft-communication/DraftCommunicationClientWrapper.tsx`: This component is rendered within the 'WhatsApp Tools' tab of the Draft Communication module and passes `analyzedChatData`.
  *   - `useUserProfile` (`@/hooks/useUserProfile`): Fetches the user's profile context for personalization, ensuring replies sound authentically Tomide.
- *   - `/api/orion/communication/draft-whatsapp-reply/route.ts`: The primary backend API endpoint for generating LLM-based replies, incorporating `chatTranscript`, `userProfileContext`, and future goal/tone parameters.
- *   - `/api/orion/memory/search`: (Future) Used for retrieving relevant memories (past interactions, facts, personal knowledge) to inform reply drafting.
+ *   - `/api/orion/communication/draft-whatsapp-reply/route.ts`: The primary backend API endpoint that this component interacts with. It now sends `chatTranscript`, `userProfileContext`, `replyGoal`, `tone`, and `numberOfDrafts`, and receives `reply` drafts along with `memoryResults`.
+ *   - `/api/orion/memory/search`: This API is indirectly called by `draft-whatsapp-reply/route.ts` to retrieve relevant memories that influence the LLM's output.
  *   - `/api/orion/memory/save`: Used for saving generated drafts and analysis insights to memory (Qdrant, Notion, Postgres).
- *   - `generateLLMResponse` (`lib/orion_llm`): The core LLM call utility (backend) that processes context and generates replies.
+ *   - `generateLLMResponse` (`lib/orion_llm`): The core LLM call utility (backend) that processes context, including retrieved memories, and generates replies.
  *   - `DedicatedAddToMemoryFormComponent` (implied integration): For saving drafts to memory.
  *   - `react-hot-toast`: Used for displaying success/error notifications.
- *   - `app/components/orion/QuadrantMemoryChunksVisualizer.tsx`: (Future) Potential integration point for visualizing memory chunks relevant to chat analysis and reply generation.
+ *   - `app/components/ui/orion/QuadrantMemoryChunksVisualizer.tsx`: This component is now integrated directly to visually represent the `memoryResults` retrieved from the backend API, showing what memories influenced the reply generation.
  *   - `http://localhost:8000/analyze-chat` (External Python API Endpoint): This is the *actual* source of structured chat data, which is processed by the external Python service and then proxied via `/api/orion/whatsapp/analyze`. This data pre-fills the `chatTranscript`.
  *   - `app/components/orion/whatsapp/WhatsAppChatAnalysis.tsx`: Displays insights from chat analysis, and `analyzedChatData` from here informs this drafter.
+ *   - `@/lib/types/index.ts` and `@/lib/types/llm.ts`: Define the `CombinedLLMResponse` and `ScoredMemoryPoint` interfaces, crucial for type-safe handling of LLM outputs and memory data.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - This component is client-side (`'use client'`) due to its use of React hooks and interactive elements.
- *   - Assumes the backend API endpoints for drafting replies and memory interaction are operational.
+ *   - Assumes the backend API endpoint `app/api/orion/communication/draft-whatsapp-reply/route.ts` is fully operational and correctly returns `memoryResults` in its response.
  *   - User profile data is essential for deeper personalization, though optional.
- *   - The LLM backend is expected to handle the nuanced logic of tone, persona, and strategic goals based on prompt engineering.
+ *   - The LLM backend is expected to handle the nuanced logic of tone, persona, and strategic goals based on prompt engineering, now also incorporating memory context.
  *   - Brevity, clarity, and emotional intelligence in drafts are heavily dependent on robust LLM prompting and capabilities.
  *   - Privacy and secure handling of chat data are paramount, with temporary files used for processing.
+ *   - The `Select.Item` components correctly use non-empty string values (e.g., "none") for their `value` props to avoid Radix UI errors.
  *
  * NOTES:
  *   - This component is a cornerstone of Orion's relational and strategic intelligence, translating raw communication into actionable, emotionally intelligent responses.
  *   - The OODA (Observe, Orient, Decide, Act) Loop framework guides the underlying logic:
  *     - **Observe:** Chat transcript parsing (`orion_chat_analyzer.py`), initial analysis.
- *     - **Orient:** (Future) Analyzing observations against user profile, memories, and known communication patterns, detecting triggers.
- *     - **Decide:** (Future) Presenting strategic options for reply goals (e.g., de-escalate, assert boundary, disengage).
+ *     - **Orient:** Analyzing observations against user profile, memories (now explicitly visualized), and known communication patterns, detecting triggers.
+ *     - **Decide:** Presenting strategic options for reply goals (e.g., de-escalate, assert boundary, disengage).
  *     - **Act:** Drafting multiple replies based on chosen strategies.
  *   - The ability to specify reply goals, relationship context, and leverage memory will significantly enhance the quality and relevance of drafts.
  *   - Technical robustness considerations: Preventing infinite loops (managed by `useEffect` dependencies), providing fallbacks (currently error messages, future: basic rule-based replies), and managing LLM context limits.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
- *   - **Dynamic Reply Goals/Tones**: (Implemented) Users can now explicitly define and select reply goals/tones (e.g., dropdowns), and these are passed to the LLM backend for tailored generation.
- *   - **Sentiment Analysis Integration**: (Implemented) Real-time sentiment analysis of the input chat is now displayed, informing drafting decisions. The `overallSentiment` is passed to the backend LLM prompt.
- *   - **Slider for Draft Count**: (Implemented) Users can now dynamically choose the number of replies generated by the LLM via a numerical input field with validation (1-5 drafts).
- *   - **Deep Memory & Pattern Integration**: Implement logic to actively search Qdrant for relevant memories (past interactions, emotional patterns, phrases, triggers) and dynamically include them in the LLM's prompt. Develop "Pattern Observation" to automatically suggest related memories/insights.
- *   - **Memory Chunk Visualizer Integration**: Integrate the `QuadrantMemoryChunksVisualizer` component to visually represent retrieved memories and their relationships that influenced drafting.
  *   - **Configurable Reply Parameters**: Allow users to configure various parameters for reply generation, such as desired length, formality, and specific keywords to include/exclude.
  *   - **Mood-based Reply Generation**: Integrate a "mood" selection or detection feature to influence the emotional tone and empathy of the generated replies.
- *   - **Rich Draft Presentation**: (Implemented) LLM responses now include ranked recommendations and one-sentence rationales for each draft, and the UI displays them clearly.
  *   - **Direct Memory Saving of Drafts**: Streamline the process of saving chosen drafts or the entire conversation context back to Orion's memory.
  *   - **Pre-filled Reply Context**: Allow selection of a specific message from `WhatsAppChatAnalysis` to pre-fill context for a targeted reply.
  *   - **Actionable Steps/Habitica Integration**: Based on chat analysis, suggest potential next actions or allow direct creation of tasks in Habitica.
@@ -66,6 +63,21 @@
  *   - **Relationship Context Nuance**: Introduce a more structured way to define and leverage nuanced relationship types for fine-grained tone and content tailoring.
  *   - **Psychological Principle Integration:** Explicitly allow selection or display of psychological principles (Reciprocity, Liking, Authority) to guide reply generation.
  *   - **OODA Loop UI/Control**: Develop UI elements that visually represent and allow user control over the "Orient" and "Decide" phases of the OODA loop, making Orion's reasoning more transparent and adjustable.
+ *
+ * CURRENT MODIFICATION RATIONALE:
+ *   - This modification specifically addresses a TypeScript type incompatibility between `ScoredMemoryPoint[]`
+ *     (received from the backend API, representing memory search results) and the `MemoryChunk[]` type
+ *     expected by the `QuadrantMemoryChunksVisualizer` component.
+ *   - The goal is to ensure that the `usedMemoryChunks` state, which holds the retrieved memories,
+ *     is correctly mapped to the `MemoryChunk` structure expected by the visualizer.
+ *   - This involves transforming `ScoredMemoryPoint` objects, which contain memory data nested under a `payload` property,
+ *     into a flattened `MemoryChunk` structure where `text`, `quadrant`, and `source` are directly accessible,
+ *     thus resolving `TS2322` and related property access errors.
+ *   - This aligns with the principle of ensuring type safety throughout the application and maintaining
+ *     a clear, predictable data flow for UI components.
+ *
+ * NOTE: This section documents the *specific changes currently being applied*, not the overall file purpose.
+ * It will be updated or removed upon completion of the current task.
  */
 'use client';
 
@@ -74,7 +86,9 @@ import { Button, Textarea, Label, Card, CardContent, CardHeader, CardTitle, Badg
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Sparkles, MessageSquare, Loader2, InfoIcon, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import useUserProfile from '@/hooks/useUserProfile';
+import { ScoredMemoryPoint } from '@/lib/types/memory';
+import { QuadrantMemoryChunksVisualizer } from '@/components/ui/orion/QuadrantMemoryChunksVisualizer';
 
 // Define interfaces for chat analysis data
 interface ParsedWhatsAppMessage {
@@ -108,14 +122,15 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
 }) => {
   const [chatTranscript, setChatTranscript] = useState(initialChatTranscript);
   const [userProfileContext, setUserProfileContext] = useState(initialUserProfileContext);
-  const [replyGoal, setReplyGoal] = useState<string>('');
-  const [tone, setTone] = useState<string>('');
+  const [replyGoal, setReplyGoal] = useState<string>('none');
+  const [tone, setTone] = useState<string>('none');
   const [suggestedReplies, setSuggestedReplies] = useState<SuggestedReply[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [numberOfDrafts, setNumberOfDrafts] = useState<number>(3);
+  const [usedMemoryChunks, setUsedMemoryChunks] = useState<ScoredMemoryPoint[]>([]);
 
-  const { profile, loading: profileLoading, error: profileError } = useUserProfile();
+  const { profile, isLoading: profileLoading, error: profileError } = useUserProfile();
 
   useEffect(() => {
     if (profile?.summary && !initialUserProfileContext) {
@@ -167,6 +182,14 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
 
       const replyResult = await response.json();
       setSuggestedReplies(replyResult.drafts || []);
+      if (replyResult.memoryResults) {
+        const mappedMemoryChunks = replyResult.memoryResults.map((item: ScoredMemoryPoint) => ({
+          text: item.payload.text,
+          quadrant: item.payload.type || 'Uncategorized', // Use type for quadrant, fallback to Uncategorized
+          source: item.payload.title || item.payload.type || 'Orion Memory',
+        }));
+        setUsedMemoryChunks(mappedMemoryChunks);
+      }
     } catch (err: unknown) {
       console.error('Error suggesting replies:', err);
       setError((err as Error).message || 'Failed to suggest replies. Please try again.');
@@ -243,7 +266,7 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
             Your User Profile Context (Optional, for personalization)
           </Label>
           {profileLoading && <p className="text-xs text-gray-500">Loading user profile...</p>}
-          {profileError && <p className="text-xs text-red-500">Error loading profile: {profileError.message}</p>}
+          {profileError && <p className="text-xs text-red-500">Error loading profile: {profileError}</p>}
           <Textarea
             id="userProfileContext"
             value={userProfileContext}
@@ -268,7 +291,7 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
                 <SelectValue placeholder="Select a goal" />
               </SelectTrigger>
               <SelectContent className="bg-gray-700 text-gray-200 border-gray-600">
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 <SelectItem value="clarify">Clarify</SelectItem>
                 <SelectItem value="set_boundary">Set Boundary</SelectItem>
                 <SelectItem value="express_gratitude">Express Gratitude</SelectItem>
@@ -295,7 +318,7 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
                 <SelectValue placeholder="Select a tone" />
               </SelectTrigger>
               <SelectContent className="bg-gray-700 text-gray-200 border-gray-200">
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 <SelectItem value="friendly">Friendly</SelectItem>
                 <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
                 <SelectItem value="approachable">Approachable</SelectItem>
@@ -375,6 +398,13 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
                 </Button>
               </div>
             ))}
+          </div>
+        )}
+
+        {usedMemoryChunks.length > 0 && (
+          <div className="border border-gray-700 p-4 rounded-lg bg-gray-900 mt-6">
+            <h3 className="text-lg font-semibold text-gray-300 mb-4">Memories Used in Generation:</h3>
+            <QuadrantMemoryChunksVisualizer chunks={usedMemoryChunks} />
           </div>
         )}
       </CardContent>
