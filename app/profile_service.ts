@@ -1,52 +1,51 @@
 /**
- * @fileoverview Service for fetching user profile data.
- * @description This service primarily fetches Tomide's unstructured profile text from a Notion page.
- *   As a fallback, if Notion data is unavailable or inaccessible, it gracefully retrieves the profile
- *   from an external Python profile service. This ensures robust and continuous access to core user context.
+ * @fileoverview Centralized service for managing and fetching user profile data.
+ * @description This service now primarily fetches Tomide's structured and unstructured
+ *   profile data directly from the Neon PostgreSQL database via Prisma. It implements
+ *   client-side caching using `useLocalStorage` for caching to minimize API calls and enhance
+ *   application responsiveness. This is a critical step in centralizing user context
+ *   in Neon and optimizing data retrieval.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - To act as the centralized service for retrieving Tomide's comprehensive user profile and personality text.
- *   - To prioritize fetching profile data from the Notion API (using `USER_PROFILE_NOTION_URL`).
- *   - To implement a robust fallback mechanism to fetch profile data from an external Python API (`PYTHON_PROFILE_API_URL`)
- *     if the Notion fetch fails or Notion credentials are not configured.
- *   - To cache fetched profile data in-memory for a defined TTL (`PROFILE_CACHE_TTL_MS`) to minimize redundant API calls.
- *   - To provide comprehensive logging at each stage of the data fetching process for traceability and debugging.
- *   - To return a consistent `ProfileServiceRawData` structure, indicating the source of the data.
+ *   - To act as the primary service for retrieving Tomide's comprehensive user profile.
+ *   - To fetch profile data from the Neon database using Prisma (`prisma.userProfile`).
+ *   - To implement robust client-side caching using `useLocalStorage` for the profile data,
+ *     reducing database load and improving UX by serving immediate data.
+ *   - To provide comprehensive logging at each stage of the data fetching process.
+ *   - To return a consistent `ProfileServiceRawData` or `UserProfileFetchResponse` structure.
  *
  * FILEPATH: `app/profile_service.ts`.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/lib/server_profile_utils.ts`: This file is imported by `server_profile_utils.ts` for server-side fetching of profile data.
- *   - `UserProfileData` and `UserProfileFetchResponse` (`@/lib/types`): These interfaces define the expected structure of profile data consumed and returned by this service.
- *   - `logger` (`@/lib/logger`): Used for all logging operations within this service, providing detailed insights into data flow and errors.
- *   - `USER_PROFILE_NOTION_URL` and `NOTION_API_KEY` (Environment Variables): Configures the primary Notion data source.
- *   - `PYTHON_PROFILE_API_URL` (Environment Variable): Configures the fallback external Python service endpoint.
- *   - Notion API (`api.notion.com`): The external API endpoint for fetching Notion page content.
- *   - External Python Profile Service (`http://localhost:8000/get-profile-data`): The external API endpoint for retrieving profile data when Notion is not the source.
+ *   - `app/api/orion/profile/save/route.ts`: This API endpoint is used to save/update the profile data that this service fetches.
+ *   - `prisma/schema.prisma`: Defines the `UserProfile` model which this service queries.
+ *   - `@/lib/prisma`: Imports the Prisma client instance for database operations.
+ *   - `@/lib/logger`: Used for all logging operations within this service.
+ *   - `@/lib/types`: Defines `UserProfileData` and `UserProfileFetchResponse` interfaces.
+ *   - `app/hooks/useLocalStorage.ts`: Provides the caching mechanism for the client-side profile data.
+ *   - `auth.ts`: Used for user authentication to determine the `userId` for profile retrieval (though currently bypassed for testing).
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes that `USER_PROFILE_NOTION_URL` points to a Notion *page* (not a database) containing unstructured text for the profile.
- *   - Assumes the Notion API key (`NOTION_API_KEY`) has the necessary permissions to read the specified Notion page.
- *   - Assumes the external Python profile service (if used) is running at the configured `PYTHON_PROFILE_API_URL` (defaulting to `http://localhost:8000/get-profile-data`).
- *   - The Python service is expected to return a JSON object with `profile_text` and `personality_text` fields.
- *   - Caching is implemented to optimize performance for repeated requests within the TTL.
- *   - This service runs on the server-side, handling sensitive API keys securely.
+ *   - Assumes that the `UserProfile` model exists in the Neon database and is populated.
+ *   - Assumes `userId` is available for fetching the correct profile (hardcoded for now due to authentication removal).
+ *   - Caching strategy uses `localStorage` with a defined TTL.
  *
  * NOTES:
- *   - This service is crucial for centralizing user profile context, which is fundamental for personalization across all of Orion's LLM-powered features.
- *   - The dual-source strategy (Notion + External Python Service) provides high availability and flexibility for managing Tomide's core context.
- *   - The `extractNotionPageId` and `extractTextFromBlock` functions ensure robust parsing of Notion block content.
+ *   - This service completely replaces the Notion and external Python service dependencies for profile data.
+ *   - The `profileText` field in the `UserProfile` model contains the previously unstructured text dump.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
- *   - **Asynchronous Caching**: Implement persistent caching (e.g., Redis, database) for profile data beyond in-memory, especially for serverless environments.
- *   - **Notion Block Type Expansion**: Extend `extractTextFromBlock` to support more Notion block types (e.g., lists, code blocks) if profile data is structured in complex ways.
- *   - **Health Checks**: Implement health checks for both Notion API and the Python profile service to proactively detect and report outages.
- *   - **API Key Management**: Explore more secure ways to manage API keys, potentially integrating with a secrets management service.
- *   - **Rate Limiting/Circuit Breaker**: Implement rate limiting and circuit breaker patterns for external API calls to prevent abuse or cascading failures.
- *   - **Version Control for Profile**: Potentially integrate with a Git-based system for versioning changes to the local profile text, if that becomes a primary source again.
+ *   - **Server-Side Caching**: Consider a more robust server-side caching solution (e.g., Redis) for edge environments.
+ *   - **Real-time Updates**: Implement mechanisms for real-time profile updates (e.g., WebSockets) if profile data changes frequently.
+ *   - **Granular Local Storage**: Allow more granular control over what parts of the profile are cached locally vs. always fetched.
+ *   - **Error Recovery**: More sophisticated error recovery for database connection issues.
  */
 import logger from '@/lib/logger';
 import { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
+import { prisma } from '@/lib/prisma';
+
+const LOCAL_STORAGE_KEY = 'orionUserProfile';
+const PROFILE_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour for local storage cache
 
 /**
  * Defines the structure for the fetched user profile data.
@@ -56,167 +55,115 @@ export interface ProfileServiceRawData {
   /** The full, concatenated unstructured text from the profile source. */
   profileText: string;
   /** Indicates whether the data came from Notion, local files, or an external service. */
-  source: 'notion' | 'local' | 'external_service';
+  source: 'neon' | 'cache'; // Updated sources
+  // Add other fields from UserProfile model as needed
+  name: string | null;
+  email: string | null;
+  mobile: string | null;
+  website: string | null;
+  github: string | null;
+  linkedin: string | null;
+  substack: string | null;
+  slideshare: string | null;
+  medium: string | null;
+  discord: string | null;
+  merisLabsLinkedin: string | null;
+  bioPitchLink: string | null;
+  youtube: string | null;
+  language: string | null;
+  location: string | null;
+  id?: string;
+  userId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  lastFetchedAt: Date | null | undefined;
 }
 
-/**
- * Extracts a Notion page ID from a given Notion URL.
- * Handles both dashed and non-dashed ID formats.
- */
-function extractNotionPageId(url: string): string | null {
-  // Regex for 32-character non-dashed ID at the end of a path
-  const match = url.match(/[0-9a-fA-F]{32}$/);
-  if (match) return match[0];
-
-  // Regex for standard UUID format
-  const dashed = url.match(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/);
-  if (dashed) return dashed[0].replace(/-/g, ''); // Return non-dashed version
-
-  return null;
-}
+// Helper to get current userId (temporarily hardcoded)
+const getCurrentUserId = () => {
+  // In a real application, this would come from an authenticated session
+  return 'user_tomide_adeoye_123';
+};
 
 /**
- * Extracts plain text from any Notion block type that contains a `rich_text` array.
+ * Fetches user profile data from the Neon database or local storage cache.
  */
-function extractTextFromBlock(block: { type: string; [key: string]: unknown }): string {
-  const blockType = block?.type;
-  if (!blockType) return '';
-
-  const blockContent = block[blockType] as { rich_text?: { plain_text: string }[] };
-  if (blockContent?.rich_text && Array.isArray(blockContent.rich_text)) {
-    return blockContent.rich_text.map((rt) => rt.plain_text).join('');
-  }
-  return '';
-}
-
-// In-memory cache for the profile to reduce API calls during a single session
-let profileCache: {
-  data: ProfileServiceRawData | null;
-  timestamp: number;
-} | null = null;
-const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-
-/**
- * Fetches user profile data from a primary source (Notion page with unstructured text)
- * and falls back to an external Python service if the primary source fails.
- */
-export async function fetchUserProfile(): Promise<ProfileServiceRawData | null> {
+export async function fetchUserProfile(): Promise<UserProfileFetchResponse> {
   const logContext = {
     operation: 'fetchUserProfile',
     timestamp: new Date().toISOString(),
   };
   logger.info('Attempting to fetch user profile data...', logContext);
 
-  // 1. Check in-memory cache first
-  if (profileCache && Date.now() - profileCache.timestamp < PROFILE_CACHE_TTL_MS) {
-    logger.info('Returning cached user profile data.', {
-      ...logContext,
-      source: profileCache.data?.source,
+  const userId = getCurrentUserId();
+  if (!userId) {
+    logger.warn('[FETCH_USER_PROFILE][NO_USER_ID] No user ID available to fetch profile.', logContext);
+    return { success: false, error: 'No user ID available.', source: 'none' };
+  }
+
+  // 1. Check local storage cache first (client-side only)
+  if (typeof window !== 'undefined') {
+    const cachedData = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+
+    if (cachedData) {
+      try {
+        const parsedCache = JSON.parse(cachedData) as ProfileServiceRawData & { timestamp: number };
+        if (Date.now() - parsedCache.timestamp < PROFILE_CACHE_TTL_MS) {
+          logger.info('Returning cached user profile data.', {
+            ...logContext,
+            source: 'cache',
+          });
+          return {
+            success: true,
+            profile: parsedCache as unknown as UserProfileData,
+            profileText: parsedCache.profileText,
+            source: 'cache',
+          };
+        }
+      } catch (error) {
+        logger.error('Error parsing cached profile data. Refetching.', { ...logContext, error });
+        // If cache is corrupted, clear it
+        window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+      }
+    }
+  }
+
+  // 2. Fetch from Neon database (server-side)
+  try {
+    logger.info('Fetching profile from Neon database.', logContext);
+    const userProfile = await prisma.userProfile.findUnique({
+      where: { userId },
     });
-    return profileCache.data;
-  }
 
-  const notionUrl = process.env.USER_PROFILE_NOTION_URL;
-  const notionApiKey = process.env.NOTION_API_KEY;
-  const pythonProfileApiUrl = process.env.PYTHON_PROFILE_API_URL || 'http://localhost:8000/get-profile-data';
-
-  // 2. Primary Source: Attempt to fetch from Notion
-  if (notionUrl && notionApiKey) {
-    try {
-      logger.info('Primary Source: Attempting to fetch profile from Notion page.', logContext);
-      const pageId = extractNotionPageId(notionUrl);
-      if (!pageId) {
-        throw new Error('Could not extract a valid Notion page ID from USER_PROFILE_NOTION_URL.');
+    if (userProfile) {
+      const profileData: ProfileServiceRawData = {
+        source: 'neon',
+        ...userProfile, // Include all fields from the Prisma model
+      };
+      // Cache the data with a timestamp (client-side only)
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ ...profileData, timestamp: Date.now() }));
       }
-
-      const notionRes = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, {
-        headers: {
-          Authorization: `Bearer ${notionApiKey}`,
-          'Notion-Version': '2022-06-28',
-        },
-      });
-
-      if (!notionRes.ok) {
-        const errorBody = await notionRes.text();
-        throw new Error(
-          `Failed to fetch Notion page: ${notionRes.status} ${notionRes.statusText}. Response: ${errorBody}`
-        );
-      }
-
-      const notionData = (await notionRes.json()) as { results: { type: string; [key: string]: unknown }[] };
-
-      // REFACTORED: Concatenate text from all supported block types into a single string.
-      const allText = notionData.results
-        .map((block) => extractTextFromBlock(block))
-        .join('\n') // Join content from different blocks with a newline
-        .trim();
-
-      if (allText) {
-        const profileData: ProfileServiceRawData = {
-          profileText: allText,
-          source: 'notion',
-        };
-        profileCache = { data: profileData, timestamp: Date.now() };
-        logger.success('Successfully fetched and parsed profile from Notion.', logContext);
-        return profileData;
-      } else {
-        logger.warn('Notion page was fetched but contained no parsable text content. Attempting fallback.', logContext);
-      }
-    } catch (error) {
-      logger.error('Error fetching/parsing user profile from Notion. Attempting fallback.', { ...logContext, error });
+      logger.success('Successfully fetched profile from Neon and cached.', logContext);
+      return {
+        success: true,
+        profile: userProfile as unknown as UserProfileData,
+        profileText: userProfile.profileText,
+        source: 'neon',
+      };
+    } else {
+      logger.warn('User profile not found in Neon database for ID.', { ...logContext, userId });
+      return { success: false, error: 'User profile not found in database.', source: 'none' };
     }
-  } else {
-    logger.warn('Notion URL or API Key not set. Attempting external service fallback.', logContext);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('Error fetching user profile from Neon database.', {
+      ...logContext,
+      error: errorMessage,
+      fullError: error,
+    });
+    return { success: false, error: `Failed to fetch profile: ${errorMessage}`, source: 'error' };
   }
-
-  // 3. Fallback Source: Attempt to fetch from external Python service
-  if (pythonProfileApiUrl) {
-    try {
-      logger.info('Fallback Source: Attempting to fetch user profile from external Python service.', logContext);
-
-      const response = await fetch(pythonProfileApiUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // Consider adding a timeout for robustness
-        // signal: AbortSignal.timeout(5000) // 5 second timeout
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || errorData.error || `Failed to fetch profile: ${response.statusText}`);
-      }
-
-      const data: { profile_text: string; personality_text: string } = await response.json();
-
-      const combinedProfileText = `${data.profile_text}\n\n---\n\n${data.personality_text}`.trim();
-
-      if (combinedProfileText) {
-        const profileData: ProfileServiceRawData = {
-          profileText: combinedProfileText,
-          source: 'external_service',
-        };
-        profileCache = { data: profileData, timestamp: Date.now() };
-        logger.success('Successfully fetched profile from external Python service.', logContext);
-        return profileData;
-      } else {
-        logger.warn('External profile service returned no content.', logContext);
-        throw new Error('External profile service returned no content.');
-      }
-    } catch (error: unknown) {
-      logger.error('Error fetching user profile from external Python service. This is a critical context failure.', {
-        ...logContext,
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  logger.error(
-    'Failed to fetch user profile from all sources (Notion and external service). This is a critical context failure.',
-    { ...logContext }
-  );
-  return null;
 }
 
 export async function getProfileText(): Promise<UserProfileFetchResponse> {
@@ -227,19 +174,21 @@ export async function getProfileText(): Promise<UserProfileFetchResponse> {
 
   try {
     logger.info('Attempting to retrieve profile text.', logContext);
-    const profileData = await fetchUserProfile();
+    const profileData = await fetchUserProfile(); // Now returns UserProfileFetchResponse
 
-    if (profileData && profileData.profileText) {
+    if (profileData.success && profileData.profileText) {
       logger.success('Successfully retrieved profile text.', { ...logContext, source: profileData.source });
-      return {
-        success: true,
-        profileText: profileData.profileText,
-        profile: { profileText: profileData.profileText, source: profileData.source } as unknown as UserProfileData,
-        source: profileData.source,
-      };
+      return profileData; // Return the full response
     } else {
-      logger.warn('No profile text available after fetching from all sources.', logContext);
-      return { success: false, error: 'No profile text available.', source: 'none' };
+      logger.warn('No profile text available after fetching from Neon or cache.', {
+        ...logContext,
+        error: profileData.error,
+      });
+      return {
+        success: false,
+        error: profileData.error || 'No profile text available.',
+        source: profileData.source || 'none',
+      };
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);

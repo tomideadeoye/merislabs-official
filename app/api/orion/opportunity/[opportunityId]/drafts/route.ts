@@ -3,16 +3,17 @@
  * Related: lib/database.ts, reference.md, types/OrionOpportunity.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Authentication removed as per user request
 import { PrismaClient } from '@/generated/prisma';
 
 const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest, { params }: { params: { opportunityId: string } }) {
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Removed authentication as per user request
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
 
   try {
     const { opportunityId } = params;
@@ -116,9 +117,10 @@ Tomide Adeoye`,
 }
 
 export async function POST() {
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Removed authentication as per user request
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
   // ... rest of your logic ...
 }

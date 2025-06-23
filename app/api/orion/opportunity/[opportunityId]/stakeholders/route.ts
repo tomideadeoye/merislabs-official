@@ -3,7 +3,6 @@
  * Related: lib/database.ts, reference.md, types/OrionOpportunity.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { Client, APIResponseError } from '@notionhq/client';
 import { GetPageResponse, UpdatePageParameters } from '@notionhq/client/build/src/api-endpoints';
@@ -40,12 +39,6 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
     timestamp: new Date().toISOString(),
   };
   logger.info('[STAKEHOLDERS_GET][START] Received request to fetch stakeholders.', logContext);
-
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[STAKEHOLDERS_GET][AUTH_FAIL] Unauthorized access attempt.', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
 
   if (!notion || !NOTION_DATABASE_ID) {
     logger.error('[STAKEHOLDERS_GET][NOTION_CONFIG_FAIL] Notion client or Database ID not configured.', logContext);
@@ -168,12 +161,6 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
     operation: 'POST',
   };
   logger.info('[STAKEHOLDERS_POST][START] Received request to create new stakeholder.', logContext);
-
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[STAKEHOLDERS_POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
 
   if (!notion || !NOTION_DATABASE_ID) {
     logger.error('[STAKEHOLDERS_POST][NOTION_CONFIG_FAIL] Notion client or Database ID not configured.', logContext);
@@ -327,12 +314,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { opport
   };
   logger.info('[STAKEHOLDERS_PATCH][START] Received request to update stakeholder.', logContext);
 
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[STAKEHOLDERS_PATCH][AUTH_FAIL] Unauthorized access attempt.', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
   if (!notion || !NOTION_DATABASE_ID) {
     logger.error('[STAKEHOLDERS_PATCH][NOTION_CONFIG_FAIL] Notion client or Database ID not configured.', logContext);
     return NextResponse.json(
@@ -436,12 +417,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { oppor
     operation: 'DELETE',
   };
   logger.info('[STAKEHOLDERS_DELETE][START] Received request to delete stakeholder.', logContext);
-
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[STAKEHOLDERS_DELETE][AUTH_FAIL] Unauthorized access attempt.', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
 
   if (!notion || !NOTION_DATABASE_ID) {
     logger.error('[STAKEHOLDERS_DELETE][NOTION_CONFIG_FAIL] Notion client or Database ID not configured.', logContext);

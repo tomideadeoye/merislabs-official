@@ -1,13 +1,14 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Authentication removed as per user request
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/database';
 
 export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   try {
-    const session = await auth();
-    if (!session || !session.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    // Removed authentication as per user request
+    // const session = await auth();
+    // if (!session || !session.user) {
+    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // }
 
     const opportunityId = params.opportunityId;
     const { cv } = await request.json();
@@ -34,10 +35,11 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
 
 export async function GET(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   try {
-    const session = await auth();
-    if (!session || !session.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    // Removed authentication as per user request
+    // const session = await auth();
+    // if (!session || !session.user) {
+    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // }
 
     const opportunityId = params.opportunityId;
 

@@ -9,12 +9,10 @@
  *   - To automatically trigger this suggestion process upon the loading of the CV Tailoring Studio UI (FR-2.1).
  *   - To integrate with Orion's LLM service (`generateLLMResponse`) for natural language processing and content matching (FR-2.2).
  *   - To return a structured JSON array of the top 5-7 most relevant `uniqueId`s (FR-2.3).
- *   - To ensure only authenticated users can access this suggestion service.
  *
  * FILEPATH: `app/api/orion/cv/suggest-components/route.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `auth.ts`: Handles user authentication and session validation.
  *   - `@/lib/opportunity_db_service`: Used to fetch the job description content from the database via `getOpportunityByIdFromDb` (part of FR-2.2).
  *   - `@/lib/cv_components_db_service`: Used to retrieve all available CV components from the database via `fetchAllCvComponents` (part of FR-2.2).
  *   - `@/lib/orion_llm`: Provides the `generateLLMResponse` function, which interfaces with the LLM to process the prompt and generate suggestions (FR-2.2).
@@ -32,11 +30,9 @@
  * NON-FUNCTIONAL REQUIREMENTS:
  *   - Performance: The LLM response time should be optimized to ensure responsive UI loading, with clear loading indicators in the frontend.
  *   - Reliability: Robust error handling to gracefully manage LLM failures or missing data.
- *   - Security: Protected by authentication to ensure only authorized users can trigger AI suggestions.
  *
  * NOTES:
  *   - This API acts as an intelligent intermediary, transforming a user request into an LLM query and returning actionable suggestions.
- *   - Security is handled by `next-auth` to ensure only authorized users can make requests.
  *   - The prompt for the LLM is carefully constructed to guide the AI in selecting the most relevant components based on the job description.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
@@ -47,9 +43,6 @@
  *   - **Dynamic Component Filtering**: Allow for additional filtering parameters (e.g., by component type or tags) to refine suggestions.
  */
 import { NextRequest, NextResponse } from 'next/server';
-// Removed getServerSession import as authentication is being removed
-// import { getServerSession } from 'next-auth';
-// import { authConfig } from '@/lib/auth';
 import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
 import { fetchAllCvComponents } from '@/lib/cv_components_db_service';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
@@ -59,11 +52,6 @@ import { CVComponent } from '@/lib/types/cv';
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
 export async function POST(request: NextRequest) {
-  // Authentication check is removed as per the authentication removal strategy.
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id)
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-
   const { opportunityId } = await request.json();
   if (!opportunityId)
     return NextResponse.json({ success: false, error: 'Opportunity ID is required.' }, { status: 400 });
@@ -72,7 +60,7 @@ export async function POST(request: NextRequest) {
     const opportunityResult = await getOpportunityByIdFromDb(opportunityId);
 
     // Handle HandledApplicationError or null opportunity explicitly
-    if (!opportunityResult || opportunityResult instanceof HandledApplicationError) {
+    if (opportunityResult === null || opportunityResult instanceof HandledApplicationError) {
       logger.warn('[CV_SUGGEST_API] Opportunity not found or is an error.', {
         opportunityId,
         error: opportunityResult instanceof HandledApplicationError ? opportunityResult.message : 'Not found',
@@ -83,7 +71,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const opportunity: OrionOpportunity = opportunityResult;
+    const opportunity: OrionOpportunity = opportunityResult as OrionOpportunity;
 
     if (!opportunity.content) {
       logger.warn('[CV_SUGGEST_API] Opportunity has no content.', { opportunityId });
@@ -96,7 +84,7 @@ export async function POST(request: NextRequest) {
       logger.error('[CV_SUGGEST_API][FETCH_COMPONENTS_ERROR]', { opportunityId, error: allCvComponents.message });
       return NextResponse.json(
         { success: false, error: allCvComponents.message },
-        { status: allCvComponents.status || 500 }
+        { status: allCvComponents.statusCode || 500 }
       );
     }
 

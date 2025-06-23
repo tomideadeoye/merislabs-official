@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { Contact } from '@/lib/types';
 import { fetchContactsFromNeon, saveContactToNeon } from '@/lib/contact_service';
 import logger from '@/lib/logger';
@@ -55,14 +54,14 @@ export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
     operation: 'fetchContacts',
     message: 'Attempting to fetch contacts via API.',
   });
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[API][GET][contacts][UNAUTHORIZED]', {
-      operation: 'fetchContacts',
-      message: 'Unauthorized access attempt.',
-    });
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // const session = await auth(); // Authentication removed as per user request
+  // if (!session || !session.user) {
+  //   logger.warn('[API][GET][contacts][UNAUTHORIZED]', {
+  //     operation: 'fetchContacts',
+  //     message: 'Unauthorized access attempt.',
+  //   });
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
 
   try {
     const contacts = await fetchContactsFromNeon();
@@ -70,7 +69,7 @@ export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
       operation: 'fetchContacts',
       message: `Successfully fetched ${contacts.length} contacts.`,
       count: contacts.length,
-      userId: session.user.id,
+      userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
     });
     return NextResponse.json({ success: true, contacts: contacts });
   } catch (error: unknown) {
@@ -80,7 +79,7 @@ export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
       message: `Error fetching contacts: ${errorMessage}`,
       error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
-      userId: session.user.id,
+      userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
     });
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
@@ -91,14 +90,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
     operation: 'saveContact',
     message: 'Attempting to save a new contact via API.',
   });
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[API][POST][contacts][UNAUTHORIZED]', {
-      operation: 'saveContact',
-      message: 'Unauthorized access attempt.',
-    });
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // const session = await auth(); // Authentication removed as per user request
+  // if (!session || !session.user) {
+  //   logger.warn('[API][POST][contacts][UNAUTHORIZED]', {
+  //     operation: 'saveContact',
+  //     message: 'Unauthorized access attempt.',
+  //   });
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
 
   try {
     const body = await request.json();
@@ -108,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
       logger.warn('[API][POST][contacts][VALIDATION_ERROR]', {
         operation: 'saveContact',
         message: 'Contact name is required.',
-        userId: session.user.id,
+        userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
       });
       return NextResponse.json({ success: false, error: 'Contact name is required.' }, { status: 400 });
     }
@@ -127,7 +126,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
       operation: 'saveContact',
       message: `Successfully saved contact ${savedContact.name}.`,
       contactId: savedContact.id,
-      userId: session.user.id,
+      userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
     });
 
     return NextResponse.json({ success: true, contact: savedContact }, { status: 201 });
@@ -138,7 +137,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
       message: `Error saving contact: ${errorMessage}`,
       error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
-      userId: session.user.id,
+      userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
     });
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }

@@ -56,12 +56,11 @@ export function handleServerError(error: unknown, context: AppErrorContext = {})
     });
   }
 
-  return new HandledApplicationError(message, {
-    status,
+  return new HandledApplicationError(
+    message,
+    status || 500,
+    errorType,
     data,
-    isRetryable,
-    type: errorType,
-    originalError: error,
-    logContext,
-  });
+    error instanceof Error ? error : undefined
+  );
 }

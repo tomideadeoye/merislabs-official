@@ -83,9 +83,9 @@ export const pythonApiService = {
   searchWeb: async (query: string): Promise<string> => {
     logger.info('[PYTHON_API_SERVICE] Simulating web search initiation.', { query, operation: 'searchWeb' });
     try {
-      // In a real scenario, this would call your actual web search API or Python backend.
-      // Example: const response = await apiClient.post('/api/python/search-web', { query });
-      // return response.data.results;
+    // In a real scenario, this would call your actual web search API or Python backend.
+    // Example: const response = await apiClient.post('/api/python/search-web', { query });
+    // return response.data.results;
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay for demonstration
       const simulatedResults = `Simulated search results for "${query}": Found relevant information on Wikipedia, Google Scholar, and recent news articles from major outlets regarding "${query}". Key findings include [summary of findings].`;
       logger.success('[PYTHON_API_SERVICE] Simulated web search completed successfully.', {
@@ -486,8 +486,8 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
           query,
           outputSummary: JSON.stringify(results).substring(0, 150) + '...',
           operation: 'search_web_completion',
-        });
-        return results;
+      });
+      return results;
       } catch (error: unknown) {
         logger.error('[TOOL_IMPLEMENTATION] Error during search_web execution.', {
           query,
@@ -538,10 +538,10 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
       logger.warn(
         '[TOOL_IMPLEMENTATION] Attempting sensitive financial transaction! Requires strict review and user confirmation in a real system.',
         {
-          recipient_account,
-          amount,
-          currency,
-          reason,
+        recipient_account,
+        amount,
+        currency,
+        reason,
           operation: 'send_financial_transaction_initiation',
         }
       );
@@ -569,18 +569,18 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
       }
 
       try {
-        const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-        logger.success('[TOOL_IMPLEMENTATION] Financial transaction simulated successfully.', {
-          transactionId,
-          recipient_account,
-          amount,
-          currency,
-          reason,
+      const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      logger.success('[TOOL_IMPLEMENTATION] Financial transaction simulated successfully.', {
+        transactionId,
+        recipient_account,
+        amount,
+        currency,
+        reason,
           operation: 'send_financial_transaction_completion',
-        });
-        return {
-          success: true,
-          transactionId,
+      });
+      return {
+        success: true,
+        transactionId,
           message: `Successfully initiated simulated transfer of ${amount} ${currency} to ${recipient_account} for "${reason}". Transaction ID: ${transactionId}.`,
         };
       } catch (error: unknown) {
@@ -590,6 +590,51 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
         });
         throw new Error(`Failed to execute simulated financial transaction: ${handleApiError(error)}`);
       }
+    },
+  },
+
+  log_expense: {
+    name: 'log_expense',
+    description:
+      'Logs a financial expense related to a project or task. This does not send money, it only records the transaction for tracking purposes.',
+    parameters: {
+      type: 'object',
+      properties: {
+        item: {
+          type: 'string',
+          description: 'The item or service that was paid for (e.g., "Carburetor", "Mechanic Labor").',
+        },
+        amount: { type: 'number', description: 'The amount paid.' },
+        currency: { type: 'string', description: 'The currency code (e.g., "USD", "EUR").' },
+        taskId: { type: 'string', description: 'Optional: The ID of the task this expense is related to.' },
+      },
+      required: ['item', 'amount', 'currency'],
+    },
+    implementation: async ({
+      item,
+      amount,
+      currency,
+      taskId,
+    }: {
+      item: string;
+      amount: number;
+      currency: string;
+      taskId?: string;
+    }) => {
+      logger.info('[TOOL_IMPLEMENTATION] Executing log_expense tool.', {
+        item,
+        amount,
+        currency,
+        taskId,
+        operation: 'log_expense_execution',
+      });
+      // In a real implementation, this would save the expense to a database, possibly as a note on the task.
+      const logMessage = `Successfully logged expense: ${amount} ${currency} for "${item}".`;
+      logger.success('[TOOL_IMPLEMENTATION] log_expense completed successfully.', {
+        logMessage,
+        operation: 'log_expense_completion',
+      });
+      return { success: true, message: logMessage };
     },
   },
 
@@ -1262,34 +1307,34 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
  * @function getToolSchemas
  * @description This function dynamically filters the `TOOL_MANIFEST` to only include tools that the user has explicitly allowed for the current agentic task (via UI selection or predefined permissions). It then transforms these active tool definitions into the specific JSON Schema format required by LLM providers for function calling. This ensures that the LLM only attempts to use tools it is authorized for, enhancing security and preventing unauthorized operations.
  *
- * @param {string[]} allowedToolNames - An array of string names, each representing a tool that the user has permitted the Orion agent to use in the current context. This array acts as a whitelist.
+ * @param {string[]} [allowedToolNames] - An optional array of string names, each representing a tool that the user has permitted the Orion agent to use in the current context. If empty or not provided, all tools will be returned for the LLM to consider.
  * @returns {Array<object>} An array of tool schema objects, each formatted according to the LLM provider's specifications (e.g., OpenAI's `function` tool type). Non-existent tools requested in `allowedToolNames` are gracefully filtered out, and a warning is logged.
  */
-export const getToolSchemas = (allowedToolNames: string[]) => {
+export const getToolSchemas = (allowedToolNames?: string[]) => {
   logger.debug('[ORION_TOOLS] Generating LLM-compatible tool schemas based on allowed tools.', {
     allowedToolNames,
     operation: 'getToolSchemas_init',
   });
-  const schemas = allowedToolNames
-    .map((toolName) => {
-      const tool = TOOL_MANIFEST[toolName];
-      if (!tool) {
-        logger.warn(
-          `[ORION_TOOLS] Attempted to get schema for non-existent or disallowed tool: "${toolName}". This tool will be skipped.`,
-          { toolName, operation: 'getToolSchemas_tool_not_found' }
-        );
-        return null; // Tool not found in manifest or not allowed for the current session.
-      }
-      return {
+
+  let toolsToProcess: Tool[] = [];
+  if (allowedToolNames && allowedToolNames.length > 0) {
+    toolsToProcess = allowedToolNames.map((toolName) => TOOL_MANIFEST[toolName]).filter(Boolean) as Tool[]; // Filter out undefined tools
+    logger.info('[ORION_TOOLS] Filtering tool schemas based on provided allowedToolNames.', { allowedToolNames });
+  } else {
+    // If no specific tools are allowed (or list is empty), provide all tools for LLM to consider
+    toolsToProcess = Object.values(TOOL_MANIFEST);
+    logger.info('[ORION_TOOLS] No specific allowed tools provided, returning all tool schemas for LLM consideration.');
+  }
+
+  const schemas = toolsToProcess.map((tool) => ({
         type: 'function',
         function: {
           name: tool.name,
           description: tool.description,
           parameters: tool.parameters,
         },
-      };
-    })
-    .filter(Boolean); // Filter out any nulls from non-existent/disallowed tools
+  }));
+
   logger.info('[ORION_TOOLS] Generated LLM-compatible schemas successfully.', {
     schemasCount: schemas.length,
     operation: 'getToolSchemas_completion',
@@ -1303,24 +1348,42 @@ export const getToolSchemas = (allowedToolNames: string[]) => {
  * @description This critical function takes a structured tool call object (as returned by the LLM after it has decided to use a tool) and dynamically invokes the corresponding tool's implementation from the `TOOL_MANIFEST`. It is responsible for parsing the arguments, executing the tool's business logic, and handling any runtime errors, ensuring a robust and traceable execution flow. This function embodies "Robust Error Handling" and "Comprehensive Logging" principles.
  *
  * @param {{ function: { name: string; arguments: string } }} toolCall - The tool call object received from the LLM. It contains the `name` of the tool to be executed and a `JSON string` of `arguments` for that tool.
- * @returns {Promise<any | { error: string }>} A promise resolving to the output of the tool's execution, or an error object if the tool fails at any stage (parsing, execution). The output type `any` reflects the diverse return types of different tools.
+ * @param {string[]} allowedToolNames - An array of tool names that the user has explicitly allowed for execution in the current session. This acts as a security gate.
+ * @returns {Promise<any | { error: string }>} A promise resolving to the output of the tool's execution, or an error object if the tool fails at any stage (parsing, execution).
  */
-export const executeTool = async (toolCall: { function: { name: string; arguments: string } }) => {
+export const executeTool = async (
+  toolCall: { function: { name: string; arguments: string } },
+  allowedToolNames: string[] // Add new parameter for security check
+) => {
   const toolName = toolCall.function.name;
-  const tool = TOOL_MANIFEST[toolName];
 
   logger.info(`[ORION_TOOLS] Attempting to execute tool: "${toolName}".`, {
     toolName,
     operation: 'executeTool_initiation',
   });
 
+  // Security check: Ensure the tool is explicitly allowed by the user's selection
+  if (!allowedToolNames.includes(toolName)) {
+    logger.warn(
+      `[ORION_TOOLS] Execution forbidden: Tool "${toolName}" is not in the list of allowed tools for this session.`,
+      {
+        toolName,
+        allowedToolNames,
+        operation: 'executeTool_unauthorized',
+      }
+    );
+    return { error: `Tool "${toolName}" is not authorized for execution.` };
+  }
+
+  const tool = TOOL_MANIFEST[toolName]; // Moved this line after the security check
+
   if (!tool) {
-    logger.error(`[ORION_TOOLS] Execution failed: Tool "${toolName}" not found in manifest or not allowed.`, {
+    logger.error(`[ORION_TOOLS] Execution failed: Tool "${toolName}" found in allowed list but not in manifest.`, {
       toolName,
-      operation: 'executeTool_tool_not_found',
+      operation: 'executeTool_tool_not_found_in_manifest',
     });
-    // This error indicates a mismatch between what the LLM tried to call and what's available/allowed.
-    return { error: `Tool "${toolName}" not found or unauthorized for execution.` };
+    // This case should ideally not happen if allowedToolNames is populated from TOOL_MANIFEST
+    return { error: `Tool "${toolName}" not found in manifest.` };
   }
 
   let args: any;

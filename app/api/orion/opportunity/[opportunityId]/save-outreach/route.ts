@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateNotionOpportunity } from '@/lib/notion_service';
-import { auth } from '@/auth';
 
 export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   const { opportunityId } = params;
   const { outreach } = await request.json();
 

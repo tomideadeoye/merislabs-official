@@ -52,6 +52,7 @@ import pdf from 'html-pdf';
 import { marked } from 'marked';
 import logger from '@/lib/logger';
 import { SendEmailParams, EmailAttachment } from '@/lib/types/email';
+import puppeteer from 'puppeteer';
 
 // TODO: Configure transporter with your email service details. This is a placeholder.
 // For production, consider using environment variables for sensitive details and a more robust transport.
@@ -89,24 +90,31 @@ export async function sendEmailService({
 
   // Convert markdown to PDF if provided
   if (markdownAttachment?.markdown) {
+    let browser;
     try {
-      // Sanitize markdown before converting to HTML to prevent XSS if external markdown is ever processed
-      const html = await marked.parse(markdownAttachment.markdown as string); // Use marked.parse for safety and cast to string
-      const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-        pdf.create(html).toBuffer((err, buffer) => {
-          if (err) return reject(err);
-          resolve(buffer);
-        });
+      const html = await marked.parse(markdownAttachment.markdown as string);
+      // Launch a headless browser
+      browser = await puppeteer.launch({
+        headless: true, // Run in headless mode
+        args: ['--no-sandbox', '--disable-setuid-sandbox'], // Recommended for Docker/CI environments
       });
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' }); // Wait for network to be idle
+      const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+
       attachments.push({
         filename: markdownAttachment.filename,
         content: pdfBuffer,
         contentType: 'application/pdf',
       });
-      logger.info('[EmailService] Successfully converted Markdown to PDF for attachment.');
+      logger.info('[EmailService] Successfully converted Markdown to PDF for attachment using Puppeteer.');
     } catch (error) {
-      logger.error('[EmailService] Failed to create PDF from markdown.', { error });
+      logger.error('[EmailService] Failed to create PDF from markdown using Puppeteer.', { error });
       throw new Error('Failed to generate PDF attachment.');
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
     }
   }
 

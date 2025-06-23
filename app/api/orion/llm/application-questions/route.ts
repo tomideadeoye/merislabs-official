@@ -7,10 +7,8 @@
  * - Related files: lib/notion_service.ts, lib/profile_service.ts, lib/orion_llm.ts, types/OrionOpportunity.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth/next';
 import logger from '@/lib/logger';
 import { generateLLMResponse } from '@/lib/orion_llm';
-// import { authConfig } from '@/lib/auth';
 import { JD_ANALYSIS_REQUEST_TYPE } from '@/lib/orion_config';
 import { z } from 'zod';
 
@@ -39,13 +37,6 @@ export async function POST(request: NextRequest) {
     '[APPLICATION_QUESTIONS_API][POST][START] Received request to generate application questions.',
     logContext
   );
-
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[APPLICATION_QUESTIONS_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';

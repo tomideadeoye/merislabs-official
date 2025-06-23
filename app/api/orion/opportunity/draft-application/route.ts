@@ -26,7 +26,6 @@
  *   - Future improvements could involve more sophisticated LLM parsing, A/B testing of prompt variations, and integrating more advanced feedback loops for draft quality.
  *   - Consider integrating the lib `logger` utility for all console output for unified logging and enhanced observability.
  */
-import { auth } from '@/auth';
 import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { fetchUserProfile } from '@/profile_service';
@@ -35,17 +34,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
 import { handleApiError } from '@/lib/utils/errorHandler';
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
-import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/styles';
-import { Session as NextAuthSession } from 'next-auth';
-
-interface CustomSession extends NextAuthSession {
-  user?: {
-    id?: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  };
-}
+import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
 
 // Enhanced system prompt for draft application generation
 const SYSTEM_PROMPT_DRAFT_APPLICATION = `
@@ -212,12 +201,6 @@ function parseDraftsFromLLMResponse(llmContent: string): string {
  * API route for drafting application materials for a specific OrionOpportunity using LLM.
  */
 export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
-  // Check authentication
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
     const requestBody: DraftApplicationRequestBody = await request.json();
 

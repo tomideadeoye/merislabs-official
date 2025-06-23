@@ -1,11 +1,10 @@
 /**
  * @fileoverview API route to update an existing user-defined prompt.
- * @description This endpoint provides a secure and authenticated way to modify an existing prompt in the database. It uses Zod for input validation, leverages the `prompt_db_service` to perform the update operation, and includes comprehensive logging and error handling. This is a core API for the 'My Prompts' feature, enabling users to fine-tune their linguistic masterpieces.
+ * @description This endpoint provides a way to modify an existing prompt in the database. It uses Zod for input validation, leverages the `prompt_db_service` to perform the update operation, and includes comprehensive logging and error handling. This is a core API for the 'My Prompts' feature, enabling users to fine-tune their linguistic masterpieces.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - To provide an authenticated API endpoint for updating existing prompts.
+ *   - To provide an API endpoint for updating existing prompts.
  *   - To validate incoming request data using a Zod schema, ensuring prompt integrity.
- *   - To ensure only authenticated users can modify their own prompts.
  *   - To integrate with `prompt_db_service` to persist the updated prompt data.
  *   - To return the updated prompt object upon success.
  *   - To provide comprehensive logging for request/response cycles and errors.
@@ -14,8 +13,6 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `next/server`: Used for handling Next.js API routes (`NextRequest`, `NextResponse`).
- *   - `next-auth`: Used for `getServerSession` to authenticate the user.
- *   - `@/lib/auth`: Imports `authConfig` for session validation.
  *   - `zod`: Used for defining and validating the input schema for prompt updates.
  *   - `@/lib/prompt_db_service`: Consumes `updatePrompt` to modify existing prompts in the database.
  *   - `@/lib/logger`: Used for comprehensive logging throughout the request lifecycle.
@@ -23,10 +20,9 @@
  *   - `app/components/orion/MyPromptsStudio.tsx`: The client-side UI component that will call this API to update prompts.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes user authentication is handled by `next-auth` and a valid session is available.
  *   - Assumes `updatePrompt` in `prompt_db_service.ts` functions correctly and handles cases where the prompt might not be found or owned by the user.
  *   - Input data for prompt updates (`uniqueId`, `name`, `content`, `category`) will be validated against a Zod schema. Only provided fields will be updated (partial updates are supported).
- *   - Robust error handling is in place for authentication, validation, and database operation failures.
+ *   - Robust error handling is in place for validation, and database operation failures.
  *
  * NOTES:
  *   - This API is crucial for maintaining the flexibility and accuracy of the user's prompt library.
@@ -57,13 +53,6 @@ export async function PUT(request: NextRequest) {
     operation: 'PUT',
   };
   logger.info('[UPDATE_PROMPT_API][PUT][START] Received request to update prompt.', logContext);
-
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[UPDATE_PROMPT_API][PUT][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';

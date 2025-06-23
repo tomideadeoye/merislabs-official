@@ -47,11 +47,10 @@ import {
   EvaluationOutput,
   OpportunityPriority,
   EvaluationGapDetail,
-  HandledApplicationError,
-} from './types';
-import logger from './logger';
+} from '@/lib/types';
+import logger from '@/lib/logger';
 import prisma from './prisma'; // Import the lib Prisma Client instance
-import { handleApiError } from './utils/errorHandler'; // Import centralized error handler
+import { handleApiError, HandledApplicationError } from '@/lib/utils/errorHandler'; // Import HandledApplicationError from errorHandler
 
 // Define a type that matches the fields selected in Prisma queries
 interface PrismaSelectedOpportunity {
@@ -184,7 +183,7 @@ export async function getOpportunityByIdFromDb(id: string): Promise<OrionOpportu
     function: 'getOpportunityByIdFromDb',
     opportunityId: id,
     queryComplexity: 'SINGLE_RECORD',
-    cacheStatus: 'NONE'
+    cacheStatus: 'NONE',
   };
   logger.info('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][START]', logContext);
   const startTime = Date.now();
@@ -232,7 +231,7 @@ export async function getOpportunityByIdFromDb(id: string): Promise<OrionOpportu
     return mapPrismaOpportunityToOrionOpportunity(opportunity);
   } catch (error: unknown) {
     const handledError = handleApiError(error, logContext);
-    logger.error('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][ERROR] Failed to fetch opportunity.', handledError.logContext);
+    logger.error('[OPPORTUNITY_DB_SERVICE][GET_BY_ID][ERROR] Failed to fetch opportunity.', logContext);
     return handledError;
   }
 }
@@ -302,10 +301,7 @@ export async function listOpportunitiesFromDb(): Promise<OrionOpportunity[] | Ha
     return mappedOpportunities;
   } catch (error: unknown) {
     const handledError = handleApiError(error, logContext);
-    logger.error(
-      '[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][ERROR] Failed to list opportunities.',
-      handledError.logContext
-    );
+    logger.error('[OPPORTUNITY_DB_SERVICE][LIST_OPPORTUNITIES][ERROR] Failed to list opportunities.', logContext);
     return handledError;
   }
 }

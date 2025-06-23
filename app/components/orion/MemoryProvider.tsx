@@ -72,7 +72,6 @@ interface MemoryContextType {
   userProfileData: UserProfileData | null | undefined;
   loadingProfile: boolean | undefined;
   profileError: string | Error | null | undefined;
-  isLoggedIn: boolean;
   addMemory: (
     text: string,
     sourceId: string,
@@ -101,7 +100,6 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
 
   // Import and use the existing useUserProfile hook
   const { profile: userProfileData, isLoading: loadingProfile, error: profileError } = useUserProfile();
-  const isLoggedIn = !!userProfileData?.email; // Determine login status based on userProfileData
 
   // Initialize memory backend (Qdrant)
   const initializeMemory = useCallback(async () => {
@@ -259,11 +257,7 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
   const findByTag = useCallback(async (tag: string, limit: number = 10) => {
     setLoading(true);
     setError(null);
-    logger.info('[MemoryProvider] Finding memories by tag.', {
-      operation: 'find_by_tag',
-      tag,
-      limit,
-    });
+    logger.info('[MemoryProvider] Finding memories by tag.', { operation: 'find_by_tag', tag, limit });
 
     try {
       const response = await findMemoriesByTag(tag, limit);
@@ -299,13 +293,13 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Clear results
   const clearResults = useCallback(() => {
+    logger.debug('[MemoryProvider] Clearing search results.');
     setSearchResults([]);
   }, []);
 
-  // Clear error
   const clearError = useCallback(() => {
+    logger.debug('[MemoryProvider] Clearing error state.');
     setError(null);
   }, []);
 
@@ -327,7 +321,6 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
       userProfileData,
       loadingProfile,
       profileError,
-      isLoggedIn,
       addMemory: addMemoryItem,
       findByType,
       findByTag,
@@ -344,7 +337,6 @@ export const MemoryProvider: React.FC<MemoryProviderProps> = ({ children }) => {
       userProfileData,
       loadingProfile,
       profileError,
-      isLoggedIn,
       addMemoryItem,
       findByType,
       findByTag,

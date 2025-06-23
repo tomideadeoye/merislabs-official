@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authConfig } from '@/lib/auth';
 import { Stakeholder } from '@/lib/types';
 
 const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:5002';
@@ -13,10 +11,6 @@ interface FindAndEnrichStakeholdersRequest {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authConfig);
-  if (!session?.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
 
   try {
     const { companyName, role, count, enrichFields } = await request.json();

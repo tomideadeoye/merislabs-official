@@ -42,8 +42,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
 import logger from '@/lib/logger';
-import { HandledApplicationError } from '@/lib/types';
+import { OrionOpportunity } from '@/lib/types';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
+import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
 export async function GET(
   request: NextRequest, // Marked as unused, but kept for route signature consistency
@@ -60,21 +61,22 @@ export async function GET(
       logger.error('[OPPORTUNITY_DETAIL_API][ERROR] Received HandledApplicationError from DB service.', {
         ...logContext,
         error: opportunity.message,
-        name: opportunity.type ?? 'UnknownErrorType',
-        details: opportunity.data ?? opportunity.originalError ?? 'No specific details provided',
+        name: opportunity.errorCode ?? 'UnknownErrorType',
+        details: opportunity.details ?? opportunity.originalError ?? 'No specific details provided',
       });
       return NextResponse.json(
-        { success: false, error: opportunity.message, details: opportunity.data ?? 'Unknown error' },
-        { status: opportunity.status || 500 }
+        { success: false, error: opportunity.message, details: opportunity.details ?? 'Unknown error' },
+        { status: opportunity.statusCode || 500 }
       );
     }
 
     if (opportunity) {
+      const fetchedOpportunity: OrionOpportunity = opportunity;
       logger.info('[OPPORTUNITY_DETAIL_API][GET_SUCCESS] Opportunity details fetched.', {
         ...logContext,
-        opportunityTitle: opportunity.title,
+        opportunityTitle: fetchedOpportunity.title,
       });
-      return NextResponse.json({ success: true, opportunity: opportunity });
+      return NextResponse.json({ success: true, opportunity: fetchedOpportunity });
     } else {
       logger.warn('[OPPORTUNITY_DETAIL_API][NOT_FOUND] Opportunity not found.', logContext);
       return NextResponse.json({ success: false, error: 'Opportunity not found' }, { status: 404 });
@@ -86,6 +88,9 @@ export async function GET(
       error: handledError.message,
       stack: handledError.originalError instanceof Error ? handledError.originalError.stack : 'N/A',
     });
-    return NextResponse.json({ success: false, error: handledError.message }, { status: handledError.status || 500 });
+    return NextResponse.json(
+      { success: false, error: handledError.message },
+      { status: handledError.statusCode || 500 }
+    );
   }
 }

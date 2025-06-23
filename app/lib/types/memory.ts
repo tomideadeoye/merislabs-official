@@ -66,6 +66,7 @@ export interface ScoredMemoryPoint {
   id: string; // Unique ID of the memory point
   score: number; // Relevance score from Qdrant
   content: string; // Extracted primary text content for display (from metadata.text)
+  vector: number[]; // Explicitly add vector property
   embedding?: number[]; // Optional vector embedding (usually not returned by search `with_vector: false`)
   payload: MemoryMetadataPayload; // The full metadata payload from Qdrant
 }

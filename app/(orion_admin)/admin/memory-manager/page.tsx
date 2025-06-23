@@ -70,7 +70,7 @@ import logger from '@/lib/logger';
 import { REQUEST_TYPES } from '@/lib/orion_llm'; // Import REQUEST_TYPES
 
 export default function MemoryManagerFeaturePage() {
-  const { memoryInitialized, loading: memoryLoading, error: memoryError, isLoggedIn } = useMemoryContext();
+  const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
@@ -89,7 +89,6 @@ export default function MemoryManagerFeaturePage() {
       memoryInitialized,
       memoryLoading,
       memoryError,
-      isLoggedIn,
     });
 
     // Fetch current LLM model when component mounts or relevant dependencies change
@@ -113,7 +112,7 @@ export default function MemoryManagerFeaturePage() {
     };
 
     fetchCurrentLlmModel();
-  }, [memoryInitialized, memoryLoading, memoryError, isLoggedIn]);
+  }, [memoryInitialized, memoryLoading, memoryError]);
 
   const handleSearch = useCallback(
     async (event?: React.FormEvent) => {
@@ -229,7 +228,6 @@ export default function MemoryManagerFeaturePage() {
         description="Search, view, and manage Orion's knowledge base."
         showMemoryStatus={true}
         memoryInitialized={memoryInitialized}
-        isLoggedIn={isLoggedIn}
         currentLlmModel={currentLlmModel || undefined}
       />
 

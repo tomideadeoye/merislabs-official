@@ -1,24 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
-import { getServerSession } from 'next-auth/next';
-import { authConfig } from '@/lib/auth';
 import { createJournalEntryInNotion } from '@/lib/notion_service'; // Import the Notion save function
-import type { JournalEntryNotionInput } from '@/lib'; // Import the type
+import { JournalEntryNotionInput } from '@/lib/types'; // Corrected import path
 import { JOURNAL_REFLECTION_REQUEST_TYPE } from '@/lib/orion_config';
-import type { Session } from 'next-auth';
-import type { AuthOptions } from 'next-auth'; // Ensure AuthOptions is imported
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session: Session | null = await getServerSession(authConfig as unknown as AuthOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
-  }
-
   try {
     const body = await request.json();
     const {
@@ -90,7 +80,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: request.headers.get('Authorization') || '',
+          // Authorization: request.headers.get('Authorization') || '', // Removed authentication header
         },
         body: JSON.stringify({
           texts: [text], // Use the original text for embedding
@@ -130,7 +120,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: request.headers.get('Authorization') || '',
+            // Authorization: request.headers.get('Authorization') || '', // Removed authentication header
           },
           body: JSON.stringify({
             points: [memoryPoint],
@@ -185,7 +175,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: request.headers.get('Authorization') || '',
+            // Authorization: request.headers.get('Authorization') || '', // Removed authentication header
           },
           body: JSON.stringify({
             requestType: JOURNAL_REFLECTION_REQUEST_TYPE, // Use constant
@@ -229,7 +219,7 @@ export async function POST(request: NextRequest) {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  Authorization: request.headers.get('Authorization') || '',
+                  // Authorization: request.headers.get('Authorization') || '', // Removed authentication header
                 },
                 body: JSON.stringify({
                   texts: [reflectionContent],
@@ -255,7 +245,7 @@ export async function POST(request: NextRequest) {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  Authorization: request.headers.get('Authorization') || '',
+                  // Authorization: request.headers.get('Authorization') || '', // Removed authentication header
                 },
                 body: JSON.stringify({
                   points: [reflectionPoint],

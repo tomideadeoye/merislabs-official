@@ -74,7 +74,6 @@
     "lucide-react": "^0.294.0",
     "marked": "^15.0.12",
     "next": "15.3.3",
-    "next-auth": "^4.24.11",
     "next-themes": "^0.2.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.10.1",

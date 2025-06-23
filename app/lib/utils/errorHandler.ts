@@ -48,37 +48,33 @@ export interface AppErrorContext {
  * This extends the native Error object to include additional context and properties.
  */
 export class HandledApplicationError extends Error {
-  public status?: number;
-  public data?: unknown;
-  public isRetryable?: boolean;
-  public type: string;
-  public originalError?: unknown;
-  public logContext: AppErrorContext;
-
   constructor(
     message: string,
-    options: {
-      status?: number;
-      data?: unknown;
-      isRetryable?: boolean;
-      type?: string;
-      originalError?: unknown;
-      logContext: AppErrorContext;
-    }
+    public readonly statusCode: number,
+    public readonly errorCode: string,
+    public readonly details?: unknown,
+    public readonly originalError?: unknown
   ) {
     super(message);
-    this.name = 'HandledApplicationError'; // Set custom error name
-    this.status = options.status;
-    this.data = options.data;
-    this.isRetryable = options.isRetryable;
-    this.type = options.type || 'UNKNOWN_ERROR';
-    this.originalError = options.originalError;
-    this.logContext = options.logContext;
+    this.name = 'HandledApplicationError';
 
-    // This is needed to correctly capture the stack trace in V8 (Node.js)
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, HandledApplicationError);
     }
+  }
+
+  toJSON() {
+    const obj: { [key: string]: unknown } = {
+      name: this.name,
+      message: this.message,
+      statusCode: this.statusCode,
+      errorCode: this.errorCode,
+      details: this.details,
+    };
+    if (this.originalError) {
+      obj.originalError = String(this.originalError);
+    }
+    return obj;
   }
 }
 
@@ -178,12 +174,5 @@ export function handleApiError(error: unknown, context: AppErrorContext = {}): H
   const finalMessage = userFriendlyMessage || message;
 
   // Return a new HandledApplicationError object with the determined message and properties
-  return new HandledApplicationError(finalMessage, {
-    status,
-    data,
-    isRetryable,
-    type: errorType,
-    originalError: error,
-    logContext,
-  });
+  return new HandledApplicationError(finalMessage, status || 500, errorType, data, error);
 }

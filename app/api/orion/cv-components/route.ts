@@ -48,7 +48,6 @@ import { saveOrUpdateCvComponent, fetchAllCvComponents } from '@/lib/cv_componen
 import { RawCvComponentJsonData } from '@/lib/types';
 import { CVComponent } from '@/lib/types/cv';
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
@@ -71,13 +70,6 @@ export async function GET() {
   logger.info('[CV_COMP_API][GET_LIST][START]', logContext);
 
   try {
-    const session = await auth();
-    if (!session || !session.user || !session.user.id) {
-      logger.warn('[CV_COMP_API][GET_LIST][AUTH_FAIL]', logContext);
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    (logContext as { user?: string }).user = session.user.id;
-
     const components = await fetchAllCvComponents();
 
     if (Array.isArray(components)) {
@@ -87,11 +79,11 @@ export async function GET() {
       logger.error('[CV_COMP_API][GET_LIST][FAILED_FETCH_RETURNED_ERROR]', {
         ...logContext,
         error: components.message,
-        status: components.status,
+        statusCode: components.statusCode,
       });
       return NextResponse.json(
         { success: false, error: components.message, details: components.message },
-        { status: components.status || 500 }
+        { status: components.statusCode || 500 }
       );
     } else {
       logger.error('[CV_COMP_API][GET_LIST][UNEXPECTED_RETURN_TYPE]', { ...logContext, returnedValue: components });
@@ -124,13 +116,6 @@ export async function POST(request: NextRequest) {
   logger.info('[CV_COMP_API][CREATE][START]', logContext);
 
   try {
-    const session = await auth();
-    if (!session || !session.user || !session.user.id) {
-      logger.warn('[CV_COMP_API][CREATE][AUTH_FAIL]', logContext);
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    (logContext as { user?: string }).user = session.user.id;
-
     const body = await request.json();
     const validatedData: ValidatedCvComponentData = createCvComponentSchema.parse(body);
 
@@ -150,8 +135,8 @@ export async function POST(request: NextRequest) {
 
     const dataToSendToService = {
       ...rawCvData,
-      userId: session.user.id!,
-    } as RawCvComponentJsonData & { userId: string };
+      userId: null,
+    } as RawCvComponentJsonData & { userId: string | null };
 
     const newComponent = await saveOrUpdateCvComponent(dataToSendToService);
 

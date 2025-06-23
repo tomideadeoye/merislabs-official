@@ -1,8 +1,5 @@
-// GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
-
-import { auth } from '@/auth';
-import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { NextRequest, NextResponse } from 'next/server';
+import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib/orion_config';
 
 interface StakeholderSearchRequestBody {
   company: string;
@@ -21,12 +18,6 @@ interface Stakeholder {
 }
 
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
     const requestBody: StakeholderSearchRequestBody = await request.json();
     const { company, roles, jobTitle, profileData, webContext } = requestBody;

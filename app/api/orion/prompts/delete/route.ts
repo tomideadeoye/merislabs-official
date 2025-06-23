@@ -1,11 +1,10 @@
 /**
  * @fileoverview API route to delete an existing user-defined prompt.
- * @description This endpoint provides a secure and authenticated way to remove a prompt from the database. It uses Zod for input validation, leverages the `prompt_db_service` to perform the deletion, and includes comprehensive logging and error handling. This is a core API for the 'My Prompts' feature, ensuring users can manage their linguistic masterpieces effectively.
+ * @description This endpoint provides a way to remove a prompt from the database. It uses Zod for input validation, leverages the `prompt_db_service` to perform the deletion, and includes comprehensive logging and error handling. This is a core API for the 'My Prompts' feature, ensuring users can manage their linguistic masterpieces effectively.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - To provide an authenticated API endpoint for deleting prompts.
+ *   - To provide an API endpoint for deleting prompts.
  *   - To validate incoming request data using a Zod schema, ensuring correct prompt identification.
- *   - To ensure only authenticated users can delete their own prompts.
  *   - To integrate with `prompt_db_service` to remove prompt data from the database.
  *   - To return a success status upon successful deletion.
  *   - To provide comprehensive logging for request/response cycles and errors.
@@ -14,8 +13,6 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `next/server`: Used for handling Next.js API routes (`NextRequest`, `NextResponse`).
- *   - `next-auth`: Used for `getServerSession` to authenticate the user.
- *   - `@/lib/auth`: Imports `authConfig` for session validation.
  *   - `zod`: Used for defining and validating the input schema for prompt deletion.
  *   - `@/lib/prompt_db_service`: Consumes `deletePrompt` to remove prompts from the database.
  *   - `@/lib/logger`: Used for comprehensive logging throughout the request lifecycle.
@@ -23,10 +20,9 @@
  *   - `app/components/orion/MyPromptsStudio.tsx`: The client-side UI component that will call this API to delete prompts.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes user authentication is handled by `next-auth` and a valid session is available.
  *   - Assumes `deletePrompt` in `prompt_db_service.ts` functions correctly and handles cases where the prompt might not be found or owned by the user.
  *   - Input data for prompt deletion (`uniqueId`) will be validated against a Zod schema.
- *   - Robust error handling is in place for authentication, validation, and database operation failures.
+ *   - Robust error handling is in place for validation, and database operation failures.
  *
  * NOTES:
  *   - This API is essential for the full lifecycle management of prompts within the 'My Prompts' feature.
@@ -38,10 +34,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth';
 import { deletePrompt } from '@/lib/prompt_db_service';
 import logger from '@/lib/logger';
-// import { authConfig } from '@/lib/auth';
 
 interface LogContextType {
   route: string;
@@ -58,13 +52,6 @@ export async function DELETE(request: NextRequest) {
     operation: 'DELETE',
   };
   logger.info('[DELETE_PROMPT_API][DELETE][START] Received request to delete prompt.', logContext);
-
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[DELETE_PROMPT_API][DELETE][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';

@@ -15,8 +15,6 @@
  * FILEPATH: `app/api/orion/email/send/route.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `next-auth/next`: Utilizes `getServerSession` for server-side session management and authentication.
- *   - `@/lib/auth.ts`: Provides `authConfig` for session authentication.
  *   - `@/lib/types/index.ts`: Defines `SendEmailParams` and `SendEmailResponse` for type safety.
  *   - `@/lib/email_service.ts`: The core service responsible for the actual email dispatch logic (e.g., using Nodemailer).
  *   - `@/lib/logger.ts`: Used for comprehensive, context-rich logging of API requests, successes, and failures.
@@ -25,13 +23,11 @@
  *   - `app/components/orion/opportunities/EmailDraftingStudio.tsx`: The client-side component that calls this API to send drafted emails.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes the `authConfig` is correctly set up for session management.
  *   - Assumes `sendEmailService` is operational and handles the low-level email sending logic correctly.
  *   - Assumes email attachments are provided in a format (`Buffer`, `base64`, etc.) compatible with `sendEmailService`.
  *   - Robust logging is in place to track the email sending flow and diagnose issues.
  *
  * NON-FUNCTIONAL REQUIREMENTS:
- *   - Security: Strict authentication and validation prevent unauthorized email sending and malformed requests.
  *   - Reliability: Comprehensive error handling ensures graceful failure and informative feedback.
  *   - Performance: Efficient handling of requests to minimize latency in email dispatch.
  *
@@ -48,10 +44,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth/next';
 import logger from '@/lib/logger';
 import { sendEmailService } from '@/lib/email_service';
-// import { authConfig } from '@/lib/auth';
 import { z } from 'zod';
 
 interface LogContextType {
@@ -78,13 +72,6 @@ export async function POST(request: NextRequest) {
     operation: 'POST',
   };
   logger.info('[EMAIL_SEND_API][POST][START] Received request to send email.', logContext);
-
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[EMAIL_SEND_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';

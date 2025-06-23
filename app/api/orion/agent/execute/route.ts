@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { generateLLMResponse, generateLLMResponseWithTools } from '@/lib/orion_llm';
 import { getToolSchemas, executeTool } from '@/lib/orion_tools';
 import type { CombinedLLMResponse, LLMToolCall, Message, LLMResponseSuccess, LLMTool } from '@/lib/types';
@@ -99,10 +98,10 @@ function parseAndValidateToolCalls(responseContent: string): LLMToolCall[] {
 
 // Helper to execute tool calls by calling internal API endpoints
 // This function now directly uses the executeTool from orion_tools.ts
-async function executeProposedToolCall(toolCall: LLMToolCall): Promise<unknown> {
+async function executeProposedToolCall(toolCall: LLMToolCall, allowedToolNames: string[]): Promise<unknown> {
   logger.info(`[AGENT_EXECUTE] Executing proposed tool call: ${toolCall.function.name}`);
   try {
-    const toolOutput = await executeTool(toolCall);
+    const toolOutput = await executeTool(toolCall, allowedToolNames);
     return toolOutput;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -118,11 +117,6 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
     const body = await request.json();
     const { userQuery, selectedTools, numOptions = 1, preDeterminedToolCall } = body; // Default numOptions to 1
@@ -135,7 +129,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      const toolOutput = await executeProposedToolCall(preDeterminedToolCall as LLMToolCall);
+      const toolOutput = await executeProposedToolCall(preDeterminedToolCall as LLMToolCall, selectedTools || []);
       const assistantMessage: Message = { role: 'assistant', content: 'Executing pre-determined action.' };
       const toolMessage: Message = {
         role: 'tool',
@@ -154,8 +148,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'userQuery is required.' }, { status: 400 });
     }
 
-    const availableToolSchemas = getToolSchemas(selectedTools || []) as object[];
-    logger.info('[AGENT_EXECUTE] Available tool schemas for LLM.', {
+    // Pass ALL available tool schemas to the LLM for it to consider, regardless of user selection initially.
+    // The security check for allowed tools will happen during executeTool.
+    const availableToolSchemas = getToolSchemas() as object[]; // No filter here, let LLM see all
+    logger.info('[AGENT_EXECUTE] All available tool schemas provided to LLM.', {
       schemas: availableToolSchemas.map((s) => (s as LLMTool).function.name),
     });
 
@@ -185,7 +181,6 @@ export async function POST(request: NextRequest) {
         const llmParams = {
           requestType: 'agent_workflow',
           primaryContext: userQuery,
-          userId: session.user.id!,
           tools: availableToolSchemas,
           tool_choice: 'auto' as 'auto' | 'none' | object,
           // numOptions is not passed here directly as it's handled by the outer loop
@@ -195,7 +190,7 @@ export async function POST(request: NextRequest) {
         const llmResponse: CombinedLLMResponse = await generateLLMResponseWithTools({
           requestType: llmParams.requestType,
           primaryContext: llmParams.primaryContext,
-          userId: llmParams.userId,
+          userId: 'unauthenticated_user',
           tools: llmParams.tools,
           tool_choice: llmParams.tool_choice,
         });
@@ -208,7 +203,8 @@ export async function POST(request: NextRequest) {
 
             for (const toolCall of llmResponse.tool_calls) {
               logger.info(`[AGENT_EXECUTE] Executing tool: ${toolCall.function.name}.`);
-              const toolOutput = await executeTool(toolCall);
+              // Pass selectedTools to executeTool for permission check
+              const toolOutput = await executeTool(toolCall, selectedTools || []);
               currentMessages.push({ role: 'tool', tool_call_id: toolCall.id, content: JSON.stringify(toolOutput) });
               logger.success(`[AGENT_EXECUTE] Tool ${toolCall.function.name} executed.`, { output: toolOutput });
             }

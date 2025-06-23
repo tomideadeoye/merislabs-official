@@ -40,11 +40,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponse } from '@/lib/orion_llm';
 import type { CombinedLLMResponse } from '@/lib/types';
-import { auth } from '@/auth'; // Import auth for authentication
 import logger from '@/lib/logger'; // Import logger
 import { z } from 'zod'; // Import zod for validation
-import { HandledApplicationError } from '@/lib/types'; // Import HandledApplicationError from types
 import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import handleServerError
+import { HandledApplicationError } from '@/lib/utils/errorHandler'; // Correct import for HandledApplicationError
 import { REQUEST_TYPES } from '@/lib/orion_llm';
 
 // Define a Zod schema for the incoming request body
@@ -61,13 +60,6 @@ export async function POST(request: NextRequest) {
   logger.info('[CV_AI_SUGGEST_API][POST][START]', logContext);
 
   try {
-    const session = await auth();
-    if (!session || !session.user || !session.user.id) {
-      logger.warn('[CV_AI_SUGGEST_API][POST][AUTH_FAIL]', logContext);
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    (logContext as { user?: string }).user = session.user.id;
-
     const body = await request.json();
     const { cvContent, jdAnalysis } = aiSuggestRequestSchema.parse(body);
 
@@ -96,7 +88,7 @@ ${jdAnalysis || 'N/A'}
     const llmResponse: CombinedLLMResponse = await generateLLMResponse(
       REQUEST_TYPES.CV_COMPONENT_TAILORING,
       prompt,
-      session.user.id!,
+      null, // userId is now nullable
       {
         temperature: 0.6,
         maxTokens: 300,
@@ -128,11 +120,14 @@ ${jdAnalysis || 'N/A'}
         details: err.errors,
       });
       return NextResponse.json(
-        { success: false, error: 'Invalid input for AI suggestions.', details: handledError.data ?? err.errors },
+        { success: false, error: 'Invalid input for AI suggestions.', details: handledError.details ?? err.errors },
         { status: 400 }
       );
     }
     logger.error('[CV_AI_SUGGEST_API][POST][CATCH_ERROR]', { ...logContext, error: handledError.message });
-    return NextResponse.json({ success: false, error: handledError.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: handledError.message },
+      { status: handledError.statusCode || 500 }
+    );
   }
 }

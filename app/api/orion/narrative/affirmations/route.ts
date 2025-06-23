@@ -33,7 +33,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Authentication removed as per user request
 import logger from '@/lib/logger';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { searchMemory } from '@/lib/orion_memory';
@@ -41,13 +41,14 @@ import { searchMemory } from '@/lib/orion_memory';
 const TEMP_USER_ID = 'temp_affirmation_user';
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  if (!session) {
-    logger.warn('[affirmations][POST] Unauthorized access attempt.');
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Removed authentication as per user's request
+  // const session = await auth();
+  // if (!session) {
+  //   logger.warn('[affirmations][POST] Unauthorized access attempt.');
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
 
-  const userId = session.user?.id || TEMP_USER_ID;
+  const userId = TEMP_USER_ID; // Always use TEMP_USER_ID as authentication is removed
 
   try {
     const { contextPrompt } = await request.json(); // Optional: user can provide a prompt to guide affirmations

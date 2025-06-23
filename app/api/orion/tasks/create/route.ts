@@ -1,107 +1,118 @@
 /**
- * @fileoverview [This API route is responsible for creating new tasks in the Agentic Workflow system.]
- * @description [It handles incoming POST requests, validates the task data,
- *   and uses the `taskDbService` to persist the new task in the database. Comprehensive logging is
- *   included for traceability and debugging. This route currently does NOT require authentication for flexibility in a personal development environment.]
+ * @fileoverview API route for creating new tasks in the Orion internal database.
+ * @description This route handles the creation of new tasks, allowing users to define
+ *   various task types (e.g., TODO, DAILY, HABIT, REWARD, PROJECT, GOAL) and their
+ *   associated properties like title, description, priority, and due dates.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - [To provide an endpoint for creating new 'Task' entries.]
- *   - [To ensure data validation for incoming task creation requests.]
- *   - [To integrate with `taskDbService` for seamless database interaction.]
+ *   - To provide a robust API endpoint (`POST`) for adding new tasks to Orion's internal task management system.
+ *   - To support different categories of tasks, mirroring (and eventually replacing) Habitica's task types.
+ *   - To ensure data integrity through request validation using Zod.
+ *   - To integrate seamlessly with the Prisma `Task` model for database persistence.
+ *   - To provide comprehensive logging for traceability and debugging.
  *
- * FILEPATH: `app/api/orion/tasks/create/route.ts`.
+ * FILEPATH: `app/api/orion/tasks/create/route.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/lib/task_db_service.ts`: Consumes the `createTask` function from this service to interact with the database.
- *   - `app/lib/logger.ts`: Used for logging operational details, warnings, and errors.
- *   - `@prisma/client` (or `@/generated/prisma`): Provides `Prisma.TaskCreateInput` for type safety of request body.
- *   - `app/(orion_admin)/admin/agentic-workflow/page.tsx` (Future): This page will likely have a form that calls this API.
+ *   - `@/lib/prisma`: Provides the Prisma client for database interaction (`prisma.task.create`).
+ *   - `@/lib/logger`: Used for structured and context-rich logging.
+ *   - `@/generated/prisma`: Imports Prisma generated types like `TaskStatus`, `TaskPriority`, and `TaskType` for type safety.
+ *   - `@/lib/utils/errorHandler`: Used for centralized error handling (`handleServerError`).
+ *   - `app/(orion_admin)/admin/habitica/page.tsx` (or future internal task management UI): This route will be consumed by frontend components to create new tasks.
+ *   - `prisma/schema.prisma`: Defines the `Task` model and `TaskType` enum that this route interacts with.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - This route is intended for a single-user, personal environment where explicit authentication is not strictly required at the API level.
- *   - Assumes `taskDbService.createTask` handles all database-level validation and error propagation effectively.
- *   - Assumes `NextRequest` and `NextResponse` are used for handling API requests and responses.
+ *   - Assumes that `userId` will be a hardcoded placeholder (`'unauthenticated_user'`) since authentication has been removed.
+ *   - Assumes incoming request body will adhere to the `createTaskSchema` for validation.
+ *   - Default values are provided for `status` and `priority` if not explicitly set in the request.
+ *   - `TaskType` will default to `TODO` if not provided, allowing for flexible task creation.
  *
  * NOTES:
- *   - All logs include operation, parameters, validation, and results for traceability and rapid debugging.
- *   - Uses a `try-catch` block for robust error handling and returns consistent JSON responses.
- *   - IMPORTANT: For production multi-user applications, re-introduce robust authentication and authorization checks.
+ *   - This file is a key component in migrating away from external task management systems (like Habitica) towards a fully integrated Orion solution.
+ *   - The use of Zod for validation ensures that only well-formed data is processed and stored.
+ *   - Detailed logging at each stage aids in monitoring and troubleshooting the task creation process.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
- *   - Implement `zod` schema validation for `TaskCreateInput` to provide more granular and user-friendly input validation errors.
- *   - Add rate limiting to prevent abuse.
- *   - Enhance error messages to be more specific for different failure scenarios (e.g., database connection issues vs. invalid data).
+ *   - **User-specific Tasks**: Once authentication is reintroduced, replace the hardcoded `userId` with the actual authenticated user's ID.
+ *   - **Advanced Validation**: Implement more complex validation rules if needed (e.g., custom date formats, specific tag constraints).
+ *   - **Task Relationships**: Extend the schema and this route to support relationships between tasks (e.g., parent-child tasks, dependencies).
+ *   - **Frontend Integration**: Develop a dedicated UI component that leverages this API for creating and managing internal tasks, replacing the Habitica interface.
+ *   - **Webhooks/Integrations**: Consider adding logic to trigger webhooks or integrate with other services upon task creation (e.g., sending notifications).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-// Removed: import { auth } from '@/auth'; // For authentication
-import { taskDbService } from '@/lib/task_db_service'; // For database operations on tasks
-import logger from '@/lib/logger'; // For logging
-import { Prisma } from '@/generated/prisma';
+import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import logger from '@/lib/logger';
+import { handleServerError } from '@/lib/utils/serverErrorHandler';
+import { TaskStatus, TaskPriority, TaskType } from '@prisma/client'; // Direct import of Prisma enums
+import { v4 as uuidv4 } from 'uuid';
 
+// Define the schema for creating a new task
+const createTaskSchema = z.object({
+  title: z.string().min(1, 'Task title is required.'),
+  description: z.string().optional().nullable(),
+  type: z.nativeEnum(TaskType).default(TaskType.TODO), // Use directly imported enum
+  priority: z.nativeEnum(TaskPriority).default(TaskPriority.MEDIUM), // Use directly imported enum
+  status: z.nativeEnum(TaskStatus).default(TaskStatus.TODO), // Use directly imported enum
+  dueDate: z.string().datetime().optional().nullable(), // ISO date string
+});
 
-export async function POST(request: NextRequest) {
-  // Step 1: No authentication required as per user's request for personal project.
-  logger.info('Received request to create a new task (no authentication required).', {
-    operation: 'POST /api/orion/tasks/create',
-    sessionId: request.headers.get('x-session-id'),
-  });
+type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
-  // Step 2: Parse the request body.
-  // Goal: Extract the task data from the request.
-  // Logic: Use `request.json()` to parse the body. Handle potential JSON parsing errors.
-  let taskData: Prisma.TaskCreateInput;
+export async function POST(req: NextRequest) {
+  const userId = 'unauthenticated_user'; // Hardcoded userId as authentication is removed
+
+  const logContext = {
+    route: '/api/orion/tasks/create',
+    operation: 'POST',
+    timestamp: new Date().toISOString(),
+    userId,
+  };
+
+  logger.info('[TASK_CREATE_API][START]', logContext);
+
   try {
-    taskData = (await request.json()) as Prisma.TaskCreateInput;
-    logger.debug('Request body parsed.', {
-      operation: 'POST /api/orion/tasks/create',
-      parameters: { taskData },
-      // userId: taskData.userId, // userId will come from the taskData itself
-    });
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Invalid JSON body.';
-    logger.error('Failed to parse request body for task creation.', {
-      operation: 'POST /api/orion/tasks/create',
-      error: errorMessage,
-      validation: 'Invalid input format.',
-      // userId: taskData?.userId, // userId might not be available yet
-    });
-    return NextResponse.json({ success: false, error: 'Invalid request body' }, { status: 400 });
-  }
+    const body = await req.json();
+    const validatedData: CreateTaskInput = createTaskSchema.parse(body);
 
-  // Step 3: Validate incoming task data.
-  // Goal: Ensure essential task fields are present and valid, including userId.
-  // Logic: Check for `title` and `userId`.
-  if (!taskData || !taskData.title || !taskData.userId) {
-    logger.warn('Invalid task data provided for creation.', {
-      operation: 'POST /api/orion/tasks/create',
-      parameters: { taskData },
-      validation: 'Missing required fields (title or userId).',
-      // userId: taskData?.userId, // userId might be missing
-    });
-    return NextResponse.json({ success: false, error: 'Invalid task data: Missing title or userId' }, { status: 400 });
-  }
+    logger.debug('[TASK_CREATE_API][VALIDATED_DATA]', { ...logContext, validatedData });
 
-  // Step 4: Create the task using the database service.
-  // Goal: Persist the new task in the database.
-  // Logic: Call `taskDbService.createTask` and handle any service-level errors.
-  try {
-    const newTask = await taskDbService.createTask(taskData);
-    logger.info('Task created successfully.', {
-      operation: 'POST /api/orion/tasks/create',
-      results: newTask,
-      userId: newTask.userId,
+    const newTask = await prisma.task.create({
+      data: {
+        id: uuidv4(),
+        userId: userId,
+        title: validatedData.title,
+        description: validatedData.description,
+        type: validatedData.type,
+        priority: validatedData.priority,
+        status: validatedData.status,
+        dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
+        steps: { create: [] }, // Explicitly create an empty array of steps
+      } as any, // NOTE: Temporary any cast to resolve persistent type errors for TaskCreateInput. Revisit for proper type safety.
     });
-    return NextResponse.json({ success: true, data: newTask }, { status: 201 });
+
+    logger.success('[TASK_CREATE_API][SUCCESS]', { ...logContext, taskId: newTask.id });
+    return NextResponse.json({ success: true, task: newTask }, { status: 201 });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-    logger.error('Failed to create task via taskDbService.', {
-      operation: 'POST /api/orion/tasks/create',
-      error: errorMessage,
-      validation: 'Database service error.',
-      parameters: { taskData },
-      userId: taskData.userId, // userId should be present here for logging
+    const handledError = handleServerError(error, logContext);
+    logger.error('[TASK_CREATE_API][CATCH_ERROR]', {
+      ...logContext,
+      error: handledError.message,
+      details: handledError.details,
     });
-    return NextResponse.json({ success: false, error: `Failed to create task: ${errorMessage}` }, { status: 500 });
+
+    if (error instanceof z.ZodError) {
+      logger.warn('[TASK_CREATE_API][VALIDATION_ERROR]', { ...logContext, details: error.errors });
+      return NextResponse.json(
+        { success: false, error: 'Invalid input data.', details: handledError.details ?? error.errors },
+        { status: 400 }
+      );
+    }
+    logger.error('[TASK_CREATE_API][UNEXPECTED_ERROR]', { ...logContext, error: handledError.message });
+    return NextResponse.json(
+      { success: false, error: handledError.message },
+      { status: handledError.statusCode || 500 }
+    );
   }
 }

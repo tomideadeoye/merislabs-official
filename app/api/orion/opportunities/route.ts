@@ -110,26 +110,42 @@ export async function GET() {
   logger.info('[OPPORTUNITY_API][GET_LIST][START] Attempting to fetch opportunities.', logContext);
 
   try {
-    const opportunities = await listOpportunitiesFromDb();
+    const opportunitiesResult = await listOpportunitiesFromDb();
 
-    if (opportunities instanceof HandledApplicationError) {
+    if (Array.isArray(opportunitiesResult)) {
+      const opportunities = opportunitiesResult; // Type is now correctly narrowed to OrionOpportunity[]
+
+      logger.info('[OPPORTUNITY_API][GET_LIST][SUCCESS] Successfully fetched opportunities.', {
+        ...logContext,
+        count: opportunities.length,
+      });
+      return NextResponse.json({
+        success: true,
+        opportunities: opportunities,
+      });
+    } else if (opportunitiesResult instanceof HandledApplicationError) {
       logger.error('[OPPORTUNITY_API][GET_LIST][ERROR] Received HandledApplicationError from DB service.', {
         ...logContext,
-        error: opportunities.message,
-        name: opportunities.type ?? 'UnknownHandledError', // Access name directly
-        details: opportunities.data ?? opportunities.originalError ?? 'No specific details provided',
+        error: opportunitiesResult.message,
+        name: opportunitiesResult.errorCode ?? 'UnknownHandledError',
+        details: opportunitiesResult.details ?? opportunitiesResult.originalError ?? 'No specific details provided',
       });
       return NextResponse.json(
-        { success: false, error: opportunities.message, details: opportunities.data ?? 'Unknown error' },
-        { status: opportunities.status || 500 }
+        { success: false, error: opportunitiesResult.message, details: opportunitiesResult.details ?? 'Unknown error' },
+        { status: opportunitiesResult.statusCode || 500 }
+      );
+    } else {
+      const handledError = handleServerError(opportunitiesResult, logContext);
+      logger.error('[OPPORTUNITY_API][GET_LIST][ERROR] Failed to fetch opportunities.', {
+        ...logContext,
+        error: handledError.message,
+        stack: handledError.originalError instanceof Error ? handledError.originalError.stack : 'N/A',
+      });
+      return NextResponse.json(
+        { success: false, error: 'Failed to fetch opportunities', details: handledError.details },
+        { status: handledError.statusCode || 500 }
       );
     }
-
-    logger.info('[OPPORTUNITY_API][GET_LIST][SUCCESS] Successfully fetched opportunities.', {
-      ...logContext,
-      count: opportunities.length, // Now 'opportunities' is guaranteed to be OrionOpportunity[]
-    });
-    return NextResponse.json(opportunities);
   } catch (error: unknown) {
     const handledError = handleServerError(error, logContext);
     logger.error('[OPPORTUNITY_API][GET_LIST][ERROR] Failed to fetch opportunities.', {
@@ -138,8 +154,8 @@ export async function GET() {
       stack: handledError.originalError instanceof Error ? handledError.originalError.stack : 'N/A',
     });
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch opportunities', details: handledError.message },
-      { status: handledError.status || 500 }
+      { success: false, error: 'Failed to fetch opportunities', details: handledError.details },
+      { status: handledError.statusCode || 500 }
     );
   }
 }
@@ -226,13 +242,13 @@ export async function POST(request: NextRequest) {
     });
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid opportunity data', details: handledError.data },
+        { success: false, error: 'Invalid opportunity data', details: handledError.details },
         { status: 400 }
       );
     }
     return NextResponse.json(
       { success: false, error: 'Failed to create opportunity', details: handledError.message },
-      { status: handledError.status || 500 }
+      { status: handledError.statusCode || 500 }
     );
   }
 }

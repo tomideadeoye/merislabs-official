@@ -4,7 +4,7 @@ import {
   updateOpportunityStatusInDb /* you'll need a more generic updateOpportunityInDb */,
 } from '@/lib/opportunity_db_service';
 // import { OpportunityUpdatePayload } from '@/lib/types'; // Removed as it was unused
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Authentication removed as per user request
 import logger from '@/lib/logger';
 import { z } from 'zod';
 import { OpportunityStatus } from '@/lib/types';
@@ -32,12 +32,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   };
   logger.info('[OPPORTUNITY_API][GET_BY_ID][START]', logContext);
 
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[OPPORTUNITY_API][GET_BY_ID][UNAUTHORIZED]', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-  (logContext as { user?: string }).user = session.user.id;
+  // Removed authentication as per user request
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   logger.warn('[OPPORTUNITY_API][GET_BY_ID][UNAUTHORIZED]', logContext);
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+  // (logContext as { user?: string }).user = session.user.id; // Removed user ID assignment
 
   try {
     const opportunity = await getOpportunityByIdFromDb(id);
@@ -68,12 +69,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   };
   logger.info('[OPPORTUNITY_API][UPDATE][START]', logContext);
 
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[OPPORTUNITY_API][UPDATE][UNAUTHORIZED]', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-  (logContext as { user?: string }).user = session.user.id;
+  // Removed authentication as per user request
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   logger.warn('[OPPORTUNITY_API][UPDATE][UNAUTHORIZED]', logContext);
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+  // (logContext as { user?: string }).user = session.user.id; // Removed user ID assignment
 
   try {
     const body = await request.json();

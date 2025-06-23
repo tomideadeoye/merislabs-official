@@ -51,27 +51,27 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { generateLLMResponse } from '@/lib/orion_llm';
 import { searchMemory } from '@/lib/memory';
 import { ScoredMemoryPoint } from '@/lib/types/memory';
 import { WHATSAPP_REPLY_HELPER_REQUEST_TYPE } from '@/lib/orion_config';
 
-const TEMP_USER_ID = 'temp_whatsapp_reply_user'; // Temporary user ID for LLM calls
+const TEMP_USER_ID = 'temp_whatsapp_reply_user'; // Temporary user ID for LLM calls (or fallback)
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  if (!session) {
-    logger.warn('[draft-whatsapp-reply][POST] Unauthorized access attempt.');
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Removed authentication check as per user's request
+  // const session = await auth();
+  // if (!session) {
+  //   logger.warn('[draft-whatsapp-reply][POST] Unauthorized access attempt.');
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
 
   try {
     const { chatContext, userPrompt, numberOfDrafts, replyGoal, tone, overallSentiment } = await request.json(); // Added overallSentiment
 
     logger.info('[draft-whatsapp-reply][POST] Received request to draft reply.', {
-      userId: session.user?.id || TEMP_USER_ID,
+      // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
       chatContextLength: chatContext ? chatContext.length : 0,
       userPrompt: userPrompt,
       replyGoal: replyGoal,
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     if (!chatContext) {
       logger.warn('[draft-whatsapp-reply][POST] Missing chatContext in request.', {
-        userId: session.user?.id || TEMP_USER_ID,
+        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
       });
       return NextResponse.json({ success: false, error: 'Chat context is required.' }, { status: 400 });
     }
@@ -94,18 +94,18 @@ export async function POST(request: NextRequest) {
       if (memorySearchResponse.success && memorySearchResponse.results) {
         memoryResults = memorySearchResponse.results;
         logger.info('[draft-whatsapp-reply][POST] Found relevant memories.', {
-          userId: session.user?.id || TEMP_USER_ID,
+          // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
           memoryCount: memoryResults.length,
         });
       } else {
         logger.warn('[draft-whatsapp-reply][POST] No relevant memories found or search failed.', {
-          userId: session.user?.id || TEMP_USER_ID,
+          // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
           error: memorySearchResponse.error,
         });
       }
     } catch (memoryError: unknown) {
       logger.error('[draft-whatsapp-reply][POST] Error during memory search.', {
-        userId: session.user?.id || TEMP_USER_ID,
+        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
         error: memoryError instanceof Error ? memoryError.message : String(memoryError),
       });
     }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     const llmResponse = await generateLLMResponse(
       WHATSAPP_REPLY_HELPER_REQUEST_TYPE,
       chatContext,
-      session.user?.id || TEMP_USER_ID,
+      null, // userId is now nullable
       {
         profileContext: userPrompt,
         memoryResults: memoryResults,
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     if (!llmResponse.success) {
       logger.error('[draft-whatsapp-reply][POST] LLM response error.', {
-        userId: session.user?.id || TEMP_USER_ID,
+        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
         llmError: llmResponse.error,
         llmContent: llmResponse.content,
       });
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
 
     if (!llmResponse.content) {
       logger.error('[draft-whatsapp-reply][POST] LLM generated an empty content.', {
-        userId: session.user?.id || TEMP_USER_ID,
+        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
       });
       return NextResponse.json({ success: false, error: 'LLM generated an empty response.' }, { status: 500 });
     }
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
       }
     } catch (parseError) {
       logger.error('[draft-whatsapp-reply][POST] Failed to parse LLM response content as JSON.', {
-        userId: session.user?.id || TEMP_USER_ID,
+        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
         llmContent: llmResponse.content,
         parseError: parseError instanceof Error ? parseError.message : String(parseError),
       });
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
     }
 
     logger.success('[draft-whatsapp-reply][POST] Successfully drafted WhatsApp replies.', {
-      userId: session.user?.id || TEMP_USER_ID,
+      // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
       numberOfDraftsGenerated: draftedReplies.length,
     });
 
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
     logger.error('[draft-whatsapp-reply][POST] Uncaught error during reply drafting.', {
-      userId: TEMP_USER_ID,
+      // userId: TEMP_USER_ID, // Removed userId as authentication is removed
       error: errorMessage,
       stack: error instanceof Error ? error.stack : 'N/A',
     });

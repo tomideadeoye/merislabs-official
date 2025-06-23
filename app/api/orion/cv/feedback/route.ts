@@ -5,10 +5,8 @@
 // NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
 
 import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth/next';
 import logger from '@/lib/logger';
 import { recordCVFeedback } from '@/lib/cv_components_db_service';
-// import { authConfig } from '@/lib/auth';
 import { z } from 'zod';
 
 interface LogContextType {
@@ -48,13 +46,6 @@ export async function POST(request: NextRequest) {
     operation: 'POST',
   };
   logger.info('[CV_FEEDBACK_API][POST][START] Received request to record CV feedback.', logContext);
-
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[CV_FEEDBACK_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';

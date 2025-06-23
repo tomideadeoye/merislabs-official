@@ -10,7 +10,6 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `app/(orion_admin)/admin/cv-components/page.tsx` (Implied): This frontend page would likely be responsible for initiating the `load-cv-data` process, allowing users to upload or import CV components.
- *   - `@/lib/auth`: Used for `getServerSession` to manage user authentication and authorization.
  *   - `@notionhq/client`: The official Notion API client library used to interact with Notion databases and pages.
  *   - `@/lib/types`: Defines `CVComponent`, `LoadCvDataRequestBody`, `CVComponentErrorDetail`, and `LoadCvDataApiResponse` interfaces, ensuring type safety for data structures.
  *   - `process.env.NOTION_API_KEY` and `process.env.NOTION_DATABASE_ID`: Environment variables crucial for configuring the Notion client and targeting the correct database.
@@ -31,10 +30,8 @@
  *   - Further improvements could include batch processing for larger volumes of CV components and more granular access control.
  */
 import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth/next';
 import logger from '@/lib/logger';
 import { getCVComponentsFromNotion } from '@/lib/notion_service';
-// import { authConfig } from '@/lib/auth';
 
 interface LogContextType {
   route: string;
@@ -51,13 +48,6 @@ export async function POST(request: NextRequest) {
     operation: 'POST',
   };
   logger.info('[NOTION_LOAD_CV_DATA_API][POST][START] Received request to load CV data from Notion.', logContext);
-
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[NOTION_LOAD_CV_DATA_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';

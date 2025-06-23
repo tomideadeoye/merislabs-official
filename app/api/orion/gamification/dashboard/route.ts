@@ -45,7 +45,6 @@
  *   - **Gamification Logic Service**: If gamification features expand significantly, consider abstracting the core gamification logic (streak calculation, badge evaluation) into a dedicated service or module to enhance reusability and separation of concerns.
  */
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { Client as NotionClient } from '@notionhq/client';
 import { ProductivityStreak, AchievementBadge, GamificationDashboardData } from '@/lib/types';
@@ -70,26 +69,27 @@ const calculateProductivityStreak = async (userId: string): Promise<Productivity
   let lastCompletionDate: string | null = null;
 
   try {
-    const journalEntries = await prisma.journalEntry.findMany({
+    const completedTasks = await prisma.task.findMany({
       where: {
         userId: userId,
+        status: 'DONE', // Only consider completed tasks for streaks
       },
       orderBy: {
-        date: 'desc',
+        createdAt: 'desc',
       },
       select: {
-        date: true,
+        createdAt: true, // Use createdAt for completion date for tasks
       },
     });
 
-    logger.debug('[GAMIFICATION][STREAK][JOURNAL_FETCHED]', { ...logContext, count: journalEntries.length });
+    logger.debug('[GAMIFICATION][STREAK][TASKS_FETCHED]', { ...logContext, count: completedTasks.length });
 
-    if (journalEntries.length === 0) {
-      logger.info('[GAMIFICATION][STREAK][NO_ENTRIES] No journal entries found.', logContext);
+    if (completedTasks.length === 0) {
+      logger.info('[GAMIFICATION][STREAK][NO_ENTRIES] No completed tasks found.', logContext);
       return { currentStreak: 0, longestStreak: 0, lastCompletionDate: null, dailyGoalMet: false };
     }
 
-    let sortedDates = journalEntries.map((entry: { date: Date }) => parseISO(entry.date.toISOString()));
+    let sortedDates = completedTasks.map((task: { createdAt: Date }) => parseISO(task.createdAt.toISOString()));
     sortedDates = sortedDates.sort((a: Date, b: Date) => b.getTime() - a.getTime());
 
     let tempCurrentStreak = 0;
@@ -154,16 +154,16 @@ const evaluateAchievementBadges = async (userId: string): Promise<AchievementBad
   const badges: AchievementBadge[] = [
     {
       id: 'first_journal_entry',
-      name: 'First Spark',
-      description: 'Log your first journal entry.',
+      name: 'First Task Completed',
+      description: 'Complete your first task in Orion.',
       icon: 'BookOpen',
       unlocked: false,
       unlockedDate: null,
     },
     {
       id: 'ten_journal_entries',
-      name: 'Journal Enthusiast',
-      description: 'Log 10 journal entries.',
+      name: 'Task Master',
+      description: 'Complete 10 tasks in Orion.',
       icon: 'BookOpen',
       unlocked: false,
       unlockedDate: null,
@@ -217,22 +217,28 @@ const evaluateAchievementBadges = async (userId: string): Promise<AchievementBad
   ];
 
   try {
-    const journalCount = await prisma.journalEntry.count({
-      where: { userId: userId },
+    const completedTasksCount = await prisma.task.count({
+      where: { userId: userId, status: 'DONE' },
     });
-    logger.debug('[GAMIFICATION][BADGES][JOURNAL_COUNT]', { ...logContext, count: journalCount });
+    logger.debug('[GAMIFICATION][BADGES][COMPLETED_TASKS_COUNT]', { ...logContext, count: completedTasksCount });
 
-    const firstJournalBadge = badges.find((b) => b.id === 'first_journal_entry');
-    if (firstJournalBadge && journalCount >= 1) {
-      firstJournalBadge.unlocked = true;
-      if (!firstJournalBadge.unlockedDate) firstJournalBadge.unlockedDate = new Date().toISOString();
+    // Update 'First Spark' badge to reflect first completed task
+    const firstTaskBadge = badges.find((b) => b.id === 'first_journal_entry'); // Renaming ID in UI later
+    if (firstTaskBadge && completedTasksCount >= 1) {
+      firstTaskBadge.unlocked = true;
+      if (!firstTaskBadge.unlockedDate) firstTaskBadge.unlockedDate = new Date().toISOString();
+      firstTaskBadge.name = 'First Task Completed'; // Rename for clarity
+      firstTaskBadge.description = 'Complete your first task in Orion.'; // Update description
     }
-    const tenJournalBadge = badges.find((b) => b.id === 'ten_journal_entries');
-    if (tenJournalBadge) {
-      tenJournalBadge.progress = journalCount;
-      if (journalCount >= (tenJournalBadge.target || 0)) {
-        tenJournalBadge.unlocked = true;
-        if (!tenJournalBadge.unlockedDate) tenJournalBadge.unlockedDate = new Date().toISOString();
+    // Update 'Journal Enthusiast' badge to reflect ten completed tasks
+    const tenTasksBadge = badges.find((b) => b.id === 'ten_journal_entries'); // Renaming ID in UI later
+    if (tenTasksBadge) {
+      tenTasksBadge.progress = completedTasksCount;
+      if (completedTasksCount >= (tenTasksBadge.target || 0)) {
+        tenTasksBadge.unlocked = true;
+        if (!tenTasksBadge.unlockedDate) tenTasksBadge.unlockedDate = new Date().toISOString();
+        tenTasksBadge.name = 'Task Master'; // Rename for clarity
+        tenTasksBadge.description = 'Complete 10 tasks in Orion.'; // Update description
       }
     }
 
@@ -309,57 +315,85 @@ const evaluateAchievementBadges = async (userId: string): Promise<AchievementBad
   }
 };
 
-export async function GET(): Promise<NextResponse<GamificationDashboardData>> {
-  const operation = 'getGamificationDashboardData';
-  const timestamp = new Date().toISOString();
+export async function GET(): Promise<
+  NextResponse<{ success: boolean; data?: GamificationDashboardData; error?: string }>
+> {
   const logContext = {
-    operation,
-    timestamp,
-    route: '/api/orion/gamification/dashboard',
+    operation: 'fetchGamificationDashboard',
+    message: 'Attempting to fetch gamification dashboard data.',
   };
-  logger.info('[GAMIFICATION_API][GET][START]', logContext);
+  logger.info('[API][GET][gamification-dashboard][START]', logContext);
+
+  // Removed authentication as per user's request
+  // const session = await auth();
+  // if (!session || !session.user || !session.user.id) {
+  //   logger.warn('[API][GET][gamification-dashboard][UNAUTHORIZED]', { ...logContext, message: 'Unauthorized access attempt.' });
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+  const userId = 'unauthenticated_user'; // Placeholder for unauthenticated user
+  (logContext as { user?: string }).user = userId;
 
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      logger.warn('[GAMIFICATION_API][GET][AUTH_FAIL]', logContext);
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'Unauthorized',
-          productivityStreak: { currentStreak: 0, longestStreak: 0, lastCompletionDate: null, dailyGoalMet: false },
-          achievementBadges: [],
-        },
-        { status: 401 }
-      );
+    const streakData = await calculateProductivityStreak(userId);
+    const badges = await evaluateAchievementBadges(userId);
+
+    let totalMemoryChunks = 0;
+    if (notion && NOTION_DATABASE_ID) {
+      try {
+        const response = await notion.databases.query({
+          database_id: NOTION_DATABASE_ID,
+          filter: {
+            property: 'Type',
+            select: {
+              equals: 'Memory',
+            },
+          },
+        });
+        totalMemoryChunks = response.results.length;
+        logger.debug('[GAMIFICATION][NOTION_MEMORIES_FETCHED]', { ...logContext, count: totalMemoryChunks });
+      } catch (notionError: unknown) {
+        logger.error('[GAMIFICATION][NOTION_MEMORIES_ERROR]', {
+          ...logContext,
+          message: 'Failed to fetch memory chunks from Notion.',
+          error: notionError instanceof Error ? notionError.message : String(notionError),
+        });
+        // Continue without memory chunk data if Notion API fails
+      }
     }
 
-    const userId = session.user.id;
-    (logContext as { userId?: string }).userId = userId;
-
-    const [productivityStreak, achievementBadges] = await Promise.all([
-      calculateProductivityStreak(userId),
-      evaluateAchievementBadges(userId),
-    ]);
-
-    logger.success('[GAMIFICATION_API][GET][SUCCESS]', logContext);
-    return NextResponse.json({
-      success: true,
-      productivityStreak,
-      achievementBadges,
+    const totalIdeas = await prisma.idea.count({
+      where: { userId: userId },
     });
-  } catch (error: unknown) {
-    const handledError = handleApiError(error, { ...logContext, stage: 'overall_gamification_fetch' });
-    logger.error('[GAMIFICATION_API][GET][CATCH_ERROR]', { ...logContext, error: handledError.message });
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'Failed to retrieve gamification dashboard data.',
-        error: handledError.message,
-        productivityStreak: { currentStreak: 0, longestStreak: 0, lastCompletionDate: null, dailyGoalMet: false },
-        achievementBadges: [],
+    logger.debug('[GAMIFICATION][TOTAL_IDEAS]', { ...logContext, count: totalIdeas });
+
+    const totalOpportunitiesEvaluated = await prisma.opportunity.count({
+      where: {
+        userId: userId,
+        evaluationResult: {
+          not: Prisma.JsonNull,
+        },
       },
-      { status: 500 }
+    });
+    logger.debug('[GAMIFICATION][TOTAL_OPPORTUNITIES_EVALUATED]', {
+      ...logContext,
+      count: totalOpportunitiesEvaluated,
+    });
+
+    const dashboardData: GamificationDashboardData = {
+      productivityStreak: streakData,
+      achievementBadges: badges,
+      totalMemoryChunks,
+      totalIdeas,
+      totalOpportunitiesEvaluated,
+    };
+
+    logger.info('[API][GET][gamification-dashboard][SUCCESS]', { ...logContext, data: dashboardData });
+    return NextResponse.json({ success: true, data: dashboardData });
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error, logContext); // Centralized error handling
+    return NextResponse.json(
+      { success: false, error: errorMessage.message },
+      { status: errorMessage.statusCode || 500 }
     );
   }
 }

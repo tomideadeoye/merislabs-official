@@ -42,7 +42,6 @@
 import { CVTailoringStudio } from '@/components/orion/CVTailoringStudio';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { fetchCVComponents } from '@/lib/cv';
 import { CVComponent } from '@/lib/types/cv';
@@ -57,14 +56,12 @@ interface CVTailoringPageProps {
 
 export default async function CVTailoringPage({ params }: CVTailoringPageProps) {
   const { opportunityId } = params;
-  const session = await auth();
 
   const logContext = {
     route: `/opportunity/${opportunityId}/cv-tailoring`,
     operation: 'page_load',
     timestamp: new Date().toISOString(),
     opportunityId,
-    userId: session?.user?.id || 'unauthenticated',
   };
 
   logger.info('[CV_TAILORING_PAGE][LOAD][START]', logContext);
@@ -92,18 +89,13 @@ export default async function CVTailoringPage({ params }: CVTailoringPageProps) 
       opportunityData = opportunityResult;
       logger.debug('[CV_TAILORING_PAGE][OPPORTUNITY_FETCHED]', { opportunityFound: !!opportunityData, ...logContext });
 
-      if (session?.user?.id) {
-        // Only fetch CV components if user is authenticated and opportunity is valid
-        const fetchedComponents = await fetchCVComponents();
-        cvComponents = fetchedComponents; // Assign fetched components
-        logger.info('[CV_TAILORING_PAGE][CV_COMPONENTS_FETCHED]', {
-          count: fetchedComponents.length,
-          ...logContext,
-        });
-      } else {
-        logger.warn('[CV_TAILORING_PAGE][UNAUTHENTICATED_ACCESS]', logContext);
-        initialError = 'Authentication required to load CV components.';
-      }
+      // No authentication: always fetch CV components
+      const fetchedComponents = await fetchCVComponents();
+      cvComponents = fetchedComponents; // Assign fetched components
+      logger.info('[CV_TAILORING_PAGE][CV_COMPONENTS_FETCHED]', {
+        count: fetchedComponents.length,
+        ...logContext,
+      });
     }
   } catch (error: unknown) {
     initialError = error instanceof Error ? error.message : String(error);
@@ -144,11 +136,7 @@ export default async function CVTailoringPage({ params }: CVTailoringPageProps) 
             Tailor your CV for this opportunity using AI assistance. The system will suggest relevant components, help
             you rephrase content to match the job requirements, and assemble a final CV.
           </p>
-          <CVTailoringStudio
-            opportunity={opportunityData}
-            cvComponents={cvComponents}
-            isAuthenticated={!!session?.user?.id}
-          />
+          <CVTailoringStudio opportunity={opportunityData} cvComponents={cvComponents} />
         </CardContent>
       </Card>
     </div>

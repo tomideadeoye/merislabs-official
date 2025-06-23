@@ -25,7 +25,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import pdf from 'html-pdf';
 import { marked } from 'marked';
@@ -45,12 +44,13 @@ export async function POST(request: NextRequest) {
   logger.info('[CV_DOWNLOAD_PDF_API][POST][START]', logContext);
 
   try {
-    const session = await auth();
-    if (!session || !session.user || !session.user.id) {
-      logger.warn('[CV_DOWNLOAD_PDF_API][POST][AUTH_FAIL]', logContext);
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    (logContext as { user?: string }).user = session.user.id;
+    // Removed authentication check as per user's request
+    // const session = await auth();
+    // if (!session || !session.user || !session.user.id) {
+    //   logger.warn('[CV_DOWNLOAD_PDF_API][POST][AUTH_FAIL]', logContext);
+    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // }
+    // (logContext as { user?: string }).user = session.user.id; // Removed user ID from log context
 
     const body = await request.json();
     const { assembledCvMarkdown } = downloadPdfRequestSchema.parse(body);

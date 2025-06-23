@@ -32,19 +32,16 @@
  *   - **ERROR HANDLING ROBUSTNESS**: Enhance error messages to provide more specific guidance to the client on what went wrong (e.g., specific missing fields).
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
- *   - Implement proper user authentication to replace the `userId` placeholder.
  *   - Refine the `UserProfileData` object passed to `generateOutreachMessage` if more detailed profile attributes are needed by the LLM in the future.
  *   - Add more specific error logging for the `generateOutreachMessage` call, including details about its input and the LLM response.
  *   - Explore using the `numberOfDrafts` from the schema to request multiple drafts from the LLM, if `generateOutreachMessage` can support it, and return them to the client.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth/next';
 import logger from '@/lib/logger';
 import { generateOutreachMessage } from '@/lib/orion_llm';
 import { fetchServerUserProfile } from '@/lib/server_profile_fetcher';
 import { UserProfileFetchResponse, OutreachRequest, UserProfileData, OutreachResponse } from '@/lib/types';
-// import { authConfig } from '@/lib/auth';
 import { z } from 'zod';
 
 interface LogContextType {
@@ -96,13 +93,6 @@ export async function POST(request: NextRequest) {
   };
   logger.info('[GENERATE_OUTREACH_API][POST][START] Received request to generate outreach message.', logContext);
 
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[GENERATE_OUTREACH_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
-
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';
   logContext.userId = userId;
@@ -145,20 +135,38 @@ export async function POST(request: NextRequest) {
     }
 
     const userProfileForLLM: UserProfileData = {
-      id: userId,
-      name: 'Unauthenticated User',
-      email: '',
-      bio: profileData.profileText || '',
-      skills: [],
-      experience: [],
-      education: [],
-      interests: [],
-      values: [],
-      goals: [],
-      socialLinks: [],
-      contactInfo: {},
-      profileText: profileData.profileText,
-      source: profileData.source,
+      id: profileData.profile?.id || userId,
+      userId: profileData.profile?.userId || userId,
+      name: profileData.profile?.name || null,
+      email: profileData.profile?.email || null,
+      mobile: profileData.profile?.mobile || null,
+      website: profileData.profile?.website || null,
+      github: profileData.profile?.github || null,
+      linkedin: profileData.profile?.linkedin || null,
+      substack: profileData.profile?.substack || null,
+      slideshare: profileData.profile?.slideshare || null,
+      medium: profileData.profile?.medium || null,
+      discord: profileData.profile?.discord || null,
+      merisLabsLinkedin: profileData.profile?.merisLabsLinkedin || null,
+      bioPitchLink: profileData.profile?.bioPitchLink || null,
+      youtube: profileData.profile?.youtube || null,
+      language: profileData.profile?.language || null,
+      location: profileData.profile?.location || null,
+      backgroundSummary: profileData.profile?.backgroundSummary || null,
+      keySkills: profileData.profile?.keySkills || null,
+      goals: profileData.profile?.goals || null,
+      values: profileData.profile?.values || null,
+      profileText: profileData.profile?.profileText || '',
+      bio: profileData.profile?.bio || null,
+      skills: profileData.profile?.skills || null,
+      experience: profileData.profile?.experience || null,
+      education: profileData.profile?.education || null,
+      interests: profileData.profile?.interests || null,
+      socialLinks: profileData.profile?.socialLinks || null,
+      summary: profileData.profile?.summary || null,
+      createdAt: profileData.profile?.createdAt || new Date().toISOString(),
+      updatedAt: profileData.profile?.updatedAt || new Date().toISOString(),
+      source: profileData.profile?.source || 'none',
     };
 
     const outreachRequestForLLM: OutreachRequest = {

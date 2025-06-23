@@ -1,93 +1,85 @@
-import { NextResponse } from 'next/server';
-import { fetchUserProfile } from '@/lib/profile_service';
-import logger from '@/lib/logger';
-import { fetchServerUserProfile } from '@/lib/server_profile_fetcher';
-
-export const revalidate = 300; // Revalidate every 5 minutes
-
 /**
- * @swagger
- * /api/orion/profile:
- *   get:
- *     summary: Fetches the user's profile data
- *     description: Retrieves the user's profile from Notion or local files, with server-side caching.
- *     tags:
- *       - Orion
- *     responses:
- *       200:
- *         description: Successfully fetched profile data.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/UserProfileData'
- *       404:
- *         description: Profile not found.
- *       500:
- *         description: Failed to fetch profile data.
+ * @fileoverview API route for fetching user profile data from the Neon database.
+ * @description This endpoint retrieves comprehensive user profile information from the
+ *   `UserProfile` table in the PostgreSQL database via Prisma. It is designed to
+ *   serve the centralized and structured user profile data, moving away from Notion.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - To provide a GET endpoint (`/api/orion/profile`) for retrieving user profile data.
+ *   - To fetch a `UserProfile` record from the Neon database based on a user ID.
+ *   - To provide comprehensive logging for successful operations and errors.
+ *
+ * FILEPATH: `app/api/orion/profile/route.ts`.
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - `prisma/schema.prisma`: Defines the `UserProfile` model, which this API interacts with.
+ *   - `@/generated/prisma`: Imports the Prisma client for database operations.
+ *   - `@/lib/logger`: Used for comprehensive logging of API requests and database interactions.
+ *   - `app/lib/profile_db_service.ts` (forthcoming): This API route will ideally call a dedicated database service for profile operations.
+ *   - `auth.ts`: Used for user authentication to ensure only the authenticated user can access their profile.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes the user is authenticated and `session.user.id` is available for identifying the profile.
+ *   - Handles cases where no profile is found for the given user ID.
+ *
+ * NOTES:
+ *   - This is a critical step in verifying the migration of profile data from Notion to Neon.
+ *   - The `profileText` field is designed to store the entire unstructured text dump for LLM context.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - **Dedicated DB Service**: Extract the Prisma logic into a `app/lib/profile_db_service.ts` for better separation of concerns and reusability.
+ *   - **Caching**: Implement server-side caching (e.g., Redis) for frequently accessed profile data to reduce database load.
+ *   - **Error Handling Details**: Provide more granular error messages to the client for specific failures.
  */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import logger from '@/lib/logger';
+
 export async function GET() {
+  const logContext = {
+    route: '/api/orion/profile',
+    timestamp: new Date().toISOString(),
+    operation: 'GET',
+  };
+  logger.info('[PROFILE_GET_API][GET][START] Received request to fetch user profile.', logContext);
+
+  // Temporarily bypass authentication as requested
+  // const session = await auth();
+  // const userId = session?.user?.id;
+  const userId = 'user_tomide_adeoye_123'; // Hardcode a test user ID for unauthenticated access
+
+  // if (!userId) {
+  //   logger.warn('[PROFILE_GET_API][GET][AUTH_FAIL] Unauthorized access attempt.', logContext);
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+
   try {
-    logger.info('Fetching user profile from API route', {
-      operation: 'GET /api/orion/profile',
-      timestamp: new Date().toISOString(),
+    const userProfile = await prisma.userProfile.findUnique({
+      where: { userId },
     });
 
-    const profileData = await fetchServerUserProfile();
-    if (profileData.success && profileData.profile) {
-      // Attempt to extract email from profileText if profile.email is not directly available
-      let userEmail = profileData.profile.email;
-      if (!userEmail && profileData.profileText) {
-        const emailMatch = profileData.profileText.match(/Email: (\S+@\S+\.\S+)/);
-        if (emailMatch && emailMatch[1]) {
-          userEmail = emailMatch[1];
-          logger.info('[GET /api/orion/profile] Extracted email from profileText', { email: userEmail });
-        }
-      }
-
-      // Ensure the profile object has an email property for frontend consumption
-      const responseProfile = {
-        ...profileData.profile,
-        email: userEmail || profileData.profile.email || 'not-provided@example.com', // Ensure email is always present
-      };
-
-      logger.success('Successfully fetched user profile', {
-        operation: 'GET /api/orion/profile',
-        timestamp: new Date().toISOString(),
+    if (userProfile) {
+      logger.success('[PROFILE_GET_API][GET][FETCH_SUCCESS] User profile fetched successfully.', {
+        ...logContext,
+        profileId: userProfile.id,
       });
-      return NextResponse.json({
-        success: true,
-        profile: responseProfile,
-        profileText: profileData.profileText,
-        source: profileData.source,
+      return NextResponse.json({ success: true, profile: userProfile }, { status: 200 });
+    } else {
+      logger.info('[PROFILE_GET_API][GET][NOT_FOUND] User profile not found for ID.', {
+        ...logContext,
+        userId,
       });
+      return NextResponse.json({ success: false, error: 'User profile not found.' }, { status: 404 });
     }
-
-    logger.error('Profile not found', {
-      operation: 'GET /api/orion/profile',
-      timestamp: new Date().toISOString(),
-    });
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Profile not found',
-        message: 'The user profile could not be found. Please check your Notion configuration or local files.',
-      },
-      { status: 404 }
-    );
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    logger.error('Error fetching profile', {
-      operation: 'GET /api/orion/profile',
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('[PROFILE_GET_API][GET][GENERAL_ERROR] Failed to fetch user profile.', {
+      ...logContext,
       error: errorMessage,
-      timestamp: new Date().toISOString(),
+      fullError: error, // Log the full error object for detailed debugging
     });
-    return NextResponse.json(
-      {
-        error: 'Internal Server Error',
-        message: errorMessage,
-        details: error instanceof Error ? error.stack : undefined,
-      },
-      { status: 500 }
-    );
+    console.error('[PROFILE_GET_API][GET][RAW_ERROR]', error); // Also log to console
+    return NextResponse.json({ success: false, error: 'Failed to fetch user profile.' }, { status: 500 });
   }
 }

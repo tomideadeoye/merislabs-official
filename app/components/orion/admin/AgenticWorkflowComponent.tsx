@@ -102,7 +102,6 @@ import logger from '@/lib/logger';
 import { HandledApplicationError, LLMTool, Message, LLMToolCall, Task, TaskStatus, TaskPriority } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { pythonApiService } from '@/lib/pythonApiService';
-import { MemoryChunk } from '@/lib/types';
 import { QuadrantMemoryChunksVisualizer } from '@/components/orion/QuadrantMemoryChunksVisualizer';
 import { Badge } from '@/components/ui/badge';
 import { ScoredMemoryPoint } from '@/lib/types/memory';
@@ -148,6 +147,9 @@ export const AgenticWorkflowComponent: React.FC = () => {
   const [newTaskRelatedLinks, setNewTaskRelatedLinks] = useState<string>('');
   const [newTaskRelatedPhoneNumbers, setNewTaskRelatedPhoneNumbers] = useState<string>('');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [shouldCreateTaskFromAgentOutput, setShouldCreateTaskFromAgentOutput] = useState<boolean>(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [newTaskDueDate, setNewTaskDueDate] = useState<string | null>(null);
 
   // Memory Visualization States
   const [relatedMemories, setRelatedMemories] = useState<ScoredMemoryPoint[]>([]);
@@ -155,6 +157,40 @@ export const AgenticWorkflowComponent: React.FC = () => {
   const [memoriesError, setMemoriesError] = useState<string | null>(null);
 
   const logContext = { component: 'AgenticWorkflowComponent', userQuery };
+
+  const selectedTask = tasks.find((task) => task.id === selectedTaskId);
+
+  const fetchTasks = async () => {
+    setTaskLoading(true);
+    setTaskError(null);
+    logger.info('[TASK_MANAGER][FETCH_TASKS][START] Fetching tasks.');
+    try {
+      const response = await apiClient.get<TaskApiResponse>(`/api/orion/tasks/list`);
+      if (response.data.success && response.data.data) {
+        setTasks(response.data.data as Task[]);
+        logger.success('[TASK_MANAGER][FETCH_TASKS][SUCCESS] Tasks fetched.', {
+          count: (response.data.data as Task[]).length,
+        });
+      } else {
+        setTaskError(response.data.error || 'Failed to fetch tasks.');
+        logger.error('[TASK_MANAGER][FETCH_TASKS][ERROR] Failed to fetch tasks.', { error: response.data.error });
+      }
+    } catch (err: unknown) {
+      const errorMessage = 'Failed to fetch tasks: ';
+      if (err instanceof HandledApplicationError) {
+        setTaskError(errorMessage + err.message);
+        logger.error('[TASK_MANAGER][FETCH_TASKS][HANDLED]', { error: err.message, originalError: err });
+      } else if (err instanceof Error) {
+        setTaskError(errorMessage + err.message);
+        logger.error('[TASK_MANAGER][FETCH_TASKS][UNHANDLED]', { error: err.message, stack: err.stack });
+      } else {
+        setTaskError(errorMessage + String(err));
+        logger.error('[TASK_MANAGER][FETCH_TASKS][UNKNOWN]', { error: String(err) });
+      }
+    } finally {
+      setTaskLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchTools = async () => {
@@ -189,43 +225,11 @@ export const AgenticWorkflowComponent: React.FC = () => {
       }
     };
     fetchTools();
-  }, []);
+  }, [setAvailableTools]);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
-
-  const fetchTasks = async () => {
-    setTaskLoading(true);
-    setTaskError(null);
-    logger.info('[TASK_MANAGER][FETCH_TASKS][START] Fetching tasks.');
-    try {
-      const response = await apiClient.get<TaskApiResponse>(`/api/orion/tasks/list`);
-      if (response.data.success && response.data.data) {
-        setTasks(response.data.data as Task[]);
-        logger.success('[TASK_MANAGER][FETCH_TASKS][SUCCESS] Tasks fetched.', {
-          count: (response.data.data as Task[]).length,
-        });
-      } else {
-        setTaskError(response.data.error || 'Failed to fetch tasks.');
-        logger.error('[TASK_MANAGER][FETCH_TASKS][ERROR] Failed to fetch tasks.', { error: response.data.error });
-      }
-    } catch (err: unknown) {
-      const errorMessage = 'Failed to fetch tasks: ';
-      if (err instanceof HandledApplicationError) {
-        setTaskError(errorMessage + err.message);
-        logger.error('[TASK_MANAGER][FETCH_TASKS][HANDLED]', { error: err.message, originalError: err });
-      } else if (err instanceof Error) {
-        setTaskError(errorMessage + err.message);
-        logger.error('[TASK_MANAGER][FETCH_TASKS][UNHANDLED]', { error: err.message, stack: err.stack });
-      } else {
-        setTaskError(errorMessage + String(err));
-        logger.error('[TASK_MANAGER][FETCH_TASKS][UNKNOWN]', { error: String(err) });
-      }
-    } finally {
-      setTaskLoading(false);
-    }
-  };
+  }, [fetchTasks]);
 
   const handleToolSelectionChange = (toolName: string, isChecked: boolean) => {
     setSelectedToolNames((prev) => (isChecked ? [...prev, toolName] : prev.filter((name) => name !== toolName)));
@@ -286,6 +290,10 @@ export const AgenticWorkflowComponent: React.FC = () => {
             ...logContext,
             response: response.data,
           });
+          // Automatically create a task if the option is enabled and there's an answer
+          if (shouldCreateTaskFromAgentOutput && response.data.answer) {
+            await handleCreateTaskFromAgentOutput(response.data.answer);
+          }
         }
       } else {
         const errorMessage = response.data.error || 'Agent execution failed.';
@@ -500,7 +508,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
         });
       } else if (err instanceof Error) {
         errorMessage = err.message;
-        logger.error('[AGENTIC_WORKFLOW][EXECUTE_STRATEGY][UNHANDLED_ERROR]', {
+        logger.error('[AGENTIC_WORKFLOW][EXECUTE_STRATEGY][UNHANDLED]', {
           error: errorMessage,
           stack: err.stack,
         });
@@ -560,6 +568,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
         description: newTaskDescription.trim() || null,
         status: newTaskStatus,
         priority: newTaskPriority,
+        dueDate: newTaskDueDate ? new Date(newTaskDueDate) : null,
       };
       const response = await apiClient.post<TaskApiResponse>('/api/orion/tasks/create', taskToCreate);
       if (response.data.success && response.data.data) {
@@ -568,6 +577,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
         setNewTaskDescription('');
         setNewTaskStatus(TaskStatus.TODO);
         setNewTaskPriority(TaskPriority.MEDIUM);
+        setNewTaskDueDate(null);
         logger.success('[TASK_MANAGER][CREATE_TASK][SUCCESS] Task created.', {
           taskId: (response.data.data as Task).id,
         });
@@ -654,412 +664,790 @@ export const AgenticWorkflowComponent: React.FC = () => {
     }
   };
 
-  const handleTaskSelection = (taskId: string) => {
-    setSelectedTaskId(taskId);
-    logger.info('[TASK_MANAGER][TASK_SELECTED] Task selected.', { taskId });
+  const handleTaskSelection = async (taskId: string) => {
+    setTaskLoading(true);
+    setTaskError(null);
+    logger.info('[TASK_MANAGER][SELECT_TASK][START] Fetching details for task.', { taskId });
+    try {
+      // Fetch the task details again to ensure we have the latest steps and other info
+      const response = await apiClient.get<TaskApiResponse>(`/api/orion/tasks/${taskId}`);
+      if (response.data.success && response.data.data) {
+        // Assuming response.data.data is a single Task object here now
+        const fetchedTask = response.data.data as Task;
+        // Update the tasks array with the fetched task to ensure its steps are current
+        setTasks((prevTasks) => prevTasks.map((task) => (task.id === fetchedTask.id ? fetchedTask : task)));
+        setSelectedTaskId(taskId);
+        logger.success('[TASK_MANAGER][SELECT_TASK][SUCCESS] Task details fetched.', { taskId });
+
+        // Fetch related memories if the task has a description or title that can be used as query
+        if (fetchedTask.description || fetchedTask.title) {
+          setIsMemoriesLoading(true);
+          setMemoriesError(null);
+          try {
+            const memorySearchResponse = await apiClient.post<{
+              success: boolean;
+              results?: ScoredMemoryPoint[];
+              error?: string;
+            }>(
+              '/api/orion/memory/search',
+              { query: fetchedTask.description || fetchedTask.title, with_vectors: true } // Ensure with_vectors is true
+            );
+            if (memorySearchResponse.data.success && memorySearchResponse.data.results) {
+              setRelatedMemories(memorySearchResponse.data.results);
+              logger.success('[MEMORY_SEARCH][SUCCESS] Related memories fetched.', {
+                count: memorySearchResponse.data.results.length,
+              });
+            } else {
+              setMemoriesError(memorySearchResponse.data.error || 'Failed to fetch related memories.');
+              logger.error('[MEMORY_SEARCH][ERROR] Failed to fetch related memories.', {
+                error: memorySearchResponse.data.error,
+              });
+            }
+          } catch (memErr: unknown) {
+            const errorMessage = 'Failed to fetch related memories: ';
+            if (memErr instanceof HandledApplicationError) {
+              setMemoriesError(errorMessage + memErr.message);
+              logger.error('[MEMORY_SEARCH][HANDLED]', { error: memErr.message, originalError: memErr });
+            } else if (memErr instanceof Error) {
+              setMemoriesError(errorMessage + memErr.message);
+              logger.error('[MEMORY_SEARCH][UNHANDLED]', { error: memErr.message, stack: memErr.stack });
+            } else {
+              setMemoriesError(errorMessage + String(memErr));
+              logger.error('[MEMORY_SEARCH][UNKNOWN]', { error: String(memErr) });
+            }
+          } finally {
+            setIsMemoriesLoading(false);
+          }
+        }
+      } else {
+        setTaskError(response.data.error || 'Failed to fetch task details.');
+        logger.error('[TASK_MANAGER][SELECT_TASK][ERROR] Failed to fetch task details.', {
+          error: response.data.error,
+        });
+      }
+    } catch (err: unknown) {
+      const errorMessage = 'Failed to select task: ';
+      if (err instanceof HandledApplicationError) {
+        setTaskError(errorMessage + err.message);
+        logger.error('[TASK_MANAGER][SELECT_TASK][HANDLED]', { error: err.message, originalError: err });
+      } else if (err instanceof Error) {
+        setTaskError(errorMessage + err.message);
+        logger.error('[TASK_MANAGER][SELECT_TASK][UNHANDLED]', { error: err.message, stack: err.stack });
+      } else {
+        setTaskError(errorMessage + String(err));
+        logger.error('[TASK_MANAGER][SELECT_TASK][UNKNOWN]', { error: String(err) });
+      }
+    } finally {
+      setTaskLoading(false);
+    }
   };
 
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    // Pre-fill edit form with task details
+    setNewTaskTitle(task.title);
+    setNewTaskDescription(task.description || '');
+    setNewTaskStatus(task.status);
+    setNewTaskPriority(task.priority);
+    setNewTaskDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : null);
+    setNewTaskRelatedLinks((task.relatedLinks || []).join(', '));
+    setNewTaskRelatedPhoneNumbers((task.relatedPhoneNumbers || []).join(', '));
+    logger.info('[TASK_MANAGER][EDIT_TASK] Editing task.', { taskId: task.id });
+  };
+
+  const handleCreateTaskFromAgentOutput = async (answer: string) => {
+    setNewTaskTitle(answer.substring(0, 50) + '...'); // Take first 50 chars as title
+    setNewTaskDescription(answer);
+    setNewTaskStatus(TaskStatus.TODO);
+    setNewTaskPriority(TaskPriority.MEDIUM);
+    setShouldCreateTaskFromAgentOutput(true);
+    logger.info('[TASK_MANAGER][CREATE_FROM_AGENT_OUTPUT] Preparing to create task from agent output.');
+  };
+
+  // Type guard for LLMToolCall
+  function isLLMToolCall(value: any): value is LLMToolCall {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'function' in value &&
+      typeof value.function === 'object' &&
+      value.function !== null &&
+      'name' in value.function &&
+      'arguments' in value.function &&
+      typeof value.function.name === 'string' &&
+      typeof value.function.arguments === 'string' &&
+      'type' in value &&
+      value.type === 'function'
+    );
+  }
+
   return (
-    <>
-      <section className="space-y-6 p-4 border border-gray-700 rounded-lg bg-gray-800 text-gray-100">
-        <h3 className="text-xl font-semibold">Orion Agentic Workflow & Task Management</h3>
-
-        <div className="space-y-4 border border-gray-700 rounded-lg p-4 bg-gray-900">
-          <h4 className="text-lg font-semibold mb-3">Agentic Task Execution</h4>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="userQuery" className="text-gray-300">
-                Your Query
-              </Label>
-              <Input
-                id="userQuery"
-                type="text"
-                value={userQuery}
-                onChange={(e) => setUserQuery(e.target.value)}
-                placeholder="e.g., 'Draft a follow-up email for the Google interview.'"
-                className="bg-gray-700 border-gray-600 text-gray-50 focus:ring-purple-500 focus:border-purple-500"
-                disabled={isLoading || !!selectedStrategyForRefinement}
-              />
+    <div className="flex flex-col gap-4 w-full h-full">
+      {/* Agent Output and Strategy Section */}
+      <section className="flex-1 w-full bg-slate-800 p-4 rounded-lg shadow-inner overflow-hidden flex flex-col">
+        <h2 className="text-xl font-bold mb-4 text-white">Agent Output</h2>
+        <ScrollArea className="flex-1 pr-4">
+          {agentMessages.map((message, index) => (
+            <div key={index} className="mb-4">
+              {renderMessageContent(message, index)}
             </div>
-
-            <div>
-              <Label htmlFor="numStrategies" className="text-gray-300 flex justify-between items-center">
-                <span>Number of Strategies to Generate:</span>
-                <span className="font-bold text-purple-400">{numStrategies}</span>
-              </Label>
-              <Slider
-                id="numStrategies"
-                min={1}
-                max={5}
-                step={1}
-                value={[numStrategies]}
-                onValueChange={handleNumStrategiesChange}
-                className="w-full mt-2"
-                disabled={isLoading || !!selectedStrategyForRefinement}
-              />
+          ))}
+          {isLoading && (
+            <div className="flex items-center justify-center mt-4">
+              <Loader className="mr-2" /> <span className="text-white">Orion Agent is thinking...</span>
             </div>
-
-            <div>
-              <Label className="text-gray-300">Available Tools:</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                {availableTools.length > 0 ? (
-                  availableTools.map((tool) => (
-                    <div key={tool.function.name} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={tool.function.name}
-                        checked={selectedToolNames.includes(tool.function.name)}
-                        onCheckedChange={(checked) => handleToolSelectionChange(tool.function.name, checked as boolean)}
-                        className="border-gray-500 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
-                        disabled={isLoading || !!selectedStrategyForRefinement}
-                      />
-                      <Label htmlFor={tool.function.name} className="text-sm font-medium text-gray-300 cursor-pointer">
-                        {tool.function.name} - {tool.function.description.split('.')[0]}.
-                      </Label>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-400">No tools available or still loading...</p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="relatedLinks" className="text-gray-300">
-                Related Links (comma-separated):
-              </Label>
-              <Input
-                id="relatedLinks"
-                placeholder="e.g., https://example.com/doc1, https://example.com/doc2"
-                value={newTaskRelatedLinks}
-                onChange={(e) => setNewTaskRelatedLinks(e.target.value)}
-                className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="relatedPhoneNumbers" className="text-gray-300">
-                Related Phone Numbers (comma-separated):
-              </Label>
-              <Input
-                id="relatedPhoneNumbers"
-                placeholder="e.g., +15551234567, 07911123456"
-                value={newTaskRelatedPhoneNumbers}
-                onChange={(e) => setNewTaskRelatedPhoneNumbers(e.target.value)}
-                className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500"
-                disabled={isLoading}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out"
-              disabled={isLoading || !userQuery.trim()}
-            >
-              {isLoading ? <Loader className="mr-2" /> : 'Execute Agent'}
-            </Button>
-          </form>
-
-          {selectedStrategyForRefinement && (
-            <Card className="mt-6 border-purple-700 bg-purple-900/30 text-gray-100">
-              <CardHeader>
-                <CardTitle className="text-purple-300">Refine Strategy</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="refinementText" className="text-gray-300">
-                    Edit Strategy:
-                  </Label>
-                  <Textarea
-                    id="refinementText"
-                    value={userQuery}
-                    onChange={(e) => setUserQuery(e.target.value)}
-                    placeholder="Refine the strategy here..."
-                    className="bg-gray-700 border-gray-600 text-gray-50 focus:ring-purple-500 focus:border-purple-500 min-h-[100px]"
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={isLoading || !userQuery.trim()}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                  >
-                    {isLoading ? <Loader className="mr-2" /> : 'Edit & Re-evaluate'}
-                  </Button>
-                  <Button
-                    onClick={handleCancelRefinement}
-                    disabled={isLoading}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                  >
-                    Cancel Refinement
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           )}
-
-          {error && (
-            <Card className="mt-4 border-red-700 bg-red-900/30 text-red-100">
-              <CardHeader>
-                <CardTitle>Error</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="whitespace-pre-wrap">{error}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {agentMessages.length > 0 && generatedStrategies.length === 0 && !selectedStrategyForRefinement && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold text-gray-200 mb-3">Agent Conversation:</h4>
-              <ScrollArea className="h-[400px] border border-gray-700 rounded-md p-4 bg-gray-900">
-                <div className="space-y-4">
-                  {agentMessages.map((message, index) => (
-                    <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div
-                        className={`max-w-[70%] p-3 rounded-lg shadow-md ${
-                          message.role === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : message.role === 'assistant'
-                              ? 'bg-gray-700 text-gray-100'
-                              : 'bg-transparent'
-                        }`}
-                      >
-                        {renderMessageContent(message, index)}
-                      </div>
-                    </div>
+          {error && <p className="text-red-500 mt-4">Error: {error}</p>}
+        </ScrollArea>
+        {generatedStrategies.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-slate-700">
+            <h3 className="text-lg font-semibold mb-3 text-white">Generated Strategies</h3>
+            {generatedStrategies.map((strategy, index) => (
+              <Card key={index} className="mb-3 bg-slate-700 text-white">
+                <CardContent className="p-4">
+                  <p className="text-sm text-slate-300">Strategy {index + 1}:</p>
+                  <p className="mt-1 text-md font-medium">{strategy.answer}</p>
+                  <div className="flex items-center space-x-2 mt-3">
+                    <Checkbox
+                      id={`strategy-${index}`}
+                      checked={strategiesToSave.has(strategy.answer)}
+                      onCheckedChange={(checked) => {
+                        handleStrategySelectionChange(strategy.answer, checked as boolean);
+                      }}
+                    />
+                    <label
+                      htmlFor={`strategy-${index}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Select to save to memory
+                    </label>
+                    <Button
+                      onClick={() => handleRefineStrategy(strategy.answer)}
+                      className="ml-auto bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      Refine This Strategy
+                    </Button>
+                    <Button
+                      onClick={() => handleExecuteStrategy(strategy.messages)}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      Execute This Strategy
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            {strategiesToSave.size > 0 && (
+              <Button onClick={handleSaveToMemory} className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white">
+                Save Selected Strategies to Memory
+              </Button>
+            )}
+          </div>
+        )}
+      </section>
+      {/* Task Management Section */}
+      <section className="w-full bg-slate-800 p-4 rounded-lg shadow-inner flex flex-col">
+        <h2 className="text-xl font-bold mb-4 text-white">Task Management</h2>
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="newTaskTitle" className="text-white">
+                Task Title
+              </Label>
+              <Input
+                id="newTaskTitle"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                placeholder="Enter new task title"
+                className="bg-slate-700 border-slate-600 text-white mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="newTaskDescription" className="text-white">
+                Task Description
+              </Label>
+              <Input
+                id="newTaskDescription"
+                value={newTaskDescription}
+                onChange={(e) => setNewTaskDescription(e.target.value)}
+                placeholder="Enter task description (optional)"
+                className="bg-slate-700 border-slate-600 text-white mt-1"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="newTaskStatus" className="text-white">
+                Status
+              </Label>
+              <Select onValueChange={(value: TaskStatus) => setNewTaskStatus(value)} value={newTaskStatus}>
+                <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white mt-1">
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 text-white">
+                  {Object.values(TaskStatus).map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status
+                        .replace(/_/g, ' ')
+                        .toLowerCase()
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </SelectItem>
                   ))}
-                </div>
-              </ScrollArea>
+                </SelectContent>
+              </Select>
             </div>
-          )}
+            <div>
+              <Label htmlFor="newTaskPriority" className="text-white">
+                Priority
+              </Label>
+              <Select onValueChange={(value: TaskPriority) => setNewTaskPriority(value)} value={newTaskPriority}>
+                <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white mt-1">
+                  <SelectValue placeholder="Select Priority" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 text-white">
+                  {Object.values(TaskPriority).map((priority) => (
+                    <SelectItem key={priority} value={priority}>
+                      {priority
+                        .replace(/_/g, ' ')
+                        .toLowerCase()
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="newTaskDueDate" className="text-white">
+                Due Date (Optional)
+              </Label>
+              <Input
+                id="newTaskDueDate"
+                type="date"
+                value={newTaskDueDate || ''}
+                onChange={(e) => setNewTaskDueDate(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white mt-1"
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="newTaskRelatedLinks" className="text-white">
+              Related Links (comma-separated)
+            </Label>
+            <Input
+              id="newTaskRelatedLinks"
+              value={newTaskRelatedLinks}
+              onChange={(e) => setNewTaskRelatedLinks(e.target.value)}
+              placeholder="e.g., https://example.com, https://another.link"
+              className="bg-slate-700 border-slate-600 text-white mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="newTaskRelatedPhoneNumbers" className="text-white">
+              Related Phone Numbers (comma-separated)
+            </Label>
+            <Input
+              id="newTaskRelatedPhoneNumbers"
+              value={newTaskRelatedPhoneNumbers}
+              onChange={(e) => setNewTaskRelatedPhoneNumbers(e.target.value)}
+              placeholder="e.g., +15551234567, +442071234567"
+              className="bg-slate-700 border-slate-600 text-white mt-1"
+            />
+          </div>
           <Button
-            onClick={handleSaveToMemory}
-            disabled={strategiesToSave.size === 0 || isLoading}
-            className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out"
+            onClick={handleCreateTask}
+            disabled={taskLoading || !newTaskTitle.trim()}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            Save Selected to Memory
+            {taskLoading ? (
+              <>
+                <Loader className="mr-2" /> Creating Task...
+              </>
+            ) : (
+              'Create New Task'
+            )}
           </Button>
-
-          {generatedStrategies.length > 0 && !selectedStrategyForRefinement && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold text-gray-200 mb-3">Proposed Strategies:</h4>
-              {generatedStrategies.map((strategy, sIdx) => (
-                <Card key={sIdx} className="mt-4 bg-gray-800 border-purple-700 text-gray-100">
+          {taskError && <p className="text-red-500 mt-2">Error: {taskError}</p>}
+        </div>
+        <h3 className="text-lg font-bold mt-8 mb-4 text-white">My Tasks</h3>
+        {taskLoading && <Loader className="mr-2" />}{' '}
+        {taskLoading && <span className="text-white">Loading Tasks...</span>}
+        {taskError && <p className="text-red-500">Error loading tasks: {taskError}</p>}
+        {!taskLoading && tasks.length === 0 && <p className="text-white">No tasks found. Create one above!</p>}
+        {!taskLoading && tasks.length > 0 && (
+          <ScrollArea className="flex-1 h-[300px]">
+            <div className="grid gap-4">
+              {tasks.map((task) => (
+                <Card key={task.id} className="bg-slate-700 text-white shadow-md">
                   <CardHeader>
-                    <CardTitle className="text-purple-400">Strategy {sIdx + 1}</CardTitle>
+                    <CardTitle className="text-white flex justify-between items-center">
+                      {task.title}
+                      <div className="flex space-x-2">
+                        <Badge variant="outline" className="bg-slate-600 text-white">
+                          {task.status.replace(/_/g, ' ')}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-blue-500 text-white">
+                          {task.priority.replace(/_/g, ' ')}
+                        </Badge>
+                      </div>
+                    </CardTitle>
+                    <p className="text-sm text-slate-300">Created: {new Date(task.createdAt).toLocaleDateString()}</p>
+                    {task.dueDate && (
+                      <p className="text-sm text-slate-300">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+                    )}
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="whitespace-pre-wrap">{strategy.answer}</p>
-                    <div className="flex space-x-2 mt-2">
-                      {strategy.messages.some((msg) => msg.tool_calls && msg.tool_calls.length > 0) && (
-                        <Button
-                          onClick={() => handleExecuteStrategy(strategy.messages)}
-                          disabled={isLoading}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                        >
-                          {isLoading ? <Loader className="mr-2" /> : 'Execute Strategy'}
-                        </Button>
-                      )}
-                      <Button
-                        onClick={() => handleRefineStrategy(strategy.answer || '')}
-                        disabled={isLoading}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                      >
-                        Refine
-                      </Button>
-                    </div>
-                    <div className="border-t border-gray-700 pt-4 mt-4">
-                      <h5 className="text-md font-semibold text-gray-300 mb-2">Strategy Details:</h5>
-                      <ScrollArea className="h-[200px] border border-gray-600 rounded-md p-3 bg-gray-900">
-                        <div className="space-y-3">
-                          {strategy.messages.map((msg, msgIdx) => (
-                            <div
-                              key={msgIdx}
-                              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                            >
-                              <div
-                                className={`max-w-[80%] p-2 rounded-lg shadow-sm ${
-                                  msg.role === 'user'
-                                    ? 'bg-blue-700 text-white'
-                                    : msg.role === 'assistant'
-                                      ? 'bg-gray-600 text-gray-100'
-                                      : 'bg-transparent'
-                                }`}
+                  <CardContent className="flex flex-col gap-2">
+                    {task.description && <p className="text-slate-200">{task.description}</p>}
+                    {task.relatedLinks && task.relatedLinks.length > 0 && (
+                      <div>
+                        <p className="text-sm font-semibold text-slate-300">Related Links:</p>
+                        <ul className="list-disc list-inside text-slate-200">
+                          {task.relatedLinks.map((link, linkIdx) => (
+                            <li key={linkIdx}>
+                              <a
+                                href={link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:underline"
                               >
-                                {renderMessageContent(msg, msgIdx)}
-                              </div>
-                            </div>
+                                {link}
+                              </a>
+                            </li>
                           ))}
-                        </div>
-                      </ScrollArea>
+                        </ul>
+                      </div>
+                    )}
+                    {task.relatedPhoneNumbers && task.relatedPhoneNumbers.length > 0 && (
+                      <div>
+                        <p className="text-sm font-semibold text-slate-300">Related Phone Numbers:</p>
+                        <ul className="list-disc list-inside text-slate-200">
+                          {task.relatedPhoneNumbers.map((phone, phoneIdx) => (
+                            <li key={phoneIdx}>{phone}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2 mt-4">
+                      <Button
+                        onClick={() => handleTaskSelection(task.id)}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                      >
+                        View Details
+                      </Button>
+                      <Button
+                        onClick={() => handleEditTask(task)}
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          )}
-        </div>
-
-        <div className="space-y-4 border border-gray-700 rounded-lg p-4 bg-gray-900">
-          <h4 className="text-lg font-semibold mb-3">Task Management</h4>
-
-          <Card className="bg-gray-800 border-gray-700 mt-6">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-blue-300">Your Tasks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-200">Create New Task</h3>
-                  <form onSubmit={handleCreateTask} className="space-y-4">
-                    <Input
-                      placeholder="Task Title"
-                      value={newTaskTitle}
-                      onChange={(e) => setNewTaskTitle(e.target.value)}
-                      className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500"
-                    />
-                    <Textarea
-                      placeholder="Task Description (optional)"
-                      value={newTaskDescription}
-                      onChange={(e) => setNewTaskDescription(e.target.value)}
-                      rows={3}
-                      className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500"
-                    />
-                    <Input
-                      placeholder="Related Links (comma-separated)"
-                      value={newTaskRelatedLinks}
-                      onChange={(e) => setNewTaskRelatedLinks(e.target.value)}
-                      className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500"
-                    />
-                    <Input
-                      placeholder="Related Phone Numbers (comma-separated)"
-                      value={newTaskRelatedPhoneNumbers}
-                      onChange={(e) => setNewTaskRelatedPhoneNumbers(e.target.value)}
-                      className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500"
-                    />
-                    <Select value={newTaskStatus} onValueChange={(value) => setNewTaskStatus(value as TaskStatus)}>
-                      <SelectTrigger className="bg-gray-700 text-gray-200 border-gray-600 focus:ring-blue-500">
-                        <SelectValue placeholder="Select Status" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-700 text-gray-200 border-gray-600">
-                        {Object.values(TaskStatus).map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status.replace(/_/g, ' ').toLowerCase()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={newTaskPriority}
-                      onValueChange={(value) => setNewTaskPriority(value as TaskPriority)}
-                    >
-                      <SelectTrigger className="bg-gray-700 text-gray-200 border-gray-600 focus:ring-blue-500">
-                        <SelectValue placeholder="Select Priority" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-700 text-gray-200 border-gray-600">
-                        {Object.values(TaskPriority).map((priority) => (
-                          <SelectItem key={priority} value={priority}>
-                            {priority.replace(/_/g, ' ').toLowerCase()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button type="submit" disabled={taskLoading} className="w-full bg-green-600 hover:bg-green-700">
-                      {taskLoading ? <Loader className="mr-2" /> : 'Create Task'}
-                    </Button>
-                  </form>
-                  {taskError && <p className="text-red-400 mt-2">Error: {taskError}</p>}
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-200">Your Tasks List</h3>
-                  {taskLoading ? (
-                    <Loader />
-                  ) : tasks.length === 0 ? (
-                    <p className="text-gray-400">No tasks found. Create one to get started!</p>
-                  ) : (
-                    <ScrollArea className="h-[400px] pr-4">
-                      <div className="space-y-2">
-                        {tasks.map((task) => (
-                          <Card
-                            key={task.id}
-                            className={`bg-gray-700 border-gray-600 cursor-pointer ${selectedTaskId === task.id ? 'border-blue-500 ring-2 ring-blue-500' : ''}`}
-                            onClick={() => handleTaskSelection(task.id)}
-                          >
-                            <CardContent className="p-4">
-                              <CardTitle className="text-md text-white flex justify-between items-center">
-                                <span>{task.title}</span>
-                                <Badge
-                                  variant="secondary"
-                                  className={`bg-opacity-70 ${task.status === TaskStatus.DONE ? 'bg-green-500' : task.status === TaskStatus.IN_PROGRESS ? 'bg-blue-500' : 'bg-gray-500'}`}
-                                >
-                                  {task.status}
-                                </Badge>
-                              </CardTitle>
-                              <p className="text-gray-400 text-sm mt-1">{task.description || 'No description.'}</p>
-                              <p className="text-gray-500 text-xs mt-2">Priority: {task.priority}</p>
-                              <p className="text-gray-500 text-xs">
-                                Created: {new Date(task.createdAt).toLocaleDateString()}
-                              </p>
-                              <div className="flex space-x-2 mt-3">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleUpdateTask(task.id, { status: TaskStatus.DONE });
-                                  }}
-                                  className="text-green-400 border-green-400 hover:bg-green-900/20"
-                                >
-                                  Mark Done
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteTask(task.id);
-                                  }}
-                                  className="text-red-400 border-red-400 hover:bg-red-900/20"
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {selectedTaskId && (
-            <Card className="bg-gray-800 border-gray-700 mt-6">
+          </ScrollArea>
+        )}
+        {selectedTaskId && selectedTask && (
+          <div className="mt-8 pt-4 border-t border-slate-700">
+            <h3 className="text-lg font-bold mb-4 text-white">Task Details and Steps: {selectedTask.title}</h3>
+            <Button onClick={() => setSelectedTaskId(null)} className="mb-4 bg-gray-600 hover:bg-gray-700 text-white">
+              Back to All Tasks
+            </Button>
+            <Card className="bg-slate-700 text-white shadow-md">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-blue-300">
-                  Related Memories for Selected Task
-                </CardTitle>
+                <CardTitle className="text-white">{selectedTask.title}</CardTitle>
+                <p className="text-sm text-slate-300">Status: {selectedTask.status}</p>
+                <p className="text-sm text-slate-300">Priority: {selectedTask.priority}</p>
+                {selectedTask.dueDate && (
+                  <p className="text-sm text-slate-300">Due: {new Date(selectedTask.dueDate).toLocaleDateString()}</p>
+                )}
+                {selectedTask.description && (
+                  <p className="text-sm text-slate-200 mt-2">Description: {selectedTask.description}</p>
+                )}
+                {selectedTask.relatedLinks && selectedTask.relatedLinks.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-slate-300">Related Links:</p>
+                    <ul className="list-disc list-inside text-slate-200">
+                      {selectedTask.relatedLinks.map((link, linkIdx) => (
+                        <li key={linkIdx}>
+                          <a
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:underline"
+                          >
+                            {link}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {selectedTask.relatedPhoneNumbers && selectedTask.relatedPhoneNumbers.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-slate-300">Related Phone Numbers:</p>
+                    <ul className="list-disc list-inside text-slate-200">
+                      {selectedTask.relatedPhoneNumbers.map((phone, phoneIdx) => (
+                        <li key={phoneIdx}>{phone}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
-                {isMemoriesLoading ? (
-                  <Loader />
-                ) : memoriesError ? (
-                  <p className="text-red-400">Error loading memories: {memoriesError}</p>
-                ) : relatedMemories.length > 0 ? (
-                  <QuadrantMemoryChunksVisualizer memoryResults={relatedMemories} />
-                ) : (
-                  <p className="text-gray-400">No relevant memories found for this task.</p>
-                )}
+                <h4 className="text-lg font-semibold mb-3 text-white">Steps:</h4>
+                {selectedTask.steps.length === 0 && <p className="text-slate-300">No steps for this task yet.</p>}
+                <ScrollArea className="h-[200px] pr-4">
+                  {selectedTask.steps.map((stepItem, stepIdx) => (
+                    <Card key={stepItem.id} className="mb-3 bg-slate-800 text-white">
+                      <CardContent className="p-4">
+                        <p className="text-sm font-semibold">Step {stepItem.stepNumber}:</p>
+                        <p className="mt-1 text-slate-200">{stepItem.prompt}</p>
+                        {stepItem.chosenAction && (
+                          <p className="mt-1 text-sm text-purple-300">Action: {stepItem.chosenAction}</p>
+                        )}
+                        {stepItem.chosenJustification && (
+                          <p className="mt-1 text-sm text-purple-300">Justification: {stepItem.chosenJustification}</p>
+                        )}
+                        {stepItem.toolCalls && stepItem.toolCalls.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-sm font-semibold text-slate-300">Tool Calls:</p>
+                            <ul className="list-disc list-inside text-slate-200">
+                              {stepItem.toolCalls.map((toolCall, tcIdx) => {
+                                if (isLLMToolCall(toolCall)) {
+                                  return (
+                                    <li key={tcIdx} className="text-sm">
+                                      <strong>{toolCall.function.name}</strong>({toolCall.function.arguments})
+                                    </li>
+                                  );
+                                }
+                                return null; // Handle cases where toolCall is not a valid LLMToolCall
+                              })}
+                            </ul>
+                          </div>
+                        )}
+                        {stepItem.finalLog && (
+                          <div className="mt-2">
+                            <p className="text-sm font-semibold text-slate-300">Final Log:</p>
+                            <pre className="bg-slate-900 p-2 rounded text-xs overflow-auto text-slate-100">
+                              {JSON.stringify(stepItem.finalLog, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+                        <p className="text-xs text-slate-400 mt-2">
+                          Created: {new Date(stepItem.createdAt).toLocaleString()}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </ScrollArea>
               </CardContent>
             </Card>
-          )}
-        </div>
+            {editingTask && (
+              <div className="mt-8 pt-4 border-t border-slate-700">
+                <h3 className="text-lg font-bold mb-4 text-white">Edit Task: {editingTask.title}</h3>
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="editTaskTitle" className="text-white">
+                        Task Title
+                      </Label>
+                      <Input
+                        id="editTaskTitle"
+                        value={editingTask.title}
+                        onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+                        className="bg-slate-700 border-slate-600 text-white mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="editTaskDescription" className="text-white">
+                        Task Description
+                      </Label>
+                      <Input
+                        id="editTaskDescription"
+                        value={editingTask.description || ''}
+                        onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
+                        className="bg-slate-700 border-slate-600 text-white mt-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="editTaskStatus" className="text-white">
+                        Status
+                      </Label>
+                      <Select
+                        onValueChange={(value: TaskStatus) => setEditingTask({ ...editingTask, status: value })}
+                        value={editingTask.status}
+                      >
+                        <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white mt-1">
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-700 text-white">
+                          {Object.values(TaskStatus).map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status
+                                .replace(/_/g, ' ')
+                                .toLowerCase()
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="editTaskPriority" className="text-white">
+                        Priority
+                      </Label>
+                      <Select
+                        onValueChange={(value: TaskPriority) => setEditingTask({ ...editingTask, priority: value })}
+                        value={editingTask.priority}
+                      >
+                        <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white mt-1">
+                          <SelectValue placeholder="Select Priority" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-700 text-white">
+                          {Object.values(TaskPriority).map((priority) => (
+                            <SelectItem key={priority} value={priority}>
+                              {priority
+                                .replace(/_/g, ' ')
+                                .toLowerCase()
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="editTaskDueDate" className="text-white">
+                        Due Date (Optional)
+                      </Label>
+                      <Input
+                        id="editTaskDueDate"
+                        type="date"
+                        value={editingTask.dueDate ? editingTask.dueDate.toISOString().split('T')[0] : ''}
+                        onChange={(e) =>
+                          setEditingTask({ ...editingTask, dueDate: e.target.value ? new Date(e.target.value) : null })
+                        }
+                        className="bg-slate-700 border-slate-600 text-white mt-1"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="editTaskRelatedLinks" className="text-white">
+                      Related Links (comma-separated)
+                    </Label>
+                    <Input
+                      id="editTaskRelatedLinks"
+                      value={(editingTask.relatedLinks || []).join(', ')}
+                      onChange={(e) =>
+                        setEditingTask({
+                          ...editingTask,
+                          relatedLinks: e.target.value
+                            .split(',')
+                            .map((link) => link.trim())
+                            .filter((link) => link),
+                        })
+                      }
+                      placeholder="e.g., https://example.com, https://another.link"
+                      className="bg-slate-700 border-slate-600 text-white mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="editTaskRelatedPhoneNumbers" className="text-white">
+                      Related Phone Numbers (comma-separated)
+                    </Label>
+                    <Input
+                      id="editTaskRelatedPhoneNumbers"
+                      value={(editingTask.relatedPhoneNumbers || []).join(', ')}
+                      onChange={(e) =>
+                        setEditingTask({
+                          ...editingTask,
+                          relatedPhoneNumbers: e.target.value
+                            .split(',')
+                            .map((phone) => phone.trim())
+                            .filter((phone) => phone),
+                        })
+                      }
+                      placeholder="e.g., +15551234567, +442071234567"
+                      className="bg-slate-700 border-slate-600 text-white mt-1"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleUpdateTask(editingTask.id, editingTask)}
+                      disabled={taskLoading}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      {taskLoading ? (
+                        <>
+                          <Loader className="mr-2" /> Saving...
+                        </>
+                      ) : (
+                        'Save Changes'
+                      )}
+                    </Button>
+                    <Button onClick={() => setEditingTask(null)} className="bg-gray-600 hover:bg-gray-700 text-white">
+                      Cancel
+                    </Button>
+                  </div>
+                  {taskError && <p className="text-red-500 mt-2">Error: {taskError}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* Memory Visualization */}
+            <section className="w-full bg-slate-800 p-4 rounded-lg shadow-inner flex flex-col mt-8">
+              <h2 className="text-xl font-bold mb-4 text-white">Related Memory Chunks</h2>
+              {isMemoriesLoading && <Loader className="mr-2" />}{' '}
+              {isMemoriesLoading && <span className="text-white">Loading related memories...</span>}
+              {memoriesError && <p className="text-red-500">Error loading memories: {memoriesError}</p>}
+              {!isMemoriesLoading && relatedMemories.length === 0 && (
+                <p className="text-white">No related memories found for the selected task.</p>
+              )}
+              {!isMemoriesLoading && relatedMemories.length > 0 && (
+                <QuadrantMemoryChunksVisualizer memoryResults={relatedMemories} />
+              )}
+            </section>
+          </div>
+        )}
+        {/* If shouldCreateTaskFromAgentOutput is true, show form to convert agent output to task */}
+        {shouldCreateTaskFromAgentOutput && (
+          <div className="mt-8 pt-4 border-t border-slate-700">
+            <h3 className="text-lg font-bold mb-4 text-white">Convert Agent Output to Task</h3>
+            <div className="flex flex-col gap-4">
+              <div>
+                <Label htmlFor="convertTaskTitle" className="text-white">
+                  Task Title
+                </Label>
+                <Input
+                  id="convertTaskTitle"
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  placeholder="Enter task title from agent output"
+                  className="bg-slate-700 border-slate-600 text-white mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="convertTaskDescription" className="text-white">
+                  Task Description
+                </Label>
+                <Textarea
+                  id="convertTaskDescription"
+                  value={newTaskDescription}
+                  onChange={(e) => setNewTaskDescription(e.target.value)}
+                  placeholder="Enter task description from agent output"
+                  className="bg-slate-700 border-slate-600 text-white mt-1"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="convertTaskStatus" className="text-white">
+                    Status
+                  </Label>
+                  <Select onValueChange={(value: TaskStatus) => setNewTaskStatus(value)} value={newTaskStatus}>
+                    <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white mt-1">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-700 text-white">
+                      {Object.values(TaskStatus).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status
+                            .replace(/_/g, ' ')
+                            .toLowerCase()
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="convertTaskPriority" className="text-white">
+                    Priority
+                  </Label>
+                  <Select onValueChange={(value: TaskPriority) => setNewTaskPriority(value)} value={newTaskPriority}>
+                    <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white mt-1">
+                      <SelectValue placeholder="Select Priority" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-700 text-white">
+                      {Object.values(TaskPriority).map((priority) => (
+                        <SelectItem key={priority} value={priority}>
+                          {priority
+                            .replace(/_/g, ' ')
+                            .toLowerCase()
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="convertTaskDueDate" className="text-white">
+                    Due Date (Optional)
+                  </Label>
+                  <Input
+                    id="convertTaskDueDate"
+                    type="date"
+                    value={newTaskDueDate || ''}
+                    onChange={(e) => setNewTaskDueDate(e.target.value)}
+                    className="bg-slate-700 border-slate-600 text-white mt-1"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="convertTaskRelatedLinks" className="text-white">
+                  Related Links (comma-separated)
+                </Label>
+                <Input
+                  id="convertTaskRelatedLinks"
+                  value={newTaskRelatedLinks}
+                  onChange={(e) => setNewTaskRelatedLinks(e.target.value)}
+                  placeholder="e.g., https://example.com, https://another.link"
+                  className="bg-slate-700 border-slate-600 text-white mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="convertTaskRelatedPhoneNumbers" className="text-white">
+                  Related Phone Numbers (comma-separated)
+                </Label>
+                <Input
+                  id="convertTaskRelatedPhoneNumbers"
+                  value={newTaskRelatedPhoneNumbers}
+                  onChange={(e) => setNewTaskRelatedPhoneNumbers(e.target.value)}
+                  placeholder="e.g., +15551234567, +442071234567"
+                  className="bg-slate-700 border-slate-600 text-white mt-1"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleCreateTask}
+                  disabled={taskLoading || !newTaskTitle.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {taskLoading ? (
+                    <>
+                      <Loader className="mr-2" /> Creating Task...
+                    </>
+                  ) : (
+                    'Create Task from Output'
+                  )}
+                </Button>
+                <Button
+                  onClick={() => setShouldCreateTaskFromAgentOutput(false)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
-    </>
+    </div>
   );
 };

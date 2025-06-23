@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CombinedLLMResponse } from '@/lib/types';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import logger from '@/lib/logger';
-import { auth } from '@/auth'; // Import auth
+// Removed: import { auth } from '@/auth'; // Authentication removed as per user request
 
 /**
  * API route for performing Job Description (JD) analysis using LLM.
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth(); // Get session
-    if (!session || !session.user || !session.user.id) {
-      logger.warn('[JD_ANALYSIS_API][AUTH_FAIL] Unauthorized access attempt.');
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    // Removed authentication check as per user's request
+    // const session = await auth();
+    // if (!session || !session.user || !session.user.id) {
+    //   logger.warn('[JD_ANALYSIS_API][AUTH_FAIL] Unauthorized access attempt.');
+    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // }
 
     const body = await req.json();
     const { job_description, opportunity_title, company_name } = body; // Expect job_description, and optionally title/company
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
       const llmResponse: CombinedLLMResponse = await generateLLMResponse(
         REQUEST_TYPES.JD_ANALYSIS,
         prompt,
-        session.user.id!, // Add userId here
+        null, // userId is now nullable
         {
           maxTokens: 1000, // Only pass defined options
         }

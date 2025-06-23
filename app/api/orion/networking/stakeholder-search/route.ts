@@ -1,5 +1,5 @@
-import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
+// import { auth } from '@/auth'; // Authentication removed as per user request
 
 // Default stakeholder roles for networking
 const DEFAULT_STAKEHOLDER_ROLES = [
@@ -37,10 +37,11 @@ interface Stakeholder {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Removed authentication as per user's request
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
 
   try {
     const requestBody: StakeholderSearchRequestBody = await request.json();

@@ -38,28 +38,11 @@ import logger from '@/lib/logger';
 import { PageHeader } from '@/components/ui';
 import { Sparkles } from 'lucide-react';
 import { MyPromptsStudio } from '@/components/orion/MyPromptsStudio';
-import { auth } from '@/auth';
 import { getAllPromptsByUserId } from '@/lib/prompt_db_service';
 import { Prompt } from '@/lib/types';
 
 export default async function MyPromptsPage() {
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    logger.warn('[MyPromptsPage] User not authenticated, cannot fetch prompts.');
-    // Depending on desired behavior, could redirect or show an empty state
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title="My Prompts Studio"
-          icon={<Sparkles className="h-7 w-7" />}
-          description="Manage and refine your personalized AI prompts."
-        />
-        <p className="text-red-400">Please log in to manage your prompts.</p>
-      </div>
-    );
-  }
+  const userId = 'unauthenticated_user'; // Authentication removed, using a placeholder userId
 
   let initialPrompts: Prompt[] = [];
   try {

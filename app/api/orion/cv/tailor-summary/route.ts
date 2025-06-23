@@ -54,7 +54,7 @@ import { CV_SUMMARY_TAILORING_REQUEST_TYPE } from '@/lib/orion_config'; // Impor
 import { CVComponent } from '@/lib/types/cv'; // Explicitly import CVComponent from its defining file
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Corrected import for generateLLMResponse
 import logger from '@/lib/logger'; // Import logger
-import { auth } from '@/auth'; // Import auth
+// Removed: import { auth } from '@/auth'; // Authentication removed as per user request
 import { HandledApplicationError, OrionOpportunity, UserProfileData } from '@/lib/types'; // Import HandledApplicationError from types
 import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import handleServerError
 
@@ -68,12 +68,13 @@ export async function POST(req: NextRequest) {
   };
   logger.info('[CV_SUMMARY_API][START] Initiating CV summary tailoring request.', logContext);
   try {
-    const session = await auth(); // Get session
-    if (!session || !session.user || !session.user.id) {
-      logger.warn('[CV_SUMMARY_API][AUTH_FAIL] Unauthorized access attempt.', logContext);
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    (logContext as { user?: string }).user = session.user.id; // Add user ID to log context
+    // Removed authentication check as per user's request
+    // const session = await auth(); // Get session
+    // if (!session || !session.user || !session.user.id) {
+    //   logger.warn('[CV_SUMMARY_API][AUTH_FAIL] Unauthorized access attempt.', logContext);
+    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // }
+    // (logContext as { user?: string }).user = session.user.id; // Removed user ID from log context
 
     const body = await req.json();
     const { component_id, jd_analysis, web_research_context } = body;
@@ -151,7 +152,7 @@ export async function POST(req: NextRequest) {
       const llmContent = await generateLLMResponse(
         CV_SUMMARY_TAILORING_REQUEST_TYPE, // Use specific request type
         prompt, // Pass the constructed prompt
-        session.user.id!,
+        null, // userId is now nullable
         {
           temperature: 0.7,
           maxTokens: 200,
@@ -177,11 +178,8 @@ export async function POST(req: NextRequest) {
         stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
       return NextResponse.json(
-        {
-          success: false,
-          error: handledError.message,
-        },
-        { status: handledError.status || 500 }
+        { success: false, error: handledError.message, details: handledError.details },
+        { status: handledError.statusCode || 500 }
       );
     }
   } catch (error: unknown) {
@@ -192,11 +190,8 @@ export async function POST(req: NextRequest) {
       stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
     });
     return NextResponse.json(
-      {
-        success: false,
-        error: handledError.message,
-      },
-      { status: handledError.status || 500 }
+      { success: false, error: handledError.message, details: handledError.details },
+      { status: handledError.statusCode || 500 }
     );
   }
 }

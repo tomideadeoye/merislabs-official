@@ -33,14 +33,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { selectPrimaryModelForRequestType, checkAllLlmApiKeys, REQUEST_TYPES } from '@/lib/orion_llm';
 
 interface LogContextType {
   route: string;
   timestamp: string;
-  userId?: string;
   operation?: string;
   [key: string]: unknown;
 }
@@ -50,18 +48,8 @@ export async function GET(request: NextRequest) {
     route: '/api/orion/llm/current-model',
     timestamp: new Date().toISOString(),
     operation: 'GET',
-    userId: undefined,
   };
   logger.info('[CURRENT_LLM_MODEL_API][GET][START] Received request to fetch current LLM model.', logContext);
-
-  const session = await auth();
-  if (!session || !session.user || !session.user.id) {
-    logger.warn('[CURRENT_LLM_MODEL_API][GET][AUTH_FAIL] Unauthorized access attempt.', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const userId = session.user.id;
-  logContext.userId = userId;
 
   const { searchParams } = new URL(request.url);
   const requestType = searchParams.get('requestType');

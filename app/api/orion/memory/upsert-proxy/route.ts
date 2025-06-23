@@ -74,12 +74,8 @@ export async function POST(req: NextRequest) {
     const logContext = { route: '/api/orion/memory/upsert-proxy', timestamp: new Date().toISOString() };
     const handledError = handleApiError(error, logContext);
     return NextResponse.json(
-      {
-        success: false,
-        error: handledError.message,
-        details: handledError.data,
-      },
-      { status: handledError.status || 500 }
+      { success: false, error: handledError.message, details: handledError.details },
+      { status: handledError.statusCode || 500 }
     );
   }
 }

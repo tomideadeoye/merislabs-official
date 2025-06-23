@@ -43,7 +43,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth'; // Re-enable auth import
+// Removed: import { auth } from '@/auth'; // Authentication removed as per user request
 import { prisma } from '@/lib/prisma';
 import logger from '@/lib/logger';
 import { LlmSettingsPayload, PreferredModels } from '@/lib/types';
@@ -52,7 +52,7 @@ import { AVAILABLE_LLM_MODELS } from '@/lib/orion_config'; // Import AVAILABLE_L
 interface LogContextType {
   route: string;
   timestamp: string;
-  userId?: string;
+  // userId?: string; // Removed userId as authentication is no longer required
   operation?: string;
   [key: string]: unknown;
 }
@@ -65,18 +65,13 @@ export async function GET(request: NextRequest) {
   };
   logger.info('[LLM_SETTINGS_API][GET][START] Received request to fetch LLM settings.', logContext);
 
-  // Temporarily bypass authentication as requested.
-  // NOTE: This is for development purposes. Re-enable auth in production.
+  // Removed authentication check as per user request
   // const session = await auth();
   // if (!session || !session.user || !session.user.id) {
   //   logger.warn('[LLM_SETTINGS_API][GET][AUTH_FAIL] Unauthorized access attempt.', logContext);
   //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   // }
-  const userId = 'DEVELOPMENT_USER_ID'; // Use a fixed ID for development when auth is bypassed
-  // logContext.userId = userId; // Commented out as userId is now a fixed string for development
-
-  // Remove this line to use dynamic user ID once authentication is re-enabled.
-  // const userId = session.user.id; // Use authenticated user ID
+  const userId = 'unauthenticated_user'; // Using a fixed ID for development when auth is bypassed
   logContext.userId = userId; // Keep this line for logging, even with fixed ID
 
   try {
@@ -127,18 +122,13 @@ export async function PATCH(request: NextRequest) {
   };
   logger.info('[LLM_SETTINGS_API][PATCH][START] Received request to update LLM settings.', logContext);
 
-  // Temporarily bypass authentication as requested.
-  // NOTE: This is for development purposes. Re-enable auth in production.
+  // Removed authentication check as per user request
   // const session = await auth();
   // if (!session || !session.user || !session.user.id) {
   //   logger.warn('[LLM_SETTINGS_API][PATCH][AUTH_FAIL] Unauthorized access attempt.', logContext);
   //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   // }
-  const userId = 'DEVELOPMENT_USER_ID'; // Use a fixed ID for development when auth is bypassed
-  // logContext.userId = userId; // Commented out as userId is now a fixed string for development
-
-  // Remove this line to use dynamic user ID once authentication is re-enabled.
-  // const userId = session.user.id; // Use authenticated user ID
+  const userId = 'unauthenticated_user'; // Using a fixed ID for development when auth is bypassed
   logContext.userId = userId; // Keep this line for logging, even with fixed ID
 
   try {

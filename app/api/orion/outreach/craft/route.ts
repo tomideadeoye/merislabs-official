@@ -4,7 +4,7 @@ import { getPersonaById } from '@/lib/persona_service';
 import { fetchUserProfile } from '@/lib/profile_service';
 import { SearchMemoryResponse, ScoredMemoryPoint, UserProfileFetchResponse, CombinedLLMResponse } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+// Removed: import { auth } from '@/auth'; // Authentication removed as per user request
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -35,11 +35,12 @@ interface OutreachResponse {
 export async function POST(req: NextRequest) {
   let llmContent: string = '';
 
-  const session = await auth();
-  if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-  const userId = session.user.id;
+  // Removed authentication check as per user request
+  // const session = await auth();
+  // if (!session || !session.user || !session.user.id) {
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+  // const userId = 'unauthenticated_user'; // No longer needed as userId is nullable
 
   try {
     const body = (await req.json()) as OutreachRequest;
@@ -165,7 +166,8 @@ Write the complete ${communicationType} content, ready to send.
 
     // Generate outreach content using LLM
     try {
-      const llmResponse: CombinedLLMResponse = await generateLLMResponse('OUTREACH_CRAFT', prompt, userId, {
+      const llmResponse: CombinedLLMResponse = await generateLLMResponse('OUTREACH_CRAFT', prompt, null, {
+        // userId is now nullable
         profileContext: profileData,
         systemContext: '',
         memoryResults: relevantMemories,

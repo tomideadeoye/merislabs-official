@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { PYTHON_API_URL } from '@/lib/orion_config';
 import logger from '@/lib/logger';
 
@@ -12,12 +11,6 @@ function isNodeError(error: unknown): error is NodeJS.ErrnoException {
  * API route to proxy web research and scraping requests to the Python backend.
  */
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[RESEARCH_PROXY][AUTH] Unauthorized request');
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
     const { query, type = 'web', count, url } = await request.json();
 

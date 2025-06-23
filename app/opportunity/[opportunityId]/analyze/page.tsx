@@ -251,7 +251,7 @@ export default function AnalyzePage() {
   }, [id, userProfileData]); // Add userProfileData to dependency array
 
   if (loading) {
-    return <div style={{ padding: '2rem' }}>Loading analytics...</div>;
+    return <div className="p-8">Loading analytics...</div>;
   }
 
   if (!OrionOpportunity) {
@@ -259,33 +259,18 @@ export default function AnalyzePage() {
   }
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>OrionOpportunity Analysis</h1>
-      <div style={{ marginBottom: '1rem' }}>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-4">OrionOpportunity Analysis</h1>
+      <div className="mb-4">
         <button
           onClick={() => setViewMode('single')}
-          style={{
-            marginRight: 8,
-            padding: '0.5rem 1rem',
-            background: viewMode === 'single' ? '#6366f1' : '#222',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
+          className={`mr-2 px-4 py-2 rounded cursor-pointer ${viewMode === 'single' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-white'}`}
         >
           This OrionOpportunity
         </button>
         <button
           onClick={() => setViewMode('pipeline')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: viewMode === 'pipeline' ? '#6366f1' : '#222',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
+          className={`px-4 py-2 rounded cursor-pointer ${viewMode === 'pipeline' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-white'}`}
         >
           Pipeline Analytics
         </button>
@@ -293,28 +278,28 @@ export default function AnalyzePage() {
 
       {viewMode === 'single' && (
         <>
-          <p>
+          <p className="mb-2">
             <strong>OrionOpportunity ID:</strong> {OrionOpportunity.id}
           </p>
-          <p>
+          <p className="mb-2">
             <strong>Title:</strong> {OrionOpportunity.title}
           </p>
-          <p>
+          <p className="mb-2">
             <strong>Organization:</strong> {OrionOpportunity.companyOrInstitution || 'N/A'}
           </p>
-          <p>
+          <p className="mb-2">
             <strong>Status:</strong> {OrionOpportunity.status}
           </p>
-          <p>
+          <p className="mb-2">
             <strong>Type:</strong> {OrionOpportunity.type}
           </p>
-          <p>
+          <p className="mb-2">
             <strong>Priority:</strong> {OrionOpportunity.priority}
           </p>
-          <p>
+          <p className="mb-2">
             <strong>Description:</strong> {OrionOpportunity.content || 'No description'}
           </p>
-          <div style={{ margin: '2rem 0' }}>
+          <div className="my-8">
             <OpportunityPipelineCharts opportunities={[OrionOpportunity]} isLoading={loading} />
           </div>
           {evaluation && (
@@ -355,7 +340,9 @@ export default function AnalyzePage() {
                 <div className="bg-gray-800 p-4 rounded-lg">
                   <h4 className="text-md font-semibold text-purple-300 mb-2">Suggested Next Steps</h4>
                   <ul className="list-disc list-inside text-gray-300 space-y-1">
-                    {evaluation.suggestedNextSteps?.map((step: string, i: number) => <li key={i}>{step}</li>)}
+                    {evaluation.suggestedNextSteps?.map((step: string, i: number) => (
+                      <li key={i}>{step}</li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -365,14 +352,14 @@ export default function AnalyzePage() {
       )}
 
       {viewMode === 'pipeline' && (
-        <div style={{ margin: '2rem 0' }}>
+        <div className="my-8">
           <OpportunityPipelineCharts opportunities={allOpportunities} isLoading={loading} />
         </div>
       )}
 
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Suggestions for Enhanced Analytics</h2>
-        <ul>
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Suggestions for Enhanced Analytics</h2>
+        <ul className="list-disc list-inside ml-5">
           <li>Show OrionOpportunity status and priority trends over time (timeline chart).</li>
           <li>Compare this OrionOpportunity to others in the pipeline (fit score, type, etc.).</li>
           <li>Visualize stakeholder alignment and risk as charts.</li>

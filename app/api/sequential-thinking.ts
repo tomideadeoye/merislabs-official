@@ -87,9 +87,9 @@ export async function POST(req: NextRequest) {
       {
         success: false,
         error: handledError.message,
-        details: handledError.data,
+        details: handledError.details,
       },
-      { status: handledError.status || 500 }
+      { status: handledError.statusCode || 500 }
     );
   }
 }

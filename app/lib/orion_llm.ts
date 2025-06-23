@@ -707,7 +707,7 @@ export async function getLlmAnswerWithFallback(
 export async function generateLLMResponse(
   requestType: string,
   primaryContext: string, // This will be the job description for CV_AUTO_GENERATE
-  userId: string,
+  userId: string | null, // Make userId nullable
   options: LLMOptions = {} // Use LLMOptions to access allCvComponents and jobDescription
 ): Promise<CombinedLLMResponse> {
   logger.info('[orion_llm][generateLLMResponse][START]', { requestType, userId, options });
@@ -790,7 +790,7 @@ export async function generateLLMResponseWithTools({
 }: {
   requestType: string;
   primaryContext: string;
-  userId: string;
+  userId: string | null;
   profileContext?: string;
   systemContext?: string;
   memoryResults?: ScoredMemoryPoint[];
@@ -923,7 +923,7 @@ export async function callExternalLLM(
   maxTokens?: number,
   tools?: object[],
   tool_choice?: object | 'none' | 'auto',
-  userId?: string // Add userId parameter here
+  userId?: string | null // Make userId nullable
 ): Promise<CreateChatCompletionResponse | null> {
   const modelConfig = getModelConfig(model);
 
@@ -1007,7 +1007,7 @@ export async function callLLMWithFallback(
   maxTokens?: number,
   tools?: object[],
   tool_choice?: object | 'none' | 'auto',
-  userId?: string // Pass userId to log context
+  userId?: string | null // Make userId nullable
 ): Promise<CreateChatCompletionResponse | null> {
   logger.info('[callLLMWithFallback][START]', {
     requestType,
@@ -1152,15 +1152,15 @@ export async function generateOutreachMessage(params: {
   ${callToAction ? `Call to Action: ${callToAction}` : ''}
 
   User Profile:
-  Name: ${userProfileData.name}
-  Email: ${userProfileData.email}
-  Bio: ${userProfileData.bio}
-  Skills: ${userProfileData.skills.join(', ')}
-  Experience: ${userProfileData.experience.join(', ')}
-  Education: ${userProfileData.education.join(', ')}
-  Interests: ${userProfileData.interests.join(', ')}
-  Values: ${userProfileData.values.join(', ')}
-  Social Links: ${userProfileData.socialLinks.map((link) => `${link.platform}: ${link.url}`).join(', ')}
+  Name: ${userProfileData.name ?? 'N/A'}
+  Email: ${userProfileData.email ?? 'N/A'}
+  Bio: ${userProfileData.bio ?? 'N/A'}
+  Skills: ${(userProfileData.skills || []).join(', ') || 'N/A'}
+  Experience: ${(userProfileData.experience || []).join(', ') || 'N/A'}
+  Education: ${(userProfileData.education || []).join(', ') || 'N/A'}
+  Interests: ${(userProfileData.interests || []).join(', ') || 'N/A'}
+  Values: ${(userProfileData.values || []).join(', ') || 'N/A'}
+  Social Links: ${(userProfileData.socialLinks || []).map((link: { platform: string; url: string }) => `${link.platform}: ${link.url}`).join(', ') || 'N/A'}
   ${userProfileData.summary ? `Summary: ${userProfileData.summary}` : ''}
   ${userProfileData.backgroundSummary ? `Background Summary: ${userProfileData.backgroundSummary}` : ''}
   ${userProfileData.keySkills ? `Key Skills: ${userProfileData.keySkills.join(', ')}` : ''}
@@ -1170,7 +1170,7 @@ export async function generateOutreachMessage(params: {
   const messages = constructLlmMessages({
     requestType: REQUEST_TYPES.DRAFT_COMMUNICATION,
     primaryContext: primaryContext,
-    profileContext: userProfileData.profileText, // Assuming profileText is available
+    profileContext: userProfileData.profileText ?? undefined, // Convert null to undefined
   });
 
   try {

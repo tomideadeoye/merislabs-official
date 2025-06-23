@@ -119,10 +119,9 @@ interface Props {
   opportunity: OrionOpportunity;
   cvComponents: CVComponent[];
   initialError?: string | null;
-  isAuthenticated: boolean;
 }
 
-export function CVTailoringStudio({ opportunity, cvComponents, initialError, isAuthenticated }: Props) {
+export function CVTailoringStudio({ opportunity, cvComponents, initialError }: Props) {
   const router = useRouter();
   const [suggestedIds, setSuggestedIds] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -185,13 +184,8 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError, isA
       toast.error(initialError);
       logger.error('[CVTailoringStudio][InitialLoadError]', { error: initialError });
     }
-    if (isAuthenticated) {
-      handleSuggestComponents();
-    } else {
-      logger.warn('[CVTailoringStudio][InitialLoadSkipped] Skipping suggestions due to unauthenticated user.');
-      setIsLoading(false);
-    }
-  }, [handleSuggestComponents, initialError, isAuthenticated]);
+    handleSuggestComponents();
+  }, [handleSuggestComponents, initialError]);
 
   const handleToggle = (id: string) => {
     logger.debug('[CVTailoringStudio][handleToggle]', { componentId: id, currentSelection: Array.from(selectedIds) });

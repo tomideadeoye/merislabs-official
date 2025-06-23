@@ -4,7 +4,6 @@
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
  *   - To provide a read-only API endpoint for fetching a user's prompts.
- *   - To ensure only authenticated users can access their prompts.
  *   - To integrate with `prompt_db_service` to retrieve prompt data.
  *   - To return prompt data in a structured JSON format.
  *   - To provide comprehensive logging for request/response cycles and errors.
@@ -13,15 +12,12 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `next/server`: Used for handling Next.js API routes (`NextRequest`, `NextResponse`).
- *   - `next-auth`: Used for `getServerSession` to authenticate the user.
- *   - `@/lib/auth`: Imports `authConfig` for session validation.
  *   - `@/lib/prompt_db_service`: Consumes `getAllPromptsByUserId` to fetch prompts from the database.
  *   - `@/lib/logger`: Used for comprehensive logging throughout the request lifecycle.
  *   - `@/lib/utils/errorHandler`: Centralized utility for consistent API error handling.
  *   - `app/components/orion/MyPromptsStudio.tsx`: The client-side UI component that will call this API to display prompts.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes user authentication is handled by `next-auth` and a valid session is available.
  *   - Assumes `getAllPromptsByUserId` in `prompt_db_service.ts` functions correctly.
  *   - The API will return an empty array if no prompts are found for the user, rather than an error.
  *   - Robust error handling is in place to gracefully manage unexpected issues during data fetching or authentication.
@@ -55,13 +51,6 @@ export async function GET(request: NextRequest) {
     operation: 'GET',
   };
   logger.info('[LIST_PROMPTS_API][GET][START] Received request to list prompts.', logContext);
-
-  // Authentication check removed as per the authentication removal strategy
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[LIST_PROMPTS_API][GET][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   // Use a placeholder userId since authentication is removed
   const userId = 'unauthenticated_user';

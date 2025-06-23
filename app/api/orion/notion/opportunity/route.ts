@@ -4,17 +4,17 @@ import {
   OpportunityNotionPayload,
   OpportunityNotionPayloadSchema,
 } from '@/lib/notion_next_service';
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Authentication removed as per user request
 
 /**
  * API route for creating an OrionOpportunity in Notion
  */
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Removed authentication as per user request
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
 
   try {
     // Parse request body
@@ -58,9 +58,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Removed authentication as per user request
+  // const session = await auth();
+  // if (!session || !session.user) {
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
   // ... rest of your logic ...
 }

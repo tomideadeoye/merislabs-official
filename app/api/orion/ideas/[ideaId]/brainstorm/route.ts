@@ -27,7 +27,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import logger from '@/lib/logger';
 import { Client, APIResponseError } from '@notionhq/client';
-import { auth } from '@/auth'; // Import auth for session
+// Removed: import { auth } from '@/auth'; // Authentication removed as per user request
 import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import server error handler
 import { HandledApplicationError } from '@/lib/types'; // Import HandledApplicationError
 
@@ -35,7 +35,7 @@ const NOTION_API_KEY = process.env.NOTION_API_KEY;
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 const notion = NOTION_API_KEY ? new Client({ auth: NOTION_API_KEY }) : null;
 
-type IdeaStatus = 'new' | 'researching' | 'developing' | 'launched' | 'abandoned' | 'raw_spark';
+export type IdeaStatus = 'new' | 'researching' | 'developing' | 'launched' | 'abandoned' | 'raw_spark';
 
 // Helper function to extract Notion page properties into an Idea object
 const notionPageToIdea = (page: unknown): Idea => {
@@ -72,12 +72,13 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
     ideaId: params.ideaId,
   });
 
-  const session = await auth(); // Get session
-  if (!session || !session.user || !session.user.id) {
-    logger.warn('[API][IdeaBrainstorm][POST] Unauthorized access attempt.', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-  (logContext as { user?: string }).user = session.user.id; // Add user ID to log context
+  // Removed authentication check as per user's request
+  // const session = await auth(); // Get session
+  // if (!session || !session.user || !session.user.id) {
+  //   logger.warn('[API][IdeaBrainstorm][POST] Unauthorized access attempt.', logContext);
+  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  // }
+  // (logContext as { user?: string }).user = session.user.id; // Removed user ID from log context
 
   let ideaId: string | undefined; // Declare ideaId here
 
@@ -125,9 +126,9 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
         {
           success: false,
           error: handledError.message,
-          details: handledError.data,
+          details: handledError.details,
         },
-        { status: handledError.status || 500 }
+        { status: handledError.statusCode || 500 }
       );
     }
 
@@ -164,7 +165,7 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
       requestType: REQUEST_TYPES.IDEA_BRAINSTORM,
     });
     // Call LLM for brainstorm content
-    const llmResponse = await generateLLMResponse(REQUEST_TYPES.IDEA_BRAINSTORM, llmPrompt, session.user.id!); // Add userId
+    const llmResponse = await generateLLMResponse(REQUEST_TYPES.IDEA_BRAINSTORM, llmPrompt, null); // userId is now nullable
 
     let brainstormContent: string;
     if (llmResponse.success) {
@@ -177,13 +178,10 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
         error: handledError.message,
         stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
       });
-      throw new HandledApplicationError(handledError.message, { ...handledError });
+      // It's already a HandledApplicationError, re-throw it directly.
+      throw handledError;
     }
 
-    logger.debug('[API][IdeaBrainstorm][POST] Updating Notion page with brainstorm content.', {
-      ...logContext,
-      ideaId,
-    });
     // Update Notion page with brainstorm content
     const currentBrainstormNotes = idea.brainstormingNotes || '';
     const newBrainstormNotes = `${currentBrainstormNotes}\n\n---\n\n**Brainstorming Session (${new Date().toLocaleString()}):**\n${brainstormContent}`;
@@ -266,8 +264,8 @@ export async function POST(request: NextRequest, { params }: { params: { ideaId:
       stack: handledError.originalError instanceof Error ? handledError.originalError.stack : undefined,
     });
     return NextResponse.json(
-      { success: false, error: handledError.message, details: handledError.data },
-      { status: handledError.status || 500 }
+      { success: false, error: handledError.message, details: handledError.details },
+      { status: handledError.statusCode || 500 }
     );
   }
 }

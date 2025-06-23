@@ -5,7 +5,6 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
-import { auth } from '@/auth';
 import { Client, APIResponseError } from '@notionhq/client';
 import { UpdatePageParameters } from '@notionhq/client/build/src/api-endpoints';
 import { OpportunityUpdatePayload, OpportunityType, OpportunityStatus, OpportunityPriority } from '@/lib/types';
@@ -148,12 +147,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     operation: 'PATCH',
   };
   logger.info('[OPPORTUNITY_UPDATE][START] Received request to update opportunity.', logContext);
-
-  const session = await auth();
-  if (!session || !session.user) {
-    logger.warn('[OPPORTUNITY_UPDATE][AUTH_FAIL] Unauthorized access attempt.', logContext);
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
 
   if (!notion || !NOTION_API_KEY) {
     logger.error('[OPPORTUNITY_UPDATE][NOTION_CONFIG_FAIL] Notion client or API key not configured.', logContext);

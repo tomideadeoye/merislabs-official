@@ -25,11 +25,10 @@
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Expects Python API service to be running and properly configured
  *   - Assumes company names are provided in standard format for optimal search
- *   - Authentication temporarily disabled for rapid iteration (NOTE: See Security section)
+ *   - Authentication is no longer a concern.
  *   - Python service returns structured data with consistent schema
  *
  * NOTES:
- *   - [SECURITY] Authentication middleware currently disabled - implement OAuth2.0/API key validation
  *   - [PERFORMANCE] Current implementation makes direct Python API calls - consider adding caching layer
  *   - [ERROR HANDLING] Error responses should be standardized across all networking APIs
  *   - [DATA FLOW] Request -> Route Handler -> Python Service -> Response Transformation -> Client
@@ -43,11 +42,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth/next';
 import logger from '@/lib/logger';
 import { pythonApiService } from '@/lib/pythonApiService';
-// import { findRelevantStakeholders } from '@/lib/networking_service';
-// import { authConfig } from '@/lib/auth';
 
 interface LogContextType {
   route: string;
@@ -87,17 +83,6 @@ export async function POST(request: NextRequest) {
   };
   logger.info('[FIND_STAKEHOLDERS_API][POST][START] Received request to find stakeholders.', logContext);
 
-  // NOTE: Authentication temporarily disabled for development velocity
-  // Security Strategy: Planned OAuth2.0 implementation tracked in SEC-45
-  // Current Risk: Open endpoint - implement API key validation before production
-  // const session = await getServerSession(authConfig);
-  // if (!session || !session.user || !session.user.id) {
-  //   logger.warn('[FIND_STAKEHOLDERS_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
-
-  // Temporary user handling - will be replaced with JWT-based identity
-  // from authorization header once auth middleware is reinstated
   const userId = 'unauthenticated_user';
   logContext.userId = userId;
 

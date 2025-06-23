@@ -4,7 +4,7 @@
 // Opportunities for improvement or consolidation.
 
 import { useState, useCallback } from 'react';
-import { ScoredMemoryPoint, MemorySearchOptions, searchMemory } from '..';
+import { ScoredMemoryPoint, MemorySearchOptions } from '@/lib/types/memory';
 import { addMemory, findMemoriesByType, findMemoriesByTag } from '../lib/memory';
 
 /**

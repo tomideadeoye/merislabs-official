@@ -26,19 +26,20 @@ Orion is built as a monorepo, primarily leveraging Next.js for the frontend and 
 
 ## 4. Implemented Features
 
-### 4.1. Agentic Workflow (NEWLY IMPLEMENTED)
+### 4.1. Agentic Workflow (ENHANCED)
 
-- **Goal:** To automate complex workflows and agentic tasks by allowing users to submit natural language queries that are processed by an AI agent capable of using various tools.
-- **Description:** This feature provides an interactive interface where users can type a task or question. The system then leverages an LLM-powered agent to interpret the request, plan steps, and execute available internal tools (e.g., searching memory, creating Habitica tasks) to fulfill the request. The agent's progress and final response are displayed to the user.
+- **Goal:** To automate complex workflows and agentic tasks by allowing users to submit natural language queries that are processed by an AI agent capable of using various tools, with a focus on comprehensive internal task management.
+- **Description:** This feature provides an interactive interface where users can type a task or question. The system then leverages an LLM-powered agent to interpret the request, plan steps, and execute available internal tools (e.g., searching memory, creating and managing Orion tasks) to fulfill the request. The agent's progress and final response are displayed to the user.
 - **Implementation Details:**
   - **Frontend Component:** `app/components/orion/admin/AgenticWorkflowComponent.tsx`
     - Provides a text input for user queries.
     - Displays loading states, potential intermediate messages, and the final response from the agent.
     - Handles error display and client-side logging.
+    - Integrates directly with Orion's internal task management system for task creation, update, and deletion.
   - **Backend API:** `app/api/orion/agent/execute/route.ts`
     - Receives `userQuery` from the frontend.
     - Orchestrates an LLM-powered agent loop that can call various internal tools.
-    - Tools currently include `search_orion_memory` and `create_habitica_todo`.
+    - Tools now exclusively interact with Orion's internal systems, including task management.
     - Uses `generateLLMResponse` from `@/lib/orion_llm` for LLM interaction.
     - Employs robust error handling and comprehensive server-side logging.
   - **Integrated Tools:** The Agentic Workflow leverages the following specialized tools:
@@ -46,10 +47,10 @@ Orion is built as a monorepo, primarily leveraging Next.js for the frontend and 
       - **Description:** Searches Tomide's personal Orion memory (Qdrant vector store) for relevant information based on a natural language query.
       - **Capabilities:** Recalls past journal entries, notes, ideas, or other stored knowledge. Supports filtering by `memorySourceTypes` (e.g., `journal_entry`, `opportunity_evaluation`) and `memorySourceTags` (e.g., `career`, `fintech`).
       - **API/File:** Integrates with `/api/orion/memory/search`.
-    - **`createHabiticaTodoTool`**:
-      - **Description:** Creates a new To-Do task in Tomide's Habitica account when an actionable item is identified by the agent.
-      - **Capabilities:** Allows specifying task text, notes, priority (0.1 Trivial, 1 Easy, 1.5 Medium, 2 Hard), and the originating Orion module and reference ID for traceability.
-      - **API/File:** Integrates with `/api/orion/habitica/todo`.
+    - **`createOrionTaskTool` (NEW)**:
+      - **Description:** Creates and manages tasks directly within Orion's internal task management system, allowing the agent to define and track actionable items.
+      - **Capabilities:** Allows specifying task text, notes, priority, due date, related links, and phone numbers.
+      - **API/File:** Integrates with `/api/orion/tasks/create`, `/api/orion/tasks/{taskId}/update`, and `/api/orion/tasks/{taskId}/delete`.
     - **`callSequentialThinking`**:
       - **Description:** A utility for guiding the agent's thought process, potentially enabling it to break down problems or generate a sequence of structured thoughts.
       - **Capabilities:** Facilitates a structured thinking process for the agent, with fallback to a server-side API (`/api/sequential-thinking`) if a client-side MCP client isn't available.
@@ -60,10 +61,11 @@ Orion is built as a monorepo, primarily leveraging Next.js for the frontend and 
   - `@/lib/orion_tools.ts`: Defines the available tools that the agent can use.
   - `@/lib/apiClient.ts`: Used by the frontend component for API communication.
   - `@/lib/logger.ts`: Centralized logging for both frontend and backend operations.
-  - `@/lib/types/index.ts`: Defines shared types for API responses and agent messages.
+  - `@/lib/types/index.ts`: Defines shared types for API responses and agent messages, including `Task`.
   - `/api/orion/memory/search`: An internal API called by the agent for memory search.
-  - `/api/orion/habitica/todo`: An internal API called by the agent to create Habitica tasks.
+  - `/api/orion/tasks/*`: Internal APIs for comprehensive task management.
 - **Logging:** Comprehensive logging is implemented at various stages of the agent's execution, including query submission, API calls, LLM interactions, tool executions, and error handling.
+- **Note on Habitica Deprecation:** Habitica integration has been fully deprecated and removed from Orion. All task management functionalities are now handled by Orion's internal database and integrated directly into the Agentic Workflow.
 
 ### 4.2. Opportunity Pipeline Management
 

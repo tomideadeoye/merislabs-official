@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { listOpportunitiesFromDb } from '@/lib/opportunity_db_service';
 import logger from '@/lib/logger';
-import { handleApiError } from '@/lib/utils/errorHandler';
-import { HandledApplicationError } from '@/lib/types';
+import { handleApiError, HandledApplicationError } from '@/lib/utils/errorHandler';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
 
 // @fileoverview This file defines the API route for listing opportunities from the Neon database.
@@ -33,11 +32,11 @@ export async function GET() {
       logger.error('[OPPORTUNITY_LIST][DB_ERROR] Failed to retrieve opportunities from DB.', {
         ...logContext,
         error: opportunitiesResult.message,
-        details: opportunitiesResult.data,
+        details: opportunitiesResult.details,
       });
       return NextResponse.json(
-        { success: false, error: opportunitiesResult.message, details: opportunitiesResult.data },
-        { status: opportunitiesResult.status || 500 }
+        { success: false, error: opportunitiesResult.message, details: opportunitiesResult.details },
+        { status: opportunitiesResult.statusCode || 500 }
       );
     }
 
@@ -66,9 +65,9 @@ export async function GET() {
       {
         success: false,
         error: handledError.message,
-        details: handledError.data,
+        details: handledError.details,
       },
-      { status: handledError.status || 500 }
+      { status: handledError.statusCode || 500 }
     );
   }
 }

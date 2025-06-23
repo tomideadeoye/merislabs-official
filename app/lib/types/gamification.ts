@@ -19,4 +19,7 @@ export interface AchievementBadge {
 export interface GamificationDashboardData {
   productivityStreak: ProductivityStreak;
   achievementBadges: AchievementBadge[];
+  totalMemoryChunks: number;
+  totalIdeas: number;
+  totalOpportunitiesEvaluated: number;
 }

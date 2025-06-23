@@ -119,11 +119,7 @@ export async function saveOrUpdateCvComponent(componentData: RawCvComponentJsonD
     logger.warn('[CV_DB_SERVICE][SAVE_OR_UPDATE] Skipping CV component with no UniqueID.', {
       componentName: componentData['Component Name'],
     });
-    throw new HandledApplicationError('CV Component UniqueID is missing.', {
-      status: 400,
-      logContext,
-      type: 'VALIDATION_ERROR',
-    });
+    throw new HandledApplicationError('CV Component UniqueID is missing.', 400, 'VALIDATION_ERROR', logContext);
   }
   logger.info('[CV_DB_SERVICE][SAVE_OR_UPDATE][START]', logContext);
 
@@ -167,12 +163,13 @@ export async function saveOrUpdateCvComponent(componentData: RawCvComponentJsonD
       isDatabaseError: dbErrorMatch,
     });
 
-    throw new HandledApplicationError(userFriendlyMessage, {
-      status: 500,
+    throw new HandledApplicationError(
+      userFriendlyMessage,
+      500,
+      dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
       logContext,
-      originalError: error,
-      type: dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
-    });
+      error
+    );
   }
 }
 
@@ -208,12 +205,13 @@ export async function fetchAllCvComponents(): Promise<CVComponentPayload[] | Han
       stack: error instanceof Error ? error.stack : undefined,
       isDatabaseError: dbErrorMatch,
     });
-    return new HandledApplicationError(userFriendlyMessage, {
-      status: 500,
-      logContext: { operation: 'fetchAllCvComponents' },
-      originalError: error,
-      type: dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
-    });
+    return new HandledApplicationError(
+      userFriendlyMessage,
+      500,
+      dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
+      { operation: 'fetchAllCvComponents' },
+      error
+    );
   }
 }
 
@@ -250,12 +248,13 @@ export async function deleteCvComponent(uniqueId: string): Promise<CVComponentPa
       stack: error instanceof Error ? error.stack : undefined,
       isDatabaseError: dbErrorMatch,
     });
-    throw new HandledApplicationError(userFriendlyMessage, {
-      status: 500,
+    throw new HandledApplicationError(
+      userFriendlyMessage,
+      500,
+      dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
       logContext,
-      originalError: error,
-      type: dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
-    });
+      error
+    );
   }
 }
 
@@ -292,12 +291,13 @@ export async function findCvComponentByUniqueId(uniqueId: string): Promise<CVCom
       stack: error instanceof Error ? error.stack : undefined,
       isDatabaseError: dbErrorMatch,
     });
-    throw new HandledApplicationError(userFriendlyMessage, {
-      status: 500,
+    throw new HandledApplicationError(
+      userFriendlyMessage,
+      500,
+      dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
       logContext,
-      originalError: error,
-      type: dbErrorMatch ? 'DB_CONNECTION_ERROR' : 'DB_OPERATION_ERROR',
-    });
+      error
+    );
   }
 }
 
@@ -356,11 +356,12 @@ export async function recordCVFeedback(
       error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
     });
-    throw new HandledApplicationError(`Failed to record CV feedback: ${errorMessage}`, {
-      status: 500,
+    throw new HandledApplicationError(
+      `Failed to record CV feedback: ${errorMessage}`,
+      500,
+      'DB_OPERATION_ERROR',
       logContext,
-      originalError: error,
-      type: 'DB_OPERATION_ERROR',
-    });
+      error
+    );
   }
 }

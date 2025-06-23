@@ -1,7 +1,7 @@
 export interface HabiticaTask {
   _id: string;
   text: string;
-  type?: 'todo' | 'daily' | 'habit' | 'reward';
+  type: 'todo' | 'daily' | 'habit' | 'reward';
   notes?: string;
   priority?: number;
   completed?: boolean; // Add if tasks can have a completed status

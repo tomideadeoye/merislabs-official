@@ -219,8 +219,8 @@ export const taskDbService = {
   },
 
   /**
-   * Retrieves all tasks for a given user.
-   * @param userId The ID of the user.
+   * Retrieves all tasks for a given user ID.
+   * @param userId The ID of the user whose tasks to retrieve.
    * @returns An array of Task objects.
    */
   getAllTasks: async (userId: string): Promise<Task[]> => {
@@ -229,8 +229,13 @@ export const taskDbService = {
       parameters: { userId },
     });
     try {
-      const tasks = await prisma.task.findMany({ where: { userId } });
-      logger.info('All tasks retrieved successfully.', {
+      const tasks = await prisma.task.findMany({
+        where: { userId },
+        orderBy: {
+          createdAt: 'desc', // Order by creation date, newest first
+        },
+      });
+      logger.info('All tasks retrieved successfully for user.', {
         operation: 'getAllTasks',
         resultsCount: tasks.length,
         userId,
@@ -238,7 +243,7 @@ export const taskDbService = {
       return tasks;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error.';
-      logger.error('Failed to retrieve all tasks.', {
+      logger.error('Failed to retrieve all tasks for user.', {
         operation: 'getAllTasks',
         parameters: { userId },
         error: errorMessage,

@@ -39,7 +39,7 @@ export interface WhatsAppAnalysisResult {
  */
 export async function analyzeWhatsAppChat(
   chatTranscript: string,
-  userId: string,
+  userId: string | null,
   userProfileContext?: UserProfileFetchResponse
 ): Promise<WhatsAppAnalysisResult> {
   try {

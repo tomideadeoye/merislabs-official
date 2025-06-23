@@ -26,14 +26,14 @@
  *   - The export strategy (`export * from ...`) simplifies imports for consumers but requires careful management to avoid naming conflicts.
  */
 
-import type { HabiticaTask } from './habitica';
 import { Prisma } from '@/generated/prisma';
 import { MemoryMetadataPayload, ScoredMemoryPoint } from './memory';
 import { CvAutoGenerateOutput } from './llm'; // Import the new type
+import { TaskStatus, TaskPriority, TaskType } from '@prisma/client';
 
 // Explicitly export types for isolatedModules compliance
 export type * from './blocks';
-export type * from './habitica';
+// export type * from './habitica'; // Confirmed commented out or removed
 export type * from './ideas';
 export type * from './insights';
 export type * from './llm';
@@ -43,6 +43,51 @@ export type * from './strategic-outreach';
 export type * from './memory';
 export type * from './email';
 export type * from './gamification';
+export { TaskStatus, TaskPriority, TaskType } from '@prisma/client'; // Export Prisma enums directly
+
+/**
+ * @description Custom error class for handling application-specific errors with additional context
+ * @why Provides structured error handling across the Orion system with status codes and error codes
+ * @note Extends standard Error to enable proper instanceof checks and preserve stack traces
+ *
+ * @param message - Human-readable error description
+ * @param statusCode - HTTP status code (400-599)
+ * @param errorCode - Machine-readable error code (e.g. "VALIDATION_ERROR")
+ * @param details - Additional error context for debugging
+ * @param originalError - Original error that caused this exception
+ */
+export class HandledApplicationError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode: number,
+    public readonly errorCode: string,
+    public readonly details?: unknown,
+    public readonly originalError?: Error
+  ) {
+    super(message);
+    this.name = 'HandledApplicationError';
+
+    // Maintain proper stack trace for where our error was thrown
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, HandledApplicationError);
+    }
+  }
+
+  /**
+   * @description Serialize error for API responses
+   * @why Ensure consistent error format across all Orion APIs
+   */
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      statusCode: this.statusCode,
+      errorCode: this.errorCode,
+      details: this.details,
+      ...(this.originalError && { originalError: this.originalError.toString() }),
+    };
+  }
+}
 
 export interface LLMAPIKeyStatus {
   modelId: string;
@@ -232,24 +277,38 @@ export interface EvaluationOutput {
 
 export interface UserProfileData {
   id: string;
-  name: string;
-  email: string;
-  bio: string;
-  skills: string[];
-  experience: string[];
-  education: string[];
-  interests: string[];
-  values: string[];
-  goals: string[];
-  socialLinks: { platform: string; url: string }[];
-  contactInfo: { phone?: string; address?: string };
-  summary?: string; // Add summary as optional
-  profileText?: string;
-  source?: 'notion' | 'local' | 'external_service' | 'none' | 'error'; // Updated to include all possible source types
-  backgroundSummary?: string;
-  keySkills?: string[];
-  location?: string; // Used in draft-application/route.ts
-  lastEditedTime?: string | Date | null; // Added lastEditedTime to UserProfileData
+  userId: string;
+  name: string | null;
+  email: string | null;
+  mobile: string | null;
+  website: string | null;
+  github: string | null;
+  linkedin: string | null;
+  substack: string | null;
+  slideshare: string | null;
+  medium: string | null;
+  discord: string | null;
+  merisLabsLinkedin: string | null;
+  bioPitchLink: string | null;
+  youtube: string | null;
+  language: string | null;
+  location: string | null;
+  backgroundSummary: string | null;
+  keySkills: string[] | null;
+  goals: string[] | null;
+  values: string[] | null;
+  profileText: string | null;
+  bio: string | null;
+  skills: string[] | null;
+  experience: string[] | null;
+  education: string[] | null;
+  interests: string[] | null;
+  socialLinks: { platform: string; url: string }[] | null;
+  personalWebsite?: string | null; // Added missing property
+  summary: string | null;
+  createdAt: string;
+  updatedAt: string;
+  source?: 'neon' | 'cache' | 'none' | 'error' | 'external_service' | 'local' | 'notion'; // Updated source types to include local and notion
 }
 
 /**
@@ -629,7 +688,7 @@ export interface LogEmotionRequestBody {
   secondaryEmotions?: string[];
   intensity?: number;
   physicalSensations?: string[];
-  accompanyingThoughts?: string;
+  accompanyingThoughts?: string[];
   copingMechanismsUsed?: string[];
   relatedJournalSourceId?: string;
   cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData;
@@ -659,10 +718,23 @@ export interface Task {
   description?: string | null;
   status: TaskStatus;
   priority: TaskPriority;
+  type: TaskType;
   dueDate?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   steps: TaskStep[];
+  relatedLinks?: string[];
+  relatedPhoneNumbers?: string[];
+  // No longer needed for Habitica integration
+  // habiticaId?: string;
+  // habiticaType?: 'todo' | 'daily' | 'habit' | 'reward';
+  // habiticaCompleted?: boolean;
+  // habiticaPriority?: number;
+  // habiticaStreak?: number;
+  // habiticaCounterUp?: number;
+  // habiticaCounterDown?: number;
+  // habiticaValue?: number;
+  // origin?: 'orion' | 'habitica';
 }
 
 export interface Crew {
@@ -800,14 +872,13 @@ export interface OrionSessionState {
   dcGenerating?: boolean;
   dcModelApproach?: string;
   dcNumOptions?: number;
-  dcPrimaryModel?: string;
   dcRecipients?: string;
   dcSaveTagsInput?: string;
   dcTopic?: string;
   dcUserContext?: string;
   enabledStepsPipeline?: Record<string, boolean>;
-  habiticaApiToken?: string;
-  habiticaUserId?: string;
+  // habiticaApiToken?: string; // Removed
+  // habiticaUserId?: string; // Removed
   journalModelApproach?: string;
   journalPrimaryModel?: string;
   journalProcessing?: boolean;
@@ -1082,12 +1153,34 @@ export interface SendEmailResponse {
   messageId?: string;
 }
 
+/**
+ * Defines the parameters required to create a new Habitica task.
+ */
+export interface HabiticaTaskCreationParams {
+  text: string;
+  type: 'todo' | 'daily' | 'habit' | 'reward'; // Explicitly define allowed task types
+  notes?: string;
+  date?: string; // ISO date string for due date for todos/dailies
+  priority?: number; // Habitica priority scale, typically 0, 0.5, 1, 1.5, 2
+  tags?: string[];
+}
+
+export interface HabiticaTaskUpdateParams {
+  text?: string;
+  notes?: string;
+  priority?: number;
+  tags?: string[];
+  completed?: boolean;
+  up?: boolean; // Add for Habitica habits
+  down?: boolean; // Add for Habitica habits
+}
+
 export interface UserProfileFetchResponse {
   success: boolean;
   profileText?: string | null;
   profile?: UserProfileData | null;
   error?: string;
-  source?: 'notion' | 'local' | 'external_service' | 'none' | 'error';
+  source?: 'neon' | 'cache' | 'none' | 'error' | 'external_service' | 'local' | 'notion'; // Updated source types
 }
 
 export interface EmailResponse {
@@ -1116,71 +1209,6 @@ export interface CreateBlockPayload {
   title: string;
   content: string;
   tags?: string[];
-}
-
-export interface HabiticaTodo {
-  _id: string;
-  text: string;
-  notes?: string;
-  priority: number;
-  completed: boolean;
-  dateCompleted?: string;
-  // Add other properties as needed
-}
-
-export interface HabiticaDaily {
-  _id: string;
-  text: string;
-  notes?: string;
-  priority: number;
-  completed: boolean;
-  streak: number;
-  // Add other properties as needed
-}
-
-export interface HabiticaHabit {
-  _id: string;
-  text: string;
-  notes?: string;
-  up: boolean;
-  down: boolean;
-  counterUp: number;
-  counterDown: number;
-  // Add other properties as needed
-}
-
-export interface HabiticaReward {
-  _id: string;
-  text: string;
-  value: number;
-  // Add other properties as needed
-}
-
-export interface HabiticaTaskCount {
-  todos: number;
-  dailys: number;
-  habits: number;
-  rewards: number;
-}
-
-export interface HabiticaStats {
-  hp: number;
-  maxHealth: number;
-  exp: number;
-  toNextLevel: number;
-  lvl: number;
-  gp: number;
-  per: number; // Perception
-  int: number; // Intelligence
-  str: number; // Strength
-  con: number; // Constitution
-  points: number;
-  tasks?: HabiticaTask[];
-  taskCounts?: HabiticaTaskCount;
-  todos?: HabiticaTodo[];
-  dailys?: HabiticaDaily[];
-  habits?: HabiticaHabit[];
-  rewards?: HabiticaReward[];
 }
 
 export interface Idea {
@@ -1223,11 +1251,12 @@ export interface LLMRequest {
 }
 
 export interface LLMToolCall {
-  id: string;
+  id?: string; // Made optional to align with potential undefined values from LLM responses
   function: {
     name: string;
     arguments: string;
   };
+  type: 'function'; // Explicitly add the type property as it's expected by the system
 }
 
 export interface LLMToolOutput {
@@ -1463,7 +1492,6 @@ export interface ApiErrorResponse {
   rawContent?: string; // For API response errors that return raw content
 }
 
-// Define the response type for the evaluation API
 export interface EvaluationApiResponse {
   success: boolean;
   evaluation?: EvaluationOutput;
@@ -1480,9 +1508,6 @@ export interface LLMModelConfig {
   supportsJson: boolean; // Whether the model supports JSON mode
 }
 
-// Export HandledApplicationError from errorHandler.ts for global use
-export { HandledApplicationError } from '../utils/errorHandler';
-
 export interface LLMTool {
   function: {
     name: string;
@@ -1492,20 +1517,22 @@ export interface LLMTool {
   type: 'function'; // This will always be 'function' for LLM tools
 }
 
-export type { MemoryMetadataPayload, ScoredMemoryPoint };
-
-export enum TaskStatus {
-  TODO = 'TODO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  DONE = 'DONE',
-  ARCHIVED = 'ARCHIVED',
+export interface ProductivityStreak {
+  currentStreak: number;
+  longestStreak: number;
+  lastCompletionDate: string | null;
+  dailyGoalMet: boolean;
 }
 
-export enum TaskPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  URGENT = 'URGENT',
+export interface AchievementBadge {
+  id: string;
+  name: string;
+  description: string;
+  unlocked: boolean;
+  unlockedDate?: string | null;
+  icon?: string;
+  progress?: number;
+  target?: number;
 }
 
 export interface TaskStep {
@@ -1530,7 +1557,15 @@ export interface MemoryChunk {
   payload: {
     title: string;
     text: string;
-    [key: string]: any; // Allow for other metadata in payload
+    [key: string]: unknown; // Allow for other metadata in payload
   };
-  [key: string]: any; // Allow for other top-level properties
+  [key: string]: unknown; // Allow for other top-level properties
+}
+
+export interface GamificationDashboardData {
+  productivityStreak: ProductivityStreak;
+  achievementBadges: AchievementBadge[];
+  totalMemoryChunks: number;
+  totalIdeas: number;
+  totalOpportunitiesEvaluated: number;
 }

@@ -49,12 +49,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
-import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
-import logger from '@/lib/logger';
 import { z } from 'zod';
-import { HandledApplicationError } from '@/lib/types';
+// import { auth } from '@/auth'; // Authentication removed as per user request
+import logger from '@/lib/logger';
+import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
+import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
 // Define the schema for the request body using Zod
 const rephraseRequestSchema = z.object({
@@ -70,13 +70,6 @@ export async function POST(request: NextRequest) {
   logger.info('[CV_REPHRASE_API][POST][START]', logContext);
 
   try {
-    const session = await auth();
-    if (!session || !session.user || !session.user.id) {
-      logger.warn('[CV_REPHRASE_API][POST][AUTH_FAIL]', logContext);
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    (logContext as { user?: string }).user = session.user.id;
-
     const body = await request.json();
     const { componentContent, jobDescription } = rephraseRequestSchema.parse(body);
 
@@ -84,7 +77,15 @@ export async function POST(request: NextRequest) {
 
     logger.debug('[CV_REPHRASE_API][POST][LLM_PROMPT_GENERATED]', { ...logContext, promptLength: prompt.length });
 
-    const llmResponse = await generateLLMResponse(REQUEST_TYPES.CV_COMPONENT_TAILORING, prompt, session.user.id!);
+    const llmResponse = await generateLLMResponse(
+      REQUEST_TYPES.CV_COMPONENT_TAILORING,
+      prompt,
+      'unauthenticated_user',
+      {
+        temperature: 0.7,
+        maxTokens: 500,
+      }
+    );
 
     if (!llmResponse.success) {
       const errorMsg = llmResponse.error || 'LLM failed to rephrase content.';
@@ -108,11 +109,14 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid input for rephrasing.', details: handledError.data ?? error.errors },
+        { success: false, error: 'Invalid input for rephrasing.', details: handledError.details ?? error.errors },
         { status: 400 }
       );
     }
 
-    return NextResponse.json({ success: false, error: handledError.message }, { status: handledError.status || 500 });
+    return NextResponse.json(
+      { success: false, error: handledError.message },
+      { status: handledError.statusCode || 500 }
+    );
   }
 }

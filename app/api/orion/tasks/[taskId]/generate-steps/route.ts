@@ -43,7 +43,6 @@
  *   - [Add metrics logging (e.g., LLM token usage, response time) for performance monitoring.]
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth'; // For authentication
 import { taskDbService } from '@/lib/task_db_service'; // For database operations on tasks
 import { pythonApiService } from '@/lib/pythonApiService'; // Assumed to exist for memory search
 import { generateLLMResponseWithTools, REQUEST_TYPES } from '@/lib/orion_llm'; // For LLM interaction and tool calling
@@ -52,19 +51,7 @@ import { Prisma, TaskStep } from '@/generated/prisma'; // For Prisma types, spec
 import { LLMTool } from '@/lib/types'; // Import LLMTool type
 
 export async function POST(request: NextRequest, { params }: { params: { taskId: string } }) {
-  // Step 1: Authenticate the user.
-  // Goal: Ensure only authorized users can access this endpoint.
-  // Logic: Use `auth()` to get the session and extract the `userId`. Return 401 if unauthorized.
-  const session = await auth();
-  const userId = session?.user?.id;
-  if (!userId) {
-    logger.warn('Unauthorized attempt to generate task steps.', {
-      operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
-      validation: 'Unauthorized',
-      sessionId: request.headers.get('x-session-id'),
-    });
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const userId = 'unauthenticated_user'; // Hardcode userId as authentication is removed.
 
   logger.info('Received request to generate task steps.', {
     operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
@@ -82,7 +69,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       parameters: { prompt, numOptions, relatedLinks, relatedPhoneNumbers },
       taskId: params.taskId,
-      userId,
     });
 
     const task = await taskDbService.getTaskWithSteps(params.taskId);
@@ -91,7 +77,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
         operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
         validation: 'Task not found',
         taskId: params.taskId,
-        userId,
       });
       throw new Error('Task not found.');
     }
@@ -99,7 +84,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       taskId: task.id,
       taskTitle: task.title,
-      userId,
     });
 
     // Step 3: Search Orion's memory for relevant context.
@@ -110,14 +94,12 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       taskId: task.id,
       query: `Context for task: ${task.title}. ${prompt}`,
-      userId,
     });
     const memoryContext = await pythonApiService.searchMemory(`Context for task: ${task.title}. ${prompt}`);
     logger.info('Orion Memory search completed.', {
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       taskId: task.id,
       memoryResultsLength: memoryContext.length,
-      userId,
     });
 
     // Step 4: Prepare prompts and tools for the LLM.
@@ -204,7 +186,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       taskId: task.id,
       success: llmResponse.success,
-      userId,
     });
 
     // Step 6: Validate LLM response and parse generated options.
@@ -215,7 +196,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
         operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
         error: llmResponse.error || 'No content from LLM.',
         taskId: task.id,
-        userId,
       });
       throw new Error(llmResponse.error || 'LLM failed to generate options.');
     }
@@ -235,7 +215,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
         operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
         taskId: task.id,
         optionsCount: generatedOptions.length,
-        userId,
       });
     } catch (parseError: unknown) {
       const parseErrorMessage = parseError instanceof Error ? parseError.message : 'Unknown JSON parsing error.';
@@ -244,7 +223,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
         error: parseErrorMessage,
         rawContent: llmResponse.content,
         taskId: task.id,
-        userId,
       });
       throw new Error(
         `Invalid LLM response format: ${parseErrorMessage}. Raw: ${llmResponse.content.substring(0, 200)}...`
@@ -266,7 +244,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
     logger.info('Adding new step to task history.', {
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       taskId: task.id,
-      userId,
       stepDataSummary: {
         prompt: stepData.prompt?.substring(0, 50),
         linksCount: relatedLinks.length,
@@ -277,7 +254,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
     logger.success('New step added to task history successfully.', {
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       taskId: task.id,
-      userId,
     });
 
     // Step 8: Return the generated options to the frontend.
@@ -292,7 +268,6 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
       operation: 'POST /api/orion/tasks/[taskId]/generate-steps',
       error: errorMessage,
       parameters: { taskId: params.taskId, prompt }, // Using the already defined prompt variable
-      userId,
       validation: 'Backend logic or external service error.',
     });
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });

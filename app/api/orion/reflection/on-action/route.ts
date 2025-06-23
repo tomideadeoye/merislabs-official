@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
 import { sql } from '@/lib/database';
-import { auth } from '@/auth';
 
 interface ActionReflectionRequestBody {
   habiticaTaskId: string;
@@ -19,11 +18,6 @@ interface ActionReflectionRequestBody {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  if (!session || !session.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
     const body: ActionReflectionRequestBody = await request.json();
     const { habiticaTaskId, orionSourceModule, orionSourceReferenceId, originalTaskText, reflectionText, timestamp } =

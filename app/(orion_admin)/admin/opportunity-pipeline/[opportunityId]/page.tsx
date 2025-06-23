@@ -27,7 +27,7 @@
  *   - `@/components/ui/page-header`: For consistent page title and description.
  *   - `@/components/ui/tabs`: Shadcn UI components for the tabbed interface.
  *   - `lucide-react`: Provides icons (`Briefcase`) for visual elements.
- *   - `@/lib/types`: Imports `HandledApplicationError`, `OrionOpportunity`, and `CVComponent` for type consistency.
+ *   - `@/lib/types`: Imports `OrionOpportunity` and `CVComponent` for type consistency.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes `params.opportunityId` is a valid ID for an existing opportunity.
@@ -51,13 +51,14 @@ import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/ui/page-header';
 import { Briefcase } from 'lucide-react';
 import { CompanyStakeholderOutreach } from '@/components/orion/opportunities/CompanyStakeholderOutreach';
-import { HandledApplicationError, OrionOpportunity } from '@/lib/types';
+import { OrionOpportunity } from '@/lib/types';
 import { CVComponent } from '@/lib/types/cv';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CVTailoringStudio } from '@/components/orion/CVTailoringStudio';
 import { AIEvaluationContent } from '@/components/orion/opportunities/AIEvaluationContent';
 import { EmailLinkedinDraftContent } from '@/components/orion/opportunities/EmailLinkedinDraftContent';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
 interface Props {
   params: { opportunityId: string };
@@ -78,49 +79,17 @@ export default async function OpportunityDetailPage({ params }: Props) {
 
   const opportunityResult = await getOpportunityByIdFromDb(opportunityId);
 
-  if (opportunityResult === null) {
-    notFound();
-  }
-
-  if (opportunityResult instanceof HandledApplicationError) {
-    const error = opportunityResult;
-    console.error(
-      '[OpportunityDetailPage] Received HandledApplicationError for opportunity:',
-      error.message,
-      error.logContext
-    );
-    pageError = error.message;
-  }
-
-  let cvComponents: CVComponent[] = [];
-  const cvComponentsResult = await fetchAllCvComponents();
-
-  if (cvComponentsResult instanceof HandledApplicationError) {
-    console.error(
-      '[OpportunityDetailPage] Failed to load CV components:',
-      cvComponentsResult.message,
-      cvComponentsResult.logContext
-    );
-    if (!pageError) {
-      // Prioritize opportunity error if already set
-      pageError = cvComponentsResult.message;
-    }
-    cvComponents = []; // Ensure cvComponents is an empty array if there's an error
-  } else {
-    cvComponents = cvComponentsResult || [];
-  }
-
   let opportunity: OrionOpportunity;
 
-  if (opportunityResult instanceof HandledApplicationError) {
-    // If opportunity fetching failed, set pageError and create a dummy opportunity object
+  if (opportunityResult === null) {
+    notFound(); // Exit if opportunity is not found
+  } else if (opportunityResult instanceof HandledApplicationError) {
     pageError = opportunityResult.message;
     console.error(
       '[OpportunityDetailPage] Received HandledApplicationError for opportunity:',
       opportunityResult.message,
-      opportunityResult.logContext
+      opportunityResult.details
     );
-    // Create a basic, valid OrionOpportunity object to prevent UI crashes
     opportunity = {
       id: opportunityId,
       title: 'Error Loading Opportunity',
@@ -128,7 +97,6 @@ export default async function OpportunityDetailPage({ params }: Props) {
       status: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      // Fill in other required properties with default/null values to satisfy the type
       type: null,
       position: null,
       location: null,
@@ -165,7 +133,24 @@ export default async function OpportunityDetailPage({ params }: Props) {
       companyOrInstitution: null,
     };
   } else {
-    opportunity = opportunityResult;
+    opportunity = opportunityResult as OrionOpportunity;
+  }
+
+  let cvComponents: CVComponent[];
+  const cvComponentsResult = await fetchAllCvComponents();
+
+  if (cvComponentsResult instanceof HandledApplicationError) {
+    console.error(
+      '[OpportunityDetailPage] Failed to load CV components:',
+      cvComponentsResult.message,
+      cvComponentsResult.details
+    );
+    if (!pageError) {
+      pageError = cvComponentsResult.message;
+    }
+    cvComponents = [];
+  } else {
+    cvComponents = cvComponentsResult;
   }
 
   return (
@@ -177,7 +162,6 @@ export default async function OpportunityDetailPage({ params }: Props) {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Main Content Area (Tabs) */}
         <div className="md:col-span-2 space-y-6">
           <Tabs defaultValue="job-description">
             <TabsList className="grid w-full grid-cols-5">
@@ -197,12 +181,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
             </TabsContent>
 
             <TabsContent value="cv-tailoring" className="mt-4">
-              <CVTailoringStudio
-                opportunity={opportunity}
-                cvComponents={cvComponents}
-                initialError={pageError}
-                isAuthenticated={isAuthenticated}
-              />
+              <CVTailoringStudio opportunity={opportunity} cvComponents={cvComponents} initialError={pageError} />
             </TabsContent>
 
             <TabsContent value="stakeholders" className="mt-4">
@@ -215,7 +194,6 @@ export default async function OpportunityDetailPage({ params }: Props) {
           </Tabs>
         </div>
 
-        {/* Right Sidebar for Opportunity Details */}
         <div className="md:col-span-1 space-y-6">
           <Card className="bg-gray-800 border-gray-700 text-gray-200 shadow-glow">
             <CardHeader>
@@ -228,7 +206,6 @@ export default async function OpportunityDetailPage({ params }: Props) {
               <p>
                 <strong>Status:</strong> {opportunity.status}
               </p>
-              {/* Add more details here if needed, e.g., type, source URL, notes */}
               {opportunity.type && (
                 <p className="mb-1">
                   <strong>Type:</strong> {opportunity.type}

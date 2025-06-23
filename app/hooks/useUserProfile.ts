@@ -2,7 +2,6 @@
 
 // GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
 
-
 import { useState, useEffect, useCallback } from 'react';
 import { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
 import { request } from '@/lib/apiClient'; // Use the enhanced request with retry logic
@@ -60,7 +59,7 @@ interface UseUserProfileResult {
   profileText: string | null;
   isLoading: boolean;
   error: string | null;
-  source: 'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | null;
+  source: 'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | 'neon' | null;
   refetch: () => void;
 }
 
@@ -69,27 +68,30 @@ const useUserProfile = (): UseUserProfileResult => {
   const [profileText, setProfileText] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [source, setSource] = useState<'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | null>(
-    null
-  );
-  const [storedProfileCache, setStoredProfileCache] = useLocalStorage<{
-    profile: UserProfileData;
-    profileText: string;
+  const [source, setSource] = useState<
+    'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | 'neon' | null
+  >(null);
+  const [, setStoredProfileCache] = useLocalStorage<{
+    profile: UserProfileData | null;
+    profileText: string | null;
     timestamp: number;
-  } | null>(PROFILE_CACHE_KEY, null);
+  }>(PROFILE_CACHE_KEY, { profile: null, profileText: null, timestamp: 0 });
 
   const fetchProfile = useCallback(async () => {
     const logContext = { operation: 'fetchUserProfileHook', timestamp: new Date().toISOString() };
     setIsLoading(true);
     setError(null);
 
-    // 1. Attempt to load from local storage
+    // 1. Attempt to load from local storage (read directly to avoid dependency cycle)
     try {
-      if (storedProfileCache) {
-        if (Date.now() - storedProfileCache.timestamp < PROFILE_CACHE_TTL_MS) {
+      const cachedDataString = localStorage.getItem(PROFILE_CACHE_KEY);
+      if (cachedDataString) {
+        const parsedCachedData = JSON.parse(cachedDataString);
+        // Check if the cached data is still valid based on its timestamp
+        if (Date.now() - parsedCachedData.timestamp < PROFILE_CACHE_TTL_MS) {
           logger.info('User profile loaded from local storage cache.', { ...logContext, source: 'cache' });
-          setProfile(storedProfileCache.profile);
-          setProfileText(storedProfileCache.profileText);
+          setProfile(parsedCachedData.profile);
+          setProfileText(parsedCachedData.profileText);
           setSource('cache');
           setIsLoading(false);
           return;
@@ -115,16 +117,19 @@ const useUserProfile = (): UseUserProfileResult => {
       logger.info('Fetching user profile from API endpoint.', { ...logContext, source: 'api_fetch_init' });
       const response = await request<UserProfileFetchResponse>({ url: '/api/orion/profile', method: 'GET' });
 
-      if (response.success && response.profile && response.profileText) {
+      // Log the full response for debugging purposes
+      logger.debug('API Response received for user profile:', { ...logContext, apiResponse: response });
+
+      if (response.success && response.profile && response.profile.profileText) {
         setProfile(response.profile);
-        setProfileText(response.profileText);
+        setProfileText(response.profile.profileText || null);
         setSource(response.source || null);
         setIsLoading(false);
 
         // Cache the fresh data
         const dataToCache = {
           profile: response.profile,
-          profileText: response.profileText,
+          profileText: response.profile.profileText || null,
           timestamp: Date.now(),
         };
         setStoredProfileCache(dataToCache);
@@ -154,8 +159,8 @@ const useUserProfile = (): UseUserProfileResult => {
       setError(`Failed to load profile: ${errorMessage}`);
       setSource('error');
       setIsLoading(false);
-    }
-  }, [storedProfileCache, setStoredProfileCache, setProfile, setProfileText, setSource, setIsLoading, setError]);
+    } // Removed storedProfileCache from dependencies to break the cycle
+  }, [setStoredProfileCache, setProfile, setProfileText, setSource, setIsLoading, setError]);
 
   useEffect(() => {
     logger.debug('useUserProfile useEffect triggered, initiating profile fetch.', {

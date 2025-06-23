@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
       limit: limit,
       filter: filter, // Ensure this filter structure is compatible with Qdrant client
       with_payload: true,
-      with_vector: false,
+      with_vector: true, // Change to true to include the vector in the results
       score_threshold: minScore,
     };
 
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
       id: point.id.toString(), // Ensure id is string
       score: point.score,
       content: (point.payload?.text as string) || '', // Extract content from payload.text
-      ...(point.vector && { embedding: point.vector as number[] }), // Conditionally include embedding if vector exists
+      vector: point.vector as number[], // Now 'point.vector' will be present
       payload: point.payload as MemoryMetadataPayload, // Assign full payload as metadata
     }));
 
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
 
     // Check if the error is a database connection issue based on the type set in handleApiError
     let userFriendlyMessage = handledError.message;
-    if (handledError.type === 'DB_CONNECTION_ERROR') {
+    if (handledError.errorCode === 'DB_CONNECTION_ERROR') {
       userFriendlyMessage =
         'Memory database connection issue: Please wait a moment and try again. The memory database might be waking up.';
     }
@@ -203,9 +203,9 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: userFriendlyMessage,
-        details: handledError.data,
+        details: handledError.details,
       },
-      { status: handledError.status || 500 }
+      { status: handledError.statusCode || 500 }
     );
   }
 }

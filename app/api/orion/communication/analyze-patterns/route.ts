@@ -28,7 +28,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import logger from '@/lib/logger';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { searchMemory, addMemory } from '@/lib/memory';
@@ -44,10 +43,7 @@ import { ScoredMemoryPoint } from '@/lib/types/memory';
 const TEMP_USER_ID = 'temp_pattern_analyzer_user';
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  // Using a temporary user ID as per the new directive for no authentication on this feature.
-  // In a multi-user setup, `session.user?.id` would be used.
-  const userId = TEMP_USER_ID; // session.user?.id || TEMP_USER_ID;
+  const userId = TEMP_USER_ID; // Set userId to unauthenticated placeholder
   const logContext = { userId, operation: 'analyze_communication_patterns' };
 
   logger.info('[COMM_PATTERNS_API][START] Request received.', logContext);
