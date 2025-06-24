@@ -91,7 +91,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           <p className="text-lg mb-8">
             We&#39;re sorry, but an unexpected error occurred. Please try refreshing the page.
           </p>
-          {this.state.error && this.state.errorInfo && process.env.NODE_ENV === 'development' && (
+          {this.state.error && this.state.errorInfo && (
             <div className="text-left bg-gray-800 p-6 rounded-lg max-w-2xl overflow-auto">
               <h2 className="text-xl font-semibold mb-2">Error Details:</h2>
               <p className="font-mono text-sm text-red-400 break-words mb-4">{this.state.error.toString()}</p>

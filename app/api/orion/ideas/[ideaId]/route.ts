@@ -3,39 +3,37 @@
  * Related: lib/database.ts, reference.md, types/ideas.d.ts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@/lib/database';
-import { Idea, IdeaLog } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
+import { prisma } from '@/lib/prisma';
+import { $Enums, Prisma } from '@/generated/prisma';
 
-type IdeaStatus = 'new' | 'researching' | 'developing' | 'launched' | 'abandoned' | 'raw_spark';
+// Type definitions
 type IdeaLogType = 'status_change' | 'note' | 'llm_brainstorm' | 'initial_capture';
 
-// Helper function to convert database row to Idea
-const rowToIdea = (row: Record<string, unknown>): Idea => ({
-  id: row.id as string,
-  title: row.title as string,
-  description: row.description as string,
-  status: row.status as IdeaStatus,
-  tags: Array.isArray(row.tags) ? row.tags : JSON.parse((row.tags as string) || '[]'),
-  createdAt: row.createdat as string,
-  updatedAt: row.updatedat as string,
-  userId: row.userid as string,
-  dueDate: row.duedate as string,
-  priority: row.priority as string,
-});
+interface Idea {
+  id: string;
+  title: string;
+  description: string;
+  status: $Enums.IdeaStatus;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  dueDate: string;
+  priority: string;
+}
 
-// Helper function to convert database row to IdeaLog
-const rowToIdeaLog = (row: Record<string, unknown>): IdeaLog => ({
-  id: row.id as string,
-  ideaId: row.ideaId as string,
-  timestamp: row.timestamp as string,
-  logType: (row.logType || row.type) as IdeaLogType,
-  details: (row.details || `Log entry of type ${row.type}`) as string,
-  action: (row.action || `Logged ${row.type}`) as string,
-  type: row.type as string,
-  content: row.content as string,
-  author: row.author as string,
-});
+interface IdeaLog {
+  id: string;
+  ideaId: string;
+  timestamp: string;
+  logType: IdeaLogType;
+  details: string;
+  action: string;
+  type: string;
+  content: string;
+  author: string;
+}
 
 /**
  * API route for fetching a specific idea and its logs
@@ -55,12 +53,17 @@ export async function GET(request: NextRequest, { params }: { params: { ideaId: 
       );
     }
 
-    // Fetch idea
-    const ideaQuery = 'SELECT * FROM ideas WHERE id = $1';
-    const ideaResult = await sql(ideaQuery, [ideaId]);
-    const ideaRow = ideaResult[0] ? rowToIdea(ideaResult[0] as unknown as Record<string, unknown>) : null;
+    // Fetch idea with logs using Prisma
+    const idea = await prisma.idea.findUnique({
+      where: { id: ideaId },
+      include: {
+        logs: {
+          orderBy: { timestamp: 'asc' },
+        },
+      },
+    });
 
-    if (!ideaRow) {
+    if (!idea) {
       return NextResponse.json(
         {
           success: false,
@@ -71,10 +74,31 @@ export async function GET(request: NextRequest, { params }: { params: { ideaId: 
       );
     }
 
-    // Fetch idea logs
-    const logsQuery = 'SELECT * FROM idea_logs WHERE ideaId = $1 ORDER BY timestamp ASC';
-    const logsResult = await sql(logsQuery, [ideaId]);
-    const logs: IdeaLog[] = logsResult.map((row) => rowToIdeaLog(row as unknown as Record<string, unknown>));
+    // Transform to match expected interface
+    const ideaRow: Idea = {
+      id: idea.id,
+      title: idea.title,
+      description: idea.description || '',
+      status: idea.status,
+      tags: idea.tags,
+      createdAt: idea.createdAt.toISOString(),
+      updatedAt: idea.updatedAt.toISOString(),
+      userId: idea.userId || '',
+      dueDate: idea.dueDate?.toISOString() || '',
+      priority: idea.priority || '',
+    };
+
+    const logs: IdeaLog[] = idea.logs.map((log) => ({
+      id: log.id,
+      ideaId: log.ideaId,
+      timestamp: log.timestamp.toISOString(),
+      logType: log.logType as IdeaLogType,
+      details: log.details,
+      action: log.action,
+      type: log.type,
+      content: log.content || '',
+      author: log.author || '',
+    }));
 
     return NextResponse.json({
       success: true,
@@ -115,11 +139,10 @@ export async function PUT(request: NextRequest, { params }: { params: { ideaId: 
     }
 
     // Check if idea exists
-    const checkQuery = 'SELECT id FROM ideas WHERE id = $1';
-    const checkResult = await sql(checkQuery, [ideaId]);
-    const existingIdea = checkResult[0]
-      ? { id: (checkResult[0] as unknown as Record<string, unknown>).id as string }
-      : null;
+    const existingIdea = await prisma.idea.findUnique({
+      where: { id: ideaId },
+      select: { id: true },
+    });
 
     if (!existingIdea) {
       return NextResponse.json(
@@ -132,65 +155,76 @@ export async function PUT(request: NextRequest, { params }: { params: { ideaId: 
       );
     }
 
-    const now = new Date().toISOString();
+    // Update idea using Prisma
+    const updateData: Prisma.IdeaUpdateInput = {
+      updatedAt: new Date(),
+    };
 
-    // Update idea
-    const updateQuery = `
-      UPDATE ideas SET
-        title = COALESCE($1, title),
-        description = COALESCE($2, description),
-        status = COALESCE($3, status),
-        tags = COALESCE($4, tags),
-        updatedAt = $5,
-        dueDate = COALESCE($6, dueDate),
-        priority = COALESCE($7, priority)
-      WHERE id = $8
-    `;
-    await sql(updateQuery, [
-      title,
-      description,
-      status,
-      tags ? JSON.stringify(tags) : undefined,
-      now,
-      dueDate,
-      priority,
-      ideaId,
-    ]);
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (status !== undefined) updateData.status = status;
+    if (tags !== undefined) updateData.tags = tags;
+    if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
+    if (priority !== undefined) updateData.priority = priority;
+
+    await prisma.idea.update({
+      where: { id: ideaId },
+      data: updateData,
+    });
 
     // If status was updated, create a status change log
     if (status) {
-      const statusLogQuery = `
-        INSERT INTO idea_logs (
-          id, "ideaId", timestamp, "logType", details, action, type, content, author
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      `;
-      await sql(statusLogQuery, [
-        uuidv4(),
-        ideaId,
-        now,
-        'status_change',
-        `Status updated to: ${status}`,
-        'Status Change',
-        'status_change',
-        `Status updated to: ${status}`,
-        'Tomide',
-      ]);
+      await prisma.ideaLog.create({
+        data: {
+          id: uuidv4(),
+          ideaId: ideaId,
+          logType: 'status_change',
+          details: `Status updated to: ${status}`,
+          action: 'Status Change',
+          type: 'status_change',
+          content: `Status updated to: ${status}`,
+          author: 'Tomide',
+        },
+      });
     }
 
     // If a new note was provided, add it to the logs
     if (note && typeof note === 'string' && note.trim()) {
-      const noteLogQuery = `
-        INSERT INTO idea_logs (
-          id, "ideaId", timestamp, "logType", details, action, type, content, author
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      `;
-      await sql(noteLogQuery, [uuidv4(), ideaId, now, 'note', note.trim(), 'Add Note', 'note', note.trim(), 'Tomide']);
+      await prisma.ideaLog.create({
+        data: {
+          id: uuidv4(),
+          ideaId: ideaId,
+          logType: 'note',
+          details: note.trim(),
+          action: 'Add Note',
+          type: 'note',
+          content: note.trim(),
+          author: 'Tomide',
+        },
+      });
     }
 
     // Fetch updated idea
-    const updatedIdeaQuery = 'SELECT * FROM ideas WHERE id = $1';
-    const updatedIdeaResult = await sql(updatedIdeaQuery, [ideaId]);
-    const ideaRow = updatedIdeaResult[0] ? rowToIdea(updatedIdeaResult[0] as unknown as Record<string, unknown>) : null;
+    const updatedIdea = await prisma.idea.findUnique({
+      where: { id: ideaId },
+    });
+
+    if (!updatedIdea) {
+      throw new Error('Failed to fetch updated idea');
+    }
+
+    const ideaRow: Idea = {
+      id: updatedIdea.id,
+      title: updatedIdea.title,
+      description: updatedIdea.description || '',
+      status: updatedIdea.status,
+      tags: updatedIdea.tags,
+      createdAt: updatedIdea.createdAt.toISOString(),
+      updatedAt: updatedIdea.updatedAt.toISOString(),
+      userId: updatedIdea.userId || '',
+      dueDate: updatedIdea.dueDate?.toISOString() || '',
+      priority: updatedIdea.priority || '',
+    };
 
     return NextResponse.json({
       success: true,

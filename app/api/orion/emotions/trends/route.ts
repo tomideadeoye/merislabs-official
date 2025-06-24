@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 import logger from '@/lib/logger';
 import { z } from 'zod';
+import { Prisma } from '@/generated/prisma';
 // Assuming a direct function call for LLM is better than a fetch
 // import { getLlmAnalysis } from '@/lib/llm';
 
@@ -81,70 +82,65 @@ export async function GET(req: NextRequest) {
       ...logContext,
     });
 
-    // Build dynamic query for emotion counts
-    let queryStr = `SELECT "primaryEmotion", COUNT(*) as count, AVG(intensity) as avgIntensity FROM emotional_logs WHERE 1=1`;
-    const params: (string | Date)[] = [];
-    let paramIdx = 1;
+    // Build where clause for date filtering
+    const whereClause: Prisma.EmotionalLogsWhereInput = {};
+    if (startDate || endDate) {
+      whereClause.timestamp = {};
+      if (startDate) {
+        whereClause.timestamp.gte = startDate;
+      }
+      if (endDate) {
+        whereClause.timestamp.lte = endDate;
+      }
+    }
 
-    if (startDate) {
-      queryStr += ` AND timestamp >= $${paramIdx++}`;
-      params.push(new Date(startDate));
-    }
-    if (endDate) {
-      queryStr += ` AND timestamp <= $${paramIdx++}`;
-      params.push(new Date(endDate));
-    }
-    queryStr += ` GROUP BY "primaryEmotion" ORDER BY count DESC`;
-    const emotionCountsResult = (await sql(queryStr, params)) as EmotionCount[][];
+    // Get emotion counts using Prisma
+    const emotionCountsResult = await prisma.$queryRaw<EmotionCount[]>`
+      SELECT "primaryEmotion", COUNT(*) as count, AVG(intensity) as avgIntensity 
+      FROM emotional_logs 
+      ${startDate || endDate ? Prisma.sql`WHERE 1=1` : Prisma.sql``}
+      ${startDate ? Prisma.sql`AND timestamp >= ${startDate}` : Prisma.sql``}
+      ${endDate ? Prisma.sql`AND timestamp <= ${endDate}` : Prisma.sql``}
+      GROUP BY "primaryEmotion" 
+      ORDER BY count DESC
+    `;
+
     logger.info('[EMOTIONS_TRENDS][DB][EMOTION_COUNTS]', {
       rowCount: emotionCountsResult.length,
       ...logContext,
     });
 
-    // Most common triggers
-    let triggerQuery = `
+    // Most common triggers using Prisma raw query (since triggers is JSONB)
+    const commonTriggersResult = await prisma.$queryRaw<CommonTrigger[]>`
       SELECT value as trigger, COUNT(*) as count
       FROM emotional_logs, jsonb_array_elements_text(triggers) as value
       WHERE triggers IS NOT NULL
+        ${startDate ? Prisma.sql`AND timestamp >= ${startDate}` : Prisma.sql``}
+        ${endDate ? Prisma.sql`AND timestamp <= ${endDate}` : Prisma.sql``}
+      GROUP BY value 
+      ORDER BY count DESC 
+      LIMIT 10
     `;
-    const triggerParams: (string | Date)[] = [];
-    paramIdx = 1;
-    if (startDate) {
-      triggerQuery += ` AND timestamp >= $${paramIdx++}`;
-      triggerParams.push(new Date(startDate));
-    }
-    if (endDate) {
-      triggerQuery += ` AND timestamp <= $${paramIdx++}`;
-      triggerParams.push(new Date(endDate));
-    }
-    triggerQuery += ` GROUP BY value ORDER BY count DESC LIMIT 10`;
-    const commonTriggersResult = (await sql(triggerQuery, triggerParams)) as CommonTrigger[][];
+
     logger.info('[EMOTIONS_TRENDS][DB][TRIGGERS]', {
       rowCount: commonTriggersResult.length,
       ...logContext,
     });
 
-    // Emotion intensity over time
-    let timelineQuery = `
+    // Emotion intensity over time using Prisma raw query
+    const emotionTimelineResult = await prisma.$queryRaw<EmotionTimelinePoint[]>`
       SELECT
         date_trunc('day', timestamp) as date,
         "primaryEmotion",
         AVG(intensity) as avgIntensity
       FROM emotional_logs
       WHERE intensity IS NOT NULL
+        ${startDate ? Prisma.sql`AND timestamp >= ${startDate}` : Prisma.sql``}
+        ${endDate ? Prisma.sql`AND timestamp <= ${endDate}` : Prisma.sql``}
+      GROUP BY date, "primaryEmotion" 
+      ORDER BY date
     `;
-    const timelineParams: (string | Date)[] = [];
-    paramIdx = 1;
-    if (startDate) {
-      timelineQuery += ` AND timestamp >= $${paramIdx++}`;
-      timelineParams.push(new Date(startDate));
-    }
-    if (endDate) {
-      timelineQuery += ` AND timestamp <= $${paramIdx++}`;
-      timelineParams.push(new Date(endDate));
-    }
-    timelineQuery += ` GROUP BY date, "primaryEmotion" ORDER BY date`;
-    const emotionTimelineResult = (await sql(timelineQuery, timelineParams)) as EmotionTimelinePoint[][];
+
     logger.info('[EMOTIONS_TRENDS][DB][TIMELINE]', {
       rowCount: emotionTimelineResult.length,
       ...logContext,

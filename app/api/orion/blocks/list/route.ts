@@ -68,18 +68,24 @@ export async function GET(req: NextRequest) {
     const seenSourceIds = new Set<string>();
     const blocks: Block[] = [];
     for (const point of searchResult.results || []) {
-      if (!isBlockType(point.payload.type)) continue;
+      if (!point.payload) {
+        continue;
+      }
       const payload = point.payload;
+
+      if (!isBlockType(payload.type)) continue;
       if (seenSourceIds.has(payload.source_id)) continue;
       seenSourceIds.add(payload.source_id);
       blocks.push({
         id: payload.source_id,
         type: payload.type as BlockType,
-        title: payload.title || '', // Provide fallback for title
+        title: payload.title || '',
         content: payload.text,
-        tags: payload.tags,
-        createdAt: typeof payload.createdAt === 'string' ? payload.createdAt : payload.timestamp,
-        updatedAt: typeof payload.updatedAt === 'string' ? payload.updatedAt : payload.timestamp,
+        tags: payload.tags || [],
+        createdAt:
+          typeof payload.createdAt === 'string' ? payload.createdAt : payload.timestamp || new Date().toISOString(),
+        updatedAt:
+          typeof payload.updatedAt === 'string' ? payload.updatedAt : payload.timestamp || new Date().toISOString(),
         metadata:
           typeof payload.metadata === 'object' && payload.metadata !== null && !Array.isArray(payload.metadata)
             ? (payload.metadata as Record<string, unknown>)

@@ -45,14 +45,14 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import logger from '@/lib/logger';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
-import { TaskStatus, TaskPriority, TaskType } from '@prisma/client'; // Direct import of Prisma enums
+import { TaskStatus, TaskPriority } from '@/lib/types'; // Use locally defined enums
 import { v4 as uuidv4 } from 'uuid';
 
 // Define the schema for creating a new task
 const createTaskSchema = z.object({
   title: z.string().min(1, 'Task title is required.'),
   description: z.string().optional().nullable(),
-  type: z.nativeEnum(TaskType).default(TaskType.TODO), // Use directly imported enum
+  // type: z.nativeEnum(TaskType).default(TaskType.TODO), // This field does not exist on the Task model in Prisma.
   priority: z.nativeEnum(TaskPriority).default(TaskPriority.MEDIUM), // Use directly imported enum
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TODO), // Use directly imported enum
   dueDate: z.string().datetime().optional().nullable(), // ISO date string
@@ -78,18 +78,33 @@ export async function POST(req: NextRequest) {
 
     logger.debug('[TASK_CREATE_API][VALIDATED_DATA]', { ...logContext, validatedData });
 
+    logger.debug('[TASK_CREATE_API][PRISMA_CREATE_DATA]', {
+      ...logContext,
+      prismaData: {
+        id: uuidv4(),
+        userId: userId,
+        title: validatedData.title,
+        description: validatedData.description,
+        // type: validatedData.type,
+        priority: validatedData.priority,
+        status: validatedData.status,
+        dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
+        steps: { create: [] },
+      },
+    });
+
     const newTask = await prisma.task.create({
       data: {
         id: uuidv4(),
         userId: userId,
         title: validatedData.title,
         description: validatedData.description,
-        type: validatedData.type,
+        // type: validatedData.type, // This field does not exist on the Task model, causing the error.
         priority: validatedData.priority,
         status: validatedData.status,
         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
         steps: { create: [] }, // Explicitly create an empty array of steps
-      } as any, // NOTE: Temporary any cast to resolve persistent type errors for TaskCreateInput. Revisit for proper type safety.
+      },
     });
 
     logger.success('[TASK_CREATE_API][SUCCESS]', { ...logContext, taskId: newTask.id });

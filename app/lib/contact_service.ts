@@ -13,22 +13,10 @@
  * - prisma ORM, neon, postgres
  */
 
-import { sql } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 import { Contact } from '@/lib/types';
 import logger from '@/lib/logger';
 import { v4 as uuidv4 } from 'uuid';
-
-// Helper function to convert database row (array of unknown values) to Contact type
-const rowToContact = (row: unknown[]): Contact => ({
-  id: row[0] as string,
-  name: row[1] as string,
-  email: row[2] as string | null,
-  linkedinUrl: row[3] as string | null,
-  role: row[4] as string | null,
-  company: row[5] as string | null,
-  createdAt: row[6] as string,
-  updatedAt: row[7] as string,
-});
 
 /**
  * @function fetchContactsFromNeon
@@ -46,7 +34,7 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
   });
 
   try {
-    const SELECT_CONTACTS_QUERY = `
+    const result = await prisma.$queryRaw<Contact[]>`
       SELECT
         id,
         name,
@@ -57,18 +45,15 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM contacts
-      ORDER BY name ASC;
+      ORDER BY name ASC
     `;
-    const result = (await sql(SELECT_CONTACTS_QUERY)) as unknown[][];
-
-    const contacts: Contact[] = result.map((row) => rowToContact(row));
 
     logger.info('[CONTACT_SERVICE][fetchContactsFromNeon][SUCCESS]', {
       operation: 'fetchContactsFromNeon',
-      message: `Successfully fetched ${contacts.length} contacts from Neon database.`,
-      count: contacts.length,
+      message: `Successfully fetched ${result.length} contacts from Neon database.`,
+      count: result.length,
     });
-    return contacts;
+    return result;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('[CONTACT_SERVICE][fetchContactsFromNeon][ERROR]', {
@@ -103,7 +88,7 @@ export async function saveContactToNeon(newContact: Omit<Contact, 'id' | 'create
     const id = uuidv4();
     const now = new Date().toISOString();
 
-    const INSERT_CONTACT_QUERY = `
+    const result = await prisma.$queryRaw<Contact[]>`
       INSERT INTO contacts (
         id,
         name,
@@ -113,22 +98,19 @@ export async function saveContactToNeon(newContact: Omit<Contact, 'id' | 'create
         company,
         created_at,
         updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *;
+      ) VALUES (${id}, ${newContact.name}, ${newContact.email || null}, ${newContact.linkedinUrl || null}, ${newContact.role || null}, ${newContact.company || null}, ${now}, ${now})
+      RETURNING 
+        id,
+        name,
+        email,
+        linkedin_url AS "linkedinUrl",
+        role,
+        company,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
     `;
-    const values = [
-      id,
-      newContact.name,
-      newContact.email || null, // Allow null for optional fields
-      newContact.linkedinUrl || null,
-      newContact.role || null,
-      newContact.company || null,
-      now,
-      now,
-    ];
 
-    const result = (await sql(INSERT_CONTACT_QUERY, values)) as unknown[][];
-    const savedContact: Contact = rowToContact(result[0]);
+    const savedContact: Contact = result[0];
 
     logger.info('[CONTACT_SERVICE][saveContactToNeon][SUCCESS]', {
       operation: 'saveContactToNeon',

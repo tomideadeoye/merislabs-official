@@ -207,6 +207,7 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ type, classN
                   <input
                     type="checkbox"
                     checked={task.completed}
+                    aria-label={`Mark ${task.text} as ${task.completed ? 'incomplete' : 'complete'}`}
                     onChange={() => handleTaskToggle(task)}
                     className="form-checkbox h-4 w-4 text-blue-500 rounded"
                   />

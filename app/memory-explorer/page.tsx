@@ -95,13 +95,13 @@ export default function MemoryExplorerPage() {
               ) : (
                 <div className="space-y-4 mt-4">
                   {results.map((entry) => (
-                    <Card key={entry.payload.source_id} className="bg-gray-700 border-gray-600">
+                    <Card key={entry.payload?.source_id || entry.id} className="bg-gray-700 border-gray-600">
                       <CardContent className="pt-6">
-                        <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.payload.text}</p>
+                        <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.payload?.text}</p>
                         <div className="flex flex-wrap items-center text-xs text-gray-400 gap-4">
                           <span>Score: {entry.score?.toFixed(4)}</span>
-                          <span>Type: {entry.payload.type}</span>
-                          {entry.payload.tags && entry.payload.tags.length > 0 && (
+                          <span>Type: {entry.payload?.type}</span>
+                          {entry.payload?.tags && entry.payload.tags.length > 0 && (
                             <span>Tags: {entry.payload.tags.join(', ')}</span>
                           )}
                         </div>

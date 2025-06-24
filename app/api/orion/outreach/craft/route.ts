@@ -146,7 +146,7 @@ ${additionalContext ? `## Additional Context\n${additionalContext}` : ''}
 ${
   relevantMemories.length > 0
     ? `## Relevant Achievements and Experiences\n${relevantMemories
-        .map((m: ScoredMemoryPoint) => `- ${m.payload.text}`)
+        .map((m: ScoredMemoryPoint) => `- ${m.payload?.text}`)
         .join('\n')}`
     : ''
 }

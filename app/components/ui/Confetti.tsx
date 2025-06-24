@@ -87,7 +87,7 @@ export const Confetti: React.FC<ConfettiProps> = ({ trigger, onComplete }) => {
       width={400}
       height={200}
       aria-label="Confetti celebration"
-      style={{ pointerEvents: 'none', background: 'transparent', position: 'absolute', left: 0, top: 0, zIndex: 50 }}
+      className="pointer-events-none bg-transparent absolute left-0 top-0 z-50"
       tabIndex={-1}
     />
   );

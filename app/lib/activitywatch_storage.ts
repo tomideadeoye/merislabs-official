@@ -8,7 +8,7 @@
  */
 
 import { ProductivitySummary } from './activitywatch_processor';
-import { sql } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 
 export type AnalyticsSnapshot = {
   id: number;
@@ -33,56 +33,50 @@ export class ActivityWatchStorage {
    * If a snapshot for the date/user exists, update it.
    */
   static async saveSnapshot(user_id: string, date: string, summary: ProductivitySummary): Promise<AnalyticsSnapshot> {
-    const res = (await sql(
-      `INSERT INTO activitywatch_snapshots (user_id, date, summary, created_at)
-       VALUES ($1, $2, $3, NOW())
-       ON CONFLICT (user_id, date)
-       DO UPDATE SET summary = EXCLUDED.summary, created_at = NOW()
-       RETURNING id, user_id, date, summary, created_at`,
-      [user_id, date, summary]
-    )) as unknown[][];
-    return rowToAnalyticsSnapshot(res[0]);
+    // Use Prisma upsert to handle the ON CONFLICT logic
+    const result = await prisma.$queryRaw<AnalyticsSnapshot[]>`
+      INSERT INTO activitywatch_snapshots (user_id, date, summary, created_at)
+      VALUES (${user_id}, ${date}, ${JSON.stringify(summary)}, NOW())
+      ON CONFLICT (user_id, date)
+      DO UPDATE SET summary = EXCLUDED.summary, created_at = NOW()
+      RETURNING id, user_id, date, summary, created_at
+    `;
+    return result[0];
   }
 
   /**
    * Fetch a snapshot for a user and date.
    */
   static async getSnapshot(user_id: string, date: string): Promise<AnalyticsSnapshot | null> {
-    const res = (await sql(
-      `SELECT id, user_id, date, summary, created_at
-       FROM activitywatch_snapshots
-       WHERE user_id = $1 AND date = $2
-       LIMIT 1`,
-      [user_id, date]
-    )) as unknown[][];
-    return res.length ? rowToAnalyticsSnapshot(res[0]) : null;
+    const result = await prisma.$queryRaw<AnalyticsSnapshot[]>`
+      SELECT id, user_id, date, summary, created_at
+      FROM activitywatch_snapshots
+      WHERE user_id = ${user_id} AND date = ${date}
+      LIMIT 1
+    `;
+    return result.length ? result[0] : null;
   }
 
   /**
    * List all snapshots for a user, optionally within a date range.
    */
   static async listSnapshots(user_id: string, startDate?: string, endDate?: string): Promise<AnalyticsSnapshot[]> {
-    let res: unknown[][];
     if (startDate && endDate) {
-      res = (await sql(
-        `SELECT id, user_id, date, summary, created_at
-         FROM activitywatch_snapshots
-         WHERE user_id = $1
-           AND date >= $2
-           AND date <= $3
-         ORDER BY date ASC`,
-        [user_id, startDate, endDate]
-      )) as unknown[][];
-      return res.map(rowToAnalyticsSnapshot);
+      return await prisma.$queryRaw<AnalyticsSnapshot[]>`
+        SELECT id, user_id, date, summary, created_at
+        FROM activitywatch_snapshots
+        WHERE user_id = ${user_id}
+          AND date >= ${startDate}
+          AND date <= ${endDate}
+        ORDER BY date ASC
+      `;
     } else {
-      res = (await sql(
-        `SELECT id, user_id, date, summary, created_at
-         FROM activitywatch_snapshots
-         WHERE user_id = $1
-         ORDER BY date ASC`,
-        [user_id]
-      )) as unknown[][];
-      return res.map(rowToAnalyticsSnapshot);
+      return await prisma.$queryRaw<AnalyticsSnapshot[]>`
+        SELECT id, user_id, date, summary, created_at
+        FROM activitywatch_snapshots
+        WHERE user_id = ${user_id}
+        ORDER BY date ASC
+      `;
     }
   }
 }

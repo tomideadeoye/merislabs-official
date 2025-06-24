@@ -57,7 +57,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
 
       if (memoryData.success && memoryData.results && memoryData.results.length > 0) {
         // Extract narrative content from memory results
-        const narrativePoints = memoryData.results.map((item: ScoredMemoryPoint) => item.payload.text);
+        const narrativePoints = memoryData.results.map((item: ScoredMemoryPoint) => item.payload?.text);
 
         // Generate narrative alignment using LLM
         const alignmentResponse = await fetch('/api/orion/llm', {

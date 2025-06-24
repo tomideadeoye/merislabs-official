@@ -46,7 +46,7 @@
  *   - **Component Ordering**: Implement FR-3.2 to allow the user or introduce AI logic to define the order of components in the assembled CV.
  *   - **Dynamic Content Insertion**: More sophisticated handling of `JSON.parse(c.content as string)` to correctly format different content types (e.g., bullet points for achievements, paragraphs for summaries) and prevent parsing errors if content isn't strict JSON.
  *   - **Validation**: Implement Zod or similar schema validation for the incoming `componentIds` array to ensure data integrity.
- *   - **PDF Generation Integration**: Implement FR-5.4 by integrating a PDF generation library (e.g., `puppeteer`, `html-pdf`, or a dedicated service) directly after Markdown assembly to provide a complete PDF output.
+ *   - **PDF Generation Integration**: Implement FR-5.4 by integrating a PDF generation library (e.g., `puppeteer` or a dedicated service) directly after Markdown assembly to provide a complete PDF output.
  *   - **Content Sanitization**: Ensure that all component content is properly sanitized before being embedded into the Markdown to prevent XSS or other vulnerabilities if content is user-generated.
  */
 import { NextRequest, NextResponse } from 'next/server';

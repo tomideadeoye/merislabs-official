@@ -7,10 +7,45 @@
 // ASSUMPTIONS & CLEAR COMMENTS: // NOTE: Assumed this is the latest correct version from git history – confirm with team
 // NOTES: Consider consolidating hero assets and logic if similar hero sections exist elsewhere; consider extracting project data to a config or CMS for scalability.
 
+/**
+ * @fileoverview Animated project showcase block with transitions and controls.
+ * @description This file provides the BlocksSection component, which animates project blocks using framer-motion and displays project data with icons and images. It is designed for reuse in layouts/pages and supports animated transitions for a visually engaging UI.
+ *
+ * GOAL OF FILE|FEATURES|FUNCTIONS:
+ *   - Provide an animated, interactive project showcase section.
+ *   - Integrate framer-motion for smooth transitions.
+ *   - Use react-icons and next/image for UI consistency and performance.
+ *   - Export BlocksSection for use in other parts of the app.
+ *
+ * FILEPATH: app/components/BlocksSection.tsx
+ *
+ * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
+ *   - Consumed by layout/pages as a reusable section.
+ *   - Relies on framer-motion for animation, react-icons for icons, and next/image for optimized images.
+ *   - Data structure (Project) may be shared with other project-related components.
+ *
+ * ASSUMPTIONS & CLEAR COMMENTS:
+ *   - Assumes framer-motion, react-icons, and next/image are installed and available.
+ *   - Assumes this file is used in a Next.js client component context.
+ *   - NOTE: If TypeScript errors occur for framer-motion, install types with `npm i --save-dev @types/framer-motion` or add a custom declaration file.
+ *
+ * NOTES:
+ *   - Consider extracting project data to a config or CMS for scalability.
+ *   - Consider consolidating hero assets and logic if similar hero sections exist elsewhere.
+ *   - [PERFORMANCE OPTIMIZATIONS]: Use next/image for optimized image loading.
+ *   - [ERROR HANDLING ROBUSTNESS]: Ensure all external dependencies are available and handle missing data gracefully.
+ *
+ * OPPORTUNITIES FOR IMPROVEMENT:
+ *   - Implement Zod schema validation for project data.
+ *   - Add more granular logging for animation and data loading steps.
+ *   - Explore adding a data caching layer for frequently accessed information.
+ *   - Consider migrating to Zustand for state management if state grows.
+ */
+
 'use client';
 
+import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useState } from 'react';
 import { IoMdBookmark } from 'react-icons/io';
 import Image from 'next/image';
 

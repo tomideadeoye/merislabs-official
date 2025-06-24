@@ -22,7 +22,6 @@
  *   - Other Services/Utilities (`app/lib/...`): Integrate with this logger for consistent internal logging.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes `process.env.NODE_ENV` is correctly set to determine the environment.
  *   - Winston is only initialized on the server-side to avoid client-side bundling issues and unnecessary overhead.
  *   - Log context objects are shallow-copied before modification to prevent side effects.
  *   - Custom serialization for `Error` objects and `APIError` instances ensures all relevant details (message, stack, status, data) are captured.
@@ -85,41 +84,34 @@ type WinstonLoggerInstance = import('winston').Logger | null;
 
 class Logger {
   private static instance: Logger;
-  private isDevelopment: boolean;
+
   private readonly reset = '\x1b[0m';
   private winstonLogger: WinstonLoggerInstance = null; // Initialize as null
 
   private constructor() {
-    this.isDevelopment = process.env.NODE_ENV === 'development';
-
     // Initialize Winston logger only on the server-side
     if (typeof window === 'undefined') {
       import('winston')
         .then(({ createLogger, format, transports }) => {
           this.winstonLogger = createLogger({
-            level: this.isDevelopment ? 'debug' : 'info',
+            level: 'info',
             format: format.combine(format.timestamp(), format.json(), format.errors({ stack: true })),
             defaultMeta: { service: 'orion' },
             transports: [
               new transports.Console({
                 format: format.combine(format.colorize(), format.simple()),
               }),
-              // Always add file transports in a server-side non-development environment
-              ...(!this.isDevelopment
-                ? [
-                    new transports.File({
-                      filename: 'logs/error.log',
-                      level: 'error',
-                      maxsize: 5242880, // 5MB
-                      maxFiles: 5,
-                    }),
-                    new transports.File({
-                      filename: 'logs/combined.log',
-                      maxsize: 5242880, // 5MB
-                      maxFiles: 5,
-                    }),
-                  ]
-                : []), // Conditionally add file transports
+              new transports.File({
+                filename: 'logs/error.log',
+                level: 'error',
+                maxsize: 5242880, // 5MB
+                maxFiles: 5,
+              }),
+              new transports.File({
+                filename: 'logs/combined.log',
+                maxsize: 5242880, // 5MB
+                maxFiles: 5,
+              }),
             ],
           });
         })
@@ -181,45 +173,21 @@ class Logger {
   }
 
   public log(level: LogLevel, message: string, context?: LogContext) {
-    // Only log debug messages in development
-    if (level === 'debug' && !this.isDevelopment) {
-      return;
+    // Always log to console
+    const formattedMessage = this.formatMessage(level, message, context);
+    const { consoleMethod } = LOG_STYLES[level];
+    // Add a debug log to inspect the consoleMethod
+    console.debug(`[LOGGER_DEBUG] Attempting to use console method: ${consoleMethod} for level: ${level}`);
+    const logFunction = console[consoleMethod] as
+      | ((message?: unknown, ...optionalParams: unknown[]) => void)
+      | undefined;
+    if (typeof logFunction === 'function') {
+      logFunction(formattedMessage);
+    } else {
+      console.log(`[LOGGER_FALLBACK][${level.toUpperCase()}] ${formattedMessage}`);
     }
-
-    // If disableConsole is true in context, skip console logging
-    if (context?.disableConsole && typeof window !== 'undefined') {
-      // For now, we will still log to Winston if it's initialized on the server-side
-      // This allows errors to be captured in files even if not in console
-      if (
-        this.winstonLogger &&
-        this.winstonLogger.levels[WINSTON_LEVEL_MAP[level]] >= this.winstonLogger.levels.error
-      ) {
-        this.winstonLogger.log(WINSTON_LEVEL_MAP[level], message, context);
-      }
-      return; // Skip console logging
-    }
-
-    if (this.isDevelopment || typeof window !== 'undefined') {
-      // Use stylish console logging in development or on the client-side
-      const formattedMessage = this.formatMessage(level, message, context);
-      const { consoleMethod } = LOG_STYLES[level];
-      // Add a debug log to inspect the consoleMethod
-      console.debug(`[LOGGER_DEBUG] Attempting to use console method: ${consoleMethod} for level: ${level}`);
-
-      // Defensive check to ensure the console method is a function
-      const logFunction = console[consoleMethod] as
-        | ((message?: unknown, ...optionalParams: unknown[]) => void)
-        | undefined;
-      if (typeof logFunction === 'function') {
-        logFunction(formattedMessage);
-      } else {
-        // Fallback to console.log if the specific method is not a function
-        console.log(`[LOGGER_FALLBACK][${level.toUpperCase()}] ${formattedMessage}`);
-      }
-    }
-
-    // Use Winston in production on the server-side
-    if (!this.isDevelopment && typeof window === 'undefined' && this.winstonLogger) {
+    // Always use Winston if available (server-side)
+    if (typeof window === 'undefined' && this.winstonLogger) {
       const winstonLevel = WINSTON_LEVEL_MAP[level];
       this.winstonLogger.log(winstonLevel, message, {
         ...context,
@@ -227,9 +195,8 @@ class Logger {
         timestamp: new Date().toISOString(),
       });
     }
-
-    // Handle production error logging
-    if (!this.isDevelopment && level === 'error') {
+    // Always handle production error logging for errors
+    if (level === 'error') {
       this.handleProductionError(message, context);
     }
   }
@@ -266,7 +233,7 @@ class Logger {
     const apiContext = {
       ...context,
       timestamp: new Date().toISOString(),
-      environment: this.isDevelopment ? 'development' : 'production',
+      environment: 'production',
       type: 'api',
     };
     this.log(level, `[API] ${message}`, apiContext);

@@ -151,7 +151,10 @@ Impact: ${milestone.impact || 'N/A'}
 ${
   relevantMemories.length > 0
     ? `## Relevant Achievements and Experiences\n${relevantMemories
-        .map((m: ScoredMemoryPoint) => `- ${m.payload.text}`)
+        .map((m: ScoredMemoryPoint) => {
+          if (!m.payload) return ''; // Add a check for undefined payload
+          return `- ${m.payload.text}`;
+        })
         .join('\n')}`
     : ''
 }

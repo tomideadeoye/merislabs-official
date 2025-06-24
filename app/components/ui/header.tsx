@@ -14,9 +14,9 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `app/layout.tsx`: This header component is rendered within the root layout, making it globally available.
- *   - `@repo/ui/Button`: Utilizes the shared UI Button component for interactive elements.
- *   - `@repo/ui/Avatar`: Used for displaying the application logo.
- *   - `@repo/ui/lib/utils`: Imports the `cn` utility for conditional class name merging.
+ *   - `@components/ui/Button`: Utilizes the shared UI Button component for interactive elements.
+ *   - `@components/ui/Avatar`: Used for displaying the application logo.
+ *   - `@components/ui/lib/utils`: Imports the `cn` utility for conditional class name merging.
  *   - `lucide-react`: Provides icons for the theme toggle.
  *   - `next-themes`: Manages and provides the current theme state.
  *   - `next/link` & `next/navigation`: Used for client-side routing and determining the active page.
@@ -25,7 +25,7 @@
  *   - `./mobile-menu.tsx`: Integrates the mobile-specific navigation functionality.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes `@repo/ui` package is correctly set up in the monorepo and exports `Button`, `Avatar`, and `cn`.
+ *   - Assumes `@components/ui` package is correctly set up in the monorepo and exports `Button`, `Avatar`, and `cn`.
  *   - The `MobileMenu` component handles its own rendering and functionality for smaller screens.
  *   - `next-themes` is correctly configured in `app/providers.tsx` for theme management.
  *
@@ -129,7 +129,7 @@ export function Header({ navItems }: HeaderProps) {
         {/* Increased height for better spacing */}
         <div className="shrink-0 mr-4">
           <Link href="/" className="block" aria-label="Meris Labs">
-            {/* Using shadcn/ui Avatar component - assuming it's part of @repo/ui */}
+            {/* Using shadcn/ui Avatar component - assuming it's part of @components/ui */}
             <Avatar
               src="/images/merislabswhite.png"
               alt="Meris Labs Logo"

@@ -89,10 +89,10 @@ export async function POST(req: NextRequest) {
 
     // Prepare context for LLM
     const memoryContext = memories
-      .map(
-        (mem: ScoredMemoryPoint) =>
-          `Date: ${new Date(mem.payload.timestamp).toLocaleDateString()}\nType: ${mem.payload.type}\nTags: ${mem.payload.tags?.join(', ') || 'N/A'}\nMood: ${mem.payload.mood || 'N/A'}\nContent:\n${mem.payload.text}\n(Memory Source ID: ${mem.payload.source_id})`
-      )
+      .map((mem: ScoredMemoryPoint) => {
+        if (!mem.payload) return '';
+        return `Date: ${new Date(mem.payload.timestamp).toLocaleDateString()}\nType: ${mem.payload.type}\nTags: ${mem.payload.tags?.join(', ') || 'N/A'}\nMood: ${mem.payload.mood || 'N/A'}\nContent:\n${mem.payload.text}\n(Memory Source ID: ${mem.payload.source_id})`;
+      })
       .join('\n\n---\n\n');
 
     // Construct prompt for pattern analysis

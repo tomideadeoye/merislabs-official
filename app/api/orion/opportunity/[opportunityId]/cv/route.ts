@@ -1,6 +1,6 @@
 // import { auth } from '@/auth'; // Authentication removed as per user request
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
   try {
@@ -17,8 +17,14 @@ export async function POST(request: NextRequest, { params }: { params: { opportu
       return NextResponse.json({ success: false, error: 'CV content is required' }, { status: 400 });
     }
 
-    // Store the CV in your database
-    await sql('UPDATE OrionOpportunity SET "tailoredCV" = $1, "updatedAt" = NOW() WHERE id = $2', [cv, opportunityId]);
+    // Store the CV using Prisma
+    await prisma.opportunity.update({
+      where: { id: opportunityId },
+      data: {
+        tailoredCv: cv,
+        updatedAt: new Date(),
+      },
+    });
 
     return NextResponse.json({
       success: true,
@@ -43,17 +49,19 @@ export async function GET(request: NextRequest, { params }: { params: { opportun
 
     const opportunityId = params.opportunityId;
 
-    // Fetch the CV from your database
-    const result = await sql('SELECT "tailoredCV" FROM OrionOpportunity WHERE id = $1', [opportunityId]);
-    const tailoredCV = result[0]?.[0];
+    // Fetch the CV using Prisma
+    const opportunity = await prisma.opportunity.findUnique({
+      where: { id: opportunityId },
+      select: { tailoredCv: true },
+    });
 
-    if (!tailoredCV) {
-      return NextResponse.json({ success: false, error: 'No CV found for this OrionOpportunity' }, { status: 404 });
+    if (!opportunity?.tailoredCv) {
+      return NextResponse.json({ success: false, error: 'No CV found for this Opportunity' }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
-      cv: tailoredCV,
+      cv: opportunity.tailoredCv,
     });
   } catch (error: unknown) {
     console.error('Error fetching CV:', error);

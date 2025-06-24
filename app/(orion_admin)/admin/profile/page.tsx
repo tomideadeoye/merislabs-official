@@ -54,9 +54,9 @@ import { Loader2 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import toast from 'react-hot-toast';
 import { fetchUserProfile } from '@/lib/profile_service';
-import type { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
+import type { UserProfileFetchResponse } from '@/lib/types';
 import logger from '@/lib/logger';
-import { ControllerRenderProps, FieldValues, FieldPath, ControllerProps } from 'react-hook-form';
+import { ControllerRenderProps } from 'react-hook-form';
 
 // Trigger re-evaluation
 
@@ -161,7 +161,7 @@ const ProfileEditingPage: React.FC = () => {
     };
 
     loadProfile();
-  }, []);
+  }, [form]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     logger.info('[ProfileEditingPage][onSubmit] Attempting to save user profile.', { values: Object.keys(values) });
@@ -219,7 +219,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Tomide Adeoye" {...field} />
+                    <Input id="fullName" placeholder="Tomide Adeoye" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -232,7 +232,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="your.email@example.com" type="email" {...field} />
+                    <Input id="email" placeholder="your.email@example.com" type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -245,7 +245,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Mobile Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="+1234567890" {...field} />
+                    <Input id="mobileNumber" placeholder="+1234567890" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -258,7 +258,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Language</FormLabel>
                   <FormControl>
-                    <Input placeholder="English (Native)" {...field} />
+                    <Input id="language" placeholder="English (Native)" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -271,7 +271,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <Input placeholder="Lagos, Nigeria" {...field} />
+                    <Input id="location" placeholder="Lagos, Nigeria" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -289,7 +289,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Website</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://merislabs.com" {...field} />
+                    <Input id="website" placeholder="https://merislabs.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -302,7 +302,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>GitHub URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://github.com/yourusername" {...field} />
+                    <Input id="githubUrl" placeholder="https://github.com/yourusername" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -315,7 +315,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>LinkedIn URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://linkedin.com/in/yourprofile" {...field} />
+                    <Input id="linkedinUrl" placeholder="https://linkedin.com/in/yourprofile" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -328,7 +328,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Substack URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://yoursubstack.substack.com" {...field} />
+                    <Input id="substackUrl" placeholder="https://yoursubstack.substack.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -341,7 +341,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>SlideShare URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://www.slideshare.net/yourusername" {...field} />
+                    <Input id="slideshareUrl" placeholder="https://www.slideshare.net/yourusername" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -354,7 +354,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Medium URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://medium.com/@yourusername" {...field} />
+                    <Input id="mediumUrl" placeholder="https://medium.com/@yourusername" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -367,7 +367,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Discord Handle</FormLabel>
                   <FormControl>
-                    <Input placeholder="YourUsername#1234" {...field} />
+                    <Input id="discordHandle" placeholder="YourUsername#1234" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -380,7 +380,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>MerisLabs LinkedIn URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://linkedin.com/company/merislabs" {...field} />
+                    <Input id="merisLabsLinkedinUrl" placeholder="https://linkedin.com/company/merislabs" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -393,7 +393,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>Bio Pitch Link</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://bit.ly/your-bio-pitch" {...field} />
+                    <Input id="bioPitchLink" placeholder="https://bit.ly/your-bio-pitch" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -406,7 +406,7 @@ const ProfileEditingPage: React.FC = () => {
                 <FormItem>
                   <FormLabel>YouTube Channel URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://youtube.com/yourchannel" {...field} />
+                    <Input id="youtube" placeholder="https://youtube.com/yourchannel" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

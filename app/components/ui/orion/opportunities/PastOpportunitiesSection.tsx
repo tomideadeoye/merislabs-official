@@ -73,13 +73,13 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
       if (data.success && data.results && data.results.length > 0) {
         // Transform the results into a more usable format
         const opportunities = data.results.map((item: ScoredMemoryPoint) => ({
-          id: item.payload.opportunityId || 'unknown',
-          title: item.payload.title || 'Unknown OrionOpportunity',
-          company: item.payload.company || 'Unknown Company',
-          status: item.payload.status || 'unknown',
+          id: item.payload?.opportunityId || 'unknown',
+          title: item.payload?.title || 'Unknown OrionOpportunity',
+          company: item.payload?.company || 'Unknown Company',
+          status: item.payload?.status || 'unknown',
           similarity: Math.round(item.score * 100),
-          date: item.payload.timestamp || 'Unknown Date',
-          outcome: item.payload.outcome || undefined,
+          date: item.payload?.timestamp || 'Unknown Date',
+          outcome: item.payload?.outcome || undefined,
         }));
 
         setSimilarOpportunities(opportunities);

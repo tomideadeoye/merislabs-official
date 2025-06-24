@@ -28,7 +28,7 @@ import { useEffect } from 'react';
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { Footer } from '@/components/ui';
+import Footer from '@/components/ui/footer';
 import PageIllustration from '@/components/ui/page-illustration'; // MemoryProvider is already in the root layout
 
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {

@@ -63,12 +63,11 @@ export interface MemoryMetadataPayload {
  * and consumed by the frontend. This is the "scored" result.
  */
 export interface ScoredMemoryPoint {
-  id: string; // Unique ID of the memory point
-  score: number; // Relevance score from Qdrant
-  content: string; // Extracted primary text content for display (from metadata.text)
-  vector: number[]; // Explicitly add vector property
-  embedding?: number[]; // Optional vector embedding (usually not returned by search `with_vector: false`)
-  payload: MemoryMetadataPayload; // The full metadata payload from Qdrant
+  id: string;
+  score: number;
+  content: string;
+  vector: number[];
+  payload?: MemoryMetadataPayload; // Optional additional metadata
 }
 
 export interface QdrantFilter {
@@ -82,4 +81,18 @@ export interface QdrantFilterCondition {
   match: {
     value: string | number | boolean;
   };
+}
+
+export interface MemorySearchOptions {
+  collectionName?: string;
+  limit?: number;
+  filter?: QdrantFilter;
+  minScore?: number;
+}
+
+export interface MemorySearchResponse {
+  success: boolean;
+  results?: ScoredMemoryPoint[];
+  query?: string;
+  error?: string;
 }

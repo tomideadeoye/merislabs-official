@@ -2,11 +2,12 @@
 
 // GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
 
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserProfileData, UserProfileFetchResponse } from '@/lib/types';
-import { request } from '@/lib/apiClient'; // Use the enhanced request with retry logic
+import { request } from '@/lib/apiClient';
 import logger from '@/lib/logger';
 import { useLocalStorage } from './useLocalStorage';
+import { useEffect } from 'react';
 
 /**
  * @fileoverview Custom React hook for fetching and managing user profile data, with local storage caching.
@@ -54,128 +55,119 @@ import { useLocalStorage } from './useLocalStorage';
 const PROFILE_CACHE_KEY = 'orion_user_profile';
 const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
+type UserProfileSource = 'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | 'neon' | undefined;
+
 interface UseUserProfileResult {
   profile: UserProfileData | null;
   profileText: string | null;
   isLoading: boolean;
   error: string | null;
-  source: 'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | 'neon' | null;
+  source: UserProfileSource;
   refetch: () => void;
 }
 
-const useUserProfile = (): UseUserProfileResult => {
-  const [profile, setProfile] = useState<UserProfileData | null>(null);
-  const [profileText, setProfileText] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [source, setSource] = useState<
-    'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | 'neon' | null
-  >(null);
-  const [, setStoredProfileCache] = useLocalStorage<{
-    profile: UserProfileData | null;
-    profileText: string | null;
-    timestamp: number;
-  }>(PROFILE_CACHE_KEY, { profile: null, profileText: null, timestamp: 0 });
-
-  const fetchProfile = useCallback(async () => {
-    const logContext = { operation: 'fetchUserProfileHook', timestamp: new Date().toISOString() };
-    setIsLoading(true);
-    setError(null);
-
-    // 1. Attempt to load from local storage (read directly to avoid dependency cycle)
-    try {
-      const cachedDataString = localStorage.getItem(PROFILE_CACHE_KEY);
-      if (cachedDataString) {
-        const parsedCachedData = JSON.parse(cachedDataString);
-        // Check if the cached data is still valid based on its timestamp
-        if (Date.now() - parsedCachedData.timestamp < PROFILE_CACHE_TTL_MS) {
-          logger.info('User profile loaded from local storage cache.', { ...logContext, source: 'cache' });
-          setProfile(parsedCachedData.profile);
-          setProfileText(parsedCachedData.profileText);
-          setSource('cache');
-          setIsLoading(false);
-          return;
-        } else {
-          logger.warn('Cached user profile is stale, fetching new data.', { ...logContext, source: 'cache_stale' });
-        }
-      } else {
-        logger.info('No user profile found in local storage cache.', { ...logContext, source: 'cache_miss' });
-      }
-    } catch (e: unknown) {
-      const parseError = e instanceof Error ? e.message : String(e);
-      logger.error('Error parsing cached user profile from local storage.', {
-        ...logContext,
-        error: parseError,
-        details: e,
-        source: 'cache_error',
-      });
-      // Continue to fetch from API if cache read fails
-    }
-
-    // 2. Fetch from API if not in cache or cache is stale/invalid
-    try {
-      logger.info('Fetching user profile from API endpoint.', { ...logContext, source: 'api_fetch_init' });
-      const response = await request<UserProfileFetchResponse>({ url: '/api/orion/profile', method: 'GET' });
-
-      // Log the full response for debugging purposes
-      logger.debug('API Response received for user profile:', { ...logContext, apiResponse: response });
-
-      if (response.success && response.profile && response.profile.profileText) {
-        setProfile(response.profile);
-        setProfileText(response.profile.profileText || null);
-        setSource(response.source || null);
-        setIsLoading(false);
-
-        // Cache the fresh data
-        const dataToCache = {
-          profile: response.profile,
-          profileText: response.profile.profileText || null,
-          timestamp: Date.now(),
+const fetchUserProfileWithCache = async (): Promise<UserProfileFetchResponse> => {
+  const logContext = { operation: 'fetchUserProfileWithCache', timestamp: new Date().toISOString() };
+  // 1. Try localStorage cache first
+  try {
+    const cachedDataString = typeof window !== 'undefined' ? localStorage.getItem(PROFILE_CACHE_KEY) : null;
+    if (cachedDataString) {
+      const parsedCachedData = JSON.parse(cachedDataString);
+      if (Date.now() - parsedCachedData.timestamp < PROFILE_CACHE_TTL_MS) {
+        logger.info('[useUserProfile][CACHE_HIT] User profile loaded from localStorage.', { ...logContext });
+        return {
+          success: true,
+          profile: parsedCachedData.profile,
+          profileText: parsedCachedData.profileText,
+          source: 'cache',
         };
-        setStoredProfileCache(dataToCache);
-        logger.success('Successfully fetched and cached user profile from API.', {
-          ...logContext,
-          source: response.source,
-        });
       } else {
-        const errorMessage = response.error || 'Failed to fetch user profile from API.';
-        logger.error('API returned an unsuccessful response for user profile.', {
-          ...logContext,
-          error: errorMessage,
-          apiResponse: response,
-        });
-        setError(errorMessage);
-        setSource(response.source || 'error');
-        setIsLoading(false);
+        logger.info('[useUserProfile][CACHE_STALE] Cached user profile is stale.', { ...logContext });
       }
-    } catch (apiError: unknown) {
-      const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
-      logger.error('Error fetching user profile from API.', {
+    } else {
+      logger.info('[useUserProfile][CACHE_MISS] No user profile in localStorage.', { ...logContext });
+    }
+  } catch (e: unknown) {
+    logger.error('[useUserProfile][CACHE_ERROR] Error parsing cached user profile.', { ...logContext, error: e });
+  }
+  // 2. Fetch from API
+  try {
+    logger.info('[useUserProfile][API_FETCH] Fetching user profile from API.', { ...logContext });
+    const response = await request<UserProfileFetchResponse>({ url: '/api/orion/profile', method: 'GET' });
+    if (response.success && response.profile) {
+      // Cache in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(
+          PROFILE_CACHE_KEY,
+          JSON.stringify({
+            profile: response.profile,
+            profileText: response.profile.profileText || null,
+            timestamp: Date.now(),
+          })
+        );
+      }
+      logger.success('[useUserProfile][API_SUCCESS] User profile fetched and cached.', { ...logContext });
+      // Only allow allowed source values
+      const allowedSource: UserProfileSource =
+        response.source &&
+        ['notion', 'local', 'external_service', 'cache', 'error', 'none', 'neon'].includes(response.source)
+          ? (response.source as UserProfileSource)
+          : 'neon';
+      return { ...response, source: allowedSource };
+    } else {
+      logger.error('[useUserProfile][API_ERROR] API returned unsuccessful response.', {
         ...logContext,
-        error: errorMessage,
-        stack: apiError instanceof Error ? apiError.stack : undefined,
-        source: 'api_fetch_error',
+        error: response.error,
       });
-      setError(`Failed to load profile: ${errorMessage}`);
-      setSource('error');
-      setIsLoading(false);
-    } // Removed storedProfileCache from dependencies to break the cycle
-  }, [setStoredProfileCache, setProfile, setProfileText, setSource, setIsLoading, setError]);
-
-  useEffect(() => {
-    logger.debug('useUserProfile useEffect triggered, initiating profile fetch.', {
-      timestamp: new Date().toISOString(),
+      return { success: false, error: response.error || 'Failed to fetch user profile', source: 'error' };
+    }
+  } catch (apiError: unknown) {
+    logger.error('[useUserProfile][API_ERROR] Error fetching user profile from API.', {
+      ...logContext,
+      error: apiError,
     });
-    fetchProfile();
-  }, [fetchProfile]);
+    return { success: false, error: apiError instanceof Error ? apiError.message : String(apiError), source: 'error' };
+  }
+};
 
-  const refetch = useCallback(() => {
-    logger.info('Refetching user profile initiated by component.', { timestamp: new Date().toISOString() });
-    setIsLoading(true); // Ensure loading state is true on refetch
-    fetchProfile();
-  }, [fetchProfile]);
+function isUserProfileFetchResponse(data: unknown): data is UserProfileFetchResponse {
+  return typeof data === 'object' && data !== null && 'success' in data && typeof (data as any).success === 'boolean';
+}
 
-  return { profile, profileText, isLoading, error, source, refetch };
+const useUserProfile = (): UseUserProfileResult => {
+  const queryClient = useQueryClient();
+  const query = useQuery<UserProfileFetchResponse>({
+    queryKey: ['userProfile'],
+    queryFn: fetchUserProfileWithCache,
+    staleTime: PROFILE_CACHE_TTL_MS,
+    retry: 1,
+  });
+
+  // Logging for error and success using useEffect
+  useEffect(() => {
+    if (query.isError) {
+      logger.error('[useUserProfile][QUERY_ERROR] Error in useQuery.', { error: query.error });
+    } else if (query.isSuccess && query.data) {
+      logger.info('[useUserProfile][QUERY_SUCCESS] useQuery succeeded.', { source: query.data.source });
+    }
+  }, [query.isError, query.isSuccess, query.error, query.data]);
+
+  const data = query.data;
+
+  return {
+    profile: isUserProfileFetchResponse(data) && data.success && data.profile ? data.profile : null,
+    profileText: isUserProfileFetchResponse(data) && data.success && data.profileText ? data.profileText : null,
+    isLoading: query.isLoading,
+    error: query.error
+      ? query.error instanceof Error
+        ? query.error.message
+        : String(query.error)
+      : isUserProfileFetchResponse(data) && !data.success && data.error
+        ? data.error
+        : null,
+    source: isUserProfileFetchResponse(data) && data.source ? data.source : undefined,
+    refetch: query.refetch,
+  };
 };
 
 export default useUserProfile;

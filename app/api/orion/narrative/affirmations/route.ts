@@ -65,7 +65,12 @@ export async function POST(request: NextRequest) {
 
     const memoryContext =
       memoryResults && memoryResults.length > 0
-        ? memoryResults.map((mem: { payload: { text: unknown } }) => `- ${String(mem.payload.text).trim()}`).join('\n')
+        ? memoryResults
+            .map((mem) => {
+              if (!mem.payload) return ''; // Add a check for undefined payload
+              return `- ${String(mem.payload.text).trim()}`;
+            })
+            .join('\n')
         : 'No specific relevant memories found. Generating general affirmations.';
 
     // Step 2: Construct LLM Prompt for Affirmations

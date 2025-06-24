@@ -28,7 +28,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { PageHeader, Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from '@/components/ui';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import {
@@ -53,18 +53,26 @@ import { useSessionState } from '@/hooks/useSessionState';
 import useUserProfile from '@/hooks/useUserProfile';
 import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
 import { Badge } from '@/components/ui/badge';
+import { useAdminDashboardStore } from '@/lib/stores/adminDashboardStore';
 
 export default function AdminDashboardPage() {
   const { selectSessionValue } = useSessionState();
   const memoryInitialized = selectSessionValue<boolean>(SessionStateKeys.MEMORY_INITIALIZED);
   const { profile, isLoading: profileLoading, error: profileError, refetch } = useUserProfile();
 
-  // Simple password protection
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [authenticated, setAuthenticated] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    authenticated,
+    setAuthenticated,
+    passwordError,
+    setPasswordError,
+    reset,
+  } = useAdminDashboardStore();
 
+  // Simple password protection
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!username) {
@@ -94,19 +102,15 @@ export default function AdminDashboardPage() {
 
   if (!authenticated) {
     return (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center"
-        style={{
-          backdropFilter: 'blur(12px)',
-          background: 'rgba(20, 20, 30, 0.85)',
-        }}
-      >
+      <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-lg bg-[rgba(20,20,30,0.85)]">
         <form
           onSubmit={handlePasswordSubmit}
           className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col items-center border border-gray-300 dark:border-gray-700"
         >
           <h2 className="text-2xl font-bold mb-4">Admin Access</h2>
           <input
+            id="username"
+            name="username"
             type="text"
             autoComplete="username"
             placeholder="Enter admin username"
@@ -115,6 +119,8 @@ export default function AdminDashboardPage() {
             className="mb-4 px-4 py-2 rounded border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
+            id="password"
+            name="password"
             type="password"
             autoComplete="new-password"
             placeholder="Enter admin password"

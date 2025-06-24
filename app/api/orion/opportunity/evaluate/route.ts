@@ -22,6 +22,10 @@
  *   - `/api/orion/llm`: The core LLM interaction API route, which this route calls to generate the evaluation.
  *   - `@/lib/logger`: Used for comprehensive, context-rich logging throughout the API route.
  *   - `@/lib/utils/errorHandler`: Integrated for centralized and consistent error handling.
+ *   - `@/lib/utils/jsonExtractor`: Import the new utility
+ *   - `@/lib/utils/errorHandler`: Import HandledApplicationError from errorHandler
+ *   - `@/lib/utils/apiFetcher`: Import the new apiFetcher utility
+ *   - `@/lib/utils/serverErrorHandler`: Import handleServerError
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes a valid bearer token is provided in the authorization header for security.
@@ -125,7 +129,7 @@ export async function POST(req: NextRequest) {
           memoryData.results
             .map(
               (item: ScoredMemoryPoint, i: number) =>
-                `${i + 1}. (Source: ${item.payload.source_id}, Type: ${item.payload.type}): "${item.payload.text.substring(0, 200)}..."`
+                `${i + 1}. (Source: ${item.payload?.source_id || 'N/A'}, Type: ${item.payload?.type || 'N/A'}): "${item.payload?.text?.substring(0, 200) || 'N/A'}..."`
             )
             .join('\n');
         logger.info('[EVAL_API][MEMORY_SEARCH_SUCCESS]', { ...logContext, resultsCount: memoryData.results.length });

@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/components/ui';
 import { Loader } from '@/components/ui'; // Correct import from the UI package
 import { ROUTES } from '@/lib/routes'; // Import ROUTES
-import { NavItem } from '@/types/nav'; // Import NavItem
+import { NavItem } from '@/lib/types'; // Corrected import path
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // Import QueryClient and QueryClientProvider
 
 import {
@@ -43,7 +43,6 @@ const adminNavItems: NavItem[] = [
   { href: '/admin/habitica', title: 'Habitica', icon: <Rocket /> },
   { href: '/admin/agentic-workflow', title: 'Agentic Workflow', icon: <BrainCircuit /> },
   { href: '/admin/routines', title: 'Routines', icon: <Repeat /> },
-  { href: '/admin/emotional', title: 'Emotional', icon: <HeartPulse /> },
   { href: '/admin/local-files', title: 'Local Files', icon: <FolderOpen /> },
   { href: '/admin/idea-incubator', title: 'Idea Incubator', icon: <Lightbulb /> },
   { href: '/admin/system-settings', title: 'System Settings', icon: <Cog /> },
@@ -64,19 +63,19 @@ const AdminSidebar: React.FC = () => {
         {adminNavItems.map((item) => (
           <Link
             key={item.title}
-            href={item.href}
+            href={item.href as string}
             className={cn(
               'group flex items-center rounded-md px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white',
               pathname === item.href && 'bg-blue-600 text-white'
             )}
           >
             {item.icon
-              ? React.cloneElement(item.icon as React.ReactElement, {
-                  className: cn(
-                    'mr-3 h-5 w-5 flex items-center justify-center',
-                    pathname === item.href ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'
-                  ),
-                })
+              ? React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, {
+                className: cn(
+                  'mr-3 h-5 w-5 flex items-center justify-center',
+                  pathname === item.href ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'
+                ),
+              })
               : null}
             {item.title}
           </Link>

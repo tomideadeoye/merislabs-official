@@ -1,7 +1,7 @@
 /**
  * @fileoverview API route for downloading an assembled CV as a PDF.
  * @description This endpoint receives Markdown content of an assembled CV from the client,
- * converts it into a PDF using `html-pdf` and `marked` (which run server-side),
+ * converts it into a PDF using `puppeteer` (which runs server-side),
  * and then returns the PDF as a downloadable file.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
@@ -14,22 +14,22 @@
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `auth.ts`: Handles user authentication.
  *   - `@/lib/logger`: For comprehensive logging.
- *   - `html-pdf`, `marked`: Libraries used for Markdown to PDF conversion.
+ *   - `puppeteer`: Library used for PDF generation.
  *   - `app/components/orion/CVTailoringStudio.tsx`: The client-side component that will call this API to trigger the PDF download.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes `assembledCvMarkdown` is provided in the request body.
- *   - Assumes `html-pdf` and `marked` are correctly installed and available in the server environment.
+ *   - Assumes `puppeteer` is correctly installed and available in the server environment.
  *   - Proper content type and headers are set for file download.
  *   - Robust error handling for conversion failures.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
-import pdf from 'html-pdf';
 import { marked } from 'marked';
 import { z } from 'zod';
 import { handleApiError, HandledApplicationError } from '@/lib/utils/errorHandler';
+import puppeteer from 'puppeteer';
 
 // Define a Zod schema for the incoming request body
 const downloadPdfRequestSchema = z.object({
@@ -65,12 +65,17 @@ export async function POST(request: NextRequest) {
 
     // Generate PDF
     const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-      pdf.create(htmlContent, { format: 'Letter' }).toBuffer((err, buffer) => {
-        if (err) {
-          logger.error('[CV_DOWNLOAD_PDF_API][PDF_GENERATION_ERROR]', { ...logContext, error: err.message });
-          return reject(new Error('Failed to generate PDF.'));
-        }
+      puppeteer.launch().then(async (browser) => {
+        const page = await browser.newPage();
+        await page.setContent(htmlContent);
+        const pdfUint8Array = await page.pdf({ format: 'Letter' });
+        await browser.close();
+        // Convert Uint8Array to Buffer for compatibility
+        const buffer = Buffer.from(pdfUint8Array);
         resolve(buffer);
+      }).catch((error) => {
+        logger.error('[CV_DOWNLOAD_PDF_API][PDF_GENERATION_ERROR]', { ...logContext, error: error.message });
+        reject(new Error('Failed to generate PDF.'));
       });
     });
 

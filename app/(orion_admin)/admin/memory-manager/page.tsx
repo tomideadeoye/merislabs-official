@@ -208,7 +208,7 @@ export default function MemoryManagerFeaturePage() {
       const data = await response.json();
       if (data.success) {
         setDeleteSuccess('Memory item deleted successfully.');
-        setSearchResults((prev) => prev.filter((item) => (item.id || item.payload.source_id) !== id));
+        setSearchResults((prev) => prev.filter((item) => (item.id || item.payload?.source_id) !== id));
       } else {
         setDeleteError(data.error || 'Failed to delete memory item.');
       }
@@ -261,11 +261,10 @@ export default function MemoryManagerFeaturePage() {
         <CardContent>
           <form onSubmit={handleSearch} className="space-y-4">
             <div>
-              <Label htmlFor="searchQuery" className="text-gray-300">
-                Search Query (Semantic)
-              </Label>
+              <Label htmlFor="searchQuery" className="text-gray-300">Search Query</Label>
               <Input
                 id="searchQuery"
+                name="searchQuery"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -275,11 +274,10 @@ export default function MemoryManagerFeaturePage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="filterType" className="text-gray-300">
-                  Filter by Type (e.g., journal_entry)
-                </Label>
+                <Label htmlFor="filterType" className="text-gray-300">Filter Type</Label>
                 <Input
                   id="filterType"
+                  name="filterType"
                   type="text"
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}
@@ -288,11 +286,10 @@ export default function MemoryManagerFeaturePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="filterTags" className="text-gray-300">
-                  Filter by Tags (comma-separated)
-                </Label>
+                <Label htmlFor="filterTags" className="text-gray-300">Filter Tags</Label>
                 <Input
                   id="filterTags"
+                  name="filterTags"
                   type="text"
                   value={filterTags}
                   onChange={(e) => setFilterTags(e.target.value)}
@@ -301,11 +298,10 @@ export default function MemoryManagerFeaturePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="limit" className="text-gray-300">
-                  Number of Results
-                </Label>
+                <Label htmlFor="limit" className="text-gray-300">Limit</Label>
                 <Input
                   id="limit"
+                  name="limit"
                   type="number"
                   value={limit}
                   onChange={(e) => setLimit(Math.max(1, parseInt(e.target.value, 10) || 5))}

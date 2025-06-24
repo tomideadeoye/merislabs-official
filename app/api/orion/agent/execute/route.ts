@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLLMResponse, generateLLMResponseWithTools } from '@/lib/orion_llm';
+import { generateLLMResponseWithTools } from '@/lib/orion_llm';
 import { getToolSchemas, executeTool } from '@/lib/orion_tools';
 import type { CombinedLLMResponse, LLMToolCall, Message, LLMResponseSuccess, LLMTool } from '@/lib/types';
 import logger from '@/lib/logger';
@@ -213,15 +213,11 @@ export async function POST(request: NextRequest) {
             finalAnswer = llmResponse.content;
             break; // Exit loop if LLM provides a final answer
           }
-        } else {
-          logger.error('[AGENT_EXECUTE] LLM generation failed.', {
-            error: llmResponse.error,
-            details: llmResponse.details,
-          });
-          // If one strategy fails, we might still want to try other strategies,
-          // but for now, we'll propagate the error for this specific strategy.
-          finalAnswer = `Error generating strategy: ${llmResponse.error}. Details: ${llmResponse.details || 'N/A'}`;
-          break; // Break from inner loop if LLM generation fails for this strategy
+        } else if (!llmResponse.success) {
+          finalAnswer = `Error: ${llmResponse.error}`;
+          currentMessages.push({ role: 'assistant', content: finalAnswer });
+          logger.error('[AGENT_EXECUTE] LLM call failed.', { error: llmResponse.error });
+          break; // Exit loop on LLM error
         }
       }
 

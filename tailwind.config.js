@@ -2,13 +2,11 @@
 module.exports = {
   darkMode: ['class'],
   content: [
-    './app/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-    '../../lib/**/*.{js,ts,jsx,tsx}',
-    '../../lib/**/**/*.{js,ts,jsx,tsx}',
-    '../../packages/ui/src/**/*.{js,ts,jsx,tsx}',
-    '../../apps/nextjs/app/**/*.{js,ts,jsx,tsx}',
-    '../../apps/nextjs/components/**/*.{js,ts,jsx,tsx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/(orion_admin)/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './lib/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/css/additional-styles/*.css',
   ],
   theme: {
     container: {
@@ -90,5 +88,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/reference')],
 };

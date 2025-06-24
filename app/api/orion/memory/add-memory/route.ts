@@ -125,19 +125,11 @@ export async function POST(request: NextRequest) {
       )
     ) {
       try {
-        await query(
-          `INSERT INTO memory_entries (
+        await query`
+          INSERT INTO memory_entries (
             id, source_id, text, type, timestamp, metadata
-          ) VALUES ($1, $2, $3, $4, $5, $6)`,
-          [
-            memoryPoint.id,
-            sourceId,
-            text,
-            metadata.type,
-            metadata.timestamp || currentISOTime,
-            JSON.stringify(metadata),
-          ] as string[]
-        );
+          ) VALUES (${memoryPoint.id}, ${sourceId}, ${text}, ${metadata.type}, ${metadata.timestamp || currentISOTime}, ${JSON.stringify(metadata)})
+        `;
         console.log(`[MEMORY_API] Memory also saved to Neon/Postgres. ID: ${memoryPoint.id}`);
       } catch (pgError) {
         console.error('[MEMORY_API] Neon/Postgres save error (non-critical):', pgError);

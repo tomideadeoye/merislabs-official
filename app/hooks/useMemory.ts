@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react';
 import { ScoredMemoryPoint, MemorySearchOptions } from '@/lib/types/memory';
-import { addMemory, findMemoriesByType, findMemoriesByTag } from '../lib/memory';
+import { addMemory, findMemoriesByType, findMemoriesByTag, searchMemory } from '../lib/memory';
 
 /**
  * Hook for interacting with the memory system

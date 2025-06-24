@@ -130,7 +130,7 @@ export type {
 export type { CVComponent } from './lib/types/cv';
 export type { JournalEntry } from '@/generated/prisma';
 export type { ReadonlyURLSearchParams };
-export type { SendEmailParams, EmailAttachment } from '@/types/email';
+export type { SendEmailParams, EmailAttachment } from './lib/types/email';
 
 // Specific re-exports for values or functions (these imports were already in place)
 export {

@@ -83,7 +83,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { v4 as uuidv4 } from 'uuid';
@@ -96,6 +96,7 @@ import { apiClient } from '@/lib/apiClient';
 import { toast } from 'react-hot-toast';
 import logger from '@/lib/logger';
 import { OrionOpportunity } from '@/lib/types';
+import { useCompanyStakeholderOutreachStore } from '@/lib/stores/companyStakeholderOutreachStore';
 
 /**
  * Represents the structure of a company search result from external data sources
@@ -132,15 +133,26 @@ interface CompanyStakeholderOutreachProps {
 }
 
 export const CompanyStakeholderOutreach: React.FC<CompanyStakeholderOutreachProps> = ({ opportunity }) => {
-  const [requestId] = useState(uuidv4()); // Unique ID for tracking all operations in this component instance
-  const [companySearchQuery, setCompanySearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<CompanySearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedStakeholder, setSelectedStakeholder] = useState<Stakeholder | null>(null);
-  const [emailDraft, setEmailDraft] = useState('');
-  const [linkedinDraft, setLinkedinDraft] = useState('');
-  const [isDrafting, setIsDrafting] = useState(false);
-  const [activeTab, setActiveTab] = useState('search');
+  const [requestId] = React.useState(uuidv4()); // Unique ID for tracking all operations in this component instance
+  const {
+    companySearchQuery,
+    setCompanySearchQuery,
+    searchResults,
+    setSearchResults,
+    isSearching,
+    setIsSearching,
+    selectedStakeholder,
+    setSelectedStakeholder,
+    emailDraft,
+    setEmailDraft,
+    linkedinDraft,
+    setLinkedinDraft,
+    isDrafting,
+    setIsDrafting,
+    activeTab,
+    setActiveTab,
+    reset,
+  } = useCompanyStakeholderOutreachStore();
 
   /**
    * Handles the company search operation.

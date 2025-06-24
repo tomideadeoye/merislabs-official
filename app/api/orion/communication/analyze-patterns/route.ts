@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     } catch (memErr: unknown) {
       logger.error('[COMM_PATTERNS_API][MEMORY_SEARCH_ERROR]', { ...logContext, error: memErr });
     }
-    const memoryContext = relevantMemories.map((m) => m.payload.text).join('\n\n');
+    const memoryContext = relevantMemories.map((m) => m.payload?.text).join('\n\n');
 
     // For sentiment trend, let's assume the LLM can provide this for each chat.
     // In a real scenario, this would involve either a separate LLM call per chat or a more complex prompt.

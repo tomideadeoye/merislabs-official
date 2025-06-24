@@ -21,10 +21,29 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Avatar({ src, alt, fallback, size = 40, className, ...props }: AvatarProps) {
+  // Map size to Tailwind classes
+  const sizeClass =
+    size === 24
+      ? 'w-6 h-6'
+      : size === 32
+        ? 'w-8 h-8'
+        : size === 40
+          ? 'w-10 h-10'
+          : size === 48
+            ? 'w-12 h-12'
+            : size === 56
+              ? 'w-14 h-14'
+              : size === 64
+                ? 'w-16 h-16'
+                : `w-[${size}px] h-[${size}px]`;
+
   return (
     <div
-      className={cn('relative flex items-center justify-center rounded-full bg-muted overflow-hidden', className)}
-      style={{ width: size, height: size }}
+      className={cn(
+        'relative flex items-center justify-center rounded-full bg-muted overflow-hidden',
+        sizeClass,
+        className
+      )}
       {...props}
     >
       {src ? (

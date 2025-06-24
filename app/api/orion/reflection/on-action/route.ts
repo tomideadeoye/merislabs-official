@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
-import { sql } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 
 interface ActionReflectionRequestBody {
   habiticaTaskId: string;
@@ -109,30 +109,22 @@ export async function POST(request: NextRequest) {
       throw new Error(upsertData.error || 'Failed to save action reflection to memory.');
     }
 
-    // 4. Store the reflection link in Neon/Postgres
+    // 4. Store the reflection link in Neon/Postgres using Prisma
     try {
       console.log(
         `[ACTION_REFLECTION_API][VERBOSE] Inserting reflection link into Neon/Postgres for habiticaTaskId: ${habiticaTaskId}`
       );
-      await sql(
-        `INSERT INTO habitica_task_links (
-          id, habiticaTaskId, orionSourceModule, orionSourceReferenceId, orionTaskText, createdAt, reflectionId, reflectionText
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        ON CONFLICT (habiticaTaskId) DO UPDATE SET
-          reflectionId = EXCLUDED.reflectionId,
-          reflectionText = EXCLUDED.reflectionText
-        `,
-        [
-          uuidv4(),
-          habiticaTaskId,
-          orionSourceModule || 'unknown',
-          orionSourceReferenceId || 'unknown',
-          originalTaskText,
-          currentISOTime,
-          reflectionSourceId,
-          reflectionText,
-        ]
-      );
+
+      // Use Prisma raw query since the model doesn't have reflection fields and habiticaTaskId is not unique
+      await prisma.$executeRaw`
+        INSERT INTO habitica_task_links (
+          id, "habiticaTaskId", "orionSourceModule", "orionSourceReferenceId", "orionTaskText", "createdAt", "reflectionId", "reflectionText"
+        ) VALUES (${uuidv4()}, ${habiticaTaskId}, ${orionSourceModule || 'unknown'}, ${orionSourceReferenceId || 'unknown'}, ${originalTaskText}, ${new Date(currentISOTime)}, ${reflectionSourceId}, ${reflectionText})
+        ON CONFLICT ("habiticaTaskId") DO UPDATE SET
+          "reflectionId" = EXCLUDED."reflectionId",
+          "reflectionText" = EXCLUDED."reflectionText"
+      `;
+
       console.log(
         `[ACTION_REFLECTION_API][VERBOSE] Reflection link saved to Neon/Postgres for task ID: ${habiticaTaskId}`
       );

@@ -21,7 +21,7 @@
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes Qdrant is running and accessible via the provided `QDRANT_HOST`, `QDRANT_PORT`, and optionally `QDRANT_API_KEY` environment variables.
- *   - Expects `points` in the request body to be an array of `ScoredMemoryPoint` objects, each containing an `id`, `embedding`, and `payload`.
+ *   - Expects `points` in the request body to be an array of `ScoredMemoryPoint` objects, each containing an `id`, `vector`, and `payload`.
  *   - The `wait: true` option is used in the Qdrant upsert call to ensure the operation completes before a response is sent, which can be adjusted for higher throughput async operations if needed.
  *   - Error handling differentiates between validation failures, Qdrant specific errors, and general fatal errors.
  *
@@ -86,11 +86,11 @@ export async function POST(request: NextRequest) {
 
     // Filter out points that do not have an embedding, as vectors are required for Qdrant upsert
     const pointsWithEmbeddings = points.filter((point) => {
-      if (!point.embedding || point.embedding.length === 0) {
-        logger.warn('[MEMORY_UPSERT][FILTERED_POINT] Skipping memory point due to missing or empty embedding.', {
+      if (!point.vector || point.vector.length === 0) {
+        logger.warn('[MEMORY_UPSERT][FILTERED_POINT] Skipping memory point due to missing or empty vector.', {
           ...logContext,
           pointId: point.id, // Log the ID of the skipped point if available
-          pointTitle: point.payload.title, // Attempt to log title from payload
+          pointTitle: point.payload?.title, // Attempt to log title from payload with optional chaining
         });
         return false;
       }
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         );
 
         // Get vector dimension from the first point
-        const vectorSize = (pointsWithEmbeddings[0]!.embedding as number[]).length;
+        const vectorSize = (pointsWithEmbeddings[0]!.vector as number[]).length;
 
         await qdrantClient.createCollection(collectionName, {
           vectors: {
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     const qdrantPoints = pointsWithEmbeddings.map((point) => ({
       id: point.id,
       payload: point.payload, // Use point.payload for payload
-      vector: point.embedding as number[], // Assert as number[] because we filtered out undefined
+      vector: point.vector, // Use point.vector instead of point.embedding
     }));
 
     const result = await qdrantClient.upsert(collectionName, {

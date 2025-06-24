@@ -38,13 +38,42 @@
 'use client';
 
 import Image from 'next/image';
-import Iframe from 'react-iframe';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Project } from 'components/projects'; // Assuming Project interface is exported from here
+import './ProjectMediaDisplay.css';
 
 interface ProjectMediaDisplayProps {
   project: Project;
+}
+
+// Client-side only iframe component to prevent hydration mismatches
+function ClientIframe({ url, title, className }: { url: string; title: string; className: string }) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className={`${className} project-iframe-loading`}>
+        <span className="text-gray-500">Loading...</span>
+      </div>
+    );
+  }
+
+  return (
+    <iframe
+      src={url}
+      title={title}
+      width="640px"
+      height="320px"
+      allowFullScreen
+      className={`${className} project-iframe`}
+      allow="fullscreen"
+    />
+  );
 }
 
 export default function ProjectMediaDisplay({ project }: ProjectMediaDisplayProps) {
@@ -59,11 +88,11 @@ export default function ProjectMediaDisplay({ project }: ProjectMediaDisplayProp
   const [activeMedia, setActiveMedia] = useState(availableMediaTypes[0] || '');
 
   return (
-    <div className={`max-w-xl md:max-w-none md:w-full mx-auto flex-row-reverse items-center w-full`} data-aos="fade-up">
+    <div className="project-media-container" data-aos="fade-up">
       {availableMediaTypes.length > 0 && (
         <Tabs defaultValue={activeMedia} className="w-full">
           <TabsList
-            className="grid w-full"
+            className="project-tabs-list"
             style={{ gridTemplateColumns: `repeat(${availableMediaTypes.length}, 1fr)` }}
           >
             {videoUrl && (
@@ -92,9 +121,7 @@ export default function ProjectMediaDisplay({ project }: ProjectMediaDisplayProp
                 src={videoUrl}
                 width="auto"
                 height="300px"
-                style={{
-                  borderRadius: '10px',
-                }}
+                className="project-video"
               />
             </TabsContent>
           )}
@@ -105,29 +132,13 @@ export default function ProjectMediaDisplay({ project }: ProjectMediaDisplayProp
                 alt={project.name}
                 width={600}
                 height={400}
-                className="object-contain rounded-2xl px-4 self-center"
-                style={{
-                  borderRadius: '40px',
-                }}
+                className="project-image"
               />
             </TabsContent>
           )}
           {project.iframe && (
             <TabsContent value="iframe" className="mt-4">
-              <Iframe
-                width="640px"
-                height="320px"
-                id=""
-                display="block"
-                allowFullScreen
-                position="relative"
-                title={project.name}
-                url={project.iframe}
-                className="object-contain rounded-2xl px-4 self-center w-full aspect-video min-h-[400px]"
-                styles={{
-                  borderRadius: '40px',
-                }}
-              />
+              <ClientIframe url={project.iframe} title={project.name} className="project-iframe-container" />
             </TabsContent>
           )}
         </Tabs>

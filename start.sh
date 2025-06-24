@@ -217,7 +217,7 @@ Include a what am I currently improving upon in the refrence.md file. Add time l
 
 - Absurdly comprehensive descritptive names for files, functions, variables, classes, etc.
 - UI | DO - add loading states, progress bars, etc. when required Loader, ProgressBar.
-
+Responsive Design
 
 - use centralized color-coded, icon logger @repo/lib
 - consolidate/unify/allign/weave together code, state, features, components, etc. All types in same folder/file @app/lib/types
@@ -258,7 +258,7 @@ add why something is implemented in logs, documentations, comments, etc.
 Let's infuse some more brilliance!
 Global UI Feedback (A Delightful User Experience!):
 Implement a consistent, beautiful system for displaying success and error messages to the user (e.g., using Shadcn's useToast or similar notifications). Every API interaction, whether it's a success or a hiccup, should provide clear and engaging feedback. This significantly enhances the user experience.
-
+elegant effect, graceful, subtle
 NEVER/NO:
 - Dont use mocks or placeholders - execute immediately.
 - Never delete features or components without a clear plan for replacement. suggest more robust feature implementation.

@@ -581,7 +581,7 @@ export function constructLlmMessages({
   // Add memory results if provided
   if (memoryResults && memoryResults.length > 0) {
     const memoryContext = memoryResults
-      .map((item, index) => `Memory ${index + 1}: ${item.payload.text}`)
+      .map((item, index) => `Memory ${index + 1}: ${item.payload?.text}`)
       .join('\\n\\n');
 
     messages.push({

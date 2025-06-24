@@ -49,28 +49,28 @@ export function QuadrantMemoryChunksVisualizer({ memoryResults }: QuadrantMemory
         <Card key={memory.id} className="border border-gray-700 bg-gray-800 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-semibold text-gray-100 flex items-center justify-between">
-              Memory: {memory.payload.title || memory.payload.type || `Memory ${memory.id.substring(0, 8)}...`}
+              Memory: {memory.payload?.title || memory.payload?.type || `Memory ${memory.id.substring(0, 8)}...`}
               <Badge variant="outline" className="ml-2 text-blue-300 border-blue-500">
                 Score: {memory.score.toFixed(2)}
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="text-sm text-gray-300 mb-2">{memory.content}</p>
+            <p className="text-sm text-gray-300 mb-2">{memory.payload?.text}</p>
             <div className="flex flex-wrap gap-2 text-xs">
-              <Badge className="bg-gray-600 text-gray-100">Source Type: {memory.payload.type}</Badge>
-              {memory.payload.tags &&
+              <Badge className="bg-gray-600 text-gray-100">Source Type: {memory.payload?.type}</Badge>
+              {memory.payload?.tags &&
                 memory.payload.tags.map((tag) => (
                   <Badge key={tag} className="bg-purple-600 text-purple-100">
                     {tag}
                   </Badge>
                 ))}
-              {memory.payload.opportunityId && (
+              {memory.payload?.opportunityId && (
                 <Badge className="bg-green-600 text-green-100">
                   Opportunity ID: {memory.payload.opportunityId.substring(0, 8)}...
                 </Badge>
               )}
-              {memory.payload.timestamp && (
+              {memory.payload?.timestamp && (
                 <Badge className="bg-orange-600 text-orange-100">
                   Indexed: {new Date(memory.payload.timestamp).toLocaleDateString()}
                 </Badge>

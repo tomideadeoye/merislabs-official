@@ -184,9 +184,9 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
       setSuggestedReplies(replyResult.drafts || []);
       if (replyResult.memoryResults) {
         const mappedMemoryChunks = replyResult.memoryResults.map((item: ScoredMemoryPoint) => ({
-          text: item.payload.text,
-          quadrant: item.payload.type || 'Uncategorized', // Use type for quadrant, fallback to Uncategorized
-          source: item.payload.title || item.payload.type || 'Orion Memory',
+          text: item.payload?.text,
+          quadrant: item.payload?.type || 'Uncategorized', // Use type for quadrant, fallback to Uncategorized
+          source: item.payload?.title || item.payload?.type || 'Orion Memory',
         }));
         setUsedMemoryChunks(mappedMemoryChunks);
       }

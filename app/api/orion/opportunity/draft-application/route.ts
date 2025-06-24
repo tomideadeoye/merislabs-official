@@ -86,9 +86,9 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
   if (memorySnippets && memorySnippets.length > 0) {
     memoryContext = memorySnippets
       .map((m, i) => {
-        const dateInfo = m.payload.timestamp ? `(${new Date(m.payload.timestamp).toLocaleDateString()})` : '';
-        const tagInfo = m.payload.tags && m.payload.tags.length > 0 ? `[Tags: ${m.payload.tags.join(', ')}]` : '';
-        return `- Relevant Experience ${i + 1} ${dateInfo} ${tagInfo}:\n  "${m.payload.text.substring(0, 200)}..."`;
+        const dateInfo = m.payload?.timestamp ? `(${new Date(m.payload.timestamp).toLocaleDateString()})` : '';
+        const tagInfo = m.payload?.tags && m.payload.tags.length > 0 ? `[Tags: ${m.payload.tags.join(', ')}]` : '';
+        return `- Relevant Experience ${i + 1} ${dateInfo} ${tagInfo}:\n  "${m.payload?.text?.substring(0, 200)}..."`;
       })
       .join('\n\n');
   }

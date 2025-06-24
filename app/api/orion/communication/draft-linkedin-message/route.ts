@@ -58,6 +58,7 @@ import { generateLLMResponse } from '@/lib/orion_llm'; // Future integration
 import { DRAFT_LINKEDIN_MESSAGE_REQUEST_TYPE } from '@/lib/orion_config';
 import { getProfileText } from '@/lib/profile_service';
 import { pythonApiService } from '@/lib/orion_tools';
+import { ScoredMemoryPoint } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   const logContext = { api: 'draft-linkedin-message', method: 'POST' };
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    let memoryResults: any[] = [];
+    let memoryResults: ScoredMemoryPoint[] = [];
     if (memoryQuery) {
       try {
         memoryResults = await pythonApiService.searchMemories(memoryQuery, 5, {}, 'all');

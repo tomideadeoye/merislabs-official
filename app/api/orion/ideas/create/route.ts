@@ -37,8 +37,8 @@ import logger from '@/lib/logger';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { LLMResponseFailure } from '@/lib/types';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
+import type { IdeaStatus } from '@/lib/types/ideas';
 import { v4 as uuidv4 } from 'uuid';
-import { IdeaStatus } from '@prisma/client';
 
 interface CreateIdeaRequest {
   title: string;

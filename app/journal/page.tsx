@@ -54,19 +54,19 @@ export default function JournalPage() {
           ) : (
             <div className="space-y-4">
               {searchResults.map((entry: ScoredMemoryPoint) => (
-                <Card key={entry.payload.source_id} className="bg-gray-800 border-gray-700">
+                <Card key={entry.payload?.source_id} className="bg-gray-800 border-gray-700">
                   <CardContent className="pt-6">
-                    <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.payload.text}</p>
+                    <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.payload?.text}</p>
 
                     <div className="flex flex-wrap items-center text-xs text-gray-400 gap-4">
                       <span className="flex items-center">
                         <CalendarDays className="h-3 w-3 mr-1" />
-                        {new Date(entry.payload.timestamp).toLocaleString()}
+                        {entry.payload?.timestamp ? new Date(entry.payload.timestamp).toLocaleString() : 'N/A'}
                       </span>
 
-                      {entry.payload.mood && <span>Mood: {entry.payload.mood}</span>}
+                      {entry.payload?.mood && <span>Mood: {entry.payload.mood}</span>}
 
-                      {entry.payload.tags && entry.payload.tags.length > 0 && (
+                      {entry.payload?.tags && entry.payload.tags.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1">
                           <Tag className="h-3 w-3" />
                           <div className="flex flex-wrap gap-1">

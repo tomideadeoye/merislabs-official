@@ -53,7 +53,7 @@ export const QuadrantMemoryChunksVisualizer: React.FC<QuadrantMemoryChunksVisual
   const grouped = new Map<string, ScoredMemoryPoint[]>();
 
   for (const chunk of chunks) {
-    const q = chunk.payload.quadrant || 'Uncategorized';
+    const q = chunk.payload?.quadrant || 'Uncategorized';
     if (!grouped.has(q)) {
       grouped.set(q, []);
     }
@@ -90,8 +90,8 @@ export const QuadrantMemoryChunksVisualizer: React.FC<QuadrantMemoryChunksVisual
             <ul className="space-y-2">
               {chunksInQuadrant.map((chunk, idx) => (
                 <li key={idx} className="bg-white border border-gray-200 rounded p-2 text-gray-800">
-                  <span className="block">{chunk.payload.text}</span>
-                  {chunk.payload.source && typeof chunk.payload.source === 'string' ? (
+                  <span className="block">{chunk.payload?.text}</span>
+                  {chunk.payload?.source && typeof chunk.payload.source === 'string' ? (
                     <span className="block text-xs text-gray-500 mt-1">Source: {String(chunk.payload.source)}</span>
                   ) : null}
                 </li>

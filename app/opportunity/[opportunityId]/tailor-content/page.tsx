@@ -228,7 +228,7 @@ export default function TailorContentPage() {
             <ul className="list-disc list-inside text-gray-400">
               {opportunityMemories.map((memory) => (
                 <li key={memory.id} className="mb-1 text-sm">
-                  <strong>{memory.payload.title || 'Memory'}:</strong> {memory.payload.text.substring(0, 150)}...
+                  <strong>{memory.payload?.title || 'Memory'}:</strong> {memory.payload?.text?.substring(0, 150)}...
                 </li>
               ))}
             </ul>

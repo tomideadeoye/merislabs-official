@@ -48,7 +48,6 @@
 
 import nodemailer from 'nodemailer';
 import { ORION_EMAIL_SENDER, ORION_EMAIL_APP_PASSWORD } from '@/lib/orion_config';
-import pdf from 'html-pdf';
 import { marked } from 'marked';
 import logger from '@/lib/logger';
 import { SendEmailParams, EmailAttachment } from '@/lib/types/email';
@@ -104,7 +103,7 @@ export async function sendEmailService({
 
       attachments.push({
         filename: markdownAttachment.filename,
-        content: pdfBuffer,
+        content: Buffer.from(pdfBuffer),
         contentType: 'application/pdf',
       });
       logger.info('[EmailService] Successfully converted Markdown to PDF for attachment using Puppeteer.');

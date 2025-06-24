@@ -103,7 +103,7 @@
  */
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrionOpportunity, ScoredMemoryPoint } from '@/lib/types';
 import { CVComponent } from '@/lib/types/cv';
@@ -114,6 +114,7 @@ import { Loader2, Sparkles, Wand2, Send, Copy, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { handleClientError } from '@/lib/utils/clientErrorHandler';
 import { QuadrantMemoryChunksVisualizer } from '@/components/orion/QuadrantMemoryChunksVisualizer';
+import { useCVTailoringStore } from '@/lib/stores/cvTailoringStore';
 
 interface Props {
   opportunity: OrionOpportunity;
@@ -123,16 +124,29 @@ interface Props {
 
 export function CVTailoringStudio({ opportunity, cvComponents, initialError }: Props) {
   const router = useRouter();
-  const [suggestedIds, setSuggestedIds] = useState<string[]>([]);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [editedContents, setEditedContents] = useState<Map<string, string>>(new Map());
-  const [isLoading, setIsLoading] = useState(true);
-  const [assembledCvMarkdown, setAssembledCvMarkdown] = useState<string | null>('');
-  const [isAssembling, setIsAssembling] = useState(false);
-  const [isRephrasing, setIsRephrasing] = useState<Set<string>>(new Set());
-  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
-  const [isAutoGeneratingCv, setIsAutoGeneratingCv] = useState(false);
-  const [autoGenerateMemoryResults, setAutoGenerateMemoryResults] = useState<ScoredMemoryPoint[]>([]);
+  const {
+    suggestedIds,
+    setSuggestedIds,
+    selectedIds,
+    setSelectedIds,
+    editedContents,
+    setEditedContents,
+    isLoading,
+    setIsLoading,
+    assembledCvMarkdown,
+    setAssembledCvMarkdown,
+    isAssembling,
+    setIsAssembling,
+    isRephrasing,
+    setIsRephrasing,
+    isDownloadingPdf,
+    setIsDownloadingPdf,
+    isAutoGeneratingCv,
+    setIsAutoGeneratingCv,
+    autoGenerateMemoryResults,
+    setAutoGenerateMemoryResults,
+    reset,
+  } = useCVTailoringStore();
 
   const handleSuggestComponents = useCallback(async () => {
     logger.info('[CVTailoringStudio][handleSuggestComponents][START]', { opportunityId: opportunity.id });
@@ -189,22 +203,24 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
 
   const handleToggle = (id: string) => {
     logger.debug('[CVTailoringStudio][handleToggle]', { componentId: id, currentSelection: Array.from(selectedIds) });
-    setSelectedIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) newSet.delete(id);
-      else newSet.add(id);
-      logger.debug('[CVTailoringStudio][handleToggle][NEW_SELECTION]', { newSelection: Array.from(newSet) });
-      return newSet;
-    });
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    logger.debug('[CVTailoringStudio][handleToggle][NEW_SELECTION]', { newSelection: Array.from(newSet) });
+    setSelectedIds(newSet);
   };
 
   const handleContentChange = (id: string, newContent: string) => {
-    setEditedContents((prev) => new Map(prev).set(id, newContent));
+    const newMap = new Map(editedContents);
+    newMap.set(id, newContent);
+    setEditedContents(newMap);
   };
 
   const handleRephrase = async (componentId: string, currentContent: string) => {
     logger.info('[CVTailoringStudio][handleRephrase][START]', { componentId, opportunityId: opportunity.id });
-    setIsRephrasing((prev) => new Set(prev).add(componentId));
+    const newSet = new Set(isRephrasing);
+    newSet.add(componentId);
+    setIsRephrasing(newSet);
     toast.loading('Orion is rephrasing your content...', { id: `rephrase-${componentId}` });
 
     try {
@@ -239,11 +255,9 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
       });
       toast.error(`Rephrasing failed: ${handledError.message}`, { id: `rephrase-${componentId}` });
     } finally {
-      setIsRephrasing((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(componentId);
-        return newSet;
-      });
+      const newSet = new Set(isRephrasing);
+      newSet.delete(componentId);
+      setIsRephrasing(newSet);
       toast.dismiss(`rephrase-${componentId}`);
       logger.info('[CVTailoringStudio][handleRephrase][END]', { componentId });
     }

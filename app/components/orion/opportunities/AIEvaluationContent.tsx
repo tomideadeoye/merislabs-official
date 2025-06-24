@@ -177,10 +177,7 @@ export function AIEvaluationContent({ opportunity }: AIEvaluationContentProps) {
               <div>
                 <h4 className="text-sm font-medium text-gray-400 mb-1">Fit Score</h4>
                 <div className="w-full bg-gray-600 rounded-full h-2.5">
-                  <div
-                    className="bg-blue-500 h-2.5 rounded-full"
-                    style={{ width: `${evaluationResult.fitScorePercentage}%` }}
-                  ></div>
+                  <div className={`bg-blue-500 h-2.5 rounded-full w-[${evaluationResult.fitScorePercentage}%]`}></div>
                 </div>
                 <p className="text-right text-sm text-gray-400 mt-1">{evaluationResult.fitScorePercentage}%</p>
               </div>
@@ -219,10 +216,7 @@ export function AIEvaluationContent({ opportunity }: AIEvaluationContentProps) {
               <div>
                 <h4 className="text-sm font-medium text-gray-400 mb-1">Confidence Score</h4>
                 <div className="w-full bg-gray-600 rounded-full h-2.5">
-                  <div
-                    className="bg-purple-500 h-2.5 rounded-full"
-                    style={{ width: `${evaluationResult.overallFitScore}%` }}
-                  ></div>
+                  <div className={`bg-purple-500 h-2.5 rounded-full w-[${evaluationResult.overallFitScore}%]`}></div>
                 </div>
                 <p className="text-right text-sm text-gray-400 mt-1">{evaluationResult.overallFitScore}%</p>
               </div>

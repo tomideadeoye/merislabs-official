@@ -484,7 +484,13 @@ export async function POST(
       ${profileContext}
 
       Relevant Memories:
-      ${memoryResults.map((m) => m.payload.text).join('\n\n') || 'No relevant memories found.'}
+      ${memoryResults
+        .map((m: ScoredMemoryPoint) => {
+          if (!m.payload) return '';
+          return `Memory Content: ${m.payload.text || 'N/A'}\nSource: ${m.payload.source_id || 'N/A'}\nType: ${m.payload.type || 'N/A'}\nTimestamp: ${m.payload.timestamp ? new Date(m.payload.timestamp).toLocaleDateString() : 'N/A'}`;
+        })
+        .filter(Boolean)
+        .join('\n\n---\n\n')}
 
       Web Research Context:
       ${combinedWebContext}

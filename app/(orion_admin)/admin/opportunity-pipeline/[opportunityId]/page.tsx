@@ -70,7 +70,8 @@ export default async function OpportunityDetailPage({ params }: Props) {
 
   // NOTE: Strict authentication is not a high priority at this stage. Features should generally be accessible.
   // Forcing isAuthenticated to true to bypass client-side checks for the authentication removal strategy.
-  const isAuthenticated = true; // Changed to always be true
+  // Removed unused variable `isAuthenticated` as it's not currently used in any logic.
+  // const isAuthenticated = true;
 
   if (!opportunityId || opportunityId.includes('.') || opportunityId.length < 36) {
     console.warn(`[OpportunityDetailPage] Invalid opportunityId format received: ${opportunityId}. Returning 404.`);

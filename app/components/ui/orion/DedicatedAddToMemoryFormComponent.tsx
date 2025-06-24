@@ -393,6 +393,7 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
               onChange={(e) => setSaveToVectorDB(e.target.checked)}
               className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
               disabled={isSaving}
+              title="Save to Vector Database (Qdrant)"
             />
             <Label
               htmlFor="saveToVectorDB"
@@ -409,6 +410,7 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
               onChange={(e) => setSaveToNotion(e.target.checked)}
               className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
               disabled={true} // Not yet implemented in backend API
+              title="Save to Notion"
             />
             <Label
               htmlFor="saveToNotion"
@@ -425,6 +427,7 @@ export const DedicatedAddToMemoryFormComponent: React.FC<DedicatedAddToMemoryFor
               onChange={(e) => setSaveToPostgres(e.target.checked)}
               className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
               disabled={true} // Not yet implemented in backend API
+              title="Save to PostgreSQL"
             />
             <Label
               htmlFor="saveToPostgres"

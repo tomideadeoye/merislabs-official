@@ -27,13 +27,13 @@
  */
 
 import { Prisma } from '@/generated/prisma';
-import { MemoryMetadataPayload, ScoredMemoryPoint } from './memory';
+import { ScoredMemoryPoint } from './memory';
 import { CvAutoGenerateOutput } from './llm'; // Import the new type
-import { TaskStatus, TaskPriority, TaskType } from '@prisma/client';
+import React from 'react';
 
 // Explicitly export types for isolatedModules compliance
 export type * from './blocks';
-// export type * from './habitica'; // Confirmed commented out or removed
+// export type * from './habitica'; // Re-commented out as Habitica is no longer used
 export type * from './ideas';
 export type * from './insights';
 export type * from './llm';
@@ -43,7 +43,7 @@ export type * from './strategic-outreach';
 export type * from './memory';
 export type * from './email';
 export type * from './gamification';
-export { TaskStatus, TaskPriority, TaskType } from '@prisma/client'; // Export Prisma enums directly
+export { Prisma } from '@/generated/prisma'; // Export Prisma namespace for enum access
 
 /**
  * @description Custom error class for handling application-specific errors with additional context
@@ -1290,14 +1290,14 @@ export interface CreateChatCompletionRequest {
     };
   }[];
   tool_choice?:
-    | 'none'
-    | 'auto'
-    | {
-        type: 'function';
-        function: {
-          name: string;
-        };
-      };
+  | 'none'
+  | 'auto'
+  | {
+    type: 'function';
+    function: {
+      name: string;
+    };
+  };
 }
 
 export interface CreateChatCompletionResponse {
@@ -1338,7 +1338,7 @@ export interface NavItem {
   href?: string;
   disabled?: boolean;
   external?: boolean;
-  icon?: JSX.Element;
+  icon?: React.ReactElement;
   label?: string;
   description?: string;
 }
@@ -1569,3 +1569,28 @@ export interface GamificationDashboardData {
   totalIdeas: number;
   totalOpportunitiesEvaluated: number;
 }
+
+// Define Task enums since they're not exported from Prisma namespace
+export enum TaskStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum TaskPriority {
+  HIGH = 'HIGH',
+  MEDIUM = 'MEDIUM',
+  LOW = 'LOW',
+}
+
+export enum TaskType {
+  TODO = 'TODO',
+  DAILY = 'DAILY',
+  HABIT = 'HABIT',
+  REWARD = 'REWARD',
+  PROJECT = 'PROJECT',
+  GOAL = 'GOAL',
+}
+
+export type { IdeaStatus } from './ideas';

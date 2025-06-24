@@ -70,10 +70,10 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ OrionOppo
         // Transform the results into a more usable format
         const lessonsLearned = data.results.map((item: ScoredMemoryPoint) => ({
           id: item.id,
-          content: item.payload.text || 'No content available',
-          source: item.payload.sourceId || 'Unknown source',
-          date: item.payload.timestamp || 'Unknown date',
-          tags: item.payload.tags || [],
+          content: item.payload?.text || 'No content available',
+          source: item.payload?.sourceId || 'Unknown source',
+          date: item.payload?.timestamp || 'Unknown date',
+          tags: item.payload?.tags || [],
           relevance: Math.round(item.score * 100),
         }));
 
@@ -130,7 +130,8 @@ export const LessonsLearnedSection: React.FC<LessonsLearnedProps> = ({ OrionOppo
       if (reflectionsData.success && reflectionsData.results && reflectionsData.results.length > 0) {
         // Extract the text from the reflections
         const reflectionTexts = reflectionsData.results
-          .map((item: ScoredMemoryPoint) => item.payload.text)
+          .map((item: ScoredMemoryPoint) => item.payload?.text)
+          .filter(Boolean) // Filter out any undefined or null values
           .join('\n\n');
 
         // Use LLM to generate lessons learned
