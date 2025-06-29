@@ -61,7 +61,7 @@ export default function Features() {
                 key={item.name}
                 className="relative flex flex-col items-center"
                 data-aos="fade-up"
-                data-aos-anchor="[data-aos-id-blocks]"
+                
               >
                 <div className="w-16 h-16 mb-4 flex p-2 justify-center items-center text-purple-600 bg-gray-800 hover:text-gray-100 hover:bg-purple-600 rounded-full transition duration-150 ease-in-out">
                   {item.icon}

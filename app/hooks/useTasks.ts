@@ -103,6 +103,15 @@ export function useTasks() {
         throw new Error(data.error || 'Failed to update task');
       }
       logger.info('[useTasks][UPDATE][SUCCESS] Task updated.', { task: data.data });
+
+      if (task.status === 'DONE') {
+        await fetch('/api/orion/gamification/complete-task', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ taskId: task.id }),
+        });
+      }
+
       return data.data;
     },
     onMutate: async (updatedTask: Partial<Task>) => {

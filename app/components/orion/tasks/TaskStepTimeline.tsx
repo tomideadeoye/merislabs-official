@@ -33,30 +33,31 @@
  *   - Explore adding AI summarization of threads.
  */
 import React, { useState } from 'react';
-import axios from 'axios';
 import { TaskStep } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { CheckCircle, HelpCircle, MessageSquare, FileText, CornerDownRight } from 'lucide-react';
 import apiClient from '@/lib/apiClient';
 import logger from '@/lib/logger';
 
-// Custom type that includes the replies relation
+// --- Type for generatedOptions ---
+type GeneratedOption = { action: string; justification: string };
+
 type TaskStepWithReplies = TaskStep & {
+  generatedOptions?: GeneratedOption[];
   replies?: TaskStepWithReplies[];
 };
 
 interface TaskStepTimelineProps {
   steps: TaskStepWithReplies[];
-  taskId?: string;
+  id?: string;
 }
 
-const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth: number; taskId?: string }> = ({
+const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth: number; id?: string }> = ({
   step,
   isLast,
   depth,
-  taskId,
+  id,
 }) => {
   const [reply, setReply] = useState('');
   const [isReplying, setIsReplying] = useState(false);
@@ -68,19 +69,69 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
     if (step.chosenAction) {
       return <CheckCircle className="h-5 w-5 text-green-400" />;
     }
-    if (step.generatedOptions && (step.generatedOptions as any[]).length > 0) {
+    if (step.generatedOptions && step.generatedOptions.length > 0) {
       return <HelpCircle className="h-5 w-5 text-yellow-400" />;
     }
     return <MessageSquare className="h-5 w-5 text-blue-400" />;
   };
 
+  // --- Step Approval State ---
+  const [isApproving, setIsApproving] = useState(false);
+  const [selectedOptionIdx, setSelectedOptionIdx] = useState<number | null>(null);
+  const [customAction, setCustomAction] = useState('');
+  const [customJustification, setCustomJustification] = useState('');
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [approveError, setApproveError] = useState<string | null>(null);
+
+  const handleApprove = async () => {
+    setApproveLoading(true);
+    setApproveError(null);
+    let chosenAction = '';
+    let chosenJustification = '';
+    if (
+      step.generatedOptions &&
+      step.generatedOptions.length > 0 &&
+      selectedOptionIdx !== null
+    ) {
+      const opt = step.generatedOptions[selectedOptionIdx];
+      chosenAction = opt?.action || '';
+      chosenJustification = opt?.justification || '';
+    } else {
+      chosenAction = customAction;
+      chosenJustification = customJustification;
+    }
+    try {
+      const response = await apiClient.post(`/api/orion/tasks/${id}/approve-step`, {
+        stepId: step.id,
+        chosenAction,
+        chosenJustification,
+      });
+      if (response.data.success) {
+        setIsApproving(false);
+        setCustomAction('');
+        setCustomJustification('');
+        setSelectedOptionIdx(null);
+        logger.success('[TASK_STEP_TIMELINE][APPROVE][SUCCESS]', { stepId: step.id, chosenAction, chosenJustification });
+        // Optionally trigger a refresh or callback
+      } else {
+        setApproveError(response.data.error || 'Failed to approve step');
+        logger.error('[TASK_STEP_TIMELINE][APPROVE][ERROR]', { stepId: step.id, error: response.data.error });
+      }
+    } catch (err: unknown) {
+      setApproveError(err instanceof Error ? err.message : String(err));
+      logger.error('[TASK_STEP_TIMELINE][APPROVE][EXCEPTION]', { stepId: step.id, error: err });
+    } finally {
+      setApproveLoading(false);
+    }
+  };
+
   const handleReply = async () => {
-    if (!reply.trim() || !taskId) return;
+    if (!reply.trim() || !id) return;
     setLoading(true);
     setError(null);
-    logger.info('[TASK_STEP_TIMELINE][REPLY][START]', { taskId, parentStepId: step.id, reply });
+    logger.info('[TASK_STEP_TIMELINE][REPLY][START]', { id, parentStepId: step.id, reply });
     try {
-      const response = await apiClient.post(`/api/orion/tasks/${taskId}/add-step`, {
+      const response = await apiClient.post(`/api/orion/tasks/${id}/add-step`, {
         prompt: reply,
         generatedOptions: [],
         parentStepId: step.id,
@@ -88,19 +139,19 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
       if (response.data.success) {
         setReply('');
         setIsReplying(false);
-        logger.success('[TASK_STEP_TIMELINE][REPLY][SUCCESS]', { taskId, parentStepId: step.id, reply });
+        logger.success('[TASK_STEP_TIMELINE][REPLY][SUCCESS]', { id, parentStepId: step.id, reply });
         // Optionally trigger a refresh or callback
       } else {
         setError(response.data.error || 'Failed to add reply');
         logger.error('[TASK_STEP_TIMELINE][REPLY][ERROR]', {
-          taskId,
+          id,
           parentStepId: step.id,
           error: response.data.error,
         });
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
-      logger.error('[TASK_STEP_TIMELINE][REPLY][EXCEPTION]', { taskId, parentStepId: step.id, error: err });
+      logger.error('[TASK_STEP_TIMELINE][REPLY][EXCEPTION]', { id, parentStepId: step.id, error: err });
     } finally {
       setLoading(false);
     }
@@ -157,7 +208,6 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
               </div>
             )}
             {step.generatedOptions &&
-              Array.isArray(step.generatedOptions) &&
               step.generatedOptions.length > 0 &&
               !step.chosenAction && (
                 <div>
@@ -166,7 +216,7 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
                     Generated Options (Pending Choice):
                   </p>
                   <ul className="list-disc pl-10 space-y-1 mt-1">
-                    {(step.generatedOptions as any[]).map((option: any, optIdx: number) => (
+                    {step.generatedOptions.map((option, optIdx) => (
                       <li key={optIdx} className="text-gray-300">
                         <span className="font-bold">{option.action}</span> -{' '}
                         <span className="text-gray-400 italic">{option.justification}</span>
@@ -222,7 +272,7 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
                     step={replyStep}
                     isLast={idx === arr.length - 1}
                     depth={depth + 1}
-                    taskId={taskId}
+                    id={id}
                   />
                 ))}
               </ol>
@@ -234,7 +284,7 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
   );
 };
 
-export const TaskStepTimeline: React.FC<TaskStepTimelineProps> = ({ steps, taskId }) => {
+export const TaskStepTimeline: React.FC<TaskStepTimelineProps> = ({ steps, id }) => {
   if (!steps || steps.length === 0) {
     return (
       <p className="text-gray-400 text-center py-4">No steps found for this task. Generate some to get started!</p>
@@ -245,7 +295,7 @@ export const TaskStepTimeline: React.FC<TaskStepTimelineProps> = ({ steps, taskI
       <h3 className="text-lg font-semibold text-gray-200 mb-4">Task History Timeline</h3>
       <ol className="space-y-6">
         {steps.map((step, index) => (
-          <ThreadedStep key={step.id} step={step} isLast={index === steps.length - 1} depth={0} taskId={taskId} />
+          <ThreadedStep key={step.id} step={step} isLast={index === steps.length - 1} depth={0} id={id} />
         ))}
       </ol>
     </div>

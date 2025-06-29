@@ -1,16 +1,11 @@
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { getAuth } from '@clerk/nextjs/server';
-import type { NextApiRequest } from 'next';
 
 const prisma = new PrismaClient();
 
 export async function GET(req: NextApiRequest) {
-  const { userId } = getAuth(req as any);
-  if (!userId) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const userId = 'unauthenticated_user'; // Hardcoded userId as authentication is removed
 
   try {
     let stats = await prisma.gamification.findUnique({

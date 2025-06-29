@@ -5,7 +5,7 @@
  *   - Serves as the **single source of truth** for all lib TypeScript type definitions and interfaces across the entire Orion project.
  *   - Centralizes the definition of data structures for API responses, UI component props, database models (via Prisma), and internal logic.
  *   - Ensures strict type safety, consistency, and clarity in data flow throughout the application.
- *   - Re-exports types from specialized type files within this directory (`./blocks`, `./habitica`, etc.) for easier consumption by other modules.
+ *   - Re-exports types from specialized type files within this directory (`./blocks`, etc.) for easier consumption by other modules.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - **Canonical Orion Types**: Core application-specific types (e.g., `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`, `CVComponent`, `EmotionalLogEntry`) are defined directly in this file or explicitly re-exported from sub-files.
@@ -34,7 +34,7 @@ import React from 'react';
 import type { Task } from '@prisma/client';
 
 // Explicitly export types for isolatedModules compliance
-export type * from './blocks';
+
 export type * from './ideas';
 export type * from './insights';
 export type * from './llm';
@@ -43,7 +43,6 @@ export type * from './nav';
 export type * from './strategic-outreach';
 export type * from './memory';
 export type * from './email';
-export type * from './gamification';
 
 /**
  * @description Custom error class for handling application-specific errors with additional context
@@ -289,18 +288,32 @@ export interface CareerMilestone {
 }
 
 export interface JournalEntryInput {
-  id?: string; // Add id as optional
-  title: string;
-  content: string;
+  id?: string;
+  userId: string;
   date: string | Date;
+  content?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  title?: string;
   tags?: string[];
   contentType?: string;
   mood?: string;
   reflectionId?: string | null;
-  original_entry_id?: string | null;
-  createdAt?: string; // Add createdAt as optional
-  updatedAt?: string; // Add updatedAt as optional
-  // Add other relevant journal properties as needed
+  originalEntryId?: string | null;
+  timestamp?: string;
+  emotion?: string;
+  primaryEmotion?: string;
+  intensity?: number;
+  context?: string;
+  accompanyingThoughts?: string;
+  contextualNote?: string | null;
+  cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData;
+  secondaryEmotions?: string[];
+  triggers?: string[];
+  physicalSensations?: string[];
+  copingMechanismsUsed?: string[];
+  relatedJournalSourceId?: string | null;
+  attachments?: string[]; // Added for file/image attachments
 }
 
 export interface EmotionalLogEntry {

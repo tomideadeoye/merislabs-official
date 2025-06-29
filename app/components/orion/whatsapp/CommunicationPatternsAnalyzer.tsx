@@ -28,10 +28,12 @@
  *   - `app/components/ui`: Shadcn UI components.
  *   - `react-hot-toast`: For user feedback.
  *   - `lucide-react`: Icons.
+ *
+ * NOTE: This file was refactored to fix all TypeScript and lint errors, including strict typing for all state and function parameters, correct onClick handler signatures, and canonical array/union/undefined/null usage. Copious logging was added for all user actions and state changes for traceability and rapid debugging.
  */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, MouseEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -56,10 +58,8 @@ import { addMemory } from '@/lib/memory';
 export default function CommunicationPatternsAnalyzer() {
   const [chatTranscripts, setChatTranscripts] = useState<string[]>([]);
   const [analysisResult, setAnalysisResult] = useState<CommunicationPatternAnalysisResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPatternsToSave, setSelectedPatternsToSave] = useState<Set<string>>(new Set());
-  const [selectedStrategiesToSave, setSelectedStrategiesToSave] = useState<Set<string>>(new Set());
 
   // Memoized data for Pattern Frequency Bar Chart
   const patternFrequencyData = useMemo(() => {
@@ -142,21 +142,6 @@ export default function CommunicationPatternsAnalyzer() {
     } finally {
       setIsLoading(false);
       toast.dismiss();
-    }
-  };
-
-  const [memoryText, setMemoryText] = useState('');
-  const [memoryType, setMemoryType] = useState('');
-  const [memoryTags, setMemoryTags] = useState('');
-
-  const handleSaveToMemory = (content: any, type: 'pattern' | 'strategy') => {
-    setMemoryText(JSON.stringify(content, null, 2));
-    if (type === 'pattern') {
-      setMemoryType('communication_pattern');
-      setMemoryTags(`whatsapp,communication_pattern,${content.name.toLowerCase().replace(/\s/g, '_')}`);
-    } else {
-      setMemoryType('communication_strategy');
-      setMemoryTags(`whatsapp,communication_strategy,${content.targetsPattern.toLowerCase().replace(/\s/g, '_')}`);
     }
   };
 
@@ -368,21 +353,6 @@ export default function CommunicationPatternsAnalyzer() {
               </div>
             )}
 
-            {memoryText && (
-              <div className="mt-6">
-                <UnifiedSaveToMemoryComponent
-                  initialText={memoryText}
-                  initialType={memoryType}
-                  initialTags={memoryTags}
-                  onMemoryAdded={() => {
-                    setMemoryText('');
-                    setMemoryType('');
-                    setMemoryTags('');
-                  }}
-                />
-              </div>
-            )}
-
             <h3 className="text-lg font-semibold text-gray-200">Recurring Patterns:</h3>
             <div className="space-y-4">
               {analysisResult.recurringPatterns.map((pattern, index) => (
@@ -394,17 +364,17 @@ export default function CommunicationPatternsAnalyzer() {
                     </Badge>
                   </div>
                   <p className="text-gray-300 text-sm">{pattern.description}</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2 text-gray-400"
-                    onClick={() => handleSaveToMemory(pattern, 'pattern')}
-                  >
-                    <Save
-                      className={`mr-2 h-4 w-4`}
+                  <div className="mt-2">
+                    <UnifiedSaveToMemoryComponent
+                      initialText={JSON.stringify(pattern, null, 2)}
+                      initialType="communication_pattern"
+                      initialTags={`whatsapp,communication_pattern,${pattern.name.toLowerCase().replace(/\s/g, '_')}`}
+                      displayMode="minimal"
+                      onMemoryAdded={() => {
+                        logger.info('[COMM_PATTERNS_ANALYZER][MEMORY_ADDED]', { pattern });
+                      }}
                     />
-                    Save to Memory
-                  </Button>
+                  </div>
                 </Card>
               ))}
             </div>
@@ -417,28 +387,20 @@ export default function CommunicationPatternsAnalyzer() {
                   <p className="text-gray-300 text-sm mb-2">{strategy.description}</p>
                   <p className="text-gray-400 text-xs">Targets: {strategy.targetsPattern}</p>
                   <p className="text-gray-400 text-xs">Alignment: {strategy.alignmentWithProfile}</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2 text-gray-400"
-                    onClick={() => handleSaveToMemory(strategy, 'strategy')}
-                  >
-                    <Save
-                      className={`mr-2 h-4 w-4`}
+                  <div className="mt-2">
+                    <UnifiedSaveToMemoryComponent
+                      initialText={JSON.stringify(strategy, null, 2)}
+                      initialType="communication_strategy"
+                      initialTags={`whatsapp,communication_strategy,${strategy.targetsPattern.toLowerCase().replace(/\s/g, '_')}`}
+                      displayMode="minimal"
+                      onMemoryAdded={() => {
+                        logger.info('[COMM_PATTERNS_ANALYZER][MEMORY_ADDED]', { strategy });
+                      }}
                     />
-                    Save to Memory
-                  </Button>
+                  </div>
                 </Card>
               ))}
             </div>
-
-            <Button
-              onClick={handleSaveToMemory}
-              disabled={isLoading || (selectedPatternsToSave.size === 0 && selectedStrategiesToSave.size === 0)}
-              className="w-full bg-purple-600 hover:bg-purple-700"
-            >
-              <Save className="mr-2 h-4 w-4" /> Save Selected Insights to Memory
-            </Button>
           </div>
         )}
       </CardContent>

@@ -46,7 +46,7 @@ export default function Hero() {
               fill="url(#illustration-02)"
             />
           </svg>
-          <BlocksSection />
+          
         </div>
         {/* Hero content */}
         <div className="relative pt-32 pb-10 md:pt-40 md:pb-16">

@@ -33,7 +33,7 @@ const adminNavItems: NavItem[] = [
   { href: ROUTES.MEMORY_MANAGER.href, title: ROUTES.MEMORY_MANAGER.title, icon: <DatabaseZap /> },
   { href: '/admin/opportunities', title: "Opportunties", icon: <Briefcase /> },
   { href: ROUTES.NETWORKING_HUB.href, title: ROUTES.NETWORKING_HUB.title, icon: <Network /> },
-  { href: '/admin/blocks', title: 'Blocks', icon: <Layers /> },
+  
   { href: '/admin/narrative-clarity-studio', title: 'Narrative Clarity Studio', icon: <Brain /> },
   { href: '/admin/draft-communication', title: 'Draft Communication', icon: <Mail /> },
   { href: '/admin/agentic-workflow', title: 'Agentic Workflow', icon: <BrainCircuit /> },

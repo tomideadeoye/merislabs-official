@@ -143,7 +143,6 @@ model Opportunity {
   updatedAt              DateTime             @updatedAt @map("updated_at") @db.Timestamptz
   evaluationResult       Json? // For storing AI evaluation JSON
   tailoredCvId           String? // ID of a tailored CV, potentially linking to another model later
-  userId                 String? // Add userId to link opportunities to users
 
   // Relationships
   stakeholders      Stakeholder[]

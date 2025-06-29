@@ -43,10 +43,7 @@ export const ROUTES = {
     href: '/admin/ask-question',
     title: 'Ask Orion',
   },
-  BLOCKS: {
-    href: '/admin/blocks',
-    title: 'Blocks',
-  },
+  
   NARRATIVE_CLARITY_STUDIO: {
     href: '/admin/narrative-clarity-studio',
     title: 'Narrative Clarity Studio',

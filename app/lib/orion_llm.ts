@@ -1276,7 +1276,7 @@ export async function callSequentialThinking({
    *     - **How to Implement:** Persist sequential thinking data (including all thoughts, user edits, and AI suggestions) in the WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES database or Qdrant. Develop features to load saved sessions and potentially export/import them for collaboration.
    *   **4. Integration with other Modules:**
    *     - **Goal:** Connect generated sequential steps directly to task management or project planning tools.
-   *     - **How to Implement:** Once a sequence is satisfactory, offer an option to convert it into a set of tasks in Habitica (e.g., `app/api/orion/habitica/tasks/route.ts`) or a project plan in the Business Management module.
+   *     - **How to Implement:** Once a sequence is satisfactory, offer an option to convert it into a set of tasks or a project plan in the Business Management module.
    */
   try {
     const response = await fetch('/api/orion/sequential-thinking', {

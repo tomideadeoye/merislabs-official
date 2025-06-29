@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     console.log('[Search-Proxy] Incoming request body:', JSON.stringify(body));
 
     // Forward the request to the Python API
-    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:5002';
+    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
     const pythonUrl = `${pythonApiUrl}/api/memory/search`;
     console.log('[Search-Proxy] Forwarding to Python backend:', pythonUrl);
 

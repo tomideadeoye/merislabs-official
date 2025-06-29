@@ -1,15 +1,11 @@
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { getAuth } from '@clerk/nextjs/server';
 
 const prisma = new PrismaClient();
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const { userId } = getAuth(req as any);
-  if (!userId) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const userId = 'unauthenticated_user'; // Hardcoded userId as authentication is removed
 
   try {
     const body = await req.json();
@@ -34,10 +30,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  const { userId } = getAuth(req as any);
-  if (!userId) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const userId = 'unauthenticated_user'; // Hardcoded userId as authentication is removed
 
   try {
     const { id } = params;

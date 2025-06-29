@@ -41,28 +41,106 @@ import logger from './logger';
  *
  * NOTE: Only fields present in the Prisma JournalEntry model are used. Add more fields as needed in the future.
  */
-export async function createJournalEntryInDb({
-  userId,
-  date,
-  content,
-}: {
-  userId: string;
-  date: Date | string;
-  content?: string;
-}) {
+import { JournalEntryInput } from './types'; // Import the unified JournalEntryInput type
+
+export async function createJournalEntryInDb(data: JournalEntryInput) {
   try {
     const entry = await prisma.journalEntry.create({
       data: {
-        userId,
-        date: new Date(date),
-        content,
-        // TODO: Add more fields if/when the JournalEntry model is extended
+        ...data,
+        date: new Date(data.date),
+        // Ensure attachments is handled as a string array
+        attachments: data.attachments || [],
+        // Handle JSON fields
+        cognitiveDistortionAnalysis: data.cognitiveDistortionAnalysis ? JSON.stringify(data.cognitiveDistortionAnalysis) : undefined,
+        // Ensure array fields are properly initialized if undefined
+        tags: data.tags || [],
+        secondaryEmotions: data.secondaryEmotions || [],
+        triggers: data.triggers || [],
+        physicalSensations: data.physicalSensations || [],
+        copingMechanismsUsed: data.copingMechanismsUsed || [],
       },
     });
-    logger.info('[journal_db_service] Journal entry created in DB', { id: entry.id, userId });
+    logger.info('[journal_db_service] Journal entry created in DB', { id: entry.id, userId: data.userId });
     return entry;
   } catch (error) {
     logger.error('[journal_db_service] Failed to create journal entry', { error });
     throw error;
   }
 }
+
+export async function updateJournalEntryInDb(id: string, data: Partial<JournalEntryInput>) {
+  try {
+    const entry = await prisma.journalEntry.update({
+      where: { id },
+      data: {
+        ...data,
+        date: data.date ? new Date(data.date) : undefined,
+        attachments: data.attachments || undefined,
+        cognitiveDistortionAnalysis: data.cognitiveDistortionAnalysis ? JSON.stringify(data.cognitiveDistortionAnalysis) : undefined,
+        tags: data.tags || undefined,
+        secondaryEmotions: data.secondaryEmotions || undefined,
+        triggers: data.triggers || undefined,
+        physicalSensations: data.physicalSensations || undefined,
+        copingMechanismsUsed: data.copingMechanismsUsed || undefined,
+      },
+    });
+    logger.info('[journal_db_service] Journal entry updated in DB', { id: entry.id, userId: entry.userId });
+    return entry;
+  } catch (error) {
+    logger.error('[journal_db_service] Failed to update journal entry', { id, error });
+    throw error;
+  }
+}
+
+export async function deleteJournalEntryInDb(id: string) {
+  try {
+    const entry = await prisma.journalEntry.delete({
+      where: { id },
+    });
+    logger.info('[journal_db_service] Journal entry deleted from DB', { id: entry.id });
+    return entry;
+  } catch (error) {
+    logger.error('[journal_db_service] Failed to delete journal entry', { id, error });
+    throw error;
+  }
+}
+
+export async function getJournalEntriesFromDb(userId: string, limit: number = 10, offset: number = 0) {
+  try {
+    const entries = await prisma.journalEntry.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    });
+    logger.info('[journal_db_service] Fetched journal entries from DB', { count: entries.length, userId });
+    return entries.map(entry => ({
+      ...entry,
+      cognitiveDistortionAnalysis: entry.cognitiveDistortionAnalysis ? JSON.parse(entry.cognitiveDistortionAnalysis as string) : null,
+    }));
+  } catch (error) {
+    logger.error('[journal_db_service] Failed to fetch journal entries', { error });
+    throw error;
+  }
+}
+
+export async function getJournalEntryByIdFromDb(id: string) {
+  try {
+    const entry = await prisma.journalEntry.findUnique({
+      where: { id },
+    });
+    if (entry && entry.cognitiveDistortionAnalysis) {
+      return {
+        ...entry,
+        cognitiveDistortionAnalysis: JSON.parse(entry.cognitiveDistortionAnalysis as string),
+      };
+    }
+    logger.info('[journal_db_service] Fetched single journal entry from DB', { id });
+    return entry;
+  } catch (error) {
+    logger.error('[journal_db_service] Failed to fetch single journal entry', { id, error });
+    throw error;
+  }
+}
+

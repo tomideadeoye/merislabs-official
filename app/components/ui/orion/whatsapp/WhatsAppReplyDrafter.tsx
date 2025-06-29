@@ -57,7 +57,7 @@
  *   - **Mood-based Reply Generation**: Integrate a "mood" selection or detection feature to influence the emotional tone and empathy of the generated replies.
  *   - **Direct Memory Saving of Drafts**: Streamline the process of saving chosen drafts or the entire conversation context back to Orion's memory.
  *   - **Pre-filled Reply Context**: Allow selection of a specific message from `WhatsAppChatAnalysis` to pre-fill context for a targeted reply.
- *   - **Actionable Steps/Habitica Integration**: Based on chat analysis, suggest potential next actions or allow direct creation of tasks in Habitica.
+ *   - **Actionable Steps**: Based on chat analysis, suggest potential next actions or allow direct creation of tasks.
  *   - **Enhanced Error Handling**: Implement more robust fallbacks (e.g., simple rule-based replies if LLM fails) and more specific error messages.
  *   - **User Feedback Loop**: Implement UI for users to provide feedback on the effectiveness of generated replies, to refine future drafts and analyze successful communication patterns.
  *   - **Relationship Context Nuance**: Introduce a more structured way to define and leverage nuanced relationship types for fine-grained tone and content tailoring.
