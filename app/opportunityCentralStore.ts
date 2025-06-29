@@ -1,5 +1,6 @@
 import { create, StateCreator } from 'zustand';
-import { OrionOpportunity, Stakeholder, Filters, SortableOpportunityKeys, SortOrder } from '@/lib/types';
+import { Opportunity, Stakeholder } from '@prisma/client';
+import { Filters, SortableOpportunityKeys, SortOrder } from '@/lib/types';
 // NOTE: The previous comment about stubbing Stakeholder is no longer relevant as it is correctly imported.
 
 // Define a type for keys that can be used for sorting
@@ -24,7 +25,7 @@ import { OrionOpportunity, Stakeholder, Filters, SortableOpportunityKeys, SortOr
 //   | 'salary'
 //   | 'contact'
 //   | 'position'
-//   | 'notionPageId'
+//   | 'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILESPageId'
 //   | 'contentType'
 //   | 'type'
 //   | 'status';
@@ -75,7 +76,7 @@ const createDialogSlice = (set: MainStoreSet): DialogSlice => ({
 // --- Filters Slice ---
 // Filters and SortOrder are now imported from @/lib/types
 // type SortOrder = 'asc' | 'desc'; // Moved to types/index.ts
-// type Filters = Partial<OrionOpportunityDetails> & { tag?: string }; // Moved to types/index.ts
+// type Filters = Partial<REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMADetails> & { tag?: string }; // Moved to types/index.ts
 interface FiltersSlice {
   filters: Filters;
   sort: SortableOpportunityKeys;
@@ -110,18 +111,18 @@ const createFiltersSlice = (set: MainStoreSet): FiltersSlice => ({
 // --- Draft Application Dialog Slice ---
 interface DraftApplicationDialogSlice {
   isDraftDialogOpen: boolean;
-  draftOpportunity: OrionOpportunity | undefined;
-  openDraftDialog: (orionOpportunity: OrionOpportunity) => void;
+  draftOpportunity: Opportunity | undefined;
+  openDraftDialog: (opportunity: Opportunity) => void;
   closeDraftDialog: () => void;
 }
 const createDraftApplicationDialogSlice = (set: MainStoreSet): DraftApplicationDialogSlice => ({
   isDraftDialogOpen: false,
-  draftOpportunity: undefined as OrionOpportunity | undefined,
-  openDraftDialog: (orionOpportunity: OrionOpportunity) => {
+  draftOpportunity: undefined as Opportunity | undefined,
+  openDraftDialog: (opportunity: Opportunity) => {
     console.debug('[CentralStore][DraftDialog] openDraftDialog', {
-      orionOpportunity,
+      opportunity,
     });
-    set({ isDraftDialogOpen: true, draftOpportunity: orionOpportunity });
+    set({ isDraftDialogOpen: true, draftOpportunity: opportunity });
   },
   closeDraftDialog: () => {
     console.debug('[CentralStore][DraftDialog] closeDraftDialog');
@@ -225,18 +226,18 @@ interface FindStakeholdersDialogSlice {
   isFindStakeholdersDialogOpen: boolean;
   stakeholders: Stakeholder[];
   selectedStakeholder: Stakeholder | null;
-  orionOpportunity: OrionOpportunity | undefined;
+  opportunity: Opportunity | undefined;
   openFindStakeholdersDialog: () => void;
   closeFindStakeholdersDialog: () => void;
   setStakeholders: (stakeholders: Stakeholder[]) => void;
   setSelectedStakeholder: (stakeholder: Stakeholder | null) => void;
-  setOpportunity: (orionOpportunity: OrionOpportunity) => void;
+  setOpportunity: (opportunity: Opportunity) => void;
 }
 const createFindStakeholdersDialogSlice = (set: MainStoreSet): FindStakeholdersDialogSlice => ({
   isFindStakeholdersDialogOpen: false,
   stakeholders: [] as Stakeholder[],
   selectedStakeholder: null,
-  orionOpportunity: undefined as OrionOpportunity | undefined,
+  opportunity: undefined as Opportunity | undefined,
   openFindStakeholdersDialog: () => {
     console.debug('[CentralStore][FindStakeholdersDialog] openFindStakeholdersDialog');
     set({ isFindStakeholdersDialogOpen: true });
@@ -257,11 +258,11 @@ const createFindStakeholdersDialogSlice = (set: MainStoreSet): FindStakeholdersD
     });
     set({ selectedStakeholder: stakeholder });
   },
-  setOpportunity: (orionOpportunity: OrionOpportunity) => {
+  setOpportunity: (opportunity: Opportunity) => {
     console.info('[CentralStore][FindStakeholdersDialog] setOpportunity', {
-      orionOpportunity,
+      opportunity,
     });
-    set({ orionOpportunity });
+    set({ opportunity });
   },
 });
 

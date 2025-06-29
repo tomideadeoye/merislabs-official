@@ -11,7 +11,7 @@
 //       - useSessionState (from @repo/lib/hooks/useSessionState)
 //       - JournalEntryForm, JournalEntryDisplay, AddTaskFromReflection, JournalList (from components/orion/)
 //       - UI components from '@/components/ui
-//       - SessionStateKeys, JournalEntryNotionInput (from @repo/lib/types/orion)
+//       - SessionStateKeys, JournalEntryWE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILESInput (from @repo/lib/types/orion)
 //   - Related to: Habitica integration, journal API endpoints, admin dashboard navigation.
 // ASSUMPTIONS & CLEAR COMMENTS
 //   - Assumes all imported hooks/components are implemented and stable.

@@ -12,7 +12,7 @@
  * - This approach is recommended by Prisma documentation for managing client instances.
  * - It helps ensure that the application does not exceed the database connection limit, especially in serverless environments.
  */
-import { PrismaClient } from '@/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 // PrismaClient is attached to the `global` object in development to prevent
 // exhausting your database connection limit.

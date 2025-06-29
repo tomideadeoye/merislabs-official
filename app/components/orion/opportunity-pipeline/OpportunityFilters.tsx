@@ -1,14 +1,7 @@
 'use client';
 
 import { useOpportunities } from '@/hooks/useOpportunities';
-import {
-  OpportunityStatus,
-  OpportunityType,
-  OpportunityPriority,
-  OpportunityFilterStatus,
-  OpportunityFilterType,
-  OpportunityFilterPriority,
-} from '@/lib/types';
+import { $Enums } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -20,9 +13,9 @@ export const OpportunityFilters: React.FC = () => {
   const { refetchOpportunities } = useOpportunities();
 
   type OpportunityDataFilters = {
-    status?: OpportunityFilterStatus;
-    type?: OpportunityFilterType;
-    priority?: OpportunityFilterPriority;
+    status?: $Enums.OpportunityStatus;
+    type?: $Enums.OpportunityType;
+    priority?: $Enums.OpportunityPriority;
     tag?: string;
   };
 
@@ -37,19 +30,19 @@ export const OpportunityFilters: React.FC = () => {
   }, [filters, sort, sortOrder, refetchOpportunities]);
 
   const handleStatusChange = (value: string) => {
-    const status = value === 'all' ? undefined : (value as OpportunityStatus);
+    const status = value === 'all' ? undefined : (value as $Enums.OpportunityStatus);
     const newFilters = { ...filters, status };
     setFilters(newFilters);
   };
 
   const handleTypeChange = (value: string) => {
-    const type = value === 'all' ? undefined : (value as OpportunityType);
+    const type = value === 'all' ? undefined : (value as $Enums.OpportunityType);
     const newFilters = { ...filters, type };
     setFilters(newFilters);
   };
 
   const handlePriorityChange = (value: string) => {
-    const priority = value === 'all' ? undefined : (value as OpportunityPriority);
+    const priority = value === 'all' ? undefined : (value as $Enums.OpportunityPriority);
     const newFilters = { ...filters, priority };
     setFilters(newFilters);
   };
@@ -157,7 +150,7 @@ export const OpportunityFilters: React.FC = () => {
         <div>
           <label className="text-xs text-gray-400 mb-1 block">Tag Search</label>
           <div className="flex">
-            <div className="relative flex-grow">
+            <div className="relative grow">
               <Tag className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
               <Input
                 value={tagInput}

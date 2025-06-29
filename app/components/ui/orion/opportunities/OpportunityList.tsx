@@ -13,13 +13,13 @@ import React, { useState, useMemo } from 'react';
 import { OpportunityCard } from './OpportunityCard';
 import { Button, Input } from '@/components/ui';
 import { Plus, Search, Loader2 } from 'lucide-react';
-import type { OrionOpportunity } from '@/lib/types';
+import type { Opportunity } from '@/lib/types';
 import { useOpportunityCentralStore } from '@/opportunityCentralStore';
 import { OpportunityCentralStoreType } from '@/opportunityCentralStore';
 import { useShallow } from 'zustand/react/shallow';
 
 interface OpportunityListProps {
-  opportunities: OrionOpportunity[];
+  opportunities: Opportunity[];
   isLoading: boolean;
   error: string | null;
   refetchOpportunities: () => void;
@@ -44,30 +44,28 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ opportunities,
 
     if (searchTerm) {
       filtered = filtered.filter(
-        (opp: OrionOpportunity) =>
+        (opp: Opportunity) =>
           opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (opp.companyOrInstitution?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+          (opp.company?.toLowerCase() || '').includes(searchTerm.toLowerCase())
       );
     }
 
-    if (filters) {
-      if (filters.status && filters.status !== 'all') {
-        filtered = filtered.filter((opp: OrionOpportunity) => opp.status === filters.status);
-      }
-      if (filters.type && filters.type !== 'all') {
-        filtered = filtered.filter((opp: OrionOpportunity) => opp.type === filters.type);
-      }
-      if (filters.priority && filters.priority !== 'all') {
-        filtered = filtered.filter((opp: OrionOpportunity) => opp.priority === filters.priority);
-      }
-      if (filters.tag && typeof filters.tag === 'string') {
-        filtered = filtered.filter((opp: OrionOpportunity) => opp.tags?.includes(filters.tag as string));
-      }
+    if (filters.status && String(filters.status) !== 'all') {
+      filtered = filtered.filter((opp: Opportunity) => String(opp.status ?? '') === String(filters.status));
+    }
+    if (filters.type && String(filters.type) !== 'all') {
+      filtered = filtered.filter((opp: Opportunity) => String(opp.type ?? '') === String(filters.type));
+    }
+    if (filters.priority && String(filters.priority) !== 'all') {
+      filtered = filtered.filter((opp: Opportunity) => String(opp.priority ?? '') === String(filters.priority));
+    }
+    if (filters.tag && typeof filters.tag === 'string') {
+      filtered = filtered.filter((opp: Opportunity) => opp.tags?.includes(filters.tag as string));
     }
 
-    const sorted = [...filtered].sort((a: OrionOpportunity, b: OrionOpportunity) => {
-      const aValue = a[sort as keyof OrionOpportunity] || '';
-      const bValue = b[sort as keyof OrionOpportunity] || '';
+    const sorted = [...filtered].sort((a: Opportunity, b: Opportunity) => {
+      const aValue = a[sort as keyof Opportunity] || '';
+      const bValue = b[sort as keyof Opportunity] || '';
 
       if (aValue === bValue) return 0;
 
@@ -122,7 +120,7 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({ opportunities,
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAndSortedOpportunities.map((opportunity: OrionOpportunity) => (
+          {filteredAndSortedOpportunities.map((opportunity: Opportunity) => (
             <OpportunityCard key={opportunity.id} opportunity={opportunity} />
           ))}
         </div>

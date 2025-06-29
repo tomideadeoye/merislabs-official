@@ -96,7 +96,7 @@ export const ROUTES = {
     title: 'Business Management',
   },
   EMAIL_DRAFTING_STUDIO: {
-    href: '/admin/opportunity-pipeline/[opportunityId]/draft-email',
+    href: '/admin/opportunity-pipeline/[id]/draft-email',
     title: 'Email Drafting Studio',
   },
   // Add other routes as needed

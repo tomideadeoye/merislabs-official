@@ -47,7 +47,7 @@ import { taskDbService } from '@/lib/task_db_service'; // For database operation
 import { pythonApiService } from '@/lib/pythonApiService'; // Assumed to exist for memory search
 import { generateLLMResponseWithTools, REQUEST_TYPES } from '@/lib/orion_llm'; // For LLM interaction and tool calling
 import logger from '@/lib/logger'; // For logging
-import { Prisma, TaskStep } from '@/generated/prisma'; // For Prisma types, specifically TaskStep and the Prisma namespace
+import { Prisma, TaskStep } from '@prisma/client'; // For Prisma types, specifically TaskStep and the Prisma namespace
 import { LLMTool } from '@/lib/types'; // Import LLMTool type
 
 export async function POST(request: NextRequest, { params }: { params: { taskId: string } }) {

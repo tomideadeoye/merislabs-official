@@ -41,7 +41,7 @@
  *   - **Structured Insights UI**: Develop dedicated, engaging UI elements (e.g., custom cards, dashboards) for displaying LLM-generated communication patterns, relationship dynamics summaries, emotional tone shifts, and actionable recommendations.
  *   - **Sentiment Analysis Visualization**: Integrate sentiment scores (if returned by backend) into visual timelines or aggregated charts to show emotional trends over the conversation.
  *   - **Filtering/Sorting Options**: Add interactive options to filter or sort analysis results (e.g., by participant, sentiment, message type, date range) for granular exploration.
- *   - **Memory Interaction**: Allow users to select specific insights or message chunks from the analysis and directly save them to Orion's memory (Qdrant/Notion) via the `DedicatedAddToMemoryFormComponent`.
+ *   - **Memory Interaction**: Allow users to select specific insights or message chunks from the analysis and directly save them to Orion's memory (Qdrant/WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES) via the `DedicatedAddToMemoryFormComponent`.
  *   - **Actionable Reply Suggestions**: Provide direct links or buttons next to analyzed insights to automatically generate specific reply drafts in `WhatsAppReplyDrafter` that address those insights.
  *   - **Topic Modeling/Key Themes**: Integrate backend capabilities to identify key conversation topics or themes and display them prominently, potentially with a tag cloud.
  *   - **User Customization**: Allow users to configure which aspects of the analysis they want to prioritize or visualize.

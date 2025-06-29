@@ -20,7 +20,7 @@
  *   - `@/lib/pythonApiService`: Core dependency for Python service integration
  *   - `@/lib/logger`: Shared logging utility for consistent observability
  *   - `app/api/orion/networking/generate-outreach/route.ts`: Subsequent step in networking workflow
- *   - `app/api/orion/opportunity/[opportunityId]/stakeholders/route.ts`: Consumer of stakeholder data
+ *   - `app/api/orion/opportunity/[id]/stakeholders/route.ts`: Consumer of stakeholder data
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Expects Python API service to be running and properly configured
@@ -64,7 +64,7 @@ interface LogContextType {
  *   - companyName: string (required) - Target organization name
  *   - role?: string - Filter by job role/title
  *   - count?: number - Maximum results to return
- *   - opportunityId?: string - Related opportunity ID
+ *   - id?: string - Related opportunity ID
  *
  * @returns NextResponse with:
  *   - success: boolean - Operation status
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
   logContext.userId = userId;
 
   try {
-    const { companyName, opportunityId, role, count } = await request.json();
+    const { companyName, id, role, count } = await request.json();
 
     if (!companyName) {
       logger.warn('[FIND_STAKEHOLDERS_API][POST][VALIDATION_FAIL] Missing companyName in request body.', logContext);
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     logger.debug('[FIND_STAKEHOLDERS_API][POST][PROCESSING] Finding stakeholders via Python API.', {
       ...logContext,
       companyName,
-      opportunityId,
+      id,
       role,
       count,
     });

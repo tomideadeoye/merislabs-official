@@ -18,7 +18,7 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `auth.ts`: Handles user authentication and session validation.
- *   - `@/lib/opportunity_db_service`: Used to fetch the job description content from the database via `getOpportunityByIdFromDb` (if `jobDescription` needs to be fetched based on `opportunityId`).
+ *   - `@/lib/opportunity_db_service`: Used to fetch the job description content from the database via `getOpportunityByIdFromDb` (if `jobDescription` needs to be fetched based on `id`).
  *   - `@/lib/orion_llm`: Provides the `generateLLMResponse` function, which interfaces with the LLM to process the rephrasing prompt.
  *   - `@/lib/logger`: Used for comprehensive logging of API request, response, and error details.
  *   - `app/components/orion/CVTailoringStudio.tsx`: This client-side component will call this API route to rephrase component content (FR-4.2).
@@ -30,7 +30,7 @@
  *   - Assumes the LLM service (`generateLLMResponse`) is operational and correctly configured for rephrasing tasks.
  *   - The LLM is expected to return the rephrased text directly.
  *   - Comprehensive logging is integrated to trace the flow and diagnose any issues during API calls or LLM interactions.
- *   - `jobDescription` is passed directly for the rephrasing prompt; fetching from DB is an alternative if only `opportunityId` is provided.
+ *   - `jobDescription` is passed directly for the rephrasing prompt; fetching from DB is an alternative if only `id` is provided.
  *
  * NON-FUNCTIONAL REQUIREMENTS:
  *   - Performance: The LLM response time should be optimized to ensure responsive UI, with clear loading indicators in the frontend.

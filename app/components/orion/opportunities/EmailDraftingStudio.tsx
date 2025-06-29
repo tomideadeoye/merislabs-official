@@ -12,8 +12,8 @@
  * FILEPATH: `app/components/orion/opportunities/EmailDraftingStudio.tsx`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/draft-email/page.tsx`: The server component that renders this client component and passes initial `opportunity` and `assembledCvMarkdown` data.
- *   - `@/lib/types`: Imports `OrionOpportunity` for type consistency.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[id]/draft-email/page.tsx`: The server component that renders this client component and passes initial `opportunity` and `assembledCvMarkdown` data.
+ *   - `@/lib/types`: Imports `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` for type consistency.
  *   - `@/lib/apiClient`: Used to make HTTP requests to `/api/orion/email/draft` (for AI suggestions) and `/api/orion/email/send` (for sending).
  *   - `@/lib/logger`: For comprehensive logging of client-side interactions and API calls.
  *   - `react-hot-toast`: Used for displaying user feedback (loading, success, error messages).
@@ -46,7 +46,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 import { apiClient } from '@/lib/apiClient';
 import { toast } from 'react-hot-toast';
 import logger from '@/lib/logger';
@@ -74,7 +74,7 @@ interface Draft {
 }
 
 interface Props {
-  opportunity: OrionOpportunity;
+  opportunity: Opportunity;
 }
 
 export function EmailDraftingStudio({ opportunity }: Props) {
@@ -100,7 +100,7 @@ export function EmailDraftingStudio({ opportunity }: Props) {
   }, [opportunity]);
 
   const handleGenerateDrafts = async () => {
-    logger.info('[EmailDraftingStudio][handleGenerateDrafts][START]', { opportunityId: opportunity.id });
+    logger.info('[EmailDraftingStudio][handleGenerateDrafts][START]', { id: opportunity.id });
     setIsLoading(true);
     toast.loading('Orion is drafting your emails...');
     try {
@@ -115,29 +115,29 @@ export function EmailDraftingStudio({ opportunity }: Props) {
         }
         toast.success('AI has generated multiple strategic drafts!');
         logger.success('[EmailDraftingStudio][handleGenerateDrafts][SUCCESS]', {
-          opportunityId: opportunity.id,
+          id: opportunity.id,
           draftsCount: response.data.drafts.length,
         });
       } else {
         throw new Error(response.data.error || 'Failed to generate drafts. Server did not provide specific error.');
       }
     } catch (err: unknown) {
-      const handledError = handleClientError(err, { opportunityId: opportunity.id, stage: 'email_draft_api_call' });
+      const handledError = handleClientError(err, { id: opportunity.id, stage: 'email_draft_api_call' });
       toast.error(`Drafting Failed: ${handledError.message}`);
       logger.error('[EmailDraftingStudio][handleGenerateDrafts][CATCH_ERROR]', {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         error: handledError.message,
       });
     } finally {
       setIsLoading(false);
       toast.dismiss();
-      logger.info('[EmailDraftingStudio][handleGenerateDrafts][END]', { opportunityId: opportunity.id });
+      logger.info('[EmailDraftingStudio][handleGenerateDrafts][END]', { id: opportunity.id });
     }
   };
 
   const handleSendEmail = async () => {
     logger.info('[EmailDraftingStudio][handleSendEmail][START]', {
-      opportunityId: opportunity.id,
+      id: opportunity.id,
       recipientEmail,
       emailSubject,
     });
@@ -150,29 +150,29 @@ export function EmailDraftingStudio({ opportunity }: Props) {
         htmlBody: finalEmailBody.replace(/\n/g, '<br>'),
         markdownAttachment: tailoredCvMarkdown
           ? {
-              filename: `CV_Tomide_Adeoye_${opportunity.company}.pdf`,
-              markdown: tailoredCvMarkdown,
-            }
+            filename: `CV_Tomide_Adeoye_${opportunity.company}.pdf`,
+            markdown: tailoredCvMarkdown,
+          }
           : undefined,
       });
       if (response.data.success) {
         toast.success('Application Sent Successfully!');
-        logger.success('[EmailDraftingStudio][handleSendEmail][SUCCESS]', { opportunityId: opportunity.id });
+        logger.success('[EmailDraftingStudio][handleSendEmail][SUCCESS]', { id: opportunity.id });
         // TODO: Update opportunity status to 'Applied'
       } else {
         throw new Error(response.data.error || 'Failed to send email. Server did not provide specific error.');
       }
     } catch (err: unknown) {
-      const handledError = handleClientError(err, { opportunityId: opportunity.id, stage: 'email_send_api_call' });
+      const handledError = handleClientError(err, { id: opportunity.id, stage: 'email_send_api_call' });
       toast.error(`Sending Failed: ${handledError.message}`);
       logger.error('[EmailDraftingStudio][handleSendEmail][CATCH_ERROR]', {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         error: handledError.message,
       });
     } finally {
       setIsSending(false);
       toast.dismiss();
-      logger.info('[EmailDraftingStudio][handleSendEmail][END]', { opportunityId: opportunity.id });
+      logger.info('[EmailDraftingStudio][handleSendEmail][END]', { id: opportunity.id });
     }
   };
 

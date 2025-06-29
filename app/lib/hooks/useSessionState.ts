@@ -41,11 +41,9 @@ export enum SessionStateKeys {
   OPPORTUNITY_NOTES = 'opportunityNotes',
   OPPORTUNITY_REASONS_TO_PURSUES = 'opportunityReasonsToPursues',
   OPPORTUNITY_REASONS_TO_SKIP = 'opportunityReasonsToSkip',
-  OPPORTUNITY_SELECTED_OPPORTUNITY_ID = 'opportunitySelectedOpportunityId',
+  OPPORTUNITY_SELECTED_OPPORTUNITY_ID = 'opportunitySelectedid',
   // General
   LLM_CONFIGURED = 'llmConfigured',
-  NOTION_DB_CONFIGURED = 'notionDbConfigured',
-  NOTION_API_KEY = 'notionApiKey',
   OPENAI_API_KEY = 'openaiApiKey',
   QDRANT_API_KEY = 'qdrantApiKey',
   HABITICA_USER_ID = 'habiticaUserId',
@@ -98,7 +96,6 @@ export enum SessionStateKeys {
   SHOW_JOURNAL_ENTRY_FORM = 'showJournalEntryForm',
   SHOW_SAVE_OPTIONS = 'showSaveOptions',
   SHOW_CBT_FORM = 'showCbtForm',
-  // Add any new session state keys here for consistency
 }
 
 export interface SessionState {
@@ -128,8 +125,6 @@ export interface SessionState {
     [SessionStateKeys.OPPORTUNITY_REASONS_TO_SKIP]?: string;
     [SessionStateKeys.OPPORTUNITY_SELECTED_OPPORTUNITY_ID]?: string;
     [SessionStateKeys.LLM_CONFIGURED]?: boolean;
-    [SessionStateKeys.NOTION_DB_CONFIGURED]?: boolean;
-    [SessionStateKeys.NOTION_API_KEY]?: string;
     [SessionStateKeys.OPENAI_API_KEY]?: string;
     [SessionStateKeys.QDRANT_API_KEY]?: string;
     [SessionStateKeys.HABITICA_USER_ID]?: string;
@@ -192,7 +187,6 @@ export const initialState = {
   currentActiveFeature: 'None',
   userPreferences: {},
   llmConfigured: false,
-  notionDbConfigured: false,
   memoryInitialized: false,
   opportunityIsSaving: false,
   opportunityCreateProcessing: false,

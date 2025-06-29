@@ -30,7 +30,7 @@
  *   - OPPORTUNITIES FOR IMPROVEMENT:
  *     - Implement subtle **animations** (e.g., using `framer-motion`) for affirmations as they appear, making the generation process feel even more magical and impactful.
  *     - Consider a "carousel" or "deck" view for affirmations, allowing users to swipe through them.
- *     - Add a "Save to Journal" or "Favorite" button next to each affirmation, allowing users to store resonant affirmations in a dedicated section within their Notion journal or a new database.
+ *     - Add a "Save to Journal" or "Favorite" button next to each affirmation, allowing users to store resonant affirmations in a dedicated section within their WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES journal or a new database.
  *     - Implement an "Affirmation History" view to revisit past generated affirmations.
  *     - Introduce pre-defined "themes" or "categories" (e.g., "Career Resilience," "Emotional Well-being," "Creative Flow," "Overcoming Procrastination") as selectable options to influence the LLM prompt.
  *     - Explore creating a small, persistent dashboard widget or a daily push notification system (if applicable in Electron) that presents a new affirmation.
@@ -117,7 +117,7 @@ export function AffirmationsGenerator() {
       <Button
         onClick={handleGenerateAffirmations}
         disabled={isLoading}
-        className="w-full py-3 text-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all duration-300 transform hover:scale-105"
+        className="w-full py-3 text-lg font-semibold bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all duration-300 transform hover:scale-105"
       >
         {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-5 w-5" />} Generate
         Affirmations
@@ -137,7 +137,7 @@ export function AffirmationsGenerator() {
             {affirmations.map((affirmation, index) => (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-green-500/10 to-blue-500/10 border border-green-600/20 dark:border-blue-500/20 rounded-xl p-4 transition-transform duration-200 hover:scale-[1.02] transform backdrop-blur-sm"
+                className="bg-linear-to-br from-green-500/10 to-blue-500/10 border border-green-600/20 dark:border-blue-500/20 rounded-xl p-4 transition-transform duration-200 hover:scale-[1.02] transform backdrop-blur-sm"
               >
                 <CardContent className="p-0 text-center">
                   <p className="text-lg italic text-gray-800 dark:text-gray-200">&quot;{affirmation}&quot;</p>

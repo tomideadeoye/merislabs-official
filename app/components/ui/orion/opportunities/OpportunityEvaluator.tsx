@@ -14,13 +14,13 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - Consumed by `OpportunityPipelinePage` (`app/(orion_admin)/admin/opportunity-pipeline/page.tsx`) in the "Evaluator" tab.
- *   - Calls backend API route `/api/orion/OrionOpportunity/evaluate` (POST) to perform the evaluation. This API integrates LLMs, user profile, and memory search.
+ *   - Calls backend API route `/api/orion/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA/evaluate` (POST) to perform the evaluation. This API integrates LLMs, user profile, and memory search.
  *   - Uses `@/lib/types` for `OpportunityType`, `EvaluationOutput`, and `OpportunityEvaluationInput` types, ensuring strong type safety for data structures.
  *   - Uses `@/components/ui` components (`Input`, `Textarea`, `Button`, `Label`, `Card`, `Progress`, `Badge`) for its user interface.
  *   - `lucide-react`: Provides icons for visual clarity (e.g., `Loader2`, `BarChart2`, `AlertCircle`, `CheckCircle`).
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes the `/api/orion/OrionOpportunity/evaluate` endpoint is operational and returns data conforming to `EvaluationOutput`.
+ *   - Assumes the `/api/orion/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA/evaluate` endpoint is operational and returns data conforming to `EvaluationOutput`.
  *   - Assumes the user will provide sufficient detail in the form fields (`title`, `company`, `content`) for a meaningful evaluation.
  *   - The component's UI is designed to be responsive and visually consistent with the rest of the Orion dashboard.
  *
@@ -38,20 +38,10 @@
  *   - **Zod Validation**: Implement client-side Zod validation for the form inputs to provide immediate feedback to the user before submitting to the API.
  *   - **Dynamic Prompt Customization**: Allow advanced users to slightly adjust parts of the evaluation prompt from the UI, providing more control over the AI's focus.
  */
-import { OpportunityType, EvaluationOutput, OpportunityEvaluationInput, EvaluationGapDetail } from '@/lib/types';
-import {
-  Input,
-  Textarea,
-  Button,
-  Label,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Progress,
-  Badge,
-} from '@/components/ui';
-import { Loader2, BarChart2, AlertCircle, CheckCircle, ThumbsUp, ThumbsDown, Star, FileText } from 'lucide-react';
+import { EvaluationOutput, OpportunityEvaluationInput } from '@/lib/types';
+import { $Enums } from '@/lib/types';
+import { Input, Textarea, Button, Label, Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui';
+import { Loader2, BarChart2, AlertCircle, ThumbsUp, Star } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface OpportunityEvaluatorProps {
@@ -62,7 +52,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [company, setCompany] = useState<string>('');
-  const [type, setType] = useState<OpportunityType>(OpportunityType.JOB);
+  const [type, setType] = useState<$Enums.OpportunityType>('job');
   const [url, setUrl] = useState<string>('');
 
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
@@ -159,15 +149,18 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
               </Label>
               <select
                 id="type"
+                title="Opportunity Type"
                 value={type}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setType(e.target.value as OpportunityType)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setType(e.target.value as $Enums.OpportunityType)
+                }
                 className="w-full rounded-md bg-gray-700 border-gray-600 text-gray-200 p-2"
               >
-                <option value={OpportunityType.JOB}>Job</option>
-                <option value={OpportunityType.EDUCATION_PROGRAM}>Education Program</option>
-                <option value={OpportunityType.PROJECT_COLLABORATION}>Project/Collaboration</option>
-                <option value={OpportunityType.FUNDING}>Funding</option>
-                <option value={OpportunityType.OTHER}>Other</option>
+                {Object.values($Enums.OpportunityType).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -255,7 +248,7 @@ export const OpportunityEvaluator: React.FC<OpportunityEvaluatorProps> = ({ clas
                         }}
                       ></div>
                     </div>
-                    <span className="ml-4 font-semibold text-lg">
+                    <span className="ml-4 foxnt-semibold text-lg">
                       {evaluation.fitScorePercentage?.toFixed(0) || 'N/A'}%
                     </span>
                   </div>

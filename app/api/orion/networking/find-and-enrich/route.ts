@@ -11,7 +11,6 @@ interface FindAndEnrichStakeholdersRequest {
 }
 
 export async function POST(request: NextRequest) {
-
   try {
     const { companyName, role, count, enrichFields } = await request.json();
 

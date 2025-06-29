@@ -351,7 +351,11 @@ export default function LlmModelSettings() {
             Global Default Model
           </Label>
           <Select value={currentSelections.globalDefault || '__DEFAULT__'} onValueChange={handleGlobalDefaultChange}>
-            <SelectTrigger id="global-default-model" name="globalDefaultModel" className="w-full bg-gray-700 border-gray-600 text-gray-100">
+            <SelectTrigger
+              id="global-default-model"
+              name="globalDefaultModel"
+              className="w-full bg-gray-700 border-gray-600 text-gray-100"
+            >
               <SelectValue placeholder="Select a global default model" />
             </SelectTrigger>
             <SelectContent className="bg-gray-700 border-gray-600 text-gray-100">
@@ -379,7 +383,11 @@ export default function LlmModelSettings() {
                 value={currentSelections.requestTypeOverrides?.[type.id] || '__DEFAULT__'}
                 onValueChange={(value) => handleRequestTypeChange(type.id, value)}
               >
-                <SelectTrigger id={`model-${type.id}`} name={`model-${type.id}`} className="w-full bg-gray-700 border-gray-600 text-gray-100">
+                <SelectTrigger
+                  id={`model-${type.id}`}
+                  name={`model-${type.id}`}
+                  className="w-full bg-gray-700 border-gray-600 text-gray-100"
+                >
                   <SelectValue placeholder={`Select model for ${type.name}`} />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-700 border-gray-600 text-gray-100">

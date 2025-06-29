@@ -50,7 +50,7 @@ export interface MemoryMetadataPayload {
   original_entry_id?: string;
   originalTaskText?: string;
   title?: string; // Critical for display in UI, comes from Qdrant payload
-  opportunityId?: string;
+  id?: string;
   company?: string;
   status?: string;
   outcome?: string;

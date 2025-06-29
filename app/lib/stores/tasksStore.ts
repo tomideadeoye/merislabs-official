@@ -34,7 +34,8 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import logger from '@/lib/logger';
-import { Task, TaskStatus, TaskPriority, TaskType } from '@/lib/types';
+import { Task } from '@prisma/client';
+import { $Enums } from '@/lib/types';
 
 interface TasksState {
   tasks: Task[];
@@ -79,18 +80,22 @@ export const useTasksStore = create<TasksState>()(
         id: 'optimistic-' + Date.now(),
         userId: '',
         title: task && typeof task === 'object' && 'title' in task && task.title ? task.title : '',
-        status: task && typeof task === 'object' && 'status' in task && task.status ? task.status : TaskStatus.TODO,
+        status:
+          task && typeof task === 'object' && 'status' in task && task.status ? task.status : $Enums.TaskStatus.TODO,
         priority:
-          task && typeof task === 'object' && 'priority' in task && task.priority ? task.priority : TaskPriority.MEDIUM,
-        type: task && typeof task === 'object' && 'type' in task && task.type ? task.type : TaskType.TODO,
+          task && typeof task === 'object' && 'priority' in task && task.priority
+            ? task.priority
+            : $Enums.TaskPriority.MEDIUM,
+        type: task && typeof task === 'object' && 'type' in task && task.type ? task.type : $Enums.TaskType.TODO,
         dueDate: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-        steps: [],
         relatedLinks: [],
         relatedPhoneNumbers: [],
-      };
-      set((state: TasksState) => ({ tasks: [...state.tasks, optimisticTask] }));
+        relatedContactIds: [],
+        tags: [],
+      } as Task;
+      set((state) => ({ tasks: [...state.tasks, optimisticTask] }));
       try {
         const res = await fetch('/api/orion/tasks/create', {
           method: 'POST',
@@ -100,20 +105,20 @@ export const useTasksStore = create<TasksState>()(
         const data = await res.json();
         if (!data.success) {
           logger.error('[tasksStore][ADD][ERROR] Failed to add task.', { error: data.error });
-          set((state: TasksState) => ({
+          set((state) => ({
             tasks: state.tasks.filter((t: Task) => t.id !== optimisticTask.id),
             error: data.error || 'Failed to add task',
           }));
           return;
         }
         logger.info('[tasksStore][ADD][SUCCESS] Task added.', { task: data.data });
-        set((state: TasksState) => ({
+        set((state) => ({
           tasks: [...state.tasks.filter((t: Task) => t.id !== optimisticTask.id), data.data],
           error: null,
         }));
       } catch (err: any) {
         logger.error('[tasksStore][ADD][EXCEPTION] Exception adding task.', { error: err?.message || err });
-        set((state: TasksState) => ({
+        set((state) => ({
           tasks: state.tasks.filter((t: Task) => t.id !== optimisticTask.id),
           error: err?.message || 'Failed to add task',
         }));

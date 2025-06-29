@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import logger from '@/lib/logger';
-import { Task, TaskStatus, TaskPriority, TaskType } from '@/lib/types';
+import { Task } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 
 export function useTasks() {
   const queryClient = useQueryClient();
@@ -44,7 +45,7 @@ export function useTasks() {
     onMutate: async (newTask: Partial<Task>) => {
       logger.info('[useTasks][ADD][ON_MUTATE] Optimistically adding task.', { newTask });
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
-      const previousTasks = queryClient.getQueryData(['tasks']);
+      const previousTasks = queryClient.getQueryData(['tasks']) as Task[] | undefined;
       const optimisticTask: Task = {
         ...(typeof newTask === 'object' && newTask ? newTask : {}),
         id: 'optimistic-' + Date.now(),
@@ -53,20 +54,23 @@ export function useTasks() {
         status:
           newTask && typeof newTask === 'object' && 'status' in newTask && newTask.status
             ? newTask.status
-            : TaskStatus.TODO,
+            : $Enums.TaskStatus['TODO'],
         priority:
           newTask && typeof newTask === 'object' && 'priority' in newTask && newTask.priority
             ? newTask.priority
-            : TaskPriority.MEDIUM,
+            : $Enums.TaskPriority['MEDIUM'],
         type:
-          newTask && typeof newTask === 'object' && 'type' in newTask && newTask.type ? newTask.type : TaskType.TODO,
+          newTask && typeof newTask === 'object' && 'type' in newTask && newTask.type
+            ? newTask.type
+            : $Enums.TaskType['TODO'],
         dueDate: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-        steps: [],
         relatedLinks: [],
         relatedPhoneNumbers: [],
-      };
+        relatedContactIds: [],
+        tags: [],
+      } as Task;
       queryClient.setQueryData(['tasks'], (old: unknown) => {
         const arr = Array.isArray(old) ? old.filter((t): t is Task => !!t && typeof t === 'object' && 'id' in t) : [];
         return [...arr, optimisticTask];
@@ -104,7 +108,7 @@ export function useTasks() {
     onMutate: async (updatedTask: Partial<Task>) => {
       logger.info('[useTasks][UPDATE][ON_MUTATE] Optimistically updating task.', { updatedTask });
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
-      const previousTasks = queryClient.getQueryData(['tasks']);
+      const previousTasks = queryClient.getQueryData(['tasks']) as Task[] | undefined;
       queryClient.setQueryData(['tasks'], (old: unknown) => {
         const arr = Array.isArray(old) ? old.filter((t): t is Task => !!t && typeof t === 'object' && 'id' in t) : [];
         return arr.map((task: Task) => (task.id === updatedTask.id ? ({ ...task, ...updatedTask } as Task) : task));
@@ -123,8 +127,8 @@ export function useTasks() {
     },
   });
 
-  const deleteTask = useMutation({
-    mutationFn: async (taskId) => {
+  const deleteTask = useMutation<string, Error, string, { previousTasks?: Task[] }>({
+    mutationFn: async (taskId: string) => {
       logger.info('[useTasks][DELETE][START] Deleting task.', { taskId });
       const res = await fetch(`/api/orion/tasks/${taskId}/delete`, {
         method: 'DELETE',
@@ -137,10 +141,10 @@ export function useTasks() {
       logger.info('[useTasks][DELETE][SUCCESS] Task deleted.', { taskId });
       return taskId;
     },
-    onMutate: async (taskId) => {
+    onMutate: async (taskId: string) => {
       logger.info('[useTasks][DELETE][ON_MUTATE] Optimistically deleting task.', { taskId });
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
-      const previousTasks = queryClient.getQueryData(['tasks']);
+      const previousTasks = queryClient.getQueryData(['tasks']) as Task[] | undefined;
       queryClient.setQueryData(['tasks'], (old: unknown) => {
         const arr = Array.isArray(old) ? old.filter((t): t is Task => !!t && typeof t === 'object' && 'id' in t) : [];
         return typeof taskId === 'string' ? arr.filter((task: Task) => task.id !== taskId) : arr;
@@ -149,7 +153,7 @@ export function useTasks() {
     },
     onError: (err, taskId, context) => {
       logger.error('[useTasks][DELETE][ON_ERROR] Reverting optimistic delete.', { err, taskId });
-      if (context?.previousTasks) {
+      if (context && context.previousTasks) {
         queryClient.setQueryData(['tasks'], context.previousTasks);
       }
     },

@@ -4,7 +4,7 @@
 // FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/StatusUpdateButton.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
-//   - Interacts with the backend API route `/api/orion/notion/OrionOpportunity/[opportunityId]` (PATCH) to update the status in Notion.
+//   - Interacts with the backend API route `/api/orion/WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA/[id]` (PATCH) to update the status in WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES.
 //   - Uses `@/components/ui` components (`Button`, `DropdownMenu`, etc.).
 //   - Uses `lucide-react` for icons.
 import React, { useState } from 'react';
@@ -21,14 +21,14 @@ import {
 import { ChevronDown, Loader2 } from 'lucide-react';
 
 interface StatusUpdateButtonProps {
-  opportunityId: string; // This should be the Notion page ID
+  id: string; // This should be the WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES page ID
   currentStatus: string;
   // Add a prop to signal a successful update to the parent, if needed
   onStatusUpdated?: () => void;
 }
 
 export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
-  opportunityId,
+  id,
   currentStatus,
   onStatusUpdated, // Added prop
 }) => {
@@ -102,23 +102,26 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
     setError(null);
 
     try {
-      // Updated API endpoint to use the new Notion-specific route with ID
-      const response = await fetch(`/api/orion/notion/OrionOpportunity/${opportunityId}`, {
-        method: 'PATCH', // Changed method to PATCH
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: newStatus, // Send only the updated status
-          // Add other fields here if updating more than just status
-        }),
-      });
+      // Updated API endpoint to use the new WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES-specific route with ID
+      const response = await fetch(
+        `/api/orion/WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA/${id}`,
+        {
+          method: 'PATCH', // Changed method to PATCH
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: newStatus, // Send only the updated status
+            // Add other fields here if updating more than just status
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (data.success) {
         // Status updated successfully
-        console.log('OrionOpportunity status updated successfully:', data.OrionOpportunity);
+        console.log('status updated successfully');
         // Call the parent callback if provided
         if (onStatusUpdated) {
           onStatusUpdated();
@@ -131,7 +134,7 @@ export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
-      console.error('Error updating OrionOpportunity status:', err);
+      console.error('Error updating status:', err);
     } finally {
       setIsUpdating(false);
     }

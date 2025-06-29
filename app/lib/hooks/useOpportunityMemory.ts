@@ -9,21 +9,21 @@ interface UseOpportunityMemoryResult {
   error: string | null;
 }
 
-export const useOpportunityMemory = (opportunityId: string): UseOpportunityMemoryResult => {
+export const useOpportunityMemory = (id: string): UseOpportunityMemoryResult => {
   const [opportunityMemories, setOpportunityMemories] = useState<ScoredMemoryPoint[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!opportunityId) {
-      logger.warn('useOpportunityMemory: opportunityId is missing.');
+    if (!id) {
+      logger.warn('useOpportunityMemory: id is missing.');
       setError('Opportunity ID is required to fetch memories.');
       setIsLoading(false);
       return;
     }
 
     const fetchOpportunityMemories = async () => {
-      logger.info('Fetching opportunity memories.', { opportunityId });
+      logger.info('Fetching opportunity memories.', { id });
       setIsLoading(true);
       setError(null);
       try {
@@ -31,8 +31,8 @@ export const useOpportunityMemory = (opportunityId: string): UseOpportunityMemor
         const filter: QdrantFilter = {
           must: [
             {
-              key: 'opportunityId',
-              match: { value: opportunityId },
+              key: 'id',
+              match: { value: id },
             },
             {
               // Optionally, filter by relevant memory types for opportunities
@@ -65,20 +65,20 @@ export const useOpportunityMemory = (opportunityId: string): UseOpportunityMemor
         if (response.success && response.results) {
           setOpportunityMemories(response.results);
           logger.success('Opportunity memories fetched successfully.', {
-            opportunityId,
+            id,
             count: response.results.length,
           });
         } else {
           const errorMessage = response.error || 'Unknown error fetching memories.';
           logger.error('Failed to fetch opportunity memories from API.', {
             error: errorMessage,
-            opportunityId,
+            id,
           });
           setError(errorMessage);
         }
       } catch (err: unknown) {
         const errorMessage = `Failed to load opportunity memories: ${(err as Error).message}`;
-        logger.error('Error in fetchOpportunityMemories:', { error: err, opportunityId });
+        logger.error('Error in fetchOpportunityMemories:', { error: err, id });
         setError(errorMessage);
       } finally {
         setIsLoading(false);
@@ -86,7 +86,7 @@ export const useOpportunityMemory = (opportunityId: string): UseOpportunityMemor
     };
 
     fetchOpportunityMemories();
-  }, [opportunityId]);
+  }, [id]);
 
   return { opportunityMemories, isLoading, error };
 };

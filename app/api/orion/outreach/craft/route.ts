@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
 - Value Proposition: ${persona.valueProposition || 'N/A'}
 - Additional Notes: ${persona.notes || 'N/A'}
 
-## OrionOpportunity Details
+## REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Details
 ${opportunityDetails}
 
 ## Goal

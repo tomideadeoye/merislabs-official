@@ -10,7 +10,7 @@ export * from './opportunities/GenerateOutreachDialog';
 export * from '../../JournalReflectionDialog';
 export * from '../../LessonsLearnedSection';
 export * from './opportunities/NarrativeAlignmentSection';
-export * from '../../orion/pipeline/OpportunityActions';
+// export * from './opportunities/OpportunityActions';
 export * from './opportunities/OpportunityAnalysisDisplay';
 export * from './opportunities/OpportunityCard';
 export * from './opportunities/OpportunityDetailView';

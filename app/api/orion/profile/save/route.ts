@@ -2,7 +2,7 @@
  * @fileoverview API route for saving user profile data to the Neon database.
  * @description This endpoint receives comprehensive user profile information and persists it
  *   to the `UserProfile` table in the PostgreSQL database via Prisma. It is designed to
- *   centralize and structure user profile data, moving away from Notion as the primary source.
+ *   centralize and structure user profile data, moving away from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES as the primary source.
  *   This route is crucial for populating and updating the user's core identity within Orion.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
@@ -29,7 +29,7 @@
  *   - Handles both creation (if no profile exists for the user) and updating (if one does).
  *
  * NOTES:
- *   - This is a critical step in migrating profile data from Notion to Neon.
+ *   - This is a critical step in migrating profile data from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES to Neon.
  *   - The `profileText` field is designed to store the entire unstructured text dump for LLM context.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
@@ -41,28 +41,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { prisma } from '@/lib/prisma'; // Assuming Prisma client is instantiated here
 import logger from '@/lib/logger';
-// Define the Zod schema for the incoming profile data
-const profileSchema = z.object({
-  name: z.string().optional(),
-  email: z.string().email().optional(),
-  mobile: z.string().optional(),
-  website: z.string().url().optional(),
-  github: z.string().url().optional(),
-  linkedin: z.string().url().optional(),
-  substack: z.string().url().optional(),
-  slideshare: z.string().url().optional(),
-  medium: z.string().url().optional(),
-  discord: z.string().optional(),
-  merisLabsLinkedin: z.string().url().optional(),
-  bioPitchLink: z.string().url().optional(),
-  youtube: z.string().url().optional(),
-  language: z.string().optional(),
-  location: z.string().optional(),
-  profileText: z.string(), // This will contain the entire unstructured text
-});
+import { generateLLMResponse } from '@/lib/orion_llm';
 
 export async function POST(request: NextRequest) {
   const logContext = {
@@ -72,91 +53,98 @@ export async function POST(request: NextRequest) {
   };
   logger.info('[PROFILE_SAVE_API][POST][START] Received request to save user profile.', logContext);
 
-  // Temporarily bypass authentication as requested
-  // const session = await auth();
-  // const userId = session?.user?.id;
-  const userId = 'user_tomide_adeoye_123'; // Hardcode a test user ID for unauthenticated access
-
-  // if (!userId) {
-  //   logger.warn('[PROFILE_SAVE_API][POST][AUTH_FAIL] Unauthorized access attempt.', logContext);
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
+  const userId = 'user_tomide_adeoye_123';
 
   try {
     const body = await request.json();
-    console.log('[API_DEBUG][RAW_BODY]', body); // Added for debugging
     logger.debug('[PROFILE_SAVE_API][POST][BODY_PARSED]', {
       ...logContext,
       bodyPreview: JSON.stringify(body).substring(0, 200) + '...',
     });
 
-    const validatedData = profileSchema.parse(body);
-    console.log('[API_DEBUG][VALIDATED_DATA]', validatedData); // Added for debugging
-    logger.debug('[PROFILE_SAVE_API][POST][VALIDATION_SUCCESS]', {
-      ...logContext,
-      validatedKeys: Object.keys(validatedData),
+    const { profileText } = body;
+    if (!profileText) {
+      logger.error('[PROFILE_SAVE_API][POST][NO_PROFILE_TEXT] profileText is required for LLM update.', logContext);
+      return NextResponse.json({ success: false, error: 'profileText is required.' }, { status: 400 });
+    }
+
+    // Fetch existing profile for context
+    const existingProfile = await prisma.userProfile.findFirst();
+    if (!existingProfile) {
+      logger.error('[PROFILE_SAVE_API][POST][NO_EXISTING_PROFILE] No profile found to update.', logContext);
+      return NextResponse.json({ success: false, error: 'No existing profile found to update.' }, { status: 404 });
+    }
+    logger.info('[PROFILE_SAVE_API][POST][EXISTING_PROFILE_FETCHED]', { ...logContext, hasExisting: !!existingProfile });
+
+    // Build LLM prompt for field extraction/merge
+    const fieldList = [
+      'name', 'email', 'mobile', 'website', 'github', 'linkedin', 'substack', 'slideshare', 'medium', 'discord',
+      'merisLabsLinkedin', 'bioPitchLink', 'youtube', 'language', 'location', 'backgroundSummary', 'keySkills',
+      'goals', 'values', 'bio', 'skills', 'experience', 'education', 'interests', 'socialLinks', 'summary'
+    ];
+    const existingProfileJson = JSON.stringify(existingProfile);
+    const llmPrompt = `You are an expert personal data assistant. Given the user's latest profile text dump (below), and their current profile data (if any), extract and return ONLY the fields that are new or changed, as a JSON object. Use the following field names: ${fieldList.join(', ')}. If a field is not present or not changed, do not include it in the output. If a field is new, include it. If a field is updated, include the new value. Output ONLY a valid JSON object with the changed fields.\n\nCurrent profile data (JSON):\n${existingProfileJson}\n\nNew profile text dump:\n${profileText}`;
+
+    logger.info('[PROFILE_SAVE_API][POST][LLM_PROFILE_UPDATE_PROMPT]', { ...logContext, promptLength: llmPrompt.length });
+    // Call LLM to extract/merge fields
+    const llmResponse = await generateLLMResponse('PROFILE_FIELD_EXTRACTION', llmPrompt, userId, {
+      systemContext: 'You are a profile field extraction and update assistant. Output only a valid JSON object with changed or new fields.',
+      temperature: 0.2,
+      maxTokens: 800,
     });
 
-    // Check if a profile already exists for this userId
-    const existingProfile = await prisma.userProfile.findUnique({
-      where: { userId },
-    });
-
-    let savedProfile;
-    if (existingProfile) {
-      // Update existing profile
-      logger.info('[PROFILE_SAVE_API][POST][UPDATING_PROFILE] Existing profile found, updating.', {
-        ...logContext,
-        profileId: existingProfile.id,
-      });
-      savedProfile = await prisma.userProfile.update({
-        where: { userId },
-        data: {
-          ...validatedData,
-          lastFetchedAt: new Date(), // Update fetch timestamp on save
-        },
-      });
-      logger.success('[PROFILE_SAVE_API][POST][UPDATE_SUCCESS] User profile updated successfully.', {
-        ...logContext,
-        profileId: savedProfile.id,
-      });
+    let updateFields: Record<string, unknown> = {};
+    if (llmResponse.success && llmResponse.content) {
+      try {
+        updateFields = JSON.parse(llmResponse.content) as Record<string, unknown>;
+        logger.info('[PROFILE_SAVE_API][POST][LLM_PROFILE_UPDATE_PARSED]', { ...logContext, updateFields });
+      } catch (err) {
+        logger.error('[PROFILE_SAVE_API][POST][LLM_PROFILE_UPDATE_PARSE_ERROR]', { ...logContext, error: err, rawContent: llmResponse.content });
+        updateFields = {};
+      }
     } else {
-      // Create new profile
-      logger.info('[PROFILE_SAVE_API][POST][CREATING_PROFILE] No existing profile, creating new one.', logContext);
-      savedProfile = await prisma.userProfile.create({
-        data: {
-          ...validatedData,
-          userId, // Link the profile to the authenticated user
-          lastFetchedAt: new Date(), // Set fetch timestamp on creation
-        },
-      });
-      logger.success('[PROFILE_SAVE_API][POST][CREATE_SUCCESS] User profile created successfully.', {
-        ...logContext,
-        profileId: savedProfile.id,
-      });
+      logger.error('[PROFILE_SAVE_API][POST][LLM_PROFILE_UPDATE_FAIL]', { ...logContext, error: ('error' in llmResponse ? (llmResponse as { error?: string }).error : 'Unknown LLM error') });
+      updateFields = {};
     }
 
-    return NextResponse.json({ success: true, profile: savedProfile }, { status: 200 });
+    // Always update profileText and lastFetchedAt
+    updateFields.profileText = profileText;
+    updateFields.lastFetchedAt = new Date();
+
+    // Detect new field suggestions (fields not in Prisma schema)
+    const prismaFields = [
+      'name', 'email', 'mobile', 'website', 'github', 'linkedin', 'substack', 'slideshare', 'medium', 'discord',
+      'merisLabsLinkedin', 'bioPitchLink', 'youtube', 'language', 'location', 'profileText', 'lastFetchedAt', 'userId', 'createdAt', 'updatedAt'
+    ];
+    const newFieldSuggestions = Object.entries(updateFields)
+      .filter(([key]) => !prismaFields.includes(key))
+      .map(([name, value]) => ({ name, value }));
+    // Remove new field suggestions from updateFields so Prisma doesn't error
+    for (const { name } of newFieldSuggestions) {
+      delete updateFields[name];
+    }
+
+    // Always update the existing profile (never create)
+    logger.info('[PROFILE_SAVE_API][POST][UPDATING_PROFILE] Updating the only profile in the DB.', {
+      ...logContext,
+      profileId: existingProfile.id,
+    });
+    const savedProfile = await prisma.userProfile.update({
+      where: { id: existingProfile.id },
+      data: updateFields,
+    });
+    logger.success('[PROFILE_SAVE_API][POST][UPDATE_SUCCESS] User profile updated successfully.', {
+      ...logContext,
+      profileId: savedProfile.id,
+    });
+
+    return NextResponse.json({ success: true, profile: savedProfile, newFieldSuggestions }, { status: 200 });
   } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      logger.error('[PROFILE_SAVE_API][POST][VALIDATION_ERROR] Invalid input for saving profile.', {
-        ...logContext,
-        error: error.errors,
-      });
-      return NextResponse.json(
-        { success: false, error: 'Invalid input for saving profile.', details: error.errors },
-        { status: 400 }
-      );
-    }
-
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('[PROFILE_SAVE_API][POST][GENERAL_ERROR] Failed to save user profile.', {
       ...logContext,
-      error: errorMessage,
-      fullError: error, // Log the full error object for detailed debugging
+      error: error instanceof Error ? error.message : String(error),
+      fullError: error,
     });
-    // Also log to console for immediate visibility in terminal output
-    console.error('[PROFILE_SAVE_API][POST][RAW_ERROR]', error);
     return NextResponse.json({ success: false, error: 'Failed to save user profile.' }, { status: 500 });
   }
 }

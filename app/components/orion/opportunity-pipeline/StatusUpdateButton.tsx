@@ -3,21 +3,21 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
 interface StatusUpdateButtonProps {
-  opportunityId: string;
+  id: string;
   currentStatus: string;
   onStatusUpdated: () => void;
   isLoading: boolean;
 }
 
 export const StatusUpdateButton: React.FC<StatusUpdateButtonProps> = ({
-  opportunityId,
+  id,
   currentStatus,
   onStatusUpdated,
   isLoading,
 }) => {
   const handleClick = () => {
     // Placeholder for API call to update status
-    console.log(`Updating status for opportunity ${opportunityId} from ${currentStatus}`);
+    console.log(`Updating status for opportunity ${id} from ${currentStatus}`);
     // Simulate success
     setTimeout(() => {
       onStatusUpdated();

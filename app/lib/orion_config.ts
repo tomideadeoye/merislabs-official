@@ -15,11 +15,11 @@
  * FILEPATH: `app/lib/orion_config.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `.env`, `.env.local`: Sources environment variables (`NEXT_PUBLIC_PYTHON_API_URL`, `NEXT_PUBLIC_QDRANT_URL`, `NEXT_PUBLIC_APP_URL`, `EMAIL_SENDER`, `EMAIL_APP_PASSWORD`, `NOTION_API_KEY`, `NOTION_DATABASE_ID`, etc.).
+ *   - `.env`, `.env.local`: Sources environment variables (`NEXT_PUBLIC_PYTHON_API_URL`, `NEXT_PUBLIC_QDRANT_URL`, `NEXT_PUBLIC_APP_URL`, `EMAIL_SENDER`, `EMAIL_APP_PASSWORD`, `WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_API_KEY`, `WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_DATABASE_ID`, etc.).
  *   - `app/lib/orion_llm.ts`: Consumes `REQUEST_TYPES` and `DEFAULT_GENERATION_PROVIDERS` for LLM routing and message construction. Some model configurations were explicitly moved *from* `orion_llm.ts` into this file for consolidation.
  *   - `app/lib/orion_memory.ts`: Consumes `QDRANT_URL`, `QDRANT_HOST`, `QDRANT_PORT`, `ORION_MEMORY_COLLECTION_NAME`, `VECTOR_SIZE` for Qdrant client initialization and collection management.
  *   - `app/api/.../route.ts` files: Various API routes (e.g., `app/api/orion/research/company/route.ts`, `app/api/orion/memory/search/route.ts`) use these constants for backend API calls and Qdrant interactions.
- *   - `app/lib/profile_service.ts`: May consume Notion-related environment variables.
+ *   - `app/lib/profile_service.ts`: May consume WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES-related environment variables.
  *   - `app/components/orion/DedicatedAddToMemoryFormComponent.tsx`: Uses `MEMORY_TYPES`.
  *   - `app/lib/utils/apiFetcher.ts`: Uses `APP_BASE_URL` for constructing internal API request URLs.
  *
@@ -30,7 +30,7 @@
  *   - The `checkAuthorization` function is currently a placeholder and requires a robust implementation for production use.
  *
  * NOTES:
- *   - This file uses `console.info` for initial debug logging of Notion env variables, aiding in rapid troubleshooting during startup.
+ *   - This file uses `console.info` for initial debug logging of WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES env variables, aiding in rapid troubleshooting during startup.
  *   - It explicitly defines the `VECTOR_SIZE` (384) which is critical for consistency with the embedding model used by Qdrant.
  *   - Consolidation of LLM default providers here centralizes model routing logic.
  *
@@ -44,13 +44,6 @@
  * OPPORTUNITIES TO CONSOLIDATE:
  *   - This file is already a primary consolidation point for configuration. Continue to move all global, environment-dependent, or static configuration values here from other parts of the codebase.
  */
-
-// DEBUG: Log Notion env variables at startup for troubleshooting
-console.info('[ORION_CONFIG][DEBUG] NOTION_API_KEY:', process.env.NEXT_PUBLIC_NOTION_API_KEY ? '[SET]' : '[NOT SET]');
-console.info(
-  '[ORION_CONFIG][DEBUG] NOTION_DATABASE_ID:',
-  process.env.NEXT_PUBLIC_NOTION_DATABASE_ID ? process.env.NEXT_PUBLIC_NOTION_DATABASE_ID : '[NOT SET]'
-);
 
 // API URLs
 export const PYTHON_API_URL = process.env.NEXT_PUBLIC_PYTHON_API_URL || 'http://localhost:8000';

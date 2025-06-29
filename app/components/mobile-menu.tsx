@@ -62,16 +62,12 @@ export default function MobileMenu() {
       <nav
         id="mobile-nav"
         ref={mobileNav}
-        className={`absolute top-full z-20 left-0 w-full px-4 sm:px-6 overflow-hidden transition-all duration-300 ease-in-out ${mobileNavOpen ? 'mobile-nav-open' : 'mobile-nav-closed'
-          }`}
+        className={`absolute top-full z-20 left-0 w-full px-4 sm:px-6 overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileNavOpen ? 'mobile-nav-open' : 'mobile-nav-closed'
+        }`}
       >
-        <ul className="bg-gray-800 px-4 py-2">
-          {/* Removed Sign in and Sign up links */}
-        </ul>
+        <ul className="bg-gray-800 px-4 py-2">{/* Removed Sign in and Sign up links */}</ul>
       </nav>
     </div>
   );
 }
-
-
-

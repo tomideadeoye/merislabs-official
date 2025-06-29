@@ -7,16 +7,15 @@
  * and separation of concerns from API routes.
  *
  * RELATION TO OTHER FILES, FUNCTIONS, COMPONENTS, AND FEATURES:
- * - `lib/database.ts`: Provides the `query` function for database interaction.
- * - `lib/types/index.ts`: Defines the `Contact` interface for type safety.
- * - `app/api/orion/contacts/route.ts` (future): Will consume these functions to serve contact data.
+ * - `@/lib/prisma`: Provides the Prisma client instance for database interaction.
+ * - `app/api/orion/contacts/route.ts`: Will consume these functions to serve contact data.
+ * - `generated/prisma/index.ts`: The Prisma generated client and types for the Contact model.
  * - prisma ORM, neon, postgres
  */
 
 import { prisma } from '@/lib/prisma';
-import { Contact } from '@/lib/types';
 import logger from '@/lib/logger';
-import { v4 as uuidv4 } from 'uuid';
+import { Contact, Prisma } from '@prisma/client';
 
 /**
  * @function fetchContactsFromNeon
@@ -32,28 +31,16 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
     operation: 'fetchContactsFromNeon',
     message: 'Attempting to fetch all contacts from Neon database.',
   });
-
   try {
-    const result = await prisma.$queryRaw<Contact[]>`
-      SELECT
-        id,
-        name,
-        email,
-        linkedin_url AS "linkedinUrl",
-        role,
-        company,
-        created_at AS "createdAt",
-        updated_at AS "updatedAt"
-      FROM contacts
-      ORDER BY name ASC
-    `;
-
+    const contacts = await prisma.contact.findMany({
+      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
+    });
     logger.info('[CONTACT_SERVICE][fetchContactsFromNeon][SUCCESS]', {
       operation: 'fetchContactsFromNeon',
-      message: `Successfully fetched ${result.length} contacts from Neon database.`,
-      count: result.length,
+      message: `Successfully fetched ${contacts.length} contacts from Neon database.`,
+      count: contacts.length,
     });
-    return result;
+    return contacts;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('[CONTACT_SERVICE][fetchContactsFromNeon][ERROR]', {
@@ -77,44 +64,17 @@ export async function fetchContactsFromNeon(): Promise<Contact[]> {
  * @param newContact The contact object to save (excluding id, createdAt, updatedAt).
  * @returns A promise that resolves to the newly created Contact object, including its ID and timestamps.
  */
-export async function saveContactToNeon(newContact: Omit<Contact, 'id' | 'createdAt' | 'updatedAt'>): Promise<Contact> {
+export async function saveContactToNeon(newContact: Prisma.ContactCreateInput): Promise<Contact> {
   logger.info('[CONTACT_SERVICE][saveContactToNeon][START]', {
     operation: 'saveContactToNeon',
     message: 'Attempting to save a new contact to Neon database.',
-    contactName: newContact.name,
+    contactPhoneNumber: newContact.phoneNumber,
   });
-
   try {
-    const id = uuidv4();
-    const now = new Date().toISOString();
-
-    const result = await prisma.$queryRaw<Contact[]>`
-      INSERT INTO contacts (
-        id,
-        name,
-        email,
-        linkedin_url,
-        role,
-        company,
-        created_at,
-        updated_at
-      ) VALUES (${id}, ${newContact.name}, ${newContact.email || null}, ${newContact.linkedinUrl || null}, ${newContact.role || null}, ${newContact.company || null}, ${now}, ${now})
-      RETURNING 
-        id,
-        name,
-        email,
-        linkedin_url AS "linkedinUrl",
-        role,
-        company,
-        created_at AS "createdAt",
-        updated_at AS "updatedAt"
-    `;
-
-    const savedContact: Contact = result[0];
-
+    const savedContact = await prisma.contact.create({ data: newContact });
     logger.info('[CONTACT_SERVICE][saveContactToNeon][SUCCESS]', {
       operation: 'saveContactToNeon',
-      message: `Successfully saved contact ${savedContact.name} to Neon database.`,
+      message: `Successfully saved contact ${savedContact.firstName || ''} ${savedContact.lastName || ''} to Neon database.`,
       contactId: savedContact.id,
     });
     return savedContact;
@@ -123,7 +83,7 @@ export async function saveContactToNeon(newContact: Omit<Contact, 'id' | 'create
     logger.error('[CONTACT_SERVICE][saveContactToNeon][ERROR]', {
       operation: 'saveContactToNeon',
       message: `Failed to save contact to Neon database: ${errorMessage}`,
-      contactName: newContact.name,
+      contactPhoneNumber: newContact.phoneNumber,
       error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
     });

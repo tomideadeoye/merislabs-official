@@ -86,6 +86,8 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 const ProfileEditingPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [profileTextDump, setProfileTextDump] = useState('');
+  const [newFieldSuggestions, setNewFieldSuggestions] = useState<{ name: string; value: any }[]>([]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -167,29 +169,40 @@ const ProfileEditingPage: React.FC = () => {
     logger.info('[ProfileEditingPage][onSubmit] Attempting to save user profile.', { values: Object.keys(values) });
     setIsSaving(true);
     try {
+      // If profileTextDump is not empty, use it as the profileText for LLM update
+      const payload = profileTextDump.trim()
+        ? { profileText: profileTextDump }
+        : values;
       const response = await fetch('/api/orion/profile/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
-
       const result = await response.json();
-
       if (response.ok && result.success) {
         logger.success('[ProfileEditingPage][onSubmit] User profile saved successfully.', {
           profileId: result.profile.id,
         });
         toast.success('Your profile data has been successfully updated!');
+        setProfileTextDump(''); // Clear after successful update
+        // Handle new field suggestions if present
+        if (result.newFieldSuggestions && Array.isArray(result.newFieldSuggestions)) {
+          setNewFieldSuggestions(result.newFieldSuggestions);
+        } else {
+          setNewFieldSuggestions([]);
+        }
       } else {
         logger.error('[ProfileEditingPage][onSubmit] Failed to save user profile.', {
           error: result.error,
           details: result.details,
         });
         toast.error(result.error || 'Failed to save your profile data.');
+        setNewFieldSuggestions([]);
       }
     } catch (error) {
       logger.error('[ProfileEditingPage][onSubmit] Network or unknown error saving profile.', { error });
       toast.error('Could not connect to the server or an unexpected error occurred.');
+      setNewFieldSuggestions([]);
     } finally {
       setIsSaving(false);
     }
@@ -207,6 +220,43 @@ const ProfileEditingPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 text-4xl font-bold text-gray-900 dark:text-gray-100">Edit Your Profile</h1>
+
+      {/* Profile Text Dump Section */}
+      <div className="mb-8 p-6 bg-blue-950/60 rounded-xl border border-blue-800 shadow-lg">
+        <h2 className="text-2xl font-semibold mb-2 text-blue-200">Profile Text Dump (Ultra-Flexible)</h2>
+        <p className="mb-2 text-blue-100">
+          Paste <b>ANY</b> new info, updates, or random thoughts about yourself here. The system will extract, update, and suggest new fields automatically. This is the <b>primary</b> way to update your profile flexibly. You can paste structured, semi-structured, or totally unstructured text. Example:<br />
+          <code>Twitter: @myhandle\nNew Skill: Prompt Engineering\nFavorite Color: Blue\n&quot;I just started a new project called OrionGPT.&quot;</code>
+        </p>
+        <Textarea
+          value={profileTextDump}
+          onChange={e => setProfileTextDump(e.target.value)}
+          placeholder="Paste or type any info here... (e.g., new fields, updates, random facts, etc.)"
+          rows={6}
+          className="w-full mb-2 text-base bg-blue-900/80 text-blue-100 border-blue-700"
+        />
+        <p className="text-xs text-blue-300">If you use this box, it will override the rest of the form for this update. Leave it empty to use the regular form below.</p>
+      </div>
+
+      {/* New Field Suggestions UI */}
+      {newFieldSuggestions.length > 0 && (
+        <div className="mb-8 p-4 bg-yellow-900/80 rounded-xl border border-yellow-700 shadow-lg">
+          <h3 className="text-xl font-semibold mb-2 text-yellow-200">New Field Suggestions</h3>
+          <ul className="space-y-2">
+            {newFieldSuggestions.map((field, idx) => (
+              <li key={field.name + idx} className="flex items-center justify-between bg-yellow-800/60 p-2 rounded">
+                <span className="text-yellow-100 font-mono">{field.name}: <b>{String(field.value)}</b></span>
+                <button
+                  className="ml-4 px-2 py-1 text-xs bg-yellow-700 text-yellow-50 rounded hover:bg-yellow-600"
+                  onClick={() => setNewFieldSuggestions(s => s.filter((_, i) => i !== idx))}
+                  aria-label={`Dismiss suggestion for ${field.name}`}
+                >Dismiss</button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-yellow-300">These fields were detected in your text dump but are not yet part of your profile schema. Add them to your schema if you want to persist them!</p>
+        </div>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

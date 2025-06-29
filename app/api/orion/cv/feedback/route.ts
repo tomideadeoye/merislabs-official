@@ -19,7 +19,7 @@ interface LogContextType {
 
 interface FeedbackPayload {
   componentId: string;
-  opportunityId: string;
+  id: string;
   tailoredContent: string;
   rating: 'positive' | 'negative';
   comments?: string;
@@ -27,7 +27,7 @@ interface FeedbackPayload {
 
 // Zod schema for validating the request body for CV feedback
 const CVFeedbackSchema = z.object({
-  opportunityId: z.string().min(1, 'Opportunity ID is required.'),
+  id: z.string().min(1, 'Opportunity ID is required.'),
   feedbackType: z.enum(['positive', 'negative', 'suggestion', 'bug']),
   feedbackDetails: z.string().min(1, 'Feedback details cannot be empty.'),
   componentId: z.string().optional(),
@@ -64,12 +64,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: `Validation Error: ${errors}` }, { status: 400 });
     }
 
-    const { opportunityId, feedbackType, feedbackDetails, componentId, originalContent, generatedContent } =
+    const { id, feedbackType, feedbackDetails, componentId, originalContent, generatedContent } =
       validationResult.data;
 
     await recordCVFeedback(
       userId,
-      opportunityId,
+      id,
       feedbackType,
       feedbackDetails,
       componentId,
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     logger.success('[CV_FEEDBACK_API][POST][SUCCESS] CV feedback recorded successfully.', {
       ...logContext,
-      opportunityId,
+      id,
       feedbackType,
     });
     return NextResponse.json({ success: true, message: 'Feedback recorded successfully.' });

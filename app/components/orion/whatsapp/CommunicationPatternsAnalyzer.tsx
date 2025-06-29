@@ -50,6 +50,7 @@ import {
   SuggestedStrategy,
   IndividualChatAnalysisSummary,
 } from '@/lib/types/communication';
+import { UnifiedSaveToMemoryComponent } from '@/components/ui/orion/UnifiedSaveToMemoryComponent';
 import { addMemory } from '@/lib/memory';
 
 export default function CommunicationPatternsAnalyzer() {
@@ -144,89 +145,19 @@ export default function CommunicationPatternsAnalyzer() {
     }
   };
 
-  const handleSaveToMemory = async () => {
-    setIsLoading(true);
-    toast.loading('Saving selected insights to memory...');
-    try {
-      const itemsToSave: { content: string; type: string; tags: string[] }[] = [];
+  const [memoryText, setMemoryText] = useState('');
+  const [memoryType, setMemoryType] = useState('');
+  const [memoryTags, setMemoryTags] = useState('');
 
-      analysisResult?.recurringPatterns.forEach((pattern) => {
-        if (selectedPatternsToSave.has(pattern.name)) {
-          itemsToSave.push({
-            content: JSON.stringify(pattern),
-            type: 'communication_pattern',
-            tags: ['whatsapp', 'communication_pattern', pattern.name.toLowerCase().replace(/\s/g, '_')],
-          });
-        }
-      });
-
-      analysisResult?.suggestedStrategies.forEach((strategy) => {
-        if (selectedStrategiesToSave.has(strategy.name)) {
-          itemsToSave.push({
-            content: JSON.stringify(strategy),
-            type: 'communication_strategy',
-            tags: ['whatsapp', 'communication_strategy', strategy.targetsPattern.toLowerCase().replace(/\s/g, '_')],
-          });
-        }
-      });
-
-      if (itemsToSave.length === 0) {
-        toast('No items selected to save.');
-        setIsLoading(false);
-        return;
-      }
-
-      for (const item of itemsToSave) {
-        // Assuming addMemory handles `userId` internally or it's part of the global context.
-        // If `addMemory` requires `userId` explicitly, it should be passed here.
-        await addMemory(
-          item.content,
-          `comm_pattern_insight_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
-          item.type,
-          item.tags
-        );
-      }
-
-      toast.success(`Saved ${itemsToSave.length} insights to memory!`);
-      setSelectedPatternsToSave(new Set());
-      setSelectedStrategiesToSave(new Set());
-      logger.success('[COMM_PATTERNS_ANALYZER][SAVE_SUCCESS]', { savedCount: itemsToSave.length });
-    } catch (err: unknown) {
-      const handledError = handleClientError(err, { stage: 'save_patterns_to_memory' });
-      setError(handledError.message);
-      toast.error(`Failed to save to memory: ${handledError.message}`);
-      logger.error('[COMM_PATTERNS_ANALYZER][SAVE_ERROR]', {
-        error: handledError.message,
-        details: handledError.details,
-      });
-    } finally {
-      setIsLoading(false);
-      toast.dismiss();
+  const handleSaveToMemory = (content: any, type: 'pattern' | 'strategy') => {
+    setMemoryText(JSON.stringify(content, null, 2));
+    if (type === 'pattern') {
+      setMemoryType('communication_pattern');
+      setMemoryTags(`whatsapp,communication_pattern,${content.name.toLowerCase().replace(/\s/g, '_')}`);
+    } else {
+      setMemoryType('communication_strategy');
+      setMemoryTags(`whatsapp,communication_strategy,${content.targetsPattern.toLowerCase().replace(/\s/g, '_')}`);
     }
-  };
-
-  const togglePatternSelection = (patternName: string) => {
-    setSelectedPatternsToSave((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(patternName)) {
-        newSet.delete(patternName);
-      } else {
-        newSet.add(patternName);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleStrategySelection = (strategyName: string) => {
-    setSelectedStrategiesToSave((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(strategyName)) {
-        newSet.delete(strategyName);
-      } else {
-        newSet.add(strategyName);
-      }
-      return newSet;
-    });
   };
 
   const getSentimentColor = (sentiment: string | undefined) => {
@@ -437,6 +368,21 @@ export default function CommunicationPatternsAnalyzer() {
               </div>
             )}
 
+            {memoryText && (
+              <div className="mt-6">
+                <UnifiedSaveToMemoryComponent
+                  initialText={memoryText}
+                  initialType={memoryType}
+                  initialTags={memoryTags}
+                  onMemoryAdded={() => {
+                    setMemoryText('');
+                    setMemoryType('');
+                    setMemoryTags('');
+                  }}
+                />
+              </div>
+            )}
+
             <h3 className="text-lg font-semibold text-gray-200">Recurring Patterns:</h3>
             <div className="space-y-4">
               {analysisResult.recurringPatterns.map((pattern, index) => (
@@ -452,12 +398,12 @@ export default function CommunicationPatternsAnalyzer() {
                     variant="ghost"
                     size="sm"
                     className="mt-2 text-gray-400"
-                    onClick={() => togglePatternSelection(pattern.name)}
+                    onClick={() => handleSaveToMemory(pattern, 'pattern')}
                   >
                     <Save
-                      className={`mr-2 h-4 w-4 ${selectedPatternsToSave.has(pattern.name) ? 'text-green-400' : ''}`}
+                      className={`mr-2 h-4 w-4`}
                     />
-                    {selectedPatternsToSave.has(pattern.name) ? 'Selected to Save' : 'Select to Save'}
+                    Save to Memory
                   </Button>
                 </Card>
               ))}
@@ -475,12 +421,12 @@ export default function CommunicationPatternsAnalyzer() {
                     variant="ghost"
                     size="sm"
                     className="mt-2 text-gray-400"
-                    onClick={() => toggleStrategySelection(strategy.name)}
+                    onClick={() => handleSaveToMemory(strategy, 'strategy')}
                   >
                     <Save
-                      className={`mr-2 h-4 w-4 ${selectedStrategiesToSave.has(strategy.name) ? 'text-green-400' : ''}`}
+                      className={`mr-2 h-4 w-4`}
                     />
-                    {selectedStrategiesToSave.has(strategy.name) ? 'Selected to Save' : 'Select to Save'}
+                    Save to Memory
                   </Button>
                 </Card>
               ))}

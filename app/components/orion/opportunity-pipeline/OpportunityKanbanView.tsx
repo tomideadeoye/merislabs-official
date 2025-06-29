@@ -9,7 +9,7 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `app/(orion_admin)/admin/opportunity-pipeline/page.tsx`: This is the parent page component that consumes and renders the `OpportunityKanbanView`, passing in opportunity data and status change handlers.
- *   - `@/lib/types`: Defines core data structures like `OrionOpportunity` and `OpportunityStatus` enum, which are crucial for rendering and filtering opportunities into Kanban columns.
+ *   - `@/lib/types`: Defines core data structures like `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` and `REFACTOR TO INFERENCE TYPE SAFE FROM PRISMA. DERIVE FROM THERE` enum, which are crucial for rendering and filtering opportunities into Kanban columns.
  *   - `react-beautiful-dnd`: The external library providing the drag-and-drop capabilities.
  *   - `@/components/ui/*`: Utilizes various Shadcn UI components (e.g., `Card`, `Badge`) for visual presentation.
  *   - `@/lib/logger`: Integrates with the centralized logging utility for comprehensive tracking of component lifecycle, drag-and-drop events, and status updates.
@@ -38,7 +38,7 @@ import logger from '@/lib/logger';
 import { format } from 'date-fns';
 import { AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { OpportunityStatus, OrionOpportunity } from '@/lib/types';
+import { Opportunity, $Enums } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { StatusDisplay } from '@/components/ui/orion/StatusDisplay';
 
@@ -60,13 +60,13 @@ const renderDueDateBadge = (dueDate: string | null): React.ReactNode => {
 interface KanbanColumn {
   id: string;
   title: string;
-  statusValues: OpportunityStatus[];
-  items: OrionOpportunity[];
+  statusValues: $Enums.OpportunityStatus[];
+  items: Opportunity[];
 }
 
 interface OpportunityKanbanViewProps {
-  opportunities: OrionOpportunity[];
-  onStatusChange?: (opportunityId: string, newStatus: OpportunityStatus) => Promise<void>;
+  opportunities: Opportunity[];
+  onStatusChange?: (id: string, newStatus: $Enums.OpportunityStatus) => Promise<void>;
   isLoading: boolean;
   error: string | null;
 }
@@ -93,22 +93,22 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
       {
         id: 'identified',
         title: 'Identified',
-        statusValues: [OpportunityStatus.IDENTIFIED],
+        statusValues: [$Enums.OpportunityStatus.IDENTIFIED],
         items: [],
       },
       {
         id: 'researching',
         title: 'Researching',
-        statusValues: [OpportunityStatus.RESEARCHING],
+        statusValues: [$Enums.OpportunityStatus.RESEARCHING],
         items: [],
       },
       {
         id: 'evaluating',
         title: 'Evaluating',
         statusValues: [
-          OpportunityStatus.EVALUATING,
-          OpportunityStatus.EVALUATED_POSITIVE,
-          OpportunityStatus.EVALUATED_NEGATIVE,
+          $Enums.OpportunityStatus.EVALUATING,
+          $Enums.OpportunityStatus.EVALUATED_POSITIVE,
+          $Enums.OpportunityStatus.EVALUATED_NEGATIVE,
         ],
         items: [],
       },
@@ -116,9 +116,9 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
         id: 'application',
         title: 'Application',
         statusValues: [
-          OpportunityStatus.APPLICATION_DRAFTING,
-          OpportunityStatus.APPLICATION_READY,
-          OpportunityStatus.APPLIED,
+          $Enums.OpportunityStatus.APPLICATION_DRAFTING,
+          $Enums.OpportunityStatus.APPLICATION_READY,
+          $Enums.OpportunityStatus.APPLIED,
         ],
         items: [],
       },
@@ -126,10 +126,10 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
         id: 'outreach',
         title: 'Outreach',
         statusValues: [
-          OpportunityStatus.OUTREACH_PLANNED,
-          OpportunityStatus.OUTREACH_SENT,
-          OpportunityStatus.FOLLOW_UP_NEEDED,
-          OpportunityStatus.FOLLOW_UP_SENT,
+          $Enums.OpportunityStatus.OUTREACH_PLANNED,
+          $Enums.OpportunityStatus.OUTREACH_SENT,
+          $Enums.OpportunityStatus.FOLLOW_UP_NEEDED,
+          $Enums.OpportunityStatus.FOLLOW_UP_SENT,
         ],
         items: [],
       },
@@ -137,12 +137,12 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
         id: 'interviewing',
         title: 'Interviewing',
         statusValues: [
-          OpportunityStatus.INTERVIEWING,
-          OpportunityStatus.INTERVIEW_SCHEDULED,
-          OpportunityStatus.INTERVIEW_COMPLETED,
-          OpportunityStatus.INTERVIEWING_ROUND_1,
-          OpportunityStatus.INTERVIEWING_ROUND_2,
-          OpportunityStatus.FINAL_INTERVIEW,
+          $Enums.OpportunityStatus.INTERVIEWING,
+          $Enums.OpportunityStatus.INTERVIEW_SCHEDULED,
+          $Enums.OpportunityStatus.INTERVIEW_COMPLETED,
+          $Enums.OpportunityStatus.INTERVIEWING_ROUND_1,
+          $Enums.OpportunityStatus.INTERVIEWING_ROUND_2,
+          $Enums.OpportunityStatus.FINAL_INTERVIEW,
         ],
         items: [],
       },
@@ -150,10 +150,10 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
         id: 'offer',
         title: 'Offer & Negotiation',
         statusValues: [
-          OpportunityStatus.OFFER_RECEIVED,
-          OpportunityStatus.NEGOTIATING,
-          OpportunityStatus.OFFERED,
-          OpportunityStatus.OFFER_RECEIVED_PENDING_REVIEW,
+          $Enums.OpportunityStatus.OFFER_RECEIVED,
+          $Enums.OpportunityStatus.NEGOTIATING,
+          $Enums.OpportunityStatus.OFFERED,
+          $Enums.OpportunityStatus.OFFER_RECEIVED_PENDING_REVIEW,
         ],
         items: [],
       },
@@ -161,18 +161,18 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
         id: 'closed',
         title: 'Closed',
         statusValues: [
-          OpportunityStatus.ACCEPTED,
-          OpportunityStatus.REJECTED_BY_THEM,
-          OpportunityStatus.DECLINED_BY_ME,
-          OpportunityStatus.OFFER_ACCEPTED,
-          OpportunityStatus.OFFER_REJECTED,
+          $Enums.OpportunityStatus.ACCEPTED,
+          $Enums.OpportunityStatus.REJECTED_BY_THEM,
+          $Enums.OpportunityStatus.DECLINED_BY_ME,
+          $Enums.OpportunityStatus.OFFER_ACCEPTED,
+          $Enums.OpportunityStatus.OFFER_REJECTED,
         ],
         items: [],
       },
       {
         id: 'on_hold_archived',
         title: 'On Hold / Archived',
-        statusValues: [OpportunityStatus.ON_HOLD, OpportunityStatus.ARCHIVED],
+        statusValues: [$Enums.OpportunityStatus.ON_HOLD, $Enums.OpportunityStatus.ARCHIVED],
         items: [],
       },
     ],
@@ -192,7 +192,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
             (opp) =>
               opp.status !== null &&
               opp.status !== undefined &&
-              col.statusValues.includes(opp.status as OpportunityStatus)
+              col.statusValues.includes(opp.status as $Enums.OpportunityStatus)
           ),
         };
         return acc;
@@ -271,20 +271,20 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
       if (onStatusChange) {
         const newStatus = endCol.statusValues[0]; // Assuming the first status value is the primary one for the column
         logger.info('[KANBAN_VIEW][DRAG_END][STATUS_UPDATE] Attempting to update opportunity status via prop.', {
-          opportunityId: draggableId,
+          id: draggableId,
           newStatus,
         });
         try {
           await onStatusChange(draggableId, newStatus);
           // If successful, the parent prop update should trigger useEffect to re-sync columns
           logger.success('[KANBAN_VIEW][DRAG_END][STATUS_UPDATE_SUCCESS] Opportunity status updated successfully.', {
-            opportunityId: draggableId,
+            id: draggableId,
             newStatus,
           });
         } catch (err: unknown) {
           const errorMessage = err instanceof Error ? err.message : String(err);
           logger.error('[KANBAN_VIEW][DRAG_END][STATUS_UPDATE_FAILURE] Failed to update opportunity status.', {
-            opportunityId: draggableId,
+            id: draggableId,
             newStatus,
             error: errorMessage,
           });
@@ -328,7 +328,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={`flex-shrink-0 w-80 p-4 rounded-lg shadow-md transition-all duration-200
+                className={`shrink-0 w-80 p-4 rounded-lg shadow-md transition-all duration-200
                   ${snapshot.isDraggingOver ? 'bg-indigo-900/50' : 'bg-gray-800/50'}
                   flex flex-col border border-gray-700`}
               >
@@ -338,7 +338,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                     {columns[column.id]?.items.length || 0}
                   </Badge>
                 </h2>
-                <div className="flex-grow overflow-y-auto space-y-3 pr-2 scrollbar-thumb-purple-500 scrollbar-track-transparent scrollbar-thin">
+                <div className="grow overflow-y-auto space-y-3 pr-2 scrollbar-thumb-purple-500 scrollbar-track-transparent scrollbar-thin">
                   {columns[column.id]?.items.map((opportunity, index) => (
                     <Draggable key={opportunity.id} draggableId={opportunity.id} index={index}>
                       {(provided, snapshot) => (
@@ -355,13 +355,11 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                               {opportunity.title}
                             </h3>
                           </Link>
-                          {opportunity.companyOrInstitution && (
-                            <p className="text-sm text-gray-300">{opportunity.companyOrInstitution}</p>
-                          )}
+                          {opportunity.company && <p className="text-sm text-gray-300">{opportunity.company}</p>}
                           <div className="flex flex-wrap gap-2 mt-2">
                             {opportunity.status && (
                               <Badge variant="outline" className="border-purple-500 text-purple-200">
-                                {column.statusValues.includes(opportunity.status as OpportunityStatus)
+                                {column.statusValues.includes(opportunity.status as $Enums.OpportunityStatus)
                                   ? opportunity.status
                                   : 'Unknown Status'}
                               </Badge>
@@ -378,7 +376,7 @@ export const OpportunityKanbanView: React.FC<OpportunityKanbanViewProps> = ({
                                 Priority: {opportunity.priority}
                               </Badge>
                             )}
-                            {renderDueDateBadge(opportunity.dueDate as string | null)}
+                            {renderDueDateBadge(opportunity.deadline as string | null)}
                             {opportunity.tags &&
                               opportunity.tags.map((tag, i) => (
                                 <Badge key={i} variant="outline" className="border-gray-500 text-gray-300">

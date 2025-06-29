@@ -5,13 +5,13 @@
 // FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/OpportunityCard.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Consumed by `OpportunityList` (`./OpportunityList.tsx`).
-//   - Uses `OrionOpportunity` type (`@/lib/types`).
+//   - Uses `@/lib/types` type (`Opportunity`).
 //   - Uses `@/components/ui` components (`Card`, `Badge`).
 // Note if any: components to merge with, similar or redundant component
 import React from 'react';
 
 import Link from 'next/link';
-import { OrionOpportunity } from '@/lib/types';
+import type { Opportunity } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Calendar, BarChart2, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -22,14 +22,14 @@ import { Card, CardContent, CardFooter } from '../../card';
 // Note if any: components to merge with, similar or redundant component
 
 interface OpportunityCardProps {
-  opportunity: OrionOpportunity;
+  opportunity: Opportunity;
   onEdit?: (id: string) => void; // Optional edit handler
   onDelete?: (id: string) => void; // Optional delete handler
 }
 
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, onEdit, onDelete }) => {
   console.log('[OpportunityCard][RENDER]', { opportunity });
-  console.log('[OpportunityCard][COMPANY]', opportunity.companyOrInstitution);
+  console.log('[OpportunityCard][COMPANY]', opportunity.company);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -101,9 +101,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
           )}
         </div>
 
-        <p className="text-sm text-gray-300 mt-2">
-          {opportunity.companyOrInstitution && <span>{opportunity.companyOrInstitution}</span>}
-        </p>
+        <p className="text-sm text-gray-300 mt-2">{opportunity.company && <span>{opportunity.company}</span>}</p>
 
         <p className="text-sm text-gray-400 mt-2 line-clamp-2">{opportunity.content || 'No description available'}</p>
 

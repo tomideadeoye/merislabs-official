@@ -26,7 +26,7 @@
  * OPPORTUNITIES FOR IMPROVEMENT:
  *   - **Feature Implementation**: Develop core features like client database, project cost tracking, and revenue reporting.
  *   - **Data Visualization**: Integrate D3.js or similar libraries for dashboards showing key business metrics.
- *   - **Integration**: Connect with Notion or other internal tools for seamless data flow.
+ *   - **Integration**: Connect with WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES or other internal tools for seamless data flow.
  *   - **User Permissions**: Implement granular access control for sensitive business data.
  */
 

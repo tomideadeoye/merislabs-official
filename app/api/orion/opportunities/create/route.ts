@@ -1,4 +1,3 @@
-import { OpportunityCreatePayload } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
 import { createOpportunityInDb } from '@/lib/opportunity_db_service';
 import logger from '@/lib/logger';
@@ -20,7 +19,7 @@ export async function POST(request: NextRequest) {
   logger.info('[OPPORTUNITY_CREATE][START] Initiating POST request to create an opportunity.', logContext);
 
   try {
-    const body: OpportunityCreatePayload = await request.json();
+    const body = await request.json();
     logger.info('[OPPORTUNITY_CREATE][PAYLOAD] Received request body for opportunity creation.', {
       ...logContext,
       body,
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('[OPPORTUNITY_CREATE][SUCCESS] Successfully created opportunity in Neon DB.', {
       ...logContext,
-      opportunityId: createdOpportunity.id,
+      id: createdOpportunity.id,
       company: createdOpportunity.company,
     });
 

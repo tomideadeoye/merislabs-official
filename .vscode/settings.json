@@ -76,5 +76,25 @@
   "autoBarrel.formatting.excludeSemiColonAtEndOfLine": false,
   "autoBarrel.formatting.useSingleQuotes": true,
   "autoBarrel.formatting.endOfLine": "lf",
-  "autoBarrel.formatting.insertFinalNewline": true
+  "autoBarrel.formatting.insertFinalNewline": true,
+  "filewatcher.commands": [
+    {
+      "match": ".*\\.tsx?$",
+      "event": "onFileChange",
+      "vscodeTask": "typescript.restartTsServer",
+      "isAsync": true
+    },
+    {
+      "match": ".*\\.tsx?$",
+      "event": "onFileChange",
+      "vscodeTask": "typescript.restartTsServer",
+      "isAsync": true
+    },
+    {
+      "match": ".*",
+      "event": "onFolderChange",
+      "vscodeTask": "typescript.restartTsServer",
+      "isAsync": true
+    }
+  ]
 }

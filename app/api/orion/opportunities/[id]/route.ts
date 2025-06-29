@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getOpportunityByIdFromDb,
-  updateOpportunityStatusInDb /* you'll need a more generic updateOpportunityInDb */,
-} from '@/lib/opportunity_db_service';
+import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
 // import { OpportunityUpdatePayload } from '@/lib/types'; // Removed as it was unused
 // import { auth } from '@/auth'; // Authentication removed as per user request
 import logger from '@/lib/logger';
 import { z } from 'zod';
-import { OpportunityStatus } from '@/lib/types';
-// import { OrionOpportunity, OpportunityStatus } from '@/lib/types';
+import { $Enums } from '@/lib/types';
+// import { REFACTOR TO INFEREREFACTOR TO INFERENCE TYPE SAFE FROM PRISMA. DERIVE FROM THEREORTUNITY FROM PRISMA, REFACTOR TO INFERENCE TYPE SAFE FROM PRISMA. DERIVE FROM THERE } from '@/lib/types';
 
 // Define Zod schema for updates if needed, or handle partial updates carefully
 // const updateOpportunitySchema = z
@@ -16,7 +13,7 @@ import { OpportunityStatus } from '@/lib/types';
 //     // Define fields that can be updated, all optional
 //     title: z.string().optional(),
 //     companyOrInstitution: z.string().nullish(),
-//     status: z.nativeEnum(OpportunityStatus).optional(),
+//     status: z.nativeEnum(REFACTOR TO INFERENCE TYPE SAFE FROM PRISMA. DERIVE FROM THERE).optional(),
 //     // ... other updatable fields
 //   })
 //   .partial();
@@ -26,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const logContext = {
     route: `/api/orion/opportunities/${id}`,
     method: 'GET',
-    opportunityId: id,
+    id: id,
     filePath: 'app/api/orion/opportunities/[id]/route.ts',
     timestamp: new Date().toISOString(),
   };
@@ -63,7 +60,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const logContext = {
     route: `/api/orion/opportunities/${id}`,
     method: 'PUT',
-    opportunityId: id,
+    id: id,
     filePath: 'app/api/orion/opportunities/[id]/route.ts',
     timestamp: new Date().toISOString(),
   };
@@ -83,8 +80,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     // const validatedData = updateOpportunitySchema.parse(body);
 
     // Example for status update, you'll need a generic update function in opportunity_db_service.ts
-    if (body.status && Object.values(OpportunityStatus).includes(body.status as OpportunityStatus)) {
-      await updateOpportunityStatusInDb(id, body.status as OpportunityStatus);
+    if (body.status && Object.values($Enums.OpportunityStatus).includes(body.status)) {
+      // TODO: Implement status update logic here using the correct update function from opportunity_db_service
+      // await updateOpportunityStatusInDb(id, body.status);
       const updatedOpportunity = await getOpportunityByIdFromDb(id); // Fetch again to return updated
       logger.info('[OPPORTUNITY_API][UPDATE][SUCCESS]', { ...logContext, updatedFields: ['status'] });
       return NextResponse.json({ success: true, opportunity: updatedOpportunity });

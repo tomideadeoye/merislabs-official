@@ -165,7 +165,7 @@ export function Header({ navItems }: HeaderProps) {
                   aria-label="Toggle theme"
                   className={cn(
                     'relative w-14 h-8 p-0 flex items-center rounded-full transition-colors duration-300',
-                    'bg-gradient-to-br from-yellow-100/80 to-pink-100/80 dark:from-gray-800 dark:to-gray-900',
+                    'bg-linear-to-br from-yellow-100/80 to-pink-100/80 dark:from-gray-800 dark:to-gray-900',
                     'border border-yellow-200 dark:border-gray-700 shadow-sm' // Refined shadow
                   )}
                   onClick={handleThemeToggle}

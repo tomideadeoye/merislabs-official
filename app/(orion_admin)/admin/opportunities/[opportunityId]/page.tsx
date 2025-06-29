@@ -6,14 +6,14 @@
  * CV Tailoring, Stakeholders, and Email & LinkedIn Drafts into a single view.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - To serve as the central hub for managing a specific `OrionOpportunity`.
- *   - To fetch and provide `OrionOpportunity` data and `CVComponent` data to child components.
+ *   - To serve as the central hub for managing a specific `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`.
+ *   - To fetch and provide `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` data and `CVComponent` data to child components.
  *   - To present a tabbed interface for seamless navigation between various opportunity-related functionalities.
  *   - To integrate `OpportunityDetailView` for job description, `AIEvaluationContent` for AI evaluation,
  *     `CVTailoringStudio` for CV customization, `CompanyStakeholderOutreach` for stakeholder management, and
  *     `EmailLinkedinDraftContent` for communication drafting.
  *
- * FILEPATH: `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`.
+ * FILEPATH: `app/(orion_admin)/admin/opportunity-pipeline/[id]/page.tsx`.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `app/lib/opportunity_db_service.ts`: Utilized `getOpportunityByIdFromDb` to fetch opportunity data.
@@ -27,10 +27,10 @@
  *   - `@/components/ui/page-header`: For consistent page title and description.
  *   - `@/components/ui/tabs`: Shadcn UI components for the tabbed interface.
  *   - `lucide-react`: Provides icons (`Briefcase`) for visual elements.
- *   - `@/lib/types`: Imports `OrionOpportunity` and `CVComponent` for type consistency.
+ *   - `@/lib/types`: Imports `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` and `CVComponent` for type consistency.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes `params.opportunityId` is a valid ID for an existing opportunity.
+ *   - Assumes `params.id` is a valid ID for an existing opportunity.
  *   - Assumes `getOpportunityByIdFromDb` and `fetchAllCvComponents` services are operational.
  *   - This component is a server component, handling initial data fetching before rendering the client-side UI.
  *   - All tab content components are now client-side and receive necessary data as props.
@@ -51,7 +51,7 @@ import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/ui/page-header';
 import { Briefcase } from 'lucide-react';
 import { CompanyStakeholderOutreach } from '@/components/orion/opportunities/CompanyStakeholderOutreach';
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 import { CVComponent } from '@/lib/types/cv';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CVTailoringStudio } from '@/components/orion/CVTailoringStudio';
@@ -61,11 +61,11 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
 interface Props {
-  params: { opportunityId: string };
+  params: { id: string };
 }
 
 export default async function OpportunityDetailPage({ params }: Props) {
-  const { opportunityId } = await params;
+  const { id } = await params;
   let pageError: string | null = null;
 
   // NOTE: Strict authentication is not a high priority at this stage. Features should generally be accessible.
@@ -73,14 +73,14 @@ export default async function OpportunityDetailPage({ params }: Props) {
   // Removed unused variable `isAuthenticated` as it's not currently used in any logic.
   // const isAuthenticated = true;
 
-  if (!opportunityId || opportunityId.includes('.') || opportunityId.length < 36) {
-    console.warn(`[OpportunityDetailPage] Invalid opportunityId format received: ${opportunityId}. Returning 404.`);
+  if (!id || id.includes('.') || id.length < 36) {
+    console.warn(`[OpportunityDetailPage] Invalid id format received: ${id}. Returning 404.`);
     notFound();
   }
 
-  const opportunityResult = await getOpportunityByIdFromDb(opportunityId);
+  const opportunityResult = await getOpportunityByIdFromDb(id);
 
-  let opportunity: OrionOpportunity;
+  let opportunity: Opportunity;
 
   if (opportunityResult === null) {
     notFound(); // Exit if opportunity is not found
@@ -91,26 +91,27 @@ export default async function OpportunityDetailPage({ params }: Props) {
       opportunityResult.message,
       opportunityResult.details
     );
+    // Fallback: create a minimal Opportunity object for error display
     opportunity = {
-      id: opportunityId,
+      id: id,
       title: 'Error Loading Opportunity',
       company: 'N/A',
       status: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       type: null,
       position: null,
       location: null,
       salary: null,
       content: null,
-      tags: null,
+      tags: [],
       url: null,
       dateIdentified: null,
       notes: null,
       contactPerson: null,
       contactEmail: null,
       stage: null,
-      attachments: null,
+      attachments: [],
       relatedEvaluationId: null,
       sourceUrl: null,
       nextActionDate: null,
@@ -119,22 +120,13 @@ export default async function OpportunityDetailPage({ params }: Props) {
       deadline: null,
       contact: null,
       lastStatusUpdate: null,
-      notionPageId: null,
-      evaluationOutput: null,
-      webResearchContext: null,
-      pros: null,
-      cons: null,
-      missingSkills: null,
-      contentType: null,
-      lastEditedTime: new Date().toISOString(),
-      cvComponentSuggestions: null,
-      alignmentScore: null,
-      actionableAdvice: null,
-      applicationMaterialIds: null,
-      companyOrInstitution: null,
+      applicationMaterialIds: [],
+      userId: null,
+      tailoredCvId: null,
+      evaluationResult: null,
     };
   } else {
-    opportunity = opportunityResult as OrionOpportunity;
+    opportunity = opportunityResult;
   }
 
   let cvComponents: CVComponent[];

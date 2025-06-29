@@ -18,7 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui';
-import { DedicatedAddToMemoryFormComponent } from '@/components/ui/orion/DedicatedAddToMemoryFormComponent';
+import { UnifiedSaveToMemoryComponent } from '@/components/ui/orion/UnifiedSaveToMemoryComponent';
 
 export default function MemoryExplorerPage() {
   const [activeTab, setActiveTab] = useState('search');
@@ -135,7 +135,7 @@ export default function MemoryExplorerPage() {
                 </Select>
               </div>
 
-              <DedicatedAddToMemoryFormComponent
+              <UnifiedSaveToMemoryComponent
                 initialType={memoryType}
                 initialTags={memoryType}
                 onMemoryAdded={() => setActiveTab('search')}

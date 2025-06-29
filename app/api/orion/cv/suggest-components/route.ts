@@ -1,6 +1,6 @@
 /**
  * @fileoverview API route to suggest relevant CV components based on a given opportunity's job description.
- * @description This endpoint receives an `opportunityId`, fetches the opportunity content and all available CV components,
+ * @description This endpoint receives an `id`, fetches the opportunity content and all available CV components,
  * then uses an LLM (Orion's `generateLLMResponse`) to intelligently suggest the most relevant components.
  * It is crucial for automating the initial selection process in the CV Tailoring Studio, aligning with FR-2 of the PRD.
  *
@@ -18,10 +18,10 @@
  *   - `@/lib/orion_llm`: Provides the `generateLLMResponse` function, which interfaces with the LLM to process the prompt and generate suggestions (FR-2.2).
  *   - `@/lib/logger`: Used for comprehensive logging of API request, response, and error details.
  *   - `app/components/orion/CVTailoringStudio.tsx`: This client-side component calls this API route upon loading to get component suggestions (FR-2.1).
- *   - `@/lib/types`: Defines `OrionOpportunity` and `CVComponent` interfaces used for data typing.
+ *   - `@/lib/types`: Defines `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` and `CVComponent` interfaces used for data typing.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes a valid `opportunityId` is provided in the request body.
+ *   - Assumes a valid `id` is provided in the request body.
  *   - Assumes the LLM service (`generateLLMResponse`) is operational and correctly configured to handle `REQUEST_TYPES.CV_COMPONENT_TAILORING`.
  *   - Assumes CV component content (c.content) is JSON-parseable if it's stored as a string, as required by the prompt structure.
  *   - The LLM is expected to return a JSON array of strings (unique IDs) (FR-2.3).
@@ -36,7 +36,7 @@
  *   - The prompt for the LLM is carefully constructed to guide the AI in selecting the most relevant components based on the job description.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
- *   - **Schema Validation**: Implement Zod or similar schema validation for the incoming request body (`opportunityId`).
+ *   - **Schema Validation**: Implement Zod or similar schema validation for the incoming request body (`id`).
  *   - **Error Handling Granularity**: Provide more specific error messages to the client based on different failure points (e.g., LLM specific errors).
  *   - **Caching**: Implement server-side caching for LLM responses to frequently requested opportunities or components to reduce latency and LLM costs.
  *   - **LLM Prompt Optimization**: Continuously refine the LLM prompt for better suggestion accuracy and relevance.
@@ -47,22 +47,21 @@ import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
 import { fetchAllCvComponents } from '@/lib/cv_components_db_service';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import logger from '@/lib/logger';
-import { OrionOpportunity } from '@/lib/types';
 import { CVComponent } from '@/lib/types/cv';
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
 export async function POST(request: NextRequest) {
-  const { opportunityId } = await request.json();
-  if (!opportunityId)
+  const { id } = await request.json();
+  if (!id)
     return NextResponse.json({ success: false, error: 'Opportunity ID is required.' }, { status: 400 });
 
   try {
-    const opportunityResult = await getOpportunityByIdFromDb(opportunityId);
+    const opportunityResult = await getOpportunityByIdFromDb(id);
 
     // Handle HandledApplicationError or null opportunity explicitly
     if (opportunityResult === null || opportunityResult instanceof HandledApplicationError) {
       logger.warn('[CV_SUGGEST_API] Opportunity not found or is an error.', {
-        opportunityId,
+        id,
         error: opportunityResult instanceof HandledApplicationError ? opportunityResult.message : 'Not found',
       });
       return NextResponse.json(
@@ -71,17 +70,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const opportunity: OrionOpportunity = opportunityResult as OrionOpportunity;
+    const opportunity = opportunityResult;
 
     if (!opportunity.content) {
-      logger.warn('[CV_SUGGEST_API] Opportunity has no content.', { opportunityId });
+      logger.warn('[CV_SUGGEST_API] Opportunity has no content.', { id });
       return NextResponse.json({ success: false, error: 'Opportunity has no description.' }, { status: 404 });
     }
 
     const allCvComponents = await fetchAllCvComponents();
 
     if (allCvComponents instanceof HandledApplicationError) {
-      logger.error('[CV_SUGGEST_API][FETCH_COMPONENTS_ERROR]', { opportunityId, error: allCvComponents.message });
+      logger.error('[CV_SUGGEST_API][FETCH_COMPONENTS_ERROR]', { id, error: allCvComponents.message });
       return NextResponse.json(
         { success: false, error: allCvComponents.message },
         { status: allCvComponents.statusCode || 500 }
@@ -89,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (allCvComponents.length === 0) {
-      logger.warn('[CV_SUGGEST_API] No CV components in database.', { opportunityId });
+      logger.warn('[CV_SUGGEST_API] No CV components in database.', { id });
       return NextResponse.json({ success: false, error: 'No CV components in database.' }, { status: 404 });
     }
 
@@ -107,11 +106,11 @@ export async function POST(request: NextRequest) {
     }
 
     const suggestedIds = JSON.parse(llmResponse.content);
-    logger.success('[CV_SUGGEST_API] Successfully suggested CV components.', { opportunityId, suggestedIds });
+    logger.success('[CV_SUGGEST_API] Successfully suggested CV components.', { id, suggestedIds });
     return NextResponse.json({ success: true, suggestedComponentIds: suggestedIds });
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error.';
-    logger.error('[CV_SUGGEST_API] Error', { error: msg, opportunityId });
+    logger.error('[CV_SUGGEST_API] Error', { error: msg, id });
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

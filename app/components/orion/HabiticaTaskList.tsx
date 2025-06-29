@@ -211,7 +211,7 @@ export const HabiticaTaskList: React.FC<HabiticaTaskListProps> = ({ type, classN
                     onChange={() => handleTaskToggle(task)}
                     className="form-checkbox h-4 w-4 text-blue-500 rounded"
                   />
-                  <span className={`flex-grow ${task.completed ? 'line-through text-gray-500' : 'text-white'}`}>
+                  <span className={`grow ${task.completed ? 'line-through text-gray-500' : 'text-white'}`}>
                     {task.text}
                     {task.date && type === 'dailys' && (
                       <span className={`ml-2 text-xs ${isPastDue(task.date) ? 'text-red-400' : 'text-gray-400'}`}>

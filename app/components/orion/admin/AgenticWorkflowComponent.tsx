@@ -84,6 +84,10 @@
  *   - **Cost Estimation/Tracking:** Provide users with an estimated cost of agent execution (e.g., based on LLM tokens and tool usage) for transparency, especially for longer or more complex tasks.
  */
 
+/**
+ * NOTE: TaskStepTimeline now requires a taskId prop for threaded replies. All reply/context input is handled per-step in the timeline. The old 'Add Reply/Context to Latest Step' box is removed.
+ */
+
 'use client';
 
 import React, { useEffect } from 'react';
@@ -98,23 +102,24 @@ import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import apiClient from '@/lib/apiClient';
 import logger from '@/lib/logger';
-import {
-  HandledApplicationError,
-  LLMTool,
-  Message,
-  LLMToolCall,
-  Task,
-  TaskStatus,
-  TaskPriority,
-  TaskStep,
-} from '@/lib/types';
+import { HandledApplicationError, LLMTool, Message, LLMToolCall } from '@/lib/types';
+import { Task, TaskStep } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 import { QuadrantMemoryChunksVisualizer } from '@/components/orion/QuadrantMemoryChunksVisualizer';
 import { Badge } from '@/components/ui/badge';
 import { MemorySearchResponse } from '@/lib/types/memory';
 import { TaskStepTimeline } from '@/components/orion/tasks/TaskStepTimeline';
 import useAgentWorkflowStore from '@/lib/stores/agentWorkflowStore';
+import { useToast } from '@/components/ui/use-toast';
 import { useTasks } from '@/hooks/useTasks';
 import '@/components/ui/glitter-border.css';
+import { Switch } from '@/components/ui/switch';
+import { Copy } from 'lucide-react';
+import { MultiSelect } from '@/components/ui/multi-select';
+import { useMultiSelectStore } from '@/components/ui/multiSelectStore';
+import { UnifiedSaveToMemoryComponent } from '@/components/ui/orion/UnifiedSaveToMemoryComponent';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface AgentResponse {
   success: boolean;
@@ -133,6 +138,68 @@ interface TaskApiResponse {
 
 // Default user ID for a personal, non-authenticated project
 const DEFAULT_USER_ID = 'personal_user';
+
+// MemoryHighlights component
+const MemoryHighlights: React.FC<{ memories: any[] }> = ({ memories }) => {
+  const [showAll, setShowAll] = React.useState(false);
+  const topMemories = showAll ? memories : memories.slice(0, 3);
+  if (!memories || memories.length === 0) return null;
+  return (
+    <div className="mb-4 p-4 rounded-lg bg-gray-900 border border-purple-700 shadow-lg">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-md font-bold text-purple-300">Memory Highlights</h4>
+        {memories.length > 3 && (
+          <button
+            className="text-xs text-blue-400 hover:text-blue-200 underline"
+            onClick={() => {
+              setShowAll((v) => !v);
+              logger.info('[MEMORY_HIGHLIGHTS][TOGGLE_SHOW_ALL]', { showAll: !showAll, total: memories.length });
+            }}
+          >
+            {showAll ? 'Show Top 3' : `Show All (${memories.length})`}
+          </button>
+        )}
+      </div>
+      <ul className="space-y-2">
+        {topMemories.map((memory, idx) => (
+          <li key={memory.id || idx} className="bg-gray-800 border border-gray-700 rounded p-3 flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-200 text-sm font-semibold truncate max-w-xs" title={memory.payload?.text}>
+                {memory.payload?.text?.slice(0, 120)}
+                {memory.payload?.text?.length > 120 ? '...' : ''}
+              </span>
+              <button
+                className="ml-2 text-gray-400 hover:text-green-400"
+                onClick={() => {
+                  navigator.clipboard.writeText(memory.payload?.text || '');
+                  logger.info('[MEMORY_HIGHLIGHTS][COPY]', { memoryId: memory.id });
+                }}
+                title="Copy memory text"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs mt-1">
+              <Badge className="bg-gray-700 text-gray-100">Score: {memory.score?.toFixed(2)}</Badge>
+              {memory.payload?.tags &&
+                memory.payload.tags.map((tag: string) => (
+                  <Badge key={tag} className="bg-purple-600 text-purple-100">
+                    {tag}
+                  </Badge>
+                ))}
+              {memory.payload?.timestamp && (
+                <Badge className="bg-orange-600 text-orange-100">
+                  {new Date(memory.payload.timestamp).toLocaleDateString()}
+                </Badge>
+              )}
+              {memory.payload?.type && <Badge className="bg-blue-700 text-blue-100">{memory.payload.type}</Badge>}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 export const AgenticWorkflowComponent: React.FC = () => {
   const {
@@ -182,13 +249,43 @@ export const AgenticWorkflowComponent: React.FC = () => {
     setNewTaskStatus,
     newTaskPriority,
     setNewTaskPriority,
+    newTaskRelatedContactIds,
+    setNewTaskRelatedContactIds,
   } = useAgentWorkflowStore();
 
-  const { tasks, isLoading: taskLoading, error: taskError, addTask } = useTasks();
+  const { toast } = useToast();
+  const { tasks, isLoading: taskLoading, error: taskError, addTask, updateTask, deleteTask } = useTasks();
 
   const logContext = { component: 'AgenticWorkflowComponent', userQuery };
 
-  const selectedTask = tasks.find((t: import('@/lib/types').Task) => t.id === selectedTaskId);
+  const selectedTask = tasks.find((t: Task) => t.id === selectedTaskId);
+
+  const [responseStyle, setResponseStyle] = React.useState<'concise' | 'sequential'>('concise');
+  const [autoSaveSteps, setAutoSaveSteps] = React.useState(true);
+  const [stepsToSave, setStepsToSave] = React.useState<any[]>([]);
+  const [newTaskTags, setNewTaskTags] = React.useState<string>('');
+  const [stepReply, setStepReply] = React.useState<string>('');
+  const [replyingToStep, setReplyingToStep] = React.useState<number | null>(null);
+  const [activeTagFilter, setActiveTagFilter] = React.useState<string | null>(null);
+  const [activePriorityFilter, setActivePriorityFilter] = React.useState<$Enums.TaskPriority | 'ALL'>('ALL');
+  const [activeStatusFilter, setActiveStatusFilter] = React.useState<$Enums.TaskStatus | 'ALL'>('ALL');
+  const multiSelectStoreInstance = useMultiSelectStore();
+
+  // Compute all unique tags from tasks (ensure string[])
+  const allTags: string[] = Array.from(new Set((tasks.flatMap((task: Task) => (task.tags || []).filter((t): t is string => typeof t === 'string')))));
+
+  // Sync MultiSelect options and selected with form state
+  React.useEffect(() => {
+    multiSelectStoreInstance.getState().setOptions(allTags.map((tag: string) => ({ label: tag, value: tag })));
+    // When editing/creating, parse newTaskTags to string[]
+    const selectedTags: string[] = newTaskTags.split(',').map((t: string) => t.trim()).filter(Boolean);
+    multiSelectStoreInstance.getState().setSelected(selectedTags);
+    multiSelectStoreInstance.getState().setOnChangeCallback((selected: string[]) => {
+      setNewTaskTags(selected.join(', '));
+      logger.info('[TASK_MANAGER][TAGS][SELECTED][STORE_CALLBACK]', { tags: selected });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTags.join(','), newTaskTags]);
 
   useEffect(() => {
     const fetchTools = async () => {
@@ -198,7 +295,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
         );
         if (response.data.success) {
           setAvailableTools(response.data.tools);
-          setSelectedToolNames(response.data.tools.map((tool) => tool.function.name));
+          setSelectedToolNames([]);
           logger.info('[AGENTIC_WORKFLOW][TOOLS_FETCH_SUCCESS] Available tools fetched.', {
             toolCount: response.data.tools.length,
           });
@@ -261,7 +358,12 @@ export const AgenticWorkflowComponent: React.FC = () => {
       setSelectedStrategyForRefinement(null);
     }
 
-    logger.info('[AGENTIC_WORKFLOW][SUBMIT] User submitted query.', { ...logContext, queryToSend });
+    logger.info('[AGENTIC_WORKFLOW][SUBMIT] User submitted query.', {
+      ...logContext,
+      queryToSend,
+      responseStyle,
+      autoSaveSteps,
+    });
 
     const initialUserMessage: Message = { role: 'user', content: queryToSend };
     if (numStrategies === 1) {
@@ -275,6 +377,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
         userQuery: queryToSend,
         selectedTools: selectedToolNames,
         numOptions: numStrategies,
+        responseStyle,
+        autoSaveSteps,
         relatedLinks: newTaskRelatedLinks
           .split(',')
           .map((link) => link.trim())
@@ -289,6 +393,12 @@ export const AgenticWorkflowComponent: React.FC = () => {
         if (response.data.strategies && response.data.strategies.length > 0) {
           setGeneratedStrategies(response.data.strategies);
           setAgentMessages([]);
+          if (!autoSaveSteps) {
+            setStepsToSave(response.data.strategies);
+            logger.info('[AGENTIC_WORKFLOW][STEPS][NOT_AUTO_SAVED] Steps generated but not auto-saved.', {
+              count: response.data.strategies.length,
+            });
+          }
           logger.success('[AGENTIC_WORKFLOW][SUCCESS] Agent generated multiple strategies.', {
             numStrategies: response.data.strategies.length,
             ...logContext,
@@ -370,89 +480,30 @@ export const AgenticWorkflowComponent: React.FC = () => {
         <div className="space-y-2 mt-2">
           <p className="font-semibold text-green-300">Tool Output (ID: {message.tool_call_id}):</p>
           <Card className="bg-green-900/30 border-green-700 text-green-100 p-3 text-sm">
-            <pre className="whitespace-pre-wrap font-mono text-xs">{message.content}</pre>
+            <div className="prose prose-invert max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            </div>
           </Card>
         </div>
       );
     } else if (message.content) {
       return (
-        <>
-          <p className="whitespace-pre-wrap">{message.content}</p>
-          {message.role === 'assistant' && (
-            <div className="flex items-center space-x-2 mt-2">
-              <Checkbox
-                id={`save-strategy-${index}`}
-                checked={strategiesToSave.has(message.content || '')}
-                onCheckedChange={(checked) => handleStrategySelectionChange(message.content || '', checked as boolean)}
-              />
-              <label htmlFor={`save-strategy-${index}`} className="text-sm font-medium leading-none text-gray-300">
-                Save to Memory
-              </label>
-            </div>
-          )}
-        </>
+        <div className="prose prose-invert max-w-none">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {message.content}
+          </ReactMarkdown>
+        </div>
       );
     }
     return null;
   };
 
-  const handleStrategySelectionChange = (strategyContent: string, isChecked: boolean) => {
-    const newSet = new Set(strategiesToSave);
-    if (isChecked) {
-      newSet.add(strategyContent);
-    } else {
-      newSet.delete(strategyContent);
-    }
-    setStrategiesToSave(newSet);
-  };
+  const [memoryText, setMemoryText] = React.useState('');
 
-  const handleSaveToMemory = async () => {
-    setIsLoading(true);
-    setError(null);
-    logger.info('[AGENTIC_WORKFLOW][SAVE_TO_MEMORY] Attempting to save selected strategies to memory.', {
-      strategyCount: strategiesToSave.size,
-    });
-
-    const userId = DEFAULT_USER_ID;
-
-    try {
-      if (!userId) {
-        throw new Error('User ID is not available. Cannot save to memory.');
-      }
-
-      for (const strategyContent of Array.from(strategiesToSave)) {
-        const response = await apiClient.post('/api/orion/memory/add-memory', {
-          text: strategyContent,
-          source_id: 'agentic_workflow_strategy',
-          type: 'strategy',
-          tags: ['agentic_workflow', 'strategy'],
-          userId: userId,
-        });
-
-        if (!response.data.success) {
-          throw new Error(`Failed to save strategy to memory: ${response.data.error}`);
-        }
-        logger.success('[AGENTIC_WORKFLOW][SAVE_TO_MEMORY] Strategy saved successfully.', {
-          strategyContent: strategyContent.substring(0, 50) + '...',
-        });
-      }
-      setStrategiesToSave(new Set());
-      alert('Selected strategies saved to memory!');
-    } catch (err: unknown) {
-      const errorMessage = 'Failed to save strategies to memory: ';
-      if (err instanceof HandledApplicationError) {
-        setError(errorMessage + err.message);
-        logger.error('[AGENTIC_WORKFLOW][SAVE_TO_MEMORY][HANDLED]', { error: err.message, originalError: err });
-      } else if (err instanceof Error) {
-        setError(errorMessage + err.message);
-        logger.error('[AGENTIC_WORKFLOW][SAVE_TO_MEMORY][UNHANDLED]', { error: errorMessage, stack: err.stack });
-      } else {
-        setError(errorMessage + String(err));
-        logger.error('[AGENTIC_WORKFLOW][SAVE_TO_MEMORY][UNKNOWN]', { error: String(err) });
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSaveToMemory = (content: string) => {
+    setMemoryText(content);
   };
 
   const handleExecuteStrategy = async (strategyMessages: Message[]) => {
@@ -556,9 +607,54 @@ export const AgenticWorkflowComponent: React.FC = () => {
 
   const handleSubmitTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    const tagsArray = newTaskTags
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+    logger.info('[TASK_MANAGER][TAGS][PARSE] Parsed tags from input.', { input: newTaskTags, tagsArray });
     if (editingTask) {
-      logger.warn('[TASK_MANAGER][UPDATE_TASK][NOT_IMPLEMENTED] Update task is not yet implemented in useTasks.');
-      setError('Task update is not yet supported.');
+      logger.info('[TASK_MANAGER][UPDATE_TASK][START] Attempting to update task.', {
+        editingTaskId: editingTask.id,
+        newTaskTitle,
+        newTaskStatus,
+        newTaskPriority,
+      });
+      if (!newTaskTitle.trim()) {
+        setError('Task title cannot be empty.');
+        logger.warn('[TASK_MANAGER][UPDATE_TASK][VALIDATION_FAIL] Task title empty.');
+        return;
+      }
+      try {
+        await updateTask.mutateAsync({
+          id: editingTask.id,
+          title: newTaskTitle,
+          description: newTaskDescription,
+          status: newTaskStatus,
+          priority: newTaskPriority,
+          relatedLinks: newTaskRelatedLinks
+            .split(',')
+            .map((link: string) => link.trim())
+            .filter((link: string) => link.length > 0),
+          relatedPhoneNumbers: newTaskRelatedPhoneNumbers
+            .split(',')
+            .map((phone: string) => phone.trim())
+            .filter((phone: string) => phone.length > 0),
+          dueDate: newTaskDueDate ? new Date(newTaskDueDate) : null,
+          tags: tagsArray,
+        } as any);
+        setEditingTask(null);
+        setNewTaskTitle('');
+        setNewTaskDescription('');
+        setNewTaskRelatedLinks('');
+        setNewTaskRelatedPhoneNumbers('');
+        setNewTaskDueDate(null);
+        setNewTaskTags('');
+        logger.success('[TASK_MANAGER][UPDATE_TASK][SUCCESS] Task updated.');
+        logger.success('[TASK_MANAGER][UPDATE_TASK][TAGS] Updated task with tags.', { tags: tagsArray });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+        logger.error('[TASK_MANAGER][UPDATE_TASK][ERROR]', { error: err });
+      }
       return;
     } else {
       logger.info('[TASK_MANAGER][CREATE_TASK][START] Attempting to create new task.', {
@@ -586,13 +682,16 @@ export const AgenticWorkflowComponent: React.FC = () => {
             .map((phone: string) => phone.trim())
             .filter((phone: string) => phone.length > 0),
           dueDate: newTaskDueDate ? new Date(newTaskDueDate) : null,
+          tags: tagsArray,
         } as any);
         setNewTaskTitle('');
         setNewTaskDescription('');
         setNewTaskRelatedLinks('');
         setNewTaskRelatedPhoneNumbers('');
         setNewTaskDueDate(null);
+        setNewTaskTags('');
         logger.success('[TASK_MANAGER][CREATE_TASK][SUCCESS] Task created.');
+        logger.success('[TASK_MANAGER][CREATE_TASK][TAGS] Created task with tags.', { tags: tagsArray });
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
         logger.error('[TASK_MANAGER][CREATE_TASK][ERROR]', { error: err });
@@ -601,13 +700,21 @@ export const AgenticWorkflowComponent: React.FC = () => {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    logger.warn('[TASK_MANAGER][DELETE_TASK][NOT_IMPLEMENTED] Delete task is not yet implemented in useTasks.');
-    setError('Task deletion is not yet supported.');
+    logger.info('[TASK_MANAGER][DELETE_TASK][START] Attempting to delete task.', { taskId });
+    try {
+      await deleteTask.mutateAsync(taskId);
+      logger.success('[TASK_MANAGER][DELETE_TASK][SUCCESS] Task deleted.', { taskId });
+      if (editingTask && editingTask.id === taskId) setEditingTask(null);
+      if (selectedTaskId === taskId) setSelectedTaskId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      logger.error('[TASK_MANAGER][DELETE_TASK][ERROR]', { error: err, taskId });
+    }
   };
 
   const handleTaskSelection = async (taskId: string) => {
     setSelectedTaskId(taskId);
-    const task = tasks.find((t: import('@/lib/types').Task) => t.id === taskId);
+    const task = tasks.find((t: Task) => t.id === taskId);
     if (task && task.title) {
       setIsMemoriesLoading(true);
       setMemoriesError(null);
@@ -657,6 +764,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
     setNewTaskRelatedLinks(task.relatedLinks ? task.relatedLinks.join(',') : '');
     setNewTaskRelatedPhoneNumbers(task.relatedPhoneNumbers ? task.relatedPhoneNumbers.join(',') : '');
     setNewTaskDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : null);
+    setNewTaskTags(task.tags ? task.tags.join(', ') : '');
+    logger.info('[TASK_MANAGER][EDIT][TAGS] Populated tags for editing.', { tags: task.tags });
   };
 
   const handleCreateTaskFromAgentOutput = async (answer: string) => {
@@ -668,12 +777,55 @@ export const AgenticWorkflowComponent: React.FC = () => {
     setNewTaskDueDate(null);
     setShouldCreateTaskFromAgentOutput(false);
     // Manually trigger the task submission to create the task
-    await handleSubmitTask({ preventDefault: () => {} } as React.FormEvent);
+    await handleSubmitTask({ preventDefault: () => { } } as React.FormEvent);
     logger.success('[TASK_MANAGER][CREATE_FROM_AGENT_OUTPUT][SUCCESS]', { answer: answer.substring(0, 50) + '...' });
   };
 
+  const handleSaveStepsToDB = async () => {
+    setIsLoading(true);
+    setError(null);
+    logger.info('[AGENTIC_WORKFLOW][SAVE_STEPS_TO_DB] Attempting to save steps to DB.', { count: stepsToSave.length });
+    try {
+      for (const step of stepsToSave) {
+        // Replace with actual API call to save step
+        const response = await apiClient.post('/api/orion/tasks/add-step', {
+          step,
+        });
+        if (!response.data.success) {
+          throw new Error(response.data.error || 'Failed to save step');
+        }
+        logger.success('[AGENTIC_WORKFLOW][SAVE_STEPS_TO_DB] Step saved.', { step });
+      }
+      setStepsToSave([]);
+      alert('Steps saved to DB!');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      logger.error('[AGENTIC_WORKFLOW][SAVE_STEPS_TO_DB][ERROR]', { error: err });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Add state for pending generated steps
+  const [pendingGeneratedSteps, setPendingGeneratedSteps] = React.useState<any[]>([]);
+  const [isAddingSteps, setIsAddingSteps] = React.useState(false);
+
+  // Filter tasks by priority, status, and tags before rendering
+  const filteredTasks = tasks.filter(
+    (task) =>
+      (activePriorityFilter === 'ALL' || task.priority === activePriorityFilter) &&
+      (activeStatusFilter === 'ALL' || task.status === activeStatusFilter) &&
+      (activeTagFilter === null || (task.tags || []).includes(activeTagFilter))
+  );
+
+  // Filter tasks by priority before rendering
+  const filteredTasksByPriority: Task[] = tasks.filter((task) =>
+    (activePriorityFilter === 'ALL' || task.priority === activePriorityFilter) &&
+    (activeTagFilter === null || (task.tags || []).includes(activeTagFilter))
+  );
+
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-gray-900 to-black text-white p-6 space-y-8 overflow-auto">
+    <div className="flex flex-col h-full bg-linear-to-br from-gray-900 to-black text-white p-6 space-y-8 overflow-auto">
       <h1 className="text-4xl font-extrabold text-center mb-8 text-purple-400 drop-shadow-lg tracking-wide">
         Orion Agentic Workflow
       </h1>
@@ -681,7 +833,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
       <div className="flex flex-col md:flex-row gap-8 w-full">
         <div className="flex-1 min-w-0">
           <Card className="bg-gray-800 border-none shadow-2xl rounded-2xl">
-            <CardHeader className="rounded-t-2xl bg-gradient-to-r from-purple-900/60 to-gray-800/80">
+            <CardHeader className="rounded-t-2xl bg-linear-to-r from-purple-900/60 to-gray-800/80">
               <CardTitle className="text-purple-200 text-2xl font-bold tracking-wider">Agent Interaction</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -829,6 +981,38 @@ export const AgenticWorkflowComponent: React.FC = () => {
                     />
                   </div>
                 </div>
+
+                <div className="flex flex-col md:flex-row md:space-x-6 md:items-end space-y-3 md:space-y-0">
+                  <div className="flex-1">
+                    <Label htmlFor="responseStyle" className="text-gray-300 text-base font-semibold mb-1 block">
+                      Response Style:
+                    </Label>
+                    <Select value={responseStyle} onValueChange={(value) => setResponseStyle(value as any)}>
+                      <SelectTrigger className="w-full md:w-[180px] bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-lg">
+                        <SelectValue placeholder="Select a style" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700 text-white rounded-lg">
+                        <SelectItem value="concise" className="focus:bg-gray-700">
+                          Concise
+                        </SelectItem>
+                        <SelectItem value="sequential" className="focus:bg-gray-700">
+                          Sequential Next Steps
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex-1 flex items-center mt-6 md:mt-0">
+                    <Switch
+                      checked={autoSaveSteps}
+                      onCheckedChange={setAutoSaveSteps}
+                      id="autoSaveSteps"
+                      className="mr-2"
+                    />
+                    <Label htmlFor="autoSaveSteps" className="text-gray-300 text-base font-semibold mb-1 block">
+                      Auto-Save Steps to DB
+                    </Label>
+                  </div>
+                </div>
               </form>
 
               {error && <p className="text-red-500 mt-4 text-center">Error: {error}</p>}
@@ -839,7 +1023,11 @@ export const AgenticWorkflowComponent: React.FC = () => {
                   {generatedStrategies.map((strategy, index) => (
                     <Card key={index} className="bg-gray-700 border-gray-600 shadow-md">
                       <CardContent className="p-4">
-                        <p className="text-white whitespace-pre-wrap">{strategy.answer}</p>
+                        <div className="prose prose-invert max-w-none">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {strategy.answer}
+                          </ReactMarkdown>
+                        </div>
                         <div className="flex justify-end space-x-2 mt-4">
                           <Button
                             onClick={() => handleRefineStrategy(strategy.answer)}
@@ -854,26 +1042,35 @@ export const AgenticWorkflowComponent: React.FC = () => {
                             Execute
                           </Button>
                           <Button
-                            onClick={() =>
-                              handleStrategySelectionChange(strategy.answer, !strategiesToSave.has(strategy.answer))
-                            }
+                            onClick={() => handleSaveToMemory(strategy.answer)}
                             className="bg-purple-600 hover:bg-purple-700 text-white"
                           >
-                            {strategiesToSave.has(strategy.answer) ? 'Deselect' : 'Select for Memory'}
+                            Save to Memory
                           </Button>
                         </div>
                       </CardContent>
                     </Card>
                   ))}
-                  {strategiesToSave.size > 0 && (
+                  {stepsToSave.length > 0 && !autoSaveSteps && (
                     <Button
-                      onClick={handleSaveToMemory}
+                      onClick={handleSaveStepsToDB}
                       className="w-full bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 mt-4"
                       disabled={isLoading}
                     >
-                      Save Selected Strategies to Memory ({strategiesToSave.size})
+                      Save Generated Steps to DB ({stepsToSave.length})
                     </Button>
                   )}
+                </div>
+              )}
+
+              {memoryText && (
+                <div className="mt-6">
+                  <UnifiedSaveToMemoryComponent
+                    initialText={memoryText}
+                    initialType="strategy"
+                    initialTags="agentic_workflow,strategy"
+                    onMemoryAdded={() => setMemoryText('')}
+                  />
                 </div>
               )}
 
@@ -930,6 +1127,36 @@ export const AgenticWorkflowComponent: React.FC = () => {
                   onChange={(e) => setNewTaskRelatedPhoneNumbers(e.target.value)}
                   className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-500"
                 />
+                <MultiSelect
+                  id="task-tags"
+                  placeholder="Select or create tags..."
+                  onChange={(selected: string[]) => {
+                    setNewTaskTags(selected.join(', '));
+                    logger.info('[TASK_MANAGER][TAGS][SELECTED][ONCHANGE]', { tags: selected });
+                  }}
+                />
+                {allTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="text-sm text-gray-400 mr-2">Filter by tag:</span>
+                    {allTags.map((tag: string) => (
+                      <Badge
+                        key={String(tag)}
+                        className={`cursor-pointer px-2 py-1 rounded-full ${activeTagFilter === tag ? 'bg-purple-600 text-white' : 'bg-gray-600 text-gray-200'}`}
+                        onClick={() => {
+                          if (tag === activeTagFilter) {
+                            setActiveTagFilter(null);
+                            logger.info('[TASK_MANAGER][TAG_FILTER][SELECTED]', { tag: null });
+                          } else {
+                            setActiveTagFilter(tag);
+                            logger.info('[TASK_MANAGER][TAG_FILTER][SELECTED]', { tag });
+                          }
+                        }}
+                      >
+                        {String(tag)}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 <Input
                   type="date"
                   value={newTaskDueDate || ''}
@@ -937,24 +1164,27 @@ export const AgenticWorkflowComponent: React.FC = () => {
                   className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-500"
                 />
                 <div className="flex items-center space-x-4">
-                  <Select value={newTaskStatus} onValueChange={(value: TaskStatus) => setNewTaskStatus(value)}>
+                  <Select value={newTaskStatus} onValueChange={(value: $Enums.TaskStatus) => setNewTaskStatus(value)}>
                     <SelectTrigger className="w-[180px] bg-gray-900 border-gray-600 text-white">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                      {Object.values(TaskStatus).map((status) => (
+                      {Object.values($Enums.TaskStatus).map((status) => (
                         <SelectItem key={status} value={status} className="focus:bg-gray-700">
                           {status}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select value={newTaskPriority} onValueChange={(value: TaskPriority) => setNewTaskPriority(value)}>
+                  <Select
+                    value={newTaskPriority}
+                    onValueChange={(value: $Enums.TaskPriority) => setNewTaskPriority(value)}
+                  >
                     <SelectTrigger className="w-[180px] bg-gray-900 border-gray-600 text-white">
                       <SelectValue placeholder="Priority" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                      {Object.values(TaskPriority).map((priority) => (
+                      {Object.values($Enums.TaskPriority).map((priority) => (
                         <SelectItem key={priority} value={priority} className="focus:bg-gray-700">
                           {priority}
                         </SelectItem>
@@ -998,15 +1228,63 @@ export const AgenticWorkflowComponent: React.FC = () => {
               )}
 
               <h3 className="text-xl font-semibold text-purple-300 mb-4">My Tasks:</h3>
+              <div className="flex flex-wrap gap-4 mb-4">
+                <div className="flex-1 min-w-[150px]">
+                  <Label htmlFor="status-filter" className="text-sm font-medium text-gray-400 mb-1 block">
+                    Filter by Status
+                  </Label>
+                  <Select
+                    value={activeStatusFilter}
+                    onValueChange={(value: $Enums.TaskStatus | 'ALL') => setActiveStatusFilter(value)}
+                  >
+                    <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                      <SelectItem value="ALL" className="focus:bg-gray-700">
+                        All Statuses
+                      </SelectItem>
+                      {Object.values($Enums.TaskStatus).map((status) => (
+                        <SelectItem key={status} value={status} className="focus:bg-gray-700">
+                          {status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1 min-w-[150px]">
+                  <Label htmlFor="priority-filter" className="text-sm font-medium text-gray-400 mb-1 block">
+                    Filter by Priority
+                  </Label>
+                  <Select
+                    value={activePriorityFilter}
+                    onValueChange={(value: $Enums.TaskPriority | 'ALL') => setActivePriorityFilter(value)}
+                  >
+                    <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white">
+                      <SelectValue placeholder="Priority" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                      <SelectItem value="ALL" className="focus:bg-gray-700">
+                        All Priorities
+                      </SelectItem>
+                      {Object.values($Enums.TaskPriority).map((priority) => (
+                        <SelectItem key={priority} value={priority} className="focus:bg-gray-700">
+                          {priority}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               {taskLoading && tasks.length === 0 ? (
                 <div className="flex justify-center items-center h-20">
                   <Loader className="animate-spin h-8 w-8 text-purple-500" />
                 </div>
-              ) : tasks.length === 0 ? (
+              ) : filteredTasks.length === 0 ? (
                 <p className="text-gray-400 text-center">No tasks found. Add a new task above!</p>
               ) : (
                 <ScrollArea className="h-[400px] w-full rounded-md border border-gray-700 p-4 bg-gray-800">
-                  {tasks.map((task: import('@/lib/types').Task) => (
+                  {filteredTasks.map((task: Task) => (
                     <Card key={task.id} className="mb-3 bg-gray-700 border-gray-600 shadow-md">
                       <CardHeader className="flex flex-row items-center justify-between p-4">
                         <CardTitle className="text-white text-lg">{task.title}</CardTitle>
@@ -1041,12 +1319,12 @@ export const AgenticWorkflowComponent: React.FC = () => {
                         {task.description && <p className="text-gray-300 mb-2">{task.description}</p>}
                         <div className="flex items-center space-x-2 text-sm mb-2">
                           <Badge
-                            className={`px-2 py-1 rounded-full ${task.status === TaskStatus.DONE ? 'bg-green-500' : task.status === TaskStatus.IN_PROGRESS ? 'bg-yellow-500' : 'bg-gray-500'}`}
+                            className={`px-2 py-1 rounded-full ${task.status === $Enums.TaskStatus.DONE ? 'bg-green-500' : task.status === $Enums.TaskStatus.IN_PROGRESS ? 'bg-yellow-500' : 'bg-gray-500'}`}
                           >
                             {task.status}
                           </Badge>
                           <Badge
-                            className={`px-2 py-1 rounded-full ${task.priority === TaskPriority.HIGH ? 'bg-red-500' : task.priority === TaskPriority.MEDIUM ? 'bg-orange-500' : 'bg-blue-500'}`}
+                            className={`px-2 py-1 rounded-full ${task.priority === $Enums.TaskPriority.HIGH ? 'bg-red-500' : task.priority === $Enums.TaskPriority.MEDIUM ? 'bg-orange-500' : 'bg-blue-500'}`}
                           >
                             {task.priority}
                           </Badge>
@@ -1083,6 +1361,15 @@ export const AgenticWorkflowComponent: React.FC = () => {
                             </ul>
                           </div>
                         )}
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {task.tags.map((tag: string, tagIdx: number) => (
+                              <Badge key={tagIdx} className="bg-purple-600 text-white px-2 py-1 rounded-full text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
@@ -1116,7 +1403,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
                       {stepItem.chosenJustification && (
                         <p className="mt-1 text-sm text-purple-300">Justification: {stepItem.chosenJustification}</p>
                       )}
-                      {stepItem.toolCalls && stepItem.toolCalls.length > 0 && (
+                      {stepItem.toolCalls && Array.isArray(stepItem.toolCalls) && stepItem.toolCalls.length > 0 && (
                         <div className="mt-2">
                           <p className="text-sm font-semibold text-slate-300">Tool Calls:</p>
                           <ul className="list-disc list-inside text-slate-200">
@@ -1182,6 +1469,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
             <CardTitle className="text-xl font-semibold text-blue-300">Task Steps</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Memory Highlights Panel */}
+            <MemoryHighlights memories={relatedMemories} />
             <h3 className="text-lg font-semibold text-gray-200">Generate New Steps for Task</h3>
             <Textarea
               placeholder="Enter a prompt or note for generating next steps (e.g., 'What should I do next to finish this?')"
@@ -1193,6 +1482,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
             <Button
               onClick={async () => {
                 logger.info('[TASK_MANAGER][GENERATE_STEPS][START]', { taskId: selectedTaskId, prompt: userQuery });
+                setIsLoading(true);
+                setPendingGeneratedSteps([]);
                 try {
                   const response = await apiClient.post<TaskApiResponse>(
                     `/api/orion/tasks/${selectedTaskId}/generate-steps`,
@@ -1201,51 +1492,93 @@ export const AgenticWorkflowComponent: React.FC = () => {
                       numOptions: 3,
                     }
                   );
-
-                  if (response.data.success) {
-                    // setTaskLoading(true);
-                    // setTaskError(null);
+                  if (response.data.success && response.data.data) {
+                    // Assume response.data.data is an array of steps
+                    setPendingGeneratedSteps(Array.isArray(response.data.data) ? response.data.data : [response.data.data]);
+                    logger.success('[TASK_MANAGER][GENERATE_STEPS][SUCCESS]', { count: Array.isArray(response.data.data) ? response.data.data.length : 1 });
                   } else {
-                    // setTaskError(response.data.error || 'Failed to generate steps.');
+                    setPendingGeneratedSteps([]);
                     logger.error('[TASK_MANAGER][GENERATE_STEPS][ERROR]', {
                       taskId: selectedTaskId,
                       error: response.data.error,
                     });
                   }
                 } catch (err: unknown) {
+                  setPendingGeneratedSteps([]);
                   const errorMessage = 'Failed to generate steps: ';
                   if (err instanceof HandledApplicationError) {
-                    // setTaskError(errorMessage + err.message);
                     logger.error('[TASK_MANAGER][GENERATE_STEPS][HANDLED]', {
                       error: err.message,
                       originalError: err,
                     });
                   } else if (err instanceof Error) {
-                    // setTaskError(errorMessage + err.message);
                     logger.error('[TASK_MANAGER][GENERATE_STEPS][UNHANDLED]', {
                       error: err.message,
                       stack: err.stack,
                     });
                   } else {
-                    // setTaskError(errorMessage + String(err));
                     logger.error('[TASK_MANAGER][GENERATE_STEPS][UNKNOWN]', { error: String(err) });
                   }
+                } finally {
+                  setIsLoading(false);
                 }
               }}
-              disabled={!selectedTaskId || !userQuery.trim()}
+              disabled={!selectedTaskId || !userQuery.trim() || isLoading}
               className="w-full bg-purple-600 hover:bg-purple-700"
             >
-              Generate Next Steps with AI
+              {isLoading ? <Loader className="animate-spin h-5 w-5 text-white" /> : 'Generate Next Steps with AI'}
             </Button>
-            {/* {taskError && <p className="text-red-400 mt-2">Error: {taskError}</p>} */}
-
+            {/* Preview pending generated steps and confirm button */}
+            {pendingGeneratedSteps.length > 0 && (
+              <div className="mt-4 p-4 bg-yellow-900/30 border border-yellow-600 rounded-lg">
+                <h4 className="text-lg font-bold text-yellow-300 mb-2">Pending Steps (Not Yet Added)</h4>
+                <ul className="space-y-2">
+                  {pendingGeneratedSteps.map((step, idx) => (
+                    <li key={idx} className="bg-yellow-800/40 border border-yellow-700 rounded p-3">
+                      <div className="text-yellow-100 font-semibold">Step {step.stepNumber || idx + 1}:</div>
+                      <div className="text-yellow-200">{step.prompt}</div>
+                      {step.chosenAction && <div className="text-yellow-300">Action: {step.chosenAction}</div>}
+                      {step.chosenJustification && <div className="text-yellow-400">Justification: {step.chosenJustification}</div>}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  className="mt-4 w-full bg-green-700 hover:bg-green-800 text-white font-bold"
+                  disabled={isAddingSteps}
+                  onClick={async () => {
+                    setIsAddingSteps(true);
+                    logger.info('[TASK_MANAGER][CONFIRM_ADD_STEPS][START]', { taskId: selectedTaskId, steps: pendingGeneratedSteps });
+                    try {
+                      for (const step of pendingGeneratedSteps) {
+                        const response = await apiClient.post('/api/orion/tasks/add-step', {
+                          step: { ...step, taskId: selectedTaskId },
+                        });
+                        if (!response.data.success) {
+                          throw new Error(response.data.error || 'Failed to add step');
+                        }
+                        logger.success('[TASK_MANAGER][CONFIRM_ADD_STEPS][STEP_ADDED]', { step });
+                      }
+                      setPendingGeneratedSteps([]);
+                      // Optionally refresh the task steps (could trigger a refetch or update state)
+                      logger.success('[TASK_MANAGER][CONFIRM_ADD_STEPS][ALL_ADDED]', { taskId: selectedTaskId });
+                    } catch (err) {
+                      logger.error('[TASK_MANAGER][CONFIRM_ADD_STEPS][ERROR]', { error: err });
+                    } finally {
+                      setIsAddingSteps(false);
+                    }
+                  }}
+                >
+                  {isAddingSteps ? <Loader className="animate-spin h-5 w-5 text-white" /> : 'Confirm/Add Steps to Task'}
+                </Button>
+              </div>
+            )}
             <h3 className="text-lg font-semibold text-gray-200 mt-6">Existing Steps</h3>
             <ScrollArea className="h-[400px] pr-4">
               {selectedTaskId &&
                 (() => {
-                  const selectedTask = tasks.find((t: import('@/lib/types').Task) => t.id === selectedTaskId);
+                  const selectedTask = tasks.find((t: Task) => t.id === selectedTaskId);
                   if (selectedTask?.steps) {
-                    return <TaskStepTimeline steps={selectedTask.steps} />;
+                    return <TaskStepTimeline steps={selectedTask.steps} taskId={selectedTaskId} />;
                   } else {
                     return <p className="text-gray-400">No steps found for this task.</p>;
                   }

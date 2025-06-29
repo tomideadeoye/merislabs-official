@@ -20,10 +20,10 @@
   /* A gradient that is mostly transparent, with a 'comet' of color for a subtle moving glow */
   background: conic-gradient(
     from 90deg,
-    transparent 0deg,   /* Start transparent */
-    transparent 320deg, /* The glow is only in the last 40 degrees */
-    #a855f7 340deg,      /* A nice purple, matching theme */
-    #ec4899 360deg       /* End with a pinkish hue */
+    transparent 0deg,
+    /* Start transparent */ transparent 320deg,
+    /* The glow is only in the last 40 degrees */ #a855f7 340deg,
+    /* A nice purple, matching theme */ #ec4899 360deg /* End with a pinkish hue */
   );
   animation: spin-conic 5s linear infinite; /* Slower, more graceful animation */
   filter: blur(1.5px); /* A softer, more subtle blur */

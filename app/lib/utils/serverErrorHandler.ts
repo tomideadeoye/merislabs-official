@@ -7,7 +7,7 @@ import { HandledApplicationError, AppErrorContext } from './errorHandler';
  * This function categorizes, logs, and provides a standardized error object.
  *
  * @param error The raw error object caught.
- * @param context Additional context to include in logs (e.g., URL, method, opportunityId).
+ * @param context Additional context to include in logs (e.g., URL, method, id).
  * @returns A standardized HandledApplicationError object.
  */
 export function handleServerError(error: unknown, context: AppErrorContext = {}): HandledApplicationError {

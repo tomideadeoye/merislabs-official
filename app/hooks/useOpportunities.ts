@@ -1,4 +1,4 @@
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity, $Enums } from '@/lib/types';
 import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -7,11 +7,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // It will handle API calls to fetch opportunities and manage loading/error states robustly with caching.
 
 interface UseOpportunitiesResult {
-  opportunities: OrionOpportunity[];
+  opportunities: Opportunity[];
   isLoading: boolean;
   error: string | null;
   refetchOpportunities: () => void;
-  updateOpportunityStatus: (opportunityId: string, newStatus: string) => Promise<void>;
+  updateOpportunityStatus: (id: string, newStatus: $Enums.OpportunityStatus) => Promise<void>;
 }
 
 export const useOpportunities = (): UseOpportunitiesResult => {
@@ -24,7 +24,7 @@ export const useOpportunities = (): UseOpportunitiesResult => {
     isLoading,
     error,
     refetch: refetchOpportunities,
-  } = useQuery<OrionOpportunity[], Error>({
+  } = useQuery<Opportunity[], Error>({
     queryKey: ['opportunities'],
     queryFn: async () => {
       logger.info(
@@ -57,13 +57,13 @@ export const useOpportunities = (): UseOpportunitiesResult => {
   });
 
   // Mutation to update opportunity status
-  const { mutateAsync } = useMutation<void, Error, { opportunityId: string; newStatus: string }>({
-    mutationFn: async ({ opportunityId, newStatus }) => {
+  const { mutateAsync } = useMutation<void, Error, { id: string; newStatus: $Enums.OpportunityStatus }>({
+    mutationFn: async ({ id, newStatus }) => {
       logger.info(
-        `[USE_OPPORTUNITIES][UPDATE_STATUS][START] Attempting to update status for opportunity ${opportunityId} to ${newStatus}.`,
+        `[USE_OPPORTUNITIES][UPDATE_STATUS][START] Attempting to update status for opportunity ${id} to ${newStatus}.`,
         {
           operation: 'update_opportunity_status',
-          opportunityId,
+          id,
           newStatus,
           user: 'system',
         }
@@ -71,7 +71,7 @@ export const useOpportunities = (): UseOpportunitiesResult => {
       const response = await fetch(`/api/orion/opportunity/update-status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ opportunityId, status: newStatus }),
+        body: JSON.stringify({ id, status: newStatus }),
       });
 
       if (!response.ok) {
@@ -90,7 +90,7 @@ export const useOpportunities = (): UseOpportunitiesResult => {
         throw new Error(result.error || 'API indicated failure in updating opportunity status.');
       }
       logger.info(
-        `[USE_OPPORTUNITIES][UPDATE_STATUS][SUCCESS] Successfully updated status for opportunity ${opportunityId}.`,
+        `[USE_OPPORTUNITIES][UPDATE_STATUS][SUCCESS] Successfully updated status for opportunity ${id}.`,
         { response: result, user: 'system' }
       );
     },
@@ -110,9 +110,12 @@ export const useOpportunities = (): UseOpportunitiesResult => {
     },
   });
 
-  // Create a wrapper function for updateOpportunityStatus to match the expected signature
-  const updateOpportunityStatusWrapper = async (opportunityId: string, newStatus: string): Promise<void> => {
-    await mutateAsync({ opportunityId, newStatus });
+  // Create a wrapper function for updateOpportunityStatus
+  const updateOpportunityStatusWrapper = async (
+    id: string,
+    newStatus: $Enums.OpportunityStatus
+  ): Promise<void> => {
+    await mutateAsync({ id, newStatus });
   };
 
   return {

@@ -15,7 +15,7 @@
  *   - `@/lib/logger.ts`: Used for comprehensive, context-rich logging of search operations.
  *   - `@/lib/types/memory.ts`: Defines `SearchRequestBody`, `EmbeddingResponse`, `SearchDataResponse`, `QdrantFilter`, `ScoredMemoryPoint`, and `MemoryMetadataPayload`, ensuring type consistency.
  *   - `app/(orion_admin)/admin/memory-manager/page.tsx`: The UI component that consumes this API to display search results.
- *   - `app/api/orion/opportunity/[opportunityId]/draft-application/route.ts`: Calls this API to fetch relevant memories for drafting applications.
+ *   - `app/api/orion/opportunity/[id]/draft-application/route.ts`: Calls this API to fetch relevant memories for drafting applications.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes that a Qdrant instance is running and configured via environment variables (`QDRANT_HOST`, `QDRANT_PORT`).

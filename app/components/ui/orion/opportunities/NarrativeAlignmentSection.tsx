@@ -4,24 +4,22 @@
 // FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/NarrativeAlignmentSection.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
-//   - Receives the current `OrionOpportunity` and its `evaluation` as props.
+//   - Receives the current `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` and its `evaluation` as props.
 //   - Calls backend API route `/api/orion/memory/search` to find relevant narrative entries in memory.
 //   - Calls backend API route `/api/orion/llm` with `requestType: 'NARRATIVE_ALIGNMENT'` to generate the aligned narrative.
-//   - Uses `@/lib/types` for `OrionOpportunity`, `ScoredMemoryPoint`, and `EvaluationOutput` types.
+//   - Uses `@/lib/types` for `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`, `ScoredMemoryPoint`, and `EvaluationOutput` types.
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
 import { Loader2, BookText, Copy, RefreshCw } from 'lucide-react';
-import { OrionOpportunity, ScoredMemoryPoint, EvaluationOutput } from '@/lib/types';
+import { ScoredMemoryPoint, EvaluationOutput } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 
 interface NarrativeAlignmentSectionProps {
-  OrionOpportunity: OrionOpportunity;
+  opportunity: Opportunity;
   evaluation?: EvaluationOutput | null;
 }
 
-export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps> = ({
-  OrionOpportunity,
-  evaluation,
-}) => {
+export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps> = ({ opportunity, evaluation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [narrativeContent, setNarrativeContent] = useState<string>('');
   const [narrativeHighlights, setNarrativeHighlights] = useState<string[]>([]);
@@ -37,7 +35,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: `Narrative statements, value propositions, or personal brand elements relevant to ${OrionOpportunity.title} at ${OrionOpportunity.company}`,
+          query: `Narrative statements, value propositions, or personal brand elements relevant to ${opportunity.title} at ${opportunity.company}`,
           collectionName: 'orion_memory',
           limit: 5,
           filter: {
@@ -68,10 +66,10 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
           body: JSON.stringify({
             requestType: 'NARRATIVE_ALIGNMENT',
             primaryContext: `
-              Based on the following OrionOpportunity and evaluation, extract 3-5 key narrative points from Tomide's existing narrative statements that would be most effective for this specific OrionOpportunity.
+              Based on the following opportunity and evaluation, extract 3 - 5 key narrative points from Tomide's existing narrative statements that would be most effective for this specific opportunity.
 
-              OrionOpportunity: ${OrionOpportunity.title} at ${OrionOpportunity.company}
-              ${OrionOpportunity.content ? `Description: ${OrionOpportunity.content}` : ''}
+              Opportunity: ${opportunity.title} at ${opportunity.company}
+              ${opportunity.content ? `Description: ${opportunity.content}` : ''}
 
               Evaluation Highlights:
               ${evaluation?.strengths && evaluation.strengths.length > 0 ? `Strengths:\n  * ${evaluation.strengths.map((s) => (typeof s === 'string' ? s : `${s.title}: ${s.reasoning}`)).join('\n  * ')}` : 'No specific strengths available.'}
@@ -86,7 +84,7 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
               ${narrativePoints.join('\n\n')}
 
               Please provide:
-              1. A concise paragraph (3-5 sentences) that aligns Tomide's narrative with this specific OrionOpportunity
+              1. A concise paragraph (3-5 sentences) that aligns Tomide's narrative with this specific opportunity
               2. A list of 3-5 key narrative points that should be emphasized in application materials
             `,
             temperature: 0.4,
@@ -122,13 +120,13 @@ export const NarrativeAlignmentSection: React.FC<NarrativeAlignmentSectionProps>
     } finally {
       setIsLoading(false);
     }
-  }, [OrionOpportunity, evaluation]);
+  }, [opportunity, evaluation]);
 
   useEffect(() => {
-    if (OrionOpportunity && evaluation) {
+    if (evaluation) {
       fetchNarrativeAlignment();
     }
-  }, [OrionOpportunity, evaluation, fetchNarrativeAlignment]);
+  }, [evaluation, fetchNarrativeAlignment]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

@@ -34,6 +34,7 @@ import { useSessionStateStore } from '@/state/sessionState';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import logger from '@/lib/logger';
 import { handleClientError } from '@/lib/utils/clientErrorHandler';
+import { toast } from 'react-hot-toast';
 
 function SessionHydrator() {
   const hydrate = useSessionStateStore((state) => state.hydrateFromLocalStorage);
@@ -59,6 +60,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         colno: event.colno,
       });
       logger.error(`[GLOBAL_ERROR] Uncaught error: ${handledError.message}`, { error: handledError });
+      toast.error(`Global Error: ${handledError.message}`);
     };
 
     // Global listener for unhandled promise rejections
@@ -67,6 +69,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         context: 'Global Unhandled Promise Rejection (onunhandledrejection)',
       });
       logger.error(`[GLOBAL_REJECTION] Unhandled promise rejection: ${handledError.message}`, { error: handledError });
+      toast.error(`Promise Error: ${handledError.message}`);
     };
 
     window.addEventListener('error', handleError);

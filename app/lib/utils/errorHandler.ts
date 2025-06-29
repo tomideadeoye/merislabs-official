@@ -83,7 +83,7 @@ export class HandledApplicationError extends Error {
  * This function categorizes, logs, and provides a standardized error object.
  *
  * @param error The raw error object caught from an API call (e.g., AxiosError, Error).
- * @param context Additional context to include in logs (e.g., URL, method, opportunityId).
+ * @param context Additional context to include in logs (e.g., URL, method, id).
  * @returns A standardized HandledApplicationError object.
  */
 export function handleApiError(error: unknown, context: AppErrorContext = {}): HandledApplicationError {

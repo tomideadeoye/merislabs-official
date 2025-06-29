@@ -40,6 +40,7 @@
 import React, { ErrorInfo, ReactNode } from 'react';
 import logger from '@/lib/logger';
 import { handleClientError, HandledError } from '@/lib/utils/clientErrorHandler';
+import { toast } from 'react-hot-toast';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -74,6 +75,9 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       error: handledError,
       errorInfo: errorInfo.componentStack,
     });
+
+    // Show toast notification for UI errors
+    toast.error(`UI Error: ${handledError.message}`);
 
     // Set state with errorInfo to display in development or for advanced logging
     this.setState({ errorInfo });

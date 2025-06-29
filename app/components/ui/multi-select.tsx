@@ -12,9 +12,10 @@ interface MultiSelectProps {
   id: string;
   className?: string;
   placeholder?: string;
+  onChange?: (selected: string[]) => void;
 }
 
-export function MultiSelect({ id, className, placeholder = 'Select options...' }: MultiSelectProps) {
+export function MultiSelect({ id, className, placeholder = 'Select options...', onChange }: MultiSelectProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
@@ -25,9 +26,11 @@ export function MultiSelect({ id, className, placeholder = 'Select options...' }
   const removeSelected = store((state) => state.removeSelected);
   const setSelected = store((state) => state.setSelected);
   const addSelected = store((state) => state.addSelected);
+  const setOptions = store((state) => state.setOptions);
 
   const handleUnselect = (item: string) => {
     removeSelected(item);
+    if (onChange) onChange(store.getState().selected.filter((v) => v !== item));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -36,6 +39,7 @@ export function MultiSelect({ id, className, placeholder = 'Select options...' }
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (input.value === '' && selected.length > 0) {
           setSelected(selected.slice(0, -1));
+          if (onChange) onChange(selected.slice(0, -1));
         }
       }
       if (e.key === 'Escape') {
@@ -45,6 +49,8 @@ export function MultiSelect({ id, className, placeholder = 'Select options...' }
   };
 
   const selectables = options.filter((option) => !selected.includes(option.value));
+  const inputLower = inputValue.toLowerCase();
+  const match = selectables.some((option) => option.label.toLowerCase() === inputLower);
 
   return (
     <Command onKeyDown={handleKeyDown} className={`overflow-visible bg-transparent ${className}`}>
@@ -57,6 +63,7 @@ export function MultiSelect({ id, className, placeholder = 'Select options...' }
                 {option?.label || item}
                 <button
                   className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  title="Remove tag"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       handleUnselect(item);
@@ -85,27 +92,52 @@ export function MultiSelect({ id, className, placeholder = 'Select options...' }
         </div>
       </div>
       <div className="relative mt-2">
-        {open && selectables.length > 0 ? (
+        {open && (selectables.length > 0 || (!match && inputValue.trim())) ? (
           <div className="absolute w-full z-10 top-0 rounded-md border bg-gray-800 border-gray-700 text-gray-200 shadow-md outline-none animate-in">
             <CommandGroup className="h-full overflow-auto max-h-[300px]">
-              {selectables.map((option) => {
-                return (
-                  <CommandItem
-                    key={option.value}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onSelect={() => {
-                      setInputValue('');
-                      addSelected(option.value);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    {option.label}
-                  </CommandItem>
-                );
-              })}
+              {selectables
+                .filter((option) => option.label.toLowerCase().includes(inputLower))
+                .map((option) => {
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onSelect={() => {
+                        setInputValue('');
+                        addSelected(option.value);
+                        if (onChange) onChange([...selected, option.value]);
+                        if (window && window.console)
+                          window.console.info('[MULTISELECT][TAGS][SELECTED]', { tag: option.value });
+                      }}
+                      className="cursor-pointer"
+                    >
+                      {option.label}
+                    </CommandItem>
+                  );
+                })}
+              {!match && inputValue.trim() && (
+                <CommandItem
+                  key={inputValue}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onSelect={() => {
+                    setInputValue('');
+                    setOptions([...options, { label: inputValue, value: inputValue }]);
+                    addSelected(inputValue);
+                    if (onChange) onChange([...selected, inputValue]);
+                    if (window && window.console)
+                      window.console.info('[MULTISELECT][TAGS][CREATED]', { tag: inputValue });
+                  }}
+                  className="cursor-pointer text-purple-400"
+                >
+                  Create &quot;{inputValue}&quot;
+                </CommandItem>
+              )}
             </CommandGroup>
           </div>
         ) : null}

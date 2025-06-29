@@ -37,7 +37,7 @@ export const JournalReflectionDialog: React.FC = () => {
       case 'outreach_sent':
         return `Reflect on your outreach for ${opportunity.title} at ${opportunity.company}. What was your approach? What response do you hope for?`;
       default:
-        return `Reflect on this OrionOpportunity (${opportunity.title} at ${opportunity.company}). What are your thoughts, feelings, or insights?`;
+        return `Reflect on this REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA (${opportunity.title} at ${opportunity.company}). What are your thoughts, feelings, or insights?`;
     }
   };
 
@@ -103,10 +103,11 @@ export const JournalReflectionDialog: React.FC = () => {
       <DialogContent className="bg-gray-800 border-gray-700 text-gray-200">
         <DialogHeader>
           <DialogTitle className="text-indigo-400 flex items-center">
-            <BookOpen className="mr-2 h-5 w-5" /> OrionOpportunity Reflection
+            <BookOpen className="mr-2 h-5 w-5" /> REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Reflection
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Take a moment to reflect on this OrionOpportunity and capture your thoughts.
+            Take a moment to reflect on this REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA and capture your
+            thoughts.
           </DialogDescription>
         </DialogHeader>
 

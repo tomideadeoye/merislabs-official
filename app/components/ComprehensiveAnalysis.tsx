@@ -60,7 +60,7 @@ export const ComprehensiveAnalysis: React.FC<ComprehensiveAnalysisProps> = ({ ev
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Comprehensive OrionOpportunity Analysis</CardTitle>
+        <CardTitle>Comprehensive REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Analysis</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <ScoreDisplay score={overallFitScore} />

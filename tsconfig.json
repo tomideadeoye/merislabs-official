@@ -26,7 +26,8 @@
       "@/components/*": ["./app/components/*"],
       "@/lib/*": ["./app/lib/*"],
       "@/hooks/*": ["./app/hooks/*"],
-      "@/generated/*": ["./generated/*"],
+      "@/generated": ["generated/index.d.ts"],
+      "@/generated/*": ["generated/*"],
       "@/ui/*": ["./app/components/ui/*"],
       "@/types/*": ["./app/lib/types/*"],
       "@/utils/*": ["./app/lib/utils/*"],
@@ -74,7 +75,6 @@
   "exclude": [
     "node_modules",
     ".next",
-    "generated",
     "dist",
     "build",
     "coverage",

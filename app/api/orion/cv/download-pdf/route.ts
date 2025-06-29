@@ -65,18 +65,21 @@ export async function POST(request: NextRequest) {
 
     // Generate PDF
     const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-      puppeteer.launch().then(async (browser) => {
-        const page = await browser.newPage();
-        await page.setContent(htmlContent);
-        const pdfUint8Array = await page.pdf({ format: 'Letter' });
-        await browser.close();
-        // Convert Uint8Array to Buffer for compatibility
-        const buffer = Buffer.from(pdfUint8Array);
-        resolve(buffer);
-      }).catch((error) => {
-        logger.error('[CV_DOWNLOAD_PDF_API][PDF_GENERATION_ERROR]', { ...logContext, error: error.message });
-        reject(new Error('Failed to generate PDF.'));
-      });
+      puppeteer
+        .launch()
+        .then(async (browser) => {
+          const page = await browser.newPage();
+          await page.setContent(htmlContent);
+          const pdfUint8Array = await page.pdf({ format: 'Letter' });
+          await browser.close();
+          // Convert Uint8Array to Buffer for compatibility
+          const buffer = Buffer.from(pdfUint8Array);
+          resolve(buffer);
+        })
+        .catch((error) => {
+          logger.error('[CV_DOWNLOAD_PDF_API][PDF_GENERATION_ERROR]', { ...logContext, error: error.message });
+          reject(new Error('Failed to generate PDF.'));
+        });
     });
 
     logger.success('[CV_DOWNLOAD_PDF_API][POST][SUCCESS]', { ...logContext, pdfSize: pdfBuffer.length });

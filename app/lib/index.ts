@@ -75,12 +75,12 @@ export * from './pythonApiService';
 
 // Explicitly re-export types from the central type definition files
 export type {
-  OrionOpportunity,
   ScoredMemoryPoint,
   QdrantFilter,
   QdrantFilterCondition,
   UserProfileData,
   SortableOpportunityKeys,
+  Opportunity,
 } from './types';
 
 // Add new export for CVComponent from its dedicated file

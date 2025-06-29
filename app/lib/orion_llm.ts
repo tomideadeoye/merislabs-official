@@ -25,7 +25,7 @@
  *   - `@/lib/types`: Imports core types such as `OutreachRequest`, `OutreachResponse`, `UserProfileData`, `CombinedLLMResponse`, `ScoredMemoryPoint`, `Message`, `CreateChatCompletionResponse`, `LLMSequentialThinkingResponse`, and `LLMOptions`, ensuring type safety throughout LLM interactions, especially for `memoryResults` and new drafting parameters.
  *   - `@/lib/types/llm`: Imports `LLMModelConfig` for defining model-specific configurations.
  *   - `app/lib/orion_config.ts`: Defines `REQUEST_TYPES` (including `WHATSAPP_REPLY_HELPER_REQUEST_TYPE`) and `DEFAULT_GENERATION_PROVIDERS`, which are crucial for LLM routing and categorization.
- *   - `app/api/orion/opportunity/[opportunityId]/evaluation/route.ts`: Calls `generateLLMResponse` to perform opportunity evaluations.
+ *   - `app/api/orion/opportunity/[id]/evaluation/route.ts`: Calls `generateLLMResponse` to perform opportunity evaluations.
  *   - `app/api/orion/communication/draft-whatsapp-reply/route.ts`: Calls `generateLLMResponse` with specific `replyGoal`, `tone`, and `numberOfDrafts` parameters, and processes the returned `memoryResults`.
  *   - `app/api/orion/sequential-thinking.ts`: Calls `callSequentialThinking` for multi-step reasoning processes.
  *   - `app/components/orion/networking-hub/PersonaOutreachForm.tsx`: Calls `generateOutreachMessage` for drafting outreach communications.
@@ -513,7 +513,7 @@ export function constructLlmMessages({
   } else {
     const systemMessages: Record<string, string> = {
       [REQUEST_TYPES.OPPORTUNITY_EVALUATION]:
-        'You are a career strategist and OrionOpportunity evaluator. Analyze opportunities ' +
+        'You are a career strategist and REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA evaluator. Analyze opportunities ' +
         'based on the profile and context provided. Focus on alignment with skills, ' +
         'career goals, and growth potential.',
       [REQUEST_TYPES.ASK_QUESTION]:
@@ -536,7 +536,7 @@ export function constructLlmMessages({
         'experiences that match the job requirements while maintaining authenticity.',
       [REQUEST_TYPES.PROFILE_SUMMARY_TAILORING]:
         'You are a professional profile writer. Create compelling profile summaries that highlight ' +
-        'key strengths and career narrative aligned with the target OrionOpportunity.',
+        'key strengths and career narrative aligned with the target REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA.',
       [REQUEST_TYPES.CODE_GENERATION]:
         'You are an expert software developer. Generate clean, efficient, and well-documented code ' +
         'based on the requirements provided. Include comments and explanations where appropriate.',
@@ -941,7 +941,7 @@ export async function callExternalLLM(
     'Content-Type': 'application/json',
   };
 
-  let requestUrl: string;
+  let requestUrl: string | undefined = undefined;
   const payload: Record<string, unknown> = {
     model: modelConfig.modelId.includes('openrouter/')
       ? modelConfig.modelId.replace('openrouter/', '')
@@ -988,10 +988,24 @@ export async function callExternalLLM(
   }
 
   try {
-    const response = await retry(() => makeApiRequest(requestUrl, payload, headers), 3, 1000, shouldRetryLLM);
+    logger.info('[callExternalLLM][REQUEST]', {
+      model,
+      requestUrl,
+      payload,
+      headers,
+    });
+    const response = await retry(() => makeApiRequest(requestUrl as string, payload, headers), 3, 1000, shouldRetryLLM);
+    logger.info('[callExternalLLM][RESPONSE]', { response });
     return response as CreateChatCompletionResponse;
   } catch (error: unknown) {
-    logger.error('[callExternalLLM][ERROR]', { error: (error as Error).message });
+    logger.error('[callExternalLLM][ERROR]', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      model,
+      requestUrl: typeof requestUrl !== 'undefined' ? requestUrl : null,
+      payload,
+      headers,
+    });
     return null;
   }
 }
@@ -1259,7 +1273,7 @@ export async function callSequentialThinking({
    *       - Suggestions for more detail, conciseness, or actionable language for individual steps.
    *   **3. Persistence & Collaboration:**
    *     - **Goal:** Allow users to save, load, and potentially share entire sequential thinking sessions.
-   *     - **How to Implement:** Persist sequential thinking data (including all thoughts, user edits, and AI suggestions) in the Notion database or Qdrant. Develop features to load saved sessions and potentially export/import them for collaboration.
+   *     - **How to Implement:** Persist sequential thinking data (including all thoughts, user edits, and AI suggestions) in the WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES database or Qdrant. Develop features to load saved sessions and potentially export/import them for collaboration.
    *   **4. Integration with other Modules:**
    *     - **Goal:** Connect generated sequential steps directly to task management or project planning tools.
    *     - **How to Implement:** Once a sequence is satisfactory, offer an option to convert it into a set of tasks in Habitica (e.g., `app/api/orion/habitica/tasks/route.ts`) or a project plan in the Business Management module.

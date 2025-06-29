@@ -18,11 +18,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { PrismaClient, Prisma } from '@/generated/prisma'; // Import Prisma type directly from generated client
 import logger from '@/lib/logger';
+import { prisma } from '@/lib/prisma'; // Import the shared prisma client
 // import { Idea } from '@/lib/types'; // Removed as no longer needed
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient(); // Initialize PrismaClient
 
 /**
  * API route for fetching ideas

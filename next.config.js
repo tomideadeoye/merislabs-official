@@ -9,7 +9,7 @@
 const ignoreDirs = [
   'venv',
   '.venv',
-  'notion_api_venv',
+  'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_api_venv',
   '.pytest_cache',
   '.ipynb_checkpoints',
   '__pycache__',

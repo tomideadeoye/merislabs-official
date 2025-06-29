@@ -31,7 +31,7 @@
  *   - Caching strategy uses `localStorage` with a defined TTL.
  *
  * NOTES:
- *   - This service completely replaces the Notion and external Python service dependencies for profile data.
+ *   - This service completely replaces the WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES and external Python service dependencies for profile data.
  *   - The `profileText` field in the `UserProfile` model contains the previously unstructured text dump.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
@@ -49,12 +49,12 @@ const PROFILE_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour for local storage cache
 
 /**
  * Defines the structure for the fetched user profile data.
- * It's designed to hold unstructured text from either Notion, local files, or an external service.
+ * It's designed to hold unstructured text from either WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES, local files, or an external service.
  */
 export interface ProfileServiceRawData {
   /** The full, concatenated unstructured text from the profile source. */
   profileText: string;
-  /** Indicates whether the data came from Notion, local files, or an external service. */
+  /** Indicates whether the data came from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES, local files, or an external service. */
   source: 'neon' | 'cache'; // Updated sources
   // Add other fields from UserProfile model as needed
   name: string | null;

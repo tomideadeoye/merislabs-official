@@ -61,9 +61,7 @@ export default function MobileMenu() {
         className={`absolute top-full z-20 left-0 w-full px-4 sm:px-6 overflow-hidden transition-all duration-300 ease-in-out
           ${mobileNavOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-80'}`}
       >
-        <ul className="bg-gray-800 px-4 py-2">
-          {/* Removed Sign in and Sign up links */}
-        </ul>
+        <ul className="bg-gray-800 px-4 py-2">{/* Removed Sign in and Sign up links */}</ul>
       </nav>
     </div>
   );

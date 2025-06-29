@@ -19,13 +19,10 @@ import {
   BrainCircuit,
   Repeat,
   Cog,
-  Lightbulb,
-  HeartPulse,
-  FolderOpen,
+  Lightbulb, FolderOpen,
   Layers,
   Mail,
-  Brain, // Added Brain icon
-  HelpCircle,
+  Brain
 } from 'lucide-react';
 import { useMemoryContext } from '@/components/orion/MemoryProvider'; // Import useMemoryContext
 import logger from '@/lib/logger'; // Assuming logger is available
@@ -36,7 +33,6 @@ const adminNavItems: NavItem[] = [
   { href: ROUTES.MEMORY_MANAGER.href, title: ROUTES.MEMORY_MANAGER.title, icon: <DatabaseZap /> },
   { href: ROUTES.OPPORTUNITY_PIPELINE.href, title: ROUTES.OPPORTUNITY_PIPELINE.title, icon: <Briefcase /> },
   { href: ROUTES.NETWORKING_HUB.href, title: ROUTES.NETWORKING_HUB.title, icon: <Network /> },
-  { href: '/admin/ask-question', title: 'Ask Orion', icon: <HelpCircle /> },
   { href: '/admin/blocks', title: 'Blocks', icon: <Layers /> },
   { href: '/admin/narrative-clarity-studio', title: 'Narrative Clarity Studio', icon: <Brain /> },
   { href: '/admin/draft-communication', title: 'Draft Communication', icon: <Mail /> },

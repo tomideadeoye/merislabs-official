@@ -12,22 +12,22 @@
  * FILEPATH: `app/components/EvaluateWithOrionButton.tsx`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `OrionOpportunity` type from `@/lib/types`: Defines the structure of the opportunity data passed to the button.
+ *   - `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` type from `@/lib/types`: Defines the structure of the opportunity data passed to the button.
  *   - `@/components/ui/button.tsx`: Utilizes the shared UI Button component for consistent styling and behavior.
  *   - `lucide-react`: Provides visual icons for loading states (`Loader2`) and the evaluation action (`BarChart2`).
  *   - `next/navigation`: Uses `useRouter` for client-side navigation after evaluation.
  *   - `/api/orion/opportunity/evaluate`: The backend API route (POST) that this button triggers for the evaluation process.
- *   - `/api/orion/opportunity/[opportunityId]`: The backend API route (PATCH) used to update the opportunity with the `relatedEvaluationId` and status.
- *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`: The target page for navigation after evaluation.
+ *   - `/api/orion/opportunity/[id]`: The backend API route (PATCH) used to update the opportunity with the `relatedEvaluationId` and status.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[id]/page.tsx`: The target page for navigation after evaluation.
  *   - `@/lib/logger`: Used for structured logging of evaluation errors.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes the `opportunityId` is available and valid for the API calls.
+ *   - Assumes the `id` is available and valid for the API calls.
  *   - Assumes the user has the necessary permissions to trigger evaluations and update opportunities.
  *   - Error handling is present but could be enhanced with user-friendly toast notifications.
  *
  * NOTES:
- *   - This component promotes reusability for triggering evaluations from various parts of the application where an `OrionOpportunity` context is available.
+ *   - This component promotes reusability for triggering evaluations from various parts of the application where an `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` context is available.
  *   - **COMPONENTS TO MERGE WITH / OPPORTUNITIES TO CONSOLIDATE**: This component is quite specific; however, if other "action" buttons emerge that trigger similar API calls and navigation, a more generic "ActionButtonWithApi" pattern could be considered.
  *   - **PERFORMANCE OPTIMIZATIONS**: For very frequent evaluations, consider debouncing or caching API responses if the opportunity data doesn't change rapidly.
  *   - **ERROR HANDLING ROBUSTNESS**: While errors are logged, a more visual user feedback mechanism (e.g., a toast message for success/failure) would improve UX.
@@ -35,7 +35,7 @@
  * OPPORTUNITIES FOR IMPROVEMENT:
  *   - **User Feedback**: Integrate a toast notification system (`useToast` from shadcn/ui) to provide clear success or error messages to the user.
  *   - **Progress Indication**: For long-running evaluations, consider adding a more granular progress indicator (e.g., a percentage or status updates) if the backend provides such information.
- *   - **Pre-Evaluation Check**: Add client-side validation or a pre-check before calling the API to ensure all necessary `OrionOpportunity` fields are populated.
+ *   - **Pre-Evaluation Check**: Add client-side validation or a pre-check before calling the API to ensure all necessary `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` fields are populated.
  *   - **Dynamic Status Update**: Instead of a hardcoded `evaluated_positive` status, allow the API to return a suggested status based on the evaluation outcome.
  */
 'use client';
@@ -44,16 +44,16 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui';
 import { BarChart2, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@/lib/types';
 import logger from '@/lib/logger'; // Import logger
 
 interface EvaluateWithOrionButtonProps {
-  OrionOpportunity: OrionOpportunity;
+  opportunity: Opportunity;
   onEvaluationComplete?: (evaluationId: string) => void;
 }
 
 export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = ({
-  OrionOpportunity,
+  opportunity,
   onEvaluationComplete,
 }) => {
   const [isEvaluating, setIsEvaluating] = useState(false);
@@ -65,25 +65,23 @@ export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = (
 
     try {
       const response = await fetch('/api/orion/opportunity/evaluate', {
-        // Corrected API route
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: OrionOpportunity.title,
-          description: OrionOpportunity.content || '',
-          type: OrionOpportunity.type,
-          url: OrionOpportunity.sourceUrl,
+          title: opportunity.title,
+          description: opportunity.content || '',
+          type: opportunity.type,
+          url: opportunity.sourceUrl,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Update OrionOpportunity with evaluation ID
-        await fetch(`/api/orion/opportunity/${OrionOpportunity.id}`, {
-          // Corrected API route
+        // Update opportunity with evaluation ID
+        await fetch(`/api/orion/opportunity/${opportunity.id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -98,18 +96,18 @@ export const EvaluateWithOrionButton: React.FC<EvaluateWithOrionButtonProps> = (
           onEvaluationComplete(data.evaluationId);
         }
 
-        // Navigate to the OrionOpportunity detail view
-        router.push(`/admin/opportunity-pipeline/${OrionOpportunity.id}`); // Corrected navigation route
+        // Navigate to the opportunity detail view
+        router.push(`/admin/opportunity-pipeline/${opportunity.id}`);
       } else {
         logger.error('[EvaluateWithOrionButton][EVALUATION_FAILED]', {
-          opportunityId: OrionOpportunity.id,
+          id: opportunity.id,
           error: data.error,
         });
         // Optionally, set a user-facing error message here
       }
     } catch (error: unknown) {
       logger.error('[EvaluateWithOrionButton][FETCH_ERROR]', {
-        opportunityId: OrionOpportunity.id,
+        id: opportunity.id,
         error: error instanceof Error ? error.message : String(error),
       });
       // Optionally, set a user-facing error message here

@@ -23,7 +23,10 @@ export function useCVTailoring() {
       if (data.success) {
         setComponents(data.components as CVComponent[]);
       } else {
-        setError(data.error || 'Failed to fetch CV components from Notion');
+        setError(
+          data.error ||
+            'Failed to fetch CV components from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES'
+        );
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch CV components');

@@ -103,7 +103,7 @@ stop_services() {
     pkill -f "next dev" 2>/dev/null && log_info "Killed remaining Next.js processes"
 
     # Kill any remaining Python API processes
-    pkill -f "notion_api_server.py" 2>/dev/null && log_info "Killed remaining Python API processes"
+    pkill -f "WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_api_server.py" 2>/dev/null && log_info "Killed remaining Python API processes"
 
     # Clean up PID directory
     if [ -d "$PID_DIR" ]; then
@@ -122,7 +122,7 @@ force_stop() {
     pkill -9 -f "next dev" 2>/dev/null
 
     # Force kill Python API
-    pkill -9 -f "notion_api_server.py" 2>/dev/null
+    pkill -9 -f "WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_api_server.py" 2>/dev/null
 
     # Force stop and remove Docker container
     docker stop qdrant_db 2>/dev/null

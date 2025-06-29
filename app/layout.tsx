@@ -47,11 +47,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         {/* Hidden div to force Tailwind to include custom classes from utility-patterns.css */}
         <div
-          className="btn h1 h2 h3 h4 form-input form-textarea form-multiselect form-select form-checkbox form-radio btn-sm"
-          style={{ display: 'none' }}
+          className="btn h1 h2 h3 h4 form-input form-textarea form-multiselect form-select form-checkbox form-radio btn-sm hidden"
           aria-hidden="true"
         />
         <ClientProviders>

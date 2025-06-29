@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Contact } from '@/lib/types';
+import { Contact } from '@prisma/client';
 import { fetchContactsFromNeon, saveContactToNeon } from '@/lib/contact_service';
 import logger from '@/lib/logger';
 
@@ -7,7 +7,7 @@ import logger from '@/lib/logger';
  * @fileoverview API route for managing user contacts: fetching and saving contact data.
  * @description This route serves as the central API endpoint for interacting with user contact information.
  *   It provides functionalities to retrieve all stored contacts from the Neon/PostgreSQL database
- *   and to persist new contact records. It replaces any previous Notion-based contact handling
+ *   and to persist new contact records. It replaces any previous WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES-based contact handling
  *   and ensures data is stored reliably and accessibly.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
@@ -54,24 +54,24 @@ export async function GET(): Promise<NextResponse<ContactsApiResponse>> {
     operation: 'fetchContacts',
     message: 'Attempting to fetch contacts via API.',
   });
-  // const session = await auth(); // Authentication removed as per user request
-  // if (!session || !session.user) {
-  //   logger.warn('[API][GET][contacts][UNAUTHORIZED]', {
-  //     operation: 'fetchContacts',
-  //     message: 'Unauthorized access attempt.',
-  //   });
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
 
   try {
     const contacts = await fetchContactsFromNeon();
+    const dbContacts = contacts.map((c) => ({
+      ...c,
+      name: [c.firstName, c.middleName, c.lastName].filter(Boolean).join(' ') || '',
+      email: '',
+      linkedinUrl: '',
+      role: '',
+      company: '',
+    }));
     logger.info('[API][GET][contacts][SUCCESS]', {
       operation: 'fetchContacts',
-      message: `Successfully fetched ${contacts.length} contacts.`,
-      count: contacts.length,
+      message: `Successfully fetched ${dbContacts.length} contacts.`,
+      count: dbContacts.length,
       userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
     });
-    return NextResponse.json({ success: true, contacts: contacts });
+    return NextResponse.json({ success: true, contacts: dbContacts });
   } catch (error: unknown) {
     const errorMessage = (error instanceof Error ? error.message : String(error)) || 'Failed to fetch contacts';
     logger.error('[API][GET][contacts][ERROR]', {
@@ -101,32 +101,32 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactsA
 
   try {
     const body = await request.json();
-    const { name, email, linkedinUrl, role, company } = body;
+    const { firstName, lastName, phoneNumber, email1Value, organizationName } = body;
 
-    if (!name) {
+    if (!phoneNumber) {
       logger.warn('[API][POST][contacts][VALIDATION_ERROR]', {
         operation: 'saveContact',
-        message: 'Contact name is required.',
-        userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
+        message: 'Contact phone number is required.',
+        userId: 'unauthenticated_user',
       });
-      return NextResponse.json({ success: false, error: 'Contact name is required.' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Contact phone number is required.' }, { status: 400 });
     }
 
-    const newContactData: Omit<Contact, 'id' | 'createdAt' | 'updatedAt'> = {
-      name,
-      email: email || null,
-      linkedinUrl: linkedinUrl || null,
-      role: role || null,
-      company: company || null,
+    const newContactData = {
+      firstName: firstName || null,
+      lastName: lastName || null,
+      phoneNumber: phoneNumber,
+      email1Value: email1Value || null,
+      organizationName: organizationName || null,
     };
 
     const savedContact = await saveContactToNeon(newContactData);
 
     logger.info('[API][POST][contacts][SUCCESS]', {
       operation: 'saveContact',
-      message: `Successfully saved contact ${savedContact.name}.`,
+      message: `Successfully saved contact ${savedContact.firstName || ''} ${savedContact.lastName || ''}.`,
       contactId: savedContact.id,
-      userId: 'unauthenticated_user', // Replaced session.user.id with 'unauthenticated_user'
+      userId: 'unauthenticated_user',
     });
 
     return NextResponse.json({ success: true, contact: savedContact }, { status: 201 });

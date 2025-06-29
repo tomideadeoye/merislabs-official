@@ -68,7 +68,7 @@
  *     - **How to Implement:**
  *       - **Enhanced UI:** Develop a more dynamic UI that allows you to easily edit, reorder, and add new steps within a sequence. Consider visual progress indicators or "completion" states for each thought.
  *       - **AI Feedback Loop:** Implement a mechanism where the LLM can provide real-time feedback on your current step, suggest alternative approaches, or ask clarifying questions to refine your thinking process.
- *       - **Persistence & Collaboration:** Add functionality to save, load, and potentially share entire sequential thinking sessions (persisting them in Notion or Qdrant).
+ *       - **Persistence & Collaboration:** Add functionality to save, load, and potentially share entire sequential thinking sessions (persisting them in WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES or Qdrant).
  *     - **Relevant Files:**
  *       - `app/(orion_admin)/admin/narrative-clarity-studio/page.tsx` (for the sequential thinking tab's logic and rendering).
  *       - `app/api/orion/llm/sequential-thinking/route.ts` (the backend API for sequential thought generation).
@@ -296,11 +296,8 @@ export default function NarrativeClarityStudio() {
     setLoading(true);
     setMilestonesError(null);
     try {
-      const method = data.unique_id || data.notionPageId ? 'PUT' : 'POST';
-      const url =
-        data.unique_id || data.notionPageId
-          ? `/api/orion/career-milestones/${data.unique_id || data.notionPageId}`
-          : '/api/orion/career-milestones';
+      const method = data.unique_id ? 'PUT' : 'POST';
+      const url = data.unique_id ? `/api/orion/career-milestones/${data.unique_id}` : '/api/orion/career-milestones';
 
       const response = await fetch(url, {
         method,
@@ -355,7 +352,7 @@ export default function NarrativeClarityStudio() {
     setMilestonesError(null);
     try {
       const updatedMilestones = milestones.map((m) => ({ ...m })); // Create a deep copy
-      const index = updatedMilestones.findIndex((m) => m.notionPageId === id || m.unique_id === id);
+      const index = updatedMilestones.findIndex((m) => m.unique_id === id);
 
       if (index === -1) throw new Error('Milestone not found');
 
@@ -374,8 +371,8 @@ export default function NarrativeClarityStudio() {
         updatedMilestones[index].order = targetOrder;
         updatedMilestones[targetIndex].order = currentOrder;
 
-        // Sort and update Notion (simplified for example, full reordering might involve more complex logic)
-        const reorderedForNotion = updatedMilestones.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        // Sort and update milestones (simplified for example, full reordering might involve more complex logic)
+        const reorderedMilestones = updatedMilestones.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
         const response = await fetch('/api/orion/career-milestones/reorder', {
           method: 'POST',
@@ -383,7 +380,7 @@ export default function NarrativeClarityStudio() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            milestones: reorderedForNotion.map((m) => ({ id: m.notionPageId || m.unique_id, order: m.order })),
+            milestones: reorderedMilestones.map((m) => ({ id: m.unique_id, order: m.order })),
           }),
         });
 
@@ -405,7 +402,7 @@ export default function NarrativeClarityStudio() {
 
   const updateGraphWithMilestones = (updatedMilestones: CareerMilestone[]) => {
     updatedMilestones.map((milestone) => ({
-      id: (milestone.notionPageId || milestone.unique_id || `temp-id-${Math.random()}`).toString(), // Use notionPageId, unique_id, or a generated temp ID as a string
+      id: (milestone.unique_id || `temp-id-${Math.random()}`).toString(),
       data: { label: milestone.title },
       position: { x: Math.random() * 500, y: Math.random() * 500 }, // Placeholder for positioning
       // Add other relevant milestone data here
@@ -647,7 +644,7 @@ export default function NarrativeClarityStudio() {
                         )}
                         <span className="font-medium">{status.modelId}:</span>
                         <span className={status.present ? 'text-green-600' : 'text-red-600'}>
-                          {status.present ? 'Active' : `Inactive (${status.reason || 'Unknown reason'})`}
+                          {status.present ? 'Active' : `Inactive(${status.reason || 'Unknown reason'})`}
                         </span>
                       </div>
                     ))}

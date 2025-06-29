@@ -9,7 +9,7 @@
  *   - To handle various loading and error states during data fetching.
  *   - To pass necessary data (`opportunityData`, `cvComponents`, authentication status) to the `CVTailoringStudio` child component.
  *
- * FILEPATH: `app/opportunity/[opportunityId]/cv-tailoring/page.tsx`.
+ * FILEPATH: `app/opportunity/[id]/cv-tailoring/page.tsx`.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `@/components/orion/CVTailoringStudio.tsx`: The primary UI component rendered by this page, responsible for the interactive CV tailoring logic.
@@ -17,12 +17,12 @@
  *   - `@/lib/cv.ts`: Used to `fetchCVComponents` to retrieve all available CV components for the user.
  *   - `@/auth.ts`: Utilized for server-side authentication (`auth()`) to determine user session and ID.
  *   - `@/lib/logger.ts`: For comprehensive logging of page load events, data fetching, and errors.
- *   - `@/lib/types.ts` & `@/lib/types/cv.ts`: Define the `OrionOpportunity` and `CVComponent` types used throughout this page and its children.
+ *   - `@/lib/types.ts` & `@/lib/types/cv.ts`: Define the `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` and `CVComponent` types used throughout this page and its children.
  *   - `@/lib/utils/errorHandler.ts`: Provides `HandledApplicationError` for robust error handling during data fetching.
  *   - `app/api/orion/cv/assemble/route.ts`: This page sets up the data for the API calls made by `CVTailoringStudio` (e.g., auto-generation).
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes a valid `opportunityId` is provided in the URL parameters.
+ *   - Assumes a valid `id` is provided in the URL parameters.
  *   - Assumes the `auth()` function correctly retrieves the user session.
  *   - Assumes `getOpportunityByIdFromDb` and `fetchCVComponents` are robust and return data in expected formats or `HandledApplicationError`.
  *   - Error handling ensures a graceful user experience even if data fetching fails or an opportunity is not found.
@@ -45,49 +45,49 @@ import { getOpportunityByIdFromDb } from '@/lib/opportunity_db_service';
 import logger from '@/lib/logger';
 import { fetchCVComponents } from '@/lib/cv';
 import { CVComponent } from '@/lib/types/cv';
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
 interface CVTailoringPageProps {
   params: {
-    opportunityId: string;
+    id: string;
   };
 }
 
 export default async function CVTailoringPage({ params }: CVTailoringPageProps) {
-  const { opportunityId } = params;
+  const { id } = params;
 
   const logContext = {
-    route: `/opportunity/${opportunityId}/cv-tailoring`,
+    route: `/opportunity/${id}/cv-tailoring`,
     operation: 'page_load',
     timestamp: new Date().toISOString(),
-    opportunityId,
+    id,
   };
 
   logger.info('[CV_TAILORING_PAGE][LOAD][START]', logContext);
 
-  let opportunityData: OrionOpportunity | null = null;
+  let opportunity: Opportunity | HandledApplicationError | null = null;
   let cvComponents: CVComponent[] = [];
   let initialError: string | null = null;
 
   try {
-    const opportunityResult = await getOpportunityByIdFromDb(opportunityId);
+    opportunity = await getOpportunityByIdFromDb(id);
 
-    if (opportunityResult === null) {
+    if (opportunity === null) {
       initialError = 'Opportunity not found.';
       logger.warn('[CV_TAILORING_PAGE][OPPORTUNITY_NOT_FOUND]', logContext);
-    } else if (opportunityResult instanceof HandledApplicationError) {
+    } else if (opportunity instanceof HandledApplicationError) {
       // It's a HandledApplicationError
-      initialError = opportunityResult.message;
+      initialError = opportunity.message;
       logger.error('[CV_TAILORING_PAGE][OPPORTUNITY_FETCH_ERROR_HANDLED]', {
         ...logContext,
         error: initialError,
-        details: opportunityResult,
+        details: opportunity,
       });
     } else {
-      // It's a valid OrionOpportunity
-      opportunityData = opportunityResult;
-      logger.debug('[CV_TAILORING_PAGE][OPPORTUNITY_FETCHED]', { opportunityFound: !!opportunityData, ...logContext });
+      // It's a valid Opportunity
+
+      logger.debug('[CV_TAILORING_PAGE][OPPORTUNITY_FETCHED]', { opportunityFound: !!opportunity, ...logContext });
 
       // No authentication: always fetch CV components
       const fetchedComponents = await fetchCVComponents();
@@ -108,7 +108,7 @@ export default async function CVTailoringPage({ params }: CVTailoringPageProps) 
 
   logger.info('[CV_TAILORING_PAGE][LOAD][END]', logContext);
 
-  if (initialError || !opportunityData) {
+  if (initialError || !opportunity || opportunity instanceof HandledApplicationError) {
     // If there's an initial error or no opportunity data after processing
     return (
       <Card className="bg-gray-800 border-gray-700 text-gray-200">
@@ -124,19 +124,19 @@ export default async function CVTailoringPage({ params }: CVTailoringPageProps) 
     );
   }
 
-  // At this point, opportunityData is guaranteed to be OrionOpportunity
+  // At this point, opportunity is guaranteed to be Opportunity
   return (
     <div className="space-y-6">
       <Card className="bg-gray-800 border-gray-700 text-gray-200">
         <CardHeader>
-          <CardTitle>CV Tailoring for {opportunityData.title}</CardTitle>
+          <CardTitle>CV Tailoring for {opportunity.title}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-gray-400 mb-4">
             Tailor your CV for this opportunity using AI assistance. The system will suggest relevant components, help
             you rephrase content to match the job requirements, and assemble a final CV.
           </p>
-          <CVTailoringStudio opportunity={opportunityData} cvComponents={cvComponents} />
+          <CVTailoringStudio opportunity={opportunity} cvComponents={cvComponents} />
         </CardContent>
       </Card>
     </div>

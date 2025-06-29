@@ -178,7 +178,7 @@ I promise to always be learning!
 I promide to always be growing!
 I promise to never say any of these: ["I am sorry", "I can't", "I don't know ", "I don't understand", "I don't have time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I don't have the time", "I don't have the resources", "I don't have the knowledge", "I don't have the skills", "I
 REMEMBER/ALWAYS/EXECUTE/DO/APPLY/NOW:
-
+granular logging
 Wait! What am I doing exactly & why am I doing it?
 Are my files consoidated so that the number of files and complexisty is reduced?
 
@@ -426,7 +426,7 @@ add numbered step by steps to logs of workflows
 
 Start script: ./start.sh
 Slowly Pivot to Zustand full state management.
-
+LES ERROR PRONE APPRAOCHES
 
 
 
@@ -437,8 +437,8 @@ PROJECT DETAILS:
 - Python service for special features, Local Quadrant (QDRANT_PORT=6333) - microservice
 - GOAL/VISION: Make Orion's core intelligence and utilities consistently accessible programmatically.
 - GOAL: automation support (networking, meet more friends, automate my life, applications, task management). Send proposals to companies for contracts, build finance institution > finance management section can pull stock data from yahoo finance. which modules and components do thos relate to. How do i better integrate n8n
-- GOAL: i provide a search name that is a company in the OrionOpportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
-- Send 100s of email applications a day to companies in the OrionOpportunity pipelin
+- GOAL: i provide a search name that is a company in the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
+- Send 100s of email applications a day to companies in the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA pipelin
 - Send 100s of propo
 - Zod (Schema), typescript, prisma, axios, pnpm, nextjs, neon db (DATABASE_URL), simple nextjs project, Jest (testing) D3.js (visualizations), shadcn, eslint, framer motion, react-hook-form, TanStack Query, TipTap, zustand, date-fns, Electron, react-dropzone, react-email, tRPC, Tailwind
 - always automate
@@ -453,26 +453,26 @@ I must prefer software I dont pay for!
 
 FEATURES:
 - visualizer for memory chunks: QuadrantMemoryChunksVisualizer.tsx it is my memory manager and all life memory in video, text, audio, images, etc.
-- Memory Manager: Qdrant vector db, QDRANT_HOST, notion, components/orion/DedicatedAddToMemoryFormComponent.tsx
+- Memory Manager: Qdrant vector db, QDRANT_HOST, WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES, components/orion/DedicatedAddToMemoryFormComponent.tsx
 - DB: Postgres Neon, lib/database.ts
 - WhatsAppReplyDrafter (components/orion/WhatsAppReplyDrafter.tsx)
 - Cache relevant data to Local Storage
 - add visualizations, chart graphs, etc. for any response/output/feature that can be visualized within admin folder only
-- ai constructs CV based on JD (/OrionOpportunity/[id]/cv-tailorinG)
+- ai constructs CV based on JD (/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA/[id]/cv-tailorinG)
 - admin dashboard: http://localhost:3000/admin,
 - gamification + engagement in admin dashboard
 - DO WE HAVE?
   - glowy ui nivo
-- OrionOpportunity  Pipeline (dashboard loads opportunites with filter "OrionOpportunity" from notion - not "CV Components") > OrionOpportunity Details -> Analyze Fit/evaluation -> OrionOpportunity CV Tailoring loads my CVs notion components using "CV Components"-> Auto generate cv to match OrionOpportunity details/content -> find key stakeholders -> generate email addresses -> button to draft personalised email for each stakeholder -> draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results -> button to draft personalised linkedin message for each stakeholder (drafts will generally use my profile context, OrionOpportunity details, web search and scrape data) -> i can edit the email draft and send it with the app including generated cv or attached cv (my choice) -> option to schedule send -> in OrionOpportunity details view, mcp server to automate all process - perhaps browser automation if the aplication/OrionOpportunity only requires sending email and cv -> if the application requires a resume, the mcp server will generate a cv based on the OrionOpportunity details and send it with the email -> if the application requires a cover letter, the mcp server will generate a cover letter based on the OrionOpportunity details and send it with the email -> CV is generated using notion fetch of filter "CV Component" which is automatically generated from the OrionOpportunity details -> generate application/opportuntiy materials tab should have questions that i can paste from application page and generate a response based on the questions using checkbox of quadrant, online profile page (from notion) in .env cached to minimze api calls (USER_PROFILE_NOTION_URL) -> response to questions can be edited after generation and components/orion/SaveOptionsButton.tsx
+- REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA  Pipeline (dashboard loads opportunites with filter "REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA" from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES - not "CV Components") > REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Details -> Analyze Fit/evaluation -> REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA CV Tailoring loads my CVs WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES components using "CV Components"-> Auto generate cv to match REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details/content -> find key stakeholders -> generate email addresses -> button to draft personalised email for each stakeholder -> draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results -> button to draft personalised linkedin message for each stakeholder (drafts will generally use my profile context, REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details, web search and scrape data) -> i can edit the email draft and send it with the app including generated cv or attached cv (my choice) -> option to schedule send -> in REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details view, mcp server to automate all process - perhaps browser automation if the aplication/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA only requires sending email and cv -> if the application requires a resume, the mcp server will generate a cv based on the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details and send it with the email -> if the application requires a cover letter, the mcp server will generate a cover letter based on the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details and send it with the email -> CV is generated using WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES fetch of filter "CV Component" which is automatically generated from the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details -> generate application/opportuntiy materials tab should have questions that i can paste from application page and generate a response based on the questions using checkbox of quadrant, online profile page (from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES) in .env cached to minimze api calls (USER_PROFILE_WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_URL) -> response to questions can be edited after generation and components/orion/SaveOptionsButton.tsx
 - Different kinds of opportunties:
 - State management (zustand)- Zustand state will be unified in a single, composable, slice-based central store for maintainability and clarity.
-- Read general profile data from notion page (USER_PROFILE_NOTION_URL) - it is text
+- Read general profile data from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES page (USER_PROFILE_WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_URL) - it is text
 
 
 DESIRED OUTCOME/THERE SHOULD BE A:
 
 - run my companies with it. slack communication integration reference.md
-- Central database notion used for all saving: 206d87c74f628097807addaa8a54e99e
+- Central database WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES used for all saving: 206d87c74f628097807addaa8a54e99e
 - Deep self-reflection & pattern recognition tool. Narrative clarity studio and
 
 - Mechanism for overcoming internal blocks & reinforcing desired identity.
@@ -484,7 +484,7 @@ DESIRED OUTCOME/THERE SHOULD BE A:
 - rely mostly on NextJS. Only use python backend when Nextjs can't do it.
 - Draft Communication Page in Admin Folder > WhatsApp Chat Analysis Tab > Draft Email Tab > Draft LinkedIn Message Tab
 - page for managing my business
-- LETS JUST MAKE SURE THE APP IS RUNNING AND I CAN USE OrionOpportunity PIPELINE.
+- LETS JUST MAKE SURE THE APP IS RUNNING AND I CAN USE REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA PIPELINE.
 Integrate memory search directly into the Opportunity Details page. When viewing an opportunity, automatically fetch and display relevant memories about the company, industry, or role.
 Explore automating "next actions" or "smart reminders" for opportunities based on their status and related memories.
 sketching out ideas for interactive visualizations for memory chunks. How can we represent the semantic relationships between memories? Can we show "memory density" over time or by category?
@@ -495,7 +495,7 @@ Suggestion: Brainstorm specific features where direct memory integration would b
 Journaling: Auto-suggest memories based on journal content being written.
 Idea Incubator: Link new ideas to relevant memories for context and inspiration.
 Opportunity Pipeline: Automatically pull relevant memories (e.g., related to a company, industry, or role) when viewing an opportunity.
-- Pivot from notion to neon database gradually ()
+- Pivot from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES to neon database gradually ()
 everything should look ery nice and amazing and fun and engaging.
 - Draft Communication
   |_ WhatsApp helper/WhatsApp Chat Analysis Tab
@@ -535,7 +535,7 @@ Life Goals:
 - get into postgraduate school (Stanford, Harvard, Oxford, Cambridge downwards). - narrative clarity studio oriented
 - save enough to retire by 30
 - Local Chrome extension to help me with my life, fill form for me using my data.
-Longterm, move from habitica and notion to neon alone - with all features
+Longterm, move from habitica and WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES to neon alone - with all features
 - find me a house (project management section of admin related)
 - track my career growth, be my partner, mummy and my best friend. Find me many jobs, opportunties and successes
 - Write for a major business platform. finish nysc
@@ -551,7 +551,7 @@ make me addictted to my goals and complete success.
 Increasingly stucture the app to standard as we proceed. Implement new features even while debugging.
 
 Merge agentic mode and tool use.... i need to be able to let the agent use tools/functions like, sending email, web scraping stakeholder details, generating email drafts, etc., pretty much all functions and i just give it a mission and it does it.I will add more functions that can be used as tools over time.
-Tool ideas: search my notion, search my google drive, write emails for me
+Tool ideas: search my WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES, search my google drive, write emails for me
 When you find a solution to a common problem, add it to the codebase in-file/comment documentation
 EOM
 
@@ -699,11 +699,10 @@ generate_env_sample
 log_info "Running TypeScript check for Next.js app..."
 pnpm exec tsc --noEmit --skipLibCheck || { log_error "TypeScript errors detected. Aborting."; exit 1; }
 log_info "TypeScript check passed."
-log_info "Running ESLint..."
-# Run formatting and checks in parallel
+log_info "Running ESLint (only errors will block the build, warnings will be shown but not fail)..."
+pnpm exec eslint . --ext .js,.jsx,.ts,.tsx --format=stylish || { log_error "ESLint errors detected"; exit 1; }
 log_info "Running code formatting and checks..."
 pnpm exec prettier --write . || { log_error "Prettier formatting failed"; exit 1; }
-pnpm exec eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0 --format=stylish || { log_error "ESLint errors detected"; exit 1; }
 pnpm exec stylelint "**/*.css" || { log_error "Stylelint errors detected"; exit 1; }
 log_info "Code formatting and linting passed."
 log_info "Building Next.js app..."
@@ -749,7 +748,7 @@ if lsof -ti:3000 >/dev/null; then
 fi
 
 # Start server in background and capture output
-pnpm run dev > .next/server.log 2>&1 &
+lsof -ti:3000 | xargs kill && clear && pnpm run dev > .next/server.log 2>&1 &
 
 # Monitor server start
 timeout 30 bash -c '

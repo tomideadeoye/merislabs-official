@@ -3,16 +3,16 @@
  * @description This page component serves as a central hub for Tomide to deep-dive into a single opportunity. It fetches the opportunity's details and its associated AI evaluation (if available or generated), presenting key insights. Additionally, it offers a capability to switch to a broader view of the entire opportunity pipeline for high-level analytics.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - To fetch and display comprehensive details of a single `OrionOpportunity` based on its ID.
+ *   - To fetch and display comprehensive details of a single `Opportunity` based on its ID.
  *   - To trigger and display the AI-driven evaluation results for the specific opportunity, leveraging `userProfileData` for context.
  *   - To provide a toggle mechanism for viewing either the single opportunity's analytics or a consolidated view of all pipeline opportunities.
  *   - To ensure robust loading, error handling, and data fetching for both opportunity details and evaluation.
  *
- * FILEPATH: `app/opportunity/[opportunityId]/analyze/page.tsx`
+ * FILEPATH: `app/opportunity/[id]/analyze/page.tsx`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `next/navigation`: Uses `useParams` and `notFound` for route parameter extraction and routing control.
- *   - `@/lib/types`: Imports `EvaluationOutput`, `OrionOpportunity`, and `UserProfileData` for strict type definitions.
+ *   - `@/lib/types`: Imports `EvaluationOutput`, `Opportunity`, and `UserProfileData` for strict type definitions.
  *   - `@/lib/profile_service`: Uses `fetchUserProfile` to retrieve Tomide's profile data, which is crucial context for the AI evaluation.
  *   - `@/lib/logger`: Integrated for comprehensive, context-rich logging throughout the data fetching and evaluation process.
  *   - `app/components/ui`: Imports `CardContent` for UI structuring.
@@ -20,11 +20,11 @@
  *   - API Routes:
  *     - `/api/orion/opportunity/[id]`: Fetches individual opportunity details.
  *     - `/api/orion/opportunity/list`: Fetches all opportunities for the pipeline analytics view.
- *     - `/api/orion/opportunity/[opportunityId]/evaluation`: Triggers the AI evaluation of the opportunity, passing user profile context.
+ *     - `/api/orion/opportunity/[id]/evaluation`: Triggers the AI evaluation of the opportunity, passing user profile context.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes that the `opportunityId` will always be present in the URL parameters when this page is accessed.
- *   - Assumes the AI evaluation API (`/api/orion/opportunity/[opportunityId]/evaluation`) is operational and returns a consistent `EvaluationOutput` structure.
+ *   - Assumes that the `id` will always be present in the URL parameters when this page is accessed.
+ *   - Assumes the AI evaluation API (`/api/orion/opportunity/[id]/evaluation`) is operational and returns a consistent `EvaluationOutput` structure.
  *   - User profile data is critical for accurate evaluation; the component attempts to fetch it and logs a warning if unavailable.
  *   - The component handles initial loading states and displays an error if opportunity data cannot be fetched or processed.
  *
@@ -48,34 +48,34 @@
 
 import { useState, useEffect } from 'react';
 import { notFound, useParams } from 'next/navigation';
-import { EvaluationOutput, OrionOpportunity, UserProfileData } from '@/lib/types';
+import { EvaluationOutput, Opportunity, UserProfileData } from '@/lib/types';
 import { fetchUserProfile } from '@/lib/profile_service';
 import logger from '@/lib/logger';
 
 import { CardContent } from '@/components/ui';
-import { OpportunityPipelineCharts } from '../../../(orion_admin)/admin/opportunity-pipeline/OpportunityPipelineCharts';
+import { OpportunityPipelineCharts } from '../../OpportunityPipelineCharts';
 
-// Fetch a single OrionOpportunity from the API
-async function fetchOpportunity(id: string): Promise<OrionOpportunity | null> {
+// Fetch a single Opportunity from the API
+async function fetchOpportunity(id: string): Promise<Opportunity | null> {
   try {
     const res = await fetch(`/api/orion/opportunity/${id}`, {
       cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
     });
     if (!res.ok) {
-      logger.error('Opportunity API returned error status:', { opportunityId: id, status: res.status });
+      logger.error('Opportunity API returned error status:', { id: id, status: res.status });
       return null;
     }
     const data = await res.json();
-    return data.opportunity as OrionOpportunity;
+    return data.opportunity as Opportunity;
   } catch (error) {
-    logger.error('Error fetching opportunity:', { opportunityId: id, error: error });
+    logger.error('Error fetching opportunity:', { id: id, error: error });
     return null;
   }
 }
 
 // Fetch all opportunities for pipeline analytics
-async function fetchAllOpportunities(): Promise<OrionOpportunity[]> {
+async function fetchAllOpportunities(): Promise<Opportunity[]> {
   try {
     const res = await fetch('/api/orion/opportunity/list', {
       cache: 'no-store',
@@ -86,7 +86,7 @@ async function fetchAllOpportunities(): Promise<OrionOpportunity[]> {
       return [];
     }
     const data = await res.json();
-    return data.opportunities as OrionOpportunity[];
+    return data.opportunities as Opportunity[];
   } catch (error) {
     logger.error('Error fetching all opportunities:', { error: error });
     return [];
@@ -96,22 +96,22 @@ async function fetchAllOpportunities(): Promise<OrionOpportunity[]> {
 export default function AnalyzePage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
-  const [OrionOpportunity, setOpportunity] = useState<OrionOpportunity | null>(null);
+  const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationOutput | null>(null);
-  const [allOpportunities, setAllOpportunities] = useState<OrionOpportunity[]>([]);
+  const [allOpportunities, setAllOpportunities] = useState<Opportunity[]>([]);
   const [viewMode, setViewMode] = useState<'single' | 'pipeline'>('single');
   const [loading, setLoading] = useState(true);
   const [userProfileData, setUserProfileData] = useState<UserProfileData | null>(null);
 
   // Fetch evaluation with profile source and error
   async function fetchEvaluationWithSource(
-    opportunityId: string,
+    id: string,
     userProfile: UserProfileData | null
   ): Promise<EvaluationOutput | null> {
     try {
       if (!userProfile) {
         console.error('[AnalyzePage] User profile is missing. Cannot perform evaluation. (CRITICAL DEBUG)', {
-          opportunityId: opportunityId,
+          id: id,
           source: 'fetchEvaluationWithSource',
           details: 'userProfile is null or undefined',
         });
@@ -136,14 +136,14 @@ export default function AnalyzePage() {
       }
 
       console.error('[AnalyzePage] Preparing evaluation request with UserProfile. (CRITICAL DEBUG)', {
-        opportunityId: opportunityId,
+        id: id,
         userProfileExists: !!userProfile,
         userProfileKeys: userProfile ? Object.keys(userProfile) : [],
         userProfileContent: userProfile ? JSON.stringify(userProfile).substring(0, 500) : 'N/A',
       });
 
       const requestBody = JSON.stringify({
-        opportunityId: opportunityId,
+        id: id,
         userProfile: userProfile,
       });
 
@@ -151,12 +151,12 @@ export default function AnalyzePage() {
       console.error('[AnalyzePage] RAW REQUEST BODY TO BE SENT: (CRITICAL DEBUG)', requestBody);
 
       console.error('[AnalyzePage] Sending evaluation request with body: (CRITICAL DEBUG)', {
-        opportunityId: opportunityId,
+        id: id,
         requestBodySample: requestBody.substring(0, 500),
         requestBodyLength: requestBody.length,
       });
 
-      const res = await fetch(`/api/orion/opportunity/${opportunityId}/evaluation`, {
+      const res = await fetch(`/api/orion/opportunity/${id}/evaluation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: requestBody,
@@ -164,7 +164,7 @@ export default function AnalyzePage() {
       });
       if (!res.ok) {
         logger.error('Evaluation API returned error status:', {
-          opportunityId: opportunityId,
+          id: id,
           status: res.status,
           statusText: res.statusText,
         });
@@ -174,7 +174,7 @@ export default function AnalyzePage() {
       return data.evaluation as EvaluationOutput | null;
     } catch (error) {
       logger.error('Error fetching evaluation with source:', {
-        opportunityId: opportunityId,
+        id: id,
         errorMessage: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       });
@@ -220,7 +220,7 @@ export default function AnalyzePage() {
           evalResult = await fetchEvaluationWithSource(id, currentProfileData);
         } else {
           logger.error('[AnalyzePage] Cannot perform evaluation: User profile data is missing after fetch attempt.', {
-            opportunityId: id,
+            id: id,
           });
           // We can optionally show a toast notification here as well.
         }
@@ -254,19 +254,19 @@ export default function AnalyzePage() {
     return <div className="p-8">Loading analytics...</div>;
   }
 
-  if (!OrionOpportunity) {
+  if (!opportunity) {
     notFound();
   }
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">OrionOpportunity Analysis</h1>
+      <h1 className="text-3xl font-bold mb-4">Opportunity Analysis</h1>
       <div className="mb-4">
         <button
           onClick={() => setViewMode('single')}
           className={`mr-2 px-4 py-2 rounded cursor-pointer ${viewMode === 'single' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-white'}`}
         >
-          This OrionOpportunity
+          This Opportunity
         </button>
         <button
           onClick={() => setViewMode('pipeline')}
@@ -279,28 +279,28 @@ export default function AnalyzePage() {
       {viewMode === 'single' && (
         <>
           <p className="mb-2">
-            <strong>OrionOpportunity ID:</strong> {OrionOpportunity.id}
+            <strong>Opportunity ID:</strong> {opportunity.id}
           </p>
           <p className="mb-2">
-            <strong>Title:</strong> {OrionOpportunity.title}
+            <strong>Title:</strong> {opportunity.title}
           </p>
           <p className="mb-2">
-            <strong>Organization:</strong> {OrionOpportunity.companyOrInstitution || 'N/A'}
+            <strong>Organization:</strong> {opportunity.company || 'N/A'}
           </p>
           <p className="mb-2">
-            <strong>Status:</strong> {OrionOpportunity.status}
+            <strong>Status:</strong> {opportunity.status}
           </p>
           <p className="mb-2">
-            <strong>Type:</strong> {OrionOpportunity.type}
+            <strong>Type:</strong> {opportunity.type}
           </p>
           <p className="mb-2">
-            <strong>Priority:</strong> {OrionOpportunity.priority}
+            <strong>Priority:</strong> {opportunity.priority}
           </p>
           <p className="mb-2">
-            <strong>Description:</strong> {OrionOpportunity.content || 'No description'}
+            <strong>Description:</strong> {opportunity.content || 'No description'}
           </p>
           <div className="my-8">
-            <OpportunityPipelineCharts opportunities={[OrionOpportunity]} isLoading={loading} />
+            <OpportunityPipelineCharts opportunities={[opportunity]} isLoading={loading} />
           </div>
           {evaluation && (
             <CardContent>
@@ -360,11 +360,11 @@ export default function AnalyzePage() {
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Suggestions for Enhanced Analytics</h2>
         <ul className="list-disc list-inside ml-5">
-          <li>Show OrionOpportunity status and priority trends over time (timeline chart).</li>
-          <li>Compare this OrionOpportunity to others in the pipeline (fit score, type, etc.).</li>
+          <li>Show Opportunity status and priority trends over time (timeline chart).</li>
+          <li>Compare this Opportunity to others in the pipeline (fit score, type, etc.).</li>
           <li>Visualize stakeholder alignment and risk as charts.</li>
           <li>Enable filtering and drill-down for related opportunities.</li>
-          <li>Display a timeline of key events and status changes for this OrionOpportunity.</li>
+          <li>Display a timeline of key events and status changes for this Opportunity.</li>
           <li>Integrate evaluation/analysis results directly into the analytics view.</li>
         </ul>
       </div>

@@ -65,9 +65,9 @@ export function QuadrantMemoryChunksVisualizer({ memoryResults }: QuadrantMemory
                     {tag}
                   </Badge>
                 ))}
-              {memory.payload?.opportunityId && (
+              {memory.payload?.id && (
                 <Badge className="bg-green-600 text-green-100">
-                  Opportunity ID: {memory.payload.opportunityId.substring(0, 8)}...
+                  Opportunity ID: {memory.payload.id.substring(0, 8)}...
                 </Badge>
               )}
               {memory.payload?.timestamp && (

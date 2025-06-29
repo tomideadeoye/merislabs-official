@@ -7,11 +7,13 @@ import { CVComponent } from '@/lib/types/cv'; // Import the canonical CVComponen
 const BASE_URL = typeof window === 'undefined' ? process.env.NEXTAUTH_URL || 'http://localhost:3000' : '';
 
 /**
- * Fetch all CV components from Notion
+ * Fetch all CV components from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES
  */
 export async function fetchCVComponents(): Promise<CVComponent[]> {
   try {
-    const response = await fetch(`${BASE_URL}/api/orion/notion/cv-components`);
+    const response = await fetch(
+      `${BASE_URL}/api/orion/WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES/cv-components`
+    );
     if (!response.ok) {
       throw new Error(`Failed to fetch CV components: ${response.statusText}`);
     }

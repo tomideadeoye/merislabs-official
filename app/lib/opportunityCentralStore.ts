@@ -1,4 +1,4 @@
-import type { OrionOpportunityDetails, OrionOpportunity, Stakeholder } from './types';
+import type { Opportunity, Stakeholder } from '@prisma/client';
 import { create, StateCreator } from 'zustand';
 
 // Define a type for keys that can be used for sorting
@@ -22,7 +22,7 @@ export type SortableOpportunityKeys =
   | 'salary'
   | 'contact'
   | 'position'
-  | 'notionPageId'
+  | 'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILESPageId'
   | 'contentType'
   | 'type'
   | 'status';
@@ -41,7 +41,7 @@ interface DialogSlice {
 }
 
 type SortOrder = 'asc' | 'desc';
-type Filters = Partial<OrionOpportunityDetails> & { tag?: string };
+type Filters = Partial<Opportunity> & { tag?: string };
 interface FiltersSlice {
   filters: Filters;
   sort: SortableOpportunityKeys;
@@ -54,8 +54,8 @@ interface FiltersSlice {
 
 interface DraftApplicationDialogSlice {
   isDraftDialogOpen: boolean;
-  draftOpportunity: OrionOpportunity | undefined;
-  openDraftDialog: (orionOpportunity: OrionOpportunity) => void;
+  draftOpportunity: Opportunity | undefined;
+  openDraftDialog: (opportunity: Opportunity) => void;
   closeDraftDialog: () => void;
 }
 
@@ -94,12 +94,12 @@ interface FindStakeholdersDialogSlice {
   isFindStakeholdersDialogOpen: boolean;
   stakeholders: Stakeholder[];
   selectedStakeholder: Stakeholder | null;
-  orionOpportunity: OrionOpportunity | undefined;
+  opportunity: Opportunity | undefined;
   openFindStakeholdersDialog: () => void;
   closeFindStakeholdersDialog: () => void;
   setStakeholders: (stakeholders: Stakeholder[]) => void;
   setSelectedStakeholder: (stakeholder: Stakeholder | null) => void;
-  setOpportunity: (orionOpportunity: OrionOpportunity) => void;
+  setOpportunity: (opportunity: Opportunity) => void;
 }
 
 export type OpportunityCentralStoreType = BoardSlice &
@@ -141,7 +141,7 @@ const createDraftApplicationDialogSlice: StateCreator<
 > = (set) => ({
   isDraftDialogOpen: false,
   draftOpportunity: undefined,
-  openDraftDialog: (orionOpportunity) => set({ isDraftDialogOpen: true, draftOpportunity: orionOpportunity }),
+  openDraftDialog: (opportunity) => set({ isDraftDialogOpen: true, draftOpportunity: opportunity }),
   closeDraftDialog: () => set({ isDraftDialogOpen: false, draftOpportunity: undefined }),
 });
 
@@ -185,12 +185,12 @@ const createFindStakeholdersDialogSlice: StateCreator<
   isFindStakeholdersDialogOpen: false,
   stakeholders: [],
   selectedStakeholder: null,
-  orionOpportunity: undefined,
+  opportunity: undefined,
   openFindStakeholdersDialog: () => set({ isFindStakeholdersDialogOpen: true }),
   closeFindStakeholdersDialog: () => set({ isFindStakeholdersDialogOpen: false, selectedStakeholder: null }),
   setStakeholders: (stakeholders) => set({ stakeholders }),
   setSelectedStakeholder: (stakeholder) => set({ selectedStakeholder: stakeholder }),
-  setOpportunity: (orionOpportunity) => set({ orionOpportunity }),
+  setOpportunity: (opportunity) => set({ draftOpportunity: opportunity }),
 });
 
 export const useOpportunityCentralStore = create<OpportunityCentralStoreType>()((...a) => ({

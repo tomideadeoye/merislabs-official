@@ -38,7 +38,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { taskDbService } from '@/lib/task_db_service'; // For database operations on tasks
 import logger from '@/lib/logger'; // For logging
-import { Prisma } from '@/generated/prisma'; // For Prisma types, specifically TaskUpdateInput
+import { Prisma } from '@prisma/client'; // For Prisma types, specifically TaskUpdateInput
 
 export async function PUT(request: NextRequest, { params }: { params: { taskId: string } }) {
   const { taskId } = params;

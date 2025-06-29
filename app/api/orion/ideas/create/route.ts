@@ -196,7 +196,6 @@ export async function POST(req: NextRequest) {
         brainstormingStarter: enrichedIdeaData.brainstormingStarter,
         createdAt: new Date(),
         updatedAt: new Date(),
-        notionPageId: null,
         dueDate: null,
         priority: null,
         brainstormingNotes: null,

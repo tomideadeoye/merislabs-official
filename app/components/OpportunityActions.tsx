@@ -36,20 +36,20 @@
 'use client';
 
 import React from 'react';
+import { Opportunity } from '@prisma/client';
 
-import type { OrionOpportunity } from '@/lib/types';
 import { FindStakeholdersButton } from './FindStakeholdersButton';
 import { DraftApplicationButton } from './DraftApplicationButton';
 
 interface OpportunityActionsProps {
-  OrionOpportunity: OrionOpportunity;
+  opportunity: Opportunity;
 }
 
-export const OpportunityActions: React.FC<OpportunityActionsProps> = ({ OrionOpportunity }) => {
+export const OpportunityActions: React.FC<OpportunityActionsProps> = ({ opportunity }) => {
   return (
     <div className="flex flex-wrap gap-2">
-      <DraftApplicationButton orionOpportunity={OrionOpportunity} />
-      <FindStakeholdersButton orionOpportunity={OrionOpportunity} />
+      <DraftApplicationButton opportunity={opportunity} />
+      <FindStakeholdersButton opportunity={opportunity} />
     </div>
   );
 };

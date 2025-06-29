@@ -3,8 +3,8 @@
  * @description This route provides two primary functionalities: a `GET` endpoint to retrieve a comprehensive list of all stored opportunities from the Neon database, and a `POST` endpoint to create a new opportunity record. It leverages Zod for robust input validation on creation and integrates with the `opportunity_db_service` for database interactions.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - To serve as the central API endpoint for `GET` requests to fetch all `OrionOpportunity` records.
- *   - To serve as the central API endpoint for `POST` requests to create a new `OrionOpportunity` record.
+ *   - To serve as the central API endpoint for `GET` requests to fetch all `Opportunity` records.
+ *   - To serve as the central API endpoint for `POST` requests to create a new `Opportunity` record.
  *   - To ensure incoming opportunity data is strictly validated using Zod schemas before persistence.
  *   - To interact with `app/lib/opportunity_db_service.ts` for database operations (list and create).
  *   - To manage the creation of associated stakeholders directly within the POST request.
@@ -16,7 +16,7 @@
  *   - `next/server`: Provides `NextRequest` and `NextResponse` for handling API requests and responses.
  *   - `@/lib/logger`: Used for comprehensive, context-rich logging throughout the route.
  *   - `zod`: The schema validation library used to define and enforce the structure of incoming data for new opportunities.
- *   - `@/lib/types`: Imports `OpportunityStatus`, `OpportunityType`, `OpportunityPriority`, which are used in the Zod schema for type enforcement.
+ *   - `@/lib/types`: Imports `OpportunityType`, `OpportunityPriority`, which are used in the Zod schema for type enforcement.
  *   - `@/lib/opportunity_db_service`: Imports `listOpportunitiesFromDb` and `createOpportunityInDb` to abstract database interactions.
  *   - `@/generated/prisma`: Imports `PrismaClient` to directly create associated `Stakeholder` records.
  *   - `app/(orion_admin)/admin/opportunity-pipeline/page.tsx`: This frontend page likely consumes the `GET` endpoint to display the list of opportunities.
@@ -25,7 +25,7 @@
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes that the Neon PostgreSQL database is accessible via the `opportunity_db_service`.
- *   - Assumes that `OpportunityStatus`, `OpportunityType`, and `OpportunityPriority` enums are correctly defined in `@/lib/types` and align with Prisma's schema.
+ *   - Assumes that `OpportunityType` and `OpportunityPriority` enums are correctly defined in `@/lib/types` and align with Prisma's schema.
  *   - Stakeholder creation is handled as part of the opportunity POST, meaning stakeholders are directly tied to an opportunity upon creation.
  *   - Error handling differentiates between Zod validation errors and other unexpected server errors.
  *
@@ -48,13 +48,12 @@
 import { NextResponse, NextRequest } from 'next/server';
 import logger from '@/lib/logger';
 import { z } from 'zod';
-import { OpportunityStatus, OpportunityType, OpportunityPriority } from '@/lib/types';
+import { Opportunity, $Enums } from '@/lib/types';
 import { listOpportunitiesFromDb, createOpportunityInDb } from '@/lib/opportunity_db_service';
 import { PrismaClient } from '@/generated/prisma';
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 const stakeholderSchema = z.object({
   name: z.string(),
@@ -75,14 +74,14 @@ const stakeholderSchema = z.object({
 const createOpportunitySchema = z.object({
   title: z.string(),
   companyOrInstitution: z.string(), // Corresponds to 'company' in Prisma model
-  type: z.nativeEnum(OpportunityType).optional(), // Use .optional() if undefined is the "empty" state
-  status: z.nativeEnum(OpportunityStatus), // Use nativeEnum for TypeScript enums
+  type: z.nativeEnum($Enums.OpportunityType).optional(),
+  status: z.nativeEnum($Enums.OpportunityStatus),
   location: z.string().nullish(),
   salary: z.string().nullish(),
-  content: z.string().nullish(), // Corresponds to 'description' in DB
-  tags: z.array(z.string()).nullish(), // Corresponds to 'requirements' in DB
-  url: z.string().url().nullish(), // Add missing URL field to schema
-  dateIdentified: z.string().datetime().nullish(), // Add missing dateIdentified field to schema
+  content: z.string().nullish(),
+  tags: z.array(z.string()).nullish(),
+  url: z.string().url().nullish(),
+  dateIdentified: z.string().datetime().nullish(),
   notes: z.string().nullish(),
   contactPerson: z.string().nullish(),
   contactEmail: z.string().nullish(),
@@ -91,13 +90,12 @@ const createOpportunitySchema = z.object({
   relatedEvaluationId: z.string().uuid().nullish(),
   sourceUrl: z.union([z.string().url(), z.literal(null)]).optional(),
   nextActionDate: z.string().datetime().nullish(),
-  priority: z.nativeEnum(OpportunityPriority).nullish(), // Use nativeEnum
+  priority: z.nativeEnum($Enums.OpportunityPriority).nullish(),
   tailoredCv: z.string().nullish(),
   deadline: z.string().datetime().nullish(),
   contact: z.string().nullish(),
   position: z.string().nullish(),
   lastStatusUpdate: z.string().datetime().nullish(),
-  notionPageId: z.string().nullish(),
   // Stakeholders are handled separately after opportunity creation as nested creates are not in createOpportunityInDb
   stakeholders: z.array(stakeholderSchema).optional(),
 });
@@ -113,7 +111,7 @@ export async function GET() {
     const opportunitiesResult = await listOpportunitiesFromDb();
 
     if (Array.isArray(opportunitiesResult)) {
-      const opportunities = opportunitiesResult; // Type is now correctly narrowed to OrionOpportunity[]
+      const opportunities = opportunitiesResult; // Type is now correctly narrowed to Opportunity[]
 
       logger.info('[OPPORTUNITY_API][GET_LIST][SUCCESS] Successfully fetched opportunities.', {
         ...logContext,
@@ -174,52 +172,81 @@ export async function POST(request: NextRequest) {
       company: validatedData.companyOrInstitution,
     });
 
+    const {
+      companyOrInstitution,
+      status,
+      type,
+      tags,
+      attachments,
+      stakeholders,
+      title,
+      location,
+      salary,
+      content,
+      url,
+      dateIdentified,
+      notes,
+      contactPerson,
+      contactEmail,
+      stage,
+      relatedEvaluationId,
+      sourceUrl,
+      nextActionDate,
+      priority,
+      tailoredCv,
+      deadline,
+      contact,
+      position,
+      lastStatusUpdate,
+      ...rest
+    } = validatedData;
     const newOpportunity = await createOpportunityInDb({
-      title: validatedData.title,
-      companyOrInstitution: validatedData.companyOrInstitution,
-      type: validatedData.type,
-      status: validatedData.status,
-      location: validatedData.location,
-      salary: validatedData.salary ?? null,
-      content: validatedData.content ?? null,
-      tags: validatedData.tags ?? null,
-      url: validatedData.url ?? null,
-      dateIdentified: validatedData.dateIdentified ?? null,
-      notes: validatedData.notes ?? null,
-      contactPerson: validatedData.contactPerson ?? null,
-      contactEmail: validatedData.contactEmail ?? null,
-      stage: validatedData.stage ?? null,
-      attachments: validatedData.attachments ?? null,
-      relatedEvaluationId: validatedData.relatedEvaluationId ?? null,
-      sourceUrl: validatedData.sourceUrl ?? null,
-      nextActionDate: validatedData.nextActionDate ?? null,
-      priority: validatedData.priority ?? null,
-      tailoredCv: validatedData.tailoredCv ?? null,
-      deadline: validatedData.deadline ?? null,
-      contact: validatedData.contact ?? null,
-      position: validatedData.position,
-      lastStatusUpdate: validatedData.lastStatusUpdate ?? null,
-      notionPageId: validatedData.notionPageId ?? null,
+      ...rest,
+      company: typeof companyOrInstitution === 'string' ? companyOrInstitution : null,
+      status: status as $Enums.OpportunityStatus,
+      type: type as $Enums.OpportunityType,
+      tags: Array.isArray(tags) && tags.length > 0 ? tags : undefined,
+      attachments: Array.isArray(attachments) && attachments.length > 0 ? attachments : undefined,
+      title: typeof title === 'string' ? title : '',
+      location: typeof location === 'string' ? location : null,
+      salary: typeof salary === 'string' ? salary : null,
+      content: typeof content === 'string' ? content : null,
+      url: typeof url === 'string' ? url : null,
+      dateIdentified: typeof dateIdentified === 'string' ? dateIdentified : null,
+      notes: typeof notes === 'string' ? notes : null,
+      contactPerson: typeof contactPerson === 'string' ? contactPerson : null,
+      contactEmail: typeof contactEmail === 'string' ? contactEmail : null,
+      stage: typeof stage === 'string' ? stage : null,
+      relatedEvaluationId: typeof relatedEvaluationId === 'string' ? relatedEvaluationId : null,
+      sourceUrl: typeof sourceUrl === 'string' ? sourceUrl : null,
+      nextActionDate: typeof nextActionDate === 'string' ? nextActionDate : null,
+      priority: priority as $Enums.OpportunityPriority,
+      tailoredCv: typeof tailoredCv === 'string' ? tailoredCv : null,
+      deadline: typeof deadline === 'string' ? deadline : null,
+      contact: typeof contact === 'string' ? contact : null,
+      position: typeof position === 'string' ? position : null,
+      lastStatusUpdate: typeof lastStatusUpdate === 'string' ? lastStatusUpdate : null,
     });
 
     // Insert stakeholders if provided and not handled by createOpportunityInDb (current setup)
-    if (validatedData.stakeholders && validatedData.stakeholders.length > 0) {
+    if (Array.isArray(stakeholders) && stakeholders.length > 0) {
       logger.info('[OPPORTUNITY_API][POST_CREATE][STAKEHOLDERS] Inserting associated stakeholders.', {
         ...logContext,
-        opportunityId: newOpportunity.id,
-        stakeholderCount: validatedData.stakeholders.length,
+        id: newOpportunity.id,
+        stakeholderCount: stakeholders.length,
       });
       await Promise.all(
-        validatedData.stakeholders.map((stakeholder) =>
-          prisma.stakeholder.create({
-            data: {
-              opportunityId: newOpportunity.id,
-              name: stakeholder.name,
-              title: stakeholder.title,
-              email: stakeholder.email,
-              linkedinUrl: stakeholder.linkedinUrl,
-            },
-          })
+        (stakeholders as Array<{ name: string; title: string; email: string; linkedinUrl: string }>).map(
+          (stakeholder) =>
+            prisma.stakeholder.create({
+              data: {
+                id: newOpportunity.id,
+                name: stakeholder.name,
+                title: stakeholder.title,
+                email: stakeholder.email,
+                linkedinUrl: stakeholder.linkedinUrl,
+              },
+            })
         )
       );
       logger.info(
@@ -230,7 +257,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('[OPPORTUNITY_API][POST_CREATE][SUCCESS] New opportunity created successfully.', {
       ...logContext,
-      opportunityId: newOpportunity.id,
+      id: newOpportunity.id,
     });
     return NextResponse.json(newOpportunity, { status: 201 });
   } catch (error: unknown) {

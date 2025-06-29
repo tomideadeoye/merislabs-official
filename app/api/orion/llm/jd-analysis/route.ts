@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Construct the prompt for the LLM
-    const prompt = `Analyze the following job description and extract key information relevant for tailoring a CV and evaluating OrionOpportunity fit.\n\n${
+    const prompt = `Analyze the following job description and extract key information relevant for tailoring a CV and evaluating REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA fit.\n\n${
       opportunity_title ? `Job Title: ${opportunity_title}\n` : ''
     }${
       company_name ? `Company: ${company_name}\n` : ''

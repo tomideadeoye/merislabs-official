@@ -11,7 +11,10 @@ import { UserProfileFetchResponse, UserProfileData } from '@/lib/types';
 
 interface ProfileServiceRawData {
   profileText: string;
-  source: 'notion' | 'local' | 'external_service';
+  source:
+    | 'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES'
+    | 'local'
+    | 'external_service';
 }
 
 /**

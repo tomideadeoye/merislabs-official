@@ -72,16 +72,16 @@ Orion is built as a monorepo, primarily leveraging Next.js for the frontend and 
 - **Goal:** To track and manage job opportunities from identification to application and follow-up.
 - **Components:**
   - `app/(orion_admin)/admin/opportunity-pipeline/page.tsx`: Overview of all opportunities.
-  - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`: Detail view for a single opportunity.
+  - `app/(orion_admin)/admin/opportunity-pipeline/[id]/page.tsx`: Detail view for a single opportunity.
   - `app/api/orion/opportunities/route.ts`: API for listing and creating opportunities.
-  - `app/api/orion/opportunity/[opportunityId]/route.ts`: API for fetching a single opportunity.
+  - `app/api/orion/opportunity/[id]/route.ts`: API for fetching a single opportunity.
   - `app/lib/opportunity_db_service.ts`: Database service for opportunities.
 
 ### 4.3. CV Tailoring Studio
 
 - **Goal:** To dynamically tailor CV content to specific job descriptions using AI.
 - **Components:**
-  - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/cv-tailoring/page.tsx`: Main CV tailoring UI.
+  - `app/(orion_admin)/admin/opportunity-pipeline/[id]/cv-tailoring/page.tsx`: Main CV tailoring UI.
   - `app/components/orion/CVTailoringStudio.tsx`: Client-side interactive component.
   - `app/api/orion/cv/rephrase-component/route.ts`: API for rephrasing CV components.
   - `app/api/orion/cv/suggest-components/route.ts`: API for suggesting CV components.

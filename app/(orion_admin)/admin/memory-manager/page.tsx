@@ -45,21 +45,80 @@
  *   - **Batch Operations**: Allow users to select multiple memory items for bulk deletion or tagging.
  *   - **Error Recovery UI**: Provide more explicit guidance or actions for users when memory initialization fails (e.g., "Check Qdrant status", "Configure .env").
  */
+/**
+ * INTEGRATION/UX NOTE:
+ * As part of this migration, the "Ask Orion" functionality should become a dedicated section within the existing Memory Manager UI, focused solely on asking questions.
+ * - The rest of the Memory Manager UI remains dedicated to adding memories and searching for keywords in Qdrant.
+ * - If possible, integrate so that users can:
+ *     • Search Qdrant for keyword-based results as before,
+ *     • AND, at will, ask questions that use selected memories and the LLM response function to answer.
+ * - The "Ask" section should be visually and functionally distinct, making it clear that it is for question-asking, while the rest of the UI is for memory management and keyword search.
+ * - This ensures users can both retrieve direct keyword matches from Qdrant and leverage LLM-powered answers using selected memory context.
+ */
+/**
+ * MIGRATION PLAN: Ask Orion → Memory Manager
+ *
+ * Objective:
+ *   Migrate all features, UI, and backend logic from the "ask orion" section (/admin/ask-question)
+ *   into the "memory manager" section (/admin/memory-manager), so that all question-asking functionality
+ *   is available within the memory manager. After migration, delete the original "ask orion" page and all
+ *   related code, and remove its entry from the sidebar.
+ *
+ * Requirements:
+ *   - UI/UX Integration:
+ *     • Use the existing "ask orion" UI as a starting point, but update and merge it for consistency with the current memory manager UI/UX style.
+ *     • All input formats currently supported by "ask orion" (freeform text, file upload, voice, structured forms, etc.) must be supported in the new memory manager interface.
+ *     • The data source selection must be a multi-select UI (e.g., checkboxes), allowing users to select one or more sources to query before submitting a question.
+ *     • Only the "memory manager" entry should be visible in the sidebar; remove the "ask orion" entry.
+ *   - Functionality:
+ *     • All features and functions from "ask orion" must be available in the memory manager, including all question-asking capabilities and any related workflows.
+ *     • The user must be able to select from multiple data sources before asking a question. Data sources must include:
+ *         - Quadrants database
+ *         - Neon Postgres database (with full search implemented now)
+ *         - Profile context (from Neon)
+ *         - CV component table (from Neon)
+ *         - Contacts database (from Neon)
+ *         - Option to select the entire database
+ *     • The memory manager should call the existing "ask orion" APIs for question-asking functionality.
+ *     • Implement full backend support for searching the Neon Postgres database (not just the UI).
+ *   - Codebase Changes:
+ *     • Delete the original "ask orion" page and all related code after migration is complete.
+ *     • Remove the "ask orion" entry from the sidebar navigation.
+ *     • Ensure all new/updated code is consistent with the memory manager's code style and structure.
+ *   - Access Control:
+ *     • No authentication should be required for accessing the new combined memory manager and ask functionality.
+ *   - Testing & Validation:
+ *     • Ensure all migrated features work as expected within the memory manager.
+ *     • Verify that all input formats and data source selections function correctly.
+ *     • Confirm that the Neon Postgres search is fully implemented and operational.
+ *     • Ensure the "ask orion" page and code are fully removed and the sidebar is updated.
+ *
+ * Summary of What Will Be Modified, Created, or Deleted:
+ *   - Modified:
+ *       • app/(orion_admin)/admin/memory-manager/ (UI, logic, and API calls updated to include all "ask orion" features and data source selection)
+ *       • Sidebar navigation (remove "ask orion" entry)
+ *   - Created:
+ *       • Multi-select data source UI in memory manager
+ *       • Neon Postgres search backend implementation (if not already present)
+ *   - Deleted:
+ *       • All files and code related to app/(orion_admin)/admin/ask-question/
+ *       • "Ask orion" sidebar entry
+ */
 
 'use client';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS AND FEATURES:
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { PageHeader } from '@/components/ui';
 import { PageNames } from '@/lib/constants';
-import { DatabaseZap, Search, Loader2, AlertTriangle, Info, PlusCircle } from 'lucide-react';
+import { DatabaseZap, Search, Loader2, AlertTriangle, Info, PlusCircle, HelpCircle } from 'lucide-react';
 import { Input } from '@/components/ui';
 import { Button } from '@/components/ui';
 import type { QdrantFilter, QdrantFilterCondition, ScoredMemoryPoint } from '@/lib/types/memory';
 // import { JournalEntryWithMemory } from '@/components/orion/JournalEntryWithMemory';
-import { DedicatedAddToMemoryFormComponent } from '@/components/ui/orion/DedicatedAddToMemoryFormComponent';
+import { UnifiedSaveToMemoryComponent } from '@/components/ui/orion/UnifiedSaveToMemoryComponent';
 
 import { ScrollArea } from '@/components/ui';
 import { Label } from '@/components/ui';
@@ -68,6 +127,7 @@ import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { useMemoryContext } from '@/components/orion/MemoryProvider';
 import logger from '@/lib/logger';
 import { REQUEST_TYPES } from '@/lib/orion_llm'; // Import REQUEST_TYPES
+import { Checkbox } from '@/components/ui';
 
 export default function MemoryManagerFeaturePage() {
   const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
@@ -83,6 +143,23 @@ export default function MemoryManagerFeaturePage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
   const [currentLlmModel, setCurrentLlmModel] = useState<string | null>(null);
+
+  // State for Ask Orion section
+  const [askQuestion, setAskQuestion] = useState('');
+  const [askSources, setAskSources] = useState<string[]>([]);
+  const [askAnswer, setAskAnswer] = useState<string | null>(null);
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
+
+  // Data source options
+  const dataSourceOptions = useMemo(() => [
+    { label: 'Quadrants database', value: 'quadrants' },
+    { label: 'Neon Postgres database', value: 'neon' },
+    { label: 'Profile context', value: 'profile' },
+    { label: 'CV component table', value: 'cv' },
+    { label: 'Contacts database', value: 'contacts' },
+    { label: 'Entire database', value: 'all' },
+  ], []);
 
   useEffect(() => {
     logger.debug('[MemoryManagerFeaturePage] Memory context status update', {
@@ -220,6 +297,68 @@ export default function MemoryManagerFeaturePage() {
     }
   };
 
+  const handleAskSourceChange = (value: string, checked: boolean) => {
+    setAskSources((prev) =>
+      checked ? [...prev, value] : prev.filter((v) => v !== value)
+    );
+  };
+
+  const handleAskOrion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAskLoading(true);
+    setAskError(null);
+    setAskAnswer(null);
+    logger.info('[MEMORY_MANAGER][ASK_ORION][SUBMIT]', { question: askQuestion, sources: askSources });
+    try {
+      const response = await fetch('/api/orion/llm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: askQuestion, sources: askSources }),
+      });
+
+      let data: any = null;
+      let isJson = false;
+      try {
+        // Try to parse JSON only if response is ok and content-type is JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+          isJson = true;
+        } else {
+          // Not JSON, treat as error
+          const text = await response.text();
+          setAskError('Received non-JSON response from server: ' + text.slice(0, 200));
+          logger.error('[MEMORY_MANAGER][ASK_ORION][ERROR][NON_JSON]', { text });
+          return;
+        }
+      } catch (parseErr) {
+        setAskError('Failed to parse server response as JSON.');
+        logger.error('[MEMORY_MANAGER][ASK_ORION][ERROR][PARSE]', { error: parseErr });
+        return;
+      }
+
+      if (!isJson || !data || typeof data !== 'object') {
+        setAskError('Server returned invalid or empty response.');
+        logger.error('[MEMORY_MANAGER][ASK_ORION][ERROR][INVALID]', { data });
+        return;
+      }
+
+      if (response.ok && data.success && data.answer) {
+        setAskAnswer(data.answer);
+        logger.success('[MEMORY_MANAGER][ASK_ORION][SUCCESS]', { answer: data.answer });
+      } else {
+        setAskError(data.error || 'Failed to get answer from Orion.');
+        logger.error('[MEMORY_MANAGER][ASK_ORION][ERROR]', { error: data.error, data });
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setAskError(errorMessage);
+      logger.error('[MEMORY_MANAGER][ASK_ORION][EXCEPTION]', { error: errorMessage });
+    } finally {
+      setAskLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -230,6 +369,69 @@ export default function MemoryManagerFeaturePage() {
         memoryInitialized={memoryInitialized}
         currentLlmModel={currentLlmModel || undefined}
       />
+
+      {/* Ask Orion Section */}
+      <Card className="bg-gray-900 border-purple-700 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-xl text-purple-400 flex items-center">
+            <HelpCircle className="mr-2 h-6 w-6" />
+            Ask Orion a Question
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Get answers from Orion using selected data sources and LLM reasoning.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleAskOrion} className="space-y-4">
+            <div>
+              <Label htmlFor="askQuestion" className="text-gray-300">
+                Your Question
+              </Label>
+              <Input
+                id="askQuestion"
+                name="askQuestion"
+                type="text"
+                value={askQuestion}
+                onChange={(e) => setAskQuestion(e.target.value)}
+                placeholder="Ask Orion anything..."
+                className="bg-gray-800 border-gray-700 text-gray-200 placeholder-gray-500"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">Select Data Sources</Label>
+              <div className="flex flex-wrap gap-4 mt-2">
+                {dataSourceOptions.map((opt) => (
+                  <div key={opt.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`ask-source-${opt.value}`}
+                      checked={askSources.includes(opt.value)}
+                      onCheckedChange={(checked: boolean) => handleAskSourceChange(opt.value, checked)}
+                      className="scale-110"
+                    />
+                    <Label htmlFor={`ask-source-${opt.value}`} className="text-sm text-gray-200">
+                      {opt.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Button type="submit" disabled={askLoading || !askQuestion.trim() || askSources.length === 0} className="bg-purple-600 hover:bg-purple-700">
+              {askLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <HelpCircle className="mr-2 h-4 w-4" />}Ask Orion
+            </Button>
+          </form>
+          {askError && (
+            <div className="mt-4 bg-red-900/30 border border-red-700 text-red-300 px-4 py-2 rounded-md">
+              {askError}
+            </div>
+          )}
+          {askAnswer && (
+            <div className="mt-4 bg-purple-900/30 border border-purple-700 text-purple-200 px-4 py-2 rounded-md">
+              <strong>Orion says:</strong>
+              <div className="mt-2 whitespace-pre-line">{askAnswer}</div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Section to Add New Memory Item */}
       <Card className="bg-gray-800 border-gray-700">
@@ -243,7 +445,7 @@ export default function MemoryManagerFeaturePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <DedicatedAddToMemoryFormComponent onMemoryAdded={handleMemoryAdded} />
+          <UnifiedSaveToMemoryComponent onMemoryAdded={handleMemoryAdded} />
         </CardContent>
       </Card>
 
@@ -261,7 +463,9 @@ export default function MemoryManagerFeaturePage() {
         <CardContent>
           <form onSubmit={handleSearch} className="space-y-4">
             <div>
-              <Label htmlFor="searchQuery" className="text-gray-300">Search Query</Label>
+              <Label htmlFor="searchQuery" className="text-gray-300">
+                Search Query
+              </Label>
               <Input
                 id="searchQuery"
                 name="searchQuery"
@@ -274,7 +478,9 @@ export default function MemoryManagerFeaturePage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="filterType" className="text-gray-300">Filter Type</Label>
+                <Label htmlFor="filterType" className="text-gray-300">
+                  Filter Type
+                </Label>
                 <Input
                   id="filterType"
                   name="filterType"
@@ -286,7 +492,9 @@ export default function MemoryManagerFeaturePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="filterTags" className="text-gray-300">Filter Tags</Label>
+                <Label htmlFor="filterTags" className="text-gray-300">
+                  Filter Tags
+                </Label>
                 <Input
                   id="filterTags"
                   name="filterTags"
@@ -298,7 +506,9 @@ export default function MemoryManagerFeaturePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="limit" className="text-gray-300">Limit</Label>
+                <Label htmlFor="limit" className="text-gray-300">
+                  Limit
+                </Label>
                 <Input
                   id="limit"
                   name="limit"
@@ -330,7 +540,7 @@ export default function MemoryManagerFeaturePage() {
           className="my-6 bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded-md relative flex items-start"
           role="alert"
         >
-          <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="h-5 w-5 mr-2 shrink-0 mt-0.5" />
           <div>
             <strong className="font-bold">Search Error:</strong>
             <span className="block sm:inline ml-1">{error}</span>
@@ -343,7 +553,7 @@ export default function MemoryManagerFeaturePage() {
           className="my-6 bg-yellow-900/30 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-md relative flex items-start"
           role="alert"
         >
-          <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+          <Info className="h-5 w-5 mr-2 shrink-0 mt-0.5" />
           <p>No results found for your query and filters. Try a broader search.</p>
         </div>
       )}

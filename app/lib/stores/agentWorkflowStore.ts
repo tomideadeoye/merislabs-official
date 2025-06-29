@@ -31,7 +31,10 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Message, LLMTool, Task, TaskStatus, TaskPriority } from '@/lib/types';
+import { Message, LLMTool } from '@/lib/types';
+import { Task } from '@prisma/client';
+import { $Enums } from '@/lib/types';
+import logger from '@/lib/logger';
 
 interface AgentWorkflowState {
   userQuery: string;
@@ -55,12 +58,13 @@ interface AgentWorkflowState {
   memoriesError: string | null;
   // New Task Management States
   tasks: Task[];
-  newTaskStatus: TaskStatus;
-  newTaskPriority: TaskPriority;
+  newTaskStatus: Task['status'];
+  newTaskPriority: Task['priority'];
   taskLoading: boolean;
   taskError: string | null;
   selectedTaskId: string | null;
   editingTask: Task | null;
+  newTaskRelatedContactIds: string; // New state for related contact IDs
 }
 
 interface AgentWorkflowActions {
@@ -85,12 +89,13 @@ interface AgentWorkflowActions {
   setMemoriesError: (error: string | null) => void;
   // New Task Management Actions
   setTasks: (tasks: Task[]) => void;
-  setNewTaskStatus: (status: TaskStatus) => void;
-  setNewTaskPriority: (priority: TaskPriority) => void;
+  setNewTaskStatus: (status: Task['status']) => void;
+  setNewTaskPriority: (priority: Task['priority']) => void;
   setTaskLoading: (loading: boolean) => void;
   setTaskError: (error: string | null) => void;
   setSelectedTaskId: (id: string | null) => void;
   setEditingTask: (task: Task | null) => void;
+  setNewTaskRelatedContactIds: (ids: string) => void; // Setter for new state
   // Reset actions
   resetAgentInteraction: () => void;
   resetTaskCreationForm: () => void;
@@ -122,12 +127,13 @@ const useAgentWorkflowStore = create<AgentWorkflowState & AgentWorkflowActions>(
       memoriesError: null,
       // New Task Management States
       tasks: [],
-      newTaskStatus: TaskStatus.TODO,
-      newTaskPriority: TaskPriority.MEDIUM,
+      newTaskStatus: 'TODO',
+      newTaskPriority: 'MEDIUM',
       taskLoading: false,
       taskError: null,
       selectedTaskId: null,
       editingTask: null,
+      newTaskRelatedContactIds: '', // Initialize new state
 
       // Actions
       setUserQuery: (userQuery) => set({ userQuery }),
@@ -157,6 +163,7 @@ const useAgentWorkflowStore = create<AgentWorkflowState & AgentWorkflowActions>(
       setTaskError: (taskError) => set({ taskError }),
       setSelectedTaskId: (selectedTaskId) => set({ selectedTaskId }),
       setEditingTask: (editingTask) => set({ editingTask }),
+      setNewTaskRelatedContactIds: (newTaskRelatedContactIds) => set({ newTaskRelatedContactIds }), // Define setter
 
       resetAgentInteraction: () =>
         set({
@@ -167,6 +174,11 @@ const useAgentWorkflowStore = create<AgentWorkflowState & AgentWorkflowActions>(
           generatedStrategies: [],
           selectedStrategyForRefinement: null,
           strategiesToSave: new Set(),
+          newTaskRelatedLinks: '',
+          newTaskRelatedPhoneNumbers: '',
+          newTaskDueDate: null,
+          shouldCreateTaskFromAgentOutput: false,
+          newTaskRelatedContactIds: '', // Clear new field on reset
         }),
 
       resetTaskCreationForm: () =>
@@ -182,8 +194,8 @@ const useAgentWorkflowStore = create<AgentWorkflowState & AgentWorkflowActions>(
       resetTaskStates: () =>
         set({
           tasks: [],
-          newTaskStatus: TaskStatus.TODO,
-          newTaskPriority: TaskPriority.MEDIUM,
+          newTaskStatus: 'TODO',
+          newTaskPriority: 'MEDIUM',
           taskLoading: false,
         }),
     }),

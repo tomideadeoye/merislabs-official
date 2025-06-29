@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import logger from '@/lib/logger';
-import { OrionOpportunity } from '@/lib/types';
+import type { Opportunity } from '@/lib/types';
 
 interface OpportunityActionsProps {
-  opportunity: OrionOpportunity;
-  onEvaluate: (opportunityId: string) => void;
-  onDraftApplication: (opportunityId: string) => void;
-  onFindStakeholders: (opportunityId: string) => void;
+  opportunity: Opportunity;
+  onEvaluate: (id: string) => void;
+  onDraftApplication: (id: string) => void;
+  onFindStakeholders: (id: string) => void;
 }
 
 export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
@@ -19,14 +19,14 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
   logger.info('OpportunityActions component rendered.', {
     operation: 'render',
     component: 'OpportunityActions',
-    opportunityId: opportunity.id,
+    id: opportunity.id,
   });
 
   return (
     <div className="flex flex-wrap gap-3 mt-4">
       <Button
         onClick={() => {
-          logger.info('Evaluate button clicked.', { opportunityId: opportunity.id });
+          logger.info('Evaluate button clicked.', { id: opportunity.id });
           onEvaluate(opportunity.id);
         }}
         className="bg-indigo-600 hover:bg-indigo-700 text-white"
@@ -35,7 +35,7 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
       </Button>
       <Button
         onClick={() => {
-          logger.info('Draft Application button clicked.', { opportunityId: opportunity.id });
+          logger.info('Draft Application button clicked.', { id: opportunity.id });
           onDraftApplication(opportunity.id);
         }}
         className="bg-purple-600 hover:bg-purple-700 text-white"
@@ -44,7 +44,7 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
       </Button>
       <Button
         onClick={() => {
-          logger.info('Find Stakeholders button clicked.', { opportunityId: opportunity.id });
+          logger.info('Find Stakeholders button clicked.', { id: opportunity.id });
           onFindStakeholders(opportunity.id);
         }}
         className="bg-green-600 hover:bg-green-700 text-white"

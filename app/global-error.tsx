@@ -9,7 +9,7 @@
 // NOTES: This component is a standard Next.js error boundary fallback. It does not have complex internal logic or dependencies on other custom components.
 export default function GlobalError({ reset }: { _error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <div className="p-10 text-center min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-sky-500 text-white font-sans">
+    <div className="p-10 text-center min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-800 to-sky-500 text-white font-sans">
       <h1>500 - Server-side error occurred</h1>
       <p>Sorry, something went wrong. We are working on it!</p>
       <button onClick={() => reset()}>Try again</button>

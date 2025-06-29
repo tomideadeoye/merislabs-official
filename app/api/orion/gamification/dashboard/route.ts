@@ -3,14 +3,14 @@
  *   - Provides a serverless API endpoint for retrieving comprehensive gamification data for the authenticated user.
  *   - Calculates and tracks the user's productivity streak based on journal entries.
  *   - Evaluates and assigns achievement badges based on various user activities (journal entries, ideas, memory indexing, opportunity evaluations).
- *   - Integrates with Prisma (for JournalEntry, Idea, Opportunity models) and Notion (for Memory entries) to gather necessary data.
+ *   - Integrates with Prisma (for JournalEntry, Idea, Opportunity models) and WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES (for Memory entries) to gather necessary data.
  *
  * FILEPATH: `app/api/orion/gamification/dashboard/route.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `@/auth`: Used for session authentication to ensure authorized access and retrieve the `userId`.
  *   - `@/lib/logger.ts`: Utilized for comprehensive, context-rich logging throughout the route's execution.
- *   - `@notionhq/client`: Integrates with the Notion API to count memory entries, which are stored in a central Notion database.
+ *   - `@WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILEShq/client`: Integrates with the WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES API to count memory entries, which are stored in a central WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES database.
  *   - `@/lib/types`: Imports `ProductivityStreak`, `AchievementBadge`, and `GamificationDashboardData` for type consistency of data structures.
  *   - `@/generated/prisma`: Imports PrismaClient and Prisma for database interactions with JournalEntry, Idea, and Opportunity models.
  *   - `date-fns`: Used for date manipulation and comparison in streak calculation (e.g., `isToday`, `parseISO`, `differenceInDays`).
@@ -18,13 +18,13 @@
  *   - `app/(orion_admin)/admin/gamification/dashboard/page.tsx` (hypothetical UI path): The frontend component that would consume this API to display the gamification dashboard.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes `NOTION_API_KEY` and `NOTION_DATABASE_ID` are correctly configured in environment variables for Notion integration.
+ *   - Assumes `WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_API_KEY` and `WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_DATABASE_ID` are correctly configured in environment variables for WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES integration.
  *   - Assumes a valid user session with a `session.user.id` is available for all operations.
  *   - Streak calculation relies on the `date` field of `JournalEntry` and assumes daily entries for streak progression.
- *   - Memory counting relies on a 'Type' property in Notion database entries set to 'Memory'.
+ *   - Memory counting relies on a 'Type' property in WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES database entries set to 'Memory'.
  *
  * NOTES:
- *   - The route combines data from both relational database (Prisma) and NoSQL database (Notion) to compile a holistic gamification view.
+ *   - The route combines data from both relational database (Prisma) and NoSQL database (WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES) to compile a holistic gamification view.
  *   - Logging is extensively used at various stages (start, debug, success, error, warn) to provide full traceability and aid in debugging.
  *   - Error handling is consistent, returning appropriate HTTP status codes and detailed error messages.
  *
@@ -36,7 +36,7 @@
  *   - **Modularity**: Break down `evaluateAchievementBadges` into smaller, more focused functions for each badge category (e.g., `evaluateJournalBadges`, `evaluateIdeaBadges`).
  *   - **Test Coverage**: Add comprehensive unit and integration tests for `calculateProductivityStreak` and `evaluateAchievementBadges` functions to cover all logic paths and edge cases.
  *   - **User Customization**: Allow users to define their own custom goals or badges that can be tracked.
- *   - **Notion API Robustness**: Implement caching mechanisms or more resilient retry logic for Notion API calls, especially for `databases.query`, to improve performance and stability when fetching memory counts.
+ *   - **WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES API Robustness**: Implement caching mechanisms or more resilient retry logic for WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES API calls, especially for `databases.query`, to improve performance and stability when fetching memory counts.
  *
  * OPPORTUNITIES TO CONSOLIDATE:
  *   - **Shared `PrismaClient` Instance**: Ensure a single `PrismaClient` instance is reused across relevant API routes and services to optimize database connections.
@@ -46,15 +46,11 @@
  */
 import { NextResponse } from 'next/server';
 import logger from '@/lib/logger';
-import { Client as NotionClient } from '@notionhq/client';
 import { ProductivityStreak, AchievementBadge, GamificationDashboardData } from '@/lib/types';
 import { PrismaClient, Prisma } from '@/generated/prisma';
 import { isToday, parseISO, differenceInDays } from 'date-fns';
 import { handleApiError } from '@/lib/utils/errorHandler';
-
-const notion = process.env.NOTION_API_KEY ? new NotionClient({ auth: process.env.NOTION_API_KEY }) : null;
-const prisma = new PrismaClient();
-const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID; // Central Notion DB ID
+import { prisma } from '@/lib/prisma';
 
 const calculateProductivityStreak = async (userId: string): Promise<ProductivityStreak> => {
   const logContext = { userId, function: 'calculateProductivityStreak' };
@@ -261,26 +257,10 @@ const evaluateAchievementBadges = async (userId: string): Promise<AchievementBad
       }
     }
 
-    // Memory entries from Notion
-    let memoryCount = 0;
-    if (notion && NOTION_DATABASE_ID) {
-      try {
-        const response = await notion.databases.query({
-          database_id: NOTION_DATABASE_ID,
-          filter: {
-            property: 'Type',
-            select: {
-              equals: 'Memory',
-            },
-          },
-        });
-        memoryCount = response.results.length;
-        logger.debug('[GAMIFICATION][BADGES][MEMORY_COUNT]', { ...logContext, count: memoryCount });
-      } catch (notionError) {
-        logger.error('[GAMIFICATION][BADGES][NOTION_FETCH_ERROR]', { ...logContext, notionError });
-        // Continue without memory badges if Notion fails
-      }
-    }
+    // Memory entries from canonical DB (replace Notion logic)
+    const memoryCount = 0;
+    // TODO: Implement memory count using Neon/Postgres/Prisma only. For now, set to 0.
+    // memoryCount = await prisma.memory.count({ where: { userId } }); // Uncomment and implement if memory table exists
 
     const firstMemoryBadge = badges.find((b) => b.id === 'first_memory_indexed');
     if (firstMemoryBadge && memoryCount >= 1) {
@@ -297,7 +277,7 @@ const evaluateAchievementBadges = async (userId: string): Promise<AchievementBad
     }
 
     const opportunityCount = await prisma.opportunity.count({
-      where: { userId: userId, evaluationResult: { not: Prisma.JsonNull } }, // Count only evaluated opportunities
+      where: { userId: userId, evaluationResult: { not: { equals: null } } }, // Count only evaluated opportunities
     });
     logger.debug('[GAMIFICATION][BADGES][OPPORTUNITY_COUNT]', { ...logContext, count: opportunityCount });
 
@@ -337,29 +317,9 @@ export async function GET(): Promise<
     const streakData = await calculateProductivityStreak(userId);
     const badges = await evaluateAchievementBadges(userId);
 
-    let totalMemoryChunks = 0;
-    if (notion && NOTION_DATABASE_ID) {
-      try {
-        const response = await notion.databases.query({
-          database_id: NOTION_DATABASE_ID,
-          filter: {
-            property: 'Type',
-            select: {
-              equals: 'Memory',
-            },
-          },
-        });
-        totalMemoryChunks = response.results.length;
-        logger.debug('[GAMIFICATION][NOTION_MEMORIES_FETCHED]', { ...logContext, count: totalMemoryChunks });
-      } catch (notionError: unknown) {
-        logger.error('[GAMIFICATION][NOTION_MEMORIES_ERROR]', {
-          ...logContext,
-          message: 'Failed to fetch memory chunks from Notion.',
-          error: notionError instanceof Error ? notionError.message : String(notionError),
-        });
-        // Continue without memory chunk data if Notion API fails
-      }
-    }
+    const totalMemoryChunks = 0;
+    // TODO: Implement totalMemoryChunks using Neon/Postgres/Prisma only. For now, set to 0.
+    // totalMemoryChunks = await prisma.memory.count({ where: { userId } }); // Uncomment and implement if memory table exists
 
     const totalIdeas = await prisma.idea.count({
       where: { userId: userId },
@@ -370,7 +330,7 @@ export async function GET(): Promise<
       where: {
         userId: userId,
         evaluationResult: {
-          not: Prisma.JsonNull,
+          not: { equals: null }, // Fix: filter for non-null JSON
         },
       },
     });

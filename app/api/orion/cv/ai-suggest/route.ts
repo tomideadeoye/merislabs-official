@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     });
 
     const prompt = `
-You are an expert CV coach and AI assistant. Given the following CV content, job description analysis, and OrionOpportunity details, provide actionable, specific suggestions to improve the CV for this job. Focus on relevance, clarity, and impact. List at least 3 suggestions, each as a bullet point.
+You are an expert CV coach and AI assistant. Given the following CV content, job description analysis, and REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details, provide actionable, specific suggestions to improve the CV for this job. Focus on relevance, clarity, and impact. List at least 3 suggestions, each as a bullet point.
 
 --- CV Content ---
 ${cvContent}

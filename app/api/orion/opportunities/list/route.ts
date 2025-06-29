@@ -40,7 +40,7 @@ export async function GET() {
       );
     }
 
-    const opportunities = opportunitiesResult; // Type is now correctly narrowed to OrionOpportunity[]
+    const opportunities = opportunitiesResult; // Type is now correctly narrowed to REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA[]
 
     logger.info('[OPPORTUNITY_LIST][FETCHED]', {
       ...logContext,

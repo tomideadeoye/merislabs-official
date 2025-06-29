@@ -15,7 +15,7 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `ORION_MEMORY_COLLECTION_NAME` and `OPPORTUNITY_EVALUATION_REQUEST_TYPE` from `@/lib` for configuration.
- *   - `OrionOpportunityDetails` and `ScoredMemoryPoint` from `@/lib/types` for type definitions.
+ *   - `Opportunity`, `ScoredMemoryPoint`, and `EvaluationOutput` from `@/lib/types` for type definitions.
  *   - `NextRequest` and `NextResponse` from `next/server` for handling API requests and responses.
  *   - `/api/orion/profile`: Fetches Tomide's static profile context for the LLM prompt.
  *   - `/api/orion/memory/search`: Searches Orion's vector memory for relevant past experiences to enrich the LLM prompt.
@@ -46,7 +46,7 @@
  *   - **Evaluation History**: Persist the generated evaluation results to the database, linking them to the `Opportunity` record, to build an evaluation history.
  */
 import { ORION_MEMORY_COLLECTION_NAME, OPPORTUNITY_EVALUATION_REQUEST_TYPE } from '@/lib';
-import { OrionOpportunityDetails, ScoredMemoryPoint, EvaluationOutput } from '@/lib/types';
+import { Opportunity, ScoredMemoryPoint, EvaluationOutput } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger'; // Import logger
 import { handleApiError } from '@/lib/utils/errorHandler'; // Import centralized error handler
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const opportunityDetails: OrionOpportunityDetails = await req.json();
+    const opportunityDetails: Opportunity = await req.json();
     logger.debug('[EVAL_API][PAYLOAD]', { ...logContext, opportunityDetails });
 
     // Validate required fields

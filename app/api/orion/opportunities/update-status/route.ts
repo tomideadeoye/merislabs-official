@@ -19,17 +19,17 @@ export async function POST(request: NextRequest) {
   logger.info('[OPPORTUNITY_UPDATE_STATUS][START] Initiating POST request to update opportunity status.', logContext);
 
   try {
-    const { opportunityId, newStatus } = await request.json();
+    const { id, newStatus } = await request.json();
     logger.info('[OPPORTUNITY_UPDATE_STATUS][PAYLOAD] Received update status payload.', {
       ...logContext,
-      opportunityId,
+      id,
       newStatus,
     });
 
-    if (!opportunityId || !newStatus) {
+    if (!id || !newStatus) {
       logger.warn(
-        '[OPPORTUNITY_UPDATE_STATUS][VALIDATION_FAIL] Missing required fields (opportunityId or newStatus).',
-        { ...logContext, opportunityId, newStatus }
+        '[OPPORTUNITY_UPDATE_STATUS][VALIDATION_FAIL] Missing required fields (id or newStatus).',
+        { ...logContext, id, newStatus }
       );
       return NextResponse.json(
         { success: false, error: 'Opportunity ID and new status are required.' },
@@ -37,11 +37,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await updateOpportunityStatusInDb(opportunityId, newStatus);
+    await updateOpportunityStatusInDb(id, newStatus);
 
     logger.info('[OPPORTUNITY_UPDATE_STATUS][SUCCESS] Successfully updated opportunity status in Neon DB.', {
       ...logContext,
-      opportunityId,
+      id,
       newStatus,
     });
 

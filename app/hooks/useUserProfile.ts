@@ -55,7 +55,15 @@ import { useEffect } from 'react';
 const PROFILE_CACHE_KEY = 'orion_user_profile';
 const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
-type UserProfileSource = 'notion' | 'local' | 'external_service' | 'cache' | 'error' | 'none' | 'neon' | undefined;
+type UserProfileSource =
+  | 'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES'
+  | 'local'
+  | 'external_service'
+  | 'cache'
+  | 'error'
+  | 'none'
+  | 'neon'
+  | undefined;
 
 interface UseUserProfileResult {
   profile: UserProfileData | null;
@@ -110,7 +118,15 @@ const fetchUserProfileWithCache = async (): Promise<UserProfileFetchResponse> =>
       // Only allow allowed source values
       const allowedSource: UserProfileSource =
         response.source &&
-        ['notion', 'local', 'external_service', 'cache', 'error', 'none', 'neon'].includes(response.source)
+        [
+          'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES',
+          'local',
+          'external_service',
+          'cache',
+          'error',
+          'none',
+          'neon',
+        ].includes(response.source)
           ? (response.source as UserProfileSource)
           : 'neon';
       return { ...response, source: allowedSource };

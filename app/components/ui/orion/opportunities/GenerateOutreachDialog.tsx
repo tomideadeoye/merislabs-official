@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Loader2, Copy, MessageSquare, Mail } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
 import { useOpportunityCentralStore, OpportunityCentralStoreType } from '@/opportunityCentralStore';
+import type { Opportunity } from '@/lib/types';
 
 // GOAL:
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
@@ -20,10 +21,42 @@ export const GenerateOutreachDialog: React.FC = () => {
     opportunityCompany,
     onOutreachGenerated,
   } = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state);
-  // For backward compatibility, OrionOpportunity may be undefined, so fallback to empty object
-  const OrionOpportunity =
+  // Compose a minimal Opportunity object for outreach context
+  const opportunity: Opportunity | undefined =
     opportunityTitle && opportunityCompany
-      ? { title: opportunityTitle, company: opportunityCompany, content: '' }
+      ? {
+          id: '',
+          title: opportunityTitle,
+          company: opportunityCompany,
+          type: null,
+          status: null,
+          content: '',
+          tags: [],
+          url: null,
+          dateIdentified: null,
+          priority: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId: null,
+          notes: null,
+          contactPerson: null,
+          contactEmail: null,
+          stage: null,
+          attachments: [],
+          evaluationResult: null,
+          lastStatusUpdate: null,
+          applicationMaterialIds: [],
+          tailoredCv: null,
+          relatedEvaluationId: null,
+          deadline: null,
+          location: null,
+          salary: null,
+          position: null,
+          sourceUrl: null,
+          nextActionDate: null,
+          contact: null,
+          tailoredCvId: null,
+        }
       : undefined;
   const [isLoading, setIsLoading] = useState(false);
   const [outreachContent, setOutreachContent] = useState<string>('');
@@ -44,8 +77,8 @@ export const GenerateOutreachDialog: React.FC = () => {
       }
 
       // Call the generate outreach API
-      if (!OrionOpportunity) {
-        setError('OrionOpportunity context is missing.');
+      if (!opportunity) {
+        setError('Opportunity context is missing.');
         setIsLoading(false);
         return;
       }
@@ -56,10 +89,10 @@ export const GenerateOutreachDialog: React.FC = () => {
         },
         body: JSON.stringify({
           stakeholder: stakeholder,
-          context: `This outreach is regarding the ${OrionOpportunity?.title ?? ''} position at ${OrionOpportunity?.company ?? ''}.`,
+          context: `This outreach is regarding the ${opportunity.title ?? ''} position at ${opportunity.company ?? ''}.`,
           profileData: profileData.profile,
-          additionalInfo: OrionOpportunity?.content ?? '',
-          jobTitle: OrionOpportunity?.title ?? '',
+          additionalInfo: opportunity.content ?? '',
+          jobTitle: opportunity.title ?? '',
         }),
       });
 
@@ -107,7 +140,7 @@ export const GenerateOutreachDialog: React.FC = () => {
 
   const { linkedin, email } = parseOutreachContent();
 
-  if (!OrionOpportunity) return null;
+  if (!opportunity) return null;
 
   return (
     <Dialog
@@ -124,8 +157,8 @@ export const GenerateOutreachDialog: React.FC = () => {
         {!outreachContent && !isLoading && !error && (
           <div className="py-6 text-center">
             <p className="mb-4 text-gray-300">
-              Generate personalized outreach messages for {stakeholder?.name} ({stakeholder?.role} at{' '}
-              {stakeholder?.company}).
+              Generate personalized outreach messages for {stakeholder?.name}
+              {stakeholder?.title ? ` (${stakeholder.title})` : ''}.
             </p>
             <Button onClick={handleGenerateOutreach} className="bg-green-600 hover:bg-green-700">
               Generate Outreach Messages

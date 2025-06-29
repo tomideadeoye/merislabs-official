@@ -29,10 +29,11 @@ import { Briefcase, XIcon } from 'lucide-react';
 import { useOpportunities } from '@/hooks/useOpportunities';
 import { OpportunityPipelineCharts } from './OpportunityPipelineCharts';
 import { OpportunityList } from '@/components/ui/orion/opportunities/OpportunityList';
-import { OpportunityKanbanView } from '@/components/orion/opportunity-pipeline/OpportunityKanbanView';
+
 import { AddOpportunityForm } from '@/components/ui/orion/opportunities/AddOpportunityForm';
 import { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
 import logger from '@/lib/logger';
+import { OpportunityKanbanView } from '@/components/ui/orion';
 
 export default function OpportunityPipelinePage() {
   const [activeView, setActiveView] = useState('list');

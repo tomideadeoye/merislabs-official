@@ -13,7 +13,7 @@
 //       - DashboardRoutineStatus, HabiticaStatsContainer (from components/orion/)
 //       - UI components from @/components/ui/index
 //       - checkAllLlmApiKeys, PROVIDER_MODEL_CONFIGS (from @/lib/llm_providers)
-//       - Links to other admin pages: /admin/journal, /admin/habitica, /admin/OrionOpportunity, /admin/narrative, /admin/local-files
+//       - Links to other admin pages: /admin/journal, /admin/habitica, /admin/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA, /admin/narrative, /admin/local-files
 //   - Related to: LLM API integration, user session/profile, admin navigation, feature dashboards.
 // ASSUMPTIONS & CLEAR COMMENTS
 //   - Assumes all imported hooks/components are implemented and stable.
@@ -146,7 +146,7 @@ export default function AdminDashboardPage() {
       />
 
       {/* Welcome Card */}
-      <Card className="bg-gradient-to-r from-gray-800 to-gray-900 border-gray-700">
+      <Card className="bg-linear-to-r from-gray-800 to-gray-900 border-gray-700">
         <CardHeader>
           <CardTitle className="flex items-center text-2xl text-white">
             <UserIcon className="mr-3 h-8 w-8 text-blue-400" />

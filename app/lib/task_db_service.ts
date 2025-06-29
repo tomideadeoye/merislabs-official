@@ -34,8 +34,17 @@
  *   - [Introduce more granular logging within each function for detailed operation tracing.]
  */
 import { prisma } from '@/lib/prisma';
-import { Prisma, Task, TaskStep } from '@/generated/prisma';
+import { Prisma, Task, TaskStep } from '@prisma/client';
 import logger from './logger';
+
+// DRY enum conversion helper
+function toEnum<T>(enumObj: Record<string, string>, value: string | null | undefined): T | undefined {
+  if (!value) return undefined;
+  if (Object.values(enumObj).includes(value)) {
+    return value as T;
+  }
+  return undefined;
+}
 
 export const taskDbService = {
   /**
@@ -46,7 +55,7 @@ export const taskDbService = {
   createTask: async (data: Prisma.TaskCreateInput): Promise<Task> => {
     logger.info('Attempting to create a new task.', {
       operation: 'createTask',
-      parameters: { data },
+      parameters: data,
       userId: data.userId,
     });
     try {
@@ -70,37 +79,59 @@ export const taskDbService = {
   },
 
   /**
-   * Retrieves a task by its ID, including all its steps.
+   * Retrieves a task by its ID, including all its steps as a tree (threaded replies).
    * @param taskId The ID of the task.
-   * @returns The Task object with its steps, or null if not found.
+   * @returns The Task object with its steps as a tree, or null if not found.
    */
   getTaskWithSteps: async (taskId: string): Promise<(Task & { steps: TaskStep[] }) | null> => {
-    logger.info('Attempting to retrieve task with steps.', {
+    logger.info('Attempting to retrieve task with steps (threaded).', {
       operation: 'getTaskWithSteps',
       parameters: { taskId },
     });
     try {
+      // Fetch all steps for the task, including parentStepId
       const task = await prisma.task.findUnique({
         where: { id: taskId },
-        include: { steps: { orderBy: { stepNumber: 'asc' } } },
+        include: {
+          steps: {
+            orderBy: { stepNumber: 'asc' },
+            include: { replies: true },
+          },
+        },
       });
-      if (task) {
-        logger.info('Task with steps retrieved successfully.', {
-          operation: 'getTaskWithSteps',
-          results: task,
-          taskId: task.id,
-        });
-      } else {
+      if (!task) {
         logger.warn('Task with steps not found.', {
           operation: 'getTaskWithSteps',
           parameters: { taskId },
           validation: 'No record found.',
         });
+        return null;
       }
-      return task;
+      // Build a tree of steps
+      const stepMap: Record<string, any> = {};
+      task.steps.forEach((step) => {
+        step.replies = [];
+        stepMap[step.id] = step;
+      });
+      const rootSteps: any[] = [];
+      task.steps.forEach((step) => {
+        if (step.parentStepId) {
+          if (stepMap[step.parentStepId]) {
+            stepMap[step.parentStepId].replies.push(step);
+          }
+        } else {
+          rootSteps.push(step);
+        }
+      });
+      logger.info('Task with threaded steps retrieved successfully.', {
+        operation: 'getTaskWithSteps',
+        taskId: task.id,
+        rootStepCount: rootSteps.length,
+      });
+      return { ...task, steps: rootSteps };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error.';
-      logger.error('Failed to retrieve task with steps.', {
+      logger.error('Failed to retrieve task with steps (threaded).', {
         operation: 'getTaskWithSteps',
         parameters: { taskId },
         error: errorMessage,
@@ -111,43 +142,45 @@ export const taskDbService = {
   },
 
   /**
-   * Adds a new step to an existing task.
+   * Adds a new step to an existing task, supporting threaded replies via parentStepId.
    * @param taskId The ID of the task to add the step to.
-   * @param stepData The data for the new step (prompt, generated options, tool calls).
+   * @param stepData The data for the new step (prompt, generated options, tool calls, parentStepId).
    * @returns The updated Task object with the new step.
    */
   addStepToTask: async (
     taskId: string,
-    stepData: Omit<Prisma.TaskStepCreateInput, 'task' | 'stepNumber'>
+    stepData: Omit<Prisma.TaskStepCreateInput, 'task' | 'stepNumber'> & { parentStepId?: string }
   ): Promise<Task & { steps: TaskStep[] }> => {
-    logger.info('Attempting to add step to task.', {
+    logger.info('Attempting to add step to task (threaded).', {
       operation: 'addStepToTask',
       parameters: { taskId, stepData },
     });
     try {
-      const updatedTask = await prisma.task.update({
-        where: { id: taskId },
-        data: {
-          steps: {
-            create: [
-              {
-                ...stepData,
-                stepNumber: (await prisma.taskStep.count({ where: { taskId } })) + 1,
-              },
-            ],
-          },
-        },
-        include: { steps: { orderBy: { stepNumber: 'asc' } } },
+      const stepCount = await prisma.taskStep.count({ where: { taskId } });
+      // Prepare data for create, omitting parentStepId if not set
+      const { parentStepId, ...restStepData } = stepData;
+      const createData: any = {
+        ...restStepData,
+        task: { connect: { id: taskId } },
+        stepNumber: stepCount + 1,
+      };
+      if (parentStepId) {
+        createData.parentStepId = parentStepId;
+      }
+      const createdStep = await prisma.taskStep.create({
+        data: createData,
       });
-      logger.info('Step added to task successfully.', {
+      logger.info('Step added to task successfully (threaded).', {
         operation: 'addStepToTask',
-        results: updatedTask,
-        taskId: updatedTask.id,
+        taskId,
+        createdStepId: createdStep.id,
+        parentStepId: createdStep.parentStepId,
       });
-      return updatedTask;
+      // Return the updated task with threaded steps
+      return (await taskDbService.getTaskWithSteps(taskId)) as Task & { steps: TaskStep[] };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error.';
-      logger.error('Failed to add step to task.', {
+      logger.error('Failed to add step to task (threaded).', {
         operation: 'addStepToTask',
         parameters: { taskId, stepData },
         error: errorMessage,
@@ -166,7 +199,7 @@ export const taskDbService = {
   updateTask: async (taskId: string, data: Prisma.TaskUpdateInput): Promise<Task> => {
     logger.info('Attempting to update task.', {
       operation: 'updateTask',
-      parameters: { taskId, data },
+      parameters: { taskId, ...data },
     });
     try {
       const updatedTask = await prisma.task.update({
@@ -219,33 +252,28 @@ export const taskDbService = {
   },
 
   /**
-   * Retrieves all tasks for a given user ID.
-   * @param userId The ID of the user whose tasks to retrieve.
+   * Retrieves all tasks in the database (no user filtering).
    * @returns An array of Task objects.
    */
-  getAllTasks: async (userId: string): Promise<Task[]> => {
-    logger.info('Attempting to retrieve all tasks for user.', {
+  getAllTasks: async (): Promise<Task[]> => {
+    logger.info('Attempting to retrieve all tasks (no user filter).', {
       operation: 'getAllTasks',
-      parameters: { userId },
     });
     try {
       const tasks = await prisma.task.findMany({
-        where: { userId },
         orderBy: {
           createdAt: 'desc', // Order by creation date, newest first
         },
       });
-      logger.info('All tasks retrieved successfully for user.', {
+      logger.info('All tasks retrieved successfully.', {
         operation: 'getAllTasks',
         resultsCount: tasks.length,
-        userId,
       });
       return tasks;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error.';
-      logger.error('Failed to retrieve all tasks for user.', {
+      logger.error('Failed to retrieve all tasks.', {
         operation: 'getAllTasks',
-        parameters: { userId },
         error: errorMessage,
         validation: 'Database read error.',
       });

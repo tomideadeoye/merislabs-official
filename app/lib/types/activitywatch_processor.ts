@@ -44,7 +44,6 @@ const DEFAULT_APP_CATEGORY_MAP: Record<string, string> = {
   Safari: 'browsing',
   YouTube: 'entertainment',
   Spotify: 'entertainment',
-  Notion: 'productivity',
   Figma: 'design',
   Photoshop: 'design',
   Excel: 'work',

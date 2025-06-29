@@ -37,8 +37,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { taskDbService } from '@/lib/task_db_service'; // For database operations on tasks
 import logger from '@/lib/logger'; // For logging
 
-const DEFAULT_USER_ID = 'personal_user'; // Placeholder for single-user personal project
-
 export async function GET(request: NextRequest) {
   // Step 1: No authentication required as per user's request for personal project.
   logger.info('Received request to list tasks (no authentication required).', {
@@ -50,11 +48,10 @@ export async function GET(request: NextRequest) {
   // Goal: Fetch all tasks associated with the hardcoded default user ID.
   // Logic: Call `taskDbService.getAllTasks` with the DEFAULT_USER_ID and handle any service-level errors.
   try {
-    const tasks = await taskDbService.getAllTasks(DEFAULT_USER_ID);
+    const tasks = await taskDbService.getAllTasks();
     logger.info('Tasks retrieved successfully.', {
       operation: 'GET /api/orion/tasks/list',
       resultsCount: tasks.length,
-      userId: DEFAULT_USER_ID,
     });
     return NextResponse.json({ success: true, data: tasks }, { status: 200 });
   } catch (error: unknown) {
@@ -63,7 +60,6 @@ export async function GET(request: NextRequest) {
       operation: 'GET /api/orion/tasks/list',
       error: errorMessage,
       validation: 'Database service error.',
-      userId: DEFAULT_USER_ID,
     });
     return NextResponse.json({ success: false, error: `Failed to retrieve tasks: ${errorMessage}` }, { status: 500 });
   }

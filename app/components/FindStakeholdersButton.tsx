@@ -3,17 +3,17 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Card, CardContent } from '@/components/ui';
 import { Loader2, Users, Copy, Mail, Save } from 'lucide-react';
-import type { OrionOpportunity } from '@/lib/types';
-import type { Stakeholder } from '@/lib/types';
+import type { Stakeholder } from '@prisma/client';
 import { OpportunityCentralStoreType } from '@/lib/opportunityCentralStore';
 import { useOpportunityCentralStore } from '@/lib/opportunityCentralStore';
 import toast from 'react-hot-toast';
+import { Opportunity } from '@prisma/client';
 
 interface FindStakeholdersButtonProps {
-  orionOpportunity: OrionOpportunity;
+  opportunity: Opportunity;
 }
 
-export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ orionOpportunity }) => {
+export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ opportunity }) => {
   const isOpen = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.isFindStakeholdersDialogOpen);
   const open = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.openFindStakeholdersDialog);
   const close = useOpportunityCentralStore((state: OpportunityCentralStoreType) => state.closeFindStakeholdersDialog);
@@ -38,8 +38,8 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          company: orionOpportunity.company,
-          role: orionOpportunity.title,
+          company: opportunity.company,
+          role: opportunity.title,
           count: 5,
         }),
       });
@@ -47,9 +47,17 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
       const data = await response.json();
 
       if (data.success && data.stakeholders) {
-        const stakeholdersWithIds = data.stakeholders.map((s: Stakeholder) => ({
-          ...s,
+        const stakeholdersWithIds = data.stakeholders.map((s: any) => ({
           id: s.id || Math.random().toString(36).substring(7),
+          id: s.id || '',
+          name: s.name || '',
+          title: s.title || s.role || '',
+          email: s.email === undefined ? null : s.email,
+          linkedinUrl: s.linkedinUrl === undefined ? null : s.linkedinUrl,
+          createdAt: s.createdAt ? new Date(s.createdAt) : new Date(),
+          updatedAt: s.updatedAt ? new Date(s.updatedAt) : new Date(),
+          role: s.role,
+          company: s.company,
         }));
         setStakeholders(stakeholdersWithIds);
       } else {
@@ -84,8 +92,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
           name: stakeholder.name,
           email: stakeholder.email,
           linkedinUrl: stakeholder.linkedinUrl,
-          role: stakeholder.role,
-          company: stakeholder.company,
+          title: stakeholder.title,
         }),
       });
 
@@ -118,7 +125,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
     <>
       <Button
         onClick={() => {
-          setOpportunity(orionOpportunity);
+          setOpportunity(opportunity);
           open();
         }}
         className="bg-purple-600 hover:bg-purple-700"
@@ -134,13 +141,13 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
       >
         <DialogContent className="sm:max-w-[700px] bg-gray-800 border-gray-700 text-gray-200">
           <DialogHeader>
-            <DialogTitle className="text-purple-400">Find Key Stakeholders at {orionOpportunity.company}</DialogTitle>
+            <DialogTitle className="text-purple-400">Find Key Stakeholders at {opportunity.company}</DialogTitle>
           </DialogHeader>
 
           {!stakeholders.length && !isLoading && !error && (
             <div className="py-6 text-center">
               <p className="mb-4 text-gray-300">
-                Find key stakeholders at {orionOpportunity.company} who might be relevant for this OrionOpportunity.
+                Find key stakeholders at {opportunity.company} who might be relevant for this opportunity.
               </p>
               <Button onClick={handleFindStakeholders} className="bg-green-600 hover:bg-green-700">
                 Find Stakeholders
@@ -174,9 +181,7 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-gray-200 font-medium">{stakeholder.name}</h3>
-                          <p className="text-gray-400 text-sm">
-                            {stakeholder.role} at {stakeholder.company}
-                          </p>
+                          <p className="text-gray-400 text-sm">{stakeholder.title}</p>
 
                           {stakeholder.email && (
                             <div className="flex items-center mt-1 text-gray-300 text-sm">

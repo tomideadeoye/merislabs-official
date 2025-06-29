@@ -1,16 +1,16 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 
 // GOAL:
 // This component provides a button that initiates the drafting of an application,
-// likely for a job or program, based on a given OrionOpportunity.
+// likely for a job or program, based on a given REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA.
 
 // RELATION TO OTHER FILES, file_path, FUNCTIONS, COMPONENTS AND FEATURES:
 // - `app/(orion_admin)/admin/opportunity-pipeline/page.tsx`: Could be used within the opportunity details or actions.
 // - `app/api/orion/draft-application/route.ts` (conceptual): Backend API to generate the application draft.
-// - `OrionOpportunity` (from `@/lib/types`): Defines the structure of the opportunity data.
+// - `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` (from `@/lib/types`): Defines the structure of the opportunity data.
 
 // next steps if any:
 // - Implement the click handler to call the backend API for application drafting.
@@ -22,13 +22,13 @@ import { OrionOpportunity } from '@/lib/types';
 // - Could be a reusable button for various drafting-related actions within Orion.
 
 interface DraftApplicationButtonProps {
-  orionOpportunity: OrionOpportunity; // The opportunity for which to draft an application
+  opportunity: Opportunity; // The opportunity for which to draft an application
 }
 
-export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ orionOpportunity }) => {
+export const DraftApplicationButton: React.FC<DraftApplicationButtonProps> = ({ opportunity }) => {
   const handleClick = () => {
-    // Placeholder for API call to draft application
-    console.log(`Drafting application for opportunity: ${orionOpportunity.title}`);
+    // Placeholder for API call to draft application. IMPLEMENT THIS ASAP
+    console.log(`Drafting application for opportunity: ${opportunity.title}`);
   };
 
   return (

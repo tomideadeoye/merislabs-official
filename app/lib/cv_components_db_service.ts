@@ -18,7 +18,7 @@
  *   - `app/api/orion/cv-components/route.ts`: Calls `fetchAllCvComponents` (for GET) and `saveOrUpdateCvComponent` (for POST) to expose CV component data to the frontend.
  *   - `app/api/orion/cv/suggest-components/route.ts`: Calls `fetchAllCvComponents` to provide the LLM with all available components for suggestions (part of FR-2.2).
  *   - `app/api/orion/cv/assemble/route.ts`: Calls Prisma directly (`prisma.cVComponent.findMany`) to fetch selected components for assembly (part of FR-5.2).
- *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/cv-tailoring/page.tsx`: The server component that indirectly uses `fetchAllCvComponents` to pass data to the client.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[id]/cv-tailoring/page.tsx`: The server component that indirectly uses `fetchAllCvComponents` to pass data to the client.
  *   - `@/lib/logger`: Integrates comprehensive logging for all database operations, aiding traceability and debugging.
  *   - `@/lib/prisma`: Imports the Prisma client instance to interact with the database.
  *
@@ -47,27 +47,22 @@
  *   - **Schema Enhancements**: Introduce more specific fields for `CVComponent` content (e.g., dedicated fields for `title`, `duration`, `description` for experience components) instead of a generic `content` JSON field, allowing for more structured data querying and rendering.
  */
 
-import { Prisma } from '@/generated/prisma'; // Correct Prisma import
+import { CVComponent, Prisma } from '@prisma/client';
 import logger from '@/lib/logger';
 import { RawCvComponentJsonData } from '@/lib/types';
-import { CVComponent } from '@/lib/types/cv'; // Corrected import path
-import prisma from '@/lib/prisma'; // Import the lib Prisma client instance
+import prisma from '@/lib/prisma';
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
 
-// Helper to ensure correct Prisma payload type for CVComponent
-// It's good practice to define payload types if you need them for return types,
-// but Prisma's inferred types are often sufficient.
-// For example, the return type of prisma.cVComponent.create is Prisma.CVComponentGetPayload<{}>
-// which can be simplified to just `CVComponent` from `@prisma/client` if your model is named `CVComponent`.
-// Assuming `CVComponent` from `@prisma/client` is the desired return type.
-type CVComponentPayload = CVComponent;
+// Use Prisma input types for create/update
+export type CVComponentCreateData = Prisma.CVComponentCreateInput;
+export type CVComponentUpdateData = Prisma.CVComponentUpdateInput;
 
 /**
  * Maps incoming JSON data from cv-data.json to the Prisma CVComponent model structure.
  * @param data Raw JSON data for a CV component.
  * @returns Mapped data for Prisma create/update.
  */
-function mapRawDataToPrismaCVComponent(data: RawCvComponentJsonData): Omit<Prisma.CVComponentCreateInput, 'id'> {
+function mapRawDataToPrismaCVComponent(data: RawCvComponentJsonData): Prisma.CVComponentCreateInput {
   const processTags = (input: unknown): string[] => {
     if (Array.isArray(input)) {
       return input
@@ -81,20 +76,34 @@ function mapRawDataToPrismaCVComponent(data: RawCvComponentJsonData): Omit<Prism
         .map((s: string) => s.trim())
         .filter(Boolean);
     }
-    return [] as string[]; // Explicitly type as string[]
+    return [] as string[];
   };
 
   const keywords = processTags(data.Keywords);
   const targetRoleTags = processTags(data['Target Role Tags']);
-  const combinedTags = Array.from(new Set([...keywords, ...targetRoleTags])); // Use Array.from(new Set()) to ensure unique tags and avoid iteration warning
+  const combinedTags = Array.from(new Set([...keywords, ...targetRoleTags]));
+
+  // Ensure content is always a valid JSON value (never null or undefined)
+  let content: Prisma.InputJsonValue = {};
+  if (data['Content (Primary)']) {
+    try {
+      const parsed = JSON.parse(JSON.stringify(data['Content (Primary)']));
+      content = parsed === null || parsed === undefined ? {} : parsed;
+    } catch {
+      content = {};
+    }
+  }
+  if (content === null || content === undefined) {
+    content = {};
+  }
 
   const mappedData: Prisma.CVComponentCreateInput = {
     uniqueId: data.UniqueID,
     name: data['Component Name'],
     type: data['Component Type'],
-    content: JSON.stringify(data['Content (Primary)']),
-    tags: { set: combinedTags }, // Use Prisma's `set` for array fields
-    userId: 'orion_default_user', // TODO: Replace with actual user ID from session/auth
+    content,
+    tags: combinedTags,
+    userId: 'orion_default_user',
   };
 
   logger.debug('[CV_DB_SERVICE][MAP_DATA]', { raw: data, mapped: mappedData });
@@ -112,7 +121,7 @@ function mapRawDataToPrismaCVComponent(data: RawCvComponentJsonData): Omit<Prism
  * @param componentData The raw JSON data for the CV component.
  * @returns The saved or updated CV component.
  */
-export async function saveOrUpdateCvComponent(componentData: RawCvComponentJsonData): Promise<CVComponentPayload> {
+export async function saveOrUpdateCvComponent(componentData: RawCvComponentJsonData): Promise<CVComponent> {
   const logContext = { operation: 'saveOrUpdateCvComponent', uniqueId: componentData.UniqueID };
 
   if (!componentData.UniqueID) {
@@ -129,7 +138,7 @@ export async function saveOrUpdateCvComponent(componentData: RawCvComponentJsonD
       where: { uniqueId: componentData.UniqueID },
     });
 
-    let savedComponent: CVComponentPayload;
+    let savedComponent: CVComponent;
 
     if (existingComponent) {
       logger.info('[CV_DB_SERVICE][SAVE_OR_UPDATE][UPDATE] Existing component found, updating.', {
@@ -182,7 +191,7 @@ export async function saveOrUpdateCvComponent(componentData: RawCvComponentJsonD
  * Fetches all CV components from the database.
  * @returns An array of CVComponent objects or a HandledApplicationError.
  */
-export async function fetchAllCvComponents(): Promise<CVComponentPayload[] | HandledApplicationError> {
+export async function fetchAllCvComponents(): Promise<CVComponent[] | HandledApplicationError> {
   logger.info('[CV_DB_SERVICE][FETCH_ALL][START]');
   try {
     const components = await prisma.cVComponent.findMany({
@@ -226,7 +235,7 @@ export async function fetchAllCvComponents(): Promise<CVComponentPayload[] | Han
  * @param uniqueId The unique ID of the CV component to delete.
  * @returns The deleted CV component.
  */
-export async function deleteCvComponent(uniqueId: string): Promise<CVComponentPayload> {
+export async function deleteCvComponent(uniqueId: string): Promise<CVComponent> {
   const logContext = { operation: 'deleteCvComponent', uniqueId };
   logger.info('[CV_DB_SERVICE][DELETE][START]', logContext);
   try {
@@ -269,7 +278,7 @@ export async function deleteCvComponent(uniqueId: string): Promise<CVComponentPa
  * @param uniqueId The unique ID of the CV component.
  * @returns The found CV component or null if not found.
  */
-export async function findCvComponentByUniqueId(uniqueId: string): Promise<CVComponentPayload | null> {
+export async function findCvComponentByUniqueId(uniqueId: string): Promise<CVComponent | null> {
   const logContext = { operation: 'findCvComponentByUniqueId', uniqueId };
   logger.info('[CV_DB_SERVICE][FIND_BY_UNIQUE_ID][START]', logContext);
   try {
@@ -305,7 +314,7 @@ export async function findCvComponentByUniqueId(uniqueId: string): Promise<CVCom
  * @function recordCVFeedback
  * @description Records user feedback on a CV tailoring process or a specific CV component.
  * @param userId The ID of the user providing feedback.
- * @param opportunityId The ID of the opportunity related to the feedback.
+ * @param id The ID of the opportunity related to the feedback.
  * @param feedbackType The type of feedback (e.g., 'positive', 'negative', 'suggestion').
  * @param feedbackDetails Detailed text of the feedback.
  * @param componentId Optional: The ID of the specific CV component being feedback on.
@@ -315,7 +324,7 @@ export async function findCvComponentByUniqueId(uniqueId: string): Promise<CVCom
 /**
  * Records user feedback on a CV tailoring process or a specific CV component.
  * @param userId The ID of the user providing feedback.
- * @param opportunityId The ID of the opportunity related to the feedback.
+ * @param id The ID of the opportunity related to the feedback.
  * @param feedbackType The type of feedback (e.g., 'positive', 'negative', 'suggestion').
  * @param feedbackDetails Detailed text of the feedback.
  * @param componentId Optional: The ID of the specific CV component being feedback on.
@@ -325,21 +334,21 @@ export async function findCvComponentByUniqueId(uniqueId: string): Promise<CVCom
  */
 export async function recordCVFeedback(
   userId: string,
-  opportunityId: string,
+  id: string,
   feedbackType: 'positive' | 'negative' | 'suggestion' | 'bug',
   feedbackDetails: string,
   componentId?: string,
   originalContent?: string,
   generatedContent?: string
 ) {
-  const logContext = { operation: 'recordCVFeedback', userId, opportunityId, feedbackType, componentId };
+  const logContext = { operation: 'recordCVFeedback', userId, id, feedbackType, componentId };
   logger.info('[CV_DB_SERVICE][RECORD_FEEDBACK][START]', logContext);
 
   try {
     const feedbackEntry = await prisma.cVFeedback.create({
       data: {
         userId,
-        opportunityId,
+        id,
         feedbackType,
         feedbackDetails,
         componentId,

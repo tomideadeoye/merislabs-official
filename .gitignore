@@ -210,4 +210,31 @@ coverage/
 
 # Add more patterns as needed for your project
 
-/generated/prisma
+# === Orion/Prisma/Generated Artifacts (appended by Roo) ===
+/generated/
+/generated/prisma/
+/generated/prisma/runtime/
+/generated/runtime/
+libquery_engine-*.node
+
+# Ignore generated JS/TS artifacts in generated folders
+/generated/**/*.js
+/generated/**/*.d.ts
+/generated/**/*.ts
+/generated/**/*.wasm
+/generated/**/*.json
+
+# Common Prisma/Client outputs
+client.d.ts
+client.js
+default.d.ts
+default.js
+edge.d.ts
+edge.js
+index-browser.js
+index.d.ts
+index.js
+wasm.d.ts
+wasm.js
+
+# --- End Roo additions ---

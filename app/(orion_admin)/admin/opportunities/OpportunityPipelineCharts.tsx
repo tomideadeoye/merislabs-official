@@ -7,8 +7,8 @@
  */
 import React, { useState } from 'react';
 import { Loader } from 'lucide-react';
-import { OrionOpportunity } from '@/lib/types';
 import logger from '@/lib/logger';
+import { Opportunity } from '@prisma/client';
 
 // --- HELPER FUNCTIONS AND CONSTANTS ---
 // NOTE: These helpers are self-contained and correct.
@@ -19,13 +19,14 @@ const MOTIVATIONAL_QUOTES = [
   'You are the architect of your destiny.',
   'Keep building, keep growing, keep winning!',
   "Greatness is inevitable. Let's go!",
+  //  ADD MORE HERE
 ];
 
 export function OpportunityPipelineCharts({
   opportunities,
   isLoading,
 }: {
-  opportunities: OrionOpportunity[];
+  opportunities: Opportunity[];
   isLoading: boolean;
 }) {
   logger.debug('[OPP_CHARTS][RENDER]', { opportunitiesCount: opportunities.length, isLoading });
@@ -69,4 +70,4 @@ export function OpportunityPipelineCharts({
 }
 
 // One-liner summary for README:
-// OpportunityPipelineCharts (app/(orion_admin)/admin/OrionOpportunity-pipeline/OpportunityPipelineCharts.tsx): Nivo-powered, animated, interactive analytics for the OrionOpportunity Pipeline with robust logging, loading states, and fun UI.
+// OpportunityPipelineCharts (app/(orion_admin)/admin/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA-pipeline/OpportunityPipelineCharts.tsx): Nivo-powered, animated, interactive analytics for the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Pipeline with robust logging, loading states, and fun UI.

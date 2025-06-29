@@ -52,10 +52,7 @@ export default function Hero() {
         <div className="relative pt-32 pb-10 md:pt-40 md:pb-16">
           {/* Section header */}
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-16">
-            <h1
-              className="text-4xl font-extrabold leading-tight tracking-tighter mb-4 md:text-5xl"
-              data-aos="fade-up"
-            >
+            <h1 className="text-4xl font-extrabold leading-tight tracking-tighter mb-4 md:text-5xl" data-aos="fade-up">
               MERISLABS
             </h1>
             <p className="text-xl text-gray-400 mb-8" data-aos="fade-up" data-aos-delay="200">

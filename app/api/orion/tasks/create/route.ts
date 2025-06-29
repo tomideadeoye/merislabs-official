@@ -45,16 +45,16 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import logger from '@/lib/logger';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
-import { TaskStatus, TaskPriority } from '@/lib/types'; // Use locally defined enums
+import { $Enums } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define the schema for creating a new task
 const createTaskSchema = z.object({
   title: z.string().min(1, 'Task title is required.'),
   description: z.string().optional().nullable(),
-  // type: z.nativeEnum(TaskType).default(TaskType.TODO), // This field does not exist on the Task model in Prisma.
-  priority: z.nativeEnum(TaskPriority).default(TaskPriority.MEDIUM), // Use directly imported enum
-  status: z.nativeEnum(TaskStatus).default(TaskStatus.TODO), // Use directly imported enum
+  type: z.nativeEnum($Enums.TaskType).default($Enums.TaskType.TODO),
+  priority: z.nativeEnum($Enums.TaskPriority).default($Enums.TaskPriority.MEDIUM),
+  status: z.nativeEnum($Enums.TaskStatus).default($Enums.TaskStatus.TODO),
   dueDate: z.string().datetime().optional().nullable(), // ISO date string
 });
 
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
         userId: userId,
         title: validatedData.title,
         description: validatedData.description,
-        // type: validatedData.type,
+        type: validatedData.type ?? null,
         priority: validatedData.priority,
         status: validatedData.status,
         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
@@ -99,11 +99,11 @@ export async function POST(req: NextRequest) {
         userId: userId,
         title: validatedData.title,
         description: validatedData.description,
-        // type: validatedData.type, // This field does not exist on the Task model, causing the error.
+        type: validatedData.type ?? null,
         priority: validatedData.priority,
         status: validatedData.status,
         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
-        steps: { create: [] }, // Explicitly create an empty array of steps
+        steps: { create: [] },
       },
     });
 

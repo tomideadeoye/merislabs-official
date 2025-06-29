@@ -1,16 +1,16 @@
 // packages/ui/src/components/orion/opportunities/journalReflectionDialogStore.ts
 
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@/lib/types';
 import { create } from 'zustand';
 
 interface JournalReflectionDialogStore {
   isOpen: boolean;
-  opportunity: OrionOpportunity | null;
+  opportunity: Opportunity | null;
   actionType: 'general' | 'application_sent' | 'interview_completed' | 'outreach_sent';
   initialReflection: string;
   onReflectionSaved?: ((reflection: string) => void) | undefined;
   open: (
-    opportunity: OrionOpportunity,
+    opportunity: Opportunity,
     actionType: 'general' | 'application_sent' | 'interview_completed' | 'outreach_sent',
     initialReflection?: string,
     onReflectionSaved?: ((reflection: string) => void) | undefined

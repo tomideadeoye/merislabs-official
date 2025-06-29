@@ -22,7 +22,7 @@
  * FILEPATH: `app/lib/pythonApiService.ts`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/api/orion/opportunity/[opportunityId]/draft-email/route.ts`: Consumes this service to enrich email drafting context.
+ *   - `app/api/orion/opportunity/[id]/draft-email/route.ts`: Consumes this service to enrich email drafting context.
  *   - `@/lib/logger`: Used for comprehensive logging of API calls and errors.
  *   - `process.env.PYTHON_API_URL`: Relies on this environment variable to determine the Python backend's base URL.
  *   - `app/lib/orion_tools.ts`: New tools defined here will consume methods from this service.
@@ -254,7 +254,7 @@ export const pythonApiService = {
    */
   findStakeholders: async (payload: {
     companyName: string;
-    roles?: string[]; // Changed from role?: string; removed count, opportunityId, userId
+    roles?: string[]; // Changed from role?: string; removed count, id, userId
   }): Promise<PythonApiResponse<FindStakeholdersResponse>> => {
     const logContext = { operation: 'findStakeholders', payload };
     logger.info('[pythonApiService][findStakeholders][START]', logContext);

@@ -8,7 +8,6 @@
 // ASSUMPTIONS & CLEAR COMMENTS: // NOTE: Assumed all referenced images exist in public/images/ or public/
 // NOTES: Consider consolidating project media handling, add more robust error handling/logging, and test for missing assets.
 
-
 import Link from 'next/link';
 import { projects, Project } from './projects';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

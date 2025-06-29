@@ -9,7 +9,7 @@ export interface OpportunityMemory {
   type: 'note' | 'evaluation' | 'highlight';
 }
 
-export function useOpportunityMemory(opportunityId: string) {
+export function useOpportunityMemory(id: string) {
   const [memories, setMemories] = useState<OpportunityMemory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +42,10 @@ export function useOpportunityMemory(opportunityId: string) {
   };
 
   useEffect(() => {
-    // Load memories for the OrionOpportunity
+    // Load memories for the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA
     // This would typically fetch from an API
     setMemories([]);
-  }, [opportunityId]);
+  }, [id]);
 
   return {
     memories,

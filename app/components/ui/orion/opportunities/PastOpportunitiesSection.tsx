@@ -4,18 +4,18 @@
 // FILEPATH: /Users/mac/Documents/GitHub/merislabs-official/app/components/ui/orion/opportunities/PastOpportunitiesSection.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
 //   - Consumed by `OpportunityDetailView` (`app/components/ui/orion/opportunities/OpportunityDetailView.tsx`).
-//   - Receives the current `OrionOpportunity` object as a prop.
+//   - Receives the current `Opportunity` object as a prop.
 //   - Calls the backend API route `/api/orion/memory/search` to find similar opportunities in Qdrant memory.
-//   - Uses `@/lib/types` for `OrionOpportunity` and `ScoredMemoryPoint` types.
+//   - Uses `@/lib/types` for `Opportunity` and `ScoredMemoryPoint` types.
 import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, History, RefreshCw } from 'lucide-react';
-import { OrionOpportunity, ScoredMemoryPoint } from '@/lib/types';
+import { Opportunity, ScoredMemoryPoint } from '@/lib/types';
 import { Button, Badge, ButtonProps } from '@/components/ui';
 import { Card, CardHeader, CardTitle, CardContent } from '../../card';
 import { ExternalLink } from 'lucide-react';
 
 interface PastOpportunitiesProps {
-  OrionOpportunity: OrionOpportunity;
+  opportunity: Opportunity;
 }
 
 interface SimilarOpportunity {
@@ -28,7 +28,7 @@ interface SimilarOpportunity {
   outcome?: string;
 }
 
-export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ OrionOpportunity }) => {
+export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ opportunity }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [similarOpportunities, setSimilarOpportunities] = useState<SimilarOpportunity[]>([]);
 
@@ -43,7 +43,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: `${OrionOpportunity.title} ${OrionOpportunity.company} ${OrionOpportunity.type} ${OrionOpportunity.tags?.join(' ') || ''}`,
+          query: `${opportunity.title} ${opportunity.company} ${opportunity.type} ${opportunity.tags?.join(' ') || ''}`,
           collectionName: 'orion_memory',
           limit: 5,
           filter: {
@@ -57,9 +57,9 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
             ],
             must_not: [
               {
-                key: 'opportunityId',
+                key: 'id',
                 match: {
-                  value: OrionOpportunity.id,
+                  value: opportunity.id,
                 },
               },
             ],
@@ -73,8 +73,8 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
       if (data.success && data.results && data.results.length > 0) {
         // Transform the results into a more usable format
         const opportunities = data.results.map((item: ScoredMemoryPoint) => ({
-          id: item.payload?.opportunityId || 'unknown',
-          title: item.payload?.title || 'Unknown OrionOpportunity',
+          id: item.payload?.id || 'unknown',
+          title: item.payload?.title || 'Unknown Opportunity',
           company: item.payload?.company || 'Unknown Company',
           status: item.payload?.status || 'unknown',
           similarity: Math.round(item.score * 100),
@@ -89,13 +89,13 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
     } finally {
       setIsLoading(false);
     }
-  }, [OrionOpportunity]);
+  }, [opportunity]);
 
   useEffect(() => {
-    if (OrionOpportunity) {
+    if (opportunity) {
       fetchSimilarOpportunities();
     }
-  }, [OrionOpportunity, fetchSimilarOpportunities]);
+  }, [opportunity, fetchSimilarOpportunities]);
 
   const getStatusColor = (status: string) => {
     if (status.includes('accepted') || status.includes('offer')) {
@@ -161,7 +161,7 @@ export const PastOpportunitiesSection: React.FC<PastOpportunitiesProps> = ({ Ori
                       className: 'text-gray-400 hover:text-gray-200',
                       onClick: () => {
                         if (item.id !== 'unknown') {
-                          window.open(`/admin/OrionOpportunity-pipeline/${item.id}`, '_blank');
+                          window.open(`/admin/opportunity-pipeline/${item.id}`, '_blank');
                         }
                       },
                       disabled: item.id === 'unknown',

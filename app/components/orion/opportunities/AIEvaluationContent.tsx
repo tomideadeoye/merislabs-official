@@ -3,7 +3,7 @@
  * @description This component allows users to trigger an AI evaluation of a given opportunity against their profile and displays the detailed evaluation results. It handles its own loading, error states, and integrates with the backend AI evaluation API.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - To provide an interface for initiating AI evaluation of an `OrionOpportunity`.
+ *   - To provide an interface for initiating AI evaluation of an `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`.
  *   - To display the results of the AI evaluation, including fit score, strengths, areas for improvement, and next steps.
  *   - To manage client-side state for loading, evaluation progress, and errors.
  *   - To fetch the user's profile data to be used in the AI evaluation process.
@@ -12,19 +12,19 @@
  * FILEPATH: `app/components/orion/opportunities/AIEvaluationContent.tsx`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `@/lib/types`: Imports `OrionOpportunity`, `EvaluationOutput`, and `UserProfileData` for type definitions.
+ *   - `@/lib/types`: Imports `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`, `EvaluationOutput`, and `UserProfileData` for type definitions.
  *   - `@/lib/profile_service`: Used to fetch the user's profile data (`fetchUserProfile`).
- *   - `@/lib/apiClient`: Used to make HTTP POST requests to `/api/orion/opportunity/[opportunityId]/evaluation` for triggering the AI evaluation.
+ *   - `@/lib/apiClient`: Used to make HTTP POST requests to `/api/orion/opportunity/[id]/evaluation` for triggering the AI evaluation.
  *   - `@/lib/logger`: For comprehensive logging of component actions and states.
  *   - `react-hot-toast`: Used for displaying user-friendly notifications (loading, success, error).
  *   - `@/hooks/useLocalStorage`: Persists evaluation results locally to avoid re-running evaluation unnecessarily.
  *   - `@/components/ui/button`, `@/components/ui/card`: Imports Shadcn UI components for consistent styling.
  *   - `lucide-react`: Provides icons (`Loader2`, `Sparkles`, `BarChart2`, `AlertTriangle`) for visual feedback.
- *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`: This is the parent page that will render this component, passing the `opportunity` prop.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[id]/page.tsx`: This is the parent page that will render this component, passing the `opportunity` prop.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes the `opportunity` prop is provided and contains valid `OrionOpportunity` data.
- *   - Assumes `/api/orion/profile` and `/api/orion/opportunity/[opportunityId]/evaluation` API endpoints are operational.
+ *   - Assumes the `opportunity` prop is provided and contains valid `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` data.
+ *   - Assumes `/api/orion/profile` and `/api/orion/opportunity/[id]/evaluation` API endpoints are operational.
  *   - Evaluation results are stored in local storage, providing persistence for the current user/browser.
  *
  * NOTES:
@@ -43,16 +43,17 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Sparkles, BarChart2, AlertTriangle } from 'lucide-react';
-import { OrionOpportunity, EvaluationOutput, UserProfileData } from '@/lib/types';
+import { EvaluationOutput, UserProfileData } from '@/lib/types';
 import { fetchUserProfile } from '@/lib/profile_service';
 import { apiClient } from '@/lib/apiClient';
 import logger from '@/lib/logger';
 import { toast } from 'react-hot-toast';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { handleClientError } from '@/lib/utils/clientErrorHandler';
+import { Opportunity } from '@prisma/client';
 
 interface AIEvaluationContentProps {
-  opportunity: OrionOpportunity;
+  opportunity: Opportunity;
 }
 
 export function AIEvaluationContent({ opportunity }: AIEvaluationContentProps) {
@@ -68,21 +69,21 @@ export function AIEvaluationContent({ opportunity }: AIEvaluationContentProps) {
         const profileResult = await fetchUserProfile();
         if (profileResult && profileResult.profile) {
           setUserProfileData(profileResult.profile);
-          logger.info('[AIEvaluationContent][loadUserProfile][SUCCESS]', { opportunityId: opportunity.id });
+          logger.info('[AIEvaluationContent][loadUserProfile][SUCCESS]', { id: opportunity.id });
         } else {
           logger.warn('[AIEvaluationContent][loadUserProfile][FAIL]', {
-            opportunityId: opportunity.id,
+            id: opportunity.id,
             error: profileResult?.error || 'Unknown profile fetch error',
           });
           // Do not set an error here, as the evaluation API route handles fetching if not provided.
         }
       } catch (err: unknown) {
         const handledProfileError = handleClientError(err, {
-          opportunityId: opportunity.id,
+          id: opportunity.id,
           stage: 'profile_fetch_initial_load',
         });
         logger.error('[AIEvaluationContent][loadUserProfile][ERROR]', {
-          opportunityId: opportunity.id,
+          id: opportunity.id,
           error: handledProfileError.message,
         });
         setError(`Error loading user profile: ${handledProfileError.message}. Evaluation might be incomplete.`);
@@ -93,31 +94,31 @@ export function AIEvaluationContent({ opportunity }: AIEvaluationContentProps) {
   }, [opportunity.id]); // Dependency on opportunity.id to refetch profile if opportunity changes
 
   const handleGenerateEvaluation = async () => {
-    logger.info('[AIEvaluationContent][handleGenerateEvaluation][START]', { opportunityId: opportunity.id });
+    logger.info('[AIEvaluationContent][handleGenerateEvaluation][START]', { id: opportunity.id });
     setIsEvaluating(true);
     setError(null);
     toast.loading('Orion is analyzing the opportunity...');
 
     const requestBody = {
-      opportunityId: opportunity.id,
+      id: opportunity.id,
       userProfile: userProfileData, // Use the pre-fetched or existing user profile data
     };
 
     logger.debug('[AIEvaluationContent][handleGenerateEvaluation][REQUEST_BODY]', {
-      opportunityId: opportunity.id,
+      id: opportunity.id,
       requestBody: requestBody,
     });
 
     try {
       logger.info('[AIEvaluationContent][handleGenerateEvaluation][API_CALL_START]', {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         url: `/api/orion/opportunity/${opportunity.id}/evaluation`,
         method: 'POST',
       });
       const response = await apiClient.post(`/api/orion/opportunity/${opportunity.id}/evaluation`, requestBody);
 
       logger.info('[AIEvaluationContent][handleGenerateEvaluation][API_CALL_RESPONSE]', {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         responseStatus: response.status,
         responseData: response.data,
       });
@@ -132,17 +133,17 @@ export function AIEvaluationContent({ opportunity }: AIEvaluationContentProps) {
         );
       }
     } catch (err: unknown) {
-      const handledError = handleClientError(err, { opportunityId: opportunity.id, stage: 'evaluation_api_call' });
+      const handledError = handleClientError(err, { id: opportunity.id, stage: 'evaluation_api_call' });
       setError(handledError.message);
       toast.error(`Evaluation Failed: ${handledError.message}`);
       logger.error('[AIEvaluationContent][handleGenerateEvaluation][ERROR]', {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         error: handledError.message,
       });
     } finally {
       setIsEvaluating(false);
       toast.dismiss();
-      logger.info('[AIEvaluationContent][handleGenerateEvaluation][END]', { opportunityId: opportunity.id });
+      logger.info('[AIEvaluationContent][handleGenerateEvaluation][END]', { id: opportunity.id });
     }
   };
 

@@ -7,7 +7,7 @@
  * GOAL OF FILE|FEATURES|FUNCTIONS:
  *   - To provide a backend endpoint that accepts a CV component ID (specifically for the Profile Summary), job description analysis,
  *     and optional web research context.
- *   - To retrieve the original profile summary content from Notion (or a central DB in the future).
+ *   - To retrieve the original profile summary content from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES (or a central DB in the future).
  *   - To intelligently construct an LLM prompt that instructs the model to tailor the summary for a specific job opportunity.
  *   - To invoke the `generateLLMResponse` function to get the AI-tailored summary.
  *   - To return the tailored summary to the frontend for display and further action.
@@ -16,47 +16,48 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `next/server`: Core Next.js App Router utilities for handling API requests and responses (`NextRequest`, `NextResponse`).
- *   - `prisma/schema.prisma` & `lib/cv_components_db_service.ts`: Although currently fetching from Notion, this route will eventually integrate with `cv_components_db_service.ts` to fetch CV components from the Neon PostgreSQL database, ensuring data consistency.
- *   - `app/lib/notion_service.ts`: Currently used for `getCVComponentsFromNotion` to retrieve CV data. (Target for future migration to Neon).
+ *   - `prisma/schema.prisma` & `lib/cv_components_db_service.ts`: Although currently fetching from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES, this route will eventually integrate with `cv_components_db_service.ts` to fetch CV components from the Neon PostgreSQL database, ensuring data consistency.
+ *   - `app/lib/WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_service.ts`: Currently used for `getCVComponentsFromWE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES` to retrieve CV data. (Target for future migration to Neon).
  *   - `app/lib/orion_config.ts`: Provides `CV_SUMMARY_TAILORING_REQUEST_TYPE` for classifying LLM requests.
  *   - `app/lib/types.ts`: Defines the `CVComponent` type, ensuring consistent data structures.
  *   - `app/lib/orion_llm.ts`: Contains the `generateLLMResponse` function, which is the core LLM interaction layer.
  *   - `app/lib/logger.ts`: Used for comprehensive, context-rich logging of the entire process, including validation, LLM calls, and error handling.
  *   - `app/lib/utils/errorHandler.ts`: (Opportunity for improvement) Can be integrated for standardized error responses and logging.
- *   - `app/opportunity/[opportunityId]/tailor-content/page.tsx`: The frontend component that calls this API route to generate tailored content.
+ *   - `app/opportunity/[id]/tailor-content/page.tsx`: The frontend component that calls this API route to generate tailored content.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes `component_id` refers to a unique identifier for the Profile Summary component.
  *   - Assumes `jd_analysis` and `web_research_context` provide relevant and structured information for tailoring.
- *   - Assumes the Notion service is accessible and returns CV components in the expected format.
+ *   - Assumes the WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES service is accessible and returns CV components in the expected format.
  *   - LLM is available and capable of following detailed tailoring instructions.
  *   - Authentication/authorization is handled at a higher level (middleware).
  *
  * NOTES:
- *   - The logic for fetching CV components from Notion is a candidate for migration to the Neon database (`cv_components_db_service.ts`) to align with the project's long-term data strategy.
+ *   - The logic for fetching CV components from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES is a candidate for migration to the Neon database (`cv_components_db_service.ts`) to align with the project's long-term data strategy.
  *   - Detailed logging is implemented to track the flow and assist with debugging LLM responses and data retrieval.
  *   - The prompt construction is critical for guiding the LLM's behavior and ensuring relevant output.
  *
  * OPPORTUNITIES FOR IMPROVEMENT:
  *   - **Zod Input Validation**: Implement Zod schema validation for the request body (`component_id`, `jd_analysis`, `web_research_context`) to ensure robust input handling and prevent malformed requests.
  *   - **Centralized Error Handling**: Integrate `handleApiError` from `app/lib/utils/errorHandler.ts` for more consistent and standardized error responses and logging, reducing boilerplate.
- *   - **Database Migration**: Fully transition from `getCVComponentsFromNotion` to `cv_components_db_service.ts` to fetch CV components from Neon, completing the migration from Notion for this data type.
+ *   - **Database Migration**: Fully transition from `getCVComponentsFromWE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES` to `cv_components_db_service.ts` to fetch CV components from Neon, completing the migration from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES for this data type.
  *   - **Prompt Engineering Flexibility**: Allow more dynamic prompt adjustments (e.g., tone, length, specific keywords to emphasize) via request parameters.
  *   - **Asynchronous LLM Calls**: For potentially long-running LLM calls, consider implementing a mechanism for asynchronous processing and status polling, especially if this becomes part of a larger workflow.
- *   - **Caching**: Cache frequently accessed CV components to reduce database/Notion calls.
+ *   - **Caching**: Cache frequently accessed CV components to reduce database/WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES calls.
  *   - **Rate Limiting**: Implement API rate limiting to prevent abuse or excessive LLM usage.
  *
  */
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getCVComponentsFromNotion } from '@/lib/notion_service'; // Import from notion_service
 import { CV_SUMMARY_TAILORING_REQUEST_TYPE } from '@/lib/orion_config'; // Import request type
 import { CVComponent } from '@/lib/types/cv'; // Explicitly import CVComponent from its defining file
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Corrected import for generateLLMResponse
 import logger from '@/lib/logger'; // Import logger
 // Removed: import { auth } from '@/auth'; // Authentication removed as per user request
-import { HandledApplicationError, OrionOpportunity, UserProfileData } from '@/lib/types'; // Import HandledApplicationError from types
+import { HandledApplicationError, UserProfileData, ScoredMemoryPoint } from '@/lib/types'; // Import HandledApplicationError from types
 import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import handleServerError
+import { fetchAllCvComponents } from '@/lib/cv_components_db_service';
+import { Opportunity } from '@prisma/client';
 
 /**
  * API route for tailoring a CV summary based on JD analysis using LLM
@@ -94,12 +95,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    logger.info('[CV_SUMMARY_API][FETCH_COMPONENTS] Fetching CV components from Notion.', {
+    logger.info('[CV_SUMMARY_API][FETCH_COMPONENTS] Fetching CV components from database.', {
       ...logContext,
       component_id,
     });
-    // Fetch the specific component (assuming it's the profile summary)
-    const allComponents = await getCVComponentsFromNotion();
+    const allComponentsResult = await fetchAllCvComponents();
+    if (allComponentsResult instanceof HandledApplicationError) {
+      logger.error('[CV_SUMMARY_API][FETCH_COMPONENTS_ERROR] Failed to fetch CV components from database.', {
+        ...logContext,
+        error: allComponentsResult.message,
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: allComponentsResult.message,
+        },
+        { status: allComponentsResult.statusCode || 500 }
+      );
+    }
+    // Use a type guard to ensure allComponentsResult is an array
+    if (!Array.isArray(allComponentsResult)) {
+      logger.error('[CV_SUMMARY_API][FETCH_COMPONENTS_ERROR] Unexpected non-array result from fetchAllCvComponents.', {
+        ...logContext,
+        error: 'Expected array, got non-array',
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to fetch CV components: unexpected result type.',
+        },
+        { status: 500 }
+      );
+    }
+    const allComponents = allComponentsResult;
     const summaryComponent = allComponents.find(
       (comp: CVComponent) => comp.uniqueId === component_id && comp.type === 'Profile Summary'
     );
@@ -137,9 +165,8 @@ export async function POST(req: NextRequest) {
         : JSON.stringify(summaryComponent.content);
 
     // Construct the prompt for the LLM
-    const prompt = `You are an expert CV writer. Tailor the following profile summary to be highly relevant to the provided job description analysis and company. Focus on aligning my skills and experience with the job requirements and the company's context. \n\n**Original Profile Summary:**\n${originalSummaryContent}\n\n**Job Description Analysis:**\n${jd_analysis}\n\n${
-      web_research_context ? `**Relevant Web Research Context (Company Info, etc.):**\n${web_research_context}\n\n` : ''
-    }**Instructions:**\nWrite a compelling and concise profile summary (4-5 sentences) based on the original summary, the job description analysis, and web research context. Highlight the most relevant experiences and skills. Maintain a professional tone. Provide ONLY the tailored summary, without any introductory or concluding remarks.`;
+    const prompt = `You are an expert CV writer. Tailor the following profile summary to be highly relevant to the provided job description analysis and company. Focus on aligning my skills and experience with the job requirements and the company's context. \n\n**Original Profile Summary:**\n${originalSummaryContent}\n\n**Job Description Analysis:**\n${jd_analysis}\n\n${web_research_context ? `**Relevant Web Research Context (Company Info, etc.):**\n${web_research_context}\n\n` : ''
+      }**Instructions:**\nWrite a compelling and concise profile summary (4-5 sentences) based on the original summary, the job description analysis, and web research context. Highlight the most relevant experiences and skills. Maintain a professional tone. Provide ONLY the tailored summary, without any introductory or concluding remarks.`;
 
     logger.info('[CV_SUMMARY_API][LLM_CALL] Sending summary tailoring prompt to LLM.', {
       ...logContext,

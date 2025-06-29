@@ -108,70 +108,92 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    logger.debug('[MEMORY_UPSERT][INFO] Attempting to create Qdrant client instance.', logContext);
-    const qdrantPort = process.env.QDRANT_PORT || 6333;
-    const qdrantUrl = `http://${process.env.QDRANT_HOST}:${qdrantPort}`;
-
+    logger.debug('[MEMORY_UPSERT][ENV] QDRANT_HOST and QDRANT_PORT values at runtime.', {
+      ...logContext,
+      QDRANT_HOST: process.env.QDRANT_HOST,
+      QDRANT_PORT: process.env.QDRANT_PORT,
+      QDRANT_API_KEY: process.env.QDRANT_API_KEY ? '***set***' : '***not set***',
+    });
+    // Robust Qdrant URL construction: auto-detect protocol and port
+    let qdrantUrl: string;
+    const hostEnv = process.env.QDRANT_HOST || 'localhost';
+    const portEnv = process.env.QDRANT_PORT || '6333';
+    if (/^https?:\/\//.test(hostEnv)) {
+      // QDRANT_HOST already includes protocol
+      if (/:[0-9]+$/.test(hostEnv)) {
+        // Already has port
+        qdrantUrl = hostEnv;
+        logger.info('[MEMORY_UPSERT][QDRANT_URL][ROBUST] QDRANT_HOST includes protocol and port. Using as-is.', { ...logContext, qdrantUrl });
+      } else {
+        // Add port if missing
+        qdrantUrl = `${hostEnv}:${portEnv}`;
+        logger.info('[MEMORY_UPSERT][QDRANT_URL][ROBUST] QDRANT_HOST includes protocol, adding port.', { ...logContext, qdrantUrl });
+      }
+    } else {
+      // Add protocol and port
+      qdrantUrl = `http://${hostEnv}:${portEnv}`;
+      logger.info('[MEMORY_UPSERT][QDRANT_URL][ROBUST] QDRANT_HOST missing protocol, adding http:// and port.', { ...logContext, qdrantUrl });
+    }
     const qdrantClient = new QdrantClient({
       url: qdrantUrl,
       apiKey: process.env.QDRANT_API_KEY,
       checkCompatibility: false,
     });
-
+    logger.debug('[MEMORY_UPSERT][QDRANT_CLIENT] Qdrant client instance created.', {
+      ...logContext,
+      qdrantUrl,
+    });
     // Ensure the collection exists
     try {
+      logger.debug('[MEMORY_UPSERT][QDRANT_API] Calling getCollections() to check for collection existence.', logContext);
       const collections = await qdrantClient.getCollections();
+      logger.info('[MEMORY_UPSERT][QDRANT_API][RESULT] getCollections() result:', {
+        ...logContext,
+        collections,
+      });
       const collectionExists = collections.collections.some((c) => c.name === collectionName);
-
       if (!collectionExists) {
-        logger.info(
-          `[MEMORY_UPSERT][COLLECTION_CHECK] Collection '${collectionName}' does not exist. Creating...`,
-          logContext
-        );
-
+        logger.info(`[MEMORY_UPSERT][COLLECTION_CHECK] Collection '${collectionName}' does not exist. Creating...`, logContext);
         // Get vector dimension from the first point
         const vectorSize = (pointsWithEmbeddings[0]!.vector as number[]).length;
-
+        logger.debug('[MEMORY_UPSERT][QDRANT_API] Calling createCollection() with vector size.', {
+          ...logContext,
+          vectorSize,
+        });
         await qdrantClient.createCollection(collectionName, {
           vectors: {
             size: vectorSize,
             distance: 'Cosine',
           },
         });
-
-        logger.success(
-          `[MEMORY_UPSERT][COLLECTION_CREATE] Collection '${collectionName}' created successfully.`,
-          logContext
-        );
+        logger.success(`[MEMORY_UPSERT][COLLECTION_CREATE] Collection '${collectionName}' created successfully.`, logContext);
       }
     } catch (collectionError: unknown) {
-      logger.error(
-        '[MEMORY_UPSERT][COLLECTION_ERROR] Error checking/creating collection. Continuing with upsert assuming it exists or operation will fail.',
-        {
-          ...logContext,
-          collectionError: collectionError instanceof Error ? collectionError.message : String(collectionError),
-          originalError: collectionError,
-        }
-      );
-      // Continue anyway, as the collection might exist despite the error, or the upsert will fail later.
+      logger.error('[MEMORY_UPSERT][COLLECTION_ERROR] Error checking/creating collection. Continuing with upsert assuming it exists or operation will fail.', {
+        ...logContext,
+        collectionError: collectionError instanceof Error ? collectionError.message : String(collectionError),
+        originalError: collectionError,
+      });
     }
-
-    logger.debug('[MEMORY_UPSERT][INFO] Qdrant client created. Attempting to upsert points.', {
+    logger.debug('[MEMORY_UPSERT][QDRANT_API] Calling upsert() with points.', {
       ...logContext,
-      pointsCount: pointsWithEmbeddings.length, // Log the count of points actually being upserted
+      pointsCount: pointsWithEmbeddings.length,
       collection: collectionName,
+      qdrantUrl,
     });
-
     // Convert ScoredMemoryPoint to Qdrant point format (payload, vector)
     const qdrantPoints = pointsWithEmbeddings.map((point) => ({
       id: point.id,
       payload: point.payload, // Use point.payload for payload
       vector: point.vector, // Use point.vector instead of point.embedding
     }));
-
     const result = await qdrantClient.upsert(collectionName, {
       wait: true,
       points: qdrantPoints,
+    });
+    logger.info('[MEMORY_UPSERT][QDRANT_API][RESULT] upsert() result:', {
+      ...logContext,
+      result,
     });
 
     if (result.status === 'completed' || result.status === 'acknowledged') {

@@ -53,7 +53,7 @@ interface LogContextType {
 }
 
 const OutreachRequestSchema = z.object({
-  opportunityId: z.string().min(1, 'Opportunity ID is required.').optional(),
+  id: z.string().min(1, 'Opportunity ID is required.').optional(),
   stakeholderName: z.string().min(1, 'Stakeholder name is required.'),
   stakeholderRole: z.string().optional(),
   persona: z.object({
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     }
 
     const {
-      opportunityId,
+      id,
       stakeholderName,
       stakeholderRole,
       persona,
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
     };
 
     const outreachRequestForLLM: OutreachRequest = {
-      opportunityId,
+      id,
       stakeholder: stakeholderName,
       outreachType: messageType === 'whatsapp' ? undefined : messageType, // 'whatsapp' is not a valid outreachType, map to undefined
       personalizationContext,

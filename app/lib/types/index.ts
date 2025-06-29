@@ -8,7 +8,7 @@
  *   - Re-exports types from specialized type files within this directory (`./blocks`, `./habitica`, etc.) for easier consumption by other modules.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - **Canonical Orion Types**: Core application-specific types (e.g., `OrionOpportunity`, `CVComponent`, `EmotionalLogEntry`) are defined directly in this file or explicitly re-exported from sub-files.
+ *   - **Canonical Orion Types**: Core application-specific types (e.g., `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`, `CVComponent`, `EmotionalLogEntry`) are defined directly in this file or explicitly re-exported from sub-files.
  *   - **API Routes (`/api/orion/...`)**: All API request and response bodies rely heavily on the interfaces defined here.
  *   - **UI Components (`app/components/orion/...`)**: Components consume props typed by interfaces from this file.
  *   - **Prisma Integration (`@/generated/prisma`, `prisma/schema.prisma`)**: Prisma-generated types are often integrated or mirrored here for broader application use.
@@ -26,10 +26,12 @@
  *   - The export strategy (`export * from ...`) simplifies imports for consumers but requires careful management to avoid naming conflicts.
  */
 
-import { Prisma } from '@/generated/prisma';
+import { Prisma, Opportunity } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 import { MemoryMetadataPayload, ScoredMemoryPoint } from './memory';
 import { CvAutoGenerateOutput } from './llm'; // Import the new type
-import { TaskStatus, TaskPriority, TaskType } from '@prisma/client';
+import React from 'react';
+import type { Task } from '@prisma/client';
 
 // Explicitly export types for isolatedModules compliance
 export type * from './blocks';
@@ -43,7 +45,6 @@ export type * from './strategic-outreach';
 export type * from './memory';
 export type * from './email';
 export type * from './gamification';
-export { TaskStatus, TaskPriority, TaskType } from '@prisma/client'; // Export Prisma enums directly
 
 /**
  * @description Custom error class for handling application-specific errors with additional context
@@ -117,126 +118,10 @@ export interface LlmSettingsPayload {
 // This file is imported by almost every other file in the `lib` package (via `index.ts`) and by many files in `apps/nextjs` and `packages/ui`.
 // Changes here will affect type checking across the entire project.
 
-export interface OrionOpportunity {
-  id: string;
-  title: string;
-  company: string | null; // company or institution - Made nullable
-  type: OpportunityType | null | undefined; // Made nullable and optional for Prisma compatibility
-  status: OpportunityStatus | null | undefined; // Made nullable and optional for Prisma compatibility
-  content: string | null; // Job description or related content - Made optional and allows null
-  url: string | null; // Allow null
-  tags: string[] | null; // Allow null
-  dateIdentified: string | null; // ISO date string - Allow null
-  notes: string | null; // Allow null to align with OpportunityNotionOutputlib
-  contactPerson: string | null;
-  contactEmail: string | null;
-  stage: string | null;
-  attachments: string[] | null;
-  companyOrInstitution: string | null; // Assuming this maps to 'company' in Prisma, made nullable
-  relatedEvaluationId: string | null; // Allow null
-  sourceUrl: string | null;
-  nextActionDate: string | null; // Allow null for nextActionDate
-  priority: OpportunityPriority | null; // Allow null as per Prisma schema
-  tailoredCv: string | null;
-  deadline: string | null; // Explicitly allow null for deadline
-  location: string | null; // Made nullable
-  salary: string | null;
-  contact: string | null;
-  position: string | null; // Made nullable
-  lastStatusUpdate: string | null; // Allow null
-  notionPageId: string | null;
-  createdAt: string; // Made required as per Prisma schema
-  updatedAt: string; // Made required as per Prisma schema
-  evaluationOutput: EvaluationOutput | null; // Allow null here
-  webResearchContext: string | null; // Allow null to align with OpportunityNotionOutputlib
-  pros: string[] | null;
-  cons: string[] | null;
-  missingSkills: string[] | null;
-  contentType: string | null; // Allow null here to align with OpportunityNotionOutputlib
-  lastEditedTime: string | Date | null; // Explicitly allow null
-  cvComponentSuggestions: { component: string; reasoning: string }[] | null;
-  alignmentScore: number | null | undefined; // Ensure optional and nullable
-  actionableAdvice: string[] | null;
-  applicationMaterialIds: string[] | null; // Changed to allow null for consistency with database
-  [key: string]: unknown; // Changed from any to unknown for broader type safety
-}
-
-export enum OpportunityType {
-  JOB = 'job', // Prisma schema uses lowercase for this specific enum
-  PROJECT = 'project',
-  COLLABORATION = 'collaboration',
-  GIG = 'gig',
-  OTHER = 'other',
-  EDUCATION_PROGRAM = 'educationProgram',
-  PROJECT_COLLABORATION = 'projectCollaboration',
-  FUNDING = 'funding',
-  NEGOTIATING = 'negotiating', // Note: Prisma schema has this as 'negotiating' (lowercase)
-  DECLINED = 'declined', // Note: Prisma schema has this as 'declined' (lowercase)
-  APPLICATION_READY = 'applicationReady', // Note: Prisma schema has this as 'applicationReady' (camelCase)
-  OUTREACH_PLANNED = 'outreachPlanned', // Note: Prisma schema has this as 'outreachPlanned' (camelCase)
-  OUTREACH_SENT = 'outreachSent', // Note: Prisma schema has this as 'outreachSent' (camelCase)
-  OFFER_RECEIVED = 'offerReceived', // Note: Prisma schema has this as 'offerReceived' (camelCase)
-}
-
-export enum OpportunityStatus {
-  IDENTIFIED = 'identified',
-  RESEARCHING = 'researching',
-  APPLYING = 'applying',
-  INTERVIEWING = 'interviewing',
-  OFFERED = 'offered',
-  REJECTED = 'rejected',
-  ACCEPTED = 'accepted',
-  ARCHIVED = 'archived',
-  EVALUATING = 'evaluating',
-  EVALUATED_POSITIVE = 'evaluatedPositive', // Matches Prisma @map value
-  EVALUATED_NEGATIVE = 'evaluatedNegative', // Matches Prisma @map value
-  APPLICATION_DRAFTING = 'applicationDrafting', // Matches Prisma @map value
-  INTERVIEW_SCHEDULED = 'interviewScheduled', // Matches Prisma @map value
-  INTERVIEW_COMPLETED = 'interviewCompleted', // Matches Prisma @map value
-  APPLIED = 'applied',
-  PURSUING = 'pursuing',
-  NEGOTIATING = 'negotiating', // Matches Prisma value
-  DECLINED = 'declined', // Matches Prisma value
-  APPLICATION_READY = 'applicationReady', // Matches Prisma @map value
-  OUTREACH_PLANNED = 'outreachPlanned', // Matches Prisma @map value
-  OUTREACH_SENT = 'outreachSent', // Matches Prisma @map value
-  FOLLOW_UP_NEEDED = 'followUpNeeded', // Matches Prisma @map value
-  FOLLOW_UP_SENT = 'followUpSent', // Matches Prisma @map value
-  OFFER_RECEIVED = 'offerReceived', // Matches Prisma @map value
-  APPLYING_NEXT_STEP = 'applyingNextStep', // Matches Prisma @map value
-  INTERVIEWING_ROUND_1 = 'interviewingRound1', // Matches Prisma @map value
-  INTERVIEWING_ROUND_2 = 'interviewingRound2', // Matches Prisma @map value
-  FINAL_INTERVIEW = 'finalInterview', // Matches Prisma @map value
-  OFFER_RECEIVED_PENDING_REVIEW = 'offerReceivedPendingReview', // Matches Prisma @map value
-  OFFER_ACCEPTED = 'offerAccepted', // Matches Prisma @map value
-  OFFER_REJECTED = 'offerRejected', // Matches Prisma @map value
-  ACTIVE_OUTREACH = 'activeOutreach', // Matches Prisma @map value
-  FOLLOW_UP = 'followUp', // Matches Prisma value
-  ON_HOLD = 'onHold', // Matches Prisma @map value
-  CONVERTED = 'converted', // Matches Prisma value
-  REJECTED_BY_THEM = 'rejectedByThem', // Matches Prisma @map value
-  DECLINED_BY_ME = 'declinedByMe', // Matches Prisma @map value
-}
-
-export enum OpportunityPriority {
-  HIGH = 'HIGH',
-  MEDIUM = 'MEDIUM',
-  LOW = 'LOW',
-}
-
-export type OpportunityFilterStatus = OpportunityStatus | 'all';
-export type OpportunityFilterType = OpportunityType | 'all';
-export type OpportunityFilterPriority = OpportunityPriority | 'all';
-
-export interface OrionOpportunityDetails extends OrionOpportunity {
-  evaluation?: EvaluationOutput;
-  // Add any other detailed fields here
-}
-
 export interface OpportunityEvaluationInput {
   title: string;
   description: string; // Corresponds to 'content' in the UI component
-  type: OpportunityType;
+  type: $Enums.OpportunityType;
   url?: string;
 }
 
@@ -308,17 +193,17 @@ export interface UserProfileData {
   summary: string | null;
   createdAt: string;
   updatedAt: string;
-  source?: 'neon' | 'cache' | 'none' | 'error' | 'external_service' | 'local' | 'notion'; // Updated source types to include local and notion
+  source?: 'neon' | 'cache' | 'none' | 'error' | 'external_service' | 'local'; // Updated source types to include local
 }
 
 /**
  * Request body for drafting an application.
  */
 export interface DraftApplicationRequestBody {
-  opportunityId: string;
+  id: string;
   cvComponents: string[];
   jobDescription: string;
-  orionOpportunity: OrionOpportunity;
+  Opportunity: Opportunity;
   applicantProfile: UserProfileData;
   evaluationSummary: EvaluationOutput;
   memorySnippets: ScoredMemoryPoint[];
@@ -395,7 +280,6 @@ export interface CareerMilestone {
   skills?: string[];
   impact?: string;
   unique_id?: string;
-  notionPageId?: string;
   quantifiableResults?: string;
   lessonsLearned?: string;
   challengesFaced?: string;
@@ -405,14 +289,13 @@ export interface CareerMilestone {
   status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
 }
 
-export interface JournalEntryNotionInput {
+export interface JournalEntryInput {
   id?: string; // Add id as optional
   title: string;
   content: string;
   date: string | Date;
   tags?: string[];
   contentType?: string;
-  notionPageId?: string;
   mood?: string;
   reflectionId?: string | null;
   original_entry_id?: string | null;
@@ -449,7 +332,7 @@ export interface MemoryPayload {
   original_entry_id?: string; // Corrected to snake_case for consistency with backend
   originalTaskText?: string;
   title?: string; // Add title to payload as needed
-  opportunityId?: string; // Added for PastOpportunitiesSection.tsx
+  id?: string; // Added for PastOpportunitiesSection.tsx
   company?: string; // Added for PastOpportunitiesSection.tsx
   status?: string; // Added for PastOpportunitiesSection.tsx
   outcome?: string; // Added for PastOpportunitiesSection.tsx
@@ -486,8 +369,8 @@ export interface OpportunityUpdatePayload {
   title?: string;
   company?: string;
   companyOrInstitution?: string;
-  type?: OpportunityType;
-  status?: OpportunityStatus;
+  type?: $Enums.OpportunityType;
+  status?: $Enums.OpportunityStatus;
   content?: string;
   url?: string;
   sourceURL?: string;
@@ -500,7 +383,7 @@ export interface OpportunityUpdatePayload {
   attachments?: string[];
   evaluation?: EvaluationOutput;
   lastStatusUpdate?: string;
-  priority?: OpportunityPriority;
+  priority?: $Enums.OpportunityPriority;
   nextActionDate?: string;
   relatedEvaluationId?: string;
   addApplicationMaterialId?: string;
@@ -519,15 +402,15 @@ export interface OpportunityUpdatePayload {
 export interface OpportunityCreatePayload {
   title: string;
   companyOrInstitution?: string | null; // Make optional and nullable
-  type?: OpportunityType | null | undefined; // Make optional, nullable, and undefined for Prisma compatibility
-  status?: OpportunityStatus | null | undefined; // Make optional, nullable, and undefined for Prisma compatibility
+  type?: $Enums.OpportunityType | null | undefined; // Make optional, nullable, and undefined for Prisma compatibility
+  status?: $Enums.OpportunityStatus | null | undefined; // Make optional, nullable, and undefined for Prisma compatibility
   content?: string | null; // Maps to description in DB, optional and nullable
   url?: string | null;
   tags?: string[] | null; // Maps to requirements in DB, optional and nullable
   dateIdentified?: string | null;
   sourceUrl?: string | null;
   nextActionDate?: string | null;
-  priority?: OpportunityPriority | null; // Make optional and nullable
+  priority?: $Enums.OpportunityPriority | null; // Make optional and nullable
   tailoredCv?: string | null;
   deadline?: string | null;
   location?: string | null; // Make optional and nullable
@@ -542,14 +425,13 @@ export interface OpportunityCreatePayload {
   attachments?: string[] | null;
   relatedEvaluationId?: string | null;
   lastStatusUpdate?: string | null;
-  notionPageId?: string | null;
   applicationMaterialIds?: string[]; // Made optional, but must be string[] if present
 }
 
-export interface OpportunityNotionOutputlib {
-  type?: OpportunityType | null;
-  status?: OpportunityStatus | null;
-  priority?: OpportunityPriority | null;
+export interface OpportunityOutput {
+  type?: $Enums.OpportunityType | null;
+  status?: $Enums.OpportunityStatus | null;
+  priority?: $Enums.OpportunityPriority | null;
   content?: string | null; // Explicitly allow null for content
   tags?: string[] | null; // Explicitly allow null for tags
   pros?: string[] | null;
@@ -566,9 +448,9 @@ export interface OpportunityNotionOutputlib {
   createdAt?: string | null; // Explicitly allow null
   updatedAt?: string | null; // Explicitly allow null
   evaluationOutput?: EvaluationOutput | null; // Allow null here
-  webResearchContext?: string | null; // This was already correctly set in RawNotionOpportunityData, ensuring consistency
+  webResearchContext?: string | null; // This was already correctly set in RawOpportunityData, ensuring consistency
   contentType?: string | null; // Allow null here
-  // Add all other properties from OrionOpportunity that are relevant to Notion output here, and mark them as optional/nullable if Notion provides them that way.
+  // Add all other properties from Opportunity that are relevant to output here, and mark them as optional/nullable if output provides them that way.
   id?: string;
   title?: string;
   company?: string;
@@ -586,11 +468,11 @@ export interface OpportunityNotionOutputlib {
   nextActionDate?: string | null;
   tailoredCv?: string | null;
   salary?: string | null;
-  notionPageId?: string | null;
+  applicationMaterialIds?: string[] | null;
   [key: string]: unknown; // Add index signature
 }
 
-export interface OpportunityNotionInput {
+export interface OpportunityInput {
   title: string;
   companyOrInstitution: string;
   type: { name: string };
@@ -602,10 +484,6 @@ export interface OpportunityNotionInput {
   contactPerson?: { content: string }[];
   contactEmail?: { content: string }[];
   stage?: { name: string };
-}
-
-export interface NotionPageProperties {
-  [key: string]: unknown; // Changed from any to unknown for broader type safety
 }
 
 export interface RiskRewardAnalysis {
@@ -711,31 +589,7 @@ export interface Agent {
   allowDelegation?: boolean;
 }
 
-export interface Task {
-  id: string;
-  userId: string;
-  title: string;
-  description?: string | null;
-  status: TaskStatus;
-  priority: TaskPriority;
-  type: TaskType;
-  dueDate?: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  steps: TaskStep[];
-  relatedLinks?: string[];
-  relatedPhoneNumbers?: string[];
-  // No longer needed for Habitica integration
-  // habiticaId?: string;
-  // habiticaType?: 'todo' | 'daily' | 'habit' | 'reward';
-  // habiticaCompleted?: boolean;
-  // habiticaPriority?: number;
-  // habiticaStreak?: number;
-  // habiticaCounterUp?: number;
-  // habiticaCounterDown?: number;
-  // habiticaValue?: number;
-  // origin?: 'orion' | 'habitica';
-}
+/* Task interface removed: use Prisma-generated type from @prisma/client */
 
 export interface Crew {
   id: string;
@@ -791,7 +645,7 @@ export type NarrativeLength = 'short' | 'medium' | 'long' | 'standard';
 
 export interface NarrativeGenerationRequest {
   narrativeType: NarrativeType;
-  opportunityId?: string;
+  id?: string;
   journalEntryId?: string;
   emotionalLogId?: string;
   memoryQuery?: string;
@@ -826,13 +680,13 @@ export type PipelineState =
   | 'interviewing'
   | 'offering';
 
-export type KanbanStatus = OpportunityStatus;
+export type KanbanStatus = $Enums.OpportunityStatus;
 
 export interface DetailedPipelineState {
   currentStep: string;
   completedSteps: string[];
   data: Record<string, unknown>;
-  currentOpportunity: OrionOpportunity | null;
+  currentOpportunity: Opportunity | null;
   evaluationResult: EvaluationOutput | null;
   stakeholders: Stakeholder[] | null;
   applicationAnswers: Record<string, unknown>;
@@ -907,8 +761,6 @@ export interface OrionSessionState {
   mmTagFilter?: string;
   notificationSettingsEmailEnabled?: boolean;
   notificationSettingsPushEnabled?: boolean;
-  notionDbConfigured?: boolean;
-  notionApiKey?: string;
   openaiApiKey?: string;
   opportunityCreateProcessing?: boolean;
   opportunityCurrentAnalysisSummary?: string;
@@ -924,7 +776,7 @@ export interface OrionSessionState {
   opportunityReasonsToPursues?: string;
   opportunityReasonsToSkip?: string;
   opportunityRiskRewardAnalysis?: unknown;
-  opportunitySelectedOpportunityId?: string;
+  opportunitySelectedid?: string;
   opportunityShowEvaluationResult?: boolean;
   opportunityShowSummaryFeedback?: boolean;
   opportunityTabCurrentTab?: string;
@@ -1055,7 +907,7 @@ export interface Stakeholder {
 }
 
 export interface OutreachRequest {
-  opportunityId?: string; // Made optional as not always tied to an opportunity
+  id?: string; // Made optional as not always tied to an opportunity
   stakeholder?: string; // Made optional
   outreachType?: 'email' | 'linkedin'; // Made optional
   personalizationContext?: string; // Made optional
@@ -1180,7 +1032,14 @@ export interface UserProfileFetchResponse {
   profileText?: string | null;
   profile?: UserProfileData | null;
   error?: string;
-  source?: 'neon' | 'cache' | 'none' | 'error' | 'external_service' | 'local' | 'notion'; // Updated source types
+  source?:
+  | 'neon'
+  | 'cache'
+  | 'none'
+  | 'error'
+  | 'external_service'
+  | 'local'
+  | 'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES'; // Updated source types
 }
 
 export interface EmailResponse {
@@ -1290,14 +1149,14 @@ export interface CreateChatCompletionRequest {
     };
   }[];
   tool_choice?:
-    | 'none'
-    | 'auto'
-    | {
-        type: 'function';
-        function: {
-          name: string;
-        };
-      };
+  | 'none'
+  | 'auto'
+  | {
+    type: 'function';
+    function: {
+      name: string;
+    };
+  };
 }
 
 export interface CreateChatCompletionResponse {
@@ -1338,7 +1197,7 @@ export interface NavItem {
   href?: string;
   disabled?: boolean;
   external?: boolean;
-  icon?: JSX.Element;
+  icon?: React.ReactNode;
   label?: string;
   description?: string;
 }
@@ -1350,9 +1209,9 @@ export interface NavGroup {
 
 export interface OpportunitySearchCriteria {
   query?: string;
-  status?: OpportunityFilterStatus;
-  type?: OpportunityFilterType;
-  priority?: OpportunityFilterPriority;
+  status?: string | undefined;
+  type?: string | undefined;
+  priority?: string | undefined;
   tags?: string[];
   minDateIdentified?: string;
   maxDateIdentified?: string;
@@ -1360,16 +1219,11 @@ export interface OpportunitySearchCriteria {
   sortOrder?: SortOrder;
 }
 
-export type Filters = {
-  status?: OpportunityFilterStatus;
-  type?: OpportunityFilterType;
-  priority?: OpportunityFilterPriority;
-  tag?: string;
-} & Omit<Partial<OrionOpportunityDetails>, 'status' | 'type' | 'priority'>;
+export type Filters = Partial<Opportunity> & { tag?: string };
 
 export type SortOrder = 'asc' | 'desc';
 
-export type SortableOpportunityKeys = keyof OrionOpportunity | 'dateIdentified' | 'priority' | 'status';
+export type SortableOpportunityKeys = keyof Opportunity | 'dateIdentified' | 'priority' | 'status';
 
 export interface Prompt {
   id: string;
@@ -1397,7 +1251,6 @@ export interface CustomPrompt {
 
 export interface StrategicOutreachPlan {
   id: string;
-  opportunityId: string;
   planDetails: string; // Markdown or rich text
   targetStakeholders: Stakeholder[];
   outreachMessages: {
@@ -1458,7 +1311,7 @@ export interface Contact {
   company: string | null;
   createdAt: string;
   updatedAt: string;
-  [key: string]: unknown; // Allow for additional Notion properties
+  [key: string]: unknown; // Allow for additional WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES properties
 }
 
 export interface CVComponentCreatePayload {
@@ -1535,22 +1388,7 @@ export interface AchievementBadge {
   target?: number;
 }
 
-export interface TaskStep {
-  id: string;
-  stepNumber: number;
-  prompt: string;
-  generatedOptions: Prisma.JsonValue[];
-  chosenAction?: string;
-  chosenJustification?: string;
-  toolCalls?: Prisma.JsonArray;
-  memoryReferences?: Prisma.JsonArray;
-  relatedLinks?: Prisma.JsonArray;
-  relatedPhoneNumbers?: Prisma.JsonArray;
-  finalLog?: Prisma.JsonValue;
-  createdAt: Date;
-  updatedAt: Date;
-  taskId: string;
-}
+/* TaskStep interface removed: use Prisma-generated type from @prisma/client */
 
 export interface MemoryChunk {
   id: string;
@@ -1569,3 +1407,7 @@ export interface GamificationDashboardData {
   totalIdeas: number;
   totalOpportunitiesEvaluated: number;
 }
+
+export type { Opportunity } from '@prisma/client';
+
+export { $Enums };

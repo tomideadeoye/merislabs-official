@@ -24,7 +24,7 @@
  *   - `useUserProfile` (`@/hooks/useUserProfile`): Fetches the user's profile context for personalization, ensuring replies sound authentically Tomide.
  *   - `/api/orion/communication/draft-whatsapp-reply/route.ts`: The primary backend API endpoint that this component interacts with. It now sends `chatTranscript`, `userProfileContext`, `replyGoal`, `tone`, and `numberOfDrafts`, and receives `reply` drafts along with `memoryResults`.
  *   - `/api/orion/memory/search`: This API is indirectly called by `draft-whatsapp-reply/route.ts` to retrieve relevant memories that influence the LLM's output.
- *   - `/api/orion/memory/save`: Used for saving generated drafts and analysis insights to memory (Qdrant, Notion, Postgres).
+ *   - `/api/orion/memory/save`: Used for saving generated drafts and analysis insights to memory (Qdrant, WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES, Postgres).
  *   - `generateLLMResponse` (`lib/orion_llm`): The core LLM call utility (backend) that processes context, including retrieved memories, and generates replies.
  *   - `DedicatedAddToMemoryFormComponent` (implied integration): For saving drafts to memory.
  *   - `react-hot-toast`: Used for displaying success/error notifications.
@@ -374,7 +374,7 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
             <h3 className="text-md font-semibold text-gray-300">Suggested Replies:</h3>
             {suggestedReplies.map((reply, index) => (
               <div key={index} className="flex items-start bg-gray-700/50 p-3 rounded-md border border-gray-600">
-                <div className="flex-grow">
+                <div className="grow">
                   <p className="text-xs text-gray-400 mb-1">
                     <Badge variant="secondary" className="bg-gray-600 text-white mr-2">
                       Rank: {reply.rank}
@@ -385,7 +385,7 @@ const WhatsAppReplyDrafter: React.FC<WhatsAppReplyDrafterProps> = ({
                     value={reply.text}
                     readOnly
                     rows={reply.text.split('\n').length + 1}
-                    className="flex-grow bg-transparent border-none focus:ring-0 text-gray-200 resize-none"
+                    className="grow bg-transparent border-none focus:ring-0 text-gray-200 resize-none"
                   />
                 </div>
                 <Button

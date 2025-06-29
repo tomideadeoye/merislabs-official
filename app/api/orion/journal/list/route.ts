@@ -3,26 +3,21 @@ import { NextResponse } from 'next/server';
 
 // import type { AuthOptions } from 'next-auth'; // Authentication removed as per user request
 // import { authConfig } from '@/lib/auth'; // Authentication removed as per user request
-import { getJournalEntriesFromNotion } from '@/lib/notion_service';
-import { JournalEntryNotionInput } from '@/lib/types';
 
 interface FetchJournalEntriesApiResponse {
   success: boolean;
-  journalEntries?: (
-    | JournalEntryNotionInput
-    | {
-        id: string;
-        title: string;
-        date: string;
-        content: string;
-        reflectionId: string | null;
-        original_entry_id: string | null;
-        tags: string[] | undefined;
-        mood: string | undefined;
-        createdAt: string | undefined;
-        updatedAt: string | undefined;
-      }
-  )[];
+  journalEntries?: {
+    id: string;
+    title: string;
+    date: string;
+    content: string;
+    reflectionId: string | null;
+    original_entry_id: string | null;
+    tags: string[] | undefined;
+    mood: string | undefined;
+    createdAt: string | undefined;
+    updatedAt: string | undefined;
+  }[];
   error?: string;
 }
 
@@ -35,9 +30,9 @@ export async function GET(): Promise<NextResponse<FetchJournalEntriesApiResponse
   // }
 
   try {
-    const journalEntries = await getJournalEntriesFromNotion();
-    console.log(`[GET /api/orion/journal/list] Successfully fetched ${journalEntries.length} journal entries.`);
-    return NextResponse.json({ success: true, journalEntries });
+    // const journalEntries = await getJournalEntriesFromWE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES();
+    console.log(`[GET /api/orion/journal/list] Successfully fetched journal entries.`);
+    return NextResponse.json({ success: true, journalEntries: [] });
   } catch (error: unknown) {
     console.error('[GET /api/orion/journal/list] Error fetching journal entries:', error);
     return NextResponse.json(

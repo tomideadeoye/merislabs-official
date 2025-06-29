@@ -10,23 +10,23 @@
  *   - To streamline the process of adapting CVs for specific job opportunities by leveraging Orion's memory and LLM capabilities.
  *   - To display the generated tailored content and raw LLM output for review and further action (e.g., copying).
  *
- * FILEPATH: `app/opportunity/[opportunityId]/tailor-content/page.tsx`
+ * FILEPATH: `app/opportunity/[id]/tailor-content/page.tsx`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `app/components/ui`: Utilizes Shadcn UI components like `Card`, `CardContent`, `CardHeader`, `CardTitle` for consistent styling.
  *   - `app/lib/hooks/useOpportunityMemory.ts`: Custom hook to fetch and provide relevant memories associated with the current opportunity, enriching the context for LLM generation.
  *   - `app/lib/hooks/useSessionState.ts`: Custom hook to access `TOMIDES_PROFILE_DATA` from session state, ensuring the LLM has access to Tomide's personal and professional context.
- *   - `app/lib/types.ts`: Defines core types like `CVComponent` and `OrionOpportunity` for data consistency.
+ *   - `app/lib/types.ts`: Defines core types like `CVComponent` and `Opportunity` for data consistency.
  *   - `app/lib/logger.ts`: Used for comprehensive, context-rich logging throughout the component's lifecycle, aiding in debugging and traceability.
- *   - `app/api/orion/opportunities/[opportunityId]/route.ts`: API endpoint for fetching detailed opportunity information.
+ *   - `app/api/orion/opportunities/[id]/route.ts`: API endpoint for fetching detailed opportunity information.
  *   - `app/api/orion/cv-components/route.ts`: API endpoint for fetching available CV components.
  *   - `app/api/orion/generate-tailored-content/route.ts`: The backend API endpoint responsible for calling the LLM to generate the tailored content. This is the core intelligence integration point.
- *   - `app/opportunity/[opportunityId]/cv-tailoring/page.tsx`: This page is typically navigated to from the `CV Tailoring Studio` where the auto-generate button is present.
+ *   - `app/opportunity/[id]/cv-tailoring/page.tsx`: This page is typically navigated to from the `CV Tailoring Studio` where the auto-generate button is present.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes `opportunityId` is correctly passed via Next.js `useParams`.
+ *   - Assumes `id` is correctly passed via Next.js `useParams`.
  *   - Assumes user profile data (`TOMIDES_PROFILE_DATA`) is pre-loaded into session state.
- *   - Assumes relevant API endpoints (`/api/orion/opportunities/[opportunityId]`, `/api/orion/cv-components`, `/api/orion/generate-tailored-content`) are fully functional and return data in the expected format.
+ *   - Assumes relevant API endpoints (`/api/orion/opportunities/[id]`, `/api/orion/cv-components`, `/api/orion/generate-tailored-content`) are fully functional and return data in the expected format.
  *   - Error and loading states are handled gracefully in the UI.
  *
  * NOTES:
@@ -52,15 +52,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Loader2 } from 'lucide-react';
 import { useOpportunityMemory } from '@/lib/hooks/useOpportunityMemory';
 import { useSessionState, SessionStateKeys, SessionState } from '@/lib/hooks/useSessionState';
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@/lib/types';
 import { CVComponent } from '@/lib/types/cv';
 import logger from '@/lib/logger';
+import { QuadrantMemoryChunksVisualizer } from '@/components/ui/orion/QuadrantMemoryChunksVisualizer';
 
 export default function TailorContentPage() {
   const params = useParams();
-  const opportunityId = params?.id as string;
+  const id = params?.id as string;
 
-  const [opportunityData, setOpportunity] = useState<OrionOpportunity | null>(null);
+  const [opportunityData, setOpportunity] = useState<Opportunity | null>(null);
   const [jobDescription, setJobDescription] = useState<string>('');
   const [cvComponents, setCvComponents] = useState<CVComponent[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -73,19 +74,19 @@ export default function TailorContentPage() {
     opportunityMemories,
     isLoading: isMemoriesLoading,
     error: memoriesError,
-  } = useOpportunityMemory(opportunityId);
+  } = useOpportunityMemory(id);
 
   const profile = useSessionState((state: SessionState) => state.state[SessionStateKeys.TOMIDES_PROFILE_DATA]);
 
   useEffect(() => {
     async function fetchOpportunityAndCvComponents() {
-      logger.info('Fetching opportunity details and CV components.', { opportunityId });
+      logger.info('Fetching opportunity details and CV components.', { id });
       setIsLoading(true);
       setError(null);
       try {
         // Fetch opportunity details
-        const opportunityRes = await fetch(`/api/orion/opportunities/${opportunityId}`);
-        const opportunityDataFetched: { success: boolean; opportunity?: OrionOpportunity; error?: string } =
+        const opportunityRes = await fetch(`/api/orion/opportunities/${id}`);
+        const opportunityDataFetched: { success: boolean; opportunity?: Opportunity; error?: string } =
           await opportunityRes.json();
 
         if (!opportunityDataFetched.success || !opportunityDataFetched.opportunity) {
@@ -95,7 +96,7 @@ export default function TailorContentPage() {
         setJobDescription(opportunityDataFetched.opportunity.content || '');
 
         // Fetch CV components
-        const cvComponentsRes = await fetch(`/api/orion/cv-components?opportunityId=${opportunityId}`);
+        const cvComponentsRes = await fetch(`/api/orion/cv-components?id=${id}`);
         const cvComponentsData: { success: boolean; cvComponents?: CVComponent[]; error?: string } =
           await cvComponentsRes.json();
 
@@ -104,19 +105,19 @@ export default function TailorContentPage() {
         }
         setCvComponents(cvComponentsData.cvComponents);
 
-        logger.success('Opportunity details and CV components fetched successfully.', { opportunityId });
+        logger.success('Opportunity details and CV components fetched successfully.', { id });
       } catch (err) {
-        logger.error('Error fetching opportunity details or CV components:', { error: err, opportunityId });
+        logger.error('Error fetching opportunity details or CV components:', { error: err, id });
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
         setIsLoading(false);
       }
     }
 
-    if (opportunityId) {
+    if (id) {
       fetchOpportunityAndCvComponents();
     }
-  }, [opportunityId]);
+  }, [id]);
 
   const handleGenerateContent = async () => {
     if (!profile) {
@@ -131,7 +132,7 @@ export default function TailorContentPage() {
       return;
     }
 
-    logger.info('Initiating content generation for CV tailoring.', { opportunityId });
+    logger.info('Initiating content generation for CV tailoring.', { id });
     setAutoGenLoading(true);
     setError(null);
     try {
@@ -145,7 +146,7 @@ export default function TailorContentPage() {
           cvComponents,
           opportunityMemories,
           profile,
-          opportunityId,
+          id,
           opportunityTitle: opportunityData.title,
           companyName: opportunityData.company,
           opportunityContent: opportunityData.content || '',
@@ -158,12 +159,12 @@ export default function TailorContentPage() {
       if (data.success && data.tailoredContent) {
         setGeneratedContent(data.tailoredContent);
         setLlmOutput(data.llmOutput || '');
-        logger.success('Tailored content generated successfully.', { opportunityId });
+        logger.success('Tailored content generated successfully.', { id });
       } else {
         throw new Error(data.error || 'Failed to generate tailored content.');
       }
     } catch (err) {
-      logger.error('Error generating tailored content:', { error: err, opportunityId });
+      logger.error('Error generating tailored content:', { error: err, id });
       setError(err instanceof Error ? err.message : 'An unknown error occurred during content generation.');
     } finally {
       setAutoGenLoading(false);
@@ -197,7 +198,7 @@ export default function TailorContentPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Tailor Content for {opportunityData?.title || 'Opportunity'} (ID: {opportunityId})
+            Tailor Content for {opportunityData?.title || 'Opportunity'} (ID: {id})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -224,17 +225,7 @@ export default function TailorContentPage() {
           )}
 
           <p className="text-gray-500">Relevant Memories:</p>
-          {opportunityMemories.length > 0 ? (
-            <ul className="list-disc list-inside text-gray-400">
-              {opportunityMemories.map((memory) => (
-                <li key={memory.id} className="mb-1 text-sm">
-                  <strong>{memory.payload?.title || 'Memory'}:</strong> {memory.payload?.text?.substring(0, 150)}...
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-400">No relevant memories found for this opportunity.</p>
-          )}
+          <QuadrantMemoryChunksVisualizer chunks={opportunityMemories} />
 
           <button
             onClick={handleGenerateContent}

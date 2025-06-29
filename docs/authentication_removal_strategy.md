@@ -24,7 +24,7 @@ The authentication removal will be a gradual process, focusing on ensuring core 
     - Ensure `useUserProfile` (and any other profile/session hooks) always returns a default or placeholder `UserProfileData` even if no authenticated user exists. The `isLoggedIn` flag should be removed or always set to `true`.
     - Remove any logic that prevents data fetching or component rendering based on `profileLoading` or `profileError` indicating an unauthenticated state.
 2.  **Update UI Components:**
-    - **Specifically target messages like: "Please log in to use AI CV tailoring features."** Replace these with alternative guidance or remove them entirely. For features that currently require user-specific data (e.g., Notion integration), consider:
+    - **Specifically target messages like: "Please log in to use AI CV tailoring features."** Replace these with alternative guidance or remove them entirely. For features that currently require user-specific data (e.g., WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES integration), consider:
       - Making them configurable via local settings.
       - Providing a fallback or "demo" mode.
     - Remove login/logout buttons and authentication-gated navigation links.
@@ -42,7 +42,7 @@ The authentication removal will be a gradual process, focusing on ensuring core 
     - Remove `if (!session || !session.user || !session.user.id)` checks and related 401 Unauthorized responses.
 2.  **Decouple User-Specific Data:**
     - Refactor database queries and service calls to operate without a `userId` or to use a generic/default user context if necessary.
-    - For features relying on user-specific Notion databases or files, ensure they can operate on predefined or configurable global sources instead.
+    - For features relying on user-specific WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES databases or files, ensure they can operate on predefined or configurable global sources instead.
 3.  **Clean up Authentication Libraries/Dependencies:**
     - Gradually remove `next-auth` and associated packages/configurations.
 

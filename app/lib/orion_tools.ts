@@ -83,9 +83,9 @@ export const pythonApiService = {
   searchWeb: async (query: string): Promise<string> => {
     logger.info('[PYTHON_API_SERVICE] Simulating web search initiation.', { query, operation: 'searchWeb' });
     try {
-    // In a real scenario, this would call your actual web search API or Python backend.
-    // Example: const response = await apiClient.post('/api/python/search-web', { query });
-    // return response.data.results;
+      // In a real scenario, this would call your actual web search API or Python backend.
+      // Example: const response = await apiClient.post('/api/python/search-web', { query });
+      // return response.data.results;
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay for demonstration
       const simulatedResults = `Simulated search results for "${query}": Found relevant information on Wikipedia, Google Scholar, and recent news articles from major outlets regarding "${query}". Key findings include [summary of findings].`;
       logger.success('[PYTHON_API_SERVICE] Simulated web search completed successfully.', {
@@ -486,8 +486,8 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
           query,
           outputSummary: JSON.stringify(results).substring(0, 150) + '...',
           operation: 'search_web_completion',
-      });
-      return results;
+        });
+        return results;
       } catch (error: unknown) {
         logger.error('[TOOL_IMPLEMENTATION] Error during search_web execution.', {
           query,
@@ -538,10 +538,10 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
       logger.warn(
         '[TOOL_IMPLEMENTATION] Attempting sensitive financial transaction! Requires strict review and user confirmation in a real system.',
         {
-        recipient_account,
-        amount,
-        currency,
-        reason,
+          recipient_account,
+          amount,
+          currency,
+          reason,
           operation: 'send_financial_transaction_initiation',
         }
       );
@@ -569,18 +569,18 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
       }
 
       try {
-      const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      logger.success('[TOOL_IMPLEMENTATION] Financial transaction simulated successfully.', {
-        transactionId,
-        recipient_account,
-        amount,
-        currency,
-        reason,
+        const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        logger.success('[TOOL_IMPLEMENTATION] Financial transaction simulated successfully.', {
+          transactionId,
+          recipient_account,
+          amount,
+          currency,
+          reason,
           operation: 'send_financial_transaction_completion',
-      });
-      return {
-        success: true,
-        transactionId,
+        });
+        return {
+          success: true,
+          transactionId,
           message: `Successfully initiated simulated transfer of ${amount} ${currency} to ${recipient_account} for "${reason}". Transaction ID: ${transactionId}.`,
         };
       } catch (error: unknown) {
@@ -1327,12 +1327,12 @@ export const getToolSchemas = (allowedToolNames?: string[]) => {
   }
 
   const schemas = toolsToProcess.map((tool) => ({
-        type: 'function',
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: tool.parameters,
-        },
+    type: 'function',
+    function: {
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.parameters,
+    },
   }));
 
   logger.info('[ORION_TOOLS] Generated LLM-compatible schemas successfully.', {

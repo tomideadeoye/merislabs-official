@@ -15,11 +15,11 @@ import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import logger from '@/lib/logger';
 import { apiClient } from '@/lib/apiClient';
-import { UserProfileData, ScoredMemoryPoint, OrionOpportunity, EvaluationOutput } from '@/lib/types';
+import { UserProfileData, ScoredMemoryPoint, Opportunity, EvaluationOutput } from '@/lib/types';
 import { fetchUserProfile } from '@/lib/profile_service';
 
 interface OpportunityDetailViewProps {
-  opportunity: OrionOpportunity;
+  opportunity: Opportunity;
 }
 
 const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({ opportunity }) => {
@@ -54,7 +54,7 @@ const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({ opportuni
 
     if (!userProfile) {
       logger.error('[OpportunityDetailView] User profile data is missing. Cannot proceed with evaluation.', {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
       });
       toast.error('User profile data is missing. Cannot generate evaluation.');
       setIsEvaluating(false);
@@ -64,7 +64,7 @@ const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({ opportuni
 
     try {
       const evaluationRequestBody = {
-        opportunityId: opportunity.id, // This comes from the prop
+        id: opportunity.id, // This comes from the prop
         userProfile: userProfile, // Use the fetched user profile data
         relevantMemories: [], // Keep this empty for now, or populate if relevant memories are available
       };

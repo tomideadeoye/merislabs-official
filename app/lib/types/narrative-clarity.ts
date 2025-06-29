@@ -11,7 +11,6 @@ export interface ValueProposition {
 
 export interface CareerMilestone {
   id?: string;
-  notionPageId?: string;
   unique_id?: string;
   title?: string;
   component_name?: string;

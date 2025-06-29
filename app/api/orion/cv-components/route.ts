@@ -20,7 +20,7 @@
  * - `@/lib/logger`: Used for comprehensive logging of API request handling, successes, and errors.
  * - `@/lib/auth`: Used for authenticating requests to these endpoints, ensuring secure access to CV component data.
  * - `app/components/orion/CVTailoringStudio.tsx`: The primary client component that calls the GET endpoint to retrieve components.
- * - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/cv-tailoring/page.tsx`: The server page that pre-fetches components and passes them to the client-side studio.
+ * - `app/(orion_admin)/admin/opportunity-pipeline/[id]/cv-tailoring/page.tsx`: The server page that pre-fetches components and passes them to the client-side studio.
  * - Zod: Used for robust request body validation for POST requests.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:

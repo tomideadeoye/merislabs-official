@@ -5,7 +5,7 @@
  * @fileoverview React client component for company and stakeholder outreach management within an opportunity.
  * @description This component provides a user interface to search for companies, identify key stakeholders,
  *   and draft personalized email or LinkedIn messages. It is designed to be integrated into the
- *   Opportunity Detail Page (`app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`)
+ *   Opportunity Detail Page (`app/(orion_admin)/admin/opportunity-pipeline/[id]/page.tsx`)
  *   to facilitate direct outreach activities, streamlining the sales and networking processes.
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
@@ -19,7 +19,7 @@
  * FILEPATH: `app/components/orion/opportunities/CompanyStakeholderOutreach.tsx`.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/page.tsx`: This component is embedded within the Opportunity Detail Page, receiving `opportunity` data as a prop.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[id]/page.tsx`: This component is embedded within the Opportunity Detail Page, receiving `opportunity` data as a prop.
  *   - `app/api/orion/research/company-search/route.ts` (Future/Conceptual): Backend API for performing company searches and initial stakeholder identification. This would involve external data sources or scraping.
  *   - `app/api/orion/outreach/find-emails/route.ts` (Future/Conceptual): Backend API responsible for generating or finding email addresses for identified stakeholders.
  *   - `app/api/orion/email/draft/route.ts`: Utilized for generating personalized email messages using LLMs.
@@ -28,7 +28,7 @@
  *   - `@/lib/logger.ts`: Centralized logging utility for tracing user interactions, API calls, and debugging within this component.
  *   - `@/components/ui/`: Integrates various Shadcn UI components (e.g., Button, Input, Textarea, Label, Card, Tabs, Select) for a consistent and accessible user interface.
  *   - `lucide-react`: Provides a set of open-source icons (`Search`, `Mail`, `Linkedin`, `Loader2`, `Sparkles`) to enhance the UI's visual communication.
- *   - `@/lib/types.ts`: Imports `OrionOpportunity` for type safety and consistency of the opportunity data.
+ *   - `@/lib/types.ts`: Imports `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` for type safety and consistency of the opportunity data.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes that backend APIs for company search, email finding, and message drafting (both email and LinkedIn) will be fully implemented and accessible.
@@ -95,7 +95,7 @@ import { Search, Mail, Linkedin, Loader2, Sparkles } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 import { toast } from 'react-hot-toast';
 import logger from '@/lib/logger';
-import { OrionOpportunity } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 import { useCompanyStakeholderOutreachStore } from '@/lib/stores/companyStakeholderOutreachStore';
 
 /**
@@ -129,7 +129,7 @@ interface Stakeholder {
 }
 
 interface CompanyStakeholderOutreachProps {
-  opportunity: OrionOpportunity;
+  opportunity: Opportunity;
 }
 
 export const CompanyStakeholderOutreach: React.FC<CompanyStakeholderOutreachProps> = ({ opportunity }) => {
@@ -255,7 +255,7 @@ export const CompanyStakeholderOutreach: React.FC<CompanyStakeholderOutreachProp
       messageType,
       stakeholderId: selectedStakeholder.id,
       stakeholderName: selectedStakeholder.name,
-      opportunityId: opportunity.id,
+      id: opportunity.id,
     });
     setIsDrafting(true);
     toast.loading(`Drafting personalized ${messageType} message...`);

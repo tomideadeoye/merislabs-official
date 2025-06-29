@@ -1,0 +1,447 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OpportunityType {
+  job
+  project
+  collaboration
+  gig
+  other
+  educationProgram
+  projectCollaboration
+  funding
+  negotiating
+  declined
+  applicationReady
+  outreachPlanned
+  outreachSent
+  offerReceived
+}
+
+enum OpportunityPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  ARCHIVED
+}
+
+enum TaskPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TaskType {
+  TODO
+  DAILY
+  HABIT
+  REWARD
+  PROJECT
+  GOAL
+}
+
+enum OpportunityStatus {
+  IDENTIFIED
+  RESEARCHING
+  APPLYING
+  INTERVIEWING
+  OFFERED
+  REJECTED
+  ACCEPTED
+  ARCHIVED
+  EVALUATING
+  EVALUATED_POSITIVE            @map("evaluatedPositive")
+  EVALUATED_NEGATIVE            @map("evaluatedNegative")
+  APPLICATION_DRAFTING          @map("applicationDrafting")
+  INTERVIEW_SCHEDULED           @map("interviewScheduled")
+  INTERVIEW_COMPLETED           @map("interviewCompleted")
+  APPLIED
+  PURSUING
+  NEGOTIATING
+  DECLINED
+  APPLICATION_READY             @map("applicationReady")
+  OUTREACH_PLANNED              @map("outreachPlanned")
+  OUTREACH_SENT                 @map("outreachSent")
+  FOLLOW_UP_NEEDED              @map("followUpNeeded")
+  FOLLOW_UP_SENT                @map("followUpSent")
+  OFFER_RECEIVED                @map("offerReceived")
+  APPLYING_NEXT_STEP            @map("applyingNextStep")
+  INTERVIEWING_ROUND_1          @map("interviewingRound1")
+  INTERVIEWING_ROUND_2          @map("interviewingRound2")
+  FINAL_INTERVIEW               @map("finalInterview")
+  OFFER_RECEIVED_PENDING_REVIEW @map("offerReceivedPendingReview")
+  OFFER_ACCEPTED                @map("offerAccepted")
+  OFFER_REJECTED                @map("offerRejected")
+  ACTIVE_OUTREACH               @map("activeOutreach")
+  FOLLOW_UP
+  ON_HOLD                       @map("onHold")
+  CONVERTED
+  REJECTED_BY_THEM              @map("rejectedByThem")
+  DECLINED_BY_ME                @map("declinedByMe")
+}
+
+enum IdeaStatus {
+  raw_spark
+  researching
+  developing
+  launched
+  abandoned
+}
+
+enum IdeaPriority {
+  high
+  medium
+  low
+}
+
+model Opportunity {
+  id                     String               @id @default(uuid()) @db.Uuid
+  title                  String
+  company                String? // Represents companyOrInstitution
+  type                   OpportunityType?
+  status                 OpportunityStatus?
+  content                String?              @map("description") // maps to description column
+  url                    String?
+  tags                   String[]             @map("requirements") // maps to requirements column
+  dateIdentified         DateTime?            @map("date_identified") @db.Timestamptz
+  notes                  String?
+  contactPerson          String?              @map("contact_person")
+  contactEmail           String?              @map("contact_email")
+  stage                  String? // Can be derived from status, but if kept separate
+  attachments            String[]
+  relatedEvaluationId    String?              @map("related_evaluation_id") @db.Uuid
+  sourceUrl              String?              @map("source_url")
+  nextActionDate         DateTime?            @map("next_action_date") @db.Timestamptz
+  priority               OpportunityPriority?
+  tailoredCv             String?              @map("tailored_cv")
+  deadline               DateTime?            @map("deadline") @db.Timestamptz
+  location               String?
+  salary                 String?
+  contact                String? // Maps to a contact column
+  position               String? // Make position optional
+  lastStatusUpdate       DateTime?            @map("last_status_update") @db.Timestamptz
+  applicationMaterialIds String[]             @default([])
+  createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime             @updatedAt @map("updated_at") @db.Timestamptz
+  evaluationResult       Json? // For storing AI evaluation JSON
+  tailoredCvId           String? // ID of a tailored CV, potentially linking to another model later
+  userId                 String? // Add userId to link opportunities to users
+
+  // Relationships
+  stakeholders      Stakeholder[]
+  applicationDrafts ApplicationDraft[]
+
+  @@map("opportunities") // Maps Prisma model name to SQL table name
+}
+
+model Stakeholder {
+  id            String   @id @default(uuid()) @db.Uuid
+  id String   @map("opportunity_id") @db.Uuid
+  name          String
+  title         String
+  email         String?
+  linkedinUrl   String?  @map("linkedin_url")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relationship to Opportunity
+  opportunity Opportunity @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("stakeholders")
+}
+
+model ApplicationDraft {
+  id            String   @id @default(uuid()) @db.Uuid
+  id String   @map("opportunity_id") @db.Uuid
+  type          String // Maps to VARCHAR(50) in SQL, 'email' or 'linkedin'
+  content       String
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relationship to Opportunity
+  opportunity Opportunity @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("application_drafts")
+}
+
+model Prompt {
+  id        String   @id @default(uuid()) @db.Uuid
+  uniqueId  String   @unique
+  name      String
+  content   String   @db.Text
+  category  String?
+  userId    String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("prompts")
+}
+
+model Idea {
+  id          String        @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  status      IdeaStatus    @default(raw_spark)
+  tags        String[]      @default([])
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  dueDate     DateTime?     @map("due_date") @db.Timestamptz
+  priority    IdeaPriority?
+  userId      String
+  // Relations
+  logs        IdeaLog[]
+
+  @@map("ideas")
+}
+
+model IdeaLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  ideaId    String   @map("idea_id") @db.Uuid
+  timestamp DateTime @default(now())
+  logType   String   @map("log_type") // e.g., initial_capture, brainstorming, status_update
+  details   String
+  action    String
+  type      String // e.g., idea_log
+  content   String?
+  author    String?
+  // Relations
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@map("idea_logs")
+}
+
+model CVComponent {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  type      String // e.g., "experience", "project", "skill_summary", "education"
+  content   Json // Store structured content (e.g., bullet points, dates, descriptions)
+  tags      String[] @default([])
+  userId    String // To associate with a user (assuming a User model exists or will be added)
+  uniqueId  String?  @unique // To store the UniqueID from the JSON file
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("cv_components")
+}
+
+model CVFeedback {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String
+  id    String   @db.Uuid
+  feedbackType     String // e.g., 'positive', 'negative', 'suggestion', 'bug'
+  feedbackDetails  String   @db.Text
+  componentId      String?  @db.Uuid // Optional, for specific component feedback
+  originalContent  String?  @db.Text
+  generatedContent String?  @db.Text
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("cv_feedback")
+}
+
+model LlmSettings {
+  id                   String   @id @default(uuid()) @db.Uuid
+  userId               String   @unique // One settings entry per user
+  globalDefaultModel   String?
+  requestTypeOverrides Json? // Store as JSON for flexibility
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("llm_settings")
+}
+
+model JournalEntry {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String
+  date      DateTime
+  content   String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  title           String?
+  tags            String[]
+  contentType     String?
+  mood            String?
+  reflectionId    String?
+  originalEntryId String?
+
+  // --- Fields from EmotionalLogEntry ---
+  timestamp                   String?
+  emotion                     String?
+  primaryEmotion              String?
+  intensity                   Int?
+  context                     String?
+  accompanyingThoughts        String?
+  contextualNote              String?
+  cognitiveDistortionAnalysis Json?
+  secondaryEmotions           String[]
+  triggers                    String[]
+  physicalSensations          String[]
+  copingMechanismsUsed        String[]
+  relatedJournalSourceId      String?
+
+  @@map("journal_entries")
+}
+
+model Task {
+  id                  String       @id @default(uuid()) @db.Uuid
+  userId              String
+  title               String
+  description         String?
+  status              TaskStatus
+  priority            TaskPriority
+  type                TaskType
+  dueDate             DateTime?    @map("due_date") @db.Timestamptz
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+  steps               TaskStep[]
+  relatedLinks        String[]     @default([])
+  relatedPhoneNumbers String[]     @default([])
+  relatedContactIds   String[]     @default([]) @map("related_contact_ids") // For relating tasks to contacts
+tags                 String[]     @default([]) // For task categorization, matches UI and types
+
+  @@map("tasks")
+}
+
+model TaskStep {
+  id                  String   @id @default(uuid()) @db.Uuid
+  taskId              String   @map("task_id") @db.Uuid
+  parentStepId        String?  @db.Uuid // For threaded replies; null for top-level steps
+  stepNumber          Int      @map("step_number")
+  prompt              String   @db.Text
+  generatedOptions    Json     @map("generated_options")
+  chosenAction        String?  @map("chosen_action") @db.Text
+  chosenJustification String?  @map("chosen_justification") @db.Text
+  toolCalls           Json?    @map("tool_calls")
+  memoryReferences    Json?    @map("memory_references")
+  relatedLinks        Json?    @map("related_links")
+  relatedPhoneNumbers Json?    @map("related_phone_numbers")
+  finalLog            Json?    @map("final_log")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  parentStep TaskStep? @relation("TaskStepReplies", fields: [parentStepId], references: [id])
+  replies    TaskStep[] @relation("TaskStepReplies")
+
+  @@map("task_steps")
+}
+
+model UserDefinedTool {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String
+  name        String   @unique
+  description String   @db.Text
+  apiEndpoint String
+  parameters  Json     @db.JsonB // JSON Schema for the tool's parameters
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("user_defined_tools")
+}
+
+model UserProfile {
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String    @unique // Link to the user
+  name              String?
+  email             String?
+  mobile            String?
+  website           String?
+  github            String?
+  linkedin          String?
+  substack          String?
+  slideshare        String?
+  medium            String?
+  discord           String?
+  merisLabsLinkedin String?
+  bioPitchLink      String?
+  youtube           String?
+  language          String?
+  location          String?
+  profileText       String    @db.Text // All unstructured text for search/LLM context
+  lastFetchedAt     DateTime? @map("last_fetched_at") @db.Timestamptz // For caching logic
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("user_profiles")
+}
+
+model Contact {
+  id                      String    @id @default(uuid()) @db.Uuid
+  firstName               String?
+  middleName              String?
+  lastName                String?
+  phoneticFirstName       String?
+  phoneticMiddleName      String?
+  phoneticLastName        String?
+  namePrefix              String?
+  nameSuffix              String?
+  nickname                String?
+  fileAs                  String?
+  organizationName        String?
+  organizationTitle       String?
+  organizationDepartment  String?
+  birthday                DateTime?
+  notes                   String?   @db.Text
+  photo                   String? // Assuming URL or path to photo
+  labels                  String[]  @default([])
+  email1Label             String?
+  email1Value             String?
+  email2Label             String?
+  email2Value             String?
+  email3Label             String?
+  email3Value             String?
+  email4Label             String?
+  email4Value             String?
+  phone1Label             String?
+  phoneNumber             String    @unique @map("phone_number") // Unique ID as requested
+  phone2Label             String?
+  phone2Value             String?
+  phone3Label             String?
+  phone3Value             String?
+  phone4Label             String?
+  phone4Value             String?
+  address1Label           String?
+  address1Formatted       String?   @db.Text
+  address1Street          String?
+  address1City            String?
+  address1PoBox           String?
+  address1Region          String?
+  address1PostalCode      String?
+  address1Country         String?
+  address1ExtendedAddress String?   @db.Text
+  address2Label           String?
+  address2Formatted       String?   @db.Text
+  address2Street          String?
+  address2City            String?
+  address2PoBox           String?
+  address2Region          String?
+  address2PostalCode      String?
+  address2Country         String?
+  address2ExtendedAddress String?   @db.Text
+  website1Label           String?
+  website1Value           String?
+  customField1Label       String?
+  customField1Value       String?
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("contacts")
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useOpportunityDialogStore } from '@/hooks/useOpportunityDialogStore';
-import { OpportunityType, OpportunityStatus, OpportunityPriority, OpportunityCreatePayload } from '@/lib/types'; // Import enums and payload type
+import { $Enums } from '@/lib/types';
 import {
   Input,
   Textarea,
@@ -26,16 +26,16 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 interface AddOpportunityFormProps {
-  onSuccess?: (opportunityId: string) => void;
+  onSuccess?: (id: string) => void;
 }
 
 // Define the interface for the form's internal state
 interface AddOpportunityFormState {
   title: string;
   companyOrInstitution: string;
-  type: OpportunityType | ''; // Allow empty string for optional selection
-  status: OpportunityStatus;
-  priority: OpportunityPriority;
+  type: $Enums.OpportunityType | ''; // Allow empty string for optional selection
+  status: $Enums.OpportunityStatus;
+  priority: $Enums.OpportunityPriority;
   content: string;
   url: string;
   tags: string[];
@@ -54,7 +54,6 @@ interface AddOpportunityFormState {
   deadline: string;
   contact: string;
   lastStatusUpdate: string;
-  notionPageId: string;
   dateIdentified: string; // Explicitly included and typed as string
 }
 
@@ -71,8 +70,8 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
       title: '',
       companyOrInstitution: '',
       type: '', // Start with an empty string for optional selection
-      status: OpportunityStatus.IDENTIFIED, // This will now be 'IDENTIFIED'
-      priority: OpportunityPriority.MEDIUM, // This will now be 'MEDIUM'
+      status: $Enums.OpportunityStatus.IDENTIFIED, // This will now be 'IDENTIFIED'
+      priority: $Enums.OpportunityPriority.MEDIUM, // This will now be 'MEDIUM'
       content: '',
       url: '',
       tags: [] as string[],
@@ -91,7 +90,6 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
       deadline: '',
       contact: '',
       lastStatusUpdate: '',
-      notionPageId: '',
       dateIdentified: '',
     }),
     []
@@ -135,41 +133,13 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
     setIsSubmitting(true);
     setError(null);
 
-    const payload: OpportunityCreatePayload = {
-      title: formData.title,
-      companyOrInstitution: formData.companyOrInstitution,
-      type: formData.type === '' ? undefined : formData.type,
-      status: formData.status || undefined, // If status can be unselected, send undefined
-      location: formData.location || null, // Send null if empty, Zod schema allows null
-      position: formData.position || null, // Send null if empty, Zod schema allows null
-      salary: formData.salary || null,
-      content: formData.content || null,
-      tags: formData.tags.length > 0 ? formData.tags : null,
-      url: formData.url || null,
-      dateIdentified: formData.dateIdentified || null,
-      notes: formData.notes || null,
-      contactPerson: formData.contactPerson || null,
-      contactEmail: formData.contactEmail || null,
-      stage: formData.stage || null,
-      attachments: formData.attachments.length > 0 ? formData.attachments : null,
-      relatedEvaluationId: formData.relatedEvaluationId || null,
-      sourceUrl: formData.sourceUrl || null,
-      nextActionDate: formData.nextActionDate || null,
-      priority: formData.priority || undefined, // If priority can be unselected, send undefined
-      tailoredCv: formData.tailoredCv || null,
-      deadline: formData.deadline || null,
-      contact: formData.contact || null,
-      lastStatusUpdate: formData.lastStatusUpdate || null,
-      notionPageId: formData.notionPageId || null,
-    };
-
     try {
       const response = await fetch('/api/orion/opportunities', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -261,13 +231,13 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
               <Select
                 name="type"
                 value={formData.type}
-                onValueChange={(value: OpportunityType | '') => handleSelectChange('type', value)}
+                onValueChange={(value: $Enums.OpportunityType | '') => handleSelectChange('type', value)}
               >
                 <SelectTrigger className="w-full bg-gray-700 border-gray-600 text-gray-200">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                  {Object.values(OpportunityType).map((typeValue: OpportunityType) => (
+                  {Object.values($Enums.OpportunityType).map((typeValue: $Enums.OpportunityType) => (
                     <SelectItem key={typeValue} value={typeValue}>
                       {typeValue.charAt(0).toUpperCase() + typeValue.slice(1).replace(/([A-Z])/g, ' $1')}
                     </SelectItem>
@@ -282,13 +252,13 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
               <Select
                 name="status"
                 value={formData.status}
-                onValueChange={(value: OpportunityStatus) => handleSelectChange('status', value)}
+                onValueChange={(value: $Enums.OpportunityStatus) => handleSelectChange('status', value)}
               >
                 <SelectTrigger className="w-full bg-gray-700 border-gray-600 text-gray-200">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                  {Object.values(OpportunityStatus).map((statusValue: OpportunityStatus) => (
+                  {Object.values($Enums.OpportunityStatus).map((statusValue: $Enums.OpportunityStatus) => (
                     <SelectItem key={statusValue} value={statusValue}>
                       {statusValue.charAt(0).toUpperCase() +
                         statusValue
@@ -307,15 +277,15 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
               <Select
                 name="priority"
                 value={formData.priority}
-                onValueChange={(value: OpportunityPriority) => handleSelectChange('priority', value)}
+                onValueChange={(value: $Enums.OpportunityPriority) => handleSelectChange('priority', value)}
               >
                 <SelectTrigger className="w-full bg-gray-700 border-gray-600 text-gray-200">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-700 border-gray-600 text-gray-200">
-                  {Object.values(OpportunityPriority).map((priorityValue: OpportunityPriority) => (
+                  {Object.values($Enums.OpportunityPriority).map((priorityValue: $Enums.OpportunityPriority) => (
                     <SelectItem key={priorityValue} value={priorityValue}>
-                      {priorityValue.charAt(0).toUpperCase() + priorityValue.slice(1)}
+                      {priorityValue.charAt(0).toUpperCase() + priorityValue.slice(1).replace(/([A-Z])/g, ' $1')}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -507,20 +477,6 @@ export const AddOpportunityForm: React.FC<AddOpportunityFormProps> = ({ onSucces
               type="date"
               value={formData.lastStatusUpdate}
               onChange={handleChange}
-              className="bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notionPageId" className="text-gray-300">
-              Notion Page ID
-            </Label>
-            <Input
-              id="notionPageId"
-              name="notionPageId"
-              value={formData.notionPageId}
-              onChange={handleChange}
-              placeholder="Optional Notion page ID for this opportunity"
               className="bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
             />
           </div>

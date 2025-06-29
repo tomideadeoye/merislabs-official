@@ -12,7 +12,7 @@ export interface CVComponent {
   updatedAt?: Date; // Add updatedAt as Date
 
   // Remove old properties if they are not in the Prisma schema
-  // notionPageId?: string;
+  // WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILESPageId?: string;
   // unique_id?: string;
   // component_name?: string;
   // component_type?: string;

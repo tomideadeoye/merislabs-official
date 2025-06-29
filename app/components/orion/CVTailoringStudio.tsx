@@ -23,7 +23,7 @@
  *       - FR-1.2: Each component in the database must conform to the `CVComponent` Prisma model, containing `uniqueId`, `name`, `type`, `content` (JSON), and `tags`.
  *     - FR-2: AI-Powered Component Suggestion:
  *       - FR-2.1: The Studio UI MUST automatically trigger a `POST` request to the `/api/orion/cv/suggest-components` endpoint upon loading.
- *       - FR-2.2: This API endpoint will take the `opportunityId` and use an LLM to analyze the job description against the full list of CV components.
+ *       - FR-2.2: This API endpoint will take the `id` and use an LLM to analyze the job description against the full list of CV components.
  *       - FR-2.3: The API MUST return a JSON object containing an array of the top 5-7 most relevant `uniqueId`s.
  *       - FR-2.4: The UI MUST visually distinguish the suggested components (e.g., by highlighting them or placing them in a separate "Recommended" list).
  *     - FR-3: Interactive Component Management UI:
@@ -45,8 +45,8 @@
  * FILEPATH: `app/components/orion/CVTailoringStudio.tsx`
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/cv-tailoring/page.tsx`: The server component that renders this client component and passes initial `opportunity` and `cvComponents` data.
- *   - `@/lib/types`: Imports `CVComponent` and `OrionOpportunity` for strict type-checking.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[id]/cv-tailoring/page.tsx`: The server component that renders this client component and passes initial `opportunity` and `cvComponents` data.
+ *   - `@/lib/types`: Imports `CVComponent` and `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA` for strict type-checking.
  *   - `@/lib/apiClient`: Used to make HTTP requests to `/api/orion/cv/suggest-components`, `/api/orion/cv/rephrase-component` (NEW), and `/api/orion/cv/assemble`.
  *   - `@/lib/logger`: Provides comprehensive logging for client-side interactions and API calls.
  *   - `next/navigation`: Uses `useRouter` for programmatic navigation.
@@ -87,7 +87,7 @@
  *
  * TECHNICAL IMPLEMENTATION DETAILS:
  *   - Primary UI Component: `app/components/orion/CVTailoringStudio.tsx`
- *   - Supporting UI Components: `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/cv-tailoring/page.tsx`
+ *   - Supporting UI Components: `app/(orion_admin)/admin/opportunity-pipeline/[id]/cv-tailoring/page.tsx`
  *   - Core Backend APIs:
  *     - `GET /api/orion/cv-components` (existing)
  *     - `POST /api/orion/cv/suggest-components` (existing)
@@ -105,7 +105,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { OrionOpportunity, ScoredMemoryPoint } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 import { CVComponent } from '@/lib/types/cv';
 import { apiClient } from '@/lib/apiClient';
 import logger from '@/lib/logger';
@@ -117,7 +117,7 @@ import { QuadrantMemoryChunksVisualizer } from '@/components/orion/QuadrantMemor
 import { useCVTailoringStore } from '@/lib/stores/cvTailoringStore';
 
 interface Props {
-  opportunity: OrionOpportunity;
+  opportunity: Opportunity;
   cvComponents: CVComponent[];
   initialError?: string | null;
 }
@@ -149,11 +149,11 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
   } = useCVTailoringStore();
 
   const handleSuggestComponents = useCallback(async () => {
-    logger.info('[CVTailoringStudio][handleSuggestComponents][START]', { opportunityId: opportunity.id });
+    logger.info('[CVTailoringStudio][handleSuggestComponents][START]', { id: opportunity.id });
     setIsLoading(true);
     toast.loading('Orion is analyzing the opportunity...');
     try {
-      const response = await apiClient.post(`/api/orion/cv/suggest-components`, { opportunityId: opportunity.id });
+      const response = await apiClient.post(`/api/orion/cv/suggest-components`, { id: opportunity.id });
       if (response.data.success) {
         const ids = response.data.suggestedComponentIds || [];
         setSuggestedIds(ids);
@@ -170,26 +170,26 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
         setEditedContents(initialEditedContents);
         toast.success(`${ids.length} relevant components suggested!`);
         logger.success('[CVTailoringStudio][handleSuggestComponents][SUCCESS]', {
-          opportunityId: opportunity.id,
+          id: opportunity.id,
           suggestedCount: ids.length,
         });
       } else {
         logger.error('[CVTailoringStudio][handleSuggestComponents][API_ERROR]', {
-          opportunityId: opportunity.id,
+          id: opportunity.id,
           error: response.data.error,
         });
         throw new Error(response.data.error);
       }
     } catch (err: unknown) {
       const handledError = handleClientError(err, {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         stage: 'suggest_components_fetch',
       });
       toast.error(handledError.message);
     } finally {
       setIsLoading(false);
       toast.dismiss();
-      logger.info('[CVTailoringStudio][handleSuggestComponents][END]', { opportunityId: opportunity.id });
+      logger.info('[CVTailoringStudio][handleSuggestComponents][END]', { id: opportunity.id });
     }
   }, [opportunity.id, cvComponents]);
 
@@ -217,7 +217,7 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
   };
 
   const handleRephrase = async (componentId: string, currentContent: string) => {
-    logger.info('[CVTailoringStudio][handleRephrase][START]', { componentId, opportunityId: opportunity.id });
+    logger.info('[CVTailoringStudio][handleRephrase][START]', { componentId, id: opportunity.id });
     const newSet = new Set(isRephrasing);
     newSet.add(componentId);
     setIsRephrasing(newSet);
@@ -246,7 +246,7 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
     } catch (err: unknown) {
       const handledError = handleClientError(err, {
         componentId,
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         stage: 'rephrase_component_api_call',
       });
       logger.error('[CVTailoringStudio][handleRephrase][CATCH_ERROR]', {
@@ -264,7 +264,7 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
   };
 
   const handleAssemble = async () => {
-    logger.info('[CVTailoringStudio][handleAssemble][START]', { opportunityId: opportunity.id });
+    logger.info('[CVTailoringStudio][handleAssemble][START]', { id: opportunity.id });
     setIsAssembling(true);
     toast.loading('Assembling your CV...');
     setAssembledCvMarkdown('');
@@ -282,30 +282,30 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
         logger.success('[CVTailoringStudio][handleAssemble][SUCCESS]', { cvLength: response.data.markdown.length });
       } else {
         logger.error('[CVTailoringStudio][handleAssemble][API_ERROR]', {
-          opportunityId: opportunity.id,
+          id: opportunity.id,
           error: response.data.error,
         });
         throw new Error(response.data.error);
       }
     } catch (err: unknown) {
       const handledError = handleClientError(err, {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         stage: 'assemble_cv_api_call',
       });
       logger.error('[CVTailoringStudio][handleAssemble][CATCH_ERROR]', {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         error: handledError.message,
       });
       toast.error(`CV Assembly failed: ${handledError.message}`);
     } finally {
       setIsAssembling(false);
       toast.dismiss();
-      logger.info('[CVTailoringStudio][handleAssemble][END]', { opportunityId: opportunity.id });
+      logger.info('[CVTailoringStudio][handleAssemble][END]', { id: opportunity.id });
     }
   };
 
   const handleAutoGenerateCv = async () => {
-    logger.info('[CVTailoringStudio][handleAutoGenerateCv][START]', { opportunityId: opportunity.id });
+    logger.info('[CVTailoringStudio][handleAutoGenerateCv][START]', { id: opportunity.id });
     setIsAutoGeneratingCv(true);
     setAutoGenerateMemoryResults([]);
     setAssembledCvMarkdown('');
@@ -336,7 +336,7 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
       }
     } catch (err: unknown) {
       const handledError = handleClientError(err, {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         stage: 'auto_generate_cv_api_call',
       });
       toast.error(`Auto-generation failed: ${handledError.message}`);
@@ -348,7 +348,7 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
   };
 
   const handleProceedToEmail = () => {
-    logger.info('[CVTailoringStudio][handleProceedToEmail]', { opportunityId: opportunity.id });
+    logger.info('[CVTailoringStudio][handleProceedToEmail]', { id: opportunity.id });
     if (assembledCvMarkdown) {
       localStorage.setItem('tailoredCvMarkdown', assembledCvMarkdown);
       router.push(`/admin/opportunity-pipeline/${opportunity.id}/draft-email`);
@@ -384,7 +384,7 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
         '/api/orion/cv/download-pdf',
         {
           markdown: assembledCvMarkdown,
-          opportunityId: opportunity.id, // Pass opportunityId for context
+          id: opportunity.id, // Pass id for context
         },
         {
           responseType: 'blob', // Crucial for handling file downloads
@@ -410,7 +410,7 @@ export function CVTailoringStudio({ opportunity, cvComponents, initialError }: P
       }
     } catch (err: unknown) {
       const handledError = handleClientError(err, {
-        opportunityId: opportunity.id,
+        id: opportunity.id,
         stage: 'download_pdf_api_call',
       });
       toast.error(`PDF Download failed: ${handledError.message}`);

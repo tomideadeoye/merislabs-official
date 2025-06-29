@@ -22,19 +22,19 @@ import { Rocket } from 'lucide-react';
 // - Can be a reusable button component for various Habitica-related actions.
 
 interface CreateHabiticaTaskButtonProps {
-  opportunityId: string; // The ID of the opportunity related to this task
+  id: string; // The ID of the opportunity related to this task
   taskTitle: string; // A suggested title for the Habitica task
   onTaskCreated?: () => void; // Callback after task is successfully created
 }
 
 export const CreateHabiticaTaskButton: React.FC<CreateHabiticaTaskButtonProps> = ({
-  opportunityId,
+  id,
   taskTitle,
   onTaskCreated,
 }) => {
   const handleClick = () => {
     // Placeholder for API call to create Habitica task
-    console.log(`Creating Habitica task for opportunity ${opportunityId} with title: ${taskTitle}`);
+    console.log(`Creating Habitica task for opportunity ${id} with title: ${taskTitle}`);
     if (onTaskCreated) {
       onTaskCreated();
     }

@@ -7,9 +7,9 @@
  *   - Dynamically adapts the tone and style of the generated drafts based on inferred company culture.
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/(orion_admin)/admin/opportunity-pipeline/[opportunityId]/drafts/page.tsx`: This frontend page likely consumes this API to trigger and display application draft generation.
+ *   - `app/(orion_admin)/admin/opportunity-pipeline/[id]/drafts/page.tsx`: This frontend page likely consumes this API to trigger and display application draft generation.
  *   - `@/auth`: Used for `getServerSession` to authenticate the user before processing the request.
- *   - `@/lib/types`: Defines `DraftApplicationRequestBody`, `DraftApplicationResponseBody`, `OrionOpportunity`, `UserProfileData`, `EvaluationOutput`, and `ScoredMemoryPoint` for request/response payloads and data structures.
+ *   - `@/lib/types`: Defines `DraftApplicationRequestBody`, `DraftApplicationResponseBody`, `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`, `UserProfileData`, `EvaluationOutput`, and `ScoredMemoryPoint` for request/response payloads and data structures.
  *   - `@/lib/index` (implicitly `DRAFT_APPLICATION_REQUEST_TYPE`): Defines constants for LLM request types.
  *   - `/api/orion/llm`: The internal LLM API endpoint this route calls to perform the actual text generation.
  *   - `@/lib/logger.ts`: Although direct `console` calls are used, future integration with this centralized logger is intended for consistent and context-rich logging.
@@ -17,7 +17,7 @@
  * ASSUMPTIONS & CLEAR COMMENTS:
  *   - Assumes that `process.env.NEXTAUTH_URL` is correctly configured for internal API calls.
  *   - The `SYSTEM_PROMPT_DRAFT_APPLICATION` is a critical part of the LLM's instruction set, providing the persona and guidelines for generating high-quality drafts.
- *   - Handles cases where `orionOpportunity.company` or `orionOpportunity.content` might be `null` or `undefined` gracefully.
+ *   - Handles cases where `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA.company` or `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA.content` might be `null` or `undefined` gracefully.
  *   - Includes basic parsing logic (`parseDraftsFromLLMResponse`) to extract distinct drafts from the LLM's raw output.
  *
  * NOTES:
@@ -26,7 +26,6 @@
  *   - Future improvements could involve more sophisticated LLM parsing, A/B testing of prompt variations, and integrating more advanced feedback loops for draft quality.
  *   - Consider integrating the lib `logger` utility for all console output for unified logging and enhanced observability.
  */
-import { fetchOpportunityByIdFromNotion } from '@/lib/notion_service';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { fetchUserProfile } from '@/profile_service';
 import { ScoredMemoryPoint } from '@/lib/types/memory';
@@ -35,6 +34,7 @@ import logger from '@/lib/logger';
 import { handleApiError } from '@/lib/utils/errorHandler';
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
+import { Opportunity } from '@prisma/client';
 
 // Enhanced system prompt for draft application generation
 const SYSTEM_PROMPT_DRAFT_APPLICATION = `
@@ -45,7 +45,7 @@ Your strengths include:
 2. Highlighting strategic alignment between candidate strengths and organization needs
 3. Addressing potential gaps or concerns with confident framing
 4. Using subtle psychological principles of persuasion (scarcity, social proof, authority)
-5. Creating distinctive variations that approach the OrionOpportunity from different angles
+5. Creating distinctive variations that approach the opportunity from different angles
 
 When addressing a potential skill gap (e.g., primary programming language), frame it positively by emphasizing rapid learnability, complementary skills, or the value of a diverse technical perspective. Reference past instances of quick learning or adaptability if available in the applicant's profile or memories.
 
@@ -54,13 +54,13 @@ Always include specific achievements with measurable outcomes when available in 
 You craft materials that are authentic, specific, achievement-oriented, and that demonstrate genuine enthusiasm without resorting to clichés or generic language.`;
 
 function constructUserPrompt(data: DraftApplicationRequestBody): string {
-  const { orionOpportunity, applicantProfile, evaluationSummary, memorySnippets } = data;
+  const { Opportunity, applicantProfile, evaluationSummary, memorySnippets } = data;
   const numberOfDrafts = data.numberOfDrafts || 2;
 
   // Determine company tone/culture based on available information
   let companyTone = 'professional';
-  const companyLower = orionOpportunity.company?.toLowerCase() || '';
-  const contentLower = orionOpportunity.content?.toLowerCase() || '';
+  const companyLower = Opportunity.company?.toLowerCase() || '';
+  const contentLower = Opportunity.content?.toLowerCase() || '';
 
   if (
     companyLower.includes('startup') ||
@@ -94,7 +94,7 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
   }
 
   // Extract key requirements from job description
-  const keyRequirements = orionOpportunity.content
+  const keyRequirements = Opportunity.content
     ?.split(/\n|\./)
     .filter(
       (line: string) =>
@@ -110,18 +110,14 @@ function constructUserPrompt(data: DraftApplicationRequestBody): string {
     .join('\n- ');
 
   return `
-I need you to craft ${numberOfDrafts} distinct, highly effective application materials (cover letter or application email) for the following OrionOpportunity. Each draft should take a fundamentally different approach while maintaining excellence in persuasion and relevance.
+I need you to craft ${numberOfDrafts} distinct, highly effective application materials (cover letter or application email) for the following opportunity. Each draft should take a fundamentally different approach while maintaining excellence in persuasion and relevance.
 
 ## Opportunity CONTEXT
-- Position: ${orionOpportunity.title}
-- Organization: ${orionOpportunity.company} (appears to have a ${companyTone} culture)
+- Position: ${Opportunity.title}
+- Organization: ${Opportunity.company} (appears to have a ${companyTone} culture)
 - Key Requirements:
-- ${keyRequirements || orionOpportunity.content?.substring(0, 300) + '...'}
-${
-  orionOpportunity.tags && orionOpportunity.tags.length > 0
-    ? `- Tags/Keywords: ${orionOpportunity.tags.join(', ')}`
-    : ''
-}
+- ${keyRequirements || Opportunity.content?.substring(0, 300) + '...'}
+${Opportunity.tags && Opportunity.tags.length > 0 ? `- Tags/Keywords: ${Opportunity.tags.join(', ')} ` : ''}
 
 ## APPLICANT PROFILE
 - Name: ${applicantProfile.name}
@@ -129,32 +125,28 @@ ${
 - Core Strengths: ${(applicantProfile.keySkills || []).join(', ')}
 - Career Objectives: ${applicantProfile.goals}
 ${applicantProfile.location ? `- Location: ${applicantProfile.location}` : ''}
-${
-  applicantProfile.values && applicantProfile.values.length > 0
-    ? `- Values to Convey: ${applicantProfile.values.join(', ')}`
-    : ''
-}
+${applicantProfile.values && applicantProfile.values.length > 0
+      ? `- Values to Convey: ${applicantProfile.values.join(', ')}`
+      : ''
+    }
 
 ## STRATEGIC INSIGHTS
-${evaluationSummary?.fitScorePercentage ? `- OrionOpportunity Fit Score: ${evaluationSummary.fitScorePercentage}%` : ''}
-${
-  evaluationSummary?.strengths && evaluationSummary.strengths.length > 0
-    ? `- Key Strengths Identified:
+${evaluationSummary?.fitScorePercentage ? `- Opportunity Fit Score: ${evaluationSummary.fitScorePercentage}%` : ''}
+${evaluationSummary?.strengths && evaluationSummary.strengths.length > 0
+      ? `- Key Strengths Identified:
   * ${evaluationSummary.strengths.map((s) => (typeof s === 'string' ? s : `${s.title}: ${s.reasoning}`)).join('\n  * ')}`
-    : ''
-}
-${
-  evaluationSummary?.gaps && evaluationSummary.gaps.length > 0
-    ? `- Potential Gaps to Address:
+      : ''
+    }
+${evaluationSummary?.gaps && evaluationSummary.gaps.length > 0
+      ? `- Potential Gaps to Address:
   * ${evaluationSummary.gaps.map((g) => (typeof g === 'string' ? g : `${g.gap}: ${g.solution}`)).join('\n  * ')}`
-    : ''
-}
-${
-  evaluationSummary?.suggestedNextSteps && evaluationSummary.suggestedNextSteps.length > 0
-    ? `- Strategic Next Steps:
+      : ''
+    }
+${evaluationSummary?.suggestedNextSteps && evaluationSummary.suggestedNextSteps.length > 0
+      ? `- Strategic Next Steps:
   * ${evaluationSummary.suggestedNextSteps.join('\n  * ')}`
-    : ''
-}
+      : ''
+    }
 ## APPLICANT BACKGROUND & MEMORIES
 ## RELEVANT EXPERIENCES
 ${memoryContext}
@@ -166,11 +158,10 @@ Research the company to incorporate specific details about their products, recen
 1. Create ${numberOfDrafts} distinct application drafts (300 words max each)
 2. For Draft 1: Focus on direct alignment with requirements, emphasizing transferable skills and how existing experience directly meets the job's core needs. Include specific achievements with measurable outcomes when possible.
 3. For Draft 2: Emphasize unique value, strategic thinking, and forward-looking impact. How can this applicant bring a unique perspective or contribute to the company's broader goals beyond the immediate tasks?
-${
-  numberOfDrafts > 2
-    ? "4. For Draft 3: Highlight problem-solving abilities and concrete achievements. Use a STAR-like approach (Situation, Task, Action, Result) if memory snippets or profile data provide such examples related to the role's challenges."
-    : ''
-}
+${numberOfDrafts > 2
+      ? "4. For Draft 3: Highlight problem-solving abilities and concrete achievements. Use a STAR-like approach (Situation, Task, Action, Result) if memory snippets or profile data provide such examples related to the role's challenges."
+      : ''
+    }
 
 Each draft should:
 - Begin with a compelling hook that shows specific knowledge of the organization
@@ -198,18 +189,18 @@ function parseDraftsFromLLMResponse(llmContent: string): string {
 }
 
 /**
- * API route for drafting application materials for a specific OrionOpportunity using LLM.
+ * API route for drafting application materials for a specific opportunity using LLM.
  */
-export async function POST(request: NextRequest, { params }: { params: { opportunityId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const requestBody: DraftApplicationRequestBody = await request.json();
 
-    if (!requestBody.orionOpportunity || !requestBody.applicantProfile) {
+    if (!requestBody.Opportunity || !requestBody.applicantProfile) {
       return NextResponse.json(
         {
           success: false,
-          error: 'OrionOpportunity and applicantProfile are required.',
-          message: 'OrionOpportunity and applicantProfile are required.',
+          error: 'opportunity and applicantProfile are required.',
+          message: 'opportunity and applicantProfile are required.',
         },
         { status: 400 }
       );

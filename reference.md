@@ -13,7 +13,6 @@ The project's file structure is evolving towards a highly organized and modular 
 1.  **Root-Level `app/` Directory**: This is the core of our Next.js application, containing all pages, API routes, and client-side logic.
 
 2.  **Feature-Based Grouping within `app/`**:
-
     - **Pages (`app/(group)/feature/page.tsx`)**: Pages are organized into logical groups (e.g., `(orion_admin)`) to manage routing and layout, and then further by feature (e.g., `admin/journal/page.tsx`). This provides a clean URL structure and separates concerns.
     - **Components (`app/components/`)**:
       - `app/components/ui/`: This directory houses reusable, generic UI components (e.g., `button.tsx`, `badge.tsx`, `card.tsx`, `page-header.tsx`). These are designed to be highly abstract and reusable across different parts of the application.
@@ -46,7 +45,7 @@ This structure allows for a clear separation of concerns, promotes reusability, 
 
 # 🌀 orion dev cycle: self-reinforcing circular workflow
 
-> a circular, agent-agnostic system to debug, build, test, reflect, and branch across llms and dev tools (cursor, notion, terminal, streamlit, web).
+> a circular, agent-agnostic system to debug, build, test, reflect, and branch across llms and dev tools (cursor, WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES, terminal, streamlit, web).
 
 ---
 
@@ -367,9 +366,9 @@ LLM API Key Status and Health Check are now unified in a single, stylish, color-
 - Updated file/feature goal at the top of each file for clarity and maintainability.
 - Ensured robust error handling and observability for cloud reliability.
 
-todo: add draft job/OrionOpportunity application email to the OrionOpportunity pipe line
-remeber to make sure the email or questions are answerd in personalized ways for the job/OrionOpportunity/questions using my profile, quadrant memory and the web search results. I waould love to see multiple draft in the ui
-when i provide a search name that is a company in the OrionOpportunity pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
+todo: add draft job/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA application email to the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA pipe line
+remeber to make sure the email or questions are answerd in personalized ways for the job/REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA/questions using my profile, quadrant memory and the web search results. I waould love to see multiple draft in the ui
+when i provide a search name that is a company in the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA pipeline, i want to be able to choose find key stakeholders and generate email addresses using the functions i have written for them, i can then choose if to draft a personalised email for each stakeholder or draft a linkedin message based on search results we will carry out on them via scraping links that are found in the search results
 
 Okay, Tomide. This is a fantastic consolidation of your vision for Orion, pulling together the key themes, desired functionalities, and the specific "roles" or "modules" you want it to embody (Journaling Assistant, Application Assistant, Therapy/Self-Reflection Guide, and the overarching AI Life-Architecture Partner).
 
@@ -458,11 +457,11 @@ Action: Post prompt to Slack (DM to you).
 
 (Future: Wait for reply in Slack, then process via /process_journal).
 
-OrionOpportunity Pipeline (Basic Triggers):
+REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Pipeline (Basic Triggers):
 
-When you manually update an OrionOpportunity status in Notion (if Notion has webhooks or via polling its API with n8n), trigger a ClickUp task update or a Slack notification.
+When you manually update an REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA status in WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES (if WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES has webhooks or via polling its API with n8n), trigger a ClickUp task update or a Slack notification.
 
-This keeps it leaner initially than full n8n control of Notion.
+This keeps it leaner initially than full n8n control of WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES.
 
 Slack Bot (Python using slack_bolt or slack_sdk):
 
@@ -480,7 +479,7 @@ Goal: Use Streamlit as your primary interactive "control panel" for features tha
 
 Key Actions:
 
-Refine Existing Pages: Ensure "OrionOpportunity Pipeline," "Draft Communication," and "Ask Question" robustly call your new orion_api.py endpoints instead of directly invoking backend Python functions where appropriate (this promotes modularity).
+Refine Existing Pages: Ensure "REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Pipeline," "Draft Communication," and "Ask Question" robustly call your new orion_api.py endpoints instead of directly invoking backend Python functions where appropriate (this promotes modularity).
 
 Build Out Other Pages Using the API:
 
@@ -500,7 +499,7 @@ Motivational Quotes (Simple): In orion_streamlit_app.py or a ui_utils.py, have a
 
 Key Features You Highlighted & How They Fit:
 
-"Application Pipeline" (OrionOpportunity Pipeline Page): This is a core feature. Streamlit UI, n8n for some automation (status updates, reminders), Python API for LLM-driven evaluation, CV tailoring, and draft generation. Notion as the backend database.
+"Application Pipeline" (REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Pipeline Page): This is a core feature. Streamlit UI, n8n for some automation (status updates, reminders), Python API for LLM-driven evaluation, CV tailoring, and draft generation. WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES as the backend database.
 
 "Draft Communication," "Ask Question," "Journal Entry": These are direct interfaces to Orion's LLM and memory capabilities, primarily via the Python API, rendered in Streamlit and/or accessible via Slack bot.
 
@@ -508,7 +507,7 @@ Key Features You Highlighted & How They Fit:
 
 "Memory Manager": Streamlit UI to query and potentially add/edit (carefully!) items in your Qdrant vector store via the Python API.
 
-"Networking Outreach": Existing Python logic, exposed via API, triggered from Streamlit or n8n. Results stored in Notion/Memory.
+"Networking Outreach": Existing Python logic, exposed via API, triggered from Streamlit or n8n. Results stored in WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES/Memory.
 
 "Routines": Primarily orchestrated by n8n (scheduled check-ins, daily kickstart) calling Python API endpoints.
 
@@ -664,14 +663,14 @@ Presenting daily tasks (part of Routine Kickstart).
 
 5.5. Strategic Guidance & Decision Support Modules:
 
-5.5.1. OrionOpportunity Evaluator Module:
+5.5.1. REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Evaluator Module:
 
 Function/API endpoint /evaluate_opportunity.
 
-Input: OrionOpportunity details (job description, program info, project brief).
+Input: REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details (job description, program info, project brief).
 
 Process:
-Analyze OrionOpportunity against User Profile (Skills, Experience, Goals - Sec 6 & CV).
+Analyze REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA against User Profile (Skills, Experience, Goals - Sec 6 & CV).
 
 Cross-reference with Memory (past similar decisions, outcomes, challenges).
 
@@ -683,24 +682,24 @@ Present Risk/Reward analysis (using matrix). Outline trade-offs.
 
 Output: Structured evaluation report with recommendation (Pursue, Delay, Reject) and potential next steps. Uses orion_llm and orion_memory.
 
-5.5.1.1 OrionOpportunity Engagement Super-Flow (IMPLEMENTED):
+5.5.1.1 REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Engagement Super-Flow (IMPLEMENTED):
 
-A guided, end-to-end experience when a new promising OrionOpportunity is identified and logged in the OrionOpportunity Tracker.
+A guided, end-to-end experience when a new promising REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA is identified and logged in the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Tracker.
 
 Components:
 
-- Enhanced OrionOpportunity Detail View: Central hub integrating evaluation, narrative alignment, application drafting, stakeholder outreach, task creation, and reflection.
-- Evaluation Integration: "Evaluate with Orion" button that pre-fills and runs the OrionOpportunity Evaluator, with results linked to the OrionOpportunity record.
+- Enhanced REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Detail View: Central hub integrating evaluation, narrative alignment, application drafting, stakeholder outreach, task creation, and reflection.
+- Evaluation Integration: "Evaluate with Orion" button that pre-fills and runs the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Evaluator, with results linked to the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA record.
 - Narrative Alignment: Post-evaluation, suggests relevant narrative points from memory to inform application materials.
-- Application Material Drafting: "Draft Application" button pulls OrionOpportunity details, profile, and evaluation insights to generate tailored drafts.
-- Stakeholder Engagement: "Find Stakeholders" button uses the Stakeholder Search & Outreach Engine, linking contacts back to the OrionOpportunity.
+- Application Material Drafting: "Draft Application" button pulls REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details, profile, and evaluation insights to generate tailored drafts.
+- Stakeholder Engagement: "Find Stakeholders" button uses the Stakeholder Search & Outreach Engine, linking contacts back to the REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA.
 - Task Creation: Key next steps from the Evaluator can be sent to Habitica with one click, with origin linking.
 - Reflection Points: After submitting an application or key outreach, prompts for Journal Entry related to that step.
 - Visual Pipeline: Kanban view for drag-and-drop status updates and workflow visualization.
 
 Integration Points:
 
-- OrionOpportunity Tracker → OrionOpportunity Evaluator → Narrative Clarity Studio → Application Drafting → Stakeholder Outreach → Habitica Tasks → Journal/Reflection
+- REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Tracker → REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Evaluator → Narrative Clarity Studio → Application Drafting → Stakeholder Outreach → Habitica Tasks → Journal/Reflection
 
   5.5.2. Strategy Partner Module:
 
@@ -722,7 +721,7 @@ Help document chosen path and next steps (potentially creating Habitica tasks).
 
 (Current Priority): Dedicated mode/API endpoints (/draft_cover_letter, /draft_email, etc.).
 
-Uses LLM (/ask_orion) integrating User Profile, CV data, specific OrionOpportunity details, and potentially relevant insights from Memory (/search_memory).
+Uses LLM (/ask_orion) integrating User Profile, CV data, specific REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA details, and potentially relevant insights from Memory (/search_memory).
 
 Produces tailored, professional drafts adhering to psychological principles (Reciprocity, Liking etc.) as outlined in module instructions.
 
@@ -811,7 +810,7 @@ Enhance Journaling: Implement LLM analysis (/process_journal) & automated Habiti
 
 Phase 3:
 
-OrionOpportunity Evaluator/Strategy Partner: Implement core logic leveraging Memory & LLM analysis via API. Integrate into UI/workflows.
+REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA Evaluator/Strategy Partner: Implement core logic leveraging Memory & LLM analysis via API. Integrate into UI/workflows.
 
 Daily Routine Kickstart: Build n8n/API logic.
 
@@ -836,7 +835,7 @@ Embeddings: sentence-transformers (all-MiniLM-L6-v2).
 Orchestration: n8n (Docker/Cloud).
 
 API Framework: FastAPI / Flask.
-Task Management: Habitica API & Notion
+Task Management: Habitica API & WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES
 
 Utilities: requests, python-dotenv, loguru, pandas, selenium, aiohttp, googlesearch-python, dnspython, smtplib, uuid, nltk (optional), pytest.
 
@@ -1605,13 +1604,13 @@ This section summarizes the recent key features implemented, major code modifica
 
 ### 🛠 Major Code Modifications & Refactors:
 
-- **Migration of Contacts Service from Notion to Neon (Postgres)**:
-  - **Reason**: To transition from Notion to a more scalable and robust PostgreSQL database for contacts management.
+- **Migration of Contacts Service from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES to Neon (Postgres)**:
+  - **Reason**: To transition from WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES to a more scalable and robust PostgreSQL database for contacts management.
   - **Changes**:
     - Defined and implemented a new `contacts` table schema in Neon.
     - Created `fetchContactsFromNeon` and `saveContactToNeon` functions in a dedicated service file (`app/lib/contact_service.ts`) for database interactions.
-    - Updated the primary contacts API endpoint (`app/api/orion/contacts/route.ts`, renamed from `app/api/orion/notion/contacts/route.ts`) to exclusively use the new Neon-backed service for both data retrieval and persistence.
-    - The old Notion-based contacts API route was subsequently deleted.
+    - Updated the primary contacts API endpoint (`app/api/orion/contacts/route.ts`, renamed from `app/api/orion/WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES/contacts/route.ts`) to exclusively use the new Neon-backed service for both data retrieval and persistence.
+    - The old WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES-based contacts API route was subsequently deleted.
     - A temporary SQL execution endpoint (`app/api/orion/internal/execute-sql/route.ts`) was briefly used for table creation and then removed.
 - **Comprehensive TypeScript and Linter Error Resolution**:
   - **Reason**: To achieve a zero-error build, ensure strict type safety, improve code maintainability, and align with project coding standards.
@@ -1790,3 +1789,56 @@ This feature directly addresses your desire for an immediate, on-page source of 
 - **Robust Backend:** The dedicated API ensures that the affirmation generation is scalable, secure, and performant.
 
 ---
+
+## Using the Neon API to Query Project and Branch Details
+
+### 1. Extracting Project and Branch IDs
+
+- The Neon project and branch IDs are embedded in your `DATABASE_URL` in `.env`:
+  ```
+  DATABASE_URL="postgresql://neondb_owner:...@ep-hidden-paper-a8penx7z-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
+  ```
+- The host portion (`ep-hidden-paper-a8penx7z-pooler.eastus2.azure.neon.tech`) contains the project ID:
+  - **Project ID:** `ep-hidden-paper-a8penx7z`
+  - **Branch:** Usually the default branch unless otherwise specified in the Neon dashboard.
+
+### 2. Neon API Endpoint
+
+- To get branch details, use:
+  ```
+  https://console.neon.tech/api/v2/projects/{project_id}/branches/{branch_id}
+  ```
+  - Replace `{project_id}` with `ep-hidden-paper-a8penx7z`
+  - Replace `{branch_id}` with your branch's ID (find this in the Neon dashboard or via the API).
+
+### 3. Authentication
+
+- The Neon API requires an API key for authentication.
+- Set the `Authorization` header:
+  ```
+  Authorization: Bearer <your-neon-api-key>
+  ```
+
+### 4. Example API Call (using curl)
+
+```sh
+curl -H "Authorization: Bearer <your-neon-api-key>" \
+  "https://console.neon.tech/api/v2/projects/ep-hidden-paper-a8penx7z/branches/<branch_id>"
+```
+
+### 5. How to Find Branch ID
+
+- Log in to the Neon dashboard and navigate to your project.
+- The branch ID is shown in the branch settings or URL.
+- Alternatively, list all branches:
+  ```
+  GET https://console.neon.tech/api/v2/projects/ep-hidden-paper-a8penx7z/branches
+  ```
+
+### 6. Usage in Code
+
+- Use these details to programmatically fetch branch metadata, status, or configuration for automation or debugging.
+
+---
+
+**Reminder:** Update `.env` and config files if you change your Neon project or branch. Always keep your API keys secure.

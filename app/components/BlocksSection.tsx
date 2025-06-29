@@ -100,11 +100,11 @@ type BackgroundImageProps = {
 // Internal BackgroundImage component (not exported)
 const BackgroundImage = ({ transitionData, currentSlideData }: BackgroundImageProps) => {
   const gradients = [
-    'bg-gradient-to-r from-purple-600 to-blue-500',
-    'bg-gradient-to-l from-blue-500 to-purple-600',
-    'bg-gradient-to-r from-indigo-500 to-pink-500',
-    'bg-gradient-to-l from-green-500 to-blue-600',
-    'bg-gradient-to-r from-red-500 to-yellow-500',
+    'bg-linear-to-r from-purple-600 to-blue-500',
+    'bg-linear-to-l from-blue-500 to-purple-600',
+    'bg-linear-to-r from-indigo-500 to-pink-500',
+    'bg-linear-to-l from-green-500 to-blue-600',
+    'bg-linear-to-r from-red-500 to-yellow-500',
   ];
   // Deterministically select gradient based on index to avoid hydration mismatch
   const currentGradient = gradients[currentSlideData.index % gradients.length];
@@ -219,7 +219,7 @@ export default function BlocksSection() {
                   href="mailto:tomide@merislabs.com"
                   target="_blank"
                   rel="noreferrer"
-                  className=" w-fit rounded-full border-[1px] border-[#ffffff8f] px-6 py-3 text-[10px] font-thin transition duration-300 ease-in-out hover:bg-white hover:text-black "
+                  className=" w-fit rounded-full border border-[#ffffff8f] px-6 py-3 text-[10px] font-thin transition duration-300 ease-in-out hover:bg-white hover:text-black "
                 >
                   BUILD WITH MERIS LABS
                 </a>
