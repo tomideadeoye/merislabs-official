@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '@/lib/prisma';
 
 interface ActionReflectionRequestBody {
-  habiticaTaskId: string;
+  taskId: string;
   orionSourceModule?: string;
   orionSourceReferenceId?: string;
   originalTaskText: string;
@@ -20,14 +20,14 @@ interface ActionReflectionRequestBody {
 export async function POST(request: NextRequest) {
   try {
     const body: ActionReflectionRequestBody = await request.json();
-    const { habiticaTaskId, orionSourceModule, orionSourceReferenceId, originalTaskText, reflectionText, timestamp } =
+    const { taskId, orionSourceModule, orionSourceReferenceId, originalTaskText, reflectionText, timestamp } =
       body;
 
     console.log(`[ACTION_REFLECTION_API][VERBOSE] Received POST request with body:`, JSON.stringify(body, null, 2));
 
-    if (!habiticaTaskId || !reflectionText || !timestamp || !originalTaskText) {
+    if (!taskId || !reflectionText || !timestamp || !originalTaskText) {
       console.error(
-        `[ACTION_REFLECTION_API][ERROR] Missing required fields: habiticaTaskId=${habiticaTaskId}, reflectionText=${reflectionText}, timestamp=${timestamp}, originalTaskText=${originalTaskText}`
+        `[ACTION_REFLECTION_API][ERROR] Missing required fields: taskId=${taskId}, reflectionText=${reflectionText}, timestamp=${timestamp}, originalTaskText=${originalTaskText}`
       );
       return NextResponse.json(
         {
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     console.log(`[ACTION_REFLECTION_API][VERBOSE] Embedding vector generated:`, embeddingVector);
 
     // 2. Prepare memory point for the Action Reflection
-    const reflectionSourceId = `action_reflection_${habiticaTaskId}_${timestamp.replace(/[:.]/g, '-')}`;
+    const reflectionSourceId = `action_reflection_${taskId}_${timestamp.replace(/[:.]/g, '-')}`;
     console.log(`[ACTION_REFLECTION_API][VERBOSE] Generated reflectionSourceId: ${reflectionSourceId}`);
 
     const memoryPayload = {
@@ -73,10 +73,10 @@ export async function POST(request: NextRequest) {
       tags: [
         'reflection',
         'action_review',
-        'habitica_task',
+        'task',
         ...(orionSourceModule ? [orionSourceModule.toLowerCase()] : []),
       ],
-      related_habitica_task_id: habiticaTaskId,
+      related_task_id: taskId,
       original_task_text: originalTaskText,
       related_orion_source_id: orionSourceReferenceId,
     };
@@ -110,30 +110,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Store the reflection link in Neon/Postgres using Prisma
-    try {
-      console.log(
-        `[ACTION_REFLECTION_API][VERBOSE] Inserting reflection link into Neon/Postgres for habiticaTaskId: ${habiticaTaskId}`
-      );
-
-      // Use Prisma raw query since the model doesn't have reflection fields and habiticaTaskId is not unique
-      await prisma.$executeRaw`
-        INSERT INTO habitica_task_links (
-          id, "habiticaTaskId", "orionSourceModule", "orionSourceReferenceId", "orionTaskText", "createdAt", "reflectionId", "reflectionText"
-        ) VALUES (${uuidv4()}, ${habiticaTaskId}, ${orionSourceModule || 'unknown'}, ${orionSourceReferenceId || 'unknown'}, ${originalTaskText}, ${new Date(currentISOTime)}, ${reflectionSourceId}, ${reflectionText})
-        ON CONFLICT ("habiticaTaskId") DO UPDATE SET
-          "reflectionId" = EXCLUDED."reflectionId",
-          "reflectionText" = EXCLUDED."reflectionText"
-      `;
-
-      console.log(
-        `[ACTION_REFLECTION_API][VERBOSE] Reflection link saved to Neon/Postgres for task ID: ${habiticaTaskId}`
-      );
-    } catch (pgError: unknown) {
-      console.error(
-        `[ACTION_REFLECTION_API][ERROR] Failed to save reflection link to Neon/Postgres: ${pgError instanceof Error ? pgError.message : String(pgError)}`
-      );
-      // Continue even if database update fails, as we've already saved to memory
-    }
+    
 
     console.log(`[ACTION_REFLECTION_API][VERBOSE] Action reflection saved. Source ID: ${reflectionSourceId}`);
 

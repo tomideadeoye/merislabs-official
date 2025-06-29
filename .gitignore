@@ -238,3 +238,5 @@ wasm.d.ts
 wasm.js
 
 # --- End Roo additions ---
+.vscode/settings.json
+prisma/

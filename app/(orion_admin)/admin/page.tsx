@@ -51,7 +51,7 @@ import { PageNames, SessionStateKeys } from '@/lib/constants';
 import logger from '@/lib/logger';
 import { useSessionState } from '@/hooks/useSessionState';
 import useUserProfile from '@/hooks/useUserProfile';
-import { HabiticaStatsContainer } from '@/components/orion/HabiticaStatsContainer';
+
 import { Badge } from '@/components/ui/badge';
 import { useAdminDashboardStore } from '@/lib/stores/adminDashboardStore';
 
@@ -253,12 +253,7 @@ export default function AdminDashboardPage() {
               <span>Opportunity Pipeline</span>
             </Button>
           </Link>
-          <Link href="/admin/habitica" passHref>
-            <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
-              <ListChecks className="h-5 w-5" />
-              <span>Habitica</span>
-            </Button>
-          </Link>
+          
           <Link href="/admin/narrative-clarity-studio" passHref>
             <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
               <Info className="h-5 w-5" />
@@ -275,7 +270,7 @@ export default function AdminDashboardPage() {
       </Card>
 
       {/* Habitica Stats */}
-      <HabiticaStatsContainer />
+      
 
       {/* Real-time LLM Health & API Status (Placeholder) */}
       <Card className="bg-gray-800 border-gray-700">

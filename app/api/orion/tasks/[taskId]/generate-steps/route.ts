@@ -121,7 +121,7 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
     `;
 
     // Define your tools here. These tools correspond to functions the LLM can decide to "call".
-    // Example: A tool to search the web, create a Habitica todo, etc.
+    // Example: A tool to search the web, create a task, etc.
     // This array needs to align with the schema expected by `generateLLMResponseWithTools`.
     const tools: LLMTool[] = [
       // Example tool structure. You will need to fill this out based on your actual available tools.
@@ -143,8 +143,8 @@ export async function POST(request: NextRequest, { params }: { params: { taskId:
       {
         type: 'function',
         function: {
-          name: 'create_habitica_todo',
-          description: "Creates a new To-Do task in Tomide's Habitica account.",
+          name: 'create_task',
+description: "Creates a new To-Do task in Tomide's account.",
           parameters: {
             type: 'object',
             properties: {

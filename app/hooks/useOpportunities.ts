@@ -31,7 +31,7 @@ export const useOpportunities = (): UseOpportunitiesResult => {
         '[USE_OPPORTUNITIES][FETCH_OPPORTUNITIES][START] Attempting to fetch opportunities via React Query.',
         { operation: 'fetch_opportunities' }
       );
-      const response = await fetch('/api/orion/opportunity/list');
+      const response = await fetch('/api/orion/opportunities/list');
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: `HTTP error! status: ${response.status}` }));
         logger.warn('[USE_OPPORTUNITIES][FETCH_OPPORTUNITIES][HTTP_ERROR]', { status: response.status, errorData });

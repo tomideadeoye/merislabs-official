@@ -96,5 +96,19 @@
       "vscodeTask": "typescript.restartTsServer",
       "isAsync": true
     }
-  ]
+  ],
+
+  // --- Exclude backup and venv folders ---
+  "files.exclude": {
+    "**/venv/": true,
+    "**/.venv/": true,
+    "../merislabs-backup/": true,
+    "**/site-packages/": true
+  },
+  "search.exclude": {
+    "**/venv/": true,
+    "**/.venv/": true,
+    "../merislabs-backup/": true,
+    "**/site-packages/": true
+  }
 }

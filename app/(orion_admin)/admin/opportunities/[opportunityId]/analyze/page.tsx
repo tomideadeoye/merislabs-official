@@ -39,7 +39,7 @@
  *   - **Interactive Charts**: Enhance `OpportunityPipelineCharts` with more interactive features (e.g., drill-down, tooltips, filtering by criteria beyond status).
  *   - **Memory Integration**: Automatically search and display relevant memories about the company or role alongside the opportunity details and evaluation.
  *   - **Comparison View**: Introduce a feature to compare the current opportunity's evaluation against other selected opportunities in the pipeline.
- *   - **Actionable Advice Integration**: More prominently display and provide actionable tools based on `suggestedNextSteps` from the evaluation (e.g., directly create Habitica tasks, draft emails).
+ *   - **Actionable Advice Integration**: More prominently display and provide actionable tools based on `suggestedNextSteps` from the evaluation (e.g., directly create tasks, draft emails).
  *
  * OPPORTUNITIES TO CONSOLIDATE:
  *   - The logic for fetching and processing `userProfileData` is shared with `OpportunityDetailView.tsx`. This could potentially be further centralized in a `useUserProfile` hook or a dedicated utility that ensures consistent fetching and error handling.
@@ -77,7 +77,7 @@ async function fetchOpportunity(id: string): Promise<Opportunity | null> {
 // Fetch all opportunities for pipeline analytics
 async function fetchAllOpportunities(): Promise<Opportunity[]> {
   try {
-    const res = await fetch('/api/orion/opportunity/list', {
+    const res = await fetch('/api/orion/opportunities/list', {
       cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
     });

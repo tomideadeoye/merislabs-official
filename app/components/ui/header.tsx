@@ -77,20 +77,6 @@ export function Header({ navItems }: HeaderProps) {
     operation: 'Header_Initialization',
     context: 'UI_Render',
   });
-  logger.debug('[Header Component][NAV_ITEMS] Received navItems:', {
-    navItems,
-    itemCount: navItems?.length,
-    operation: 'Nav_Items_Processing',
-  });
-  logger.debug('[Header Component][NAV_ITEMS] Displayed navItems:', {
-    displayedNavItems,
-    itemCount: displayedNavItems?.length,
-    operation: 'Nav_Items_Filtering',
-  });
-  logger.debug('[Header Component][LOGO] Rendering Meris Labs logo.', {
-    src: '/images/merislabswhite.png',
-    operation: 'Logo_Render',
-  });
 
   useEffect(() => {
     setMounted(true);
@@ -203,5 +189,3 @@ export function Header({ navItems }: HeaderProps) {
 }
 
 // TODO: Consolidate files
-// this is a simple nextjs app... not a simple nextjs project
-// Always use linting

@@ -15,8 +15,8 @@ import { handleServerError } from '@/lib/utils/serverErrorHandler';
 
 export async function GET() {
   const logContext = {
-    route: '/api/orion/opportunity/list',
-    filePath: 'app/api/orion/opportunity/list/route.ts',
+    route: '/api/orion/opportunities/list',
+    filePath: 'app/api/orion/opportunities/list/route.ts',
     timestamp: new Date().toISOString(),
     user: 'public',
   };

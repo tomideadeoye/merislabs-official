@@ -812,14 +812,14 @@ export const AgenticWorkflowComponent: React.FC = () => {
 
   // Filter tasks by priority, status, and tags before rendering
   const filteredTasks = tasks.filter(
-    (task) =>
+    (task: Task) =>
       (activePriorityFilter === 'ALL' || task.priority === activePriorityFilter) &&
       (activeStatusFilter === 'ALL' || task.status === activeStatusFilter) &&
       (activeTagFilter === null || (task.tags || []).includes(activeTagFilter))
   );
 
   // Filter tasks by priority before rendering
-  const filteredTasksByPriority: Task[] = tasks.filter((task) =>
+  const filteredTasksByPriority: Task[] = tasks.filter((task: Task) =>
     (activePriorityFilter === 'ALL' || task.priority === activePriorityFilter) &&
     (activeTagFilter === null || (task.tags || []).includes(activeTagFilter))
   );

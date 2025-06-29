@@ -3,7 +3,7 @@
 //   - Orion Admin Journal page.
 //   - Allows user to create new journal entries, view history, and receive AI-powered reflections.
 //   - Features: JournalEntryForm, JournalEntryDisplay, AddTaskFromReflection, JournalList, tabbed UI for new/history.
-//   - Extracts actionable tasks from AI reflections and enables adding them to Habitica.
+//   - Extracts actionable tasks from AI reflections.
 // FILEPATH:
 //   apps/nextjs/app/(orion_admin)/admin/journal/page.tsx
 // CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:

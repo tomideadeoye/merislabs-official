@@ -40,7 +40,7 @@ import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
  *     - **How to Implement:** Introduce an input parameter (`flowType: 'circular' | 'decision-tree' | 'timeline'`) that modifies the LLM's system prompt and potentially the parsing logic for output.
  *   **4. Integration with other Modules:**
  *     - **Goal:** Connect generated flows directly to task management or project planning tools.
- *     - **How to Implement:** Once a flow is satisfactory, offer an option to convert it into a set of tasks in Habitica or a project plan in the Business Management module.
+ *     - **How to Implement:** Once a flow is satisfactory, offer an option to convert it into a set of tasks or a project plan in the Business Management module.
  */
 
 async function getStepsFromLLM(prompt: string, model = 'azure/gpt-4.1') {

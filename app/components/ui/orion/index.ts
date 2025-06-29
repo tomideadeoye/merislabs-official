@@ -1,6 +1,5 @@
 export * from './opportunities/AddOpportunityForm';
 export * from '../../ComprehensiveAnalysis';
-export * from '../../orion/opportunities/CreateHabiticaTaskButton';
 export * from '../../DraftApplicationButton';
 export * from './opportunities/EmailTestButton';
 export * from '../../EvaluateWithOrionButton';

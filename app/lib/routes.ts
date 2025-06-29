@@ -55,10 +55,6 @@ export const ROUTES = {
     href: '/admin/draft-communication',
     title: 'Draft Communication',
   },
-  HABITICA: {
-    href: '/admin/habitica',
-    title: 'Habitica',
-  },
   AGENTIC_WORKFLOW: {
     href: '/admin/agentic-workflow',
     title: 'Agentic Workflow',
@@ -131,10 +127,6 @@ export const navItems: NavItem[] = [
   {
     title: ROUTES.NARRATIVE_CLARITY_STUDIO.title,
     href: ROUTES.NARRATIVE_CLARITY_STUDIO.href,
-  },
-  {
-    title: ROUTES.HABITICA.title,
-    href: ROUTES.HABITICA.href,
   },
   {
     title: ROUTES.ROUTINES.title,

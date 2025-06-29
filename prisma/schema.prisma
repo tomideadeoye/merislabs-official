@@ -154,7 +154,7 @@ model Opportunity {
 
 model Stakeholder {
   id            String   @id @default(uuid()) @db.Uuid
-  id String   @map("opportunity_id") @db.Uuid
+  opportunityId String   @map("opportunity_id") @db.Uuid
   name          String
   title         String
   email         String?
@@ -163,21 +163,21 @@ model Stakeholder {
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationship to Opportunity
-  opportunity Opportunity @relation(fields: [id], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
 
   @@map("stakeholders")
 }
 
 model ApplicationDraft {
   id            String   @id @default(uuid()) @db.Uuid
-  id String   @map("opportunity_id") @db.Uuid
+  opportunityId String   @map("opportunity_id") @db.Uuid
   type          String // Maps to VARCHAR(50) in SQL, 'email' or 'linkedin'
   content       String
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationship to Opportunity
-  opportunity Opportunity @relation(fields: [id], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
 
   @@map("application_drafts")
 }
@@ -245,10 +245,9 @@ model CVComponent {
 model CVFeedback {
   id               String   @id @default(uuid()) @db.Uuid
   userId           String
-  id    String   @db.Uuid
+  componentId      String?  @db.Uuid // Optional, for specific component feedback
   feedbackType     String // e.g., 'positive', 'negative', 'suggestion', 'bug'
   feedbackDetails  String   @db.Text
-  componentId      String?  @db.Uuid // Optional, for specific component feedback
   originalContent  String?  @db.Text
   generatedContent String?  @db.Text
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
@@ -315,9 +314,23 @@ model Task {
   relatedLinks        String[]     @default([])
   relatedPhoneNumbers String[]     @default([])
   relatedContactIds   String[]     @default([]) @map("related_contact_ids") // For relating tasks to contacts
-tags                 String[]     @default([]) // For task categorization, matches UI and types
+  tags                String[]     @default([]) // For task categorization, matches UI and types
+  checklist           Json? // For storing checklist items
 
   @@map("tasks")
+}
+
+model Gamification {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @unique
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  lastCompletionDate DateTime?
+  achievements  Json     @default("[]")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("gamification")
 }
 
 model TaskStep {

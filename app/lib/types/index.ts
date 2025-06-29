@@ -35,7 +35,6 @@ import type { Task } from '@prisma/client';
 
 // Explicitly export types for isolatedModules compliance
 export type * from './blocks';
-// export type * from './habitica'; // Confirmed commented out or removed
 export type * from './ideas';
 export type * from './insights';
 export type * from './llm';
@@ -731,8 +730,6 @@ export interface OrionSessionState {
   dcTopic?: string;
   dcUserContext?: string;
   enabledStepsPipeline?: Record<string, boolean>;
-  // habiticaApiToken?: string; // Removed
-  // habiticaUserId?: string; // Removed
   journalModelApproach?: string;
   journalPrimaryModel?: string;
   journalProcessing?: boolean;

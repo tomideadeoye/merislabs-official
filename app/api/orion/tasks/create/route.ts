@@ -6,7 +6,7 @@
  *
  * GOAL OF FILE|FEATURES|FUNCTIONS:
  *   - To provide a robust API endpoint (`POST`) for adding new tasks to Orion's internal task management system.
- *   - To support different categories of tasks, mirroring (and eventually replacing) Habitica's task types.
+ *   - To support different categories of tasks.
  *   - To ensure data integrity through request validation using Zod.
  *   - To integrate seamlessly with the Prisma `Task` model for database persistence.
  *   - To provide comprehensive logging for traceability and debugging.
@@ -18,7 +18,7 @@
  *   - `@/lib/logger`: Used for structured and context-rich logging.
  *   - `@/generated/prisma`: Imports Prisma generated types like `TaskStatus`, `TaskPriority`, and `TaskType` for type safety.
  *   - `@/lib/utils/errorHandler`: Used for centralized error handling (`handleServerError`).
- *   - `app/(orion_admin)/admin/habitica/page.tsx` (or future internal task management UI): This route will be consumed by frontend components to create new tasks.
+ *   - `app/(orion_admin)/admin/agentic-workflow/page.tsx`: This route will be consumed by frontend components to create new tasks.
  *   - `prisma/schema.prisma`: Defines the `Task` model and `TaskType` enum that this route interacts with.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:
@@ -28,7 +28,7 @@
  *   - `TaskType` will default to `TODO` if not provided, allowing for flexible task creation.
  *
  * NOTES:
- *   - This file is a key component in migrating away from external task management systems (like Habitica) towards a fully integrated Orion solution.
+ *   - This file is a key component in the internal task management system.
  *   - The use of Zod for validation ensures that only well-formed data is processed and stored.
  *   - Detailed logging at each stage aids in monitoring and troubleshooting the task creation process.
  *
@@ -36,7 +36,7 @@
  *   - **User-specific Tasks**: Once authentication is reintroduced, replace the hardcoded `userId` with the actual authenticated user's ID.
  *   - **Advanced Validation**: Implement more complex validation rules if needed (e.g., custom date formats, specific tag constraints).
  *   - **Task Relationships**: Extend the schema and this route to support relationships between tasks (e.g., parent-child tasks, dependencies).
- *   - **Frontend Integration**: Develop a dedicated UI component that leverages this API for creating and managing internal tasks, replacing the Habitica interface.
+ *   - **Frontend Integration**: Develop a dedicated UI component that leverages this API for creating and managing internal tasks.
  *   - **Webhooks/Integrations**: Consider adding logic to trigger webhooks or integrate with other services upon task creation (e.g., sending notifications).
  */
 

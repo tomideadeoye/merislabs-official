@@ -13,7 +13,7 @@
  *   - `../generated/prisma`: Imports the Prisma Client for type-safe database interactions.
  *   - `app/lib/types/index.ts`: Defines UI-specific types, but the canonical type here is the Prisma model.
  *   - `app/lib/logger.ts`: Used for comprehensive, context-rich logging of all database operations within this service.
- *   - `app/api/orion/opportunity/list/route.ts`: Consumes `listOpportunitiesFromDb` to fetch opportunities for the API.
+ *   - `app/api/orion/opportunities/list/route.ts`: Consumes `listOpportunitiesFromDb` to fetch opportunities for the API.
  *   - `app/api/orion/opportunity/create/route.ts`: Consumes `createOpportunityInDb` to add new opportunities via the API.
  *   - `app/api/orion/opportunity/update-status/route.ts`: Consumes `updateOpportunityStatusInDb` to modify opportunity statuses via the API.
  *   - `app/hooks/useOpportunities.ts`: Indirectly uses these database functions via the API routes to manage opportunity data in the UI.

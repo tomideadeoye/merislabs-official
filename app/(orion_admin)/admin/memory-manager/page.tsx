@@ -96,7 +96,6 @@
  * Summary of What Will Be Modified, Created, or Deleted:
  *   - Modified:
  *       • app/(orion_admin)/admin/memory-manager/ (UI, logic, and API calls updated to include all "ask orion" features and data source selection)
- *       • Sidebar navigation (remove "ask orion" entry)
  *   - Created:
  *       • Multi-select data source UI in memory manager
  *       • Neon Postgres search backend implementation (if not already present)

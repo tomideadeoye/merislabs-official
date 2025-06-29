@@ -46,8 +46,6 @@ export enum SessionStateKeys {
   LLM_CONFIGURED = 'llmConfigured',
   OPENAI_API_KEY = 'openaiApiKey',
   QDRANT_API_KEY = 'qdrantApiKey',
-  HABITICA_USER_ID = 'habiticaUserId',
-  HABITICA_API_TOKEN = 'habiticaApiToken',
   TOMIDES_PROFILE_DATA = 'tomidesProfileData',
   JOURNAL_TEXT = 'journalText',
   JOURNAL_REFLECTION = 'journalReflection',
@@ -127,8 +125,6 @@ export interface SessionState {
     [SessionStateKeys.LLM_CONFIGURED]?: boolean;
     [SessionStateKeys.OPENAI_API_KEY]?: string;
     [SessionStateKeys.QDRANT_API_KEY]?: string;
-    [SessionStateKeys.HABITICA_USER_ID]?: string;
-    [SessionStateKeys.HABITICA_API_TOKEN]?: string;
     [SessionStateKeys.TOMIDES_PROFILE_DATA]?: UserProfileData | null;
     [SessionStateKeys.JOURNAL_TEXT]?: string;
     [SessionStateKeys.JOURNAL_REFLECTION]?: string;

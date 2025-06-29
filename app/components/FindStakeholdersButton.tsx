@@ -47,17 +47,9 @@ export const FindStakeholdersButton: React.FC<FindStakeholdersButtonProps> = ({ 
       const data = await response.json();
 
       if (data.success && data.stakeholders) {
-        const stakeholdersWithIds = data.stakeholders.map((s: any) => ({
-          id: s.id || Math.random().toString(36).substring(7),
-          id: s.id || '',
-          name: s.name || '',
-          title: s.title || s.role || '',
-          email: s.email === undefined ? null : s.email,
-          linkedinUrl: s.linkedinUrl === undefined ? null : s.linkedinUrl,
-          createdAt: s.createdAt ? new Date(s.createdAt) : new Date(),
-          updatedAt: s.updatedAt ? new Date(s.updatedAt) : new Date(),
-          role: s.role,
-          company: s.company,
+        const stakeholdersWithIds = data.stakeholders.map((s: Stakeholder) => ({
+          ...s,
+          id: s.id
         }));
         setStakeholders(stakeholdersWithIds);
       } else {
