@@ -277,7 +277,7 @@ const evaluateAchievementBadges = async (userId: string): Promise<AchievementBad
     }
 
     const opportunityCount = await prisma.opportunity.count({
-      where: { userId: userId, evaluationResult: { not: { equals: null } } }, // Count only evaluated opportunities
+      where: { evaluationResult: { not: { equals: null } } }, // Count only evaluated opportunities
     });
     logger.debug('[GAMIFICATION][BADGES][OPPORTUNITY_COUNT]', { ...logContext, count: opportunityCount });
 
@@ -328,7 +328,6 @@ export async function GET(): Promise<
 
     const totalOpportunitiesEvaluated = await prisma.opportunity.count({
       where: {
-        userId: userId,
         evaluationResult: {
           not: { equals: null }, // Fix: filter for non-null JSON
         },

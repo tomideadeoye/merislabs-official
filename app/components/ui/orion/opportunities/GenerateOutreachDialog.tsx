@@ -37,7 +37,6 @@ export const GenerateOutreachDialog: React.FC = () => {
           priority: null,
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: null,
           notes: null,
           contactPerson: null,
           contactEmail: null,

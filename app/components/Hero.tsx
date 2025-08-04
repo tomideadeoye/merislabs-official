@@ -4,7 +4,6 @@
 // ASSUMPTIONS & CLEAR COMMENTS: // NOTE: Assumed Blocks and ModalVideo are available and compatible with current app structure – confirm with team
 // NOTES: Consider consolidating hero assets and logic if similar hero sections exist elsewhere. Opportunities for improvement: modularize SVG, add robust error handling for missing assets, and ensure all imports are up to date.
 
-import BlocksSection from '@/components/BlocksSection';
 // import ModalVideo from '../../components/modal-video';
 // import VideoThumb from '../../public/images/hero-image-01.png';
 
