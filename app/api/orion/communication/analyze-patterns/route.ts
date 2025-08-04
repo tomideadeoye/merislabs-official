@@ -30,13 +30,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
-import { searchMemory, addMemory } from '@/lib/memory';
+import { searchMemory } from '@/lib/memory';
 import { fetchUserProfile } from '@/lib/profile_service';
 import {
   CommunicationPatternAnalysisResult,
-  RecurringPattern,
-  SuggestedStrategy,
-  IndividualChatAnalysisSummary,
 } from '@/lib/types/communication';
 import { ScoredMemoryPoint } from '@/lib/types/memory';
 

@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { ORION_MEMORY_COLLECTION_NAME } from '@/lib/orion_config';
 import { v4 as uuidv4 } from 'uuid';
-import { prisma } from '@/lib/prisma';
+
 
 interface ActionReflectionRequestBody {
   taskId: string;
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       throw new Error(upsertData.error || 'Failed to save action reflection to memory.');
     }
 
-    // 4. Store the reflection link in Neon/Postgres using Prisma
+    
     
 
     console.log(`[ACTION_REFLECTION_API][VERBOSE] Action reflection saved. Source ID: ${reflectionSourceId}`);

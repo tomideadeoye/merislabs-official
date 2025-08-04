@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLLMResponseWithTools } from '@/lib/orion_llm';
 import { getToolSchemas, executeTool } from '@/lib/orion_tools';
-import type { CombinedLLMResponse, LLMToolCall, Message, LLMResponseSuccess, LLMTool } from '@/lib/types';
+import type { CombinedLLMResponse, LLMToolCall, Message, LLMTool, ScoredMemoryPoint } from '@/lib/types';
 import logger from '@/lib/logger';
 import { searchMemory } from '@/lib/memory';
 
@@ -28,74 +28,7 @@ function isLLMFunctionCall(func: unknown): func is { name: string; arguments: st
 }
 
 // Helper to validate and parse tool calls from LLM response
-function parseAndValidateToolCalls(responseContent: string): LLMToolCall[] {
-  try {
-    const parsedResponse: unknown = JSON.parse(responseContent);
-    const toolCalls: LLMToolCall[] = [];
 
-    if (typeof parsedResponse === 'object' && parsedResponse !== null) {
-      if ('tool_calls' in parsedResponse && Array.isArray(parsedResponse.tool_calls)) {
-        for (const tc of parsedResponse.tool_calls) {
-          // Check if tc is an object and not null
-          if (!(typeof tc === 'object' && tc !== null)) {
-            continue; // Skip invalid tool call
-          }
-
-          // Check if 'function' property exists and is an object
-          if (
-            !(
-              'function' in tc &&
-              typeof (tc as { function: unknown }).function === 'object' &&
-              (tc as { function: unknown }).function !== null
-            )
-          ) {
-            continue; // Skip invalid tool call
-          }
-
-          // Now, safely cast and check the 'function' details using the type guard
-          const func = (tc as { function: unknown }).function;
-          if (!isLLMFunctionCall(func)) {
-            continue; // Skip invalid tool call
-          }
-
-          // Check if 'type' property exists and is 'function'
-          if (!('type' in tc && (tc as { type: string }).type === 'function')) {
-            continue; // Skip invalid tool call
-          }
-
-          toolCalls.push({
-            id: (tc as { id?: string }).id, // Cast to allow accessing optional 'id'
-            function: {
-              name: func.name,
-              arguments: func.arguments,
-            },
-            type: 'function',
-          });
-        }
-      } else if (
-        'function_call' in parsedResponse &&
-        typeof parsedResponse.function_call === 'object' &&
-        parsedResponse.function_call !== null
-      ) {
-        const fc: unknown = parsedResponse.function_call;
-        if (isLLMFunctionCall(fc)) {
-          toolCalls.push({
-            id: (fc as { id?: string }).id, // May not exist for older function_call, now correctly optional
-            function: {
-              name: fc.name,
-              arguments: fc.arguments,
-            },
-            type: 'function',
-          });
-        }
-      }
-    }
-    return toolCalls;
-  } catch (error: unknown) {
-    console.error('[AGENT_EXECUTE] Error parsing LLM response for tool calls:', error);
-    return [];
-  }
-}
 
 // Helper to execute tool calls by calling internal API endpoints
 // This function now directly uses the executeTool from orion_tools.ts
@@ -149,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Qdrant Memory Integration ---
-    let memoryResults: any[] = [];
+    let memoryResults: ScoredMemoryPoint[] = [];
     let memoryContextBlock = '';
     if (includeMemory) {
       try {
@@ -253,8 +186,8 @@ Assistant: "I have found the latest price for a .gov.ng domain (70,000 NGN/year)
             logger.info('[AGENT_EXECUTE] LLM requested tool calls.', { toolCalls: llmResponse.tool_calls });
 
             for (const toolCall of llmResponse.tool_calls) {
-              let argsObj: any;
-              try { argsObj = JSON.parse(toolCall.function.arguments); } catch { argsObj = toolCall.function.arguments; }
+              let argsObj: Record<string, any>;
+              try { argsObj = JSON.parse(toolCall.function.arguments); } catch { argsObj = {}; }
               const toolCallKey = `${toolCall.function.name}:${JSON.stringify(argsObj, Object.keys(argsObj).sort())}`;
               if (toolCallHistory.has(toolCallKey)) {
                 const repeatMsg = `You have already called the tool '${toolCall.function.name}' with these arguments. Please use the information already provided to answer the user as best as possible.`;
@@ -300,7 +233,7 @@ Assistant: "I have found the latest price for a .gov.ng domain (70,000 NGN/year)
       numStrategies: generatedStrategies.length,
     });
     // After generating all strategies, return the first one (for now)
-    type AgentResult = { success: boolean; answer: string; current_messages: Message[]; memoryResults?: any[] };
+    type AgentResult = { success: boolean; answer: string; current_messages: Message[]; memoryResults?: ScoredMemoryPoint[] };
     const result: AgentResult = {
       success: true,
       answer: generatedStrategies[0]?.answer,

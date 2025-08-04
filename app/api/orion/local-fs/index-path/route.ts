@@ -37,7 +37,7 @@
 
 import { getConfiguredDirectories } from '@/lib/orion_config';
 import { NextRequest, NextResponse } from 'next/server';
-import { searchMemory } from '@/lib/orion_memory'; // Kept searchMemory in case it's used elsewhere or planned.
+
 import { LocalFileIndexRequest, LocalFileIndexResponse, FilePath } from '@/lib/types';
 import path from 'path';
 import { promises as fs } from 'fs';

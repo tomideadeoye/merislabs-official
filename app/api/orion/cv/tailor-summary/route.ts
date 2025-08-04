@@ -54,7 +54,7 @@ import { CVComponent } from '@/lib/types/cv'; // Explicitly import CVComponent f
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Corrected import for generateLLMResponse
 import logger from '@/lib/logger'; // Import logger
 // Removed: import { auth } from '@/auth'; // Authentication removed as per user request
-import { HandledApplicationError, UserProfileData, ScoredMemoryPoint } from '@/lib/types'; // Import HandledApplicationError from types
+import { HandledApplicationError, UserProfileData } from '@/lib/types'; // Import HandledApplicationError from types
 import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import handleServerError
 import { fetchAllCvComponents } from '@/lib/cv_components_db_service';
 import { Opportunity } from '@prisma/client';

@@ -24,7 +24,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       },
     });
     return NextResponse.json({ success: true, task });
-  } catch (error) {
+  } catch (e: unknown) {
     return NextResponse.json({ success: false, error: 'Failed to update task' }, { status: 500 });
   }
 }
@@ -38,7 +38,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       where: { id },
     });
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (e: unknown) {
     return NextResponse.json({ success: false, error: 'Failed to delete task' }, { status: 500 });
   }
 }
@@ -51,7 +51,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ success: false, error: 'Task not found' }, { status: 404 });
     }
     return NextResponse.json({ success: true, task });
-  } catch (error) {
+  } catch (e: unknown) {
     return NextResponse.json({ success: false, error: 'Failed to fetch task' }, { status: 500 });
   }
 }

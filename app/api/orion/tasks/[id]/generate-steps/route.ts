@@ -24,7 +24,7 @@ export async function POST(
         });
 
         return NextResponse.json({ success: true, step: newStep });
-    } catch (error) {
+    } catch (e: unknown) {
         return NextResponse.json(
             { success: false, error: 'Failed to generate steps.' },
             { status: 500 }

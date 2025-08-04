@@ -55,7 +55,7 @@ interface LogContextType {
 const OutreachRequestSchema = z.object({
   id: z.string().min(1, 'Opportunity ID is required.').optional(),
   stakeholderName: z.string().min(1, 'Stakeholder name is required.'),
-  stakeholderRole: z.string().optional(),
+  
   persona: z.object({
     id: z.string(),
     name: z.string(),
@@ -111,7 +111,6 @@ export async function POST(request: NextRequest) {
     const {
       id,
       stakeholderName,
-      stakeholderRole,
       persona,
       outreachGoal,
       messageType,
@@ -121,7 +120,6 @@ export async function POST(request: NextRequest) {
       specificContext,
       callToAction,
     } = validationResult.data;
-    const numberOfDrafts = validationResult.data.numberOfDrafts;
 
     // Fetch user profile data
     const profileData: UserProfileFetchResponse | null = await fetchServerUserProfile();

@@ -43,13 +43,13 @@
  *     or roles can only see/use certain tools.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 // import { auth } from '@/auth'; // Temporarily removed auth as requested by user
 import logger from '@/lib/logger';
 import { TOOL_MANIFEST, Tool } from '@/lib/orion_tools'; // Changed import and added Tool type
 import { LLMTool } from '@/lib/types'; // Import LLMTool type if available
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const logContext = {
     route: '/api/orion/agent/list-tools',
     timestamp: new Date().toISOString(),

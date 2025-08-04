@@ -51,9 +51,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger'; // Import logger
 import { handleApiError } from '@/lib/utils/errorHandler'; // Import centralized error handler
 import { extractFirstJsonObject } from '@/lib/utils/jsonExtractor'; // Import the new utility
-import { HandledApplicationError } from '@/lib/utils/errorHandler'; // Import HandledApplicationError from errorHandler
-import { apiFetcher } from '@/lib/utils/apiFetcher'; // Import the new apiFetcher utility
-import { handleServerError } from '@/lib/utils/serverErrorHandler'; // Import handleServerError
+
 
 /**
  * API route for evaluating opportunities

@@ -53,16 +53,17 @@ import { fetchUserProfile } from '@/lib/profile_service';
 import { pythonApiService } from '@/lib/pythonApiService';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import logger from '@/lib/logger';
-import { LLMResponseFailure, UserProfileData, ScoredMemoryPoint } from '@/lib/types';
+import { LLMResponseFailure, ScoredMemoryPoint } from '@/lib/types';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
 import { HandledApplicationError } from '@/lib/utils/errorHandler'; // Correct import for HandledApplicationError
-import { Opportunity, $Enums } from '@prisma/client';
+import { Opportunity } from '@prisma/client';
 
-interface ResearchSnippet {
-    url?: string;
-    title?: string;
-    snippet?: string;
-}
+
+
+
+
+
+
 
 interface ApplicationDraftOutput {
     drafts: {
@@ -142,51 +143,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         // 3. Gather Web Research Context (Company News)
         logger.info('[DRAFT_APPLICATION_API][WEB_RESEARCH] Initiating web research for company news.', logContext);
-        let companyWebContext = 'No specific company web context found.';
-        try {
-            const companySearchRes = await pythonApiService.searchWeb(
-                `recent news, culture, and values for ${opportunity.company}`
-            );
-            if (typeof companySearchRes === 'string' && companySearchRes.trim().length > 0) {
-                try {
-                    const parsedCompanyRes: ResearchSnippet[] = JSON.parse(companySearchRes);
-                    if (parsedCompanyRes && parsedCompanyRes.length > 0) {
-                        companyWebContext = `Relevant company information:\n${parsedCompanyRes
-                            .map((s: ResearchSnippet) => `${s.title}: ${s.snippet}`)
-                            .join('\n\n')}`;
-                        logger.info('[DRAFT_APPLICATION_API][WEB_RESEARCH_SUCCESS] Company web context retrieved.', {
-                            ...logContext,
-                            snippetCount: parsedCompanyRes.length,
-                        });
-                    } else {
-                        logger.warn(
-                            '[DRAFT_APPLICATION_API][WEB_RESEARCH_EMPTY] No company web context returned after parsing.',
-                            logContext
-                        );
-                    }
-                } catch (jsonParseError) {
-                    logger.error(
-                        '[DRAFT_APPLICATION_API][WEB_RESEARCH_JSON_PARSE_ERROR] Failed to parse company search results.',
-                        {
-                            ...logContext,
-                            error: (jsonParseError as Error).message,
-                            rawContent: companySearchRes,
-                        }
-                    );
-                }
-            } else {
-                logger.warn(
-                    "[DRAFT_APPLICATION_API][WEB_RESEARCH_EMPTY] No company web context returned or it's not a string.",
-                    logContext
-                );
-            }
-        } catch (webError: unknown) {
-            logger.error('[DRAFT_APPLICATION_API][WEB_RESEARCH_ERROR] Error fetching company web context.', {
-                ...logContext,
-                error: webError instanceof Error ? webError.message : String(webError),
-            });
-            // Proceed without web context if it fails
-        }
+        
+        
 
         // 4. Gather Relevant Memories
         logger.info('[DRAFT_APPLICATION_API][MEMORY_SEARCH] Searching for relevant memories.', logContext);

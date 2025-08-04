@@ -47,7 +47,7 @@
 import { NextResponse } from 'next/server';
 import logger from '@/lib/logger';
 import { ProductivityStreak, AchievementBadge, GamificationDashboardData } from '@/lib/types';
-import { PrismaClient, Prisma } from '@/generated/prisma';
+
 import { isToday, parseISO, differenceInDays } from 'date-fns';
 import { handleApiError } from '@/lib/utils/errorHandler';
 import { prisma } from '@/lib/prisma';

@@ -14,13 +14,11 @@ import {
   BookOpenText,
   Network,
   Briefcase,
-  Rocket,
   DatabaseZap,
   BrainCircuit,
   Repeat,
   Cog,
   Lightbulb, FolderOpen,
-  Layers,
   Mail,
   Brain
 } from 'lucide-react';

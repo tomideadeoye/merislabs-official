@@ -25,32 +25,10 @@
  *   - [OPPORTUNITIES FOR IMPROVEMENT]: Expose fallback logic as a tunable parameter; add user feedback loop for relevance.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { ORION_MEMORY_COLLECTION_NAME, QDRANT_HOST, QDRANT_PORT, VECTOR_SIZE } from '@/lib/orion_config';
-import { QdrantClient } from '@qdrant/js-client-rest';
-import logger from '@/lib/logger';
-import { QdrantFilter, ScoredMemoryPoint, MemoryMetadataPayload } from '@/lib/types/memory';
-import { handleApiError } from '@/lib/utils/errorHandler';
+import { ORION_MEMORY_COLLECTION_NAME, QDRANT_HOST, QDRANT_PORT } from '@/lib/orion_config';
+import { QdrantFilter, ScoredMemoryPoint } from '@/lib/types/memory';
 
-interface SearchRequestBody {
-  query: string;
-  collectionName?: string;
-  limit?: number;
-  filter?: QdrantFilter;
-  minScore?: number;
-}
 
-interface EmbeddingResponse {
-  success: boolean;
-  embeddings?: number[][];
-  error?: string;
-}
-
-interface SearchDataResponse {
-  success: boolean;
-  results?: ScoredMemoryPoint[];
-  query?: string;
-  error?: string;
-}
 
 // import { SearchDataResponse } from '@/lib/types';
 
@@ -97,7 +75,7 @@ export async function POST(req: NextRequest) {
         continue;
       }
       const qdrantData = await qdrantRes.json();
-      results = (qdrantData.result || []).map((item: any) => ({
+      results = (qdrantData.result || []).map((item: { id: string; score: number; vector: number[]; payload?: Record<string, any> }) => ({
         id: item.id,
         score: item.score,
         content: item.payload?.text || '',

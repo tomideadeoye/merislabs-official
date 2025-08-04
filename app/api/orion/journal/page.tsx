@@ -46,8 +46,7 @@ const cognitiveDistortions = [
 ];
 
 export default function UnifiedJournalingPage() {
-  const { search, searchResults, loading, addMemory } = useMemoryContext();
-  const router = useRouter();
+  const { addMemory } = useMemoryContext();
 
   const [activeTab, setActiveTab] = useState('new');
   const [journalContent, setJournalContent] = useState('');

@@ -17,13 +17,7 @@ interface LogContextType {
   [key: string]: unknown;
 }
 
-interface FeedbackPayload {
-  componentId: string;
-  id: string;
-  tailoredContent: string;
-  rating: 'positive' | 'negative';
-  comments?: string;
-}
+
 
 // Zod schema for validating the request body for CV feedback
 const CVFeedbackSchema = z.object({

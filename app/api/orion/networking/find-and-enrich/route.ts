@@ -3,12 +3,7 @@ import { Stakeholder } from '@/lib/types';
 
 const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:5002';
 
-interface FindAndEnrichStakeholdersRequest {
-  companyName: string;
-  role?: string;
-  count?: number;
-  enrichFields?: string[];
-}
+
 
 export async function POST(request: NextRequest) {
   try {

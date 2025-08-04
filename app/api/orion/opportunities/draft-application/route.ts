@@ -28,13 +28,13 @@
  */
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
 import { fetchUserProfile } from '@/profile_service';
-import { ScoredMemoryPoint } from '@/lib/types/memory';
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
 import { handleApiError } from '@/lib/utils/errorHandler';
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
-import { Opportunity } from '@prisma/client';
+
+
 
 // Enhanced system prompt for draft application generation
 const SYSTEM_PROMPT_DRAFT_APPLICATION = `
@@ -191,7 +191,7 @@ function parseDraftsFromLLMResponse(llmContent: string): string {
 /**
  * API route for drafting application materials for a specific opportunity using LLM.
  */
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest) {
   try {
     const requestBody: DraftApplicationRequestBody = await request.json();
 
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const drafts = parseDraftsFromLLMResponse(llmResponseData.content);
 
     if (!drafts) {
-      console.warn(
+      logger.warn(
         '[DRAFT_APP_API] LLM output parsing yielded no distinct drafts. Raw output:',
         llmResponseData.content
       );

@@ -87,7 +87,11 @@ const ProfileEditingPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [profileTextDump, setProfileTextDump] = useState('');
-  const [newFieldSuggestions, setNewFieldSuggestions] = useState<{ name: string; value: any }[]>([]);
+  interface NewFieldSuggestion {
+    name: string;
+    value: any;
+  }
+  const [newFieldSuggestions, setNewFieldSuggestions] = useState<NewFieldSuggestion[]>([]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),

@@ -21,7 +21,6 @@ import { ScoredMemoryPoint } from '@/lib/types/memory';
 
 // --- NEW HELPER FUNCTION TO BUILD THE DYNAMIC PROMPT ---
 function buildStrategicPrompt(params: {
-  userName: string;
   replyGoal: string;
   desiredTone?: string | null;
   decisionOptions: string[];
@@ -29,7 +28,7 @@ function buildStrategicPrompt(params: {
   numberOfDrafts: number;
   relationshipType?: string;
 }): string {
-  const { userName, replyGoal, desiredTone, decisionOptions, userContext, numberOfDrafts, relationshipType } = params;
+  const { replyGoal, desiredTone, decisionOptions, userContext, numberOfDrafts, relationshipType } = params;
 
   // Build the section for requested reply types
   const replyTypesString = decisionOptions.length > 0
@@ -178,7 +177,6 @@ export async function POST(request: NextRequest) {
 
     // --- UPDATED: Build the dynamic prompt using the new helper function ---
     const systemPrompt = buildStrategicPrompt({
-      userName: "Tomide", // Hardcoded as per your context
       replyGoal: replyGoal || 'Achieve the most advantageous outcome for me.',
       desiredTone: desiredTone,
       decisionOptions: decisionOptions || [],

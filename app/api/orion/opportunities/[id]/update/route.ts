@@ -5,9 +5,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
-import prisma from '@/lib/prisma';
-import { Opportunity } from '@prisma/client';
-import { OpportunityUpdatePayload } from '@/lib/types';
+
 
 interface RouteParams {
     params: {

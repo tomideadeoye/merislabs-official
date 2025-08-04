@@ -44,7 +44,7 @@ interface LogContextType {
   [key: string]: unknown;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const logContext: LogContextType = {
     route: '/api/orion/prompts/list',
     timestamp: new Date().toISOString(),

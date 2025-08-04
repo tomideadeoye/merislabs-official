@@ -21,7 +21,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ success: true, stats });
-  } catch (error) {
+  } catch (e) {
     return NextResponse.json({ success: false, error: 'Failed to fetch gamification stats' }, { status: 500 });
   }
 }

@@ -54,7 +54,7 @@ import { prisma } from '@/lib/prisma';
 import logger from '@/lib/logger';
 import { HYBRID_CV_TEMPLATE } from '@/lib/cv_templates';
 import { z } from 'zod';
-import { handleApiError, HandledApplicationError } from '@/lib/utils/errorHandler';
+
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Import LLM utilities
 import { CvAutoGenerateOutput, ScoredMemoryPoint } from '@/lib/types'; // Import new LLM types
 import { CVComponent } from '@/lib/types/cv'; // Explicitly import CVComponent from its defining file

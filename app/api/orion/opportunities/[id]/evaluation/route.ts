@@ -52,14 +52,14 @@
  *   - Potentially abstract the core LLM orchestration logic if similar multi-source context gathering and LLM invocation patterns appear in other API routes.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { EvaluationOutput, Opportunity, ScoredMemoryPoint, UserProfileData, ApiErrorResponse } from '@/lib/types';
+import { EvaluationOutput, ScoredMemoryPoint, UserProfileData, ApiErrorResponse } from '@/lib/types';
 import logger from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm'; // Assuming REQUEST_TYPES is defined
 import { searchMemory } from '@/lib/orion_memory';
 import { fetchUserProfile } from '@/lib/profile_service'; // Corrected import path for fetchUserProfile
 import { apiFetcher } from '@/lib/utils/apiFetcher'; // Import the new apiFetcher utility
-import { Opportunity as PrismaOpportunity } from '@prisma/client';
+
 
 // Temporary placeholder userId as auth is removed. This should be replaced with proper authentication.
 const TEMP_USER_ID = 'default_orion_user_id';

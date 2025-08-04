@@ -19,7 +19,7 @@ export async function DELETE(
         await prisma.task.delete({ where: { id } });
 
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch (e: unknown) {
         return NextResponse.json(
             { success: false, error: 'Failed to delete task.' },
             { status: 500 }

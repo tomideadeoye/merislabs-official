@@ -46,7 +46,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveOrUpdateCvComponent, fetchAllCvComponents } from '@/lib/cv_components_db_service';
 import { RawCvComponentJsonData } from '@/lib/types';
-import { CVComponent } from '@/lib/types/cv';
+
 import { HandledApplicationError } from '@/lib/utils/errorHandler';
 import logger from '@/lib/logger';
 import { z } from 'zod';
