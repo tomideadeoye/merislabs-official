@@ -288,7 +288,12 @@ export default function MemoryManagerFeaturePage() {
         body: JSON.stringify({ prompt: askQuestion, sources: askSources }),
       });
 
-      let data: any = null;
+      interface AskOrionResponse {
+        success: boolean;
+        answer?: string;
+        error?: string;
+      }
+      let data: AskOrionResponse | null = null;
       let isJson = false;
       try {
         // Try to parse JSON only if response is ok and content-type is JSON

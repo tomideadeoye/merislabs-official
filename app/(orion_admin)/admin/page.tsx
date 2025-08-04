@@ -37,7 +37,7 @@ import {
   UserIcon,
   Brain,
   BookOpen,
-  ListChecks,
+  
   Folder,
   RefreshCw,
   Info,
@@ -69,7 +69,6 @@ export default function AdminDashboardPage() {
     setAuthenticated,
     passwordError,
     setPasswordError,
-    reset,
   } = useAdminDashboardStore();
 
   // Simple password protection
