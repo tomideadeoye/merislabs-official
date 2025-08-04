@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:vercel": "prisma generate && next build",
+    "build:safe": "(DATABASE_URL='postgresql://dummy:dummy@dummy:5432/dummy?sslmode=require' prisma generate || echo 'Prisma failed, continuing...') && next build",
+    "postinstall": "prisma generate || echo 'Prisma generate failed, continuing...'",
     "start": "next start",
     "lint": "eslint \"**/*.ts*\" --fix .",
     "format": "prettier --write .",

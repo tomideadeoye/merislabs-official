@@ -237,6 +237,9 @@ index.js
 wasm.d.ts
 wasm.js
 
+# Ignore scripts folder
+scripts/
+
 # --- End Roo additions ---
 .vscode/settings.json
 prisma/
