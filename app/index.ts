@@ -104,7 +104,7 @@ export type {
   LLMTool,
   UserProfileData,
   UserProfileFetchResponse,
-  // INFER ALL BELOW FROM @/generated/prisma
+  // INFER ALL BELOW FROM @prisma/client
   OpportunityEvaluationInput,
   EvaluationGapDetail,
   EvaluationOutput,
@@ -170,7 +170,7 @@ export type {
 
 // Specific re-exports for types defined in their own files or external modules
 export type { CVComponent } from './lib/types/cv';
-export type { JournalEntry } from '@/generated/prisma';
+export type { JournalEntry } from '@prisma/client';
 export type { ReadonlyURLSearchParams };
 export type { SendEmailParams, EmailAttachment } from './lib/types/email';
 

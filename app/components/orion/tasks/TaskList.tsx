@@ -1,14 +1,12 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Task } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
-import apiClient from '@/lib/apiClient';
-import logger from '@/lib/logger';
 
 interface TaskListProps {
   tasks: Task[];

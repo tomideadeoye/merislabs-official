@@ -203,7 +203,7 @@ FILES:
 _ @/lib/database
 - import logger from '@/lib/logger';
 - CV Data - data/cv-data.json
-- @/generated/prisma
+- @prisma/client
 - @/lib/types
 TOOLS:
 - Web search

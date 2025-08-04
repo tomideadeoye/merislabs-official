@@ -17,7 +17,7 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `prisma/schema.prisma`: Defines the `Prompt` model schema that this service interacts with.
- *   - `@/generated/prisma`: Imports the Prisma client for database operations.
+ *   - `@prisma/client`: Imports the Prisma client for database operations.
  *   - `@/lib/logger`: Used for comprehensive logging of database interactions.
  *   - `@/lib/types`: May define interfaces for Prompt-related data if needed (though Prisma types often suffice).
  *   - `app/api/orion/prompts/*`: API routes will consume these service functions to handle frontend requests.

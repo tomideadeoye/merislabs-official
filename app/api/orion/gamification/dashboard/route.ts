@@ -12,7 +12,7 @@
  *   - `@/lib/logger.ts`: Utilized for comprehensive, context-rich logging throughout the route's execution.
  *   - `@WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILEShq/client`: Integrates with the WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES API to count memory entries, which are stored in a central WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES database.
  *   - `@/lib/types`: Imports `ProductivityStreak`, `AchievementBadge`, and `GamificationDashboardData` for type consistency of data structures.
- *   - `@/generated/prisma`: Imports PrismaClient and Prisma for database interactions with JournalEntry, Idea, and Opportunity models.
+ *   - `@prisma/client`: Imports PrismaClient and Prisma for database interactions with JournalEntry, Idea, and Opportunity models.
  *   - `date-fns`: Used for date manipulation and comparison in streak calculation (e.g., `isToday`, `parseISO`, `differenceInDays`).
  *   - `app/lib/utils/errorHandler.ts`: Imports `handleApiError` for centralized and consistent error handling.
  *   - `app/(orion_admin)/admin/gamification/dashboard/page.tsx` (hypothetical UI path): The frontend component that would consume this API to display the gamification dashboard.

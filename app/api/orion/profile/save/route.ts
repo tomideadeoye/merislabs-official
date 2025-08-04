@@ -16,7 +16,7 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `prisma/schema.prisma`: Defines the `UserProfile` model, which this API interacts with.
- *   - `@/generated/prisma`: Imports the Prisma client for database operations.
+ *   - `@prisma/client`: Imports the Prisma client for database operations.
  *   - `@/lib/logger`: Used for comprehensive logging of API requests and database interactions.
  *   - `@/lib/types`: Will need to define an interface for the incoming profile data if it's structured (or infer from Zod schema).
  *   - `app/lib/profile_db_service.ts` (forthcoming): This API route will ideally call a dedicated database service for profile operations.

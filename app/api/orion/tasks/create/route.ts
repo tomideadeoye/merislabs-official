@@ -16,7 +16,7 @@
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `@/lib/prisma`: Provides the Prisma client for database interaction (`prisma.task.create`).
  *   - `@/lib/logger`: Used for structured and context-rich logging.
- *   - `@/generated/prisma`: Imports Prisma generated types like `TaskStatus`, `TaskPriority`, and `TaskType` for type safety.
+ *   - `@prisma/client`: Imports Prisma generated types like `TaskStatus`, `TaskPriority`, and `TaskType` for type safety.
  *   - `@/lib/utils/errorHandler`: Used for centralized error handling (`handleServerError`).
  *   - `app/(orion_admin)/admin/agentic-workflow/page.tsx`: This route will be consumed by frontend components to create new tasks.
  *   - `prisma/schema.prisma`: Defines the `Task` model and `TaskType` enum that this route interacts with.

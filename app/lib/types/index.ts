@@ -11,7 +11,7 @@
  *   - **Canonical Orion Types**: Core application-specific types (e.g., `REFACTOR TO INFERENCE TYPE SAFE OPPORTUNITY FROM PRISMA`, `CVComponent`, `EmotionalLogEntry`) are defined directly in this file or explicitly re-exported from sub-files.
  *   - **API Routes (`/api/orion/...`)**: All API request and response bodies rely heavily on the interfaces defined here.
  *   - **UI Components (`app/components/orion/...`)**: Components consume props typed by interfaces from this file.
- *   - **Prisma Integration (`@/generated/prisma`, `prisma/schema.prisma`)**: Prisma-generated types are often integrated or mirrored here for broader application use.
+ *   - **Prisma Integration (`@prisma/client`, `prisma/schema.prisma`)**: Prisma-generated types are often integrated or mirrored here for broader application use.
  *   - **lib Libraries (`app/lib/...`)**: Utility functions and services leverage these types for internal data handling.
  *
  * ASSUMPTIONS & CLEAR COMMENTS:

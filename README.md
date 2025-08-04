@@ -2,7 +2,7 @@
 
 - **All enums and types (e.g., `Opportunity`, `$Enums`, `OpportunityType`, `OpportunityPriority`, etc.) must be imported from `@/lib/types`.**
 - `@/lib/types` re-exports these from Prisma, ensuring DRY, robust, and monorepo-safe imports.
-- **Never import directly from `@/generated` or `@/generated/prisma` in app code.**
+- **Never import directly from `@/generated` or `@prisma/client` in app code.**
 - **Prisma is the single source of truth for all types and enums.**
 - Example:
   ```ts

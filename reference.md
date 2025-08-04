@@ -1693,7 +1693,7 @@ This section summarizes the recent key features implemented, major code modifica
     - **Robust Upsert Logic**: Changed from a direct `upsert` call to a `findUnique` then `update`/`create` pattern. This was a critical decision to bypass persistent type conflicts with Prisma's `upsert` method when dealing with nullable `@unique` fields like `uniqueId`. This ensures reliable and predictable data insertion/update.
     - **Correct Return Types**: Adjusted the return type for `fetchAllCvComponents` to `Promise<Prisma.CVComponentGetPayload<{}>[]>`, correctly representing an array of CV component objects with their default scalar fields.
     - **Accurate Data Mapping (`mapRawDataToPrismaCVComponent`)**: Implemented a helper function to precisely map fields from the `RawCvComponentJsonData` (from JSON) to the `CVComponent` Prisma model's fields (e.g., `Component Name` to `name`, `Content (Primary)` to `content`, `UniqueID` to `uniqueId`). This also includes logic to correctly combine `Keywords` and `Target Role Tags` into a single `tags` array, handling both array and potential string inputs.
-    - **Prisma Client Import**: Corrected the Prisma client import path to `@/generated/prisma` to align with the project's monorepo structure.
+    - **Prisma Client Import**: Corrected the Prisma client import path to `@prisma/client` to align with the project's monorepo structure.
     - **Comprehensive Logging**: Integrated verbose, context-rich logging throughout the service for every operation (start, success, error), enhancing observability and debugging.
     - **Added CRUD Utilities**: Introduced `deleteCvComponent` and `findCvComponentByUniqueId` for full data management capabilities.
 - **`data/cv-data.json`**:

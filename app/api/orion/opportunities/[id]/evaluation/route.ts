@@ -19,7 +19,7 @@
  *   - `@/lib/types`: Defines `EvaluationOutput`, `Opportunity`, `UserProfileData`, `ScoredMemoryPoint`, `ApiErrorResponse`, and other relevant types used for data structures.
  *   - `@/lib/logger`: Used for comprehensive, context-rich logging throughout the route.
  *   - `@/auth`: (Potentially) Used for user authentication and session management. Currently commented out but could be re-integrated.
- *   - `@/generated/prisma`: Imports the Prisma Client (`PrismaClient`) for interacting with the Neon PostgreSQL database to fetch `Opportunity` data.
+ *   - `@prisma/client`: Imports the Prisma Client (`PrismaClient`) for interacting with the Neon PostgreSQL database to fetch `Opportunity` data.
  *   - `@/lib/orion_llm`: Provides the `generateLLMResponse` function for interacting with various LLM providers to perform the core evaluation.
  *   - `@/lib/orion_memory`: Provides the `searchMemory` function to retrieve relevant memory chunks from Qdrant, enriching the LLM's context.
  *   - `@/lib/profile_service`: Provides `fetchUserProfile` to retrieve the user's background and skills.

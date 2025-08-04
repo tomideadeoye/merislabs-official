@@ -1,5 +1,5 @@
 import { ScoredMemoryPoint } from './memory';
-import { Prisma } from '@/generated/prisma';
+import { Prisma } from '@prisma/client';
 import { CVComponent } from './cv';
 
 // LLM integration types
@@ -92,14 +92,14 @@ export interface CreateChatCompletionRequest {
     };
   }[];
   tool_choice?:
-    | 'none'
-    | 'auto'
-    | {
-        type: 'function';
-        function: {
-          name: string;
-        };
-      };
+  | 'none'
+  | 'auto'
+  | {
+    type: 'function';
+    function: {
+      name: string;
+    };
+  };
 }
 
 export interface CreateChatCompletionResponse {

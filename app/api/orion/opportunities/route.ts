@@ -18,7 +18,7 @@
  *   - `zod`: The schema validation library used to define and enforce the structure of incoming data for new opportunities.
  *   - `@/lib/types`: Imports `OpportunityType`, `OpportunityPriority`, which are used in the Zod schema for type enforcement.
  *   - `@/lib/opportunity_db_service`: Imports `listOpportunitiesFromDb` and `createOpportunityInDb` to abstract database interactions.
- *   - `@/generated/prisma`: Imports `PrismaClient` to directly create associated `Stakeholder` records.
+ *   - `@prisma/client`: Imports `PrismaClient` to directly create associated `Stakeholder` records.
  *   - `app/(orion_admin)/admin/opportunity-pipeline/page.tsx`: This frontend page likely consumes the `GET` endpoint to display the list of opportunities.
  *   - `app/(orion_admin)/admin/opportunity-pipeline/components/NewOpportunityForm.tsx`: A form component would likely send `POST` requests to this endpoint.
  *   - `app/lib/opportunity_db_service.ts`: Defines the core database logic for opportunities.

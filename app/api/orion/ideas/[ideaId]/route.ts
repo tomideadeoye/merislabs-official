@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '@/lib/prisma';
 import { $Enums } from '@/lib/types';
-import { Prisma } from '@/generated/prisma';
+import { Prisma } from '@prisma/client';
 
 // Type definitions
 type IdeaLogType = 'status_change' | 'note' | 'llm_brainstorm' | 'initial_capture';

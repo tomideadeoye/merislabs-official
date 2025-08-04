@@ -1,4 +1,4 @@
-import { Prisma } from '@/generated/prisma'; // Import Prisma for JsonValue type
+import { Prisma } from '@prisma/client'; // Import Prisma for JsonValue type
 
 export interface CVComponent {
   id: string; // Add id as it's an @id in Prisma
