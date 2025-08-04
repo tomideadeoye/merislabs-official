@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import logger from '@/lib/logger';
 import { z } from 'zod';
-import { Prisma } from '@/generated/prisma';
+import { Prisma } from '@prisma/client';
 
 interface LlmAnalysisInsights {
   patterns: string[];

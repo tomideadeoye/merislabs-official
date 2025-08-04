@@ -30,8 +30,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
-import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
-import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
 
 
 
