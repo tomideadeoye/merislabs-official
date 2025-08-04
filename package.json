@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint \"**/*.ts*\" --fix .",
     "format": "prettier --write .",
@@ -55,6 +55,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/react-query": "^5.81.2",
+    "@vercel/sdk": "^1.10.0",
     "aos": "^2.3.4",
     "axios": "^1.10.0",
     "chalk": "^5.4.1",
