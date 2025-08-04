@@ -26,13 +26,13 @@
  *   - Future improvements could involve more sophisticated LLM parsing, A/B testing of prompt variations, and integrating more advanced feedback loops for draft quality.
  *   - Consider integrating the lib `logger` utility for all console output for unified logging and enhanced observability.
  */
-import { generateLLMResponse, REQUEST_TYPES } from '@/lib/orion_llm';
-import { fetchUserProfile } from '@/profile_service';
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
-import { handleApiError } from '@/lib/utils/errorHandler';
 import { DRAFT_APPLICATION_REQUEST_TYPE } from '@/lib';
 import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
+import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
+import { DraftApplicationRequestBody, DraftApplicationResponseBody } from '@/lib/types';
+
 
 
 

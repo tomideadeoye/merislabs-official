@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { listOpportunitiesFromDb } from '@/lib/opportunity_db_service';
 import logger from '@/lib/logger';
 
+import { handleApiError, HandledApplicationError } from '@/lib/utils/errorHandler';
 import { handleServerError } from '@/lib/utils/serverErrorHandler';
 
 // @fileoverview This file defines the API route for listing opportunities from the Neon database.
