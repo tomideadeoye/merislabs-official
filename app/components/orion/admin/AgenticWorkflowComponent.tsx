@@ -17,6 +17,9 @@ import { TaskForm } from '@/components/orion/tasks/TaskForm';
 import { GamificationStats } from '@/components/orion/tasks/GamificationStats';
 import { TaskStepTimeline } from '@/components/orion/tasks/TaskStepTimeline';
 import { useTasks } from '@/hooks/useTasks';
+import { useToast } from '@/components/ui/use-toast';
+import { Switch } from '@/components/ui';
+import { QuadrantMemoryChunksVisualizer } from '@/components/orion/QuadrantMemoryChunksVisualizer';
 
 // --- Memory Search Types ---
 interface MemoryHighlight {
@@ -32,8 +35,12 @@ interface AgentResponse {
   error?: string;
   details?: string;
   current_messages?: Message[];
+  memoryResults?: any[];
 }
 
+/**
+ * NOTE: Unused memory-related state and handlers (memoryQuery, memoryResults, memoryLoading, memoryError, fetchMemoryHighlights, handleMemorySearch, extraContext, setExtraContext) have been removed for clarity and maintainability. Only state and handlers used for task/step management, agent execution, UI, toasts, and logging remain. See memory-manager/page.tsx for memory features.
+ */
 export const AgenticWorkflowComponent: React.FC = () => {
   const [userQuery, setUserQuery] = useState('');
   const [agentMessages, setAgentMessages] = useState<Message[]>([]);
@@ -42,17 +49,18 @@ export const AgenticWorkflowComponent: React.FC = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [availableTools, setAvailableTools] = useState<LLMTool[]>([]);
   const [selectedToolNames, setSelectedToolNames] = useState<string[]>([]);
-
-  // --- Context Enrichment State ---
-  const [extraContext, setExtraContext] = useState('');
   const { tasks, addTask, updateTask, deleteTask, isLoading: tasksLoading, error: tasksError } = useTasks();
   const queryClient = useQueryClient();
-
-  // --- Memory Search State ---
-  const [memoryQuery, setMemoryQuery] = useState('');
-  const [memoryResults, setMemoryResults] = useState<MemoryHighlight[]>([]);
-  const [memoryLoading, setMemoryLoading] = useState(false);
-  const [memoryError, setMemoryError] = useState<string | null>(null);
+  const { toast } = useToast();
+  // --- Manual Step Addition State ---
+  const [manualStepPrompt, setManualStepPrompt] = useState('');
+  const [manualStepOptions, setManualStepOptions] = useState('');
+  const [isAddingStep, setIsAddingStep] = useState(false);
+  // --- Save Agent Step State ---
+  const [agentStepToSave, setAgentStepToSave] = useState<string | null>(null);
+  const [includeMemory, setIncludeMemory] = useState(false);
+  const [memoryResults, setMemoryResults] = useState<any[]>([]);
+  const [selectedTaskObj, setSelectedTaskObj] = useState<any>(null);
 
   useEffect(() => {
     // Fetch available tools on mount
@@ -63,7 +71,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
         );
         if (response.data.success) {
           setAvailableTools(response.data.tools);
-          setSelectedToolNames(response.data.tools.map((tool) => tool.function.name)); // Default: all selected
+          // Do NOT auto-select any tools by default
+          setSelectedToolNames([]); // Only select when user picks
         } else {
           setError(response.data.error || 'Failed to load tools.');
         }
@@ -76,54 +85,6 @@ export const AgenticWorkflowComponent: React.FC = () => {
 
   const selectedTask = tasks.find((t: Task) => t.id === selectedTaskId);
 
-  // --- Memory Search Effect: Auto-query on task selection ---
-  useEffect(() => {
-    if (selectedTask) {
-      const defaultQuery = selectedTask.title || selectedTask.description || '';
-      setMemoryQuery(defaultQuery);
-      if (defaultQuery) {
-        fetchMemoryHighlights(defaultQuery);
-      }
-    } else {
-      setMemoryResults([]);
-      setMemoryQuery('');
-      setMemoryError(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTaskId]);
-
-  // --- Memory Search Function ---
-  const fetchMemoryHighlights = async (query: string) => {
-    setMemoryLoading(true);
-    setMemoryError(null);
-    try {
-      const response = await apiClient.post('/api/orion/memory/search', {
-        query,
-        limit: 8,
-        minScore: 0.6,
-      });
-      if (response.data.success) {
-        setMemoryResults(response.data.results || []);
-      } else {
-        setMemoryError(response.data.error || 'Memory search failed.');
-        setMemoryResults([]);
-      }
-    } catch (err: any) {
-      setMemoryError(err.message || 'Memory search failed.');
-      setMemoryResults([]);
-    } finally {
-      setMemoryLoading(false);
-    }
-  };
-
-  // --- Memory Search Handler ---
-  const handleMemorySearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (memoryQuery.trim()) {
-      fetchMemoryHighlights(memoryQuery.trim());
-    }
-  };
-
   const handleToolSelectionChange = (toolName: string, isChecked: boolean) => {
     setSelectedToolNames(
       isChecked ? [...selectedToolNames, toolName] : selectedToolNames.filter((name) => name !== toolName)
@@ -135,8 +96,9 @@ export const AgenticWorkflowComponent: React.FC = () => {
     setIsAgentLoading(true);
     setError(null);
     setAgentMessages([]);
+    setMemoryResults([]);
 
-    logger.info('[AGENTIC_WORKFLOW][SUBMIT] User submitted query.', { userQuery, selectedToolNames, extraContext });
+    logger.info('[AGENTIC_WORKFLOW][SUBMIT] User submitted query.', { userQuery, selectedToolNames, includeMemory });
 
     const initialUserMessage: Message = { role: 'user', content: userQuery };
     setAgentMessages([initialUserMessage]);
@@ -145,11 +107,25 @@ export const AgenticWorkflowComponent: React.FC = () => {
       const response = await apiClient.post<AgentResponse>('/api/orion/agent/execute', {
         userQuery,
         selectedTools: selectedToolNames,
-        extraContext,
+        includeMemory,
       });
 
       if (response.data.success) {
-        setAgentMessages(response.data.current_messages || []);
+        let messages = response.data.current_messages;
+        if (!messages || messages.length === 0) {
+          if (response.data.answer) {
+            messages = [{ role: 'assistant', content: response.data.answer }];
+          } else {
+            messages = [];
+          }
+        }
+        setAgentMessages(messages);
+        if (response.data.memoryResults && Array.isArray(response.data.memoryResults) && response.data.memoryResults.length > 0) {
+          setMemoryResults(response.data.memoryResults);
+          logger.info('[AGENTIC_WORKFLOW][MEMORY_VISUALIZATION] Displaying memory chunks used by agent.', { count: response.data.memoryResults.length });
+        } else {
+          setMemoryResults([]);
+        }
         logger.success('[AGENTIC_WORKFLOW][SUCCESS] Agent executed successfully.', {
           response: response.data,
         });
@@ -163,6 +139,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
             content: `Error: ${errorMessage}${response.data.details ? ` Details: ${response.data.details}` : ''}`,
           },
         ]);
+        setMemoryResults([]);
         logger.error('[AGENTIC_WORKFLOW][API_ERROR] Agent API returned an error.', {
           error: errorMessage,
           details: response.data.details,
@@ -177,6 +154,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
       }
       setError(errorMessage);
       setAgentMessages([...agentMessages, { role: 'assistant', content: `Error: ${errorMessage}` }]);
+      setMemoryResults([]);
     } finally {
       setIsAgentLoading(false);
     }
@@ -213,6 +191,118 @@ export const AgenticWorkflowComponent: React.FC = () => {
     }
     return null;
   };
+
+  // Fetch a single task by ID (with steps)
+  const fetchTaskById = async (taskId: string) => {
+    try {
+      const res = await fetch(`/api/orion/tasks/${taskId}`);
+      const data = await res.json();
+      if (data.success && data.task) {
+        setSelectedTaskObj(data.task);
+      }
+    } catch (err) {
+      // Optionally log error
+    }
+  };
+
+  // When selectedTaskId changes, fetch the latest task
+  useEffect(() => {
+    if (selectedTaskId) {
+      fetchTaskById(selectedTaskId);
+    } else {
+      setSelectedTaskObj(null);
+    }
+  }, [selectedTaskId]);
+
+  // After adding a step, fetch the updated task
+  const handleAddStep = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTaskId) {
+      toast({ variant: 'destructive', title: 'No Task Selected', description: 'Please select a task first.' });
+      return;
+    }
+    if (!manualStepPrompt.trim()) {
+      toast({ variant: 'destructive', title: 'Prompt Required', description: 'Step prompt cannot be empty.' });
+      return;
+    }
+    setIsAddingStep(true);
+    logger.info('[AGENTIC_WORKFLOW][ADD_STEP][START]', { selectedTaskId, manualStepPrompt, manualStepOptions });
+    try {
+      const response = await apiClient.post(`/api/orion/tasks/${selectedTaskId}/add-step`, {
+        prompt: manualStepPrompt,
+        generatedOptions: manualStepOptions ? JSON.parse(manualStepOptions) : [],
+      });
+      if (response.data.success) {
+        toast({ title: 'Step Added', description: 'Step added to task successfully!' });
+        setManualStepPrompt('');
+        setManualStepOptions('');
+        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        logger.success('[AGENTIC_WORKFLOW][ADD_STEP][SUCCESS]', { selectedTaskId });
+        // Fetch updated task
+        fetchTaskById(selectedTaskId);
+      } else {
+        throw new Error(response.data.error || 'Failed to add step.');
+      }
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to add step.' });
+      logger.error('[AGENTIC_WORKFLOW][ADD_STEP][ERROR]', { error });
+    } finally {
+      setIsAddingStep(false);
+    }
+  };
+
+  // After saving agent step, fetch the updated task
+  const handleSaveAgentStep = async () => {
+    if (!selectedTaskId || !agentStepToSave) return;
+    setIsAddingStep(true);
+    logger.info('[AGENTIC_WORKFLOW][SAVE_AGENT_STEP][START]', { selectedTaskId, agentStepToSave });
+    try {
+      const response = await apiClient.post(`/api/orion/tasks/${selectedTaskId}/add-step`, {
+        prompt: agentStepToSave,
+        generatedOptions: [],
+      });
+      if (response.data.success) {
+        toast({ title: 'Agent Step Saved', description: 'Agent-generated step saved to task!' });
+        setAgentStepToSave(null);
+        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        logger.success('[AGENTIC_WORKFLOW][SAVE_AGENT_STEP][SUCCESS]', { selectedTaskId });
+        // Fetch updated task
+        fetchTaskById(selectedTaskId);
+      } else {
+        throw new Error(response.data.error || 'Failed to save agent step.');
+      }
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to save agent step.' });
+      logger.error('[AGENTIC_WORKFLOW][SAVE_AGENT_STEP][ERROR]', { error });
+    } finally {
+      setIsAddingStep(false);
+    }
+  };
+
+  // --- Detect Agent Step in Messages ---
+  useEffect(() => {
+    // Find the first agent message with a step suggestion
+    const agentStepMsg = agentMessages.find((msg) => msg.role === 'assistant' && msg.content && msg.content.length < 500);
+    if (agentStepMsg && agentStepMsg.content) {
+      setAgentStepToSave(agentStepMsg.content);
+    } else {
+      setAgentStepToSave(null);
+    }
+  }, [agentMessages]);
+
+  // Helper to recursively parse generatedOptions for all steps and their replies
+  function parseStepTree(step: any) {
+    return {
+      ...step,
+      generatedOptions:
+        Array.isArray(step.generatedOptions)
+          ? step.generatedOptions
+          : step.generatedOptions
+            ? JSON.parse(step.generatedOptions as string)
+            : [],
+      replies: step.replies ? step.replies.map(parseStepTree) : [],
+    };
+  }
 
   return (
     <div className="flex flex-col h-full bg-gray-900 text-white p-6 space-y-8">
@@ -278,6 +368,10 @@ export const AgenticWorkflowComponent: React.FC = () => {
                     ))}
                   </div>
                 </div>
+                <div className="flex items-center gap-3 mt-2">
+                  <Switch id="includeMemory" checked={includeMemory} onCheckedChange={setIncludeMemory} />
+                  <Label htmlFor="includeMemory" className="text-gray-300">Include Qdrant Memory in Agent Reasoning</Label>
+                </div>
                 <Button
                   type="submit"
                   className="bg-purple-600 hover:bg-purple-700"
@@ -304,12 +398,19 @@ export const AgenticWorkflowComponent: React.FC = () => {
                       </div>
                     ))}
                   </div>
+                  {/* Memory Chunks Visualization */}
+                  {memoryResults.length > 0 && (
+                    <div className="mt-8">
+                      <h4 className="text-lg font-semibold text-green-300 mb-2">Memory Chunks Used by Agent</h4>
+                      <QuadrantMemoryChunksVisualizer memoryResults={memoryResults} />
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {selectedTask && (
+          {selectedTaskObj && (
             <Card className="bg-gray-800 border-gray-700 mt-8">
               <CardHeader>
                 <CardTitle className="text-purple-300">Task Steps</CardTitle>
@@ -317,31 +418,45 @@ export const AgenticWorkflowComponent: React.FC = () => {
               <CardContent>
                 <TaskStepTimeline
                   steps={
-                    Array.isArray(selectedTask.steps)
-                      ? selectedTask.steps.map((step: any) => ({
-                        ...step,
-                        generatedOptions:
-                          Array.isArray(step.generatedOptions)
-                            ? step.generatedOptions
-                            : step.generatedOptions
-                              ? JSON.parse(step.generatedOptions as string)
-                              : [],
-                        replies: step.replies
-                          ? step.replies.map((reply: any) => ({
-                            ...reply,
-                            generatedOptions:
-                              Array.isArray(reply.generatedOptions)
-                                ? reply.generatedOptions
-                                : reply.generatedOptions
-                                  ? JSON.parse(reply.generatedOptions as string)
-                                  : [],
-                          }))
-                          : [],
-                      }))
+                    Array.isArray(selectedTaskObj.steps)
+                      ? selectedTaskObj.steps.map(parseStepTree)
                       : []
                   }
-                  id={selectedTask.id}
+                  id={selectedTaskObj.id}
                 />
+                {/* Manual Step Addition Form */}
+                <form onSubmit={handleAddStep} className="mt-6 space-y-2 bg-gray-900 p-4 rounded-lg border border-gray-700">
+                  <Label htmlFor="manualStepPrompt" className="text-gray-300">Add Step Prompt:</Label>
+                  <Textarea
+                    id="manualStepPrompt"
+                    value={manualStepPrompt}
+                    onChange={(e) => setManualStepPrompt(e.target.value)}
+                    placeholder="Describe the step..."
+                    className="bg-gray-800 border-gray-700"
+                    disabled={isAddingStep}
+                  />
+                  <Label htmlFor="manualStepOptions" className="text-gray-300">Generated Options (JSON, optional):</Label>
+                  <Textarea
+                    id="manualStepOptions"
+                    value={manualStepOptions}
+                    onChange={(e) => setManualStepOptions(e.target.value)}
+                    placeholder='[{"action": "Do X", "justification": "Because..."}]'
+                    className="bg-gray-800 border-gray-700"
+                    disabled={isAddingStep}
+                  />
+                  <Button type="submit" className="bg-purple-600 hover:bg-purple-700 mt-2" disabled={isAddingStep || !selectedTaskId}>
+                    {isAddingStep ? <Loader /> : 'Add Step'}
+                  </Button>
+                </form>
+                {/* Agent Step Save Button */}
+                {agentStepToSave && (
+                  <div className="mt-4 flex items-center gap-2">
+                    <Button onClick={handleSaveAgentStep} className="bg-green-600 hover:bg-green-700" disabled={isAddingStep}>
+                      {isAddingStep ? <Loader /> : 'Save Agent Step to Task'}
+                    </Button>
+                    <span className="text-gray-400 text-xs">(from agent response)</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

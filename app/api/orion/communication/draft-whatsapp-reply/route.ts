@@ -1,53 +1,16 @@
 /**
- * GOAL: I understand you're looking for seamless integration of the memory chunk visualizer within the agentic workflow and comprehensive caching to local storage for enhanced speed and responsiveness. I'll investigate both aspects to provide you with a detailed answer and propose any necessary implementations.
- *
+ * GOAL: This API route functions as the strategic core for Orion's communication drafting. It integrates real-time conversation context with a deep memory system and user-defined strategic parameters to generate sophisticated, multi-faceted reply options. It must seamlessly handle dynamic inputs from the UI to architect responses that are not just reactive, but proactive and advantageous.
  *
  * @fileoverview API route for drafting hyper-personalized WhatsApp replies using Orion's LLM and memory system.
- * @description This route receives a chat history, user profile context, and specific drafting parameters
- *   (like reply goal and tone). It leverages Orion's LLM to generate context-aware, strategically sound
- *   WhatsApp replies, incorporating relevant memory chunks from the Qdrant vector database. The goal is
- *   to automate and enhance the efficiency, personalization, and emotional intelligence of communication.
+ * @description Receives chat history, user-defined reply goals, tone, requested response types, and other parameters.
+ *   Performs semantic memory search via Qdrant, constructs a dynamic, strategic prompt for the LLM, and returns
+ *   a structured markdown response containing deep analysis and categorized reply drafts.
  *
- * GOAL OF FILE|FEATURES|FUNCTIONS:
- *   - Receive comprehensive chat context, user intent, desired reply goals, tone, and number of drafts via POST request.
- *   - **Memory Integration**: Perform a semantic search on the Orion memory system (Qdrant) to retrieve relevant historical information or personal context based on the incoming chat transcript.
- *   - Pass retrieved memory chunks, user profile context, and drafting parameters to the `generateLLMResponse` function.
- *   - Call the `generateLLMResponse` function with `REQUEST_TYPES.WHATSAPP_REPLY_HELPER_REQUEST_TYPE` to get an AI-generated reply and associated memory results.
- *   - Return the drafted replies (multiple options), along with the specific memory chunks that were used in their formulation, and any relevant metadata or errors.
- *   - Ensure robust authentication and comprehensive logging throughout the process for traceability and debugging.
- *
- * FILEPATH: `app/api/orion/communication/draft-whatsapp-reply/route.ts`.
- *
- * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
- *   - `app/lib/orion_llm.ts`: Contains the `generateLLMResponse` function, which is the core logic for interacting with the LLM.
- *     This file now passes `memoryResults` and other parameters to `generateLLMResponse`.
- *   - `app/lib/memory.ts`: Provides the `searchMemory` function, used to query the Qdrant vector database for relevant memory chunks.
- *   - `app/lib/logger.ts`: Used for comprehensive logging of request, processing steps, and response, enhancing debuggability and operational insight.
- *   - `app/lib/types/llm.ts`: Defines the `CombinedLLMResponse` interface, which now includes `memoryResults`.
- *   - `app/lib/types/memory.ts`: Defines the `ScoredMemoryPoint` interface, representing the structure of retrieved memory chunks.
- *   - `app/lib/orion_config.ts`: Contains `REQUEST_TYPES.WHATSAPP_REPLY_HELPER_REQUEST_TYPE` (or equivalent) constant for LLM request categorization.
- *   - `app/api/auth/[...nextauth]/route.ts`: Utilizes NextAuth.js for session management and user authentication, securing access to this API route.
- *   - `@/components/ui/orion/whatsapp/WhatsAppReplyDrafter.tsx`: This frontend component sends requests to this API route and now expects `memoryResults` in the response to visualize them.
- *
- * ASSUMPTIONS & CLEAR COMMENTS:
- *   - Assumes that `generateLLMResponse` is correctly configured to handle `REQUEST_TYPES.WHATSAPP_REPLY_HELPER_REQUEST_TYPE` and returns `CombinedLLMResponse`, which includes `memoryResults`.
- *   - Assumes `searchMemory` is correctly configured and connected to a functioning Qdrant instance, returning relevant `ScoredMemoryPoint` data.
- *   - Assumes the LLM has been pre-trained or fine-tuned for generating conversational WhatsApp-style replies, understanding nuances of tone, goals, and personal context.
- *   - Authentication is required, ensuring only authorized users can access this functionality.
- *   - The `TEMP_USER_ID` is used as a fallback for logging and LLM calls if a session user ID is not available.
- *
- * NOTES:
- *   - **COMPONENTS TO MERGE WITH / OPPORTUNITIES TO CONSOLIDATE**: This route is specific to WhatsApp. Consider if a more generalized `draft-communication` API could be beneficial for other platforms if similar communication drafting needs arise.
- *   - **PERFORMANCE OPTIMIZATIONS**: LLM calls and memory searches can be time-consuming. Future optimizations could include caching of frequently accessed memories or LLM responses, and exploring streaming LLM responses.
- *   - **ERROR HANDLING ROBUSTNESS**: Detailed error logging for LLM failures, memory search issues, and unexpected responses is crucial for rapid debugging and improving system reliability.
- *
- * OPPORTUNITIES FOR IMPROVEMENT:
- *   - **Input Validation**: Add comprehensive input validation (e.g., using Zod) for the request body to ensure data integrity and prevent malformed or malicious requests.
- *   - **Rate Limiting**: Implement robust rate limiting to prevent abuse or excessive LLM/memory calls, especially if exposed publicly.
- *   - **Dynamic Memory Search Parameters**: Allow the frontend to send more granular parameters for memory search (e.g., specific memory types, date ranges, minimum score) to fine-tune relevance.
- *   - **Asynchronous Processing**: For very long LLM requests, consider integrating with a message queuing system (e.g., RabbitMQ, Kafka) for asynchronous processing, allowing the API to respond immediately and update the frontend via WebSockets or polling.
- *   - **User Feedback Loop**: Integrate a mechanism to capture user feedback on the quality of generated replies, which can be used to refine LLM prompts or fine-tune models.
- *   - **A/B Testing of Prompts**: Implement A/B testing capabilities for different LLM prompts or retrieval strategies to optimize reply quality based on user engagement.
+ * FEATURES:
+ *   - Receives comprehensive chat context, strategic intent (goal, tone, user context), and response parameters (reply types, number of drafts).
+ *   - Integrates memory search to retrieve relevant historical context.
+ *   - Dynamically builds a sophisticated prompt based on all available data.
+ *   - Returns a structured markdown response with analysis and categorized drafts.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -55,35 +18,145 @@ import logger from '@/lib/logger';
 import { generateLLMResponse } from '@/lib/orion_llm';
 import { searchMemory } from '@/lib/memory';
 import { ScoredMemoryPoint } from '@/lib/types/memory';
-import { WHATSAPP_REPLY_HELPER_REQUEST_TYPE } from '@/lib/orion_config';
 
-const TEMP_USER_ID = 'temp_whatsapp_reply_user'; // Temporary user ID for LLM calls (or fallback)
+// --- NEW HELPER FUNCTION TO BUILD THE DYNAMIC PROMPT ---
+function buildStrategicPrompt(params: {
+  userName: string;
+  replyGoal: string;
+  desiredTone?: string | null;
+  decisionOptions: string[];
+  userContext?: string;
+  numberOfDrafts: number;
+  relationshipType?: string;
+}): string {
+  const { userName, replyGoal, desiredTone, decisionOptions, userContext, numberOfDrafts, relationshipType } = params;
+
+  // Build the section for requested reply types
+  const replyTypesString = decisionOptions.length > 0
+    ? `Generate ${numberOfDrafts} draft(s) for EACH of the following strategic categories: ${decisionOptions.join(', ')}.`
+    : 'No specific reply types requested. Generate a single, best-fit strategic response.';
+
+  // Build the user context section only if provided
+  const userContextString = userContext
+    ? `*   Tomide's Current State/Context: "${userContext}"`
+    : '';
+
+  // Build the relationship type section only if provided
+  const relationshipTypeString = relationshipType
+    ? `*   Relationship Type: "${relationshipType}"`
+    : '';
+
+  // Build the tone/persona section only if provided
+  const desiredToneString = desiredTone
+    ? `*   **Desired Tone/Persona:** "${desiredTone}"`
+    : '*   **Desired Tone/Persona:** Not specified. Consider multiple strategic personas and tones for reply options.';
+
+  // --- MARKDOWN VISUAL INSTRUCTION ---
+  const markdownInstruction = `
+**//--- MARKDOWN FORMATTING INSTRUCTIONS ---//**
+- Use clear, visually distinct markdown formatting for all output.
+- Use headings (##, ###), bold, bullet points, and blockquotes for replies.
+- Each reply draft should be in a blockquote (>) and rationale in bold or italics.
+- The BEST REPLY (with justification) must be presented FIRST, clearly separated and visually distinct.
+- All sections must be easy to scan and visually engaging.
+`;
+
+  // This is the new, comprehensive prompt structure we designed
+  const systemPrompt = `
+You are Orion, Tomide's AI strategist, drafting WhatsApp replies on his behalf. You are to reply AS TOMIDE, adopting the persona specified.
+
+**//--- PRIMARY DIRECTIVE ---//**
+Your ultimate goal is to architect a response that positions Tomide for the most advantageous outcome, aligned with his long-term objectives of power, stability, and peace.
+
+**//--- INCOMING DATA ---//**
+*   **Tomide's Profile Context:** You operate with the full knowledge of Tomide's values (Logic, Growth, Stability, etc.), goals (Financial Freedom, etc.), and challenges (Morality Cage, Conflict Avoidance, etc.).
+*   **Tomide's Stated Reply Goal:** "${replyGoal}"
+${desiredToneString}
+${userContextString}
+${relationshipTypeString}
+
+${markdownInstruction}
+
+**//--- TASK EXECUTION ---//**
+
+**STEP 1: DEEP ANALYSIS - "WHAT IS UNSEEN?"**
+Before drafting any replies, provide a concise, neutral analysis of the interaction. Answer these key questions:
+*   **Subtext & Unstated Needs:** What is the other person *really* asking for or feeling, beyond their literal words?
+*   **Pattern Recognition:** Does this interaction match any known positive or negative patterns from Tomide's memory (e.g., manipulation loops, genuine collaboration attempts)?
+*   **Power Dynamics:** Who is controlling the frame of the conversation? What strategic position is the other person taking (e.g., aggressor, victim, collaborator)?
+*   **Triggers & Vulnerabilities:** Is the other person's language potentially triggering Tomide's known sensitivities? Is there a strategic opportunity or threat hidden in the conversation?
+
+**STEP 2: SUGGEST THE BEST REPLY (MOST IMPORTANT)**
+- Based on your analysis and all context, suggest the single BEST REPLY for Tomide to send.
+- Present this reply FIRST, clearly separated and visually distinct, with a strong justification for why it is optimal.
+- Justification must be concise, strategic, and actionable.
+
+**STEP 3: STRATEGIC RESPONSE GENERATION**
+- Generate the requested reply drafts for each category (if any), considering multiple tones/personas if none is specified.
+- For each individual draft, provide a brief "Strategic Rationale" explaining why it works and its likely outcome.
+${replyTypesString}
+
+**//--- OUTPUT FORMAT (Use Markdown) ---//**
+### **BEST REPLY (Most Important)**
+- **Justification:** [Why this reply is optimal]
+> [Best reply draft here]
+
+---
+### **Option Category: [e.g., Deflect / Evade]**
+
+**Draft 1**
+*   *Rationale:* [Briefly explain the strategy, e.g., "This response buys time and avoids commitment without creating direct conflict, putting the onus on them to follow up."]
+*   **Reply:**
+    > [Your reply draft here]
+
+**(Repeat for Draft 2, etc., if requested)**
+
+---
+### **Option Category: [e.g., Set a Boundary]**
+
+**Draft 1**
+*   *Rationale:* [e.g., "This firmly rejects the premise of their question and reframes the conversation around your own priorities, demonstrating control."]
+*   **Reply:**
+    > [Your reply draft here]
+
+**(Repeat for all requested categories)**
+
+---
+### **Deep Analysis: What You Might Be Missing**
+*   **Subtext:** [Your analysis of unstated needs]
+*   **Pattern Match:** [Your analysis of pattern recognition]
+*   **Power Dynamic:** [Your analysis of the interaction's power frame]
+*   **Strategic Opportunity/Threat:** [Your analysis of potential openings or risks]
+  `.trim();
+
+  return systemPrompt;
+}
 
 export async function POST(request: NextRequest) {
-  // Removed authentication check as per user's request
-  // const session = await auth();
-  // if (!session) {
-  //   logger.warn('[draft-whatsapp-reply][POST] Unauthorized access attempt.');
-  //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  // }
-
   try {
-    const { chatContext, userPrompt, numberOfDrafts, replyGoal, tone, overallSentiment } = await request.json(); // Added overallSentiment
+    // --- UPDATED: Destructure the new payload from the UI ---
+    const {
+      chatContext,
+      replyGoal,
+      desiredTone,
+      decisionOptions,
+      userContext,
+      numberOfDrafts,
+      relationshipType
+    } = await request.json();
 
-    logger.info('[draft-whatsapp-reply][POST] Received request to draft reply.', {
-      // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
+    logger.info('[draft-whatsapp-reply][POST] Received strategic request.', {
       chatContextLength: chatContext ? chatContext.length : 0,
-      userPrompt: userPrompt,
-      replyGoal: replyGoal,
-      tone: tone,
-      numberOfDrafts: numberOfDrafts,
-      overallSentiment: overallSentiment,
+      replyGoal,
+      desiredTone,
+      decisionOptions,
+      userContext,
+      numberOfDrafts,
+      relationshipType
     });
 
     if (!chatContext) {
-      logger.warn('[draft-whatsapp-reply][POST] Missing chatContext in request.', {
-        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
-      });
+      logger.warn('[draft-whatsapp-reply][POST] Missing chatContext in request.');
       return NextResponse.json({ success: false, error: 'Chat context is required.' }, { status: 400 });
     }
 
@@ -93,93 +166,67 @@ export async function POST(request: NextRequest) {
       const memorySearchResponse = await searchMemory(chatContext, { limit: 5 });
       if (memorySearchResponse.success && memorySearchResponse.results) {
         memoryResults = memorySearchResponse.results;
-        logger.info('[draft-whatsapp-reply][POST] Found relevant memories.', {
-          // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
-          memoryCount: memoryResults.length,
-        });
+        logger.info('[draft-whatsapp-reply][POST] Found relevant memories.', { memoryCount: memoryResults.length });
       } else {
-        logger.warn('[draft-whatsapp-reply][POST] No relevant memories found or search failed.', {
-          // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
-          error: memorySearchResponse.error,
-        });
+        logger.warn('[draft-whatsapp-reply][POST] No relevant memories found or search failed.', { error: memorySearchResponse.error });
       }
     } catch (memoryError: unknown) {
       logger.error('[draft-whatsapp-reply][POST] Error during memory search.', {
-        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
         error: memoryError instanceof Error ? memoryError.message : String(memoryError),
       });
     }
 
+    // --- UPDATED: Build the dynamic prompt using the new helper function ---
+    const systemPrompt = buildStrategicPrompt({
+      userName: "Tomide", // Hardcoded as per your context
+      replyGoal: replyGoal || 'Achieve the most advantageous outcome for me.',
+      desiredTone: desiredTone,
+      decisionOptions: decisionOptions || [],
+      userContext: userContext,
+      numberOfDrafts: numberOfDrafts || 1,
+      relationshipType
+    });
+
     // Call the LLM to generate the reply
     const llmResponse = await generateLLMResponse(
-      WHATSAPP_REPLY_HELPER_REQUEST_TYPE,
+      'whatsapp_reply_draft',
       chatContext,
-      null, // userId is now nullable
+      null, // userId is nullable
       {
-        profileContext: userPrompt,
         memoryResults: memoryResults,
-        replyGoal: replyGoal,
-        tone: tone,
-        numberOfDrafts: numberOfDrafts,
-        overallSentiment: overallSentiment,
+        systemContext: systemPrompt, // Pass the fully constructed prompt
+        // The individual params are now part of the system prompt itself
+        // but can be passed here if the LLM function needs them for other logic.
+        replyGoal,
+        tone: desiredTone,
+        numberOfDrafts
       }
     );
 
-    if (!llmResponse.success) {
-      logger.error('[draft-whatsapp-reply][POST] LLM response error.', {
-        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
-        llmError: llmResponse.error,
-        llmContent: llmResponse.content,
+    if (!llmResponse.success || !llmResponse.content) {
+      logger.error('[draft-whatsapp-reply][POST] LLM response error or empty content.', {
+        error: 'LLM generated an empty or failed response.'
       });
       return NextResponse.json(
-        { success: false, error: llmResponse.error || 'Failed to generate reply.' },
+        { success: false, error: 'LLM generated an empty or failed response.' },
         { status: 500 }
       );
     }
 
-    if (!llmResponse.content) {
-      logger.error('[draft-whatsapp-reply][POST] LLM generated an empty content.', {
-        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
-      });
-      return NextResponse.json({ success: false, error: 'LLM generated an empty response.' }, { status: 500 });
-    }
-
-    // The LLM response content already contains the structured drafts as a JSON string
-    // We need to parse it to extract individual drafts
-    let draftedReplies: { text: string; explanation: string; rank: number }[] = [];
-    try {
-      // Assuming llmResponse.content is a JSON string of SuggestedReply[]
-      draftedReplies = JSON.parse(llmResponse.content);
-      // Ensure it's an array and each item has the expected structure
-      if (
-        !Array.isArray(draftedReplies) ||
-        !draftedReplies.every(
-          (item) =>
-            typeof item.text === 'string' && typeof item.explanation === 'string' && typeof item.rank === 'number'
-        )
-      ) {
-        throw new Error('LLM response content is not in the expected SuggestedReply[] format.');
-      }
-    } catch (parseError) {
-      logger.error('[draft-whatsapp-reply][POST] Failed to parse LLM response content as JSON.', {
-        // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
-        llmContent: llmResponse.content,
-        parseError: parseError instanceof Error ? parseError.message : String(parseError),
-      });
-      // Fallback: if parsing fails, treat the entire content as a single draft
-      draftedReplies = [{ text: llmResponse.content, explanation: 'Could not parse structured reply.', rank: 1 }];
-    }
-
-    logger.success('[draft-whatsapp-reply][POST] Successfully drafted WhatsApp replies.', {
-      // userId: session.user?.id || TEMP_USER_ID, // Removed userId as authentication is removed
-      numberOfDraftsGenerated: draftedReplies.length,
+    logger.success('[draft-whatsapp-reply][POST] Successfully drafted WhatsApp reply.', {
+      hasReply: !!llmResponse.content,
     });
 
-    return NextResponse.json({ success: true, drafts: draftedReplies, memoryResults: llmResponse.memoryResults });
+    // The LLM is now instructed to return markdown directly
+    return NextResponse.json({
+      success: true,
+      markdown: llmResponse.content, // Changed key to markdown for clarity
+      memoryResults: llmResponse.memoryResults, // Pass back the memories used
+    });
+
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
     logger.error('[draft-whatsapp-reply][POST] Uncaught error during reply drafting.', {
-      // userId: TEMP_USER_ID, // Removed userId as authentication is removed
       error: errorMessage,
       stack: error instanceof Error ? error.stack : 'N/A',
     });

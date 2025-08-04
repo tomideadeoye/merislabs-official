@@ -3,8 +3,6 @@ import { prisma } from '@/lib/prisma';
 import logger from '@/lib/logger';
 import { z } from 'zod';
 import { Prisma } from '@/generated/prisma';
-// Assuming a direct function call for LLM is better than a fetch
-// import { getLlmAnalysis } from '@/lib/llm';
 
 interface LlmAnalysisInsights {
   patterns: string[];
@@ -12,11 +10,8 @@ interface LlmAnalysisInsights {
   suggestions: string[];
 }
 
-// Mocking a direct LLM function call as the original fetch was incorrect for server-side
 async function getLlmAnalysis(): Promise<string> {
   logger.info('[LLM_ANALYSIS_MOCK] Requesting analysis.');
-  // In a real scenario, this would call the LLM provider API
-  // For now, returning a mock structure to satisfy the type contracts
   const mockResponse: LlmAnalysisInsights = {
     patterns: ['Mock pattern: Increased joy on weekends.'],
     correlations: ["Mock correlation: 'Work deadline' trigger linked to anxiety."],
@@ -33,20 +28,20 @@ const queryParamsSchema = z.object({
 });
 
 interface EmotionCount {
-  primaryemotion: string;
-  count: string; // PG returns count as string
-  avgintensity: number;
+  primaryEmotion: string;
+  count: string;
+  avgIntensity: number;
 }
 
 interface CommonTrigger {
   trigger: string;
-  count: string; // PG returns count as string
+  count: string;
 }
 
 interface EmotionTimelinePoint {
-  date: string; // Or Date
-  primaryemotion: string;
-  avgintensity: number;
+  date: string;
+  primaryEmotion: string;
+  avgIntensity: number;
 }
 
 export async function GET(req: NextRequest) {
@@ -82,26 +77,14 @@ export async function GET(req: NextRequest) {
       ...logContext,
     });
 
-    // Build where clause for date filtering
-    const whereClause: Prisma.EmotionalLogsWhereInput = {};
-    if (startDate || endDate) {
-      whereClause.timestamp = {};
-      if (startDate) {
-        whereClause.timestamp.gte = startDate;
-      }
-      if (endDate) {
-        whereClause.timestamp.lte = endDate;
-      }
-    }
-
     // Get emotion counts using Prisma
     const emotionCountsResult = await prisma.$queryRaw<EmotionCount[]>`
-      SELECT "primaryEmotion", COUNT(*) as count, AVG(intensity) as avgIntensity 
-      FROM emotional_logs 
-      ${startDate || endDate ? Prisma.sql`WHERE 1=1` : Prisma.sql``}
-      ${startDate ? Prisma.sql`AND timestamp >= ${startDate}` : Prisma.sql``}
-      ${endDate ? Prisma.sql`AND timestamp <= ${endDate}` : Prisma.sql``}
-      GROUP BY "primaryEmotion" 
+      SELECT "primaryEmotion", COUNT(*) as count, AVG(intensity) as "avgIntensity"
+      FROM journal_entries
+      WHERE "primaryEmotion" IS NOT NULL AND intensity IS NOT NULL
+      ${startDate ? Prisma.sql`AND "createdAt" >= ${startDate}` : Prisma.sql``}
+      ${endDate ? Prisma.sql`AND "createdAt" <= ${endDate}` : Prisma.sql``}
+      GROUP BY "primaryEmotion"
       ORDER BY count DESC
     `;
 
@@ -113,12 +96,12 @@ export async function GET(req: NextRequest) {
     // Most common triggers using Prisma raw query (since triggers is JSONB)
     const commonTriggersResult = await prisma.$queryRaw<CommonTrigger[]>`
       SELECT value as trigger, COUNT(*) as count
-      FROM emotional_logs, jsonb_array_elements_text(triggers) as value
-      WHERE triggers IS NOT NULL
-        ${startDate ? Prisma.sql`AND timestamp >= ${startDate}` : Prisma.sql``}
-        ${endDate ? Prisma.sql`AND timestamp <= ${endDate}` : Prisma.sql``}
-      GROUP BY value 
-      ORDER BY count DESC 
+      FROM journal_entries, jsonb_array_elements_text(triggers) as value
+      WHERE triggers IS NOT NULL AND jsonb_array_length(triggers) > 0
+        ${startDate ? Prisma.sql`AND "createdAt" >= ${startDate}` : Prisma.sql``}
+        ${endDate ? Prisma.sql`AND "createdAt" <= ${endDate}` : Prisma.sql``}
+      GROUP BY value
+      ORDER BY count DESC
       LIMIT 10
     `;
 
@@ -130,14 +113,14 @@ export async function GET(req: NextRequest) {
     // Emotion intensity over time using Prisma raw query
     const emotionTimelineResult = await prisma.$queryRaw<EmotionTimelinePoint[]>`
       SELECT
-        date_trunc('day', timestamp) as date,
+        date_trunc('day', "createdAt") as date,
         "primaryEmotion",
-        AVG(intensity) as avgIntensity
-      FROM emotional_logs
-      WHERE intensity IS NOT NULL
-        ${startDate ? Prisma.sql`AND timestamp >= ${startDate}` : Prisma.sql``}
-        ${endDate ? Prisma.sql`AND timestamp <= ${endDate}` : Prisma.sql``}
-      GROUP BY date, "primaryEmotion" 
+        AVG(intensity) as "avgIntensity"
+      FROM journal_entries
+      WHERE intensity IS NOT NULL AND "primaryEmotion" IS NOT NULL
+        ${startDate ? Prisma.sql`AND "createdAt" >= ${startDate}` : Prisma.sql``}
+        ${endDate ? Prisma.sql`AND "createdAt" <= ${endDate}` : Prisma.sql``}
+      GROUP BY date, "primaryEmotion"
       ORDER BY date
     `;
 

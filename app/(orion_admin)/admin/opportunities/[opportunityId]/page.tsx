@@ -121,7 +121,6 @@ export default async function OpportunityDetailPage({ params }: Props) {
       contact: null,
       lastStatusUpdate: null,
       applicationMaterialIds: [],
-      userId: null,
       tailoredCvId: null,
       evaluationResult: null,
     };

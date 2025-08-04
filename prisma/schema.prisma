@@ -280,6 +280,9 @@ model JournalEntry {
   reflectionId    String?
   originalEntryId String?
 
+  // --- New field for file/image attachments ---
+  attachments     String[] @default([])
+
   // --- Fields from EmotionalLogEntry ---
   timestamp                   String?
   emotion                     String?

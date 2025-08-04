@@ -227,32 +227,23 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
               )}
             {/* Reply input */}
             <div className="mt-3">
-              <button
-                className="flex items-center text-purple-400 hover:text-purple-200 text-xs font-semibold mb-1"
-                onClick={() => setIsReplying((v) => !v)}
-              >
-                <CornerDownRight className="h-4 w-4 mr-1" />
-                {isReplying ? 'Cancel' : 'Reply/Context'}
-              </button>
-              {isReplying && (
-                <div className="flex flex-col gap-2">
-                  <textarea
-                    className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500 rounded p-2"
-                    placeholder="Type your reply/context for this step..."
-                    value={reply}
-                    onChange={(e) => setReply(e.target.value)}
-                    rows={2}
-                  />
-                  <button
-                    className="bg-purple-600 hover:bg-purple-700 text-white rounded px-3 py-1 text-xs font-bold"
-                    onClick={handleReply}
-                    disabled={loading || !reply.trim()}
-                  >
-                    {loading ? 'Adding...' : 'Add Reply/Context'}
-                  </button>
-                  {error && <p className="text-red-400 text-xs">{error}</p>}
-                </div>
-              )}
+              <div className="flex flex-col gap-2">
+                <textarea
+                  className="bg-gray-700 text-gray-200 border-gray-600 focus:border-blue-500 rounded p-2"
+                  placeholder="Type your substep/reply/context for this step..."
+                  value={reply}
+                  onChange={(e) => setReply(e.target.value)}
+                  rows={2}
+                />
+                <button
+                  className="bg-purple-600 hover:bg-purple-700 text-white rounded px-3 py-1 text-xs font-bold"
+                  onClick={handleReply}
+                  disabled={loading || !reply.trim()}
+                >
+                  {loading ? 'Adding...' : '+ Add Substep'}
+                </button>
+                {error && <p className="text-red-400 text-xs">{error}</p>}
+              </div>
             </div>
             {/* Show/hide replies toggle */}
             {(step.replies ?? []).length > 0 && (

@@ -24,7 +24,7 @@ export const ROUTES = {
     title: 'Admin Dashboard',
   },
   JOURNAL: {
-    href: '/journal',
+    href: '/admin/journal',
     title: 'Journal',
   },
   MEMORY_MANAGER: {
@@ -43,7 +43,6 @@ export const ROUTES = {
     href: '/admin/ask-question',
     title: 'Ask Orion',
   },
-  
   NARRATIVE_CLARITY_STUDIO: {
     href: '/admin/narrative-clarity-studio',
     title: 'Narrative Clarity Studio',

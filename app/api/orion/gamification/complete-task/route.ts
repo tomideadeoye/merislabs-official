@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
@@ -54,7 +53,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, stats: updatedStats });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: 'Failed to update gamification stats' }, { status: 500 });
   }
 }

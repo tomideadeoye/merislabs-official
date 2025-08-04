@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // Forward the request to the Python API
-    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:5002';
-    const response = await fetch(`${pythonApiUrl}/api/memory/generate-embeddings`, {
+    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    const response = await fetch(`${pythonApiUrl}/api/v1/memory/generate-embeddings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

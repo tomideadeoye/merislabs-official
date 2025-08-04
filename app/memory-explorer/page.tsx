@@ -62,9 +62,8 @@ export default function MemoryExplorerPage() {
       <h1 className="text-2xl font-bold mb-6">Memory Explorer</h1>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-2 mb-6">
+        <TabsList className="grid grid-cols-1 mb-6">
           <TabsTrigger value="search">Search</TabsTrigger>
-          <TabsTrigger value="add">Add Memory</TabsTrigger>
         </TabsList>
 
         <TabsContent value="search" className="space-y-6">

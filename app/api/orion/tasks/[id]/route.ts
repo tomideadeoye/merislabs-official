@@ -1,6 +1,6 @@
-
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { taskDbService } from '@/lib/task_db_service';
 
 const prisma = new PrismaClient();
 
@@ -40,5 +40,18 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Failed to delete task' }, { status: 500 });
+  }
+}
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  try {
+    const { id } = params;
+    const task = await taskDbService.getTaskWithSteps(id);
+    if (!task) {
+      return NextResponse.json({ success: false, error: 'Task not found' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, task });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to fetch task' }, { status: 500 });
   }
 }

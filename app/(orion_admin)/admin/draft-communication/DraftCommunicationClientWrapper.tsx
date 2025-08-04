@@ -53,17 +53,12 @@
  */
 'use client';
 
-import { useState } from 'react';
 import { useSessionState } from '@/hooks/useSessionState';
 import { SessionStateKeys } from '@/lib/constants'; // Import PageNames
-import WhatsAppChatAnalysis from '@/components/orion/whatsapp/WhatsAppChatAnalysis';
 import DraftCommunicationForm from '@/components/ui/orion/DraftCommunicationForm';
 import WhatsAppReplyDrafter from '@/components/ui/orion/whatsapp/WhatsAppReplyDrafter';
-import CommunicationPatternsAnalyzer from '@/components/orion/whatsapp/CommunicationPatternsAnalyzer'; // New import
 import { UserProfileData } from '@/lib/types';
 import { TabsContent } from '@/components/ui'; // Import TabsContent
-import WhatsAppChatUploader from '@/components/orion/whatsapp/WhatsAppChatUploader';
-import { WhatsAppChatAnalysisData } from '@/components/orion/whatsapp/WhatsAppChatAnalysis'; // Import the interface
 
 interface DraftCommunicationClientWrapperProps {
   selectedTab: string;
@@ -73,11 +68,6 @@ export default function DraftCommunicationClientWrapper({ selectedTab }: DraftCo
   const { selectSessionValue } = useSessionState();
   const profileData = selectSessionValue<UserProfileData | null>(SessionStateKeys.TOMIDES_PROFILE_DATA);
   const memoryAvailable = selectSessionValue<boolean>(SessionStateKeys.MEMORY_INITIALIZED);
-  const [analysisData, setAnalysisData] = useState<WhatsAppChatAnalysisData | null>(null); // Explicitly type analysisData
-
-  const handleTranscriptUploaded = (data: WhatsAppChatAnalysisData) => {
-    setAnalysisData(data);
-  };
 
   return (
     <>
@@ -97,25 +87,9 @@ export default function DraftCommunicationClientWrapper({ selectedTab }: DraftCo
                 replies, and automation.
               </p>
               <p className="text-gray-400 mt-2">Specific helper components will go here.</p>
-              <WhatsAppReplyDrafter analyzedChatData={analysisData} />
+              <WhatsAppReplyDrafter />
             </div>
           </div>
-        </TabsContent>
-      )}
-
-      {selectedTab === 'whatsapp-analysis' && (
-        <TabsContent value="whatsapp-analysis">
-          <div className="p-4 border rounded-md">
-            <h2 className="text-xl font-semibold mb-2">WhatsApp Chat Analysis</h2>
-            <WhatsAppChatUploader onTranscriptUploaded={handleTranscriptUploaded} />
-            <WhatsAppChatAnalysis analysisData={analysisData} />
-          </div>
-        </TabsContent>
-      )}
-
-      {selectedTab === 'communication-patterns' && (
-        <TabsContent value="communication-patterns">
-          <CommunicationPatternsAnalyzer />
         </TabsContent>
       )}
     </>

@@ -49,6 +49,9 @@ import { handleApiError } from './utils/errorHandler'; // Corrected import for r
 import { sendEmailService } from './email_service'; // Import the email service
 import { Message } from './types'; // Import the Message type
 
+// Add this after imports
+const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:8000';
+
 // NOTE: Placeholder for a hypothetical Python API service if needed for some tools.
 // For now, we will use apiClient directly or mock specific calls, but the long-term vision
 // is a dedicated, robust Python backend for complex data processing, web scraping, and ML tasks.
@@ -80,27 +83,48 @@ export const pythonApiService = {
    *   - Return structured JSON data (e.g., list of top N results with titles, URLs, and snippets) rather than a raw string.
    *   - Add a caching layer to reduce redundant search queries and improve response times.
    */
-  searchWeb: async (query: string): Promise<string> => {
-    logger.info('[PYTHON_API_SERVICE] Simulating web search initiation.', { query, operation: 'searchWeb' });
+  searchWeb: async (
+    query: string,
+    num_results: number = 1
+  ): Promise<{ snippets: string; scraped_content: string }> => {
+    logger.info('[PYTHON_API_SERVICE] Performing web search and extracting context.', {
+      query,
+      num_results,
+      operation: 'searchWeb',
+    });
     try {
-      // In a real scenario, this would call your actual web search API or Python backend.
-      // Example: const response = await apiClient.post('/api/python/search-web', { query });
-      // return response.data.results;
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay for demonstration
-      const simulatedResults = `Simulated search results for "${query}": Found relevant information on Wikipedia, Google Scholar, and recent news articles from major outlets regarding "${query}". Key findings include [summary of findings].`;
-      logger.success('[PYTHON_API_SERVICE] Simulated web search completed successfully.', {
-        query,
-        resultsSummary: simulatedResults.substring(0, 150) + '...',
-        operation: 'searchWeb',
+      const response = await fetch(`${PYTHON_API_URL}/utils/search_and_extract_web_context`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, num_results }),
       });
-      return simulatedResults;
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.error('[PYTHON_API_SERVICE] Python backend returned error.', {
+          status: response.status,
+          errorText,
+          query,
+          num_results,
+        });
+        throw new Error(`Python backend error: ${response.status} - ${errorText}`);
+      }
+      const data = (await response.json()) as { snippets: string; scraped_content: string };
+      if (typeof data.snippets !== 'string' || typeof data.scraped_content !== 'string') {
+        throw new Error('Unexpected response structure from Python backend');
+      }
+      logger.success('[PYTHON_API_SERVICE] Web context extracted successfully.', {
+        operation: 'searchWeb',
+        dataPreview: JSON.stringify(data).slice(0, 200),
+      });
+      return data;
     } catch (error: unknown) {
-      logger.error('[PYTHON_API_SERVICE] Failed to simulate web search.', {
+      logger.error('[PYTHON_API_SERVICE] Failed to extract web context.', {
+        error: error instanceof Error ? error.message : String(error),
         query,
-        error: handleApiError(error),
+        num_results,
         operation: 'searchWeb',
       });
-      throw new Error(`Failed to perform web search: ${handleApiError(error)}`);
+      throw new Error(`Failed to extract web context: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
@@ -122,32 +146,6 @@ export const pythonApiService = {
         operation: 'generateEmbeddings',
       });
       throw new Error(`Failed to generate embeddings: ${handleApiError(error)}`);
-    }
-  },
-
-  /**
-   * @function searchWebContext
-   * @description Calls the Python backend to perform a web search and extract contextual information from top results.
-   * @param {string} query The search query.
-   * @param {number} num_results The maximum number of results to scrape.
-   * @returns {Promise<any>} The extracted web context.
-   */
-  searchWebContext: async (query: string, num_results: number = 5) => {
-    logger.info('[PYTHON_API_SERVICE] Performing web search and extracting context.', {
-      query,
-      num_results,
-      operation: 'searchWebContext',
-    });
-    try {
-      const response = await apiClient.post('/search/web', { query, num_results });
-      logger.success('[PYTHON_API_SERVICE] Web context extracted successfully.', { operation: 'searchWebContext' });
-      return response.data;
-    } catch (error: unknown) {
-      logger.error('[PYTHON_API_SERVICE] Failed to extract web context.', {
-        error: handleApiError(error),
-        operation: 'searchWebContext',
-      });
-      throw new Error(`Failed to extract web context: ${handleApiError(error)}`);
     }
   },
 
@@ -360,17 +358,35 @@ export const pythonApiService = {
       operation: 'searchAndExtractWebContext',
     });
     try {
-      const response = await apiClient.post('/utils/search_and_extract_web_context', { query, num_results });
+      const response = await fetch(`${PYTHON_API_URL}/utils/search_and_extract_web_context`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, num_results }),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.error('[PYTHON_API_SERVICE] Python backend returned error.', {
+          status: response.status,
+          errorText,
+          query,
+          num_results,
+        });
+        throw new Error(`Python backend error: ${response.status} - ${errorText}`);
+      }
+      const data = await response.json();
       logger.success('[PYTHON_API_SERVICE] Web context extracted successfully.', {
         operation: 'searchAndExtractWebContext',
+        dataPreview: JSON.stringify(data).slice(0, 200),
       });
-      return response.data;
+      return data;
     } catch (error: unknown) {
       logger.error('[PYTHON_API_SERVICE] Failed to search and extract web context.', {
-        error: handleApiError(error),
+        error: error instanceof Error ? error.message : String(error),
+        query,
+        num_results,
         operation: 'searchAndExtractWebContext',
       });
-      throw new Error(`Failed to search and extract web context: ${handleApiError(error)}`);
+      throw new Error(`Failed to search and extract web context: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
@@ -481,7 +497,7 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
         operation: 'search_web_execution',
       });
       try {
-        const results = await pythonApiService.searchWebContext(query, num_results);
+        const results = await pythonApiService.searchWeb(query, 1);
         logger.info('[TOOL_IMPLEMENTATION] search_web completed successfully.', {
           query,
           outputSummary: JSON.stringify(results).substring(0, 150) + '...',
@@ -1022,44 +1038,6 @@ export const TOOL_MANIFEST: Record<string, Tool> = {
           operation: 'scrape_multiple_failure',
         });
         throw new Error(`Failed to execute scrape_multiple: ${handleApiError(error)}`);
-      }
-    },
-  },
-
-  /**
-   * @tool search_and_extract_web_context
-   * @description Performs a Google search and extracts web context from top results.
-   * @parameters { query: string, num_results?: number }
-   */
-  search_and_extract_web_context: {
-    name: 'search_and_extract_web_context',
-    description: 'Performs a Google search and extracts web context from top results.',
-    parameters: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'The search query.' },
-        num_results: { type: 'number', description: 'The number of results to extract context from (default: 5).' },
-      },
-      required: ['query'],
-    },
-    implementation: async ({ query, num_results }: { query: string; num_results?: number }) => {
-      logger.debug('[TOOL_IMPLEMENTATION] Executing search_and_extract_web_context tool.', {
-        query,
-        operation: 'search_and_extract_web_context_execution',
-      });
-      try {
-        const results = await pythonApiService.searchAndExtractWebContext(query, num_results);
-        logger.info('[TOOL_IMPLEMENTATION] search_and_extract_web_context completed successfully.', {
-          outputSummary: JSON.stringify(results).substring(0, 150) + '...',
-          operation: 'search_and_extract_web_context_completion',
-        });
-        return results;
-      } catch (error: unknown) {
-        logger.error('[TOOL_IMPLEMENTATION] Error during search_and_extract_web_context execution.', {
-          error: handleApiError(error),
-          operation: 'search_and_extract_web_context_failure',
-        });
-        throw new Error(`Failed to execute search_and_extract_web_context: ${handleApiError(error)}`);
       }
     },
   },

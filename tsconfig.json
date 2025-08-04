@@ -41,7 +41,7 @@
       "@/memory-explorer/*": ["./app/memory-explorer/*"],
       "@/opportunity/*": ["./app/opportunity/*"],
       "@/wallpaper-generator/*": ["./app/wallpaper-generator/*"],
-      "@/journal/*": ["./app/journal/*"],
+      "@/journal/*": ["app/api/orion/journal/*"],
       "@/decks/*": ["./decks/*"],
       "@/fonts/*": ["./app/fonts/*"],
       "@/global-error": ["./app/global-error"],

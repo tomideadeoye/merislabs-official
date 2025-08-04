@@ -9,7 +9,7 @@
  *   - **Memory Search**: Provides an interface for semantic search over stored memory points.
  *   - **Memory Filtering**: Enables filtering search results by type and tags for precise retrieval.
  *   - **Add New Memory**: Offers a dedicated component (`DedicatedAddToMemoryFormComponent`) for capturing and adding new information to the knowledge base.
- *   - **Memory Deletion**: Allows users to delete individual memory items.
+ *   - **Memory Deletion**: Allows users to delete individual memory items. (Now handled exclusively by QuadrantMemoryChunksVisualizer.)
  *   - **Status Display**: Shows the initialization status of the Qdrant memory backend and the user's current login status.
  *   - **User Feedback**: Provides loading indicators and toast notifications for various operations.
  *
@@ -127,6 +127,7 @@ import { useMemoryContext } from '@/components/orion/MemoryProvider';
 import logger from '@/lib/logger';
 import { REQUEST_TYPES } from '@/lib/orion_llm'; // Import REQUEST_TYPES
 import { Checkbox } from '@/components/ui';
+import { QuadrantMemoryChunksVisualizer } from '@/components/orion/QuadrantMemoryChunksVisualizer';
 
 export default function MemoryManagerFeaturePage() {
   const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
@@ -138,9 +139,6 @@ export default function MemoryManagerFeaturePage() {
   const [error, setError] = useState<string | null>(null);
   const [limit, setLimit] = useState<number>(5);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
   const [currentLlmModel, setCurrentLlmModel] = useState<string | null>(null);
 
   // State for Ask Orion section
@@ -269,31 +267,6 @@ export default function MemoryManagerFeaturePage() {
   const handleMemoryAdded = () => {
     // Increment refresh trigger to potentially update UI or show feedback
     handleSearch();
-  };
-
-  const handleDeleteMemory = async (id: string) => {
-    setDeletingId(id);
-    setDeleteError(null);
-    setDeleteSuccess(null);
-    try {
-      const response = await fetch('/api/orion/memory/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: [id] }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setDeleteSuccess('Memory item deleted successfully.');
-        setSearchResults((prev) => prev.filter((item) => (item.id || item.payload?.source_id) !== id));
-      } else {
-        setDeleteError(data.error || 'Failed to delete memory item.');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
-      setDeleteError(errorMessage);
-    } finally {
-      setDeletingId(null);
-    }
   };
 
   const handleAskSourceChange = (value: string, checked: boolean) => {
@@ -562,67 +535,14 @@ export default function MemoryManagerFeaturePage() {
           <h3 className="text-xl font-semibold text-gray-200 mb-4">Search Results ({searchResults.length})</h3>
           <ScrollArea className="h-[400px]">
             <div className="space-y-4 pr-3">
-              {searchResults.map((result) => {
-                if (!result.payload) {
-                  logger.warn('[MEMORY_MANAGER][RENDER] Skipping search result due to missing or invalid payload.', {
-                    result,
-                  });
-                  return null; // Don't render this item if payload is missing
-                }
-
-                const memoryId =
-                  result.id ||
-                  (typeof result.payload.source_id === 'string'
-                    ? result.payload.source_id
-                    : String(result.payload.source_id ?? ''));
-
-                if (!memoryId) {
-                  logger.warn('[MEMORY_MANAGER][RENDER] Skipping search result due to missing ID.', { result });
-                  return null; // Don't render if no valid ID
-                }
-                return (
-                  <div key={memoryId} className="relative group border border-gray-700 rounded-lg bg-gray-900/80 p-4">
-                    <h3 className="text-lg font-semibold text-gray-100">{result.payload.title || 'No Title'}</h3>
-                    <p className="text-sm text-gray-300 mt-1">{String(result.content) || 'No Content'}</p>
-                    <p className="text-xs text-gray-400 mt-2">Type: {result.payload.type || 'N/A'}</p>
-                    {result.payload.tags && result.payload.tags.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-1">Tags: {result.payload.tags.join(', ')}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-1">Score: {result.score?.toFixed(4)}</p>
-                    <p className="text-xs text-gray-500 mt-1">Source ID: {memoryId}</p>
-
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-4 right-4 opacity-80 group-hover:opacity-100 transition"
-                      disabled={deletingId === memoryId}
-                      onClick={() => {
-                        if (
-                          window.confirm('Are you sure you want to delete this memory item? This cannot be undone.')
-                        ) {
-                          handleDeleteMemory(memoryId);
-                        }
-                      }}
-                    >
-                      {deletingId === memoryId ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete'}
-                    </Button>
-                  </div>
-                );
-              })}
+              <QuadrantMemoryChunksVisualizer
+                memoryResults={searchResults}
+              />
             </div>
           </ScrollArea>
-          {deleteError && (
-            <div className="mt-4 bg-red-900/30 border border-red-700 text-red-300 px-4 py-2 rounded-md">
-              {deleteError}
-            </div>
-          )}
-          {deleteSuccess && (
-            <div className="mt-4 bg-green-900/30 border border-green-700 text-green-300 px-4 py-2 rounded-md">
-              {deleteSuccess}
-            </div>
-          )}
         </div>
       )}
+
     </div>
   );
 }

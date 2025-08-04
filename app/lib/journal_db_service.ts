@@ -61,7 +61,12 @@ export async function createJournalEntryInDb(data: JournalEntryInput) {
         copingMechanismsUsed: data.copingMechanismsUsed || [],
       },
     });
-    logger.info('[journal_db_service] Journal entry created in DB', { id: entry.id, userId: data.userId });
+    logger.info('[journal_db_service] Journal entry created in DB', {
+      id: entry.id,
+      userId: data.userId,
+      attachments: Array.isArray(entry.attachments) ? entry.attachments : 'NOT ARRAY',
+      attachmentsType: typeof entry.attachments,
+    });
     return entry;
   } catch (error) {
     logger.error('[journal_db_service] Failed to create journal entry', { error });
@@ -76,7 +81,7 @@ export async function updateJournalEntryInDb(id: string, data: Partial<JournalEn
       data: {
         ...data,
         date: data.date ? new Date(data.date) : undefined,
-        attachments: data.attachments || undefined,
+        attachments: data.attachments || [],
         cognitiveDistortionAnalysis: data.cognitiveDistortionAnalysis ? JSON.stringify(data.cognitiveDistortionAnalysis) : undefined,
         tags: data.tags || undefined,
         secondaryEmotions: data.secondaryEmotions || undefined,
@@ -85,7 +90,12 @@ export async function updateJournalEntryInDb(id: string, data: Partial<JournalEn
         copingMechanismsUsed: data.copingMechanismsUsed || undefined,
       },
     });
-    logger.info('[journal_db_service] Journal entry updated in DB', { id: entry.id, userId: entry.userId });
+    logger.info('[journal_db_service] Journal entry updated in DB', {
+      id: entry.id,
+      userId: entry.userId,
+      attachments: Array.isArray(entry.attachments) ? entry.attachments : 'NOT ARRAY',
+      attachmentsType: typeof entry.attachments,
+    });
     return entry;
   } catch (error) {
     logger.error('[journal_db_service] Failed to update journal entry', { id, error });
@@ -106,15 +116,14 @@ export async function deleteJournalEntryInDb(id: string) {
   }
 }
 
-export async function getJournalEntriesFromDb(userId: string, limit: number = 10, offset: number = 0) {
+export async function getJournalEntriesFromDb(limit: number = 10, offset: number = 0) {
   try {
     const entries = await prisma.journalEntry.findMany({
-      where: { userId },
       orderBy: { createdAt: 'desc' },
       take: limit,
       skip: offset,
     });
-    logger.info('[journal_db_service] Fetched journal entries from DB', { count: entries.length, userId });
+    logger.info('[journal_db_service] Fetched journal entries from DB', { count: entries.length });
     return entries.map(entry => ({
       ...entry,
       cognitiveDistortionAnalysis: entry.cognitiveDistortionAnalysis ? JSON.parse(entry.cognitiveDistortionAnalysis as string) : null,

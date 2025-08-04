@@ -3,6 +3,7 @@ import { generateLLMResponseWithTools } from '@/lib/orion_llm';
 import { getToolSchemas, executeTool } from '@/lib/orion_tools';
 import type { CombinedLLMResponse, LLMToolCall, Message, LLMResponseSuccess, LLMTool } from '@/lib/types';
 import logger from '@/lib/logger';
+import { searchMemory } from '@/lib/memory';
 
 // Define the structure of a tool call received from the LLM
 // interface LLMToolCall {
@@ -119,7 +120,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userQuery, selectedTools, numOptions = 1, preDeterminedToolCall } = body; // Default numOptions to 1
+    const { userQuery, selectedTools, numOptions = 1, preDeterminedToolCall, includeMemory } = body; // Default numOptions to 1
 
     // If a pre-determined tool call is provided, execute it directly.
     if (preDeterminedToolCall) {
@@ -143,9 +144,27 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Proceed with normal LLM generation if no pre-determined tool call
     if (!userQuery) {
       return NextResponse.json({ success: false, error: 'userQuery is required.' }, { status: 400 });
+    }
+
+    // --- Qdrant Memory Integration ---
+    let memoryResults: any[] = [];
+    let memoryContextBlock = '';
+    if (includeMemory) {
+      try {
+        const memorySearchResponse = await searchMemory(userQuery, { limit: 5 });
+        if (memorySearchResponse.success && memorySearchResponse.results) {
+          memoryResults = memorySearchResponse.results;
+          memoryContextBlock = '\n\n---\nRelevant Memory Chunks (Qdrant):\n' +
+            memoryResults.map((m, idx) => `#${idx + 1}: ${m.content || JSON.stringify(m)}`).join('\n');
+          logger.info('[AGENT_EXECUTE][MEMORY] Injected Qdrant memory into agent context.', { count: memoryResults.length });
+        } else {
+          logger.warn('[AGENT_EXECUTE][MEMORY] No relevant memory found or search failed.', { error: memorySearchResponse.error });
+        }
+      } catch (memoryError) {
+        logger.error('[AGENT_EXECUTE][MEMORY] Error during Qdrant memory search.', { error: memoryError instanceof Error ? memoryError.message : String(memoryError) });
+      }
     }
 
     // Pass ALL available tool schemas to the LLM for it to consider, regardless of user selection initially.
@@ -161,39 +180,71 @@ export async function POST(request: NextRequest) {
     for (let strategyIndex = 0; strategyIndex < numOptions; strategyIndex++) {
       logger.info(`[AGENT_EXECUTE] Generating Strategy ${strategyIndex + 1}/${numOptions}.`, { userQuery });
 
+      // --- Inject memory context as a system message if present ---
+      const systemPrompt =
+        `You are Orion, an autonomous agentic AI assistant. Your job is to actually accomplish the user's task or goal using the tools provided to you, not just to plan or outline steps. You must use the available tools in sequence as needed to fully complete the user's request, only stopping when the task is truly done or no further actions are possible. The tools you have are sufficient to get the job done—do not defer work back to the user. When a tool is needed, call it, use its result, and then immediately take the next logical action until the user's goal is achieved. You may only call each tool with a unique set of arguments ONCE per session. If you have already called a tool with the same arguments, do NOT call it again. Instead, use the information already provided to answer the user as best as possible. After using a tool, always attempt to provide a final answer or take the next step. If you cannot answer, explain why based on the information you have. Never simply outline a plan—always execute the steps yourself using the tools provided.
+
+EXAMPLE (Tool Use):
+User: "Find the latest price of a .gov.ng domain and send me an email with the details."
+Assistant: (calls search_web tool with query 'latest price of .gov.ng domain')
+Tool Output: "The current price for a .gov.ng domain is 70,000 NGN per year."
+Assistant: (calls send_email tool with subject 'Domain Price', body 'The current price for a .gov.ng domain is 70,000 NGN per year.')
+Tool Output: "Email sent successfully."
+Assistant: "I have found the latest price for a .gov.ng domain (70,000 NGN/year) and sent you an email with the details. Task complete."
+
+` +
+        (memoryContextBlock ? memoryContextBlock : '');
+
       const messages: Message[] = [
         {
           role: 'system',
-          content:
-            "You are Orion, an AI assistant that can use tools to answer questions and perform actions. When a tool is needed, call it. Then use the tool's result to formulate your final answer to the user. Generate a distinct strategy or approach for the user's query.", // Added prompt for distinct strategy
+          content: systemPrompt,
         },
         {
           role: 'user',
           content: userQuery,
+        },
+        {
+          role: 'user',
+          content: "You must begin by calling the most relevant tool to start accomplishing the user's goal. Do not outline a plan—take action immediately.",
         },
       ];
 
       const currentMessages: Message[] = [...messages]; // To keep track of conversation flow for this strategy
       const MAX_ITERATIONS = 5;
       let finalAnswer: string | undefined;
+      // Track tool calls and arguments to prevent repeats
+      const toolCallHistory: Set<string> = new Set();
 
       for (let i = 0; i < MAX_ITERATIONS; i++) {
         const llmParams = {
           requestType: 'agent_workflow',
           primaryContext: userQuery,
           tools: availableToolSchemas,
-          tool_choice: 'auto' as 'auto' | 'none' | object,
-          // numOptions is not passed here directly as it's handled by the outer loop
+          tool_choice: (i === 0 ? 'auto' : 'none') as 'auto' | 'none' | object | undefined, // After first iteration, force LLM to answer
         };
 
         logger.debug('[AGENT_EXECUTE] Calling LLM with params.', { iteration: i, llmParams });
-        const llmResponse: CombinedLLMResponse = await generateLLMResponseWithTools({
+        let llmResponse: CombinedLLMResponse = await generateLLMResponseWithTools({
           requestType: llmParams.requestType,
           primaryContext: llmParams.primaryContext,
           userId: 'unauthenticated_user',
           tools: llmParams.tools,
           tool_choice: llmParams.tool_choice,
         });
+
+        // If first iteration and LLM just outlines a plan (no tool_calls), re-prompt once to demand action
+        if (i === 0 && llmResponse.success && (!llmResponse.tool_calls || llmResponse.tool_calls.length === 0)) {
+          logger.warn('[AGENT_EXECUTE] LLM first response was just a plan. Re-prompting to demand action.');
+          currentMessages.push({ role: 'user', content: "Do not outline a plan. Use the tools to actually begin the work now. Take action immediately." });
+          llmResponse = await generateLLMResponseWithTools({
+            requestType: llmParams.requestType,
+            primaryContext: llmParams.primaryContext,
+            userId: 'unauthenticated_user',
+            tools: llmParams.tools,
+            tool_choice: llmParams.tool_choice,
+          });
+        }
 
         if (llmResponse.success) {
           currentMessages.push({ role: 'assistant', content: llmResponse.content });
@@ -202,11 +253,27 @@ export async function POST(request: NextRequest) {
             logger.info('[AGENT_EXECUTE] LLM requested tool calls.', { toolCalls: llmResponse.tool_calls });
 
             for (const toolCall of llmResponse.tool_calls) {
+              let argsObj: any;
+              try { argsObj = JSON.parse(toolCall.function.arguments); } catch { argsObj = toolCall.function.arguments; }
+              const toolCallKey = `${toolCall.function.name}:${JSON.stringify(argsObj, Object.keys(argsObj).sort())}`;
+              if (toolCallHistory.has(toolCallKey)) {
+                const repeatMsg = `You have already called the tool '${toolCall.function.name}' with these arguments. Please use the information already provided to answer the user as best as possible.`;
+                currentMessages.push({ role: 'tool', tool_call_id: toolCall.id, content: repeatMsg });
+                logger.warn('[AGENT_EXECUTE] Prevented repeated tool call.', { toolCallKey });
+                continue;
+              }
+              toolCallHistory.add(toolCallKey);
               logger.info(`[AGENT_EXECUTE] Executing tool: ${toolCall.function.name}.`);
-              // Pass selectedTools to executeTool for permission check
-              const toolOutput = await executeTool(toolCall, selectedTools || []);
-              currentMessages.push({ role: 'tool', tool_call_id: toolCall.id, content: JSON.stringify(toolOutput) });
+              let toolOutput = await executeTool(toolCall, selectedTools || []);
+              // If search_web, format output for LLM
+              if (toolCall.function.name === 'search_web' && toolOutput && typeof toolOutput === 'object') {
+                const { snippets, scraped_content } = toolOutput;
+                toolOutput = `\n---\nWeb Search Summary:\n${snippets}\n\nKey Facts (bullet points):\n${snippets.split(/\n|\r/).map((line: string) => line.trim()).filter(Boolean).map((line: string) => '- ' + line).join('\n')}\n\nScraped Content:\n${scraped_content}\n---\n`;
+              }
+              currentMessages.push({ role: 'tool', tool_call_id: toolCall.id, content: typeof toolOutput === 'string' ? toolOutput : JSON.stringify(toolOutput) });
               logger.success(`[AGENT_EXECUTE] Tool ${toolCall.function.name} executed.`, { output: toolOutput });
+              // After tool call, append explicit user message to force LLM to answer
+              currentMessages.push({ role: 'user', content: "You have now received the tool results. Please answer the user's question using this information. Do not call the same tool again." });
             }
           } else {
             logger.info('[AGENT_EXECUTE] LLM provided a final answer.', { answer: llmResponse.content });
@@ -232,10 +299,21 @@ export async function POST(request: NextRequest) {
     logger.success('[AGENT_EXECUTE] Agent execution complete. Generated multiple strategies.', {
       numStrategies: generatedStrategies.length,
     });
-    return NextResponse.json({
+    // After generating all strategies, return the first one (for now)
+    type AgentResult = { success: boolean; answer: string; current_messages: Message[]; memoryResults?: any[] };
+    const result: AgentResult = {
       success: true,
-      strategies: generatedStrategies, // Return an array of strategies
-    });
+      answer: generatedStrategies[0]?.answer,
+      current_messages: generatedStrategies[0]?.messages,
+    };
+    // Fallback: if current_messages is empty but answer is present, create a single assistant message
+    if ((!result.current_messages || result.current_messages.length === 0) && result.answer) {
+      result.current_messages = [{ role: 'assistant', content: result.answer }];
+    }
+    if (includeMemory && memoryResults && memoryResults.length > 0) {
+      result.memoryResults = memoryResults;
+    }
+    return NextResponse.json(result);
   } catch (error: unknown) {
     logger.error('[AGENT_EXECUTE] Uncaught error during agent execution.', {
       error: error instanceof Error ? error.message : String(error),

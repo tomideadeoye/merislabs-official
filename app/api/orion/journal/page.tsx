@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -21,7 +22,7 @@ import {
   TabsTrigger,
   Badge,
 } from '@/components/ui';
-import { CalendarDays, Tag, Paperclip, Smile, Lightbulb, Loader2, Trash2, Edit } from 'lucide-react';
+import { CalendarDays, Tag, Paperclip, Smile, Lightbulb, Loader2 } from 'lucide-react';
 import { useMemoryContext } from '@/components/orion/MemoryProvider';
 import { MEMORY_TYPES } from '@/lib/orion_config';
 import { JournalEntryInput, ScoredMemoryPoint, EmotionalLogEntry, CognitiveDistortionAnalysisData } from '@/lib/types';
@@ -45,7 +46,7 @@ const cognitiveDistortions = [
 ];
 
 export default function UnifiedJournalingPage() {
-  const { search, searchResults, loading, addMemory, deleteMemory } = useMemoryContext();
+  const { search, searchResults, loading, addMemory } = useMemoryContext();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState('new');
@@ -68,9 +69,28 @@ export default function UnifiedJournalingPage() {
   });
   const [cognitiveDistortionAnalysis, setCognitiveDistortionAnalysis] = useState<CognitiveDistortionAnalysisData | null>(null);
 
-  const fetchJournalEntries = useCallback(() => {
-    search('', { filter: { must: [{ key: 'payload.type', match: { value: MEMORY_TYPES.JOURNAL } }] }, limit: 20 });
-  }, [search]);
+  // Fetch journal entries from DB API
+  const [dbJournalEntries, setDbJournalEntries] = useState<JournalEntryInput[]>([]);
+  const [dbLoading, setDbLoading] = useState(false);
+
+  const fetchJournalEntries = useCallback(async () => {
+    setDbLoading(true);
+    try {
+      const res = await fetch('/api/orion/journal/list');
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.journalEntries)) {
+        setDbJournalEntries(data.journalEntries);
+      } else {
+        setDbJournalEntries([]);
+        logger.error('[UnifiedJournalingPage] Failed to fetch journal entries from DB', data);
+      }
+    } catch (err) {
+      setDbJournalEntries([]);
+      logger.error('[UnifiedJournalingPage] Exception fetching journal entries from DB', { error: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setDbLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchJournalEntries();
@@ -155,47 +175,37 @@ Reflection: ${reflectionText}`;
         }
       }
 
-      if (editingEntry) {
-        // Handle update
-        // This would typically call an API endpoint to update the journal entry
-        // For now, simulate update in memory context
-        await deleteMemory(editingEntry.id); // Remove old entry
-        await addMemory({
-          id: editingEntry.id, // Keep same ID for update
-          text: newEntry.content || '',
-          source_id: editingEntry.payload?.source_id || `journal_${Date.now()}`,
-          timestamp: newEntry.date.toString(),
-          indexedAt: new Date().toISOString(),
-          type: MEMORY_TYPES.JOURNAL,
-          tags: newEntry.tags,
-          mood: newEntry.mood,
-          title: newEntry.title,
-          attachments: newEntry.attachments,
-          // Add other fields from newEntry to payload as needed
-          ...newEntry, // Spread all fields for comprehensive payload
-        });
-        setFeedback({ type: 'success', message: 'Journal entry updated successfully!' });
-      } else {
-        // Handle new entry
-        const sourceId = `journal_${Date.now()}`;
-        await addMemory({
-          text: newEntry.content || '',
-          source_id: sourceId,
-          timestamp: newEntry.date.toString(),
-          indexedAt: new Date().toISOString(),
-          type: MEMORY_TYPES.JOURNAL,
-          tags: newEntry.tags,
-          mood: newEntry.mood,
-          title: newEntry.title,
-          attachments: newEntry.attachments,
-          // Add other fields from newEntry to payload as needed
-          ...newEntry, // Spread all fields for comprehensive payload
-        });
-        setFeedback({ type: 'success', message: 'Journal entry saved to Orion Memory successfully!' });
+      // Save to Neon Postgres via API
+      const saveRes = await fetch('/api/orion/journal/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEntry),
+      });
+      const saveData = await saveRes.json();
+      logger.info('[UnifiedJournalingPage] /api/orion/journal/save response', saveData);
+
+      if (!saveRes.ok || !saveData.success) {
+        setFeedback({ type: 'error', message: saveData.error || 'Failed to save journal entry to database.' });
+        setIsSaving(false);
+        return;
       }
 
+      // Optionally, add to Qdrant for embedding/search
+      try {
+        const text = newEntry.content || '';
+        const sourceId = saveData.entry?.id || `journal_${Date.now()}`;
+        const type = MEMORY_TYPES.JOURNAL;
+        const tags = newEntry.tags;
+        const { content, tags: _tags, ...additionalFields } = newEntry;
+        await addMemory(text, sourceId, type, tags, additionalFields);
+      } catch (embeddingError) {
+        logger.error('[UnifiedJournalingPage] Failed to add memory to Qdrant.', { error: embeddingError });
+      }
+
+      setFeedback({ type: 'success', message: 'Journal entry saved successfully!' });
+
       resetForm();
-      fetchJournalEntries(); // Refresh list
+      // fetchJournalEntries(); // Will be replaced by DB fetch in next step
       setActiveTab('history'); // Switch to history tab after saving
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -212,33 +222,35 @@ Reflection: ${reflectionText}`;
     setJournalContent(entry.payload?.text || '');
     setSelectedMood(entry.payload?.mood);
     // Populate other fields if they exist in payload
-    setReflectionText(entry.payload?.reflection || ''); // Assuming reflection is a direct payload field
-    setAttachments(entry.payload?.attachments?.map((name: string) => new File([], name)) || []); // Recreate dummy files
-    // Set optional fields visibility based on existing data
+    // Defensive: Only set if payload is object and has reflection
+    setReflectionText(
+      entry.payload && typeof entry.payload === 'object' && 'reflection' in entry.payload
+        ? (entry.payload as any).reflection || ''
+        : ''
+    );
+    setAttachments(
+      entry.payload && typeof entry.payload === 'object' && Array.isArray((entry.payload as any).attachments)
+        ? (entry.payload as any).attachments.map((name: string) => new File([], name))
+        : []
+    );
     setShowOptionalFields({
-      mood: !!entry.payload?.mood,
-      emotionLog: !!entry.payload?.primaryEmotion,
-      reflection: !!entry.payload?.reflection,
-      attachments: (entry.payload?.attachments?.length || 0) > 0,
+      mood: !!(entry.payload && typeof entry.payload === 'object' && 'mood' in entry.payload && (entry.payload as any).mood),
+      emotionLog: !!(entry.payload && typeof entry.payload === 'object' && 'primaryEmotion' in entry.payload && (entry.payload as any).primaryEmotion),
+      reflection: !!(entry.payload && typeof entry.payload === 'object' && 'reflection' in entry.payload && (entry.payload as any).reflection),
+      attachments:
+        !!(
+          entry.payload &&
+          typeof entry.payload === 'object' &&
+          Array.isArray((entry.payload as any).attachments) &&
+          (entry.payload as any).attachments.length > 0
+        ),
     });
     setActiveTab('new'); // Switch to new entry tab for editing
   };
 
+  // Deletion is not supported by the memory context
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this journal entry?')) {
-      try {
-        setIsSaving(true); // Use saving state to prevent multiple actions
-        await deleteMemory(id);
-        setFeedback({ type: 'success', message: 'Journal entry deleted successfully!' });
-        fetchJournalEntries(); // Refresh list
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        setFeedback({ type: 'error', message: `Failed to delete entry: ${errorMessage}` });
-        logger.error('[UnifiedJournalingPage] Failed to delete journal entry.', { error: errorMessage });
-      } finally {
-        setIsSaving(false);
-      }
-    }
+    setFeedback({ type: 'error', message: 'Delete functionality is not supported.' });
   };
 
   const handleCognitiveDistortionChange = (field: keyof CognitiveDistortionAnalysisData, value: any) => {
@@ -261,9 +273,8 @@ Reflection: ${reflectionText}`;
 
       {feedback && (
         <div
-          className={`p-4 rounded-md mb-6 ${
-            feedback.type === 'success' ? 'bg-green-900/30 text-green-300' : 'bg-red-900/30 text-red-300'
-          }`}
+          className={`p-4 rounded-md mb-6 ${feedback.type === 'success' ? 'bg-green-900/30 text-green-300' : 'bg-red-900/30 text-red-300'
+            }`}
         >
           {feedback.message}
         </div>
@@ -537,47 +548,55 @@ Reflection: ${reflectionText}`;
 
         <TabsContent value="history" className="space-y-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-100">Recent Entries</h2>
-          {loading ? (
+          {dbLoading ? (
             <p className="text-gray-400">Loading entries...</p>
-          ) : searchResults.length === 0 ? (
+          ) : dbJournalEntries.length === 0 ? (
             <p className="text-gray-400">No journal entries found.</p>
           ) : (
             <div className="space-y-4">
-              {searchResults.map((entry: ScoredMemoryPoint) => (
-                <Card key={entry.payload?.source_id || entry.id} className="bg-gray-800 border-gray-700">
+              {dbJournalEntries.map((entry, idx) => (
+                <Card key={entry.id || idx} className="bg-gray-800 border-gray-700">
                   <CardContent className="pt-6">
-                    {entry.payload?.title && <h3 className="text-lg font-semibold text-gray-100 mb-2">{entry.payload.title}</h3>}
-                    <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.payload?.text}</p>
+                    {entry.title && <h3 className="text-lg font-semibold text-gray-100 mb-2">{entry.title}</h3>}
+                    <p className="text-sm text-gray-300 whitespace-pre-wrap mb-3">{entry.content}</p>
 
                     <div className="flex flex-wrap items-center text-xs text-gray-400 gap-4">
                       <span className="flex items-center">
                         <CalendarDays className="h-3 w-3 mr-1" />
-                        {entry.payload?.timestamp ? new Date(entry.payload.timestamp).toLocaleString() : 'N/A'}
+                        {entry.date ? new Date(entry.date).toLocaleString() : 'N/A'}
                       </span>
 
-                      {entry.payload?.mood && (
+                      {entry.mood && (
                         <span className="flex items-center">
-                          <Smile className="h-3 w-3 mr-1" /> Mood: {entry.payload.mood}
+                          <Smile className="h-3 w-3 mr-1" /> Mood: {entry.mood}
                         </span>
                       )}
 
-                      {entry.payload?.primaryEmotion && (
+                      {(() => {
+                        const pe = entry.primaryEmotion;
+                        const intensity = entry.intensity;
+                        if (typeof pe === 'string' && (typeof intensity === 'number' || typeof intensity === 'string')) {
+                          return (
+                            <span className="flex items-center">
+                              Emotion: {pe} (Intensity: {intensity})
+                            </span>
+                          ) as React.ReactNode;
+                        }
+                        return null as React.ReactNode;
+                      })()}
+
+                      {Array.isArray(entry.attachments) && entry.attachments.length > 0 && (
                         <span className="flex items-center">
-                          Emotion: {entry.payload.primaryEmotion} (Intensity: {entry.payload.intensity})
+                          <Paperclip className="h-3 w-3 mr-1" /> Attachments:{' '}
+                          {entry.attachments.join(', ')}
                         </span>
                       )}
 
-                      {entry.payload?.attachments && entry.payload.attachments.length > 0 && (
-                        <span className="flex items-center">
-                          <Paperclip className="h-3 w-3 mr-1" /> Attachments: {entry.payload.attachments.join(', ')}
-                        </span>
-                      )}
-
-                      {entry.payload?.tags && entry.payload.tags.length > 0 && (
+                      {entry.tags && entry.tags.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1">
                           <Tag className="h-3 w-3" />
                           <div className="flex flex-wrap gap-1">
-                            {entry.payload.tags
+                            {entry.tags
                               .filter((tag: string) => tag !== 'journal' && tag !== 'journal_entry')
                               .map((tag: string, i: number) => (
                                 <Badge key={i} variant="outline" className="text-xs bg-gray-700 text-gray-300 border-gray-600">
@@ -588,14 +607,7 @@ Reflection: ${reflectionText}`;
                         </div>
                       )}
                     </div>
-                    <div className="flex justify-end gap-2 mt-4">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(entry)} disabled={isSaving}>
-                        <Edit className="h-4 w-4 mr-2" /> Edit
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(entry.id)} disabled={isSaving}>
-                        <Trash2 className="h-4 w-4 mr-2" /> Delete
-                      </Button>
-                    </div>
+                    {/* Edit/Delete buttons could be implemented here if needed */}
                   </CardContent>
                 </Card>
               ))}

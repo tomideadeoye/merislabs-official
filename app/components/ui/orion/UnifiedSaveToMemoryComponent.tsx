@@ -116,7 +116,7 @@ export const UnifiedSaveToMemoryComponent: React.FC<UnifiedSaveToMemoryComponent
           ? sourceId.trim()
           : `${type}_${new Date().toISOString().replace(/[:.]/g, '-')}_${uuidv4().substring(0, 8)}`;
 
-      const response = await apiClient.post('/api/orion/memory/add-memory', {
+      const response = await apiClient.post('/api/orion/memory/upsert-proxy', {
         text,
         source_id: finalSourceId,
         type,
@@ -237,7 +237,7 @@ export const UnifiedSaveToMemoryComponent: React.FC<UnifiedSaveToMemoryComponent
               id="memory-tags"
               placeholder="Select or create tags..."
               onChange={(selected: string[]) => setTags(selected)}
-              // You might need to fetch and provide options here
+            // You might need to fetch and provide options here
             />
           </div>
         </div>

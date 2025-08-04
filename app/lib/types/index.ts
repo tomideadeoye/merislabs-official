@@ -291,29 +291,34 @@ export interface JournalEntryInput {
   id?: string;
   userId: string;
   date: string | Date;
-  content?: string;
+  content?: string | null;
   createdAt?: string;
   updatedAt?: string;
-  title?: string;
+  title?: string | null;
   tags?: string[];
-  contentType?: string;
-  mood?: string;
+  contentType?: string | null;
+  mood?: string | null;
   reflectionId?: string | null;
   originalEntryId?: string | null;
-  timestamp?: string;
-  emotion?: string;
-  primaryEmotion?: string;
-  intensity?: number;
-  context?: string;
-  accompanyingThoughts?: string;
+  timestamp?: string | null;
+  emotion?: string | null;
+  primaryEmotion?: string | null;
+  intensity?: number | null;
+  context?: string | null;
+  accompanyingThoughts?: string | null;
   contextualNote?: string | null;
-  cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData;
+  cognitiveDistortionAnalysis?: CognitiveDistortionAnalysisData | null;
   secondaryEmotions?: string[];
   triggers?: string[];
   physicalSensations?: string[];
   copingMechanismsUsed?: string[];
   relatedJournalSourceId?: string | null;
-  attachments?: string[]; // Added for file/image attachments
+  /**
+   * Non-nullable array for file/image attachments.
+   * Always present, defaults to [] if not provided.
+   * Matches Prisma schema: attachments String[] @default([])
+   */
+  attachments: string[];
 }
 
 export interface EmotionalLogEntry {
@@ -1058,27 +1063,6 @@ export interface EmailResponse {
   details?: unknown; // Changed from any to unknown
 }
 
-export interface Block {
-  id: string;
-  type: BlockType;
-  title: string;
-  content: string;
-  tags?: string[];
-  createdAt: string;
-  updatedAt?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export type BlockType = 'text' | 'image' | 'video' | 'audio' | 'code' | 'other';
-
-export const BLOCK_TYPES: BlockType[] = ['text', 'image', 'video', 'audio', 'code', 'other'];
-
-export interface CreateBlockPayload {
-  type: BlockType;
-  title: string;
-  content: string;
-  tags?: string[];
-}
 
 export interface Idea {
   id: string;

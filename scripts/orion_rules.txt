@@ -172,8 +172,7 @@ BEFORE YOU START:
 - explain what you are doing, why you are doing it, and what you are thinking. Aim for perfection!
 - Factor in CBT, and the need for a loop of improvement.
 - read the file then propose updates
-- When requirements are ambiguous:
-- Propose a default implementation based on codebase patterns
+- When requirements are ambiguous: Propose a default implementation based on codebase patterns
 
 - Production-Ready: Deliver complete, functional features without placeholders (mocks/dummy code)
   Ask me as many questions as you want about the feature's purpose and requirements.

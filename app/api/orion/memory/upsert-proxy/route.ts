@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
     logger.debug('[UPsert-Proxy] Incoming request body:', { body });
 
     // Forward the request to the Python API
-    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:5002';
-    const pythonUrl = `${pythonApiUrl}/api/memory/upsert`;
+    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    const pythonUrl = `${pythonApiUrl}/api/v1/memory/upsert`;
     logger.debug('[UPsert-Proxy] Forwarding to Python backend:', { pythonUrl });
 
     const response = await fetch(pythonUrl, {
