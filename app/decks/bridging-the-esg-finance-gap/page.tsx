@@ -2,8 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
-import generatePDF, { usePDF } from "react-to-pdf";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { pdf } from "@react-pdf/renderer";
 import { EndnotesPage } from "../../../components/reports/esg-pages/EndnotesPage";
@@ -32,9 +31,6 @@ import {
 
 export default function HybridESGDemo() {
 	const { setTheme } = useTheme();
-	const { toPDF: downloadFullReport, targetRef: fullReportRef } = usePDF({
-		filename: "esg-report.pdf",
-	});
 	const [showFootnotes, setShowFootnotes] = useState(false);
 	const [isGeneratingPDF, setIsGeneratingPDF] = useState<string | null>(null);
 
@@ -135,7 +131,7 @@ export default function HybridESGDemo() {
 	const appendixRef = useRef<HTMLDivElement>(null);
 	const endpageRef = useRef<HTMLDivElement>(null);
 
-	// Individual component download functions using the utility
+	// Individual component download functions using html2canvas-pro
 	const downloadComponent = async (
 		ref: React.RefObject<HTMLDivElement>,
 		filename: string,
@@ -145,17 +141,46 @@ export default function HybridESGDemo() {
 
 		setIsGeneratingPDF(componentName);
 		try {
-			// Use the built-in react-to-pdf library directly for individual components
-			await generatePDF(ref, {
-				filename,
-				method: "open",
-				resolution: 2,
-				page: { margin: 1, format: "a4", orientation: "portrait" },
+			const canvas = await html2canvas(ref.current, {
+				scale: 2,
+				useCORS: true,
+				allowTaint: false,
+				backgroundColor: '#ffffff',
+				logging: false,
+				width: ref.current.scrollWidth,
+				height: ref.current.scrollHeight,
+				imageTimeout: 15000,
+				removeContainer: false,
+				foreignObjectRendering: true
 			});
+
+			const imgData = canvas.toDataURL('image/png');
+			const pdf = new jsPDF({
+				orientation: 'portrait',
+				unit: 'mm',
+				format: 'a4'
+			});
+
+			const pdfWidth = pdf.internal.pageSize.getWidth();
+			const pdfHeight = pdf.internal.pageSize.getHeight();
+			const imgWidth = pdfWidth;
+			const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+			if (imgHeight <= pdfHeight) {
+				const xOffset = (pdfWidth - imgWidth) / 2;
+				pdf.addImage(imgData, 'PNG', xOffset, 0, imgWidth, imgHeight);
+			} else {
+				const scaleFactor = pdfHeight / imgHeight;
+				const scaledWidth = imgWidth * scaleFactor;
+				const xOffset = (pdfWidth - scaledWidth) / 2;
+				pdf.addImage(imgData, 'PNG', xOffset, 0, scaledWidth, pdfHeight);
+			}
+
+			pdf.save(filename);
 		} catch (error) {
 			console.error("Error generating PDF:", error);
 			alert(
-				`Failed to generate PDF for ${filename}. This might be due to image compatibility issues.`
+				`Failed to generate PDF for ${filename}. ${error instanceof Error ? error.message : String(error)}`
 			);
 		} finally {
 			setIsGeneratingPDF(null);
@@ -213,131 +238,7 @@ export default function HybridESGDemo() {
 		}
 	};
 
-	const inlineStyles = (element: Element): void => {
-		// Only process HTMLElement (not SVGElement, etc.)
-		if (!(element instanceof HTMLElement)) {
-			// Still process children for other element types
-			const children = element.children;
-			for (let i = 0; i < children.length; i++) {
-				inlineStyles(children[i]);
-			}
-			return;
-		}
 
-		const computedStyle = window.getComputedStyle(element);
-		let styleString = '';
-
-		// Get all computed styles
-		for (let i = 0; i < computedStyle.length; i++) {
-			const property = computedStyle[i];
-			let value = computedStyle.getPropertyValue(property);
-
-			// Convert unsupported color functions to supported formats
-			if (value && value.includes('oklch(')) {
-				// Convert oklch to rgb approximation
-				// oklch(l c h) - we'll convert to a basic rgb approximation
-				const oklchMatch = value.match(/oklch\(([^)]+)\)/);
-				if (oklchMatch) {
-					const params = oklchMatch[1].split(/\s+/);
-					const l = parseFloat(params[0]); // lightness
-					const c = parseFloat(params[1]); // chroma
-					const h = parseFloat(params[2]); // hue
-
-					// Simple conversion to RGB (approximation)
-					// This is a basic conversion - for production, you'd want a proper color space conversion
-					let r, g, b;
-					const hue = h / 360;
-					const chroma = c / 100;
-					const lightness = l / 100;
-
-					if (chroma === 0) {
-						r = g = b = lightness;
-					} else {
-						const h2 = hue * 6;
-						const x = chroma * (1 - Math.abs(h2 % 2 - 1));
-						if (h2 >= 0 && h2 < 1) { r = chroma; g = x; b = 0; }
-						else if (h2 >= 1 && h2 < 2) { r = x; g = chroma; b = 0; }
-						else if (h2 >= 2 && h2 < 3) { r = 0; g = chroma; b = x; }
-						else if (h2 >= 3 && h2 < 4) { r = 0; g = x; b = chroma; }
-						else if (h2 >= 4 && h2 < 5) { r = x; g = 0; b = chroma; }
-						else { r = chroma; g = 0; b = x; }
-
-						const m = lightness - chroma / 2;
-						r = Math.round((r + m) * 255);
-						g = Math.round((g + m) * 255);
-						b = Math.round((b + m) * 255);
-					}
-
-					value = `rgb(${r}, ${g}, ${b})`;
-				}
-			}
-
-			if (value && value !== 'none' && value !== 'auto' && value !== 'normal') {
-				styleString += `${property}:${value};`;
-			}
-		}
-
-		// Apply inline styles
-		element.style.cssText = styleString;
-
-		// Remove Tailwind classes
-		element.className = '';
-
-		// Recursively process children
-		const children = element.children;
-		for (let i = 0; i < children.length; i++) {
-			inlineStyles(children[i]);
-		}
-	};
-
-	const exportComponentHTML = (ref: React.RefObject<HTMLDivElement>, filename: string) => {
-		if (!ref.current) return;
-
-		// Clone the element to avoid modifying the original
-		const clonedElement = ref.current.cloneNode(true) as HTMLElement;
-
-		// Inline all styles
-		inlineStyles(clonedElement);
-
-		// Create complete HTML document
-		const htmlContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	   <meta charset="UTF-8">
-	   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	   <title>${filename.replace('.html', '')}</title>
-	   <style>
-	       body {
-	           margin: 0;
-	           padding: 20px;
-	           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	       }
-	       .page-container {
-	           max-width: 794px;
-	           margin: 0 auto;
-	           box-shadow: 0 0 10px rgba(0,0,0,0.1);
-	       }
-	   </style>
-</head>
-<body>
-	   <div class="page-container">
-	       ${clonedElement.outerHTML}
-	   </div>
-</body>
-</html>`;
-
-		const blob = new Blob([htmlContent], { type: 'text/html' });
-		const url = URL.createObjectURL(blob);
-
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = filename;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-		URL.revokeObjectURL(url);
-	};
 
 	const downloadWithReactPDF = async (
 		ref: React.RefObject<HTMLDivElement>,
@@ -560,18 +461,36 @@ export default function HybridESGDemo() {
 						/>
 						<span className="font-medium">Show Footnotes</span>
 					</label> */}
-					{/* react-to-pdf Full Report - Temporarily disabled due to oklch color compatibility */}
-					<div className="bg-gray-100 p-4 rounded-lg border shadow-sm text-center w-full max-w-xs opacity-60">
-						<h4 className="font-semibold text-gray-500 mb-3">
-							📄 Complete Report (react-to-pdf)
+					{/* react-to-pdf Full Report */}
+					<div className="bg-white p-4 rounded-lg border shadow-sm text-center w-full max-w-xs">
+						<h4 className="font-semibold text-green-700 mb-3">
+							📄 Complete Report (html2canvas-pro)
 						</h4>
-						<p className="text-xs text-gray-500 mb-2">Temporarily unavailable</p>
+						<p className="text-xs text-gray-600 mb-4">
+							🖼️ <strong>Enhanced screenshot method</strong> - supports modern CSS colors and perfect image quality
+						</p>
 						<div className="space-y-2">
 							<button
-								disabled
-								className="w-full px-3 py-2 bg-gray-400 text-white rounded text-sm cursor-not-allowed"
+								onClick={() =>
+									downloadFullReportWithMethod("react-to-pdf", "high")
+								}
+								className="w-full px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 disabled:opacity-50"
+								disabled={isGeneratingPDF === "full-react-to-pdf"}
 							>
-								Coming Soon
+								{isGeneratingPDF === "full-react-to-pdf"
+									? "Generating..."
+									: "📄 High Quality"}
+							</button>
+							<button
+								onClick={() =>
+									downloadFullReportWithMethod("react-to-pdf", "medium")
+								}
+								className="w-full px-3 py-2 bg-green-400 text-white rounded text-xs hover:bg-green-500 disabled:opacity-50"
+								disabled={isGeneratingPDF === "full-react-to-pdf"}
+							>
+								{isGeneratingPDF === "full-react-to-pdf"
+									? "Generating..."
+									: "📄 Medium Quality"}
 							</button>
 						</div>
 					</div>

@@ -166,49 +166,63 @@ export class PDFGenerator {
     `;
     document.head.appendChild(printStyles);
 
-    const pdfOptions = {
-      filename,
-      method: 'save' as const, // Changed from 'open' to 'save'
-      resolution: options.quality === 'high' ? 3 : options.quality === 'low' ? 1.5 : 2,
-      page: {
-        margin: 20, // Increased margin for better layout
-        format: options.format || 'a4',
-        orientation: options.orientation || 'portrait'
-      } as const,
-      canvas: {
-        mimeType: 'image/png' as const,
+    // Use our own html2canvas-pro implementation instead of react-to-pdf's internal html2canvas
+    try {
+      const canvas = await html2canvas(originalElement, {
+        scale: options.quality === 'high' ? 3 : options.quality === 'low' ? 1.5 : 2,
         useCORS: true,
         allowTaint: false,
-        scale: options.quality === 'high' ? 2 : options.quality === 'low' ? 1 : 1.5
-      },
-      overrides: {
-        pdf: {
-          compress: true,
-          putOnlyUsedFonts: true
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: originalElement.scrollWidth,
+        height: originalElement.scrollHeight,
+        // html2canvas-pro specific options for better color support
+        imageTimeout: 15000,
+        removeContainer: false,
+        foreignObjectRendering: true
+      });
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+
+      // Create PDF using jsPDF
+      const pdf = new jsPDF({
+        orientation: options.orientation || 'portrait',
+        unit: 'mm',
+        format: options.format || 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      // Handle pagination for large content
+      const totalPages = Math.ceil(imgHeight / pdfHeight);
+
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) {
+          pdf.addPage();
         }
-      }
-    };
 
-    try {
-      await generatePDF(element, pdfOptions);
+        const yOffset = page * pdfHeight;
+        const remainingHeight = Math.min(pdfHeight, imgHeight - yOffset);
+
+        pdf.addImage(
+          imgData,
+          'PNG',
+          0,
+          -yOffset,
+          imgWidth,
+          remainingHeight,
+          undefined,
+          'FAST'
+        );
+      }
+
+      pdf.save(filename);
     } catch (error) {
-      console.error('react-to-pdf generation failed:', error);
-
-      // Enhanced fallback with simpler options
-      try {
-        await generatePDF(element, {
-          filename: filename.replace('.pdf', '-fallback.pdf'),
-          resolution: 1.5,
-          page: {
-            margin: 15,
-            format: options.format || 'a4',
-            orientation: options.orientation || 'portrait'
-          }
-        });
-      } catch (fallbackError) {
-        console.error('Fallback PDF generation also failed:', fallbackError);
-        throw fallbackError;
-      }
+      console.error('Custom react-to-pdf generation failed:', error);
+      throw error;
     } finally {
       // Always restore original styles and remove print styles
       Object.assign(originalElement.style, originalStyles);
@@ -275,9 +289,6 @@ export class PDFGenerator {
 
       // Pre-load all images before capture
       await this.preloadAllImages(originalElement);
-
-      // Pre-process CSS to convert oklch colors to RGB
-      PDFGenerator.convertOklchColorsInCSS();
 
       // Enhanced html2canvas options for crystal clear images
       const canvas = await new Promise<HTMLCanvasElement>((resolve, reject) => {
@@ -464,48 +475,6 @@ export class PDFGenerator {
                 }
               }
 
-              // Convert unsupported color functions to supported formats for ALL color properties
-              const colorProperties = ['backgroundColor', 'color', 'borderColor', 'borderTopColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor'];
-
-              colorProperties.forEach(prop => {
-                const colorValue = computedStyles[prop as keyof CSSStyleDeclaration] as string;
-                if (colorValue && colorValue.includes('oklch(')) {
-                  // Convert oklch to rgb approximation
-                  const oklchMatch = colorValue.match(/oklch\(([^)]+)\)/);
-                  if (oklchMatch) {
-                    const params = oklchMatch[1].split(/\s+/);
-                    const l = parseFloat(params[0]); // lightness
-                    const c = parseFloat(params[1]); // chroma
-                    const h = parseFloat(params[2]); // hue
-
-                    // Simple conversion to RGB (approximation)
-                    let r, g, b;
-                    const hue = h / 360;
-                    const chroma = c / 100;
-                    const lightness = l / 100;
-
-                    if (chroma === 0) {
-                      r = g = b = lightness;
-                    } else {
-                      const h2 = hue * 6;
-                      const x = chroma * (1 - Math.abs(h2 % 2 - 1));
-                      if (h2 >= 0 && h2 < 1) { r = chroma; g = x; b = 0; }
-                      else if (h2 >= 1 && h2 < 2) { r = x; g = chroma; b = 0; }
-                      else if (h2 >= 2 && h2 < 3) { r = 0; g = chroma; b = x; }
-                      else if (h2 >= 3 && h2 < 4) { r = 0; g = x; b = chroma; }
-                      else if (h2 >= 4 && h2 < 5) { r = x; g = 0; b = chroma; }
-                      else { r = chroma; g = 0; b = x; }
-
-                      const m = lightness - chroma / 2;
-                      r = Math.round((r + m) * 255);
-                      g = Math.round((g + m) * 255);
-                      b = Math.round((b + m) * 255);
-                    }
-
-                    htmlEl.style[prop as any] = `rgb(${r}, ${g}, ${b})`;
-                  }
-                }
-              });
 
               // Handle Tailwind opacity classes
               if (htmlEl.classList.contains('bg-white/70') || htmlEl.classList.contains('bg-white/80') ||
@@ -753,94 +722,6 @@ export class PDFGenerator {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  // Helper: Convert oklch colors to RGB in all stylesheets
-  private static convertOklchColorsInCSS(): void {
-    // Convert oklch to RGB approximation
-    const oklchToRgb = (l: number, c: number, h: number): string => {
-      // Simple HSL-like conversion (approximation)
-      const lightness = l / 100;
-      const chroma = c / 100;
-      const hue = h / 360;
-
-      if (chroma === 0) {
-        const gray = Math.round(lightness * 255);
-        return `rgb(${gray}, ${gray}, ${gray})`;
-      }
-
-      const h2 = hue * 6;
-      const x = chroma * (1 - Math.abs(h2 % 2 - 1));
-      let r = 0, g = 0, b = 0;
-
-      if (h2 >= 0 && h2 < 1) { r = chroma; g = x; b = 0; }
-      else if (h2 >= 1 && h2 < 2) { r = x; g = chroma; b = 0; }
-      else if (h2 >= 2 && h2 < 3) { r = 0; g = chroma; b = x; }
-      else if (h2 >= 3 && h2 < 4) { r = 0; g = x; b = chroma; }
-      else if (h2 >= 4 && h2 < 5) { r = x; g = 0; b = chroma; }
-      else { r = chroma; g = 0; b = x; }
-
-      const m = lightness - chroma / 2;
-      r = Math.round((r + m) * 255);
-      g = Math.round((g + m) * 255);
-      b = Math.round((b + m) * 255);
-
-      return `rgb(${r}, ${g}, ${b})`;
-    };
-
-    // Process all stylesheets
-    const stylesheets = document.styleSheets;
-    for (let i = 0; i < stylesheets.length; i++) {
-      try {
-        const stylesheet = stylesheets[i] as CSSStyleSheet;
-        if (stylesheet.cssRules) {
-          for (let j = 0; j < stylesheet.cssRules.length; j++) {
-            const rule = stylesheet.cssRules[j] as CSSStyleRule;
-            if (rule.style) {
-              // Check all color properties
-              const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor'];
-              colorProps.forEach(prop => {
-                const value = rule.style[prop as any];
-                if (value && value.includes('oklch(')) {
-                  const oklchMatch = value.match(/oklch\(([^)]+)\)/);
-                  if (oklchMatch) {
-                    const params = oklchMatch[1].split(/\s+/).map(p => parseFloat(p.replace('%', '')));
-                    if (params.length >= 3) {
-                      const rgb = oklchToRgb(params[0], params[1], params[2]);
-                      rule.style[prop as any] = value.replace(/oklch\([^)]+\)/, rgb);
-                    }
-                  }
-                }
-              });
-            }
-          }
-        }
-      } catch (e) {
-        // Skip cross-origin stylesheets
-        console.warn('Could not process stylesheet:', e);
-      }
-    }
-
-    // Also process inline styles
-    const allElements = document.querySelectorAll('*');
-    allElements.forEach((el: Element) => {
-      const element = el as HTMLElement;
-      if (element.style) {
-        const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor'];
-        colorProps.forEach(prop => {
-          const value = element.style[prop as any];
-          if (value && value.includes('oklch(')) {
-            const oklchMatch = value.match(/oklch\(([^)]+)\)/);
-            if (oklchMatch) {
-              const params = oklchMatch[1].split(/\s+/).map(p => parseFloat(p.replace('%', '')));
-              if (params.length >= 3) {
-                const rgb = oklchToRgb(params[0], params[1], params[2]);
-                element.style[prop as any] = value.replace(/oklch\([^)]+\)/, rgb);
-              }
-            }
-          }
-        });
-      }
-    });
-  }
 
 
   // Method 3: @react-pdf/renderer with react-pdf-html for perfect fidelity
