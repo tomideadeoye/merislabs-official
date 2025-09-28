@@ -55,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <ClientProviders>
           <Header navItems={navItems} />
-          <main className="min-h-screen bg-background text-foreground">{children}</main>
+          <main className="min-h-screen bg-background text-foreground pt-20">{children}</main>
         </ClientProviders>
       </body>
     </html>

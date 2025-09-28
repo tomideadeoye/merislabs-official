@@ -12,10 +12,10 @@ import { useTasks } from '@/hooks/useTasks';
 
 interface TaskFormProps {
   task?: Task;
-  onTaskSaved: () => void;
+  onTaskSavedAction: () => void;
 }
 
-export const TaskForm: React.FC<TaskFormProps> = ({ task, onTaskSaved }) => {
+export const TaskForm: React.FC<TaskFormProps> = ({ task, onTaskSavedAction }) => {
   const { addTask, updateTask } = useTasks();
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
@@ -52,7 +52,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onTaskSaved }) => {
       } else {
         await addTask.mutateAsync(taskData);
       }
-      onTaskSaved();
+      onTaskSavedAction();
     } catch (err: unknown) {
       logger.error(
         `Error saving task: ${err instanceof Error ? err.message : 'An unknown error occurred'}`,

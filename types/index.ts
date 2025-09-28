@@ -1,0 +1,1 @@
+export type { ReportData, Contact } from './report';

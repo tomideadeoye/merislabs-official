@@ -12,11 +12,11 @@ interface TaskListProps {
   tasks: Task[];
   isLoading: boolean;
   error: Error | null;
-  onTaskSelect: (taskId: string) => void;
+  onTaskSelectAction: (taskId: string) => void;
   className?: string;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error, onTaskSelect, className }) => {
+export const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error, onTaskSelectAction, className }) => {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [priorityFilter, setPriorityFilter] = useState<string>('ALL');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -135,7 +135,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, isLoading, error, onT
                   }`}
                 onClick={() => {
                   setSelectedTaskId(task.id);
-                  onTaskSelect(task.id);
+                  onTaskSelectAction(task.id);
                 }}
               >
                 <div className="flex-1">

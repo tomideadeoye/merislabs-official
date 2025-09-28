@@ -36,14 +36,14 @@ import React, { useState } from 'react';
 import { TaskStep } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, HelpCircle, MessageSquare, FileText, CornerDownRight } from 'lucide-react';
+import { CheckCircle, HelpCircle, MessageSquare, FileText } from 'lucide-react';
 import apiClient from '@/lib/apiClient';
 import logger from '@/lib/logger';
 
 // --- Type for generatedOptions ---
 type GeneratedOption = { action: string; justification: string };
 
-type TaskStepWithReplies = TaskStep & {
+export type TaskStepWithReplies = TaskStep & {
   generatedOptions?: GeneratedOption[];
   replies?: TaskStepWithReplies[];
 };
@@ -60,7 +60,7 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
   id,
 }) => {
   const [reply, setReply] = useState('');
-  const [isReplying, setIsReplying] = useState(false);
+  // const [isReplying, setIsReplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
@@ -76,54 +76,54 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
   };
 
   // --- Step Approval State ---
-  const [isApproving, setIsApproving] = useState(false);
-  const [selectedOptionIdx, setSelectedOptionIdx] = useState<number | null>(null);
-  const [customAction, setCustomAction] = useState('');
-  const [customJustification, setCustomJustification] = useState('');
-  const [approveLoading, setApproveLoading] = useState(false);
-  const [approveError, setApproveError] = useState<string | null>(null);
+  // const [isApproving, setIsApproving] = useState(false);
+  // const [selectedOptionIdx, setSelectedOptionIdx] = useState<number | null>(null);
+  // const [customAction, setCustomAction] = useState('');
+  // const [customJustification, setCustomJustification] = useState('');
+  // const [approveLoading, setApproveLoading] = useState(false);
+  // const [approveError, setApproveError] = useState<string | null>(null);
 
-  const handleApprove = async () => {
-    setApproveLoading(true);
-    setApproveError(null);
-    let chosenAction = '';
-    let chosenJustification = '';
-    if (
-      step.generatedOptions &&
-      step.generatedOptions.length > 0 &&
-      selectedOptionIdx !== null
-    ) {
-      const opt = step.generatedOptions[selectedOptionIdx];
-      chosenAction = opt?.action || '';
-      chosenJustification = opt?.justification || '';
-    } else {
-      chosenAction = customAction;
-      chosenJustification = customJustification;
-    }
-    try {
-      const response = await apiClient.post(`/api/orion/tasks/${id}/approve-step`, {
-        stepId: step.id,
-        chosenAction,
-        chosenJustification,
-      });
-      if (response.data.success) {
-        setIsApproving(false);
-        setCustomAction('');
-        setCustomJustification('');
-        setSelectedOptionIdx(null);
-        logger.success('[TASK_STEP_TIMELINE][APPROVE][SUCCESS]', { stepId: step.id, chosenAction, chosenJustification });
-        // Optionally trigger a refresh or callback
-      } else {
-        setApproveError(response.data.error || 'Failed to approve step');
-        logger.error('[TASK_STEP_TIMELINE][APPROVE][ERROR]', { stepId: step.id, error: response.data.error });
-      }
-    } catch (err: unknown) {
-      setApproveError(err instanceof Error ? err.message : String(err));
-      logger.error('[TASK_STEP_TIMELINE][APPROVE][EXCEPTION]', { stepId: step.id, error: err });
-    } finally {
-      setApproveLoading(false);
-    }
-  };
+  // const handleApprove = async () => {
+  //   setApproveLoading(true);
+  //   setApproveError(null);
+  //   let chosenAction = '';
+  //   let chosenJustification = '';
+  //   if (
+  //     step.generatedOptions &&
+  //     step.generatedOptions.length > 0 &&
+  //     selectedOptionIdx !== null
+  //   ) {
+  //     const opt = step.generatedOptions[selectedOptionIdx];
+  //     chosenAction = opt?.action || '';
+  //     chosenJustification = opt?.justification || '';
+  //   } else {
+  //     chosenAction = customAction;
+  //     chosenJustification = customJustification;
+  //   }
+  //   try {
+  //     const response = await apiClient.post(`/api/orion/tasks/${id}/approve-step`, {
+  //       stepId: step.id,
+  //       chosenAction,
+  //       chosenJustification,
+  //     });
+  //     if (response.data.success) {
+  //       setIsApproving(false);
+  //       setCustomAction('');
+  //       setCustomJustification('');
+  //       setSelectedOptionIdx(null);
+  //       logger.success('[TASK_STEP_TIMELINE][APPROVE][SUCCESS]', { stepId: step.id, chosenAction, chosenJustification });
+  //       // Optionally trigger a refresh or callback
+  //     } else {
+  //       setApproveError(response.data.error || 'Failed to approve step');
+  //       logger.error('[TASK_STEP_TIMELINE][APPROVE][ERROR]', { stepId: step.id, error: response.data.error });
+  //     }
+  //   } catch (err: unknown) {
+  //     setApproveError(err instanceof Error ? err.message : String(err));
+  //     logger.error('[TASK_STEP_TIMELINE][APPROVE][EXCEPTION]', { stepId: step.id, error: err });
+  //   } finally {
+  //     setApproveLoading(false);
+  //   }
+  // };
 
   const handleReply = async () => {
     if (!reply.trim() || !id) return;
@@ -138,7 +138,7 @@ const ThreadedStep: React.FC<{ step: TaskStepWithReplies; isLast: boolean; depth
       });
       if (response.data.success) {
         setReply('');
-        setIsReplying(false);
+        // setIsReplying(false);
         logger.success('[TASK_STEP_TIMELINE][REPLY][SUCCESS]', { id, parentStepId: step.id, reply });
         // Optionally trigger a refresh or callback
       } else {

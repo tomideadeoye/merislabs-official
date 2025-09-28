@@ -3,7 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader } from '@/components/ui/loader';
@@ -11,7 +11,7 @@ import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import apiClient from '@/lib/apiClient';
 import logger from '@/lib/logger';
 import { HandledApplicationError, Message, LLMToolCall, LLMTool } from '@/lib/types';
-import { Task, TaskStep } from '@prisma/client';
+// import { Task } from '@prisma/client';
 import { TaskList } from '@/components/orion/tasks/TaskList';
 import { TaskForm } from '@/components/orion/tasks/TaskForm';
 import { GamificationStats } from '@/components/orion/tasks/GamificationStats';
@@ -21,13 +21,10 @@ import { useToast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui';
 import { QuadrantMemoryChunksVisualizer } from '@/components/orion/QuadrantMemoryChunksVisualizer';
 
-// --- Memory Search Types ---
-interface MemoryHighlight {
-  id: string;
-  score: number;
-  content: string;
-  payload: Record<string, any>;
-}
+
+import type { ScoredMemoryPoint } from '@/lib/types/memory';
+import type { TaskStepWithReplies } from '@/components/orion/tasks/TaskStepTimeline';
+
 
 interface AgentResponse {
   success: boolean;
@@ -35,7 +32,7 @@ interface AgentResponse {
   error?: string;
   details?: string;
   current_messages?: Message[];
-  memoryResults?: any[];
+  memoryResults?: unknown[];
 }
 
 /**
@@ -49,7 +46,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [availableTools, setAvailableTools] = useState<LLMTool[]>([]);
   const [selectedToolNames, setSelectedToolNames] = useState<string[]>([]);
-  const { tasks, addTask, updateTask, deleteTask, isLoading: tasksLoading, error: tasksError } = useTasks();
+  const { tasks, isLoading: tasksLoading, error: tasksError } = useTasks();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   // --- Manual Step Addition State ---
@@ -59,8 +56,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
   // --- Save Agent Step State ---
   const [agentStepToSave, setAgentStepToSave] = useState<string | null>(null);
   const [includeMemory, setIncludeMemory] = useState(false);
-  const [memoryResults, setMemoryResults] = useState<any[]>([]);
-  const [selectedTaskObj, setSelectedTaskObj] = useState<any>(null);
+  const [memoryResults, setMemoryResults] = useState<ScoredMemoryPoint[]>([]);
+  const [selectedTaskObj, setSelectedTaskObj] = useState<{ id: string; steps: TaskStepWithReplies[] } | null>(null);
 
   useEffect(() => {
     // Fetch available tools on mount
@@ -76,14 +73,14 @@ export const AgenticWorkflowComponent: React.FC = () => {
         } else {
           setError(response.data.error || 'Failed to load tools.');
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load tools.');
       }
     };
     fetchTools();
   }, []);
 
-  const selectedTask = tasks.find((t: Task) => t.id === selectedTaskId);
+
 
   const handleToolSelectionChange = (toolName: string, isChecked: boolean) => {
     setSelectedToolNames(
@@ -121,7 +118,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
         }
         setAgentMessages(messages);
         if (response.data.memoryResults && Array.isArray(response.data.memoryResults) && response.data.memoryResults.length > 0) {
-          setMemoryResults(response.data.memoryResults);
+          setMemoryResults(response.data.memoryResults as ScoredMemoryPoint[]);
           logger.info('[AGENTIC_WORKFLOW][MEMORY_VISUALIZATION] Displaying memory chunks used by agent.', { count: response.data.memoryResults.length });
         } else {
           setMemoryResults([]);
@@ -200,7 +197,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
       if (data.success && data.task) {
         setSelectedTaskObj(data.task);
       }
-    } catch (err) {
+    } catch {
       // Optionally log error
     }
   };
@@ -243,8 +240,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
       } else {
         throw new Error(response.data.error || 'Failed to add step.');
       }
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to add step.' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: error instanceof Error ? error.message : 'Failed to add step.' });
       logger.error('[AGENTIC_WORKFLOW][ADD_STEP][ERROR]', { error });
     } finally {
       setIsAddingStep(false);
@@ -271,8 +268,8 @@ export const AgenticWorkflowComponent: React.FC = () => {
       } else {
         throw new Error(response.data.error || 'Failed to save agent step.');
       }
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to save agent step.' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: error instanceof Error ? error.message : 'Failed to save agent step.' });
       logger.error('[AGENTIC_WORKFLOW][SAVE_AGENT_STEP][ERROR]', { error });
     } finally {
       setIsAddingStep(false);
@@ -291,17 +288,19 @@ export const AgenticWorkflowComponent: React.FC = () => {
   }, [agentMessages]);
 
   // Helper to recursively parse generatedOptions for all steps and their replies
-  function parseStepTree(step: any) {
+  function parseStepTree(step: unknown): TaskStepWithReplies {
+    if (typeof step !== 'object' || step === null) return step as TaskStepWithReplies;
+    const s = step as { generatedOptions?: unknown; replies?: unknown[] };
     return {
       ...step,
       generatedOptions:
-        Array.isArray(step.generatedOptions)
-          ? step.generatedOptions
-          : step.generatedOptions
-            ? JSON.parse(step.generatedOptions as string)
+        Array.isArray(s.generatedOptions)
+          ? s.generatedOptions
+          : s.generatedOptions
+            ? JSON.parse(s.generatedOptions as string)
             : [],
-      replies: step.replies ? step.replies.map(parseStepTree) : [],
-    };
+      replies: Array.isArray(s.replies) ? s.replies.map(parseStepTree) : [],
+    } as TaskStepWithReplies;
   }
 
   return (
@@ -318,12 +317,12 @@ export const AgenticWorkflowComponent: React.FC = () => {
             </CardHeader>
             <CardContent>
               <TaskForm
-                onTaskSaved={() => {
+                onTaskSavedAction={() => {
                   // Invalidate and refetch tasks
                   queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 }}
               />
-              <TaskList tasks={tasks} isLoading={tasksLoading} error={tasksError} onTaskSelect={setSelectedTaskId} />
+              <TaskList tasks={tasks} isLoading={tasksLoading} error={tasksError} onTaskSelectAction={setSelectedTaskId} />
             </CardContent>
           </Card>
           <GamificationStats />
@@ -417,11 +416,7 @@ export const AgenticWorkflowComponent: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <TaskStepTimeline
-                  steps={
-                    Array.isArray(selectedTaskObj.steps)
-                      ? selectedTaskObj.steps.map(parseStepTree)
-                      : []
-                  }
+                  steps={Array.isArray(selectedTaskObj.steps) ? selectedTaskObj.steps.map(parseStepTree) : []}
                   id={selectedTaskObj.id}
                 />
                 {/* Manual Step Addition Form */}

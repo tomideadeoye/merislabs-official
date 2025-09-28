@@ -15,7 +15,6 @@
  *
  * CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
  *   - `./providers.tsx`: Base providers (ThemeProvider, Toaster, QueryClient)
- *   - `@/components/orion/MemoryProvider.tsx`: Memory context provider
  *   - `@/state/sessionState.ts`: Session state management
  *   - `@/components/ErrorBoundary.tsx`: Error boundary component
  *   - `@/lib/logger.ts`: Logging utility
@@ -29,7 +28,6 @@
 
 import React, { useEffect } from 'react';
 import { Providers } from './providers';
-import { MemoryProvider } from '@/components/orion/MemoryProvider';
 import { useSessionStateStore } from '@/state/sessionState';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import logger from '@/lib/logger';
@@ -85,9 +83,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
     <Providers>
       <SessionHydrator />
-      <MemoryProvider>
-        <ErrorBoundary>{children}</ErrorBoundary>
-      </MemoryProvider>
+      <ErrorBoundary>{children}</ErrorBoundary>
     </Providers>
   );
 }

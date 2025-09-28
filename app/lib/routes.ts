@@ -91,6 +91,14 @@ export const ROUTES = {
     href: '/admin/opportunity-pipeline/[id]/draft-email',
     title: 'Email Drafting Studio',
   },
+  DECKS: {
+    href: '/decks',
+    title: 'Decks',
+  },
+  BRIDGING_ESG_FINANCE_GAP: {
+    href: '/decks/bridging-the-esg-finance-gap',
+    title: 'ESG Finance Gap',
+  },
   // Add other routes as needed
 };
 
@@ -101,40 +109,8 @@ export const navItems: NavItem[] = [
     href: ROUTES.HOME.href,
   },
   {
-    title: ROUTES.ADMIN_DASHBOARD.title,
-    href: ROUTES.ADMIN_DASHBOARD.href,
-  },
-  {
-    title: ROUTES.JOURNAL.title,
-    href: ROUTES.JOURNAL.href,
-  },
-  {
-    title: ROUTES.MEMORY_MANAGER.title,
-    href: ROUTES.MEMORY_MANAGER.href,
-  },
-  {
-    title: ROUTES.OPPORTUNITY_PIPELINE.title,
-    href: ROUTES.OPPORTUNITY_PIPELINE.href,
-  },
-  {
-    title: ROUTES.DRAFT_COMMUNICATION.title,
-    href: ROUTES.DRAFT_COMMUNICATION.href,
-  },
-  {
-    title: ROUTES.NARRATIVE_CLARITY_STUDIO.title,
-    href: ROUTES.NARRATIVE_CLARITY_STUDIO.href,
-  },
-  {
-    title: ROUTES.ROUTINES.title,
-    href: ROUTES.ROUTINES.href,
-  },
-  {
-    title: ROUTES.SYSTEM_SETTINGS.title,
-    href: ROUTES.SYSTEM_SETTINGS.href,
-  },
-  {
-    title: ROUTES.BUSINESS_MANAGEMENT.title,
-    href: ROUTES.BUSINESS_MANAGEMENT.href,
+    title: ROUTES.DECKS.title,
+    href: ROUTES.DECKS.href,
   },
 ];
 

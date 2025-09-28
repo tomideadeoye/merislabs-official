@@ -87,7 +87,7 @@ export type {
 export type { CVComponent } from './types/cv';
 
 // Utility functions
-export { cn, getOrionSourceUrl } from './utils';
+export { cn } from './utils';
 export { default as logger } from './logger';
 
 // App State & Constants
