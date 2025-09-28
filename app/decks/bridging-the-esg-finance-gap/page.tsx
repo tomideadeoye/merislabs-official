@@ -33,6 +33,7 @@ export default function HybridESGDemo() {
 	const { setTheme } = useTheme();
 	const [showFootnotes, setShowFootnotes] = useState(false);
 	const [isGeneratingPDF, setIsGeneratingPDF] = useState<string | null>(null);
+	const fullReportRef = useRef<HTMLDivElement>(null);
 
 	// Force light theme for ESG report pages
 	useEffect(() => {
@@ -461,7 +462,7 @@ export default function HybridESGDemo() {
 						/>
 						<span className="font-medium">Show Footnotes</span>
 					</label> */}
-					{/* react-to-pdf Full Report */}
+					{/* html2canvas-pro Full Report */}
 					<div className="bg-white p-4 rounded-lg border shadow-sm text-center w-full max-w-xs">
 						<h4 className="font-semibold text-green-700 mb-3">
 							📄 Complete Report (html2canvas-pro)
@@ -472,23 +473,23 @@ export default function HybridESGDemo() {
 						<div className="space-y-2">
 							<button
 								onClick={() =>
-									downloadFullReportWithMethod("react-to-pdf", "high")
+									downloadFullReportWithMethod("html2canvas", "high")
 								}
 								className="w-full px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 disabled:opacity-50"
-								disabled={isGeneratingPDF === "full-react-to-pdf"}
+								disabled={isGeneratingPDF === "full-html2canvas"}
 							>
-								{isGeneratingPDF === "full-react-to-pdf"
+								{isGeneratingPDF === "full-html2canvas"
 									? "Generating..."
 									: "📄 High Quality"}
 							</button>
 							<button
 								onClick={() =>
-									downloadFullReportWithMethod("react-to-pdf", "medium")
+									downloadFullReportWithMethod("html2canvas", "medium")
 								}
 								className="w-full px-3 py-2 bg-green-400 text-white rounded text-xs hover:bg-green-500 disabled:opacity-50"
-								disabled={isGeneratingPDF === "full-react-to-pdf"}
+								disabled={isGeneratingPDF === "full-html2canvas"}
 							>
-								{isGeneratingPDF === "full-react-to-pdf"
+								{isGeneratingPDF === "full-html2canvas"
 									? "Generating..."
 									: "📄 Medium Quality"}
 							</button>
@@ -527,7 +528,7 @@ export default function HybridESGDemo() {
 					</div>
 
 					{/* @react-pdf/renderer Full Report */}
-					{/* <div className="bg-white p-4 rounded-lg border shadow-sm text-center w-full max-w-xs">
+					<div className="bg-white p-4 rounded-lg border shadow-sm text-center w-full max-w-xs">
 						<h4 className="font-semibold text-purple-700 mb-3">
 							⚛️ Complete Report (@react-pdf/renderer)
 						</h4>
@@ -559,7 +560,7 @@ export default function HybridESGDemo() {
 									: "⚛️ Medium Quality"}
 							</button>
 						</div>
-					</div> */}
+					</div>
 				</div>
 			</div>
 		</div>

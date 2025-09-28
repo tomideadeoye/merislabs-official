@@ -168,12 +168,14 @@ export class PDFGenerator {
 
     // Use our own html2canvas-pro implementation instead of react-to-pdf's internal html2canvas
     try {
+      console.log('Starting html2canvas capture for element:', originalElement);
+
       const canvas = await html2canvas(originalElement, {
         scale: options.quality === 'high' ? 3 : options.quality === 'low' ? 1.5 : 2,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
-        logging: false,
+        logging: true, // Enable logging to debug issues
         width: originalElement.scrollWidth,
         height: originalElement.scrollHeight,
         // html2canvas-pro specific options for better color support
@@ -181,6 +183,8 @@ export class PDFGenerator {
         removeContainer: false,
         foreignObjectRendering: true
       });
+
+      console.log('Canvas created successfully:', canvas.width, 'x', canvas.height);
 
       const imgData = canvas.toDataURL('image/png', 1.0);
 
@@ -220,9 +224,20 @@ export class PDFGenerator {
       }
 
       pdf.save(filename);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Custom react-to-pdf generation failed:', error);
-      throw error;
+
+      // Provide more detailed error information
+      let errorMessage = 'Unknown error occurred during PDF generation';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = `Error object: ${JSON.stringify(error)}`;
+      }
+
+      throw new Error(`PDF generation failed: ${errorMessage}`);
     } finally {
       // Always restore original styles and remove print styles
       Object.assign(originalElement.style, originalStyles);
