@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unescaped-entities */
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -682,4 +682,15 @@ Reflection: ${reflectionText}`;
       </Tabs>
     </div>
   );
+}
+
+// This file should not contain React components. It should be an API route.
+// The journal UI component has been moved to app/components/orion/journal/UnifiedJournalingPage.tsx
+
+export async function GET() {
+  return new Response('Journal API endpoint', { status: 200 });
+}
+
+export async function POST() {
+  return new Response('Journal API endpoint', { status: 200 });
 }

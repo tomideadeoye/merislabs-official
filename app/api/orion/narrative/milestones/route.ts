@@ -4,7 +4,7 @@ import {
   updateCareerMilestone,
   deleteCareerMilestone,
 } from '@/lib/narrative_service';
-import { CareerMilestone } from '@/styles';
+import { CareerMilestone } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

@@ -50,7 +50,7 @@ const SMEDominanceCharts: React.FC = () => {
                 <LabelList
                   dataKey="value"
                   position="center"
-                  formatter={(value: number) => `${value}%`}
+                  formatter={(label: React.ReactNode) => `${label}%`}
                   style={{ fill: 'white', fontSize: '14px', fontWeight: 'bold' }}
                 />
               </PieChart>
@@ -92,7 +92,7 @@ const SMEDominanceCharts: React.FC = () => {
                 <LabelList
                   dataKey="value"
                   position="center"
-                  formatter={(value: number) => `${value}%`}
+                  formatter={(label: React.ReactNode) => `${label}%`}
                   style={{ fill: 'white', fontSize: '14px', fontWeight: 'bold' }}
                 />
               </PieChart>
@@ -134,7 +134,7 @@ const SMEDominanceCharts: React.FC = () => {
                 <LabelList
                   dataKey="value"
                   position="center"
-                  formatter={(value: number) => `${value}%`}
+                  formatter={(label: React.ReactNode) => `${label}%`}
                   style={{ fill: 'white', fontSize: '14px', fontWeight: 'bold' }}
                 />
               </PieChart>

@@ -30,7 +30,7 @@
 
 'use client';
 
-import UnifiedJournalingPage from '../../../api/orion/journal/page';
+import UnifiedJournalingPage from '@/components/orion/journal/UnifiedJournalingPage';
 
 export default function AdminJournalPage() {
     return <UnifiedJournalingPage />;

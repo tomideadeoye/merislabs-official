@@ -22,7 +22,7 @@ import {
   Mail,
   Brain
 } from 'lucide-react';
-import { useMemoryContext } from '@/components/orion/MemoryProvider'; // Import useMemoryContext
+// import { useMemoryContext } from '@/components/orion/MemoryProvider'; // Import useMemoryContext
 import logger from '@/lib/logger'; // Assuming logger is available
 
 const adminNavItems: NavItem[] = [
@@ -31,7 +31,7 @@ const adminNavItems: NavItem[] = [
   { href: ROUTES.MEMORY_MANAGER.href, title: ROUTES.MEMORY_MANAGER.title, icon: <DatabaseZap /> },
   { href: '/admin/opportunities', title: "Opportunties", icon: <Briefcase /> },
   { href: ROUTES.NETWORKING_HUB.href, title: ROUTES.NETWORKING_HUB.title, icon: <Network /> },
-  
+
   { href: '/admin/narrative-clarity-studio', title: 'Narrative Clarity Studio', icon: <Brain /> },
   { href: '/admin/draft-communication', title: 'Draft Communication', icon: <Mail /> },
   { href: '/admin/agentic-workflow', title: 'Agentic Workflow', icon: <BrainCircuit /> },
@@ -82,16 +82,16 @@ const queryClient = new QueryClient(); // Create a client
 
 export default function OrionAdminLayout({ children }: { children: React.ReactNode }) {
   // Consume memoryInitialized state from MemoryProvider
-  const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
+  // const { memoryInitialized, loading: memoryLoading, error: memoryError } = useMemoryContext();
 
-  useEffect(() => {
-    // Log memory status from context for debugging
-    logger.info('[OrionAdminLayout] Memory context status update.', {
-      memoryInitialized,
-      memoryLoading,
-      memoryError,
-    });
-  }, [memoryInitialized, memoryLoading, memoryError]);
+  // useEffect(() => {
+  //   // Log memory status from context for debugging
+  //   logger.info('[OrionAdminLayout] Memory context status update.', {
+  //     memoryInitialized,
+  //     memoryLoading,
+  //     memoryError,
+  //   });
+  // // }, [memoryInitialized, memoryLoading, memoryError]);
 
   return (
     <QueryClientProvider client={queryClient}>
