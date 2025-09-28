@@ -70,7 +70,8 @@
     "prisma/**/*.ts",
     "scripts/**/*.ts",
     "docs/**/*.ts",
-    "docs/**/*.tsx"
+    "docs/**/*.tsx",
+    "data/**/*.ts"
   ],
   "exclude": [
     "node_modules",

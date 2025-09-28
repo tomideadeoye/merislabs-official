@@ -99,7 +99,6 @@ lerna-debug.log
 
 # Database & storage
 data/*.db
-/data/
 chroma_db/
 qdrant_storage/
 files/
@@ -155,8 +154,6 @@ lerna-debug.log
 *.swp
 *.generated.*
 
-# Ignore local data
-/data/
 
 # Ignore test snapshots
 __snapshots__/
