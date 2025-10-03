@@ -39,8 +39,8 @@
 
 'use client';
 import { decks } from 'components/projects';
-import React, { useState, useMemo } from 'react';
-import { Input } from '@/components/ui/input'; // Assuming you have an Input component in ui
+import React, { useState, useMemo, ChangeEvent } from 'react';
+import { Input } from '@/components/ui/input'; // Fixed import path
 
 export interface Deck {
   title: string;
@@ -84,7 +84,7 @@ export default function DecksSection() {
           type="text"
           placeholder="Search by title, client, or tag..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>

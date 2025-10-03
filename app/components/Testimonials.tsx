@@ -52,14 +52,12 @@ export default function Testimonials() {
                 </div>
               </div>
               <blockquote className="text-lg text-gray-400 grow">
-                — Open PRO lets me quickly get the insights I care about so that I can focus on my productive work.
-                I&apos;ve had Open PRO for about 24 hours now and I honestly don&apos;t know how I functioned without it
-                before.
+                — The team assisted us in creating a compliance web application which our client needed. The team was very professional and helpful. We highly recommend them.
               </blockquote>
               <div className="text-gray-700 font-medium mt-6 pt-5 border-t border-gray-700">
-                <cite className="text-gray-200 not-italic">Anastasia Dan</cite> -{' '}
-                <a className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out" href="#0">
-                  UX Board
+                <cite className="text-gray-200 not-italic">Obefemi Agaba</cite> -{' '}
+                <a className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out" href="https://www.linkedin.com/in/obafemi-agaba-97b2041b/">
+                  Managing Partner, Jackson Etti & Edu
                 </a>
               </div>
             </div>
@@ -85,14 +83,12 @@ export default function Testimonials() {
                 </div>
               </div>
               <blockquote className="text-lg text-gray-400 grow">
-                — Open PRO lets me quickly get the insights I care about so that I can focus on my productive work.
-                I&apos;ve had Open PRO for about 24 hours now and I honestly don&apos;t know how I functioned without it
-                before.
+                — We have spun up to web applications working with MeriLabs. The team not only did those in record time but assisted us in integrating forms in the Apps with our Slackbot.
               </blockquote>
               <div className="text-gray-700 font-medium mt-6 pt-5 border-t border-gray-700">
-                <cite className="text-gray-200 not-italic">Anastasia Dan</cite> -{' '}
-                <a className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out" href="#0">
-                  UX Board
+                <cite className="text-gray-200 not-italic">Tobi Olayiwola</cite> -{' '}
+                <a className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out" href="https://www.qorepay.com/about">
+                  CTO, QorePay Technologies
                 </a>
               </div>
             </div>
@@ -118,14 +114,12 @@ export default function Testimonials() {
                 </div>
               </div>
               <blockquote className="text-lg text-gray-400 grow">
-                — Open PRO lets me quickly get the insights I care about so that I can focus on my productive work.
-                I&apos;ve had Open PRO for about 24 hours now and I honestly don&apos;t know how I functioned without it
-                before.
+                — MerisLabs built us PitchR and assisted in linking this with multiple channels to create a platform facilitating good deal flow.
               </blockquote>
               <div className="text-gray-700 font-medium mt-6 pt-5 border-t border-gray-700">
-                <cite className="text-gray-200 not-italic">Anastasia Dan</cite> -{' '}
-                <a className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out" href="#0">
-                  UX Board
+                <cite className="text-gray-200 not-italic">Timileyin Idowu</cite> -{' '}
+                <a className="text-purple-600 hover:text-gray-200 transition duration-150 ease-in-out" href="https://www.linkedin.com/in/timileyin-idowu-507523146/">
+                  Consultant, PitchR
                 </a>
               </div>
             </div>

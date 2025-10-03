@@ -1,8 +1,9 @@
-export { default as Button } from './Button';
-export { Avatar, AvatarFallback, AvatarImage } from './Avatar';
-export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './Card';
+export { Button, buttonVariants } from './button.tsx';
+export { Alert, AlertTitle, AlertDescription } from './alert.tsx';
+export { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from './table.tsx';
+export { ModernCard } from './modern-card.tsx';
+
+// Import from app/components/ui for missing components
 export { Badge } from './badge';
-export { Alert, AlertTitle, AlertDescription } from './alert';
-export { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from './table';
-export { ModernCard } from './modern-card';
-export { ChartContainer as Chart } from './chart';
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card';
+export { Avatar, AvatarImage, AvatarFallback } from './avatar';

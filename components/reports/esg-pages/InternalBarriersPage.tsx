@@ -53,7 +53,7 @@ export const InternalBarriersPage1: React.FC<InternalBarriersPageProps> = ({
 				be grouped into two categories:
 			</p>
 			<div className="grid w-full max-w-xl items-start gap-4 mb-4">
-				<Alert variant="blue">
+				<Alert>
 					<Shield className="h-4 w-4" />
 					<AlertTitle>Internal Barriers</AlertTitle>
 					<AlertDescription>
@@ -65,7 +65,7 @@ export const InternalBarriersPage1: React.FC<InternalBarriersPageProps> = ({
 						</ul>
 					</AlertDescription>
 				</Alert>
-				<Alert variant="blue">
+				<Alert>
 					<Globe className="h-4 w-4" />
 					<AlertTitle>External Barriers</AlertTitle>
 					<AlertDescription>

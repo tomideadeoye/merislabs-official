@@ -8,13 +8,25 @@
 // ASSUMPTIONS & CLEAR COMMENTS: // NOTE: Assumed all referenced images exist in public/images/ or public/
 // NOTES: Consider consolidating project media handling, add more robust error handling/logging, and test for missing assets.
 
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { projects, Project } from './projects';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import DecksSection from '@/components/DecksSection';
-import ProjectMediaDisplay from '@/components/ProjectMediaDisplay';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../app/components/ui/tabs';
+import { Dialog, DialogContent, DialogTrigger } from '../app/components/ui/dialog';
+import DecksSection from '../app/components/DecksSection';
+import ProjectMediaDisplay from '../app/components/ProjectMediaDisplay';
 
 export default function Zigzag() {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleProjectClick = (project: Project) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
+
   return (
     <section>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -37,48 +49,79 @@ export default function Zigzag() {
               <TabsTrigger value="decks">Decks & Presentations</TabsTrigger>
             </TabsList>
             <TabsContent value="successes">
-              <div className="grid gap-20 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
                 {projects.map((project: Project) => {
                   const videoLink = project.links.find((link) => link[0] === 'video');
-                  const videoUrl = videoLink ? videoLink[1] : undefined;
                   const typedLinks: [string, string][] = project.links || [];
 
                   return (
-                    <div className="flex flex-col md:flex-row gap-4" key={project.name}>
-                      <ProjectMediaDisplay project={project} />
-                      <div
-                        className="max-w-xl md:max-w-none w-full mx-auto md:col-span-7 lg:col-span-6 "
-                        data-aos="fade-left"
-                      >
-                        <div className="md:pl-4 lg:pl-12 xl:pl-16">
-                          <div className="font-architects-daughter text-xl text-purple-600 mb-2">{project.tag}</div>
-                          <h3 className="h3 mb-3">{project.name}</h3>
-                          <p className="text-xl text-gray-400 mb-4">{project.description}</p>
-                          <ul className="text-lg text-gray-400 -mb-2">
-                            {Array.isArray(project?.technologies) &&
-                              project?.technologies.map((tool: string, techIndex: number) => (
-                                <li className="flex items-center mb-2" key={tool}>
-                                  <svg
-                                    className="w-3 h-3 fill-current text-green-500 mr-2 shrink-0"
-                                    viewBox="0 0 12 12"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path d="M10.28 2.28L3.989 8.575 1.695 6.28A1 1 0 00.28 7.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 2.28z" />
-                                  </svg>
-                                  <span key={techIndex}>{tool}</span>
-                                </li>
+                    <Dialog key={project.name} open={isModalOpen && selectedProject?.name === project.name} onOpenChange={setIsModalOpen}>
+                      <DialogTrigger asChild>
+                        <div
+                          className="flex flex-col gap-4 p-6 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 transition-colors duration-200"
+                          onClick={() => handleProjectClick(project)}
+                        >
+                          <div className="w-full h-48 relative">
+                            <ProjectMediaDisplay project={project} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-architects-daughter text-lg text-purple-600 mb-1">{project.tag}</div>
+                            <h3 className="h4 mb-2">{project.name}</h3>
+                            <p className="text-base text-gray-400 mb-3">{project.description}</p>
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {Array.isArray(project?.technologies) &&
+                                project?.technologies.slice(0, 3).map((tool: string, techIndex: number) => (
+                                  <span key={tool} className="text-xs bg-gray-700 px-2 py-1 rounded">
+                                    {tool}
+                                  </span>
+                                ))}
+                            </div>
+                            <div className="flex gap-2 mt-2">
+                              {typedLinks.slice(0, 2).map((link, linkIndex) => (
+                                <Link key={link[1]} className="text-sm hover:underline" href={link[1]}>
+                                  {link[0].toLowerCase()}
+                                </Link>
                               ))}
-                          </ul>
-                          <div className="flex gap-2 mt-6">
-                            {typedLinks.map((link, linkIndex) => (
-                              <Link key={linkIndex} className="hover:underline" href={link[1]}>
-                                {link[0].toLowerCase()}
-                              </Link>
-                            ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-7xl w-full h-[90vh] p-0 bg-black/95 border-gray-800">
+                        <div className="flex flex-col h-full">
+                          <div className="flex-1 p-8">
+                            <div className="max-w-4xl mx-auto h-full">
+                              <ProjectMediaDisplay project={project} isFullscreen={true} />
+                            </div>
+                          </div>
+                          <div className="p-8 bg-gray-900/50 backdrop-blur-sm">
+                            <div className="max-w-4xl mx-auto">
+                              <div className="font-architects-daughter text-lg text-purple-600 mb-2">{project.tag}</div>
+                              <h2 className="text-3xl font-bold mb-4">{project.name}</h2>
+                              <p className="text-lg text-gray-300 mb-4">{project.description}</p>
+                              <div className="flex flex-wrap gap-2 mb-4">
+                                {Array.isArray(project?.technologies) &&
+                                  project?.technologies.map((tool: string, techIndex: number) => (
+                                    <span key={tool} className="text-sm bg-gray-700 px-3 py-1 rounded-full">
+                                      {tool}
+                                    </span>
+                                  ))}
+                              </div>
+                              <div className="flex gap-4">
+                                {typedLinks.map((link, linkIndex) => (
+                                  <Link
+                                    key={link[1]}
+                                    className="text-sm hover:underline px-4 py-2 bg-purple-600 rounded hover:bg-purple-700 transition-colors"
+                                    href={link[1]}
+                                  >
+                                    {link[0].toLowerCase()}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   );
                 })}
               </div>

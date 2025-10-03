@@ -1,85 +1,72 @@
 /** @type {import('next').NextConfig} */
-// GOAL OF FILE|FEATURES|FUNCTIONS:
-// FILEPATH:
-// CONNECTION/RELATION TO OTHER FILES|FEATURES|FUNCTIONS|FILEPATHS:
-// ASSUMPTIONS & CLEAR COMMENTS // NOTE: Assumed [X] – confirm with team
-// NOTES: components to merge with, similar or redundant component, opportunities for improvement, opportunties to consolidate
-// TODOS:
-// SUGGESTIONS:
-const ignoreDirs = [
-  'venv',
-  '.venv',
-  'WE NO LONGER USE NOTION, MIGRREATE ALL TO NEON/POSTGRESSDB/SCHEMA, ENSURE WE ARE COMPLETELY USING THE DB FROM NEON AND DELTE ALL MIGRATED FILES_api_venv',
-  '.pytest_cache',
-  '.ipynb_checkpoints',
-  '__pycache__',
-  'qdrant_storage',
-  'data',
-  'database',
-  'embedding_service',
-  'tests', // Only if not Next.js tests
-  'scripts', // Only if not Next.js scripts
-  // Add more as needed for future projects
-];
-
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    // Add support for importing SVG files
+  // Enable experimental features that are stable and widely used
+  experimental: {
+    // Optimize CSS and improve build performance
+    optimizeCss: true,
+    // Enable modern JavaScript features
+    esmExternals: true,
+  },
+
+  // Image optimization settings
+  images: {
+    // Enable image optimization (default behavior)
+    // unoptimized: false, // Remove this line to enable optimization
+    domains: [], // Add your image domains here when needed
+    formats: ['image/webp', 'image/avif'],
+  },
+
+  // Webpack configuration for better performance and compatibility
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Add support for importing SVGs as React components (optional but common)
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],
     });
 
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        buffer: false,
-        http: false,
-        https: false,
-        path: false,
-        process: false,
-        stream: false,
-        url: false,
-        util: false,
-        zlib: false,
-      };
-
-      // Explicitly mark server-only modules as external for client build
-      config.externals.push(
-        'node-fetch',
-        'winston',
-        'pg',
-        'puppeteer',
-        'cheerio',
-        'docx',
-        'openai',
-        'litellm',
-        'langchain',
-        '@qdrant/js-client-rest',
-        'undici',
-        // Treat all node: prefixed imports as external for client build
-        ({ request }, callback) => {
-          if (request && request.startsWith('node:')) {
-            return callback(null, `commonjs ${request}`);
-          }
-          callback();
-        }
-      );
-    }
-
-    if (isServer) {
-      config.externals.push('dns');
+    // Optimize bundle size in production
+    if (!dev) {
+      config.optimization.splitChunks.chunks = 'all';
     }
 
     return config;
   },
-  images: {
-    unoptimized: true,
+
+  // Performance optimizations (SWC minification is enabled by default in Next.js 15+)
+
+  // Output configuration
+  output: 'standalone', // Optimized for deployment
+
+  // Enable compression
+  compress: true,
+
+  // Security headers (can be customized based on needs)
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+    ];
   },
-  transpilePackages: ['@qdrant/js-client-rest', 'undici'],
+
+  // Redirects and rewrites can be added here when needed
+  async redirects() {
+    return [];
+  },
+
+  async rewrites() {
+    return [];
+  },
 };
 
 export default nextConfig;

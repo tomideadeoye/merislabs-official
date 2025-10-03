@@ -40,14 +40,10 @@ const projects: Project[] = [
     tag: 'Business funding for startups',
     description: 'PitchR provides advisory services for startups to grow their businesses.',
     technologies: ['NextJs'],
-    iframe: 'https://www.pitchr.africa/',
+    iframe: 'https://www.pitchr.vercel.appe/',
     img: '/pitchr.png',
     links: [
-      ['website', 'https://pitchr.africa/'],
-      [
-        'video',
-        'https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4',
-      ],
+      ['website', 'pitchr.vercel.app'],
     ],
   },
   {

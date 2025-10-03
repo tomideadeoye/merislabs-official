@@ -1,6 +1,6 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
-import { Avatar, AvatarImage, AvatarFallback } from '../../ui/Avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar';
 import { ModernCard, ModernCardContent } from '../../ui/modern-card';
 import { reportData } from '../../../data';
 import { Contact } from '../../../types';
@@ -37,7 +37,7 @@ export const Endpage: React.FC<EndpageProps> = ({ pageNumber }) => {
             {/* Container to limit width and center the cards */}
             <div className="max-w-2xl mx-auto space-y-4">
               {contacts.map((contact: Contact) => (
-                <ModernCard key={contact.email} className="overflow-hidden transition-all duration-300 hover:shadow-md border-0 bg-white/80 backdrop-blur-sm p-0" gradient={true}>
+                <ModernCard key={contact.email} className="overflow-hidden transition-all duration-300 hover:shadow-md border-0 bg-white/80 backdrop-blur-sm p-0 bg-gradient-to-r from-blue-50 to-indigo-50">
                   <ModernCardContent className="p-0">
                     <div className="flex items-center p-4">
                       <Avatar className="mr-4 w-12 h-12 ring-2 ring-blue-100">

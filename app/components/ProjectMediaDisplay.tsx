@@ -39,12 +39,13 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'; // Fixed import path
 import { Project } from 'components/projects'; // Assuming Project interface is exported from here
 import './ProjectMediaDisplay.css';
 
 interface ProjectMediaDisplayProps {
   project: Project;
+  isFullscreen?: boolean;
 }
 
 // Client-side only iframe component to prevent hydration mismatches
@@ -67,16 +68,20 @@ function ClientIframe({ url, title, className }: { url: string; title: string; c
     <iframe
       src={url}
       title={title}
-      width="640px"
-      height="320px"
       allowFullScreen
       className={`${className} project-iframe`}
       allow="fullscreen"
+      style={{
+        width: '100%',
+        height: '100%',
+        border: 'none',
+        borderRadius: 'inherit'
+      }}
     />
   );
 }
 
-export default function ProjectMediaDisplay({ project }: ProjectMediaDisplayProps) {
+export default function ProjectMediaDisplay({ project, isFullscreen = false }: ProjectMediaDisplayProps) {
   const videoLink = project.links.find((link) => link[0] === 'video');
   const videoUrl = videoLink ? videoLink[1] : undefined;
 
@@ -86,6 +91,46 @@ export default function ProjectMediaDisplay({ project }: ProjectMediaDisplayProp
   if (project.iframe) availableMediaTypes.push('iframe');
 
   const [activeMedia, setActiveMedia] = useState(availableMediaTypes[0] || '');
+
+  // In fullscreen mode, show only the active media without tabs
+  if (isFullscreen && availableMediaTypes.length > 0) {
+    return (
+      <div className={`project-media-container ${isFullscreen ? 'fullscreen' : ''}`} data-aos="fade-up">
+        {videoUrl && activeMedia === 'video' && (
+          <video
+            controls
+            autoPlay
+            muted
+            loop
+            src={videoUrl}
+            className="project-video-fullscreen"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain'
+            }}
+          />
+        )}
+        {project.image && activeMedia === 'image' && (
+          <Image
+            src={`/images/${project.image}`}
+            alt={project.name}
+            width={1200}
+            height={800}
+            className="project-image-fullscreen"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain'
+            }}
+          />
+        )}
+        {project.iframe && activeMedia === 'iframe' && (
+          <ClientIframe url={project.iframe} title={project.name} className="project-iframe-container-fullscreen" />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="project-media-container" data-aos="fade-up">
@@ -119,9 +164,13 @@ export default function ProjectMediaDisplay({ project }: ProjectMediaDisplayProp
                 muted
                 loop
                 src={videoUrl}
-                width="auto"
-                height="300px"
                 className="project-video"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  borderRadius: 'inherit'
+                }}
               />
             </TabsContent>
           )}

@@ -35,10 +35,10 @@
  *   - **Accessibility**: Conduct a thorough accessibility audit to ensure the page is usable by all users.
  *   - **SEO Optimization**: Add more detailed meta descriptions, open graph tags, and structured data for improved search engine visibility.
  */
-import Hero from '@/components/Hero';
+import Hero from './components/Hero';
 import Zigzag from 'components/zigzag';
-import Testimonials from '@/components/Testimonials';
-import Newsletter from '@/components/Newsletter';
+import Testimonials from './components/Testimonials';
+import Newsletter from './components/Newsletter';
 
 export default function Home() {
   return (

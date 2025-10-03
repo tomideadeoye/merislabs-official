@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@qdrant/js-client-rest'],
+  transpilePackages: [],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.watchOptions = {
