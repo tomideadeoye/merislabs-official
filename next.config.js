@@ -9,8 +9,6 @@ const nextConfig = {
   experimental: {
     // Enable modern JavaScript features
     esmExternals: true,
-    // Disable CSS optimization to avoid LightningCSS issues
-    optimizeCss: false,
   },
 
   // Image optimization settings
