@@ -22,6 +22,7 @@
     "silent": true
   },
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "TAILWINDCSS_DISABLE_LIGHTNINGCSS": "1"
   }
 }
