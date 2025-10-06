@@ -8,7 +8,6 @@
       "@/hooks/*": ["./app/hooks/*"],
       "@/generated": ["generated/index.d.ts"],
       "@/generated/*": ["generated/*"],
-      "@/ui/*": ["./components/ui/*"],
       "@/types/*": ["./app/lib/types/*"],
       "@/utils/*": ["./app/lib/utils/*"],
       "@/stores/*": ["./app/lib/stores/*"],
