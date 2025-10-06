@@ -3,7 +3,5 @@
   "github": {
     "silent": true
   },
-  "env": {
-    "NODE_ENV": "production"
-  }
+  \"env\": {\n    \"NODE_ENV\": \"production\",\n    \"TAILWINDCSS_DISABLE_LIGHTNINGCSS\": \"1\"\n  }
 }
