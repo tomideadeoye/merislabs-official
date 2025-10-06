@@ -40,7 +40,7 @@
 'use client';
 import { decks } from 'components/projects';
 import React, { useState, useMemo, ChangeEvent } from 'react';
-import { Input } from '@/components/ui/input'; // Fixed import path
+import { Input } from '../../components/ui/input'; // Fixed import path
 
 export interface Deck {
   title: string;
