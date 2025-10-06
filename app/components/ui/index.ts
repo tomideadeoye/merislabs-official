@@ -1,5 +1,5 @@
 export { Button, buttonVariants } from './button';
-export { Alert, AlertTitle, AlertDescription } from './alert';
+export { Alert, AlertTitle, AlertDescription } from './Alert';
 export { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from './table';
 export { ModernCard } from './modern-card';
 

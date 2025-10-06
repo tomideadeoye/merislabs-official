@@ -1,6 +1,6 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
-import { Alert, AlertDescription, AlertTitle } from '../../ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '../../ui/Alert';
 import { Shield, Globe } from 'lucide-react';
 import { DataDeficiencyCycle } from '../../infographics/DataDeficiencyCycle';
 import { AwarenessToActionChasm } from '../../infographics/AwarenessToActionChasm';
