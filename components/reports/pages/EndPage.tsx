@@ -1,6 +1,6 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
-import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/ui/avatar';
 import { ModernCard, ModernCardContent } from '../../ui/modern-card';
 import { reportData } from '../../../data';
 import { Contact } from '../../../types';
