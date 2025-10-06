@@ -1,11 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import './css/additional-styles/range-slider.css';
 @import './css/additional-styles/toggle-switch.css';
 @import './css/additional-styles/theme.css';
 @import './css/additional-styles/mobile-menu.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* === TAILWIND V4 MIGRATION: All @apply usages for non-atomic utilities have been removed or replaced. Use utility classes directly in your HTML/JSX. === */
 

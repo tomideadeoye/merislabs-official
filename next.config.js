@@ -13,9 +13,6 @@ const nextConfig = {
 
   // Image optimization settings
   images: {
-    // Enable image optimization (default behavior)
-    // unoptimized: false, // Remove this line to enable optimization
-    domains: [], // Add your image domains here when needed
     formats: ['image/webp', 'image/avif'],
   },
 
@@ -64,41 +61,11 @@ const nextConfig = {
     return config;
   },
 
-  // Performance optimizations (SWC minification is enabled by default in Next.js 15+)
-
   // Output configuration
   output: 'standalone', // Optimized for deployment
 
   // Enable compression
   compress: true,
-
-  // Security headers (can be customized based on needs)
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-        ],
-      },
-    ];
-  },
-
-  // Redirects and rewrites can be added here when needed
-  async redirects() {
-    return [];
-  },
-
-  async rewrites() {
-    return [];
-  },
 };
 
 export default nextConfig;

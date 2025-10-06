@@ -3,5 +3,21 @@
   "github": {
     "silent": true
   },
-  \"env\": {\n    \"NODE_ENV\": \"production\",\n    \"TAILWINDCSS_DISABLE_LIGHTNINGCSS\": \"1\"\n  }
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": {
+        "includeFiles": [
+          "next.config.js",
+          "postcss.config.mjs",
+          "tailwind.config.mjs"
+        ]
+      }
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "TAILWINDCSS_DISABLE_LIGHTNINGCSS": "1"
+  }
 }
