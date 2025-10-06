@@ -7,8 +7,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   // Enable experimental features that are stable and widely used
   experimental: {
-    // Optimize CSS and improve build performance
-    optimizeCss: true,
     // Enable modern JavaScript features
     esmExternals: true,
   },
