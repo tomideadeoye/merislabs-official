@@ -1,8 +1,10 @@
+'use client';
+
 import generatePDF from 'react-to-pdf';
 import html2canvas from 'html2canvas-pro';
 import jsPDF from 'jspdf';
 import { Document, Page, Text, View, Image, pdf } from '@react-pdf/renderer';
-import { Html } from 'react-pdf-html';
+import { Html as ReactPDFHtml } from 'react-pdf-html';
 
 // Types for our PDF generation system
 export interface PDFGenerationOptions {
@@ -869,7 +871,7 @@ export class PDFGenerator {
       <Document>
         <Page size="A4" style={{ padding: 20, backgroundColor: '#ffffff' }}>
           <View style={{ flex: 1 }}>
-            <Html stylesheet={[]} resetStyles>{htmlContent}</Html>
+            <ReactPDFHtml stylesheet={[]} resetStyles>{htmlContent}</ReactPDFHtml>
           </View>
         </Page>
       </Document>
