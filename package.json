@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "build:lib": "tsup lib/src/index.ts --format esm,cjs --dts --external react",
-    "dev:lib": "tsup lib/src/index.ts --format esm,cjs --dts --external react --watch"
+    "dev:lib": "tsup lib/src/index.ts --format esm,cjs --dts --external react --watch",
+    "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
