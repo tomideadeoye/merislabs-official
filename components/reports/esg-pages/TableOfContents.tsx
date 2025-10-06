@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../ui/table';
+} from '@/components/ui/table';
 
 interface TOCItem {
   title: string;
@@ -79,7 +79,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ pageNumber }) 
           </Table>
         </div>
 
-    
+
       </div>
     </HybridPage>
   );

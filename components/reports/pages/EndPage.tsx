@@ -1,7 +1,7 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ModernCard, ModernCardContent } from '../../ui/modern-card';
+import { ModernCard, ModernCardContent } from '@/components/ui/modern-card';
 import { reportData } from '../../../data';
 import { Contact } from '../../../types';
 import dynamic from 'next/dynamic';

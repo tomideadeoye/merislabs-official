@@ -1,6 +1,6 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
-import { Alert, AlertDescription, AlertTitle } from '../../ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Shield, Globe } from 'lucide-react';
 import { DataDeficiencyCycle } from 'components/infographics/DataDeficiencyCycle';
 import { AwarenessToActionChasm } from 'components/infographics/AwarenessToActionChasm';
@@ -230,7 +230,7 @@ export const InternalBarriersPage2: React.FC<InternalBarriersPageProps> = ({
 					</a>
 				</sup>
 			</p>
-			
+
 			<h4 className="font-semibold mb-2">Limited Staff and Tools:</h4>
 
 			<p className="mb-4">
@@ -350,7 +350,7 @@ export const InternalBarriersPage3: React.FC<InternalBarriersPageProps> = ({
 				sustainability investments. This "regulatory lag" fosters a
 				"wait-and-see" mentality.
 			</p>
-			
+
 			<p className="mb-4">
 				To counter this, clear, consistent, and long-term policy signals from
 				governments are critical, including a stable regulatory environment,

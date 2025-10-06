@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Button } from '../../../components/ui/button';
+import { Button } from './button';
 
 export default function MobileMenu() {
   const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);

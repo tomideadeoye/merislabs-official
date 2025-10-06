@@ -33,7 +33,7 @@
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ClientProviders } from './client-providers';
-import { Header } from '../components/ui/header';
+import { Header } from './components/ui/header';
 import { navItems } from './lib/routes';
 
 const inter = Inter({ subsets: ['latin'] });

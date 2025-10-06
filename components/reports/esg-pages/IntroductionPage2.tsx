@@ -7,7 +7,8 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "../../ui/table";import { IntroductionSection } from '../ESGDashboard';
+} from "@/components/ui/table";
+import { IntroductionSection } from '../ESGDashboard';
 interface IntroductionPage2Props {
   pageNumber: number;
   footnoteStart?: number;
