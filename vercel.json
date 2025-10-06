@@ -4,7 +4,6 @@
     "silent": true
   },
   "env": {
-    "NODE_ENV": "production",
-    "TAILWINDCSS_DISABLE_LIGHTNINGCSS": "1"
+    "NODE_ENV": "production"
   }
 }
