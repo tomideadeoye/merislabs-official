@@ -40,7 +40,7 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'; // Fixed import path
-import { Project } from 'components/projects'; // Assuming Project interface is exported from here
+import { Project } from './projects'; // Project interface is exported from the same directory
 import './ProjectMediaDisplay.css';
 
 interface ProjectMediaDisplayProps {

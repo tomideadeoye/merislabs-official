@@ -36,7 +36,7 @@
  *   - **SEO Optimization**: Add more detailed meta descriptions, open graph tags, and structured data for improved search engine visibility.
  */
 import Hero from './components/Hero';
-import Zigzag from 'components/zigzag';
+import Zigzag from './components/zigzag';
 import Testimonials from './components/Testimonials';
 import Newsletter from './components/Newsletter';
 

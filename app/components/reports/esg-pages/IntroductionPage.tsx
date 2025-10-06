@@ -1,24 +1,24 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
 import { IntroductionSection } from '../ESGDashboard';
-import { defaultFootnotes } from '../../../data/esgFootnotes';
+import { defaultFootnotes } from '../../../../data/esgFootnotes';
 
 interface IntroductionPageProps {
-  pageNumber: number;
-  footnoteStart?: number;
-  width?: number;
-  height?: number;
-  showFootnotes?: boolean;
+	pageNumber: number;
+	footnoteStart?: number;
+	width?: number;
+	height?: number;
+	showFootnotes?: boolean;
 }
 
 export const IntroductionPage: React.FC<IntroductionPageProps> = ({
-  pageNumber,
-  footnoteStart = 1,
-  width = 794,
-  height = 1123,
-  showFootnotes = true
+	pageNumber,
+	footnoteStart = 1,
+	width = 794,
+	height = 1123,
+	showFootnotes = true
 }) => {
-  const content = (
+	const content = (
 		<div className="space-y-6">
 			<h1 className="text-xl font-bold mb-4 text-blue-600">
 				Bridging the ESG Finance Gap: Demand and Supply-Side Constraints Facing
@@ -102,18 +102,18 @@ export const IntroductionPage: React.FC<IntroductionPageProps> = ({
 		</div>
 	);
 
-  return (
-    <HybridPage
-      key={`introduction-${pageNumber}`}
-      pageNumber={pageNumber}
-      components={{}}
-      footnotes={showFootnotes ? defaultFootnotes.slice(0, 4) : undefined}
-      footnoteStart={footnoteStart}
-      useColumns={true}
-      width={width}
-      height={height}
-    >
-      {content}
-    </HybridPage>
-  );
+	return (
+		<HybridPage
+			key={`introduction-${pageNumber}`}
+			pageNumber={pageNumber}
+			components={{}}
+			footnotes={showFootnotes ? defaultFootnotes.slice(0, 4) : undefined}
+			footnoteStart={footnoteStart}
+			useColumns={true}
+			width={width}
+			height={height}
+		>
+			{content}
+		</HybridPage>
+	);
 };

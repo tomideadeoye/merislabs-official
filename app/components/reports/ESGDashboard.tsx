@@ -5,7 +5,7 @@ import {
   XCircle, Link, FileText, BarChart
 } from 'lucide-react';
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, Treemap } from 'recharts';
-import { ChartHeader } from 'components/infographics/helpers';
+import { ChartHeader } from '../infographics/helpers';
 
 // Export all section components
 export const IntroductionSection = () => {

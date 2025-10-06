@@ -1,6 +1,6 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
-import { defaultFootnotes as mainFootnotes } from '../../../data';
+import { defaultFootnotes as mainFootnotes } from '../../../../data';
 
 // Helper function to convert footnote text with URLs to HTML links
 const convertFootnoteToHtml = (text: string): string => {

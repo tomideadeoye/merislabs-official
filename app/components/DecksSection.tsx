@@ -38,9 +38,9 @@
  */
 
 'use client';
-import { decks } from 'components/projects';
+import { decks } from './projects';
 import React, { useState, useMemo, ChangeEvent } from 'react';
-import { Input } from '@/components/ui/input';
+import { Input } from './ui/input';
 
 export interface Deck {
   title: string;

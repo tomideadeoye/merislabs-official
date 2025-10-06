@@ -13,10 +13,12 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { projects, Project } from './projects';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../app/components/ui/tabs';
-import { Dialog, DialogContent, DialogTrigger } from '../app/components/ui/dialog';
-import DecksSection from '../app/components/DecksSection';
-import ProjectMediaDisplay from '../app/components/ProjectMediaDisplay';
+
+import ProjectMediaDisplay from './ProjectMediaDisplay';
+import { Dialog, DialogTrigger, DialogContent } from '@radix-ui/react-dialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
+import DecksSection from './DecksSection';
+
 
 export default function Zigzag() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useHybridPagination } from '../useHybridPagination';
 import { HybridPage } from '../HybridPage';
-import { defaultFootnotes } from '../../../data/esgFootnotes';
+import { defaultFootnotes } from 'data/esgFootnotes';
+
 
 interface HybridPageData {
   content: string;
