@@ -1,3 +1,8 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable experimental features that are stable and widely used
@@ -18,6 +23,12 @@ const nextConfig = {
 
   // Webpack configuration for better performance and compatibility
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Add path aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname),
+    };
+
     // Add support for importing SVGs as React components (optional but common)
     config.module.rules.push({
       test: /\.svg$/,
