@@ -12,11 +12,11 @@ export const Alert: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children
   );
 };
 
-export const AlertDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({ children, ...props }) => (
-  <p className="text-sm" {...props}>
+export const AlertDescription: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, ...props }) => (
+  <div className="text-sm" {...props}>
     {' '}
     {children}{' '}
-  </p>
+  </div>
 );
 
 export const AlertTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({ children, ...props }) => (

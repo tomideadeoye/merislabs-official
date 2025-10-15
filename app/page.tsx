@@ -39,6 +39,7 @@ import Hero from './components/Hero';
 import Zigzag from './components/zigzag';
 import Testimonials from './components/Testimonials';
 import Newsletter from './components/Newsletter';
+import Footer from './components/ui/footer';
 
 export default function Home() {
   return (
@@ -47,6 +48,7 @@ export default function Home() {
       <Zigzag />
       <Testimonials />
       <Newsletter />
+      <Footer />
     </>
   );
 }

@@ -40,9 +40,6 @@ export function Header({ navItems }: HeaderProps) {
         </div>
         <div className="flex items-center gap-4">
           <ModeToggle />
-          <Link href="/contact">
-            <Button variant="default">Contact</Button>
-          </Link>
         </div>
       </div>
     </header>

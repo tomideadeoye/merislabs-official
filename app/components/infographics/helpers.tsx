@@ -15,7 +15,7 @@ export const ChartHeader: React.FC<{
   title: string;
 }> = ({ title }) => (
   <div className="flex-col items-center my-4 text-center">
-    <h3 className="text-lg font-bold text-[#3b82f6]">{title}</h3>
+    <h3 className="text-base font-bold text-[#3b82f6]">{title}</h3>
   </div>
 );
 

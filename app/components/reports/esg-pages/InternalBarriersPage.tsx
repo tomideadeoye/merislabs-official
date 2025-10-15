@@ -57,7 +57,7 @@ export const InternalBarriersPage1: React.FC<InternalBarriersPageProps> = ({
 					<Shield className="h-4 w-4" />
 					<AlertTitle>Internal Barriers</AlertTitle>
 					<AlertDescription>
-						<p>Challenges within SMEs, such as:</p>
+						Challenges within SMEs, such as:
 						<ul className="list-inside list-disc text-sm mt-1">
 							<li>Limited ESG awareness</li>
 							<li>Weak reporting capacity</li>
@@ -69,7 +69,7 @@ export const InternalBarriersPage1: React.FC<InternalBarriersPageProps> = ({
 					<Globe className="h-4 w-4" />
 					<AlertTitle>External Barriers</AlertTitle>
 					<AlertDescription>
-						<p>Challenges across the wider ecosystem, including:</p>
+						Challenges across the wider ecosystem, including:
 						<ul className="list-inside list-disc text-sm mt-1">
 							<li>Inadequate ESG infrastructure</li>
 							<li>Insufficient incentives</li>

@@ -1,10 +1,8 @@
 .project-media-container {
   max-width: 36rem;
   margin: 0 auto;
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
   width: 100%;
+  overflow: hidden;
 }
 
 @media (width >= 768px) {
@@ -24,6 +22,9 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  max-height: 300px;
+  position: relative;
+  z-index: 1;
 }
 
 .project-image {
@@ -31,6 +32,11 @@
   padding: 0 1rem;
   align-self: center;
   border-radius: 40px;
+  max-height: 300px;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .project-iframe-container {
@@ -42,7 +48,7 @@
   height: 100%;
   aspect-ratio: 16/9;
   min-height: 180px;
-  max-height: 192px;
+  max-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,6 +56,7 @@
   position: relative;
   z-index: 1;
   isolation: isolate;
+  contain: layout style paint;
 }
 
 .project-iframe {
@@ -68,6 +75,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  max-height: 300px;
 }
 
 @keyframes pulse {
@@ -93,6 +101,8 @@
   max-width: 100%;
   max-height: 100%;
   border-radius: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .project-image-fullscreen {
@@ -100,6 +110,8 @@
   max-height: 100%;
   border-radius: 1rem;
   object-fit: contain;
+  position: relative;
+  z-index: 1;
 }
 
 .project-iframe-container-fullscreen {
@@ -116,4 +128,53 @@
   position: relative;
   z-index: 1;
   isolation: isolate;
+  contain: layout style paint;
+}
+
+/* Scrollable container for media that exceeds height */
+.media-scroll-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #9ca3af #e5e7eb;
+  position: relative;
+  z-index: 1;
+}
+
+.media-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.media-scroll-container::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+.media-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #9ca3af;
+  border-radius: 4px;
+}
+
+.media-aspect-ratio-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.media-aspect-ratio-container > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure iframes are properly contained */
+.project-iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }

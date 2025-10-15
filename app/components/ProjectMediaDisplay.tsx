@@ -158,36 +158,42 @@ export default function ProjectMediaDisplay({ project, isFullscreen = false }: P
           </TabsList>
           {videoUrl && (
             <TabsContent value="video" className="mt-4">
-              <video
-                controls
-                autoPlay
-                muted
-                loop
-                src={videoUrl}
-                className="project-video"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  borderRadius: 'inherit'
-                }}
-              />
+              <div className="media-scroll-container">
+                <video
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  src={videoUrl}
+                  className="project-video"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    borderRadius: 'inherit'
+                  }}
+                />
+              </div>
             </TabsContent>
           )}
           {project.image && (
             <TabsContent value="image" className="mt-4">
-              <Image
-                src={`/images/${project.image}`}
-                alt={project.name}
-                width={600}
-                height={400}
-                className="project-image"
-              />
+              <div className="media-scroll-container">
+                <Image
+                  src={`/images/${project.image}`}
+                  alt={project.name}
+                  width={600}
+                  height={400}
+                  className="project-image"
+                />
+              </div>
             </TabsContent>
           )}
           {project.iframe && (
             <TabsContent value="iframe" className="mt-4">
-              <ClientIframe url={project.iframe} title={project.name} className="project-iframe-container" />
+              <div className="media-scroll-container">
+                <ClientIframe url={project.iframe} title={project.name} className="project-iframe-container" />
+              </div>
             </TabsContent>
           )}
         </Tabs>

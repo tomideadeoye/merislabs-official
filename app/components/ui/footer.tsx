@@ -1,120 +1,93 @@
 import Link from 'next/link';
-import { FaMedium, FaXTwitter } from 'react-icons/fa6';
-import { FaLinkedin, FaGithub } from 'react-icons/fa';
-import { ReactNode } from 'react';
 
 export default function Footer() {
-  interface Social {
-    name: string;
-    link: string;
-    icon: ReactNode;
-  }
-
-  const socials: Social[] = [
-    {
-      name: 'Twitter',
-      link: 'https://twitter.com/Tomideadeoye',
-      icon: <FaXTwitter />,
-    },
-    {
-      name: 'LinkedIn',
-      link: 'https://www.linkedin.com/company/35651921',
-      icon: <FaLinkedin />,
-    },
-    {
-      name: 'Github',
-      link: 'https://github.com/tomideadeoye',
-      icon: <FaGithub />,
-    },
-    {
-      name: 'Medium',
-      link: 'https://medium.com/@tomideadeoye',
-      icon: <FaMedium />,
-    },
-  ];
-
   return (
-    <footer>
-      <div className="py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          {/* Top area: Blocks */}
-          <div className="grid md:grid-cols-12 gap-8 lg:gap-20 mb-8 md:mb-12">
-            {/* 1st block */}
-            <div className="md:col-span-4 lg:col-span-5">
-              <div className="mb-2">
-                {/* Logo */}
-                <Link href="/" className="inline-block" aria-label="Cruip">
-                  <svg
-                    className="w-8 h-8 fill-current text-purple-600"
-                    viewBox="0 0 32 32"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M31.952 14.751a260.51 260.51 0 00-4.359-4.407C23.932 6.734 20.16 3.182 16.171 0c1.634.017 3.21.28 4.692.751 3.487 3.114 6.846 6.398 10.163 9.737.493 1.346.811 2.776.926 4.262zm-1.388 7.883c-2.496-2.597-5.051-5.12-7.737-7.471-3.706-3.246-10.693-9.81-15.736-7.418-4.552 2.158-4.717 10.543-4.96 16.238A15.926 15.926 0 010 16C0 9.799 3.528 4.421 8.686 1.766c1.82.593 3.593 1.675 5.038 2.587 6.569 4.14 12.29 9.71 17.792 15.57-.237.94-.557 1.846-.952 2.711zm-4.505 5.81a56.161 56.161 0 00-1.007-.823c-2.574-2.054-6.087-4.805-9.394-4.044-3.022.695-4.264 4.267-4.97 7.52a15.945 15.945 0 01-3.665-1.85c.366-3.242.89-6.675 2.405-9.364 2.315-4.107 6.287-3.072 9.613-1.132 3.36 1.96 6.417 4.572 9.313 7.417a16.097 16.097 0 01-2.295 2.275z" />
-                  </svg>
-                </Link>
-              </div>
-              <div className="text-gray-400">
-                Tailored software solutions for businesses across diverse industries. Our objective is simply
-                understanding your business - operations, model, customers, and goals. MerisLabs make creating a
-                business easy by aggregating needs tools in one place.
-              </div>
+    <footer className="bg-[#000710] py-20 lg:py-32 text-gray-400 text-sm">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        {/* Logo, Links, Social, and App Store Section */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-12 md:gap-y-0">
+          
+          {/* Column 1: Logo and Social/App Links */}
+          <div className="col-span-2 md:col-span-1 pr-4">
+            {/* Logo Placeholder - Using MerisLabs logo */}
+            <Link href="/" aria-label="MerisLabs logo" className="inline-block">
+              <svg
+                className="w-8 h-8 fill-current text-purple-600"
+                viewBox="0 0 32 32"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M31.952 14.751a260.51 260.51 0 00-4.359-4.407C23.932 6.734 20.16 3.182 16.171 0c1.634.017 3.21.28 4.692.751 3.487 3.114 6.846 6.398 10.163 9.737.493 1.346.811 2.776.926 4.262zm-1.388 7.883c-2.496-2.597-5.051-5.12-7.737-7.471-3.706-3.246-10.693-9.81-15.736-7.418-4.552 2.158-4.717 10.543-4.96 16.238A15.926 15.926 0 010 16C0 9.799 3.528 4.421 8.686 1.766c1.82.593 3.593 1.675 5.038 2.587 6.569 4.14 12.29 9.71 17.792 15.57-.237.94-.557 1.846-.952 2.711zm-4.505 5.81a56.161 56.161 0 00-1.007-.823c-2.574-2.054-6.087-4.805-9.394-4.044-3.022.695-4.264 4.267-4.97 7.52a15.945 15.945 0 01-3.665-1.85c.366-3.242.89-6.675 2.405-9.364 2.315-4.107 6.287-3.072 9.613-1.132 3.36 1.96 6.417 4.572 9.313 7.417a16.097 16.097 0 01-2.295 2.275z" />
+              </svg>
+            </Link>
+            <div className="flex space-x-6 mt-12">
+              {/* Social Icons */}
+              <Link href="https://twitter.com/Tomideadeoye" aria-label="Twitter" className="hover:text-white">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+              </Link>
+              <Link href="https://www.linkedin.com/company/35651921" aria-label="LinkedIn" className="hover:text-white">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                </svg>
+              </Link>
+              <Link href="https://github.com/tomideadeoye" aria-label="GitHub" className="hover:text-white">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+              </Link>
             </div>
 
-            
-            <div className="md:col-span-8 lg:col-span-7 grid sm:grid-cols-3 gap-8">
-              {/* 2nd block */}
-              {/* {footers.map(() => (
-                <div key={Math.random()} className="text-sm">
-                  <h6 className="text-gray-200 font-medium mb-1">Products</h6>
-                  <ul>
-                    <li className="mb-1">
-                      <Link
-                        href="/"
-                        className="text-gray-400 hover:text-gray-100 transition duration-150 ease-in-out"
-                      >
-                        Web Studio
-                      </Link>
-                    </li>
-                    <li className="mb-1">
-                      <Link
-                        href="/"
-                        className="text-gray-400 hover:text-gray-100 transition duration-150 ease-in-out"
-                      >
-                        DynamicBox Flex
-                      </Link>
-                    </li>
-                    <li className="mb-1">
-                      <Link
-                        href="/"
-                        className="text-gray-400 hover:text-gray-100 transition duration-150 ease-in-out"
-                      >
-                        Programming Forms
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              ))} */}
-            </div>
           </div>
 
-          {/* Bottom area */}
-          <div className="md:flex md:items-center md:justify-between">
-            <ul className="flex mb-4 md:order-1 md:ml-4 md:mb-0 gap-3">
-              {socials.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.link}
-                    className="flex p-2 justify-center items-center text-purple-600 bg-gray-800 hover:text-gray-100 hover:bg-purple-600 rounded-full transition duration-150 ease-in-out"
-                    aria-label={item.name}
-                  >
-                    {item.icon}
-                  </Link>
-                </li>
-              ))}
+          {/* Column 2: Services */}
+          <div>
+            <h3 className="text-white font-semibold mb-3">Services</h3>
+            <ul className="space-y-2">
+              <li><Link href="/services/web-development" className="hover:text-white">Web Development</Link></li>
+              <li><Link href="/services/mobile-development" className="hover:text-white">Mobile Development</Link></li>
+              <li><Link href="/services/ui-ux-design" className="hover:text-white">UI/UX Design</Link></li>
+              <li><Link href="/services/api-integration" className="hover:text-white">API Integration</Link></li>
             </ul>
-
-            <div className="text-gray-400 text-sm mr-4">&copy; merislabs.com. All rights reserved.</div>
           </div>
+
+          {/* Column 3: Solutions */}
+          <div>
+            <h3 className="text-white font-semibold mb-3">Solutions</h3>
+            <ul className="space-y-2">
+              <li><Link href="/solutions/enterprise" className="hover:text-white">Enterprise</Link></li>
+              <li><Link href="/solutions/startups" className="hover:text-white">Startups</Link></li>
+              <li><Link href="/solutions/e-commerce" className="hover:text-white">E-commerce</Link></li>
+            </ul>
+          </div>
+
+          {/* Column 4: Company */}
+          <div>
+            <h3 className="text-white font-semibold mb-3">Company</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="hover:text-white">About Us</Link></li>
+              <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
+              <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
+              <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+            </ul>
+          </div>
+
+          {/* Column 5: Resources */}
+          <div>
+            <h3 className="text-white font-semibold mb-3">Resources</h3>
+            <ul className="space-y-2">
+              <li><Link href="/docs" className="hover:text-white">Documentation</Link></li>
+              <li><Link href="/tutorials" className="hover:text-white">Tutorials</Link></li>
+              <li><Link href="/support" className="hover:text-white">Support</Link></li>
+              <li><button className="bg-transparent border-none p-0 hover:text-white text-sm">Cookie preferences</button></li>
+            </ul>
+          </div>
+        </div>
+        
+        {/* Legal Disclaimers */}
+        <div className="mt-20 space-y-4 text-xs text-gray-600">
+          <p>© {new Date().getFullYear()} MerisLabs. All rights reserved.</p>
+          <p>Tailored software solutions for businesses across diverse industries. Our objective is simply understanding your business - operations, model, customers, and goals.</p>
         </div>
       </div>
     </footer>
