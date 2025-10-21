@@ -20,6 +20,15 @@ export interface Project {
 
 const projects: Project[] = [
   {
+    name: 'BrandQor',
+    description: 'BrandQor is a personal branding platform designed for visionary leaders, founders, executives, and creators. It helps build authentic authority, attract the right opportunities, and grow businesses sustainably without burnout. Through their Influence Engine, they provide a done-for-you visibility system that turns expertise into influence with strategic content creation, distribution, and storytelling. The platform offers two paths: the Executive version for busy professionals who want full-service management, and the Starter version for DIY growth with structured guidance. BrandQor focuses on clarifying your story, designing your online presence, creating compelling content, distributing effectively, and compounding visibility into trust and opportunities.',
+    technologies: ['NextJs', 'Personal Branding', 'Content Strategy'],
+    iframe: 'https://brandqor.com',
+    img: '/brandqor.png',
+    tag: 'BRANDQOR: Personal Branding for Visionary Leaders',
+    links: [['website', 'https://brandqor.com']],
+  },
+  {
     name: 'QorePay Payment Gateway',
     tag: 'QOREPAY: Payment settlement for Nigerian Businesses',
     description:
