@@ -29,6 +29,18 @@ const projects: Project[] = [
     links: [['website', 'https://brandqor.com']],
   },
   {
+    name: 'Bundul Due Payments',
+    description: 'Bundul Due Payments is a React Native Expo application that displays a list of upcoming payments for user subscriptions with a modern fintech dark theme UI. It features payment tracking with service name, amount, due date, and "Pay Now" functionality. The app includes "Due Soon" badges with pulse effects for payments within 3 days, sorted by due date with highlighted rows. Users can tap "Pay Now" to open confirmation modals, pull-to-refresh, search payments, and filter by All, Due Soon, or Paid status. It tracks payment history with persistent storage and real-time updates across tabs, plus an insights dashboard with payment visualization charts. The app delivers a modern dark theme fintech UI with animations and responsive design.',
+    technologies: ['React Native', 'Expo', 'TypeScript', 'React Native Paper', 'React Native Reanimated'],
+    iframe: 'https://github.com/tomideadeoye/bundul-due-payments',
+    img: '/bundul.png',
+    tag: 'BUNDUL: Subscription Payment Tracker',
+    links: [
+      ['GitHub', 'https://github.com/tomideadeoye/bundul-due-payments'],
+      ['video', 'https://github.com/tomideadeoye/bundul-due-payments/raw/refs/heads/main/assets/Screen%20Recording%202025-10-23%20at%2000.41.36.mp4'],
+    ],
+  },
+  {
     name: 'QorePay Payment Gateway',
     tag: 'QOREPAY: Payment settlement for Nigerian Businesses',
     description:
