@@ -82,8 +82,8 @@ function ClientIframe({ url, title, className }: { url: string; title: string; c
 }
 
 export default function ProjectMediaDisplay({ project, isFullscreen = false }: ProjectMediaDisplayProps) {
-  const videoLink = project.links.find((link) => link[0] === 'video');
-  const videoUrl = videoLink ? videoLink[1] : undefined;
+  const videoLink = project.links.find((link) => link.type === 'video');
+  const videoUrl = videoLink ? videoLink.url : undefined;
 
   const availableMediaTypes = [];
   if (videoUrl) availableMediaTypes.push('video');
@@ -92,52 +92,13 @@ export default function ProjectMediaDisplay({ project, isFullscreen = false }: P
 
   const [activeMedia, setActiveMedia] = useState(availableMediaTypes[0] || '');
 
-  // In fullscreen mode, show only the active media without tabs
-  if (isFullscreen && availableMediaTypes.length > 0) {
-    return (
-      <div className={`project-media-container ${isFullscreen ? 'fullscreen' : ''}`} data-aos="fade-up">
-        {videoUrl && activeMedia === 'video' && (
-          <video
-            controls
-            autoPlay
-            muted
-            loop
-            src={videoUrl}
-            className="project-video-fullscreen"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain'
-            }}
-          />
-        )}
-        {project.image && activeMedia === 'image' && (
-          <Image
-            src={`/images/${project.image}`}
-            alt={project.name}
-            width={1200}
-            height={800}
-            className="project-image-fullscreen"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain'
-            }}
-          />
-        )}
-        {project.iframe && activeMedia === 'iframe' && (
-          <ClientIframe url={project.iframe} title={project.name} className="project-iframe-container-fullscreen" />
-        )}
-      </div>
-    );
-  }
-
+  // Always show tabs, even in fullscreen mode
   return (
-    <div className="project-media-container" data-aos="fade-up">
+    <div className={`project-media-container ${isFullscreen ? 'fullscreen' : ''}`} data-aos="fade-up">
       {availableMediaTypes.length > 0 && (
-        <Tabs defaultValue={activeMedia} className="w-full">
+        <Tabs defaultValue={activeMedia} className="w-full h-full flex flex-col">
           <TabsList
-            className="project-tabs-list"
+            className="project-tabs-list flex-shrink-0"
             style={{ gridTemplateColumns: `repeat(${availableMediaTypes.length}, 1fr)` }}
           >
             {videoUrl && (
@@ -152,50 +113,59 @@ export default function ProjectMediaDisplay({ project, isFullscreen = false }: P
             )}
             {project.iframe && (
               <TabsTrigger value="iframe" onClick={() => setActiveMedia('iframe')}>
-                Iframe
+                Working Example
               </TabsTrigger>
             )}
           </TabsList>
-          {videoUrl && (
-            <TabsContent value="video" className="mt-4">
-              <div className="media-scroll-container">
-                <video
-                  controls
-                  autoPlay
-                  muted
-                  loop
-                  src={videoUrl}
-                  className="project-video"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    borderRadius: 'inherit'
-                  }}
-                />
-              </div>
-            </TabsContent>
-          )}
-          {project.image && (
-            <TabsContent value="image" className="mt-4">
-              <div className="media-scroll-container">
-                <Image
-                  src={`/images/${project.image}`}
-                  alt={project.name}
-                  width={600}
-                  height={400}
-                  className="project-image"
-                />
-              </div>
-            </TabsContent>
-          )}
-          {project.iframe && (
-            <TabsContent value="iframe" className="mt-4">
-              <div className="media-scroll-container">
-                <ClientIframe url={project.iframe} title={project.name} className="project-iframe-container" />
-              </div>
-            </TabsContent>
-          )}
+          <div className="flex-1 overflow-hidden">
+            {videoUrl && (
+              <TabsContent value="video" className="h-full mt-4">
+                <div className="media-scroll-container h-full">
+                  <video
+                    controls
+                    autoPlay
+                    muted
+                    loop
+                    src={videoUrl}
+                    className={`project-video ${isFullscreen ? 'project-video-fullscreen' : ''}`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      borderRadius: 'inherit',
+                      minHeight: '400px' // Ensure minimum height for better display
+                    }}
+                  />
+                </div>
+              </TabsContent>
+            )}
+            {project.image && (
+              <TabsContent value="image" className="h-full mt-4">
+                <div className="media-scroll-container h-full">
+                  <Image
+                    src={`/images/${project.image}`}
+                    alt={project.name}
+                    width={isFullscreen ? 1200 : 600}
+                    height={isFullscreen ? 800 : 400}
+                    className={`project-image ${isFullscreen ? 'project-image-fullscreen' : ''}`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      borderRadius: 'inherit'
+                    }}
+                  />
+                </div>
+              </TabsContent>
+            )}
+            {project.iframe && (
+              <TabsContent value="iframe" className="h-full mt-4">
+                <div className="media-scroll-container h-full">
+                  <ClientIframe url={project.iframe} title={project.name} className={`project-iframe-container ${isFullscreen ? 'project-iframe-container-fullscreen' : ''}`} />
+                </div>
+              </TabsContent>
+            )}
+          </div>
         </Tabs>
       )}
     </div>

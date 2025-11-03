@@ -110,5 +110,8 @@
     "**/.venv/": true,
     "../merislabs-backup/": true,
     "**/site-packages/": true
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
   }
 }

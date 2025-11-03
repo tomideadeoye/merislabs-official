@@ -7,40 +7,51 @@
 // ASSUMPTIONS & CLEAR COMMENTS: // NOTE: Assumed all referenced images exist in public/images/ or public/
 // NOTES: Consider consolidating project/review data, add more robust error handling/logging, and test for missing assets.
 
+export type LinkType = 'website' | 'github' | 'npm-package' | 'live-demo' | 'video' | 'documentation' | 'api' | 'blog' | 'case-study' | 'working-example' | 'google-play-store';
+
+export interface Link {
+  type: LinkType;
+  url: string;
+  label?: string; // Optional custom label
+}
+
 export interface Project {
+  id: string; // Added ID field for dynamic routing
   name: string;
-  description: string;
+  description: string; // Supports Markdown formatting
   technologies: string[];
   image?: string;
   iframe?: string;
   tag: string;
-  links: [string, string][];
+  links: Link[];
   img: string;
 }
 
 const projects: Project[] = [
   {
+    id: 'brandqor',
     name: 'BrandQor',
     description: 'BrandQor is a personal branding platform designed for visionary leaders, founders, executives, and creators. It helps build authentic authority, attract the right opportunities, and grow businesses sustainably without burnout. Through their Influence Engine, they provide a done-for-you visibility system that turns expertise into influence with strategic content creation, distribution, and storytelling. The platform offers two paths: the Executive version for busy professionals who want full-service management, and the Starter version for DIY growth with structured guidance. BrandQor focuses on clarifying your story, designing your online presence, creating compelling content, distributing effectively, and compounding visibility into trust and opportunities.',
     technologies: ['NextJs', 'Personal Branding', 'Content Strategy'],
     iframe: 'https://brandqor.com',
     img: '/brandqor.png',
     tag: 'BRANDQOR: Personal Branding for Visionary Leaders',
-    links: [['website', 'https://brandqor.com']],
+    links: [{ type: 'website', url: 'https://brandqor.com' }],
   },
   {
+    id: 'bundul-due-payments',
     name: 'Bundul Due Payments',
     description: 'Bundul Due Payments is a React Native Expo application that displays a list of upcoming payments for user subscriptions with a modern fintech dark theme UI. It features payment tracking with service name, amount, due date, and "Pay Now" functionality. The app includes "Due Soon" badges with pulse effects for payments within 3 days, sorted by due date with highlighted rows. Users can tap "Pay Now" to open confirmation modals, pull-to-refresh, search payments, and filter by All, Due Soon, or Paid status. It tracks payment history with persistent storage and real-time updates across tabs, plus an insights dashboard with payment visualization charts. The app delivers a modern dark theme fintech UI with animations and responsive design.',
     technologies: ['React Native', 'Expo', 'TypeScript', 'React Native Paper', 'React Native Reanimated'],
-    iframe: 'https://github.com/tomideadeoye/bundul-due-payments',
     img: '/bundul.png',
     tag: 'BUNDUL: Subscription Payment Tracker',
     links: [
-      ['GitHub', 'https://github.com/tomideadeoye/bundul-due-payments'],
-      ['video', 'https://github.com/tomideadeoye/bundul-due-payments/raw/refs/heads/main/assets/Screen%20Recording%202025-10-23%20at%2000.41.36.mp4'],
+      { type: 'github', url: 'https://github.com/tomideadeoye/bundul-due-payments' },
+      { type: 'video', url: 'https://github.com/tomideadeoye/bundul-due-payments/raw/refs/heads/main/assets/Screen%20Recording%202025-10-23%20at%2000.41.36.mp4' },
     ],
   },
   {
+    id: 'qorepay',
     name: 'QorePay Payment Gateway',
     tag: 'QOREPAY: Payment settlement for Nigerian Businesses',
     description:
@@ -49,14 +60,15 @@ const projects: Project[] = [
     iframe: 'https://qorepay.com',
     img: '/qorepay.png',
     links: [
-      ['website', 'https://qorepay.com/'],
-      [
-        'video',
-        'https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4',
-      ],
+      { type: 'website', url: 'https://qorepay.com/' },
+      {
+        type: 'video',
+        url: 'https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4',
+      },
     ],
   },
   {
+    id: 'pitchr',
     name: 'PitchR',
     tag: 'Business funding for startups',
     description: 'PitchR provides advisory services for startups to grow their businesses.',
@@ -64,37 +76,42 @@ const projects: Project[] = [
     iframe: 'https://pitchr.vercel.app/',
     img: '/pitchr.png',
     links: [
-      ['website', 'https://pitchr.vercel.app'],
+      { type: 'website', url: 'https://pitchr.vercel.app' },
     ],
   },
   {
+    id: 'unicom',
     name: 'UNICOM',
     tag: 'JEE: Compliance Management for Enterprises',
     description: `Project Unicom Project is a web app developed for JEE to present need compliance with regulations.`,
     technologies: ['ExpressJS', 'React'],
     iframe: 'https://unicomreport.netlify.app/home',
     links: [
-      ['website', 'https://unicomreport.netlify.app/'],
-      [
-        'video',
-        'https://user-images.githubusercontent.com/55337742/241769519-0da29dbd-d2e7-49e0-a463-bd074a7c4e11.mp4',
-      ],
+      { type: 'website', url: 'https://unicomreport.netlify.app/' },
+      {
+        type: 'video',
+        url: 'https://user-images.githubusercontent.com/55337742/241769519-0da29dbd-d2e7-49e0-a463-bd074a7c4e11.mp4',
+      },
     ],
     img: 'unicom.png',
   },
   {
+    id: 'cyberstream',
     name: 'CyberStream',
-    tag: 'Explore IMDB Database',
-    description: 'Get IMDB movie details from website or add javascript SDK package to you app',
-    technologies: ['Electron', 'React', 'Tsup Bundler'],
+    tag: 'Explore IMDB Database with SDK & Electron App',
+    description: 'CyberStream is a **comprehensive movie discovery platform** that generates 10 new random movies on every load from the IMDB database.\n\n**Key Features:**\n\n- **Random Movie Generation**: Loads 10 new random movies on every page load as required in the assessment document\n- **Robust Search**: Navigate directly to movie details with efficient search functionality\n- **Cross-Platform**: Works seamlessly on web and desktop (Electron app)\n\n**Technical Implementation:**\n\n1. **Web Application**: Deployed on Vercel with real-time movie data fetching\n2. **JavaScript SDK**: Separately deployed on NPM (`cyber-stream-sdk`) for business logic separation\n3. **Electron App**: Desktop application with the same business logic for cross-platform compatibility\n\n**Project Requirements Fulfilled:**\n\n- ✅ Web app with random movie generation and search\n- ✅ Separately deployed SDK on NPM\n- ✅ Electron app with the same business logic\n\nThe application gracefully handles network delays and provides a smooth user experience even when loading completely random movies.',
+    technologies: ['Electron', 'React', 'Tsup Bundler', 'IMDB API', 'NPM', 'Vercel'],
     iframe: 'https://cyberstream.vercel.app',
     links: [
-      ['NPM Package', 'https://www.npmjs.com/package/cyber-stream-sdk'],
-      ['Website', 'https://cyberstream.vercel.app'],
+      { type: 'live-demo', url: 'https://cyberstream.vercel.app' },
+      { type: 'npm-package', url: 'https://www.npmjs.com/package/cyber-stream-sdk' },
+      { type: 'github', url: 'https://github.com/tomideadeoye/cyberstream' },
+      { type: 'video', url: 'https://github.com/tomideadeoye/merislabs-github-media/raw/main/tutorials/cyberstream-sdk/CyberStream%20JavaScript%20SDK%20Complete%20Walkthrough%3A%20Integrating%20IMDB%20Movie%20Data%20API%20with%20NPM%20Package%20Installation%2C%20Random%20Movie%20Generation%2C%20Search%20Functionality%2C%20and%20Cross-Platform%20Electron%20App%20Development%20Tutorial.mp4' },
     ],
     img: '/cyberstream.png',
   },
   {
+    id: 'price-history-chart',
     name: 'Price History Chart',
     description:
       "Built a candlestick chart to describe price movements of a cryptocurrencies.  Each 'candlestick' typically shows one day, thus a one-month chart may show the 20 trading days as 20 candlesticks. Candlestick charts can also be built using intervals shorter or longer than one day.",
@@ -102,24 +119,26 @@ const projects: Project[] = [
     iframe: 'https://sisyphus-tomide.vercel.app',
     tag: 'PROPRIETARY: live Rate Conversion Data',
     links: [
-      ['website', 'https://sisyphus-tomide.vercel.app/'],
-      [
-        'video',
-        'https://user-images.githubusercontent.com/55337742/241746561-b4bbc74e-9729-4285-bf09-e1d830ed323e.mp4',
-      ],
+      { type: 'website', url: 'https://sisyphus-tomide.vercel.app/' },
+      {
+        type: 'video',
+        url: 'https://user-images.githubusercontent.com/55337742/241746561-b4bbc74e-9729-4285-bf09-e1d830ed323e.mp4',
+      },
     ],
     img: '/cyberstream.png',
   },
   {
+    id: 'qtf-energy-solutions',
     name: 'QTF Energy Solutions',
     description: 'Company website with Slack Integration for Demo Requests',
     technologies: ['NextJs', 'Slack APIs', 'SendGrid'],
     iframe: 'https://www.qtfenergy.com/',
     tag: 'PROPRIETARY: live Rate Conversion Data',
-    links: [['website', 'https://www.qtfenergy.com/']],
+    links: [{ type: 'website', url: 'https://www.qtfenergy.com/' }],
     img: '/qtf.png',
   },
   {
+    id: 'juice-spend',
     name: 'JUICE SPEND',
     tag: 'JUICE: Liquidity Provider for Enterprises',
     description:
@@ -127,24 +146,26 @@ const projects: Project[] = [
     technologies: ['React', 'Material UI'],
     iframe: 'https://tomidejuiceui.netlify.app/',
     links: [
-      ['website', 'https://tomidejuiceui.netlify.app/'],
-      [
-        'video',
-        'https://user-images.githubusercontent.com/55337742/211080250-419b92a5-7ef0-423a-be4a-2e0658dca314.mov',
-      ],
+      { type: 'website', url: 'https://tomidejuiceui.netlify.app/' },
+      {
+        type: 'video',
+        url: 'https://user-images.githubusercontent.com/55337742/211080250-419b92a5-7ef0-423a-be4a-2e0658dca314.mov',
+      },
     ],
     img: 'juice.png',
   },
   {
+    id: 'experi-by-hiyalo',
     name: 'EXPERI by Hiyalo',
     tag: 'Property search and listing platform',
     description: `A web app to search and list properties.`,
     technologies: ['NextJS', 'tRPC', 'Drizzle ORM', 'T3 Stack', 'Clerk Auth'],
-    links: [['website', 'https://experi-nine.vercel.app/']],
+    links: [{ type: 'website', url: 'https://experi-nine.vercel.app/' }],
     iframe: 'https://experi-nine.vercel.app/',
     img: '/experi.png',
   },
   {
+    id: 'dukka',
     name: 'DUKKA',
     description:
       'Book keeping App for SMEs created for Dukka Inc. The company aims to build the os for e-commerce in Africa and competes with other providers like Bumpa.',
@@ -152,16 +173,20 @@ const projects: Project[] = [
     iframe: 'https://dukka.com',
     img: '/software3.png',
     tag: 'DUKKA: Book Keeping for SMEs',
-    links: [['website', 'https://dukka.com']],
+    links: [
+      { type: 'website', url: 'https://dukka.com' },
+      { type: 'google-play-store', url: 'https://play.google.com/store/apps/details?id=com.dukka.dukka&pli=1' }
+    ],
   },
   {
+    id: 'dexter',
     name: 'DEXTER',
     description: 'Analyses company user signups, churn, & more for informed business decisions.',
     technologies: ['Django', 'Python', 'React'],
     image: 'software2.png',
     img: '/software2.png',
     tag: 'DUKKA: Analytics for company internal teams',
-    links: [['website', 'dexter.dukka.com']],
+    links: [{ type: 'website', url: 'dexter.dukka.com' }],
   },
 ];
 

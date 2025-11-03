@@ -22,7 +22,8 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  max-height: 300px;
+  min-height: 400px; /* Increased minimum height */
+  max-height: 600px; /* Increased maximum height */
   position: relative;
   z-index: 1;
 }
@@ -32,7 +33,8 @@
   padding: 0 1rem;
   align-self: center;
   border-radius: 40px;
-  max-height: 300px;
+  min-height: 400px; /* Added minimum height */
+  max-height: 600px; /* Increased maximum height */
   width: 100%;
   height: auto;
   position: relative;
@@ -47,8 +49,8 @@
   width: 100%;
   height: 100%;
   aspect-ratio: 16/9;
-  min-height: 180px;
-  max-height: 300px;
+  min-height: 400px; /* Increased minimum height */
+  max-height: 600px; /* Increased maximum height */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,7 +135,8 @@
 
 /* Scrollable container for media that exceeds height */
 .media-scroll-container {
-  max-height: 300px;
+  min-height: 400px; /* Added minimum height */
+  max-height: 600px; /* Increased maximum height */
   overflow-y: auto;
   border-radius: 1rem;
   scrollbar-width: thin;

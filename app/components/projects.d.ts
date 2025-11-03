@@ -5,6 +5,14 @@
 // - Used by components/zigzag.tsx for type resolution
 // ASSUMPTIONS & CLEAR COMMENTS: // NOTE: Assumed this resolves "Cannot find module './projects'" error.
 
+export type LinkType = 'website' | 'github' | 'npm-package' | 'live-demo' | 'video' | 'documentation' | 'api' | 'blog' | 'case-study';
+
+export interface Link {
+  type: LinkType;
+  url: string;
+  label?: string;
+}
+
 export interface Project {
   name: string;
   description: string;
@@ -13,7 +21,7 @@ export interface Project {
   image?: string;
   iframe?: string;
   tag: string;
-  links: [string, string][];
+  links: Link[];
   img: string;
 }
 
