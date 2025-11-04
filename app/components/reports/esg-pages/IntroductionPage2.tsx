@@ -10,21 +10,21 @@ import {
 } from "../../ui/table";
 import { IntroductionSection } from '../ESGDashboard';
 interface IntroductionPage2Props {
-  pageNumber: number;
-  footnoteStart?: number;
-  width?: number;
-  height?: number;
-  showFootnotes?: boolean;
+	pageNumber: number;
+	footnoteStart?: number;
+	width?: number;
+	height?: number;
+	showFootnotes?: boolean;
 }
 
 export const IntroductionPage2: React.FC<IntroductionPage2Props> = ({
-  pageNumber,
-  footnoteStart = 5,
-  width = 794,
-  height = 1123,
-  showFootnotes = true
+	pageNumber,
+	footnoteStart = 5,
+	width = 794,
+	height = 1123,
+	showFootnotes = true
 }) => {
-  const content = (
+	const content = (
 		<div className="space-y-6">
 			<p className="mb-4">
 				Despite their economic importance, Nigerian SMEs continue to face
@@ -142,24 +142,24 @@ export const IntroductionPage2: React.FC<IntroductionPage2Props> = ({
 		</div>
 	);
 
-  return (
-    <HybridPage
-      key={`introduction-2-${pageNumber}`}
-      pageNumber={pageNumber}
-      components={{}}
-      footnotes={showFootnotes ? [
-        "PwC Nigeria (2024) *PwC MSME Survey Report 2024*. Available at: <https://www.pwc.com/ng/en/assets/pdf/pwc-msme-survey-report-2024.pdf> (Accessed 3 August 2025)",
-        "World Bank (n.d.) *Doing business economy profile: Nigeria*. Available at: <https://archive.doingbusiness.org/en/data/exploreeconomies/nigeria> (Accessed 3 August 2025)",
-        "The United Nations Sustainable Development Goals adopted by all UN member states in 2015 comprises a global agenda to alleviate poverty and inequality, expand access to health and education, and spur economic growth and employment, while tackling climate change and working to preserve the world's habitats by 20230.",
-        "The Paris Agreement is a legally binding international treaty on climate change adopted in December 2015 under the United Nations Framework Convention on Climate Change (UNFCCC). Its central aim is to limit global warming to well below 2°C, preferably 1.5°C, above pre-industrial levels, through commitments by countries (Nationally Determined Contributions) to reduce greenhouse gas emissions and strengthen climate resilience.",
-        "PwC Nigeria (2024) *PwC MSME Survey Report 2024*. Available at: <https://www.pwc.com/ng/en/assets/pdf/pwc-msme-survey-report-2024.pdf> (Accessed 3 August 2025)"
-      ] : undefined}
-      footnoteStart={5}
-      useColumns={true}
-      width={width}
-      height={height}
-    >
-      {content}
-    </HybridPage>
-  );
+	return (
+		<HybridPage
+			key={`introduction-2-${pageNumber}`}
+			pageNumber={pageNumber}
+			components={{}}
+			footnotes={showFootnotes ? [
+				"PwC Nigeria (2024) *PwC MSME Survey Report 2024*. Available at: <https://www.pwc.com/ng/en/assets/pdf/pwc-msme-survey-report-2024.pdf> (Accessed 3 August 2025)",
+				"World Bank (n.d.) *Doing business economy profile: Nigeria*. Available at: <https://archive.doingbusiness.org/en/data/exploreeconomies/nigeria> (Accessed 3 August 2025)",
+				"The United Nations Sustainable Development Goals adopted by all UN member states in 2015 comprises a global agenda to alleviate poverty and inequality, expand access to health and education, and spur economic growth and employment, while tackling climate change and working to preserve the world's habitats by 20230.",
+				"The Paris Agreement is a legally binding international treaty on climate change adopted in December 2015 under the United Nations Framework Convention on Climate Change (UNFCCC). Its central aim is to limit global warming to well below 2°C, preferably 1.5°C, above pre-industrial levels, through commitments by countries (Nationally Determined Contributions) to reduce greenhouse gas emissions and strengthen climate resilience.",
+				"PwC Nigeria (2024) *PwC MSME Survey Report 2024*. Available at: <https://www.pwc.com/ng/en/assets/pdf/pwc-msme-survey-report-2024.pdf> (Accessed 3 August 2025)"
+			] : undefined}
+			footnoteStart={5}
+			columns={2}
+			width={width}
+			height={height}
+		>
+			{content}
+		</HybridPage>
+	);
 };

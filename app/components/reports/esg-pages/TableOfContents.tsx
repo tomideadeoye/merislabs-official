@@ -35,7 +35,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ pageNumber }) 
   return (
     <HybridPage
       pageNumber={pageNumber}
-      useColumns={false}
+      columns={1}
       components={{}} // Empty components object for TableOfContents
     >
       <div className="h-full bg-white">

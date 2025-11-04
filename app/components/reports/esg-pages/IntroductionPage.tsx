@@ -109,7 +109,7 @@ export const IntroductionPage: React.FC<IntroductionPageProps> = ({
 			components={{}}
 			footnotes={showFootnotes ? defaultFootnotes.slice(0, 4) : undefined}
 			footnoteStart={footnoteStart}
-			useColumns={true}
+			columns={2}
 			width={width}
 			height={height}
 		>

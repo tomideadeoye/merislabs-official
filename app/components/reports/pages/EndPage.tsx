@@ -20,7 +20,7 @@ export const Endpage: React.FC<EndpageProps> = ({ pageNumber }) => {
   const contacts = reportData.contacts || [];
 
   return (
-    <HybridPage pageNumber={pageNumber} useColumns={false} components={{}}>
+    <HybridPage pageNumber={pageNumber} columns={1} components={{}}>
       <div className="relative h-full bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl flex flex-col p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 border-b border-gray-200 pb-4 flex-shrink-0">
@@ -52,7 +52,7 @@ export const Endpage: React.FC<EndpageProps> = ({ pageNumber }) => {
                           <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-gray-800 text-base font-medium mb-0.5 hover:text-blue-600 transition-colors flex items-center">
                             {contact.name}
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1.5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                             </svg>
                           </a>
                         ) : (

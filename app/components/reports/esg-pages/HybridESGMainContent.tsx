@@ -465,7 +465,7 @@ export const HybridESGMainContent: React.FC<HybridESGMainContentProps> = ({
           components={page.components}
           footnotes={undefined}
           footnoteStart={footnoteStart}
-          useColumns={true}
+          columns={2}
         />
       ))}
     </div>

@@ -76,7 +76,7 @@ export const EndnotesPage: React.FC<EndnotesPageProps> = ({
     <HybridPage
       pageNumber={pageNumber}
       components={{}}
-      useColumns={false}
+      columns={1}
       width={794}
       height={1123}
     >
@@ -90,8 +90,8 @@ export const EndnotesPage: React.FC<EndnotesPageProps> = ({
           const actualIndex = startIndex + index;
           return (
             <div key={`endnote-${actualIndex + 1}`}
-                 className="mb-1 break-inside-avoid"
-                 id={`footnote-${displayNumber}`}>
+              className="mb-1 break-inside-avoid"
+              id={`footnote-${displayNumber}`}>
               <div className="flex items-baseline">
                 <sup className="whitespace-nowrap text-[7px] mr-0.5 leading-none">{displayNumber}</sup>
                 <span

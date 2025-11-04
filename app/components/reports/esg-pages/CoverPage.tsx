@@ -13,7 +13,7 @@ export const CoverPage: React.FC<CoverPageProps> = ({ pageNumber }) => {
 	const contacts = reportData.contacts || [];
 
 	return (
-		<HybridPage pageNumber={pageNumber} useColumns={false} components={{}}>
+		<HybridPage pageNumber={pageNumber} columns={1} components={{}}>
 			<div className="relative w-full h-full flex flex-col justify-center items-center px-2">
 				{/* Background gradient overlay */}
 				<div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 opacity-80"></div>
@@ -116,11 +116,11 @@ export const CoverPage: React.FC<CoverPageProps> = ({ pageNumber }) => {
 										</div>
 									))}
 								</div>	{/* Date and Organization */}
-							<p className="text-xs inline-block bg-gray-400 text-white p-2 m-8 rounded-full shadow-lg text-center mb-4 self-center font-bold">
-								September 2025
-							</p>
-						</div>
+								<p className="text-xs inline-block bg-gray-400 text-white p-2 m-8 rounded-full shadow-lg text-center mb-4 self-center font-bold">
+									September 2025
+								</p>
 							</div>
+						</div>
 
 
 					</CardContent>

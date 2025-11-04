@@ -6,21 +6,21 @@ import { DataDeficiencyCycle } from '../../infographics/DataDeficiencyCycle';
 import { AwarenessToActionChasm } from '../../infographics/AwarenessToActionChasm';
 
 interface InternalBarriersPageProps {
-  pageNumber: number;
-  footnoteStart?: number;
-  width?: number;
-  height?: number;
-  showFootnotes?: boolean;
+	pageNumber: number;
+	footnoteStart?: number;
+	width?: number;
+	height?: number;
+	showFootnotes?: boolean;
 }
 
 export const InternalBarriersPage1: React.FC<InternalBarriersPageProps> = ({
-  pageNumber,
-  footnoteStart = 10,
-  width = 794,
-  height = 1123,
-  showFootnotes = true
+	pageNumber,
+	footnoteStart = 10,
+	width = 794,
+	height = 1123,
+	showFootnotes = true
 }) => {
-  return (
+	return (
 		<HybridPage
 			key={`internal-barriers-1-${pageNumber}`}
 			pageNumber={pageNumber}
@@ -28,14 +28,14 @@ export const InternalBarriersPage1: React.FC<InternalBarriersPageProps> = ({
 			footnotes={
 				showFootnotes
 					? [
-							"OECD (2022) Financing SMEs for sustainability. Page 43 – Information and awareness-related barriers. Available at:  <https://www.oecd.org/content/dam/oecd/en/publications/reports/2022/12/financing-smes-for-sustainability_19414952/a5e94d92-en.pdf> (Accessed 3 August 2025)",
-							"World Economic Forum (2025) *Fast-tracking SME sustainability could accelerate global climate targets and unlock economic value*. <https://www.weforum.org/press/2025/06/fast-tracking-sme-sustainability-could-accelerate-global-climate-targets-and-unlock-economic-value-says-new-report/> (Accessed 3 August 2025)",
-							"IFRS Foundation (n.d.) *Nigeria – Jurisdictional Profile*. <https://www.ifrs.org/content/dam/ifrs/publications/sustainability-jurisdictions/pdf-profiles/nigeria-ifrs-profile.pdf> (Accessed 3 August 2025)"
-					  ]
+						"OECD (2022) Financing SMEs for sustainability. Page 43 – Information and awareness-related barriers. Available at:  <https://www.oecd.org/content/dam/oecd/en/publications/reports/2022/12/financing-smes-for-sustainability_19414952/a5e94d92-en.pdf> (Accessed 3 August 2025)",
+						"World Economic Forum (2025) *Fast-tracking SME sustainability could accelerate global climate targets and unlock economic value*. <https://www.weforum.org/press/2025/06/fast-tracking-sme-sustainability-could-accelerate-global-climate-targets-and-unlock-economic-value-says-new-report/> (Accessed 3 August 2025)",
+						"IFRS Foundation (n.d.) *Nigeria – Jurisdictional Profile*. <https://www.ifrs.org/content/dam/ifrs/publications/sustainability-jurisdictions/pdf-profiles/nigeria-ifrs-profile.pdf> (Accessed 3 August 2025)"
+					]
 					: undefined
 			}
 			footnoteStart={footnoteStart}
-			useColumns={true}
+			columns={2}
 			width={width}
 			height={height}
 		>
@@ -138,13 +138,13 @@ export const InternalBarriersPage1: React.FC<InternalBarriersPageProps> = ({
 };
 
 export const InternalBarriersPage2: React.FC<InternalBarriersPageProps> = ({
-  pageNumber,
-  footnoteStart = 13,
-  width = 794,
-  height = 1123,
-  showFootnotes = true
+	pageNumber,
+	footnoteStart = 13,
+	width = 794,
+	height = 1123,
+	showFootnotes = true
 }) => {
-  return (
+	return (
 		<HybridPage
 			key={`internal-barriers-2-${pageNumber}`}
 			pageNumber={pageNumber}
@@ -152,16 +152,16 @@ export const InternalBarriersPage2: React.FC<InternalBarriersPageProps> = ({
 			footnotes={
 				showFootnotes
 					? [
-							"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
-							"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
-							"For example, Regulation (EU) 2019/2088 (the \"**Sustainable Finance Disclosure Regulation**\" or \"**SFDR**\") lays down harmonised transparency rules for FMPs and their professional advisers on how they integrate ESG factors into their investment decisions and financial advice and on their overall and product-related sustainability ambition.",
-							"See recital 12 of the SFDR, by which FMPs and their advisers are expected to specify in their policies how they integrate sustainability risks that might have a relevant material negative impact on the financial return of an investment or advice.",
-							"Hogan Lovells (n.d.) *Are SMEs Being Excluded from Sustainable Finance?* Available at: <https://www.hoganlovells.com/en/publications/are-smes-being-excluded-from-sustainable-finance> (Accessed 3 August 2025)"
-					  ]
+						"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
+						"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
+						"For example, Regulation (EU) 2019/2088 (the \"**Sustainable Finance Disclosure Regulation**\" or \"**SFDR**\") lays down harmonised transparency rules for FMPs and their professional advisers on how they integrate ESG factors into their investment decisions and financial advice and on their overall and product-related sustainability ambition.",
+						"See recital 12 of the SFDR, by which FMPs and their advisers are expected to specify in their policies how they integrate sustainability risks that might have a relevant material negative impact on the financial return of an investment or advice.",
+						"Hogan Lovells (n.d.) *Are SMEs Being Excluded from Sustainable Finance?* Available at: <https://www.hoganlovells.com/en/publications/are-smes-being-excluded-from-sustainable-finance> (Accessed 3 August 2025)"
+					]
 					: undefined
 			}
 			footnoteStart={footnoteStart}
-			useColumns={true}
+			columns={2}
 			width={width}
 			height={height}
 		>
@@ -184,7 +184,7 @@ export const InternalBarriersPage2: React.FC<InternalBarriersPageProps> = ({
 				SMEs are unable to meet the minimum entry requirements for green bonds,
 				sustainability-linked loans, or climate funds.
 			</p>
-            <DataDeficiencyCycle />
+			<DataDeficiencyCycle />
 			<h4 className="font-semibold mb-2">Resource Constraints:</h4>
 			<p className="mb-4">
 				In Nigeria, this gap is even more pronounced. A 2023 industry study
@@ -269,13 +269,13 @@ export const InternalBarriersPage2: React.FC<InternalBarriersPageProps> = ({
 };
 
 export const InternalBarriersPage3: React.FC<InternalBarriersPageProps> = ({
-  pageNumber,
-  footnoteStart = 17,
-  width = 794,
-  height = 1123,
-  showFootnotes = true
+	pageNumber,
+	footnoteStart = 17,
+	width = 794,
+	height = 1123,
+	showFootnotes = true
 }) => {
-  return (
+	return (
 		<HybridPage
 			key={`internal-barriers-3-${pageNumber}`}
 			pageNumber={pageNumber}
@@ -283,17 +283,17 @@ export const InternalBarriersPage3: React.FC<InternalBarriersPageProps> = ({
 			footnotes={
 				showFootnotes
 					? [
-							"See paragraph 86 of the EBA Report.",
-							"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
-							"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
-							"For example, Regulation (EU) 2019/2088 (the \"**Sustainable Finance Disclosure Regulation**\" or \"**SFDR**\") lays down harmonised transparency rules for FMPs and their professional advisers on how they integrate ESG factors into their investment decisions and financial advice and on their overall and product-related sustainability ambition.",
-							"See recital 12 of the SFDR, by which FMPs and their advisers are expected to specify in their policies how they integrate sustainability risks that might have a relevant material negative impact on the financial return of an investment or advice.",
-							"Sage (2024) *Unlocking Sustainable Finance for SMEs: COP29 Report*. Available at: <https://www.sage.com/en-gb/-/media/files/company/documents/pdf/sustainability-and-society/2024-reports/unlocking-sustainable-finance-for-smes-report-cop-29-final.pdf> (Accessed 3 August 2025)"
-					  ]
+						"See paragraph 86 of the EBA Report.",
+						"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
+						"G20 Sustainable Finance Working Group & OECD (2024) *Implementing Sustainability Reporting that Works for SMEs*. Available at: <https://g20sfwg.org/wp-content/uploads/2024/06/P3-G20-SFWG-OECD-Implementing-sustainability-reporting-that-works-for-SMEs.pdf> (Accessed 3 August 2025)",
+						"For example, Regulation (EU) 2019/2088 (the \"**Sustainable Finance Disclosure Regulation**\" or \"**SFDR**\") lays down harmonised transparency rules for FMPs and their professional advisers on how they integrate ESG factors into their investment decisions and financial advice and on their overall and product-related sustainability ambition.",
+						"See recital 12 of the SFDR, by which FMPs and their advisers are expected to specify in their policies how they integrate sustainability risks that might have a relevant material negative impact on the financial return of an investment or advice.",
+						"Sage (2024) *Unlocking Sustainable Finance for SMEs: COP29 Report*. Available at: <https://www.sage.com/en-gb/-/media/files/company/documents/pdf/sustainability-and-society/2024-reports/unlocking-sustainable-finance-for-smes-report-cop-29-final.pdf> (Accessed 3 August 2025)"
+					]
 					: undefined
 			}
 			footnoteStart={footnoteStart}
-			useColumns={true}
+			columns={2}
 			width={width}
 			height={height}
 		>

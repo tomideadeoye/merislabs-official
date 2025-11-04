@@ -34,7 +34,7 @@ export const ExternalBarriersPage: React.FC<ExternalBarriersPageProps> = ({
           : undefined
       }
       footnoteStart={footnoteStart}
-      useColumns={true}
+      columns={2}
       width={width}
       height={height}
     >
