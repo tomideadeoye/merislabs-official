@@ -47,7 +47,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={`${inter.className} bg-gray-900`} suppressHydrationWarning>
         {/* Hidden div to force Tailwind to include custom classes from utility-patterns.css */}
         <div
           className="btn h1 h2 h3 h4 form-input form-textarea form-multiselect form-select form-checkbox form-radio btn-sm hidden"
@@ -55,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <ClientProviders>
           <Header navItems={navItems} />
-          <main className="min-h-screen bg-background text-foreground pt-20">{children}</main>
+          <main className="min-h-screen bg-gray-900 text-foreground pt-20">{children}</main>
         </ClientProviders>
       </body>
     </html>

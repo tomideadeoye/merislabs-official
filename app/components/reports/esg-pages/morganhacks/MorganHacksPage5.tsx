@@ -34,7 +34,21 @@ export const MorganHacksPage5: React.FC<MorganHacksPage5Props> = ({
                     and help create an unforgettable experience for participants. Join us in shaping the future of technology.
                 </p>
 
-                <div className="text-center p-6 bg-gradient-to-r from-red-900/50 to-blue-900/50 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/10 mb-8">
+                <div className="mt-8 p-4 bg-gray-900/80 rounded-lg border border-blue-500/30 shadow-lg shadow-blue-500/10">
+                    <h3 className="text-lg font-semibold text-blue-400 mb-2">Sponsor Testimonials</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-3 bg-gray-800/80 rounded border border-gray-600/30">
+                            <p className="text-gray-200 italic text-sm">"MorganHacks provided an excellent opportunity to connect with talented students and see innovative solutions to real-world problems."</p>
+                            <p className="text-gray-400 text-xs mt-2">- Google Recruiting Team</p>
+                        </div>
+                        <div className="p-3 bg-gray-800/80 rounded border border-gray-600/30">
+                            <p className="text-gray-200 italic text-sm">"The energy and creativity at MorganHacks was incredible. We were impressed by the quality of projects and the passion of the participants."</p>
+                            <p className="text-gray-400 text-xs mt-2">- Microsoft Innovation Lab</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="text-center p-6 bg-gradient-to-r from-red-900/50 to-blue-900/50 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/10 mb-8 mt-8">
                     <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-blue-400 mb-3">
                         Ready to Sponsor MorganHacks 2026?
                     </h3>
@@ -57,7 +71,6 @@ export const MorganHacksPage5: React.FC<MorganHacksPage5Props> = ({
                         <h3 className="text-lg font-semibold text-blue-400 mb-2">Contact Information</h3>
                         <ul className="text-gray-200 space-y-2">
                             <li>Email: sponsor@morganhacks.org</li>
-                            <li>Phone: (555) 123-4567</li>
                             <li>Website: www.morganhacks.org</li>
                         </ul>
                     </div>

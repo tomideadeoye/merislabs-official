@@ -99,7 +99,7 @@ export const HybridPage: React.FC<HybridPageProps> = ({
   return (
     <div
       id={pageNumber ? `page-${pageNumber}` : undefined}
-      className="relative bg-gray-900 border border-gray-700 mx-auto mb-4 shadow-lg shadow-purple-500/20 select-text cursor-text"
+      className="relative bg-gray-900 border border-gray-700 mx-auto mb-4 shadow-lg shadow-purple-500/20 select-text cursor-text rounded-xl"
       style={{
         width: `${width}px`, // Configurable width
         height: `${height}px`, // Configurable height

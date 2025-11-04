@@ -36,20 +36,6 @@ export const MorganHacksPage4: React.FC<MorganHacksPage4Props> = ({
                 </p>
 
                 <SponsorGrid />
-
-                <div className="mt-8 p-4 bg-gray-900/80 rounded-lg border border-blue-500/30 shadow-lg shadow-blue-500/10">
-                    <h3 className="text-lg font-semibold text-blue-400 mb-2">Sponsor Testimonials</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-3 bg-gray-800/80 rounded border border-gray-600/30">
-                            <p className="text-gray-200 italic text-sm">"MorganHacks provided an excellent opportunity to connect with talented students and see innovative solutions to real-world problems."</p>
-                            <p className="text-gray-400 text-xs mt-2">- Google Recruiting Team</p>
-                        </div>
-                        <div className="p-3 bg-gray-800/80 rounded border border-gray-600/30">
-                            <p className="text-gray-200 italic text-sm">"The energy and creativity at MorganHacks was incredible. We were impressed by the quality of projects and the passion of the participants."</p>
-                            <p className="text-gray-400 text-xs mt-2">- Microsoft Innovation Lab</p>
-                        </div>
-                    </div>
-                </div>
             </BackgroundGradient>
         </HybridPage>
     );

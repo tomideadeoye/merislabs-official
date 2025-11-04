@@ -75,7 +75,7 @@ export const MorganHacksClient: React.FC = () => {
     console.log('Passing currentPage prop:', currentPage);
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center bg-gray-900 min-h-screen p-4">
             <div className="w-full flex justify-center" style={{ pointerEvents: 'auto' }}>
                 <MorganHacksPage key={`page-${currentPage}`} currentPage={currentPage} />
             </div>

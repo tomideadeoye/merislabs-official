@@ -8,7 +8,7 @@ export default function MorganHacksDeckPage() {
     console.log('Pointer events style: auto');
 
     return (
-        <div className="container mx-auto py-8" style={{ pointerEvents: 'auto' }}>
+        <div className="container mx-auto py-8 bg-gray-900 min-h-screen" style={{ pointerEvents: 'auto' }}>
             <MorganHacksClient />
         </div>
     );

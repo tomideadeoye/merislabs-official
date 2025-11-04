@@ -27,9 +27,18 @@ const SPONSORS = [
         name: "Genera8tor",
         logo: "/images/sponsors/genera8tor.avif"
     },
-    { name: "Ripple" },
-    { name: "Deutsche Bank" },
-    { name: "M&T Bank" },
+    {
+        name: "Ripple",
+        logo: "/images/sponsors/ripple.png"
+    },
+    {
+        name: "Deutsche Bank",
+        logo: "/images/sponsors/deutsche-bank.png"
+    },
+    {
+        name: "M&T Bank",
+        logo: "/images/sponsors/mt-bank.png"
+    },
     { name: "GitHub" },
     { name: "BVCC" },
     { name: "Wolfram Alpha" },
