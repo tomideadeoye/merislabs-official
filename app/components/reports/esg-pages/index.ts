@@ -13,3 +13,4 @@ export { IntroductionPage3 } from './IntroductionPage3';
 export { InternalBarriersPage1, InternalBarriersPage2, InternalBarriersPage3 } from './InternalBarriersPage';
 export { ExternalBarriersPage } from './ExternalBarriersPage';
 export { TableOfContents } from './TableOfContents';
+export { MorganHacksPage } from './MorganHacksPage';

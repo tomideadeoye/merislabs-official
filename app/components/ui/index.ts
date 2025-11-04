@@ -7,3 +7,4 @@ export { ModernCard } from './modern-card';
 export { Badge } from './badge';
 export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card';
 export { Avatar, AvatarImage, AvatarFallback } from './avatar';
+export { BackgroundGradient } from '@/components/ui/background-gradient';

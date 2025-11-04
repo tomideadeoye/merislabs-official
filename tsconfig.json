@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,33 +26,90 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./app/*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./app/lib/*"],
-      "@/hooks/*": ["./app/hooks/*"],
-      "@/generated": ["generated/index.d.ts"],
-      "@/generated/*": ["generated/*"],
-      "@/types/*": ["./app/lib/types/*"],
-      "@/utils/*": ["./app/lib/utils/*"],
-      "@/stores/*": ["./app/lib/stores/*"],
-      "@/styles/*": ["./app/styles/*"],
-      "@/css/*": ["./app/css/*"],
-      "@/public/*": ["./public/*"],
-      "@/api/*": ["./app/api/*"],
-      "@/database/*": ["./app/database/*"],
-      "@/state/*": ["./app/state/*"],
-      "@/memory-explorer/*": ["./app/memory-explorer/*"],
-      "@/opportunity/*": ["./app/opportunity/*"],
-      "@/wallpaper-generator/*": ["./app/wallpaper-generator/*"],
-      "@/journal/*": ["app/api/orion/journal/*"],
-      "@/decks/*": ["./decks/*"],
-      "@/fonts/*": ["./app/fonts/*"],
-      "@/global-error": ["./app/global-error"],
-      "@/globals": ["./app/globals"],
-      "@/fonts": ["./app/fonts"],
-      "@/layout": ["./app/layout"],
-      "@/page": ["./app/page"],
-      "@/not-found": ["./app/not-found"]
+      "@/*": [
+        "./app/*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./app/lib/*"
+      ],
+      "@/hooks/*": [
+        "./app/hooks/*"
+      ],
+      "@/generated": [
+        "generated/index.d.ts"
+      ],
+      "@/generated/*": [
+        "generated/*"
+      ],
+      "@/types/*": [
+        "./app/lib/types/*"
+      ],
+      "@/utils/*": [
+        "./app/lib/utils/*"
+      ],
+      "@/stores/*": [
+        "./app/lib/stores/*"
+      ],
+      "@/styles/*": [
+        "./app/styles/*"
+      ],
+      "@/css/*": [
+        "./app/css/*"
+      ],
+      "@/public/*": [
+        "./public/*"
+      ],
+      "@/api/*": [
+        "./app/api/*"
+      ],
+      "@/database/*": [
+        "./app/database/*"
+      ],
+      "@/state/*": [
+        "./app/state/*"
+      ],
+      "@/memory-explorer/*": [
+        "./app/memory-explorer/*"
+      ],
+      "@/opportunity/*": [
+        "./app/opportunity/*"
+      ],
+      "@/wallpaper-generator/*": [
+        "./app/wallpaper-generator/*"
+      ],
+      "@/journal/*": [
+        "app/api/orion/journal/*"
+      ],
+      "@/decks/*": [
+        "./decks/*"
+      ],
+      "@/fonts/*": [
+        "./app/fonts/*"
+      ],
+      "@/global-error": [
+        "./app/global-error"
+      ],
+      "@/globals": [
+        "./app/globals"
+      ],
+      "@/fonts": [
+        "./app/fonts"
+      ],
+      "@/layout": [
+        "./app/layout"
+      ],
+      "@/page": [
+        "./app/page"
+      ],
+      "@/not-found": [
+        "./app/not-found"
+      ],
+      "@/reports/*": [
+        "./app/components/reports/*"
+      ]
     }
   },
   "include": [

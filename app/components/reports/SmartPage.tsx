@@ -22,11 +22,11 @@ const convertFootnoteToHtml = (text: string): string => {
   });
 };
 
-export const SmartPage: React.FC<SmartPageProps> = ({ 
-  pageNumber, 
-  children, 
-  footnotes, 
-  footnoteStart = 1, 
+export const SmartPage: React.FC<SmartPageProps> = ({
+  pageNumber,
+  children,
+  footnotes,
+  footnoteStart = 1,
   useColumns = true,
   onHeightCalculated
 }) => {
@@ -34,13 +34,13 @@ export const SmartPage: React.FC<SmartPageProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const footnoteRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
-  
+
   // Page dimensions (A4 at 96 DPI)
   const PAGE_WIDTH = 794;
   const PAGE_HEIGHT = 1123;
   const PAGE_MARGIN = 64;
   const FOOTER_HEIGHT = 24; // Space for page number
-  
+
   // Calculate footnote height after initial render
   useEffect(() => {
     const calculateFootnoteHeight = () => {
@@ -52,10 +52,10 @@ export const SmartPage: React.FC<SmartPageProps> = ({
         }
       }
     };
-    
+
     // Initial calculation
     calculateFootnoteHeight();
-    
+
     // Set up a ResizeObserver to recalculate when footnote content changes
     if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
       const observer = new ResizeObserver(calculateFootnoteHeight);
@@ -73,7 +73,7 @@ export const SmartPage: React.FC<SmartPageProps> = ({
     <div
       ref={pageRef}
       id={pageNumber ? `page-${pageNumber}` : undefined}
-      className="relative bg-white border border-gray-200 mx-auto mb-4 shadow-sm page-container select-text cursor-text"
+      className="relative bg-gray-900 border border-gray-700 mx-auto mb-4 shadow-lg shadow-purple-500/20 page-container select-text cursor-text"
       style={{
         width: `${PAGE_WIDTH}px`,
         minHeight: `${PAGE_HEIGHT}px`,
@@ -94,8 +94,8 @@ export const SmartPage: React.FC<SmartPageProps> = ({
           flexDirection: 'column'
         }}
       >
-        <div 
-          className={`text-sm leading-relaxed flex-1 ${useColumns ? 'columns-2 gap-8 column-fill-auto' : ''}`}
+        <div
+          className={`text-sm leading-relaxed text-gray-200 flex-1 ${useColumns ? 'columns-2 gap-8 column-fill-auto' : ''}`}
           style={{
             // This ensures content doesn't overflow into footnote area
             marginBottom: `${footnoteHeight + 12}px` // Extra margin to prevent overlap
@@ -109,14 +109,14 @@ export const SmartPage: React.FC<SmartPageProps> = ({
       {footnotes && footnotes.length > 0 && (
         <div
           ref={footnoteRef}
-          className="absolute left-6 right-6 text-xs text-gray-600 break-words overflow-wrap-anywhere leading-tight"
+          className="absolute left-6 right-6 text-xs text-gray-300 break-words overflow-wrap-anywhere leading-tight"
           style={{
             bottom: `${FOOTER_HEIGHT + 12}px`, // Above page number with margin
             maxHeight: '180px',
             overflow: 'visible'
           }}
         >
-          <div className="border-t border-gray-300 pt-2">
+          <div className="border-t border-gray-600 pt-2">
             {footnotes.map((note, index) => (
               <div key={`${pageNumber}-${index + footnoteStart}`} id={`footnote-${index + footnoteStart}`} className="mb-1 break-words overflow-wrap-anywhere page-break-inside-avoid">
                 <sup className="whitespace-nowrap text-[10px]">{index + footnoteStart}</sup>{' '}
@@ -131,7 +131,7 @@ export const SmartPage: React.FC<SmartPageProps> = ({
       )}
 
       {/* Page number at bottom center */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-gray-500 z-10">
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-gray-400 z-10">
         {pageNumber}
       </div>
     </div>

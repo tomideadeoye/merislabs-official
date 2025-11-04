@@ -21,6 +21,45 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import DecksSection from './DecksSection';
 import { SiGoogleplay } from 'react-icons/si';
 
+// Function to truncate text to a specified length
+const truncateDescription = (text: string, maxLength: number = 300): string => {
+  // Remove markdown formatting for truncation calculation
+  const plainText = text.replace(/(\*\*|__)(.*?)\1/g, '$2') // Remove bold
+    .replace(/(\*|_)(.*?)\1/g, '$2')   // Remove italic
+    .replace(/`{1,2}([^`]+)`{1,2}/g, '$1') // Remove inline code
+    .replace(/~~(.*?)~~/g, '$1')       // Remove strikethrough
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+    .replace(/#+\s/g, '')              // Remove headers
+    .replace(/\n/g, ' ');              // Replace newlines with spaces
+
+  if (plainText.length <= maxLength) {
+    return text;
+  }
+
+  // Truncate at the last space within the limit to avoid cutting words
+  let truncated = plainText.substring(0, maxLength);
+  const lastSpaceIndex = truncated.lastIndexOf(' ');
+  if (lastSpaceIndex > 0) {
+    truncated = truncated.substring(0, lastSpaceIndex);
+  }
+
+  return truncated + '...';
+};
+
+// Function to check if description needs truncation
+const needsTruncation = (text: string, maxLength: number = 300): boolean => {
+  // Remove markdown formatting for truncation calculation
+  const plainText = text.replace(/(\*\*|__)(.*?)\1/g, '$2') // Remove bold
+    .replace(/(\*|_)(.*?)\1/g, '$2')   // Remove italic
+    .replace(/`{1,2}([^`]+)`{1,2}/g, '$1') // Remove inline code
+    .replace(/~~(.*?)~~/g, '$1')       // Remove strikethrough
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+    .replace(/#+\s/g, '')              // Remove headers
+    .replace(/\n/g, ' ');              // Replace newlines with spaces
+
+  return plainText.length > maxLength;
+};
+
 export default function Zigzag() {
   return (
     <section>
@@ -50,6 +89,7 @@ export default function Zigzag() {
                 {projects.map((project: Project) => {
                   const videoLink = project.links.find((link) => link.type === 'video');
                   const typedLinks = project.links || [];
+                  const shouldShowSeeMore = needsTruncation(project.description, 300);
 
                   return (
                     <Link
@@ -71,9 +111,14 @@ export default function Zigzag() {
                               em: ({ node, ...props }) => <span className="italic" {...props} />,
                             }}
                           >
-                            {project.description}
+                            {truncateDescription(project.description, 300)}
                           </ReactMarkdown>
                         </div>
+                        {shouldShowSeeMore && (
+                          <div className="inline-block bg-purple-600 text-white text-xs px-2 py-1 rounded-full mb-3">
+                            See More
+                          </div>
+                        )}
                         <div className="flex flex-wrap gap-1 mb-3">
                           {Array.isArray(project?.technologies) &&
                             project?.technologies.slice(0, 3).map((tool: string, techIndex: number) => (

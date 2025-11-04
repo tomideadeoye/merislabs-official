@@ -181,12 +181,50 @@ const projects: Project[] = [
   {
     id: 'dexter',
     name: 'DEXTER',
-    description: 'Analyses company user signups, churn, & more for informed business decisions.',
-    technologies: ['Django', 'Python', 'React'],
+    description: `I developed Project Dexter, an analytics platform during my tenure as a Fullstack Developer at Dukka (April 2022 - June 2023). It's a business intelligence dashboard built with React/Django that serves as a data analytics and visualization tool for small and medium enterprise (SME) merchants.
+
+**Key Features and Functionality**
+- **Merchant Analytics Dashboard**: I built a dashboard that visualizes key metrics for over 80,000 merchants using Dukka's platform
+- **Data Accuracy Improvement**: I improved data accuracy by 40% through proper data modeling and React Query implementation
+- **User Retention Analysis**: I identified features linked to approximately 60% customer attrition, directly informing critical product strategy pivots
+- **Business Intelligence**: I extracted and analyzed customer, sales agent, and merchant data to visualize acquisition, activity, LTV (Lifetime Value), and churn patterns
+- **Referral System**: I implemented a referral system component that contributed to acquiring 80,000+ merchants and 100+ sales agents
+- **Smart Data Aggregation**: The application receives JSON data which I convert into a table, then aggregates signups by city. I handled unstructured city data through intelligent aliasing (e.g., recognizing that "Lagos Island", "Victoria Island", and "Surulari" are all part of Lagos)
+- **Performance Tracking**: I built monitoring for signups, active users, and field agents engaging in the signup process
+- **Leaderboard**: I created a simple computation that searches through filters for the highest performing referrer in the program
+- **Applicant Monitoring**: I implemented a notification badge that leads to the applicants page, monitoring the number of applicants looking to get into the program
+- **Excel Export**: I added a button that downloads an Excel file by converting the JSON data in the table using the XLSX library
+
+**Technical Implementation**
+- Frontend: React.js
+- Backend: Django (Python)
+- Architecture: I led the transition from monolithic codebase to microservices architecture
+- Deployment: I implemented containerization with Docker for scalable deployments
+- Database: PostgreSQL
+
+**Business Impact**
+- User Acquisition: I drove the acquisition of 80,000+ merchants and 100+ sales agents
+- Data-Driven Decisions: I enabled data-driven business decisions for over 80,000 merchants
+- Product Development: I accelerated product development cycles by identifying pain points through data insights
+- User Engagement: I improved overall user engagement by 25%
+- Customer Retention: I reduced customer churn through actionable insights
+- New User Acquisition: I contributed to acquiring over 10,000 new users
+
+**Key Achievements**
+- I led frontend development of the analytics platform, visualizing key metrics for 80k+ merchants
+- I improved data accuracy by 40% and enabled data-driven business decisions
+- I developed Python scripts analyzing user retention, identifying a feature linked to ~60% customer attrition
+- I led the transition from a monolithic codebase to a microservices architecture
+- I implemented containerization with Docker for scalable deployments
+- I built two new products using Django and React frameworks, reducing time-to-market by 30%`,
+    technologies: ['Django', 'Python', 'React', 'PostgreSQL', 'Docker'],
     image: 'software2.png',
     img: '/software2.png',
     tag: 'DUKKA: Analytics for company internal teams',
-    links: [{ type: 'website', url: 'dexter.dukka.com' }],
+    links: [
+      { type: 'website', url: 'dexter.dukka.com' },
+      { type: 'video', url: 'https://github.com/tomideadeoye/merislabs-github-media/raw/main/9-to-5/Dexter%20Platform%20Complete%20Walkthrough%20Business%20Intelligence%20Dashboard%20for%20SME%20Merchants%20with%20Data%20Aggregation%20Analytics%20and%20Excel%20Export%20Features.mp4' }
+    ],
   },
 ];
 

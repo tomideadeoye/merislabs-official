@@ -28,6 +28,15 @@ const decks: Deck[] = [
     status: 'published',
     href: '/decks/bridging-the-esg-finance-gap'
   },
+  {
+    id: 'morganhacks-2026',
+    title: 'MorganHacks 2026 Sponsorship',
+    description: 'Futuristic Tech City in a Dystopian Setting - Student-led hackathon at Morgan State University',
+    category: 'Events & Sponsorship',
+    lastUpdated: 'November 2025',
+    status: 'published',
+    href: '/decks/morganhacks-2026'
+  },
   // Add more decks here as they become available
 ];
 

@@ -8,6 +8,8 @@
     "build:vercel": "next build",
     "start": "next start",
     "lint": "eslint \"**/*.ts*\" --fix .",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
@@ -68,6 +70,7 @@
     "lodash.isequal": "^4.5.0",
     "lucide-react": "^0.522.0",
     "marked": "^15.0.12",
+    "motion": "^12.23.24",
     "next": "15.3.4",
     "next-themes": "^0.4.6",
     "node-fetch": "^3.3.2",
