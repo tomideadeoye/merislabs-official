@@ -6,7 +6,7 @@ import { MorganHacksPage } from '../../components/reports/esg-pages/MorganHacksP
 export const MorganHacksClient: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [, setForceUpdate] = useState({});
-    const totalPages = 8; // Updated from 9 to 8 after removing duplicate page 8
+    const totalPages = 9; // Updated to include all 9 pages including sponsorship tiers
 
     console.log('=== MORGAN HACKS CLIENT RENDERING ===');
     console.log('Current page state:', currentPage);

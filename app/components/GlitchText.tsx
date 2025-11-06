@@ -19,7 +19,7 @@ interface CustomCSSProperties extends CSSProperties {
 const GlitchText: FC<GlitchTextProps> = ({
   children,
   speed = 0.5,
-  enableShadows = true,
+  enableShadows = false,
   enableOnHover = false,
   className = ''
 }) => {
@@ -33,7 +33,7 @@ const GlitchText: FC<GlitchTextProps> = ({
   const hoverClass = enableOnHover ? 'enable-on-hover' : '';
 
   return (
-    <div className={`glitch ${hoverClass} ${className}`} style={inlineStyles} data-text={children}>
+    <div className={`glitch ${hoverClass} ${className}`} style={inlineStyles} data-text={children} data-has-shadows={enableShadows}>
       <span className="glitch-text-content">{children}</span>
     </div>
   );

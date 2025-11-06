@@ -113,7 +113,7 @@ export const SponsorGrid: React.FC = () => {
     }, []);
 
     return (
-        <BackgroundGradient className="mb-8 p-4 rounded-lg border border-[#F47937]/30 shadow-lg shadow-[#F47937]/20">
+        <div className="mb-8 p-4 rounded-lg border border-[#1B4383]/30 shadow-lg shadow-[#1B4383]/20 bg-[#1B4383]/20">
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-4">
                 {SPONSORS.map((sponsor, index) => {
@@ -166,6 +166,6 @@ export const SponsorGrid: React.FC = () => {
                     );
                 })}
             </div>
-        </BackgroundGradient>
+        </div>
     );
 };

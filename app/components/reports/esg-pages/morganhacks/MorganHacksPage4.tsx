@@ -2,7 +2,6 @@ import React from 'react';
 import { HybridPage } from '../../HybridPage';
 import { BackgroundGradient } from '@/components/ui/background-gradient';
 import { FaGraduationCap, FaGamepad, FaHeartbeat, FaCubes, FaVrCardboard, FaLeaf, FaRobot, FaCar, FaTshirt } from 'react-icons/fa';
-import GlitchText from '../../../../components/GlitchText';
 
 interface MorganHacksPage4Props {
     width?: number;
@@ -66,39 +65,42 @@ export const MorganHacksPage4: React.FC<MorganHacksPage4Props> = ({
             height={height}
             columns={columns}
         >
-            <div className="text-center mb-8">
-                <GlitchText
-                    speed={1}
-                    enableShadows={true}
-                    enableOnHover={false}
-                    className="font-bold text-white mb-4"
-                >
-                    Previous MorganHacks Events
-                </GlitchText>
-                <div className="w-24 h-1 bg-[#F47937] mx-auto rounded-full"></div>
-            </div>
+            {/* Full page transparent Morgan Blue background */}
+            <div
+                className="absolute inset-0 w-full h-full bg-[#1B4383]/70"
+            ></div>
 
-            <div className="space-y-8">
-                <BackgroundGradient className="p-6 rounded-xl border border-[#F47937]/30 shadow-lg shadow-[#F47937]/20">
-                    <h2 className="text-xl font-semibold text-white mb-6 text-center">
-                        Event Gallery
-                    </h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        {galleryImages.map((image) => (
-                            <div
-                                key={image.id}
-                                className="relative bg-gray-900/80 rounded-lg border border-[#F47937]/30 shadow-lg shadow-[#F47937]/10 overflow-hidden"
-                            >
-                                <img
-                                    src={image.src}
-                                    alt={image.alt}
-                                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                                    style={{ objectFit: 'cover' }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </BackgroundGradient>
+            {/* Content positioned over the background */}
+            <div className="relative z-10">
+                <div className="text-center mb-8">
+                    <h1 className="font-bold text-white mb-4 text-4xl">
+                        Previous MorganHacks Events
+                    </h1>
+                    <div className="w-24 h-1 bg-[#F47937] mx-auto rounded-full"></div>
+                </div>
+
+                <div className="space-y-8">
+                    <BackgroundGradient className="p-6 rounded-xl border border-[#F47937]/30 shadow-lg shadow-[#F47937]/20">
+                        <h2 className="text-xl font-semibold text-white mb-6 text-center">
+                            Event Gallery
+                        </h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            {galleryImages.map((image) => (
+                                <div
+                                    key={image.id}
+                                    className="relative bg-gray-900/80 rounded-lg border border-[#F47937]/30 shadow-lg shadow-[#F47937]/10 overflow-hidden"
+                                >
+                                    <img
+                                        src={image.src}
+                                        alt={image.alt}
+                                        className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                                        style={{ objectFit: 'cover' }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </BackgroundGradient>
+                </div>
             </div>
         </HybridPage>
     );
