@@ -35,8 +35,8 @@ export const CallToAction: React.FC = () => {
     };
 
     return (
-        <BackgroundGradient className="text-center p-6 rounded-xl border border-purple-500/30 shadow-lg shadow-purple-500/20">
-            <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-3">
+        <BackgroundGradient className="text-center p-6 rounded-xl border border-[#1B4383]/30 shadow-lg shadow-[#1B4383]/20">
+            <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#1B4383] to-[#F47937] mb-3">
                 Ready to Sponsor MorganHacks 2026?
             </h3>
             <p className="text-gray-200 mb-4">
@@ -44,24 +44,18 @@ export const CallToAction: React.FC = () => {
                 and creative problem-solving in a vibrant, futuristic setting.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-                <button
-                    onClick={() => setShowForm(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/30 border border-cyan-500/30"
+                <a
+                    href={`mailto:${CONTACT_INFO.email}`}
+                    className="px-6 py-3 bg-gradient-to-r from-[#1B4383] to-[#F47937] text-white font-semibold rounded-lg hover:from-[#1B4383] hover:to-[#F47937] transition-all duration-300 transform hover:scale-105 shadow-lg shadow-[#1B4383]/30 border border-[#1B4383]/30"
                 >
                     Become a Sponsor
-                </button>
-                <button
-                    onClick={() => window.open(`mailto:${CONTACT_INFO.email}`, '_blank')}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/30 border border-purple-500/30"
-                >
-                    Contact Us
-                </button>
+                </a>
             </div>
 
             {showForm && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md border border-cyan-500/30 shadow-lg shadow-cyan-500/20">
-                        <h3 className="text-xl font-bold text-cyan-400 mb-4">Sponsorship Inquiry</h3>
+                    <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md border border-[#1B4383]/30 shadow-lg shadow-[#1B4383]/20">
+                        <h3 className="text-xl font-bold text-[#1B4383] mb-4">Sponsorship Inquiry</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-gray-300 text-sm mb-1">Name</label>
@@ -71,7 +65,7 @@ export const CallToAction: React.FC = () => {
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-[#1B4383] focus:ring-2 focus:ring-[#1B4383]/30"
                                 />
                             </div>
                             <div>
@@ -82,7 +76,7 @@ export const CallToAction: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-[#1B4383] focus:ring-2 focus:ring-[#1B4383]/30"
                                 />
                             </div>
                             <div>
@@ -93,7 +87,7 @@ export const CallToAction: React.FC = () => {
                                     value={formData.company}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-[#1B4383] focus:ring-2 focus:ring-[#1B4383]/30"
                                 />
                             </div>
                             <div>
@@ -103,7 +97,7 @@ export const CallToAction: React.FC = () => {
                                     value={formData.interest}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-[#1B4383] focus:ring-2 focus:ring-[#1B4383]/30"
                                 >
                                     <option value="">Select tier</option>
                                     <option value="bronze">Bronze ($1,000)</option>
@@ -120,14 +114,14 @@ export const CallToAction: React.FC = () => {
                                     value={formData.message}
                                     onChange={handleInputChange}
                                     rows={3}
-                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-[#1B4383] focus:ring-2 focus:ring-[#1B4383]/30"
                                     placeholder="Tell us about your sponsorship goals..."
                                 />
                             </div>
                             <div className="flex gap-3">
                                 <button
                                     type="submit"
-                                    className="flex-1 px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700 border border-cyan-500/30"
+                                    className="flex-1 px-4 py-2 bg-[#1B4383] text-white rounded hover:bg-[#1B4383] border border-[#1B4383]/30"
                                 >
                                     Submit
                                 </button>

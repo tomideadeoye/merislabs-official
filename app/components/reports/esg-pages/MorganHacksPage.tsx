@@ -5,6 +5,8 @@ import { MorganHacksPage3 } from './morganhacks/MorganHacksPage3';
 import { MorganHacksPage4 } from './morganhacks/MorganHacksPage4';
 import { MorganHacksPage5 } from './morganhacks/MorganHacksPage5';
 import { MorganHacksPage6 } from './morganhacks/MorganHacksPage6';
+import { MorganHacksPage7 } from './morganhacks/MorganHacksPage7';
+import { MorganHacksPage9 } from './morganhacks/MorganHacksPage9';
 
 interface MorganHacksPageProps {
     width?: number;
@@ -33,6 +35,10 @@ export const MorganHacksPage: React.FC<MorganHacksPageProps> = ({
                 return <MorganHacksPage4 width={width} height={height} columns={columns} />;
             case 6:
                 return <MorganHacksPage5 width={width} height={height} columns={columns} />;
+            case 7:
+                return <MorganHacksPage7 width={width} height={height} columns={columns} />;
+            case 8:
+                return <MorganHacksPage9 width={width} height={height} columns={columns} />;
             default:
                 return <MorganHacksPage1 width={width} height={height} columns={columns} />;
         }

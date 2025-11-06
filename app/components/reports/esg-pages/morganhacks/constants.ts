@@ -7,13 +7,13 @@ export const SPONSORS = [
 ];
 
 export const THEME_TAGS = [
-    { label: "Futuristic", color: "cyan" },
-    { label: "Bold", color: "purple" },
-    { label: "Urban", color: "pink" },
-    { label: "Neon", color: "yellow" },
-    { label: "Tech-Driven", color: "green" },
-    { label: "Innovative", color: "blue" },
-    { label: "Sleek", color: "red" }
+    { label: "Futuristic", color: "blue" },
+    { label: "Bold", color: "orange" },
+    { label: "Urban", color: "blue" },
+    { label: "Dynamic", color: "orange" },
+    { label: "Tech-Driven", color: "blue" },
+    { label: "Innovative", color: "orange" },
+    { label: "Sleek", color: "blue" }
 ];
 
 export const SPONSORSHIP_TIERS = [
@@ -67,7 +67,7 @@ export const EVENT_DETAILS = {
 };
 
 export const CONTACT_INFO = {
-    email: "sponsor@morganhacks.org",
+    email: "morganhacks2022@gmail.com",
     phone: "(555) 123-4567",
     website: "www.morganhacks.org"
 };
@@ -82,3 +82,19 @@ export const TESTIMONIALS = [
         author: "Microsoft Innovation Lab"
     }
 ];
+
+// Morgan State University Colors
+export const MORGAN_COLORS = {
+    blue: {
+        pantone: "Pantone® 288",
+        process: "100C-65M-30K",
+        rgb: "27R-67G-131B",
+        hex: "#1B4383"
+    },
+    orange: {
+        pantone: "Pantone® 1655",
+        process: "65M-87Y",
+        rgb: "244R-121G-55B",
+        hex: "#F47937"
+    }
+};

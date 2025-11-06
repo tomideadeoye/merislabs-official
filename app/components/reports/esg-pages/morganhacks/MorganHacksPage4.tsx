@@ -1,7 +1,8 @@
 import React from 'react';
 import { HybridPage } from '../../HybridPage';
 import { BackgroundGradient } from '@/components/ui/background-gradient';
-import { SponsorGrid } from './SponsorGrid';
+import { FaGraduationCap, FaGamepad, FaHeartbeat, FaCubes, FaVrCardboard, FaLeaf, FaRobot, FaCar, FaTshirt } from 'react-icons/fa';
+import GlitchText from '../../../../components/GlitchText';
 
 interface MorganHacksPage4Props {
     width?: number;
@@ -14,6 +15,50 @@ export const MorganHacksPage4: React.FC<MorganHacksPage4Props> = ({
     height = 1123,
     columns = 1
 }) => {
+    // Gallery images data
+    const galleryImages = [
+        {
+            id: 1,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.54.30.png",
+            alt: "MorganHacks Event Screenshot 1"
+        },
+        {
+            id: 2,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.54.37.png",
+            alt: "MorganHacks Event Screenshot 2"
+        },
+        {
+            id: 3,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.54.43.png",
+            alt: "MorganHacks Event Screenshot 3"
+        },
+        {
+            id: 4,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.54.51.png",
+            alt: "MorganHacks Event Screenshot 4"
+        },
+        {
+            id: 5,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.54.58.png",
+            alt: "MorganHacks Event Screenshot 5"
+        },
+        {
+            id: 6,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.55.12.png",
+            alt: "MorganHacks Event Screenshot 6"
+        },
+        {
+            id: 7,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.55.19.png",
+            alt: "MorganHacks Event Screenshot 7"
+        },
+        {
+            id: 8,
+            src: "/images/morganhacks/additional/Screenshot 2025-11-06 at 18.55.27.png",
+            alt: "MorganHacks Event Screenshot 8"
+        }
+    ];
+
     return (
         <HybridPage
             components={{}}
@@ -22,21 +67,39 @@ export const MorganHacksPage4: React.FC<MorganHacksPage4Props> = ({
             columns={columns}
         >
             <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-blue-500 mb-4">
-                    Our Previous Sponsors
-                </h1>
-                <div className="w-24 h-1 bg-gradient-to-r from-red-500 to-blue-500 mx-auto rounded-full"></div>
+                <GlitchText
+                    speed={1}
+                    enableShadows={true}
+                    enableOnHover={false}
+                    className="font-bold text-white mb-4"
+                >
+                    Previous MorganHacks Events
+                </GlitchText>
+                <div className="w-24 h-1 bg-[#F47937] mx-auto rounded-full"></div>
             </div>
 
-            <BackgroundGradient className="p-6 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/20">
-                <h2 className="text-2xl font-semibold text-red-400 mb-4">Trusted by Industry Leaders</h2>
-                <p className="text-gray-200 mb-6">
-                    We're grateful for the support of our previous sponsors who have helped make MorganHacks a success.
-                    Their investment in our students and event has enabled us to provide valuable experiences and resources.
-                </p>
-
-                <SponsorGrid />
-            </BackgroundGradient>
+            <div className="space-y-8">
+                <BackgroundGradient className="p-6 rounded-xl border border-[#F47937]/30 shadow-lg shadow-[#F47937]/20">
+                    <h2 className="text-xl font-semibold text-white mb-6 text-center">
+                        Event Gallery
+                    </h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        {galleryImages.map((image) => (
+                            <div
+                                key={image.id}
+                                className="relative bg-gray-900/80 rounded-lg border border-[#F47937]/30 shadow-lg shadow-[#F47937]/10 overflow-hidden"
+                            >
+                                <img
+                                    src={image.src}
+                                    alt={image.alt}
+                                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                                    style={{ objectFit: 'cover' }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </BackgroundGradient>
+            </div>
         </HybridPage>
     );
 };

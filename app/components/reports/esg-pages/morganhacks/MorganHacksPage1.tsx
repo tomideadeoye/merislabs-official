@@ -1,6 +1,7 @@
 import React from 'react';
 import { HybridPage } from '../../HybridPage';
 import { BackgroundGradient } from '@/components/ui/background-gradient';
+import GlitchText from '../../../../components/GlitchText';
 
 interface MorganHacksPage1Props {
     width?: number;
@@ -20,41 +21,65 @@ export const MorganHacksPage1: React.FC<MorganHacksPage1Props> = ({
             height={height}
             columns={columns}
         >
-            <div
-                className="relative w-full h-full rounded-xl overflow-hidden"
-                style={{
-                    backgroundImage: "url('/images/futuristic-city-dystopia-cyberpunk-portrait.jpg')",
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat'
-                }}
-            >
-                <div className="absolute inset-0 bg-black/70"></div>
-                <div className="relative z-10 flex flex-col items-center justify-between h-full p-8">
-                    <div className="text-center pt-16">
-                        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-blue-500 mb-4">
-                            MorganHacks 2026 Sponsorship Packet
-                        </h1>
-                        <div className="w-24 h-1 bg-gradient-to-r from-red-500 to-blue-500 mx-auto rounded-full mb-8"></div>
+            {/* Page container with Morgan Orange background */}
+            <div className="relative w-full h-full rounded-xl overflow-hidden bg-[#F47937] p-2">
+                <div
+                    className="relative w-full h-full rounded-lg overflow-hidden"
+                    style={{
+                        backgroundImage: "url('/images/futuristic-city-dystopia-cyberpunk-portrait.jpg')",
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                    }}
+                >
+                    {/* Morgan Blue overlay */}
+                    <div className="absolute inset-0 bg-[#1B4383]/70"></div>
+                    <div className="relative z-10 flex flex-col items-center justify-between h-full p-8">
+                        <div className="text-center pt-16">
+                            <GlitchText
+                                speed={1}
+                                enableShadows={true}
+                                enableOnHover={false}
+                                className="font-bold text-[#F47937] mb-2"
+                            >
+                                MorganHacks 2026
+                            </GlitchText>
+                            <div className="h-6"></div>
+                            <GlitchText
+                                speed={1.2}
+                                enableShadows={true}
+                                enableOnHover={false}
+                                className="font-bold text-[#F47937] mb-8"
+                            >
+                                Sponsorship Packet
+                            </GlitchText>
+                            <div className="w-24 h-1 bg-[#F47937] mx-auto rounded-full mb-8"></div>
 
-                        <BackgroundGradient className="p-6 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/20 max-w-2xl mx-auto">
-                            <div className="text-center">
-                                <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-blue-400 mb-2">
-                                    MorganHacks 2026
-                                </h2>
-                                <p className="text-lg text-gray-300">April 11th – 12th, 2026</p>
-                                <p className="text-sm text-red-400 mt-2">Student-led Hackathon at Morgan State University</p>
+                            <BackgroundGradient className="p-6 rounded-xl border border-[#F47937]/30 shadow-lg shadow-[#F47937]/20 max-w-2xl mx-auto">
+                                <div className="text-center">
+                                    <h2 className="font-bold text-white mb-2 text-xl">
+                                        MorganHacks 2026
+                                    </h2>
+                                    <p className="text-lg text-white">April 11th – 12th, 2026</p>
+                                    <p className="text-sm text-white mt-2">Student-led Hackathon at Morgan State University</p>
+                                </div>
+                            </BackgroundGradient>
+                        </div>
+
+                        {/* Minimalist Contact Information */}
+                        <div className="text-center text-white/80 text-sm mb-6">
+                            <p>📧 morganhacks2022@gmail.com</p>
+                            <p className="mt-1">🌐 morganhacks.com</p>
+                        </div>
+
+                        {/* Theme Tags at the bottom with alternating colors */}
+                        <div className="pb-16">
+                            <div className="flex flex-wrap justify-center gap-2">
+                                <span className="px-2 py-1 bg-[#1B4383] text-white text-xs rounded border border-[#1B4383]/30 shadow-lg shadow-[#1B4383]/10">The Future</span>
+                                <span className="px-2 py-1 bg-[#F47937] text-white text-xs rounded border border-[#F47937]/30 shadow-lg shadow-[#F47937]/10">Boldness</span>
+                                <span className="px-2 py-1 bg-[#1B4383] text-white text-xs rounded border border-[#1B4383]/30 shadow-lg shadow-[#1B4383]/10">Tech</span>
+                                <span className="px-2 py-1 bg-[#F47937] text-white text-xs rounded border border-[#F47937]/30 shadow-lg shadow-[#F47937]/10">Innovation</span>
                             </div>
-                        </BackgroundGradient>
-                    </div>
-
-                    {/* Theme Tags at the bottom */}
-                    <div className="pb-16">
-                        <div className="flex flex-wrap justify-center gap-2">
-                            <span className="px-2 py-1 bg-gradient-to-r from-cyan-900/50 to-cyan-700/50 text-cyan-400 text-xs rounded border border-cyan-500/30 shadow-lg shadow-cyan-500/10">The Future</span>
-                            <span className="px-2 py-1 bg-gradient-to-r from-red-900/50 to-red-700/50 text-red-400 text-xs rounded border border-red-500/30 shadow-lg shadow-red-500/10">Boldness</span>
-                            <span className="px-2 py-1 bg-gradient-to-r from-blue-900/50 to-blue-700/50 text-blue-400 text-xs rounded border border-blue-500/30 shadow-lg shadow-blue-500/10">Tech</span>
-                            <span className="px-2 py-1 bg-gradient-to-r from-purple-900/50 to-purple-700/50 text-purple-400 text-xs rounded border border-purple-500/30 shadow-lg shadow-purple-500/10">Innovation</span>
                         </div>
                     </div>
                 </div>
