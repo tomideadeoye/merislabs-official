@@ -70,7 +70,7 @@ export default function Zigzag() {
             <div className="inline-flex text-sm font-semibold py-1 px-3 m-2 text-green-600 bg-green-200 rounded-full mb-4">
               Reach your business goals
             </div>
-            <h1 className="h2 mb-4">Our Successes</h1>
+            <h1 className="h2 mb-4 text-white">Our Successes</h1>
             <p className="text-xl text-gray-400">
               We have experience in designing and developing web and mobile applications for various industries, from
               financial services to legal.
@@ -81,8 +81,8 @@ export default function Zigzag() {
           {/* Tabs */}
           <Tabs defaultValue="successes" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="successes">Web Applications</TabsTrigger>
-              <TabsTrigger value="decks">Decks & Presentations</TabsTrigger>
+              <TabsTrigger value="successes" className="text-white">Web Applications</TabsTrigger>
+              <TabsTrigger value="decks" className="text-white">Decks & Presentations</TabsTrigger>
             </TabsList>
             <TabsContent value="successes">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
@@ -101,8 +101,8 @@ export default function Zigzag() {
                         <ProjectMediaDisplay project={project} />
                       </div>
                       <div className="flex-1">
-                        <div className="font-architects-daughter text-base text-purple-600 mb-1">{project.tag}</div>
-                        <h3 className="h3 mb-2">{project.name}</h3>
+                        <div className="font-architects-daughter text-base text-purple-300 mb-1">{project.tag}</div>
+                        <h3 className="h3 mb-2 text-white">{project.name}</h3>
                         <div className="text-sm text-gray-400 mb-3">
                           <ReactMarkdown
                             components={{
@@ -122,14 +122,14 @@ export default function Zigzag() {
                         <div className="flex flex-wrap gap-1 mb-3">
                           {Array.isArray(project?.technologies) &&
                             project?.technologies.slice(0, 3).map((tool: string, techIndex: number) => (
-                              <span key={tool} className="text-[10px] bg-gray-700 px-2 py-1 rounded">
+                              <span key={tool} className="text-[10px] bg-gray-600 text-white px-2 py-1 rounded">
                                 {tool}
                               </span>
                             ))}
                         </div>
                         <div className="flex gap-2 mt-2">
                           {typedLinks.slice(0, 2).map((link, linkIndex) => (
-                            <span key={link.url} className="text-xs hover:underline flex items-center">
+                            <span key={link.url} className="text-xs text-gray-300 hover:text-white hover:underline flex items-center">
                               {link.type === 'google-play-store' ? (
                                 <>
                                   <SiGoogleplay className="inline mr-1" />

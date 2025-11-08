@@ -35,11 +35,41 @@
  *   - **Accessibility**: Conduct a thorough accessibility audit to ensure the page is usable by all users.
  *   - **SEO Optimization**: Add more detailed meta descriptions, open graph tags, and structured data for improved search engine visibility.
  */
+import type { Metadata } from 'next/types';
 import Hero from './components/Hero';
 import Zigzag from './components/zigzag';
 import Testimonials from './components/Testimonials';
 import Newsletter from './components/Newsletter';
 import Footer from './components/ui/footer';
+
+export const metadata: Metadata = {
+  title: 'Home',
+  description: 'Welcome to Meris Labs - Your partner in innovative software development, ESG consulting, and cutting-edge technology solutions. Discover our expertise in web and mobile development.',
+  keywords: ['software development', 'web development', 'mobile apps', 'ESG consulting', 'fintech solutions', 'AI development', 'blockchain', 'Nigeria tech'],
+  openGraph: {
+    title: 'Meris Labs - Innovative Software Development & ESG Consulting',
+    description: 'Expert software development and ESG consulting services. Building innovative solutions for financial services, legal tech, and sustainable business growth.',
+    url: '/',
+    siteName: 'Meris Labs',
+    images: [
+      {
+        url: '/images/merislabswhite.png',
+        width: 1200,
+        height: 630,
+        alt: 'Meris Labs - Innovative Software Development',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Meris Labs - Innovative Software Development & ESG Consulting',
+    description: 'Expert software development and ESG consulting services. Building innovative solutions for financial services, legal tech, and sustainable business growth.',
+    images: ['/images/merislabswhite.png'],
+    creator: '@merislabs',
+  },
+};
 
 export default function Home() {
   return (

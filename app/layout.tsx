@@ -39,9 +39,60 @@ import { navItems } from './lib/routes';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Meris Labs - Web & Mobile Development',
+  metadataBase: new URL('https://merislabs.com'),
+  title: {
+    default: 'Meris Labs - Web & Mobile Development',
+    template: '%s | Meris Labs'
+  },
   description:
-    'We have experience in designing and developing web and mobile applications for various industries, from financial services to legal.',
+    'We have experience in designing and developing web and mobile applications for various industries, from financial services to legal. Expert software development, ESG consulting, and innovative tech solutions.',
+  keywords: ['web development', 'mobile development', 'software development', 'ESG consulting', 'fintech', 'AI software', 'blockchain', 'Nigeria', 'Africa'],
+  authors: [{ name: 'Meris Labs Team' }],
+  creator: 'Meris Labs',
+  publisher: 'Meris Labs',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: 'Meris Labs - Web & Mobile Development',
+    description: 'Expert software development and ESG consulting services. Building innovative solutions for financial services, legal tech, and sustainable business growth.',
+    url: 'https://merislabs.com',
+    siteName: 'Meris Labs',
+    images: [
+      {
+        url: '/images/merislabswhite.png',
+        width: 1200,
+        height: 630,
+        alt: 'Meris Labs - Innovative Software Development',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Meris Labs - Web & Mobile Development',
+    description: 'Expert software development and ESG consulting services. Building innovative solutions for financial services, legal tech, and sustainable business growth.',
+    images: ['/images/merislabswhite.png'],
+    creator: '@merislabs',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-site-verification-code',
+    yandex: 'your-yandex-verification-code',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
