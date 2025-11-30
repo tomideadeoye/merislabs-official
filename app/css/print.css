@@ -1,0 +1,36 @@
+
+@media print {
+  html, body {
+    background-color: white !important;
+    background: white !important;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-preview, #invoice-preview * {
+    visibility: visible;
+  }
+
+  #invoice-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px !important;
+    background-color: white !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}

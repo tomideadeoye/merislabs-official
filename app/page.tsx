@@ -37,6 +37,7 @@
  */
 import type { Metadata } from 'next/types';
 import Hero from './components/Hero';
+import Clients from './components/Clients';
 import Zigzag from './components/zigzag';
 import Testimonials from './components/Testimonials';
 import Newsletter from './components/Newsletter';
@@ -75,6 +76,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <Clients />
       <Zigzag />
       <Testimonials />
       <Newsletter />

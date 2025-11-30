@@ -6,22 +6,16 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         {/* Logo, Links, Social, and App Store Section */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-y-12 md:gap-y-0">
-          
+
           {/* Column 1: Logo and Social/App Links */}
           <div className="col-span-2 md:col-span-1 pr-4">
-            {/* Logo Placeholder - Using MerisLabs logo */}
+            {/* MerisLabs Logo */}
             <Link href="/" aria-label="MerisLabs logo" className="inline-block">
-              <svg
-                className="w-8 h-8 fill-current text-purple-600"
-                viewBox="0 0 32 32"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M31.952 14.751a260.51 260.51 0 00-4.359-4.407C23.932 6.734 20.16 3.182 16.171 0c1.634.017 3.21.28 4.692.751 3.487 3.114 6.846 6.398 10.163 9.737.493 1.346.811 2.776.926 4.262zm-1.388 7.883c-2.496-2.597-5.051-5.12-7.737-7.471-3.706-3.246-10.693-9.81-15.736-7.418-4.552 2.158-4.717 10.543-4.96 16.238A15.926 15.926 0 010 16C0 9.799 3.528 4.421 8.686 1.766c1.82.593 3.593 1.675 5.038 2.587 6.569 4.14 12.29 9.71 17.792 15.57-.237.94-.557 1.846-.952 2.711zm-4.505 5.81a56.161 56.161 0 00-1.007-.823c-2.574-2.054-6.087-4.805-9.394-4.044-3.022.695-4.264 4.267-4.97 7.52a15.945 15.945 0 01-3.665-1.85c.366-3.242.89-6.675 2.405-9.364 2.315-4.107 6.287-3.072 9.613-1.132 3.36 1.96 6.417 4.572 9.313 7.417a16.097 16.097 0 01-2.295 2.275z" />
-              </svg>
+              <img src="/MERISLABS-LOGO.png" alt="MerisLabs" className="h-20 w-auto" />
             </Link>
             <div className="flex space-x-6 mt-12">
               {/* Social Icons */}
-              <Link href="https://twitter.com/Tomideadeoye" aria-label="Twitter" className="hover:text-white">
+              <Link href="https://twitter.com/_tomide" aria-label="Twitter" className="hover:text-white">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                 </svg>
@@ -83,11 +77,12 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        
+
         {/* Legal Disclaimers */}
         <div className="mt-20 space-y-4 text-xs text-gray-600">
           <p>© {new Date().getFullYear()} MerisLabs. All rights reserved.</p>
-          <p>Tailored software solutions for businesses across diverse industries. Our objective is simply understanding your business - operations, model, customers, and goals.</p>
+          <p className="text-gray-500">Building the Digital Infrastructure for African Professionals. We design and develop web and mobile applications for various industries, from financial services to legal, with expertise in Next.js, React, TypeScript, and modern web technologies.</p>
+          <p className="text-gray-500">Contact: <a href="mailto:tomide@merislabs.com" className="hover:text-white">tomide@merislabs.com</a> | +234 818 192 7251</p>
         </div>
       </div>
     </footer>

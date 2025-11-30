@@ -21,7 +21,7 @@ export function Header({ navItems }: HeaderProps) {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold">Meris Labs</span>
+            <img src="/MERISLABS-LOGO.png" alt="MerisLabs" className="h-20 w-auto" />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (

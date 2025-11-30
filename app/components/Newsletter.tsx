@@ -16,7 +16,7 @@ export default function Newsletter() {
   return (
     <section className="w-full">
       {/* CTA box */}
-      <div className="relative bg-purple-600 py-10 px-4 md:py-16 md:px-12 w-full" data-aos="fade-up">
+      <div className="relative bg-emerald-600 py-10 px-4 md:py-16 md:px-12 w-full" data-aos="fade-up">
         {/* Background illustration */}
         <div className="absolute right-0 top-0 -ml-40 pointer-events-none" aria-hidden="true">
           <svg width="238" height="110" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -46,7 +46,7 @@ export default function Newsletter() {
           {/* CTA content */}
           <div className="mb-6 lg:mr-16 lg:mb-0 text-center lg:text-left lg:w-1/2">
             <h3 className="h3 text-white mb-2">Stay updated</h3>
-            <p className="text-purple-200 text-lg">Subscribe to receive the latest updates on our software solutions and industry insights.</p>
+            <p className="text-emerald-100 text-lg">Subscribe to receive the latest updates on our software solutions and industry insights.</p>
           </div>
 
           {/* CTA form */}
@@ -54,11 +54,11 @@ export default function Newsletter() {
             <div className="flex flex-col sm:flex-row justify-center max-w-xs mx-auto sm:max-w-md lg:max-w-none">
               <input
                 type="email"
-                className="w-full appearance-none bg-purple-700 border border-purple-500 focus:border-purple-300 rounded-sm px-4 py-3 mb-2 sm:mb-0 sm:mr-2 text-white placeholder-purple-400"
+                className="w-full appearance-none bg-emerald-700 border border-emerald-500 focus:border-emerald-300 rounded-sm px-4 py-3 mb-2 sm:mb-0 sm:mr-2 text-white placeholder-emerald-400"
                 placeholder="Your best email…"
                 aria-label="Your best email…"
               />
-              <a className="btn text-purple-600 bg-purple-100 hover:bg-white shadow" href="#0">
+              <a className="inline-flex items-center justify-center px-8 py-3 text-base font-medium text-emerald-600 bg-emerald-100 border border-transparent rounded-sm shadow hover:bg-white transition duration-150 ease-in-out w-full sm:w-auto" href="#0">
                 Subscribe
               </a>
             </div>

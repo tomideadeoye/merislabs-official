@@ -39,6 +39,19 @@ const projects: Project[] = [
     links: [{ type: 'website', url: 'https://brandqor.com' }],
   },
   {
+    id: 'nicarb-conference-programme',
+    name: 'NICArb Annual Conference Programme',
+    description: 'A comprehensive digital conference programme for the Nigerian Institute of Chartered Arbitrators (NICArb) 2025 Annual Conference. The platform features an interactive schedule, speaker profiles, session details, and sponsor information. Built with Next.js and React, it provides a seamless experience for conference attendees to navigate the event agenda, learn about speakers and panelists, and access important conference information. The programme includes detailed session breakdowns, keynote speaker bios, plenary sessions on arbitration topics including energy disputes, construction disputes, and sports arbitration, plus information about the planning committee and state chapters.',
+    technologies: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'PDF Generation'],
+    iframe: 'https://nicarb-conference-programme.vercel.app',
+    img: '/nicarb-logo.png',
+    tag: 'NICArb: Digital Conference Programme & Event Platform',
+    links: [
+      { type: 'website', url: 'https://nicarb-conference-programme.vercel.app' },
+      { type: 'documentation', url: 'https://github.com/tomideadeoye/merislabs-github-media/blob/main/Reports/2025-%20NICArb%20Annual%20Conference%20Programme_compressed.pdf', label: 'View PDF Version' }
+    ],
+  },
+  {
     id: 'bundul-due-payments',
     name: 'Bundul Due Payments',
     description: 'Bundul Due Payments is a React Native Expo application that displays a list of upcoming payments for user subscriptions with a modern fintech dark theme UI. It features payment tracking with service name, amount, due date, and "Pay Now" functionality. The app includes "Due Soon" badges with pulse effects for payments within 3 days, sorted by due date with highlighted rows. Users can tap "Pay Now" to open confirmation modals, pull-to-refresh, search payments, and filter by All, Due Soon, or Paid status. It tracks payment history with persistent storage and real-time updates across tabs, plus an insights dashboard with payment visualization charts. The app delivers a modern dark theme fintech UI with animations and responsive design.',
