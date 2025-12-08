@@ -109,6 +109,9 @@
       ],
       "@/reports/*": [
         "./app/components/reports/*"
+      ],
+      "@/data/*": [
+        "./data/*"
       ]
     }
   },

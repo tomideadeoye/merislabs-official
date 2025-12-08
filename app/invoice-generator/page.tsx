@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { projects, type Project } from '../components/projects';
 import { getNextInvoiceNumber } from '../lib/stores/invoiceStore';
@@ -17,13 +17,21 @@ interface InvoiceItem {
 interface SelectedProject {
     project: Project;
     description: string;
+    quantity: number; // Assuming quantity added here implicitly or ignore
 }
 
-export default function InvoiceGenerator() {
+function InvoiceGeneratorContent() {
     const searchParams = useSearchParams();
 
     // Default to NICArb details
     const [clientLogo, setClientLogo] = useState<string | null>('/clients/NICARB LOGO Green Text (1).png');
+    // ... (rest of logic unchanged) ... (wait, I need to include the whole function body or just signature)
+    // Strategy: Modify imports, rename start of function, and change end of file.
+    // replace_file_content requires CONTIGUOUS block.
+    // The top part (imports + function start) is contiguous.
+    // But the end is far away (line 300).
+    // I should use multi_replace.
+
     const [clientName, setClientName] = useState('The Nigerian Institute of Chartered Arbitrators');
     const [clientEmail, setClientEmail] = useState('soshodijohn@nicarb.org');
     const [clientContact, setClientContact] = useState('Shola Oshodi-John (Registrar/CEO)');
@@ -296,5 +304,13 @@ export default function InvoiceGenerator() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function InvoiceGenerator() {
+    return (
+        <Suspense fallback={<div>Loading invoice...</div>}>
+            <InvoiceGeneratorContent />
+        </Suspense>
     );
 }

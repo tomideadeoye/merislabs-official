@@ -20,6 +20,24 @@ interface Deck {
 
 const decks: Deck[] = [
   {
+    id: 'nicarb-conference-2025',
+    title: 'NICArb Annual Conference 2025',
+    description: 'Strengthening Institutional Arbitration & ADR in Africa: Charting a New Path',
+    category: 'Events & Conferences',
+    lastUpdated: 'November 2025',
+    status: 'published',
+    href: '/decks/nicarb-annual-conference-2025'
+  },
+  {
+    id: 'nicarb-fgn-pitch',
+    title: 'NICArb-FGN Partnership Proposal',
+    description: 'Pitch deck for collaboration between NICArb and the Federal Government of Nigeria',
+    category: 'Pitch Deck',
+    lastUpdated: 'November 2025',
+    status: 'published',
+    href: '/decks/nicarb-annual-conference-2025?view=pitch-deck'
+  },
+  {
     id: 'esg-finance-gap',
     title: 'Bridging the ESG Finance Gap',
     description: 'Demand and Supply-Side Constraints Facing Nigerian Small and Medium-Sized Enterprises (SMEs)',
@@ -36,6 +54,15 @@ const decks: Deck[] = [
     lastUpdated: 'November 2025',
     status: 'published',
     href: '/decks/morganhacks-2026'
+  },
+  {
+    id: 'bose-adeoye-retirement',
+    title: 'Mrs Bose Adeoye - Retirement Celebration',
+    description: 'A celebration of an outstanding career and legacy. Retirement & Thanksgiving Service.',
+    category: 'Celebration',
+    lastUpdated: 'December 2024',
+    status: 'published',
+    href: '/decks/bose-adeoye-retirement'
   },
   // Add more decks here as they become available
 ];
