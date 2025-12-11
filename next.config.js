@@ -5,6 +5,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Turbopack is the default bundler in Next.js 16+
+  // Empty config acknowledges this and silences the webpack-without-turbopack warning
+  turbopack: {},
+
   // Enable experimental features that are stable and widely used
   experimental: {
     // Enable modern JavaScript features

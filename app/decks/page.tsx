@@ -64,6 +64,15 @@ const decks: Deck[] = [
     status: 'published',
     href: '/decks/bose-adeoye-retirement'
   },
+  {
+    id: 'brandqor-workshop-2026',
+    title: 'SHOW UP & SHINE 2026',
+    description: 'Turn your 2025 work into 10x opportunities. BrandQor Personal Branding Workshop.',
+    category: 'Workshop',
+    lastUpdated: 'December 2025',
+    status: 'published',
+    href: '/decks/brandqor-workshop-2026'
+  },
   // Add more decks here as they become available
 ];
 
