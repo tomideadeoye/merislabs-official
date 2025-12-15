@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NICARB Christmas Signature Preview - With Ornament</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .instructions {
+            background: #f3e5f5;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #9c27b0;
+            margin-bottom: 30px;
+        }
+        .instructions h2 {
+            margin-top: 0;
+            color: #7b1fa2;
+        }
+        .instructions ol {
+            line-height: 1.8;
+        }
+        .signature-box {
+            border: 2px dashed #9c27b0;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .signature-box:hover {
+            background: #f9f9f9;
+        }
+        .copy-note {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instructions">
+            <h2>📋 How to Copy This Signature</h2>
+            <ol>
+                <li><strong>Click inside the signature box below</strong></li>
+                <li><strong>Select All:</strong> Press <code>Ctrl+A</code> (Windows) or <code>Cmd+A</code> (Mac)</li>
+                <li><strong>Copy:</strong> Press <code>Ctrl+C</code> (Windows) or <code>Cmd+C</code> (Mac)</li>
+                <li><strong>Open Gmail or Outlook signature settings</strong></li>
+                <li><strong>Paste:</strong> Press <code>Ctrl+V</code> (Windows) or <code>Cmd+V</code> (Mac)</li>
+                <li><strong>Save your signature</strong></li>
+            </ol>
+        </div>
+
+        <h3 style="color: #2d5a2d; margin-bottom: 15px;">Your NICARB Christmas Signature:</h3>
+
+        <div class="signature-box" onclick="selectSignature()">
+            <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; max-width: 600px; background: #ffffff;">
+                <tr>
+                    <td style="text-align: center; padding: 20px;">
+                        <img src="https://merislabs.com/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" style="height: 60px; width: auto; display: block; margin: 0 auto 10px;">
+
+                        <div style="text-align: center; margin: 0 auto 15px; max-width: 300px;">
+                            <svg width="280" height="30" viewBox="0 0 280 30" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto;">
+                                <line x1="0" y1="15" x2="80" y2="15" stroke="#D4AF37" stroke-width="1.5"/>
+                                <path d="M110 10 Q115 8 120 10 Q125 12 130 10 Q135 8 140 10" stroke="#2d5a2d" fill="none" stroke-width="1.5"/>
+                                <circle cx="125" cy="12" r="3" fill="#D4AF37"/>
+                                <circle cx="115" cy="14" r="2" fill="#2d5a2d" opacity="0.6"/>
+                                <circle cx="135" cy="14" r="2" fill="#2d5a2d" opacity="0.6"/>
+                                <path d="M105 12 L107 15 L105 18 L103 15 Z" fill="#2d5a2d" opacity="0.7"/>
+                                <path d="M145 12 L147 15 L145 18 L143 15 Z" fill="#2d5a2d" opacity="0.7"/>
+                                <line x1="160" y1="15" x2="280" y2="15" stroke="#D4AF37" stroke-width="1.5"/>
+                                <path d="M95 10 L96 13 L99 13 L96.5 15 L97.5 18 L95 16 L92.5 18 L93.5 15 L91 13 L94 13 Z" fill="#D4AF37" opacity="0.6"/>
+                                <path d="M155 10 L156 13 L159 13 L156.5 15 L157.5 18 L155 16 L152.5 18 L153.5 15 L151 13 L154 13 Z" fill="#D4AF37" opacity="0.6"/>
+                            </svg>
+                        </div>
+
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-family: Georgia, serif; font-size: 22px; color: #2d5a2d; font-style: italic;">Merry Christmas</span>
+                        </div>
+                        <div>
+                            <span style="font-family: Georgia, serif; font-size: 14px; color: #2d5a2d;">& Happy New Year 2026</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <p class="copy-note">
+            👆 Click in the box above, then press Ctrl+A (or Cmd+A) to select, and Ctrl+C (or Cmd+C) to copy
+        </p>
+    </div>
+
+    <script>
+        function selectSignature() {
+            const signatureBox = document.querySelector('.signature-box');
+            const range = document.createRange();
+            range.selectNodeContents(signatureBox);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    </script>
+</body>
+</html>

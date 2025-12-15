@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NICARB Christmas Signature Preview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .instructions {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2d5a2d;
+            margin-bottom: 30px;
+        }
+        .instructions h2 {
+            margin-top: 0;
+            color: #2d5a2d;
+        }
+        .instructions ol {
+            line-height: 1.8;
+        }
+        .signature-box {
+            border: 2px dashed #2d5a2d;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .signature-box:hover {
+            background: #f9f9f9;
+        }
+        .copy-note {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instructions">
+            <h2>📋 How to Copy This Signature</h2>
+            <ol>
+                <li><strong>Click inside the signature box below</strong></li>
+                <li><strong>Select All:</strong> Press <code>Ctrl+A</code> (Windows) or <code>Cmd+A</code> (Mac)</li>
+                <li><strong>Copy:</strong> Press <code>Ctrl+C</code> (Windows) or <code>Cmd+C</code> (Mac)</li>
+                <li><strong>Open Gmail or Outlook signature settings</strong></li>
+                <li><strong>Paste:</strong> Press <code>Ctrl+V</code> (Windows) or <code>Cmd+V</code> (Mac)</li>
+                <li><strong>Save your signature</strong></li>
+            </ol>
+        </div>
+
+        <h3 style="color: #2d5a2d; margin-bottom: 15px;">Your NICARB Christmas Signature:</h3>
+
+        <div class="signature-box" onclick="selectSignature()">
+            <img src="https://merislabs.com/nicarb/christmas-signatures/nicarb_final_2026_white_1765805295269.jpeg"
+                 alt="NICARB - Merry Christmas & Happy New Year 2026"
+                 style="max-width: 600px; height: auto; display: block;">
+        </div>
+
+        <p class="copy-note">
+            👆 Click in the box above, then press Ctrl+A (or Cmd+A) to select, and Ctrl+C (or Cmd+C) to copy
+        </p>
+    </div>
+
+    <script>
+        function selectSignature() {
+            const signatureBox = document.querySelector('.signature-box');
+            const range = document.createRange();
+            range.selectNodeContents(signatureBox);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    </script>
+</body>
+</html>

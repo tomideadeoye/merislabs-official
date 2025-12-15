@@ -242,6 +242,51 @@ export default function NICARBSignaturesPage() {
                         📧 How to Use in Email
                     </h2>
 
+                    <div className="bg-white rounded-lg p-6 mb-6 border-2 border-amber-400">
+                        <h3 className="text-lg font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                            ⚠️ Important: Don't Paste Raw HTML
+                        </h3>
+                        <p className="text-sm text-gray-700 mb-3">
+                            Pasting raw HTML code directly into Gmail/Outlook will show the code instead of the signature.
+                            <strong> You need to copy the RENDERED (visual) content, not the HTML code.</strong>
+                        </p>
+                    </div>
+
+                    <h3 className="text-lg font-semibold text-green-900 mb-4">✅ Recommended Method (Copy Rendered Content):</h3>
+
+                    <div className="grid md:grid-cols-3 gap-4 mb-6">
+                        <a href="/nicarb/christmas-signatures/preview-simple.html" target="_blank"
+                            className="block bg-green-50 border-2 border-green-300 rounded-lg p-4 hover:bg-green-100 transition-colors">
+                            <div className="font-semibold text-green-900 mb-1">Simple Image</div>
+                            <div className="text-sm text-gray-600 mb-2">Open preview &rarr;</div>
+                            <div className="text-xs text-green-700">Opens in new tab</div>
+                        </a>
+                        <a href="/nicarb/christmas-signatures/preview-custom.html" target="_blank"
+                            className="block bg-amber-50 border-2 border-amber-300 rounded-lg p-4 hover:bg-amber-100 transition-colors">
+                            <div className="font-semibold text-amber-900 mb-1">Custom HTML</div>
+                            <div className="text-sm text-gray-600 mb-2">Open preview &rarr;</div>
+                            <div className="text-xs text-amber-700">Opens in new tab</div>
+                        </a>
+                        <a href="/nicarb/christmas-signatures/preview-ornament.html" target="_blank"
+                            className="block bg-purple-50 border-2 border-purple-300 rounded-lg p-4 hover:bg-purple-100 transition-colors">
+                            <div className="font-semibold text-purple-900 mb-1">With Ornament</div>
+                            <div className="text-sm text-gray-600 mb-2">Open preview &rarr;</div>
+                            <div className="text-xs text-purple-700">Opens in new tab</div>
+                        </a>
+                    </div>
+
+                    <div className="bg-blue-50 rounded-lg p-6 mb-6 border-l-4 border-blue-500">
+                        <h4 className="font-semibold text-blue-900 mb-3">Steps:</h4>
+                        <ol className="space-y-2 text-sm text-gray-800 list-decimal list-inside">
+                            <li>Click one of the preview links above (opens in new tab)</li>
+                            <li>Click inside the signature box and press <kbd className="bg-white px-2 py-1 rounded border">Ctrl+A</kbd> (or <kbd className="bg-white px-2 py-1 rounded border">Cmd+A</kbd> on Mac) to select all</li>
+                            <li>Press <kbd className="bg-white px-2 py-1 rounded border">Ctrl+C</kbd> (or <kbd className="bg-white px-2 py-1 rounded border">Cmd+C</kbd>) to copy</li>
+                            <li>Open your email signature settings</li>
+                            <li>Press <kbd className="bg-white px-2 py-1 rounded border">Ctrl+V</kbd> (or <kbd className="bg-white px-2 py-1 rounded border">Cmd+V</kbd>) to paste</li>
+                            <li>Save your signature!</li>
+                        </ol>
+                    </div>
+
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="bg-white rounded-lg p-6">
                             <div className="flex items-center gap-3 mb-4">
@@ -251,10 +296,10 @@ export default function NICARBSignaturesPage() {
                                 <h3 className="text-lg font-semibold text-gray-900">Gmail</h3>
                             </div>
                             <ol className="space-y-2 text-sm text-gray-700 list-decimal list-inside">
-                                <li>Click "Copy HTML Code" button above</li>
-                                <li>Go to Gmail Settings → General → Signature</li>
-                                <li>Paste the HTML code in the signature box</li>
-                                <li>Save changes</li>
+                                <li>Settings (gear icon) → "See all settings"</li>
+                                <li>Go to "General" → "Signature"</li>
+                                <li>Paste the copied signature</li>
+                                <li>Scroll down and click "Save Changes"</li>
                             </ol>
                         </div>
 
@@ -266,17 +311,17 @@ export default function NICARBSignaturesPage() {
                                 <h3 className="text-lg font-semibold text-gray-900">Outlook</h3>
                             </div>
                             <ol className="space-y-2 text-sm text-gray-700 list-decimal list-inside">
-                                <li>Click "Copy HTML Code" button above</li>
-                                <li>Go to File → Options → Mail → Signatures</li>
-                                <li>Paste the HTML code in the editor</li>
-                                <li>Click OK to save</li>
+                                <li>File → Options → Mail → Signatures</li>
+                                <li>Click "New" or select existing signature</li>
+                                <li>Paste the copied signature</li>
+                                <li>Click "OK" to save</li>
                             </ol>
                         </div>
                     </div>
 
-                    <div className="mt-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-lg">
-                        <p className="text-sm text-amber-900">
-                            <strong>💡 Tip:</strong> The "Simple Image Signature" option works in all email clients and is the easiest to set up. Use the "Custom HTML" version if you want more control over the layout.
+                    <div className="mt-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
+                        <p className="text-sm text-green-900">
+                            <strong>💡 Why this method?</strong> Email clients strip raw HTML code for security. By copying the rendered visual content instead of HTML code, you preserve the formatting and images properly.
                         </p>
                     </div>
                 </div>
