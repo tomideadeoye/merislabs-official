@@ -32,6 +32,36 @@ export default function NICARBSignaturesPage() {
             </div>
         </td>
     </tr>
+</table>`,
+
+        withOrnament: `<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; max-width: 600px; background: #ffffff;">
+    <tr>
+        <td style="text-align: center; padding: 20px;">
+            <img src="https://merislabs.com/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" style="height: 60px; width: auto; display: block; margin: 0 auto 10px;">
+
+            <div style="text-align: center; margin: 0 auto 15px; max-width: 300px;">
+                <svg width="280" height="30" viewBox="0 0 280 30" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto;">
+                    <line x1="0" y1="15" x2="80" y2="15" stroke="#D4AF37" stroke-width="1.5"/>
+                    <path d="M110 10 Q115 8 120 10 Q125 12 130 10 Q135 8 140 10" stroke="#2d5a2d" fill="none" stroke-width="1.5"/>
+                    <circle cx="125" cy="12" r="3" fill="#D4AF37"/>
+                    <circle cx="115" cy="14" r="2" fill="#2d5a2d" opacity="0.6"/>
+                    <circle cx="135" cy="14" r="2" fill="#2d5a2d" opacity="0.6"/>
+                    <path d="M105 12 L107 15 L105 18 L103 15 Z" fill="#2d5a2d" opacity="0.7"/>
+                    <path d="M145 12 L147 15 L145 18 L143 15 Z" fill="#2d5a2d" opacity="0.7"/>
+                    <line x1="160" y1="15" x2="280" y2="15" stroke="#D4AF37" stroke-width="1.5"/>
+                    <path d="M95 10 L96 13 L99 13 L96.5 15 L97.5 18 L95 16 L92.5 18 L93.5 15 L91 13 L94 13 Z" fill="#D4AF37" opacity="0.6"/>
+                    <path d="M155 10 L156 13 L159 13 L156.5 15 L157.5 18 L155 16 L152.5 18 L153.5 15 L151 13 L154 13 Z" fill="#D4AF37" opacity="0.6"/>
+                </svg>
+            </div>
+
+            <div style="margin-bottom: 5px;">
+                <span style="font-family: Georgia, serif; font-size: 22px; color: #2d5a2d; font-style: italic;">Merry Christmas</span>
+            </div>
+            <div>
+                <span style="font-family: Georgia, serif; font-size: 14px; color: #2d5a2d;">& Happy New Year 2026</span>
+            </div>
+        </td>
+    </tr>
 </table>`
     };
 
@@ -81,7 +111,7 @@ export default function NICARBSignaturesPage() {
                 </div>
 
                 {/* HTML Signature Options */}
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
                     {/* Simple Image Signature */}
                     <div className="bg-white rounded-xl shadow-lg p-6">
                         <div className="flex items-start justify-between mb-4">
@@ -146,6 +176,48 @@ export default function NICARBSignaturesPage() {
                             className="w-full px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
                         >
                             {copied === 'custom' ? (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Copied!
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    Copy HTML Code
+                                </>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Signature with Ornament */}
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 className="text-xl font-semibold text-green-900 mb-1">
+                                    With Decorative Ornament
+                                </h3>
+                                <p className="text-sm text-gray-600">Logo with ornament underneath</p>
+                            </div>
+                            <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                                New
+                            </span>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4 overflow-x-auto max-h-40">
+                            <pre className="text-xs text-gray-700 whitespace-pre-wrap break-all">
+                                {signatures.withOrnament}
+                            </pre>
+                        </div>
+
+                        <button
+                            onClick={() => copyToClipboard(signatures.withOrnament, 'ornament')}
+                            className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                            {copied === 'ornament' ? (
                                 <>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
