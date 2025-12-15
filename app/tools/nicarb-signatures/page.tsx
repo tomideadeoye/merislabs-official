@@ -281,6 +281,55 @@ export default function NICARBSignaturesPage() {
                     </div>
                 </div>
 
+                {/* Alternative Design Gallery */}
+                <div className="mt-12 bg-white rounded-2xl shadow-xl p-8">
+                    <h2 className="text-2xl font-semibold text-green-900 mb-3 flex items-center gap-2">
+                        <span className="text-3xl">🎨</span>
+                        Alternative Designs
+                    </h2>
+                    <p className="text-gray-600 mb-6">
+                        Other design variants considered during the creative process
+                    </p>
+
+                    <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {[
+                            { name: 'Transparent Wreath', file: 'nicarb_xmas_transparent_v2_1765777025997.png' },
+                            { name: 'Transparent Ornament', file: 'nicarb_xmas_transparent_v1_1765777006645.png' },
+                            { name: 'Artistic Watercolor', file: 'nicarb_xmas_artistic_1765777044817.png' },
+                            { name: 'Modern Geometric', file: 'nicarb_xmas_modern_1765777066057.png' },
+                            { name: 'Luxe Bells', file: 'nicarb_xmas_luxe_1765777085007.png' },
+                            { name: 'Nigerian Adire', file: 'nicarb_xmas_nigerian_1765777103494.png' },
+                            { name: 'Premium V1', file: 'nicarb_xmas_premium_v1_1765776025250.png' },
+                            { name: 'Premium V2', file: 'nicarb_xmas_premium_v2_1765776055800.png' },
+                            { name: 'Navy & Gold', file: 'nicarb_xmas_navy_gold_1765776116371.png' },
+                            { name: 'Festive Final', file: 'nicarb_xmas_festive_final_1765776145698.png' },
+                            { name: 'Original Reference', file: 'nicarb_christmas_signature_v1_1765775758966.png' },
+                        ].map((design, index) => (
+                            <div key={index} className="group relative bg-gray-50 rounded-lg p-3 hover:shadow-lg transition-all">
+                                <div className="aspect-video bg-white rounded-md overflow-hidden mb-2 border border-gray-200">
+                                    <Image
+                                        src={`/nicarb/christmas-signatures/${design.file}`}
+                                        alt={design.name}
+                                        width={300}
+                                        height={150}
+                                        className="object-contain w-full h-full"
+                                    />
+                                </div>
+                                <p className="text-xs font-medium text-gray-700 text-center">{design.name}</p>
+                                <a
+                                    href={`/nicarb/christmas-signatures/${design.file}`}
+                                    download
+                                    className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/50 rounded-lg flex items-center justify-center transition-opacity"
+                                >
+                                    <span className="px-3 py-1 bg-white text-gray-900 rounded-md text-xs font-medium">
+                                        Download
+                                    </span>
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Footer */}
                 <div className="text-center mt-12 text-gray-600 text-sm">
                     <p>Created by Merislabs for NICARB • December 2025</p>
