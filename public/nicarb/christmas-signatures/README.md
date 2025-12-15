@@ -5,7 +5,7 @@
 ### Option 1: Simple Image Signature (Recommended)
 **File:** `signature.html`
 ```html
-<img src="https://merislabs-official.vercel.app/nicarb/christmas-signatures/nicarb_final_2026_white_1765805295269.jpeg" alt="NICARB - Merry Christmas & Happy New Year 2026" style="max-width: 600px; height: auto; display: block;">
+<img src="https://merislabs.com/nicarb/christmas-signatures/nicarb_final_2026_white_1765805295269.jpeg" alt="NICARB - Merry Christmas & Happy New Year 2026" style="max-width: 600px; height: auto; display: block;">
 ```
 
 ### Option 2: HTML/CSS Signature with Text

@@ -1,0 +1,219 @@
+'use client';
+
+import Image from 'next/image';
+import { useState } from 'react';
+
+export default function NICARBSignaturesPage() {
+    const [copied, setCopied] = useState<string | null>(null);
+
+    const copyToClipboard = (text: string, id: string) => {
+        navigator.clipboard.writeText(text);
+        setCopied(id);
+        setTimeout(() => setCopied(null), 2000);
+    };
+
+    const signatures = {
+        simple: `<img src="https://merislabs.com/nicarb/christmas-signatures/nicarb_final_2026_white_1765805295269.jpeg" alt="NICARB - Merry Christmas & Happy New Year 2026" style="max-width: 600px; height: auto; display: block;">`,
+
+        custom: `<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; max-width: 600px;">
+    <tr>
+        <td style="vertical-align: middle; padding-right: 20px;">
+            <img src="https://merislabs.com/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" style="height: 60px; width: auto; display: block;">
+        </td>
+        <td style="vertical-align: middle; padding: 0 15px;">
+            <div style="width: 2px; height: 60px; background: linear-gradient(to bottom, #D4AF37, #C5A028);"></div>
+        </td>
+        <td style="vertical-align: middle; padding-left: 15px;">
+            <div style="font-family: Georgia, serif; font-size: 22px; color: #2d5a2d; font-style: italic; margin-bottom: 5px;">
+                Merry Christmas
+            </div>
+            <div style="font-family: Georgia, serif; font-size: 14px; color: #2d5a2d;">
+                & Happy New Year 2026
+            </div>
+        </td>
+    </tr>
+</table>`
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50">
+            <div className="max-w-6xl mx-auto px-4 py-12">
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-green-900 mb-3">
+                        NICARB Christmas E-Signatures 2026
+                    </h1>
+                    <p className="text-lg text-gray-600">
+                        Professional Christmas signatures for email - Copy and paste directly!
+                    </p>
+                </div>
+
+                {/* Main Signature Preview */}
+                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <h2 className="text-2xl font-semibold text-green-900 mb-6 flex items-center gap-2">
+                        <span className="text-3xl">🎄</span>
+                        Final Design
+                    </h2>
+
+                    <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-xl border-2 border-green-100 mb-6">
+                        <Image
+                            src="/nicarb/christmas-signatures/nicarb_final_2026_white_1765805295269.jpeg"
+                            alt="NICARB Christmas 2026"
+                            width={600}
+                            height={200}
+                            className="mx-auto"
+                            priority
+                        />
+                    </div>
+
+                    <div className="flex gap-4 justify-center">
+                        <a
+                            href="/nicarb/christmas-signatures/nicarb_final_2026_white_1765805295269.jpeg"
+                            download="NICARB_Christmas_2026.jpeg"
+                            className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download Image
+                        </a>
+                    </div>
+                </div>
+
+                {/* HTML Signature Options */}
+                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                    {/* Simple Image Signature */}
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 className="text-xl font-semibold text-green-900 mb-1">
+                                    Simple Image Signature
+                                </h3>
+                                <p className="text-sm text-gray-600">Recommended - Works everywhere</p>
+                            </div>
+                            <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                                Recommended
+                            </span>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4 overflow-x-auto">
+                            <pre className="text-xs text-gray-700 whitespace-pre-wrap break-all">
+                                {signatures.simple}
+                            </pre>
+                        </div>
+
+                        <button
+                            onClick={() => copyToClipboard(signatures.simple, 'simple')}
+                            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                            {copied === 'simple' ? (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Copied!
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    Copy HTML Code
+                                </>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Custom HTML Signature */}
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 className="text-xl font-semibold text-green-900 mb-1">
+                                    Custom HTML Signature
+                                </h3>
+                                <p className="text-sm text-gray-600">With logo and text elements</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4 overflow-x-auto max-h-40">
+                            <pre className="text-xs text-gray-700 whitespace-pre-wrap break-all">
+                                {signatures.custom}
+                            </pre>
+                        </div>
+
+                        <button
+                            onClick={() => copyToClipboard(signatures.custom, 'custom')}
+                            className="w-full px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                            {copied === 'custom' ? (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Copied!
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    Copy HTML Code
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Instructions */}
+                <div className="bg-gradient-to-r from-green-50 to-amber-50 rounded-xl shadow-lg p-8">
+                    <h2 className="text-2xl font-semibold text-green-900 mb-6">
+                        📧 How to Use in Email
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="bg-white rounded-lg p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <span className="text-xl">📮</span>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Gmail</h3>
+                            </div>
+                            <ol className="space-y-2 text-sm text-gray-700 list-decimal list-inside">
+                                <li>Click "Copy HTML Code" button above</li>
+                                <li>Go to Gmail Settings → General → Signature</li>
+                                <li>Paste the HTML code in the signature box</li>
+                                <li>Save changes</li>
+                            </ol>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <span className="text-xl">📨</span>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Outlook</h3>
+                            </div>
+                            <ol className="space-y-2 text-sm text-gray-700 list-decimal list-inside">
+                                <li>Click "Copy HTML Code" button above</li>
+                                <li>Go to File → Options → Mail → Signatures</li>
+                                <li>Paste the HTML code in the editor</li>
+                                <li>Click OK to save</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-lg">
+                        <p className="text-sm text-amber-900">
+                            <strong>💡 Tip:</strong> The "Simple Image Signature" option works in all email clients and is the easiest to set up. Use the "Custom HTML" version if you want more control over the layout.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="text-center mt-12 text-gray-600 text-sm">
+                    <p>Created by Merislabs for NICARB • December 2025</p>
+                </div>
+            </div>
+        </div>
+    );
+}
