@@ -20,21 +20,34 @@ const invoiceData = {
     logo: '/clients/NICARB LOGO Green Text (1).png'
   },
   invoice: {
-    number: 'INV-001',
-    date: new Date().toISOString().split('T')[0],
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    number: 'INV-002',
+    date: '2025-12-16',
+    dueDate: '2026-01-15',
     currency: 'NGN',
     currencySymbol: '₦'
   },
   items: [
     {
-      description: 'Conference Programme Design & Development',
+      description: 'Website QA & Review',
       links: [
-        { label: 'Web Version', url: 'https://nicarb-conference-programme.vercel.app' },
-        { label: 'PDF Version', url: 'https://github.com/tomideadeoye/merislabs-github-media/blob/main/Reports/2025-%20NICArb%20Annual%20Conference%20Programme_compressed.pdf' }
+        { label: 'NICArb Website', url: 'https://nicarb.org' }
       ],
       quantity: 1,
-      rate: 100000
+      rate: 50000
+    },
+    {
+      description: 'PowerPoint Presentation Design',
+      links: [],
+      quantity: 1,
+      rate: 20000
+    },
+    {
+      description: 'Christmas E-Signature Design',
+      links: [
+        { label: 'E-Signature Tool', url: 'https://merislabs.com/tools/nicarb-signatures' }
+      ],
+      quantity: 1,
+      rate: 10000
     }
   ],
   notes: ''
@@ -82,9 +95,9 @@ const generateInvoiceHTML = () => {
 
     .header-container {
       background: #10B981;
-      padding: 48px;
+      padding: 24px 32px;
       color: white;
-      margin-bottom: 48px;
+      margin-bottom: 24px;
     }
 
     .header {
@@ -94,7 +107,7 @@ const generateInvoiceHTML = () => {
     }
 
     .content-wrapper {
-      padding: 0 48px 48px 48px;
+      padding: 0 32px 24px 32px;
     }
 
     .client-logo {
@@ -421,6 +434,30 @@ const generateInvoiceHTML = () => {
     </div>
   </div>
 
+  <div class="payment-section" style="margin-bottom: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 20px; background: #F9FAFB; border-radius: 8px; border: 1px solid #E5E7EB;">
+    <div>
+      <h3 style="font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 12px;">Bank Details</h3>
+      <div style="margin-bottom: 12px;">
+        <p style="font-size: 10px; color: #10B981; font-weight: bold; text-transform: uppercase; margin-bottom: 2px;">Moniepoint</p>
+        <p style="font-size: 11px; font-weight: 500; color: #111827;">Adeoye Tomide Toluwase | Merislabs</p>
+        <p style="font-size: 11px; font-family: monospace; color: #4B5563;">8181927251</p>
+      </div>
+      <div style="padding-top: 10px; border-top: 1px solid #E5E7EB;">
+        <p style="font-size: 10px; color: #10B981; font-weight: bold; text-transform: uppercase; margin-bottom: 2px;">Access Bank</p>
+        <p style="font-size: 11px; font-weight: 500; color: #111827;">Adeoye Tomide Toluwase</p>
+        <p style="font-size: 11px; font-family: monospace; color: #4B5563;">0694635405</p>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 12px;">Online Payment</h3>
+      <div style="padding: 12px; background: white; border: 1px solid #E5E7EB; border-radius: 6px;">
+        <p style="font-size: 11px; font-weight: bold; color: #111827; margin-bottom: 4px;">Pay with Card</p>
+        <p style="font-size: 10px; color: #6B7280;">Secure payment via Paystack</p>
+        <a href="https://paystack.shop/pay/orion-horizon" style="font-size: 10px; color: #10B981; font-weight: 500;">paystack.shop/pay/orion-horizon</a>
+      </div>
+    </div>
+  </div>
+
   <div class="services-section">
     <h3>Our Services</h3>
     <div class="services-grid">
@@ -481,11 +518,12 @@ async function generateInvoice() {
       path: outputPath,
       format: 'A4',
       printBackground: true,
+      scale: 0.8,
       margin: {
-        top: '20mm',
-        right: '20mm',
-        bottom: '20mm',
-        left: '20mm'
+        top: '10mm',
+        right: '10mm',
+        bottom: '10mm',
+        left: '10mm'
       }
     });
 
