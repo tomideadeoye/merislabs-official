@@ -452,7 +452,7 @@ export default function NICARBFlyersPage() {
 
                                         <div className="w-16 h-0.5 bg-[#D4AF37] my-4" />
 
-                                        <p className="text-gray-500 text-lg" style={{ fontFamily: 'Georgia, serif' }}>&amp; Happy New Year 2026</p>
+                                        <p className="text-gray-500 text-lg" style={{ fontFamily: 'Georgia, serif' }}>&amp; a Prosperous 2026</p>
 
                                         {/* Footer Bar - Conference Style */}
                                         <div className="absolute bottom-0 left-0 right-0 bg-white px-5 py-3 border-t-2 border-[#D4AF37]">
