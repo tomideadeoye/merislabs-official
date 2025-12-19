@@ -53,7 +53,7 @@ export default function NICARBFlyersPage() {
         setDownloading(filename);
 
         try {
-            const html2canvas = (await import('html2canvas')).default;
+            const html2canvas = (await import('html2canvas-pro')).default;
             const canvas = await html2canvas(elementRef.current, {
                 scale: 3, // Higher scale for better quality
                 useCORS: true,
