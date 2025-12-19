@@ -54,7 +54,6 @@ const nextConfig = {
       '@/layout': path.resolve(__dirname, 'app/layout'),
       '@/page': path.resolve(__dirname, 'app/page'),
       '@/not-found': path.resolve(__dirname, 'app/not-found'),
-      '@/reports': path.resolve(__dirname, 'app/components/reports'),
     };
 
     // Add support for importing SVGs as React components (optional but common)
