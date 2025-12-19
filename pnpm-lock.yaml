@@ -119,6 +119,12 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.81.2
         version: 5.90.2(react@19.2.0)
+      '@types/node':
+        specifier: ^24
+        version: 24.6.2
+      '@types/react':
+        specifier: ^19
+        version: 19.2.0
       '@vercel/sdk':
         specifier: ^1.10.0
         version: 1.12.1
@@ -275,6 +281,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.18(yaml@2.8.1))
+      typescript:
+        specifier: ^5
+        version: 5.9.3
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -387,9 +396,6 @@ importers:
       '@types/ms':
         specifier: ^2.1.0
         version: 2.1.0
-      '@types/node':
-        specifier: ^24
-        version: 24.6.2
       '@types/node-fetch':
         specifier: ^2.6.12
         version: 2.6.13
@@ -405,9 +411,6 @@ importers:
       '@types/raf':
         specifier: ^3.4.3
         version: 3.4.3
-      '@types/react':
-        specifier: ^19
-        version: 19.2.0
       '@types/react-beautiful-dnd':
         specifier: ^13.1.8
         version: 13.1.8
@@ -495,9 +498,6 @@ importers:
       supertest:
         specifier: ^7.1.1
         version: 7.1.4
-      typescript:
-        specifier: ^5
-        version: 5.9.3
       typescript-eslint:
         specifier: ^8.35.0
         version: 8.45.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
