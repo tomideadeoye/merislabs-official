@@ -76,7 +76,7 @@ export default function NICARBFlyersPage() {
     return (
         <>
             <style dangerouslySetInnerHTML={{ __html: styles }} />
-            <div className="min-h-screen bg-gradient-to-br from-[#064802]/5 via-white to-[#a9ce46]/10">
+            <div className="min-h-screen bg-white">
                 <div className="max-w-7xl mx-auto px-4 py-12">
                     {/* Header */}
                     <div className="text-center mb-12">
