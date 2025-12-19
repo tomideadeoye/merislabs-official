@@ -1,23 +1,5 @@
 {
-  "version": 2,
   "github": {
     "silent": true
-  },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "includeFiles": [
-          "next.config.js",
-          "postcss.config.mjs",
-          "tailwind.config.mjs"
-        ]
-      }
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "TAILWINDCSS_DISABLE_LIGHTNINGCSS": "1"
   }
 }
