@@ -20,11 +20,6 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
 
-  // Temporarily disable linting during build to unblock Vercel deployment
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
   // Webpack configuration for better performance and compatibility
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Add path aliases
