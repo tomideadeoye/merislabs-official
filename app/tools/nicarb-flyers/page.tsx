@@ -621,6 +621,451 @@ export default function NICARBFlyersPage() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Design 5: The Presidential (Luxury Gold) - Refined */}
+                            <div className="group">
+                                {/* Embed Fonts */}
+                                <style>{`
+                                        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+                                    `}</style>
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#022c01] border border-gray-400"></span>
+                                    The Presidential (Luxury Gold)
+                                </h3>
+                                <div
+                                    className="relative w-full aspect-square overflow-hidden shadow-xl"
+                                    style={{ background: '#022c01' }}
+                                >
+                                    {/* Gold Border Frame */}
+                                    <div className="absolute inset-4 border-2 border-[#D4AF37] opacity-60" />
+                                    <div className="absolute inset-6 border border-[#D4AF37] opacity-30" />
+
+                                    {/* Ornament */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_10.48.30-removebg-preview.png"
+                                        alt=""
+                                        className="absolute top-2 right-2 w-44 h-auto opacity-40 pointer-events-none mix-blend-overlay"
+                                    />
+
+                                    {/* Content */}
+                                    <div className="relative z-10 h-full flex flex-col items-center justify-center p-12 text-center">
+                                        {/* Logo - Anchored & Larger */}
+                                        <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-white/95 px-8 py-4 rounded-b-xl shadow-2xl border-t-0 border border-[#D4AF37]/40">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src="/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" style={{ maxWidth: '130px', height: 'auto' }} />
+                                        </div>
+
+                                        <div className="mt-24 flex flex-col items-center">
+                                            <h2 className="text-5xl text-[#D4AF37] mb-2 leading-none transform -rotate-2" style={{ fontFamily: 'Great Vibes, cursive' }}>Season&apos;s</h2>
+                                            <h2 className="text-5xl text-[#F0E68C] mb-6 tracking-[0.2em] leading-tight font-bold" style={{ fontFamily: 'Cinzel, serif' }}>GREETINGS</h2>
+                                        </div>
+
+                                        {/* Refined Divider */}
+                                        <div className="flex items-center gap-4 mb-8 opacity-90">
+                                            <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-[#D4AF37]" />
+                                            <div className="w-2 h-2 rotate-45 border border-[#D4AF37] bg-[#022c01]" />
+                                            <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#D4AF37]" />
+                                        </div>
+
+                                        {/* Integrated Year */}
+                                        <p className="text-[#F0E68C] text-lg font-medium tracking-[0.4em] drop-shadow-md" style={{ fontFamily: 'Playfair Display, serif' }}>2026</p>
+
+                                        {/* Assertive Gold Footer */}
+                                        <div className="absolute bottom-10 w-full text-center">
+                                            <div className="w-1/3 h-px bg-[#D4AF37]/30 mx-auto mb-4"></div>
+                                            <p className="text-[#D4AF37] text-[10px] font-bold tracking-[0.25em] uppercase">
+                                                Nigerian Institute of Chartered Arbitrators
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 6: Glass & Light - Elevated */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-gradient-to-br from-green-200 to-white border border-gray-400"></span>
+                                    Glass & Light
+                                </h3>
+                                <div
+                                    className="relative w-full aspect-square overflow-hidden shadow-xl"
+                                    style={{
+                                        background: 'radial-gradient(circle at top right, #064802, #0a1f0a)',
+                                    }}
+                                >
+                                    {/* Abstract Background Blobs */}
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#a9ce46]/20 rounded-full blur-[100px]" />
+                                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/20 rounded-full blur-[100px]" />
+
+                                    {/* Glass Card - Refined Opacity */}
+                                    <div className="absolute inset-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center p-8 text-center ring-1 ring-white/5">
+
+                                        {/* Ornament - Balanced */}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_10.48.30-removebg-preview.png"
+                                            alt=""
+                                            className="absolute -top-12 -right-12 w-48 h-auto opacity-30 pointer-events-none rotate-12 mix-blend-plus-lighter"
+                                        />
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_10.48.30-removebg-preview.png"
+                                            alt=""
+                                            className="absolute -bottom-10 -left-10 w-32 h-auto opacity-20 pointer-events-none -rotate-12 mix-blend-overlay"
+                                        />
+
+                                        {/* Logo - Scaled Up */}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" className="mb-8 bg-white/95 px-6 py-4 rounded-xl shadow-xl" style={{ maxWidth: '150px', height: 'auto' }} />
+
+                                        <div className="relative z-10">
+                                            <h2 className="text-6xl text-white mb-2 drop-shadow-lg" style={{ fontFamily: 'Great Vibes, cursive' }}>Merry Christmas</h2>
+                                            <p className="text-[#d8eeb3] text-lg mb-8 tracking-wider font-light" style={{ fontFamily: 'Cinzel, serif' }}>& HAPPY NEW YEAR</p>
+                                        </div>
+
+                                        {/* Refined Year Badge */}
+                                        <div className="relative group/year">
+                                            <div className="absolute inset-0 bg-[#D4AF37]/20 blur-lg rounded-full opacity-50"></div>
+                                            <div className="relative px-10 py-2 rounded-full text-base font-bold tracking-[0.3em] shadow-lg border border-[#D4AF37]/50 text-[#D4AF37] bg-black/40 backdrop-blur-md" style={{ fontFamily: 'Playfair Display, serif' }}>
+                                                2026
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 7: The Coat of Arms */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-white border-2 border-[#064802]"></span>
+                                    The Coat of Arms
+                                </h3>
+                                <div
+                                    className="relative w-full aspect-square overflow-hidden shadow-xl bg-white"
+                                >
+                                    {/* Watermark Logo */}
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/NICARB-LOGO-GREEN-BOLD.webp" alt="" className="w-3/4 h-auto grayscale" />
+                                    </div>
+
+                                    {/* Sidebar/Header Green Stripe */}
+                                    <div className="absolute top-0 left-0 right-0 h-2 bg-[#064802]" />
+                                    <div className="absolute top-2 left-0 right-0 h-1 bg-[#D4AF37]" />
+
+                                    {/* Ornament */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_10.48.30-removebg-preview.png"
+                                        alt=""
+                                        className="absolute top-6 right-0 w-56 h-auto opacity-100 pointer-events-none"
+                                    />
+
+                                    <div className="relative z-10 h-full flex flex-col p-10 pt-16">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" className="mb-10 block" style={{ maxWidth: '160px', height: 'auto' }} />
+
+                                        <div className="mt-auto">
+                                            <h2 className="text-5xl text-[#064802] mb-2 font-bold leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+                                                Merry <br />
+                                                <span className="text-[#D4AF37]">Christmas</span>
+                                            </h2>
+                                            <p className="text-gray-600 text-lg mt-4 max-w-xs">
+                                                Wishing you a prosperous New Year <strong>2026</strong>.
+                                            </p>
+                                        </div>
+
+                                        {/* Footer */}
+                                        <div className="mt-8 pt-4 border-t border-gray-100 flex justify-between items-end text-[10px] text-gray-500">
+                                            <div>
+                                                Nigerian Institute of<br />Chartered Arbitrators
+                                            </div>
+                                            <div className="font-bold text-[#064802]">
+                                                www.nicarb.org
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 8: Red & Gold Grandeur */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#8b0000] border border-gray-400"></span>
+                                    Red & Gold Grandeur
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl flex bg-white">
+                                    {/* Left Accent - Red */}
+                                    <div className="w-1/3 bg-[#8b0000] relative overflow-hidden">
+                                        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/christmas-signatures/pngmagic-tree.png" className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-auto object-cover" alt="" />
+                                    </div>
+                                    <div className="w-2/3 p-8 flex flex-col justify-center text-left relative">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" className="w-24 mb-6" />
+                                        <h2 className="text-3xl font-serif text-[#064802] leading-tight mb-2">Merry <br /><span className="text-[#D4AF37]">Christmas</span></h2>
+                                        <p className="text-xs text-gray-500 mb-6">Wishing you joy and success in 2026.</p>
+                                        <div className="mt-auto border-t border-gray-200 pt-4 text-[10px] text-gray-400">
+                                            Nigerian Institute of Chartered Arbitrators
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 9: The Golden Spiral */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#064802] border border-gray-400"></span>
+                                    The Golden Spiral
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-[#0a2f0a]">
+                                    {/* Abstract Swirls */}
+                                    <div className="absolute top-0 right-0 w-full h-full opacity-30 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-900/40 via-transparent to-transparent"></div>
+
+                                    {/* Centered Tree */}
+                                    <div className="absolute inset-0 flex items-center justify-center translate-y-4">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/christmas-signatures/ai-tree-gold.png" className="w-3/4 h-auto drop-shadow-2xl brightness-110" alt="" />
+                                    </div>
+
+                                    <div className="absolute top-8 left-0 right-0 text-center">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/NICARB-LOGO-White.png" alt="NICARB" className="h-12 mx-auto opacity-90" />
+                                    </div>
+
+                                    <div className="absolute bottom-10 left-0 right-0 text-center">
+                                        <h2 className="text-5xl font-serif text-[#D4AF37] tracking-widest drop-shadow-lg">2026</h2>
+                                        <p className="text-white/60 text-[10px] tracking-[0.3em] uppercase mt-1">Season's Greetings</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 10: Ring In The New */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-white border border-gray-400"></span>
+                                    Ring In The New
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-gradient-to-b from-gray-50 to-white border-8 border-white ring-1 ring-gray-200">
+                                    {/* Hanging Bells */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/vecteezy-bells.png" className="absolute -top-4 left-1/2 -translate-x-1/2 w-2/3 h-auto drop-shadow-xl z-10" alt="" />
+
+                                    <div className="absolute bottom-0 left-0 right-0 h-1/2 flex flex-col items-center justify-end p-8 pb-10 text-center">
+                                        <h2 className="text-3xl text-[#064802] font-serif mb-2">Peace & Joy</h2>
+                                        <p className="text-gray-500 text-sm mb-4">May your holidays be filled with harmony.</p>
+                                        <div className="flex items-center gap-2 text-[10px] font-bold text-[#D4AF37]">
+                                            <span>NICArb</span>
+                                            <span>•</span>
+                                            <span>2026</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 11: The New Cutout */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#064802] border border-gray-400"></span>
+                                    The New Cutout
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-[#064802]">
+                                    {/* Big Faded Background */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_12.27.59-removebg-preview.png" className="absolute -right-20 -bottom-20 w-full h-auto opacity-10 blur-sm rotate-12" alt="" />
+
+                                    {/* Main Content */}
+                                    <div className="relative z-10 h-full flex flex-row items-center p-8">
+                                        <div className="w-1/2">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_12.27.59-removebg-preview.png" className="w-full h-auto drop-shadow-2xl" alt="" />
+                                        </div>
+                                        <div className="w-1/2 text-right text-white">
+                                            <h2 className="text-2xl font-bold mb-1">Happy Holidays</h2>
+                                            <div className="w-full h-1 bg-[#D4AF37] my-3 ml-auto rounded-full"></div>
+                                            <p className="text-xs text-white/80">Wishing you a prosperous year ahead.</p>
+                                            <p className="text-3xl font-bold text-[#D4AF37] mt-4">2026</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 12: Golden Holiday */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#D4AF37] border border-gray-400"></span>
+                                    Golden Holiday
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-black">
+                                    {/* Tree on Right */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/golden-holiday-tree.png" className="absolute right-0 bottom-0 h-[90%] w-auto object-contain" alt="" />
+
+                                    <div className="absolute top-8 left-8">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/NICARB-LOGO-White.png" alt="" className="w-16 opacity-80" />
+                                    </div>
+
+                                    <div className="absolute bottom-12 left-8 text-white max-w-[50%]">
+                                        <h2 className="text-4xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F0E68C]">GOLDEN<br />WISHES</h2>
+                                        <p className="text-[#D4AF37] mt-2 text-sm">For the New Year</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 13: Luxury Bells (Dark) */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-black border border-gray-400"></span>
+                                    Luxury Bells (Dark)
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-gradient-to-br from-gray-900 to-black">
+                                    {/* Center Glow */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#D4AF37] rounded-full blur-[100px] opacity-20"></div>
+
+                                    {/* Bells */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/ai-bells-gold.png" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-3/4 h-auto drop-shadow-2xl z-10" alt="" />
+
+                                    <div className="absolute top-0 w-full p-6 text-center z-20">
+                                        <p className="text-[#D4AF37] tracking-[0.5em] text-xs uppercase">Season's Greetings</p>
+                                    </div>
+
+                                    <div className="absolute bottom-8 w-full text-center z-20">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/NICARB-LOGO-White.png" alt="" className="h-8 mx-auto opacity-70" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 14: Ornate Corner */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-white border border-gray-400"></span>
+                                    Ornate Corner
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-white border-2 border-[#064802]">
+                                    {/* Corners */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_10.48.30-removebg-preview.png" className="absolute -top-4 -left-4 w-32 h-auto rotate-180" alt="" />
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/Screenshot_2025-12-19_at_10.48.30-removebg-preview.png" className="absolute -bottom-4 -right-4 w-32 h-auto" alt="" />
+
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-12">
+                                        <h2 className="text-4xl font-serif text-[#064802] mb-1">2026</h2>
+                                        <div className="w-16 h-1 bg-[#D4AF37] mb-4"></div>
+                                        <p className="text-gray-600 italic">"Wishing you peace, prosperity, and happiness."</p>
+                                        <p className="text-[10px] font-bold text-[#064802] mt-6 uppercase tracking-widest">The Nigerian Institute<br />of Chartered Arbitrators</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 15: The Celebration */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#D4AF37] border border-gray-400"></span>
+                                    The Celebration
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-[#D4AF37]">
+                                    <div className="absolute inset-2 bg-white flex flex-col items-center justify-between p-6 pt-12">
+                                        {/* Bells Top */}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/christmas-signatures/vecteezy-bells.png" className="w-32 h-auto -mt-8" alt="" />
+
+                                        <div className="text-center">
+                                            <h2 className="text-3xl font-serif text-[#064802]">Season's<br />Greetings</h2>
+                                            <p className="text-[#D4AF37] font-bold mt-2">2026</p>
+                                        </div>
+
+                                        {/* Tree Bottom */}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/christmas-signatures/ai-tree-gold.png" className="w-32 h-auto -mb-8 opacity-50 grayscale" alt="" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Design 16: Art Deco 2026 */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#064802] border border-gray-400"></span>
+                                    Art Deco 2026
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-[#0e2a14] border-4 border-[#D4AF37]">
+                                    <div className="absolute inset-4 border border-[#D4AF37] flex items-center justify-center">
+                                        <div className="text-center">
+                                            <h2 className="text-6xl font-thin text-[#D4AF37]" style={{ fontFamily: 'Georgia' }}>20</h2>
+                                            <h2 className="text-6xl font-bold text-white" style={{ fontFamily: 'Georgia' }}>26</h2>
+                                        </div>
+                                    </div>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/ai-bells-gold.png" className="absolute top-2 right-2 w-24 h-auto opacity-80" alt="" />
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/nicarb/christmas-signatures/ai-bells-gold.png" className="absolute bottom-2 left-2 w-24 h-auto opacity-80 rotate-180" alt="" />
+                                </div>
+                            </div>
+
+
+                            {/* Design 17: Typographic */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-white border border-gray-400"></span>
+                                    Typographic Modern
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-white flex flex-col p-8">
+                                    <div className="flex-1 flex flex-col justify-center">
+                                        <h2 className="text-[5rem] leading-none font-black text-gray-100 absolute top-4 left-4 -z-10">DEC</h2>
+                                        <h2 className="text-5xl font-bold text-[#064802] mb-1">MERRY</h2>
+                                        <h2 className="text-5xl font-bold text-[#D4AF37] mb-6">XMAS</h2>
+                                        <div className="w-20 h-2 bg-[#064802]"></div>
+                                    </div>
+                                    <div className="flex justify-between items-end">
+                                        <p className="text-sm text-gray-500 max-w-[150px]">Warmest thoughts and best wishes for a wonderful holiday.</p>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/nicarb/christmas-signatures/golden-holiday-tree.png" className="w-24 h-auto -mr-4 -mb-4 opacity-80" alt="" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {/* Design 18: The Regal Classic */}
+                            <div className="group">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-[#032001] border border-gray-400"></span>
+                                    The Regal Classic
+                                </h3>
+                                <div className="relative w-full aspect-square overflow-hidden shadow-xl bg-gradient-to-t from-[#032001] to-[#064802]">
+                                    {/* Gold Frame Border */}
+                                    <div className="absolute inset-3 border border-[#D4AF37]/40"></div>
+                                    <div className="absolute inset-4 border border-[#D4AF37]/20"></div>
+
+                                    {/* Main Asset - Centered and Large */}
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src="/nicarb/christmas-signatures/photo-1636853242788-520691c7d527-removebg-preview.png"
+                                            className="w-[75%] h-auto object-contain drop-shadow-2xl z-10"
+                                            alt="Decoration"
+                                        />
+                                    </div>
+
+                                    {/* Glass Overlay for Text */}
+                                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[90%] bg-[#032001]/80 backdrop-blur-sm border-t border-[#D4AF37]/50 p-6 text-center z-20">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src="/clients/NICARB%20LOGO%20Green%20Text%20(1).png" alt="NICARB" className="h-8 mx-auto mb-3 brightness-0 invert opacity-80" />
+
+                                        <h2 className="text-3xl text-white font-serif tracking-wide">Season's Greetings</h2>
+                                        <div className="flex items-center justify-center gap-3 my-2 opacity-60">
+                                            <div className="h-px w-8 bg-[#D4AF37]"></div>
+                                            <span className="text-[#D4AF37] font-serif italic">2026</span>
+                                            <div className="h-px w-8 bg-[#D4AF37]"></div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
                         </div>
 
                         <p className="text-center text-gray-500 text-sm mt-6">💡 Let us know which design you prefer and we can make it downloadable!</p>
@@ -718,7 +1163,7 @@ export default function NICARBFlyersPage() {
                         <p className="mt-1 text-xs text-gray-400">Powered by MerisLabs</p>
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     );
 }
