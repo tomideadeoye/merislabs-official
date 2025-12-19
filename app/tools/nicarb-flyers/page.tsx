@@ -463,7 +463,6 @@ export default function NICARBFlyersPage() {
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-[8px] text-gray-600">+234 908 718 7414 · +234 916 984 9140</p>
-                                                    <p className="text-[8px] text-[#064802] font-semibold">www.nicarb.org</p>
                                                 </div>
                                             </div>
                                         </div>
