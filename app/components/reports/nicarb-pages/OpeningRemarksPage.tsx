@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from './Page';
-import { Nicarb2025ConferenceFooter } from '@/reports/nicarb-pages/ui/footer';
+import { Nicarb2025ConferenceFooter } from './ui/footer';
 
 const OpeningRemarksPage: React.FC = () => {
   return (

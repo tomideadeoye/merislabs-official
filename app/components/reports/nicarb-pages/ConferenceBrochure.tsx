@@ -6,7 +6,7 @@ import { Day2Schedule } from './schedule/day2';
 import { attendeeProfiles } from '@/data/nicarb/attendees';
 import { Page } from './Page';
 import { CoverPage } from './CoverPage';
-import { Nicarb2025ConferenceFooter } from '@/reports/nicarb-pages/ui/footer';
+import { Nicarb2025ConferenceFooter } from './ui/footer';
 import WelcomeAddressPage from './WelcomeAddressPage';
 import GoverningCouncilPage from './GoverningCouncilPage';
 import OpeningRemarksPage from './OpeningRemarksPage';
