@@ -458,11 +458,11 @@ export default function NICARBFlyersPage() {
                                         <div className="absolute bottom-0 left-0 right-0 bg-white px-5 py-3 border-t-2 border-[#D4AF37]">
                                             <div className="flex items-center justify-between">
                                                 <div className="text-[#064802]">
-                                                    <p className="font-bold text-[10px]">Nigerian Institute of Chartered Arbitrators</p>
-                                                    <p className="text-[8px] text-gray-600">10 Adedeji Adekola Close, Off Freedom Way, Lekki Phase 1, Lagos</p>
+                                                    <p className="font-bold text-[9px]">Nigerian Institute of Chartered Arbitrators</p>
+                                                    <p className="text-[7px] text-gray-600">10 Adedeji Adekola Close, Off Freedom Way, Lekki Phase 1, Lagos</p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-[8px] text-gray-600">+234 908 718 7414 · +234 916 984 9140</p>
+                                                <div className="text-right flex-shrink-0 whitespace-nowrap">
+                                                    <p className="text-[7px] text-gray-600 whitespace-nowrap">+234 908 718 7414 · +234 916 984 9140</p>
                                                 </div>
                                             </div>
                                         </div>
