@@ -1,0 +1,10 @@
+/* Mobile Menu Styles */
+.mobile-nav-open {
+  max-height: var(--mobile-nav-height, 500px);
+  opacity: 1;
+}
+
+.mobile-nav-closed {
+  max-height: 0;
+  opacity: 0.8;
+}

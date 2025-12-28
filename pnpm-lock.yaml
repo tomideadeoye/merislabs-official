@@ -505,6 +505,1124 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(jiti@1.21.7)(jsdom@26.1.0(canvas@3.2.0))(terser@5.44.0)(yaml@2.8.1)
 
+  apps/design:
+    dependencies:
+      '@headlessui/react':
+        specifier: ^2.2.4
+        version: 2.2.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@hookform/resolvers':
+        specifier: ^5.1.1
+        version: 5.2.2(react-hook-form@7.64.0(react@19.2.0))
+      '@mozilla/readability':
+        specifier: ^0.6.0
+        version: 0.6.0
+      '@nivo/bar':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@nivo/core':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@nivo/line':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@nivo/pie':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-accordion':
+        specifier: ^1.2.11
+        version: 1.2.12(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-alert-dialog':
+        specifier: ^1.1.14
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-aspect-ratio':
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-avatar':
+        specifier: ^1.1.10
+        version: 1.1.10(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-checkbox':
+        specifier: ^1.3.2
+        version: 1.3.3(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-collapsible':
+        specifier: ^1.1.11
+        version: 1.1.12(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-context-menu':
+        specifier: ^2.2.15
+        version: 2.2.16(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-dialog':
+        specifier: ^1.1.15
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-dropdown-menu':
+        specifier: ^2.1.15
+        version: 2.1.16(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-hover-card':
+        specifier: ^1.1.14
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-label':
+        specifier: ^2.1.7
+        version: 2.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-menubar':
+        specifier: ^1.1.15
+        version: 1.1.16(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-navigation-menu':
+        specifier: ^1.2.13
+        version: 1.2.14(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-popover':
+        specifier: ^1.1.14
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-progress':
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-radio-group':
+        specifier: ^1.3.7
+        version: 1.3.8(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-scroll-area':
+        specifier: ^1.2.9
+        version: 1.2.10(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-select':
+        specifier: ^2.2.5
+        version: 2.2.6(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-separator':
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-slider':
+        specifier: ^1.3.5
+        version: 1.3.6(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-slot':
+        specifier: ^1.2.3
+        version: 1.2.4(@types/react@19.2.0)(react@19.2.0)
+      '@radix-ui/react-switch':
+        specifier: ^1.2.5
+        version: 1.2.6(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-tabs':
+        specifier: ^1.1.12
+        version: 1.1.13(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-toast':
+        specifier: ^1.2.14
+        version: 1.2.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-toggle':
+        specifier: ^1.1.9
+        version: 1.1.10(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-toggle-group':
+        specifier: ^1.1.10
+        version: 1.1.11(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.2.7
+        version: 1.2.8(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@react-pdf/renderer':
+        specifier: ^4.3.1
+        version: 4.3.1(react@19.2.0)
+      '@shadcn/ui':
+        specifier: ^0.0.4
+        version: 0.0.4
+      '@tanstack/react-query':
+        specifier: ^5.81.2
+        version: 5.90.2(react@19.2.0)
+      '@types/node':
+        specifier: ^24
+        version: 24.6.2
+      '@types/react':
+        specifier: ^19
+        version: 19.2.0
+      '@vercel/sdk':
+        specifier: ^1.10.0
+        version: 1.12.1
+      aos:
+        specifier: ^2.3.4
+        version: 2.3.4
+      autoprefixer:
+        specifier: ^10.4.0
+        version: 10.4.21(postcss@8.5.6)
+      axios:
+        specifier: ^1.10.0
+        version: 1.12.2
+      chalk:
+        specifier: ^5.4.1
+        version: 5.6.2
+      cheerio:
+        specifier: ^1.1.0
+        version: 1.1.2
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      cmdk:
+        specifier: ^1.1.1
+        version: 1.1.1(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      critters:
+        specifier: ^0.0.23
+        version: 0.0.23
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      docx:
+        specifier: ^9.5.1
+        version: 9.5.1
+      framer-motion:
+        specifier: ^12.19.1
+        version: 12.23.24(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      html-inline:
+        specifier: ^1.2.0
+        version: 1.2.0
+      html2canvas-pro:
+        specifier: ^1.5.11
+        version: 1.5.11
+      js-cookie:
+        specifier: ^3.0.5
+        version: 3.0.5
+      jspdf:
+        specifier: ^3.0.1
+        version: 3.0.3
+      litellm:
+        specifier: ^0.12.0
+        version: 0.12.0(ws@8.18.3)(zod@3.25.76)
+      lodash.isequal:
+        specifier: ^4.5.0
+        version: 4.5.0
+      lucide-react:
+        specifier: ^0.522.0
+        version: 0.522.0(react@19.2.0)
+      marked:
+        specifier: ^15.0.12
+        version: 15.0.12
+      motion:
+        specifier: ^12.23.24
+        version: 12.23.24(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next:
+        specifier: 16.0.8
+        version: 16.0.8(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      node-fetch:
+        specifier: ^3.3.2
+        version: 3.3.2
+      nodemailer:
+        specifier: ^7.0.3
+        version: 7.0.7
+      pg:
+        specifier: ^8.16.2
+        version: 8.16.3
+      postcss:
+        specifier: ^8
+        version: 8.5.6
+      postcss-import:
+        specifier: ^16.1.1
+        version: 16.1.1(postcss@8.5.6)
+      puppeteer:
+        specifier: ^24.10.2
+        version: 24.23.0(typescript@5.9.3)
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@19.2.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.2.0
+      react-day-picker:
+        specifier: ^9.7.0
+        version: 9.11.0(react@19.2.0)
+      react-dom:
+        specifier: ^19
+        version: 19.2.0(react@19.2.0)
+      react-dropzone:
+        specifier: ^14.3.8
+        version: 14.3.8(react@19.2.0)
+      react-hook-form:
+        specifier: ^7.58.1
+        version: 7.64.0(react@19.2.0)
+      react-hot-toast:
+        specifier: ^2.5.2
+        version: 2.6.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@19.2.0)
+      react-iframe:
+        specifier: ^1.8.5
+        version: 1.8.5(react@19.2.0)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.0)(react@19.2.0)
+      react-pdf:
+        specifier: ^9.2.1
+        version: 9.2.1(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-pdf-html:
+        specifier: ^2.1.3
+        version: 2.1.3(@react-pdf/renderer@4.3.1(react@19.2.0))(react@19.2.0)
+      react-select:
+        specifier: ^5.10.1
+        version: 5.10.2(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-to-pdf:
+        specifier: ^2.0.1
+        version: 2.0.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-use:
+        specifier: ^17.6.0
+        version: 17.6.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      reactflow:
+        specifier: ^11.11.4
+        version: 11.11.4(@types/react@19.2.0)(immer@10.1.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      recharts:
+        specifier: ^3.0.0
+        version: 3.2.1(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react-is@18.3.1)(react@19.2.0)(redux@5.0.1)
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+      simplex-noise:
+        specifier: ^4.0.3
+        version: 4.0.3
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.4.0
+      tailwindcss:
+        specifier: ^3.4.18
+        version: 3.4.18(yaml@2.8.1)
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.18(yaml@2.8.1))
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+      winston:
+        specifier: ^3.17.0
+        version: 3.18.3
+      zod:
+        specifier: ^3.25.67
+        version: 3.25.76
+      zustand:
+        specifier: ^5.0.5
+        version: 5.0.8(@types/react@19.2.0)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
+    devDependencies:
+      '@babel/preset-env':
+        specifier: ^7.27.2
+        version: 7.28.3(@babel/core@7.28.4)
+      '@babel/preset-react':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.4)
+      '@babel/preset-typescript':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.4)
+      '@eslint/compat':
+        specifier: ^1.3.0
+        version: 1.4.0(eslint@9.37.0(jiti@1.21.7))
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
+      '@eslint/js':
+        specifier: ^9.29.0
+        version: 9.37.0
+      '@merislabs/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@merislabs/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@types/aos':
+        specifier: ^3.0.7
+        version: 3.0.7
+      '@types/babel__core':
+        specifier: ^7.20.5
+        version: 7.20.5
+      '@types/babel__generator':
+        specifier: ^7.27.0
+        version: 7.27.0
+      '@types/babel__template':
+        specifier: ^7.4.4
+        version: 7.4.4
+      '@types/babel__traverse':
+        specifier: ^7.20.7
+        version: 7.28.0
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
+      '@types/deep-eql':
+        specifier: ^4.0.2
+        version: 4.0.2
+      '@types/estree':
+        specifier: ^1.0.8
+        version: 1.0.8
+      '@types/estree-jsx':
+        specifier: ^1.0.5
+        version: 1.0.5
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
+      '@types/graceful-fs':
+        specifier: ^4.1.9
+        version: 4.1.9
+      '@types/hast':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/hoist-non-react-statics':
+        specifier: ^3.3.6
+        version: 3.3.7(@types/react@19.2.0)
+      '@types/istanbul-lib-coverage':
+        specifier: ^2.0.6
+        version: 2.0.6
+      '@types/istanbul-lib-report':
+        specifier: ^3.0.3
+        version: 3.0.3
+      '@types/istanbul-reports':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/jest':
+        specifier: ^30.0.0
+        version: 30.0.0
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
+      '@types/jsdom':
+        specifier: ^21.1.7
+        version: 21.1.7
+      '@types/json5':
+        specifier: ^2.2.0
+        version: 2.2.0
+      '@types/lodash.isequal':
+        specifier: ^4.5.8
+        version: 4.5.8
+      '@types/marked':
+        specifier: ^6.0.0
+        version: 6.0.0
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      '@types/mocha':
+        specifier: ^10.0.10
+        version: 10.0.10
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
+      '@types/node-fetch':
+        specifier: ^2.6.12
+        version: 2.6.13
+      '@types/nodemailer':
+        specifier: ^6.4.17
+        version: 6.4.20
+      '@types/pg':
+        specifier: ^8.15.4
+        version: 8.15.5
+      '@types/prop-types':
+        specifier: ^15.7.15
+        version: 15.7.15
+      '@types/raf':
+        specifier: ^3.4.3
+        version: 3.4.3
+      '@types/react-beautiful-dnd':
+        specifier: ^13.1.8
+        version: 13.1.8
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.0(@types/react@19.2.0)
+      '@types/react-redux':
+        specifier: ^7.1.34
+        version: 7.1.34
+      '@types/react-select':
+        specifier: ^5.0.1
+        version: 5.0.1(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@types/stack-utils':
+        specifier: ^2.0.3
+        version: 2.0.3
+      '@types/supertest':
+        specifier: ^6.0.3
+        version: 6.0.3
+      '@types/testing-library__react':
+        specifier: ^10.2.0
+        version: 10.2.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@types/unist':
+        specifier: ^3.0.3
+        version: 3.0.3
+      '@types/uuid':
+        specifier: ^10.0.0
+        version: 10.0.0
+      '@types/yargs':
+        specifier: ^17.0.33
+        version: 17.0.33
+      '@types/yargs-parser':
+        specifier: ^21.0.3
+        version: 21.0.3
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.35.0
+        version: 8.49.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.35.0
+        version: 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      babel-loader:
+        specifier: ^10.0.0
+        version: 10.0.0(@babel/core@7.28.4)(webpack@5.102.0)
+      eslint:
+        specifier: ^9.29.0
+        version: 9.37.0(jiti@1.21.7)
+      eslint-config-next:
+        specifier: 16.0.8
+        version: 16.0.8(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      eslint-config-prettier:
+        specifier: ^10.1.5
+        version: 10.1.8(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react:
+        specifier: ^7.37.5
+        version: 7.37.5(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react-hooks:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.37.0(jiti@1.21.7))
+      globals:
+        specifier: ^16.2.0
+        version: 16.4.0
+      jest:
+        specifier: ^30.0.2
+        version: 30.2.0(@types/node@24.6.2)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.6.2)(typescript@5.9.3))
+      jest-environment-jsdom:
+        specifier: ^30.0.2
+        version: 30.2.0(canvas@3.2.0)
+      jest-fetch-mock:
+        specifier: ^3.0.3
+        version: 3.0.3
+      mocha:
+        specifier: ^11.7.0
+        version: 11.7.4
+      prettier:
+        specifier: ^3.6.0
+        version: 3.6.2
+      stylelint:
+        specifier: ^16.21.0
+        version: 16.25.0(typescript@5.9.3)
+      stylelint-config-standard:
+        specifier: ^38.0.0
+        version: 38.0.0(stylelint@16.25.0(typescript@5.9.3))
+      stylelint-config-tailwindcss:
+        specifier: ^1.0.0
+        version: 1.0.0(stylelint@16.25.0(typescript@5.9.3))(tailwindcss@3.4.18(yaml@2.8.1))
+      supertest:
+        specifier: ^7.1.1
+        version: 7.1.4
+      typescript-eslint:
+        specifier: ^8.35.0
+        version: 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(jiti@1.21.7)(jsdom@26.1.0(canvas@3.2.0))(terser@5.44.0)(yaml@2.8.1)
+
+  apps/legal:
+    dependencies:
+      '@merislabs/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@merislabs/data':
+        specifier: workspace:*
+        version: link:../../packages/data
+      '@merislabs/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@merislabs/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      framer-motion:
+        specifier: ^12.19.1
+        version: 12.23.24(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      lucide-react:
+        specifier: ^0.522.0
+        version: 0.522.0(react@19.2.0)
+      next:
+        specifier: 16.0.8
+        version: 16.0.8(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.0(react@19.2.0)
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.4.0
+    devDependencies:
+      '@types/node':
+        specifier: ^24
+        version: 24.6.2
+      '@types/react':
+        specifier: ^19
+        version: 19.2.0
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.0(@types/react@19.2.0)
+      autoprefixer:
+        specifier: ^10.4.0
+        version: 10.4.21(postcss@8.5.6)
+      eslint:
+        specifier: ^9
+        version: 9.37.0(jiti@1.21.7)
+      eslint-config-next:
+        specifier: 15.0.0
+        version: 15.0.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      postcss:
+        specifier: ^8
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^3.4.18
+        version: 3.4.18(yaml@2.8.1)
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  apps/main:
+    dependencies:
+      '@headlessui/react':
+        specifier: ^2.2.4
+        version: 2.2.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@hookform/resolvers':
+        specifier: ^5.1.1
+        version: 5.2.2(react-hook-form@7.64.0(react@19.2.0))
+      '@mozilla/readability':
+        specifier: ^0.6.0
+        version: 0.6.0
+      '@nivo/bar':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@nivo/core':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@nivo/line':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@nivo/pie':
+        specifier: ^0.99.0
+        version: 0.99.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-accordion':
+        specifier: ^1.2.11
+        version: 1.2.12(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-alert-dialog':
+        specifier: ^1.1.14
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-aspect-ratio':
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-avatar':
+        specifier: ^1.1.10
+        version: 1.1.10(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-checkbox':
+        specifier: ^1.3.2
+        version: 1.3.3(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-collapsible':
+        specifier: ^1.1.11
+        version: 1.1.12(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-context-menu':
+        specifier: ^2.2.15
+        version: 2.2.16(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-dialog':
+        specifier: ^1.1.15
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-dropdown-menu':
+        specifier: ^2.1.15
+        version: 2.1.16(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-hover-card':
+        specifier: ^1.1.14
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-label':
+        specifier: ^2.1.7
+        version: 2.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-menubar':
+        specifier: ^1.1.15
+        version: 1.1.16(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-navigation-menu':
+        specifier: ^1.2.13
+        version: 1.2.14(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-popover':
+        specifier: ^1.1.14
+        version: 1.1.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-progress':
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-radio-group':
+        specifier: ^1.3.7
+        version: 1.3.8(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-scroll-area':
+        specifier: ^1.2.9
+        version: 1.2.10(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-select':
+        specifier: ^2.2.5
+        version: 2.2.6(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-separator':
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-slider':
+        specifier: ^1.3.5
+        version: 1.3.6(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-slot':
+        specifier: ^1.2.3
+        version: 1.2.4(@types/react@19.2.0)(react@19.2.0)
+      '@radix-ui/react-switch':
+        specifier: ^1.2.5
+        version: 1.2.6(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-tabs':
+        specifier: ^1.1.12
+        version: 1.1.13(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-toast':
+        specifier: ^1.2.14
+        version: 1.2.15(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-toggle':
+        specifier: ^1.1.9
+        version: 1.1.10(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-toggle-group':
+        specifier: ^1.1.10
+        version: 1.1.11(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.2.7
+        version: 1.2.8(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@react-pdf/renderer':
+        specifier: ^4.3.1
+        version: 4.3.1(react@19.2.0)
+      '@shadcn/ui':
+        specifier: ^0.0.4
+        version: 0.0.4
+      '@tanstack/react-query':
+        specifier: ^5.81.2
+        version: 5.90.2(react@19.2.0)
+      '@types/node':
+        specifier: ^24
+        version: 24.6.2
+      '@types/react':
+        specifier: ^19
+        version: 19.2.0
+      '@vercel/sdk':
+        specifier: ^1.10.0
+        version: 1.12.1
+      aos:
+        specifier: ^2.3.4
+        version: 2.3.4
+      autoprefixer:
+        specifier: ^10.4.0
+        version: 10.4.21(postcss@8.5.6)
+      axios:
+        specifier: ^1.10.0
+        version: 1.12.2
+      chalk:
+        specifier: ^5.4.1
+        version: 5.6.2
+      cheerio:
+        specifier: ^1.1.0
+        version: 1.1.2
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      cmdk:
+        specifier: ^1.1.1
+        version: 1.1.1(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      critters:
+        specifier: ^0.0.23
+        version: 0.0.23
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      docx:
+        specifier: ^9.5.1
+        version: 9.5.1
+      framer-motion:
+        specifier: ^12.19.1
+        version: 12.23.24(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      html-inline:
+        specifier: ^1.2.0
+        version: 1.2.0
+      html2canvas-pro:
+        specifier: ^1.5.11
+        version: 1.5.11
+      js-cookie:
+        specifier: ^3.0.5
+        version: 3.0.5
+      jspdf:
+        specifier: ^3.0.1
+        version: 3.0.3
+      litellm:
+        specifier: ^0.12.0
+        version: 0.12.0(ws@8.18.3)(zod@3.25.76)
+      lodash.isequal:
+        specifier: ^4.5.0
+        version: 4.5.0
+      lucide-react:
+        specifier: ^0.522.0
+        version: 0.522.0(react@19.2.0)
+      marked:
+        specifier: ^15.0.12
+        version: 15.0.12
+      motion:
+        specifier: ^12.23.24
+        version: 12.23.24(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next:
+        specifier: 16.0.8
+        version: 16.0.8(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      node-fetch:
+        specifier: ^3.3.2
+        version: 3.3.2
+      nodemailer:
+        specifier: ^7.0.3
+        version: 7.0.7
+      pg:
+        specifier: ^8.16.2
+        version: 8.16.3
+      postcss:
+        specifier: ^8
+        version: 8.5.6
+      postcss-import:
+        specifier: ^16.1.1
+        version: 16.1.1(postcss@8.5.6)
+      puppeteer:
+        specifier: ^24.10.2
+        version: 24.23.0(typescript@5.9.3)
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@19.2.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.2.0
+      react-day-picker:
+        specifier: ^9.7.0
+        version: 9.11.0(react@19.2.0)
+      react-dom:
+        specifier: ^19
+        version: 19.2.0(react@19.2.0)
+      react-dropzone:
+        specifier: ^14.3.8
+        version: 14.3.8(react@19.2.0)
+      react-hook-form:
+        specifier: ^7.58.1
+        version: 7.64.0(react@19.2.0)
+      react-hot-toast:
+        specifier: ^2.5.2
+        version: 2.6.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@19.2.0)
+      react-iframe:
+        specifier: ^1.8.5
+        version: 1.8.5(react@19.2.0)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.0)(react@19.2.0)
+      react-pdf:
+        specifier: ^9.2.1
+        version: 9.2.1(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-pdf-html:
+        specifier: ^2.1.3
+        version: 2.1.3(@react-pdf/renderer@4.3.1(react@19.2.0))(react@19.2.0)
+      react-select:
+        specifier: ^5.10.1
+        version: 5.10.2(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-to-pdf:
+        specifier: ^2.0.1
+        version: 2.0.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-use:
+        specifier: ^17.6.0
+        version: 17.6.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      reactflow:
+        specifier: ^11.11.4
+        version: 11.11.4(@types/react@19.2.0)(immer@10.1.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      recharts:
+        specifier: ^3.0.0
+        version: 3.2.1(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react-is@18.3.1)(react@19.2.0)(redux@5.0.1)
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+      simplex-noise:
+        specifier: ^4.0.3
+        version: 4.0.3
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.4.0
+      tailwindcss:
+        specifier: ^3.4.18
+        version: 3.4.18(yaml@2.8.1)
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.18(yaml@2.8.1))
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+      winston:
+        specifier: ^3.17.0
+        version: 3.18.3
+      zod:
+        specifier: ^3.25.67
+        version: 3.25.76
+      zustand:
+        specifier: ^5.0.5
+        version: 5.0.8(@types/react@19.2.0)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
+    devDependencies:
+      '@babel/preset-env':
+        specifier: ^7.27.2
+        version: 7.28.3(@babel/core@7.28.4)
+      '@babel/preset-react':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.4)
+      '@babel/preset-typescript':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.4)
+      '@eslint/compat':
+        specifier: ^1.3.0
+        version: 1.4.0(eslint@9.37.0(jiti@1.21.7))
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
+      '@eslint/js':
+        specifier: ^9.29.0
+        version: 9.37.0
+      '@merislabs/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@merislabs/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@types/aos':
+        specifier: ^3.0.7
+        version: 3.0.7
+      '@types/babel__core':
+        specifier: ^7.20.5
+        version: 7.20.5
+      '@types/babel__generator':
+        specifier: ^7.27.0
+        version: 7.27.0
+      '@types/babel__template':
+        specifier: ^7.4.4
+        version: 7.4.4
+      '@types/babel__traverse':
+        specifier: ^7.20.7
+        version: 7.28.0
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
+      '@types/deep-eql':
+        specifier: ^4.0.2
+        version: 4.0.2
+      '@types/estree':
+        specifier: ^1.0.8
+        version: 1.0.8
+      '@types/estree-jsx':
+        specifier: ^1.0.5
+        version: 1.0.5
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
+      '@types/graceful-fs':
+        specifier: ^4.1.9
+        version: 4.1.9
+      '@types/hast':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/hoist-non-react-statics':
+        specifier: ^3.3.6
+        version: 3.3.7(@types/react@19.2.0)
+      '@types/istanbul-lib-coverage':
+        specifier: ^2.0.6
+        version: 2.0.6
+      '@types/istanbul-lib-report':
+        specifier: ^3.0.3
+        version: 3.0.3
+      '@types/istanbul-reports':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/jest':
+        specifier: ^30.0.0
+        version: 30.0.0
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
+      '@types/jsdom':
+        specifier: ^21.1.7
+        version: 21.1.7
+      '@types/json5':
+        specifier: ^2.2.0
+        version: 2.2.0
+      '@types/lodash.isequal':
+        specifier: ^4.5.8
+        version: 4.5.8
+      '@types/marked':
+        specifier: ^6.0.0
+        version: 6.0.0
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      '@types/mocha':
+        specifier: ^10.0.10
+        version: 10.0.10
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
+      '@types/node-fetch':
+        specifier: ^2.6.12
+        version: 2.6.13
+      '@types/nodemailer':
+        specifier: ^6.4.17
+        version: 6.4.20
+      '@types/pg':
+        specifier: ^8.15.4
+        version: 8.15.5
+      '@types/prop-types':
+        specifier: ^15.7.15
+        version: 15.7.15
+      '@types/raf':
+        specifier: ^3.4.3
+        version: 3.4.3
+      '@types/react-beautiful-dnd':
+        specifier: ^13.1.8
+        version: 13.1.8
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.0(@types/react@19.2.0)
+      '@types/react-redux':
+        specifier: ^7.1.34
+        version: 7.1.34
+      '@types/react-select':
+        specifier: ^5.0.1
+        version: 5.0.1(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@types/stack-utils':
+        specifier: ^2.0.3
+        version: 2.0.3
+      '@types/supertest':
+        specifier: ^6.0.3
+        version: 6.0.3
+      '@types/testing-library__react':
+        specifier: ^10.2.0
+        version: 10.2.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@types/unist':
+        specifier: ^3.0.3
+        version: 3.0.3
+      '@types/uuid':
+        specifier: ^10.0.0
+        version: 10.0.0
+      '@types/yargs':
+        specifier: ^17.0.33
+        version: 17.0.33
+      '@types/yargs-parser':
+        specifier: ^21.0.3
+        version: 21.0.3
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.35.0
+        version: 8.49.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.35.0
+        version: 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      babel-loader:
+        specifier: ^10.0.0
+        version: 10.0.0(@babel/core@7.28.4)(webpack@5.102.0)
+      eslint:
+        specifier: ^9.29.0
+        version: 9.37.0(jiti@1.21.7)
+      eslint-config-next:
+        specifier: 16.0.8
+        version: 16.0.8(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      eslint-config-prettier:
+        specifier: ^10.1.5
+        version: 10.1.8(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react:
+        specifier: ^7.37.5
+        version: 7.37.5(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react-hooks:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.37.0(jiti@1.21.7))
+      globals:
+        specifier: ^16.2.0
+        version: 16.4.0
+      jest:
+        specifier: ^30.0.2
+        version: 30.2.0(@types/node@24.6.2)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.6.2)(typescript@5.9.3))
+      jest-environment-jsdom:
+        specifier: ^30.0.2
+        version: 30.2.0(canvas@3.2.0)
+      jest-fetch-mock:
+        specifier: ^3.0.3
+        version: 3.0.3
+      mocha:
+        specifier: ^11.7.0
+        version: 11.7.4
+      prettier:
+        specifier: ^3.6.0
+        version: 3.6.2
+      stylelint:
+        specifier: ^16.21.0
+        version: 16.25.0(typescript@5.9.3)
+      stylelint-config-standard:
+        specifier: ^38.0.0
+        version: 38.0.0(stylelint@16.25.0(typescript@5.9.3))
+      stylelint-config-tailwindcss:
+        specifier: ^1.0.0
+        version: 1.0.0(stylelint@16.25.0(typescript@5.9.3))(tailwindcss@3.4.18(yaml@2.8.1))
+      supertest:
+        specifier: ^7.1.1
+        version: 7.1.4
+      typescript-eslint:
+        specifier: ^8.35.0
+        version: 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(jiti@1.21.7)(jsdom@26.1.0(canvas@3.2.0))(terser@5.44.0)(yaml@2.8.1)
+
+  packages/config:
+    dependencies:
+      tailwindcss:
+        specifier: 3.4.1
+        version: 3.4.1(ts-node@10.9.2(@types/node@24.6.2)(typescript@5.9.3))
+
+  packages/data:
+    dependencies:
+      '@merislabs/types':
+        specifier: workspace:*
+        version: link:../types
+
+  packages/types: {}
+
+  packages/ui:
+    dependencies:
+      '@radix-ui/react-dropdown-menu':
+        specifier: ^2.1.16
+        version: 2.1.16(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-navigation-menu':
+        specifier: ^1.2.14
+        version: 1.2.14(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@radix-ui/react-slot':
+        specifier: ^1.2.4
+        version: 1.2.4(@types/react@19.2.0)(react@19.2.0)
+      '@radix-ui/react-tabs':
+        specifier: ^1.1.13
+        version: 1.1.13(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^19.0.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.0(react@19.2.0)
+      tailwind-merge:
+        specifier: ^3.4.0
+        version: 3.4.0
+
 packages:
 
   '@adobe/css-tools@4.4.4':
@@ -1896,6 +3014,9 @@ packages:
   '@next/env@16.0.8':
     resolution: {integrity: sha512-xP4WrQZuj9MdmLJy3eWFHepo+R3vznsMSS8Dy3wdA7FKpjCiesQ6DxZvdGziQisj0tEtCgBKJzjcAc4yZOgLEQ==}
 
+  '@next/eslint-plugin-next@15.0.0':
+    resolution: {integrity: sha512-UG/Gnsq6Sc4wRhO9qk+vc/2v4OfRXH7GEH6/TGlNF5eU/vI9PIO7q+kgd65X2DxJ+qIpHWpzWwlPLmqMi1FE9A==}
+
   '@next/eslint-plugin-next@16.0.8':
     resolution: {integrity: sha512-1miV0qXDcLUaOdHridVPCh4i39ElRIAraseVIbb3BEqyZ5ol9sPyjTP/GNTPV5rBxqxjF6/vv5zQTVbhiNaLqA==}
 
@@ -2504,6 +3625,15 @@ packages:
       '@types/react':
         optional: true
 
+  '@radix-ui/react-slot@1.2.4':
+    resolution: {integrity: sha512-Jl+bCv8HxKnlTLVrcDE8zTMJ09R9/ukw4qBs/oZClOfoQk/cOTbDn+NceXfV7j09YPVQUryJPHurafcSg6EVKA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   '@radix-ui/react-switch@1.2.6':
     resolution: {integrity: sha512-bByzr1+ep1zk4VubeEVViV592vu2lHE2BZY5OnzehZqOOgogN80+mNtCqPkhn2gklJqOpxWgPoYTSnhBCqpOXQ==}
     peerDependencies:
@@ -2945,6 +4075,9 @@ packages:
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
+
+  '@rushstack/eslint-patch@1.15.0':
+    resolution: {integrity: sha512-ojSshQPKwVvSMR8yT2L/QtUkV5SXi/IfDiJ4/8d6UbTPjiHVmxZzUAzGD8Tzks1b9+qQkZa0isUOvYObedITaw==}
 
   '@shadcn/ui@0.0.4':
     resolution: {integrity: sha512-0dtu/5ApsOZ24qgaZwtif8jVwqol7a4m1x5AxPuM1k5wxhqU7t/qEfBGtaSki1R8VlbTQfCj5PAlO45NKCa7Gg==}
@@ -4931,6 +6064,15 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
+  eslint-config-next@15.0.0:
+    resolution: {integrity: sha512-HFeTwCR2lFEUWmdB00WZrzaak2CvMvxici38gQknA6Bu2HPizSE4PNFGaFzr5GupjBt+SBJ/E0GIP57ZptOD3g==}
+    peerDependencies:
+      eslint: ^7.23.0 || ^8.0.0 || ^9.0.0
+      typescript: '>=3.3.1'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   eslint-config-next@16.0.8:
     resolution: {integrity: sha512-8J5cOAboXIV3f8OD6BOyj7Fik6n/as7J4MboiUSExWruf/lCu1OPR3ZVSdnta6WhzebrmAATEmNSBZsLWA6kbg==}
     peerDependencies:
@@ -6127,6 +7269,10 @@ packages:
   lie@3.3.0:
     resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
 
+  lilconfig@2.1.0:
+    resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
+    engines: {node: '>=10'}
+
   lilconfig@3.1.3:
     resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
     engines: {node: '>=14'}
@@ -6900,6 +8046,18 @@ packages:
     engines: {node: ^12 || ^14 || >= 16}
     peerDependencies:
       postcss: ^8.4.21
+
+  postcss-load-config@4.0.2:
+    resolution: {integrity: sha512-bSVhyJGL00wMVoPUzAVAnbEoWyqRxkjv64tUl427SKnPrENtq6hJwUojroMz2VB+Q1edmi4IfrAPpami5VVgMQ==}
+    engines: {node: '>= 14'}
+    peerDependencies:
+      postcss: '>=8.0.9'
+      ts-node: '>=9.0.0'
+    peerDependenciesMeta:
+      postcss:
+        optional: true
+      ts-node:
+        optional: true
 
   postcss-load-config@6.0.1:
     resolution: {integrity: sha512-oPtTM4oerL+UXmx+93ytZVN82RrlY/wPUV8IeDxFrzIjXOLF1pN+EmKPLbubvKHT2HC20xXsCAH2Z+CKV6Oz/g==}
@@ -7814,10 +8972,18 @@ packages:
   tailwind-merge@3.3.1:
     resolution: {integrity: sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==}
 
+  tailwind-merge@3.4.0:
+    resolution: {integrity: sha512-uSaO4gnW+b3Y2aWoWfFpX62vn2sR3skfhbjsEnaBI81WD1wBLlHZe5sWf0AqjksNdYTbGBEd0UasQMT3SNV15g==}
+
   tailwindcss-animate@1.0.7:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
+
+  tailwindcss@3.4.1:
+    resolution: {integrity: sha512-qAYmXRfk3ENzuPBakNK0SRrUDipP8NQnEY6772uDhflcQz5EhRdD7JNZxyrFHVQNCwULPBn6FNPp9brpO7ctcA==}
+    engines: {node: '>=14.0.0'}
+    hasBin: true
 
   tailwindcss@3.4.18:
     resolution: {integrity: sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ==}
@@ -10360,6 +11526,10 @@ snapshots:
 
   '@next/env@16.0.8': {}
 
+  '@next/eslint-plugin-next@15.0.0':
+    dependencies:
+      fast-glob: 3.3.1
+
   '@next/eslint-plugin-next@16.0.8':
     dependencies:
       fast-glob: 3.3.1
@@ -11122,6 +12292,13 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.0
 
+  '@radix-ui/react-slot@1.2.4(@types/react@19.2.0)(react@19.2.0)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.0)(react@19.2.0)
+      react: 19.2.0
+    optionalDependencies:
+      '@types/react': 19.2.0
+
   '@radix-ui/react-switch@1.2.6(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@radix-ui/primitive': 1.1.3
@@ -11630,6 +12807,8 @@ snapshots:
     optional: true
 
   '@rtsao/scc@1.1.0': {}
+
+  '@rushstack/eslint-patch@1.15.0': {}
 
   '@shadcn/ui@0.0.4':
     dependencies:
@@ -13996,6 +15175,26 @@ snapshots:
     optionalDependencies:
       source-map: 0.6.1
 
+  eslint-config-next@15.0.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3):
+    dependencies:
+      '@next/eslint-plugin-next': 15.0.0
+      '@rushstack/eslint-patch': 1.15.0
+      '@typescript-eslint/eslint-plugin': 8.49.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      eslint: 9.37.0(jiti@1.21.7)
+      eslint-import-resolver-node: 0.3.9
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-jsx-a11y: 6.10.2(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react: 7.37.5(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react-hooks: 5.2.0(eslint@9.37.0(jiti@1.21.7))
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - eslint-import-resolver-webpack
+      - eslint-plugin-import-x
+      - supports-color
+
   eslint-config-next@16.0.8(@typescript-eslint/parser@8.45.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3):
     dependencies:
       '@next/eslint-plugin-next': 16.0.8
@@ -14003,6 +15202,26 @@ snapshots:
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7))
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.45.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-jsx-a11y: 6.10.2(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react: 7.37.5(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-react-hooks: 7.0.1(eslint@9.37.0(jiti@1.21.7))
+      globals: 16.4.0
+      typescript-eslint: 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - '@typescript-eslint/parser'
+      - eslint-import-resolver-webpack
+      - eslint-plugin-import-x
+      - supports-color
+
+  eslint-config-next@16.0.8(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3):
+    dependencies:
+      '@next/eslint-plugin-next': 16.0.8
+      eslint: 9.37.0(jiti@1.21.7)
+      eslint-import-resolver-node: 0.3.9
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.37.0(jiti@1.21.7))
       eslint-plugin-react: 7.37.5(eslint@9.37.0(jiti@1.21.7))
       eslint-plugin-react-hooks: 7.0.1(eslint@9.37.0(jiti@1.21.7))
@@ -14028,6 +15247,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)):
+    dependencies:
+      '@nolyfill/is-core-module': 1.0.39
+      debug: 4.4.3(supports-color@8.1.1)
+      eslint: 9.37.0(jiti@1.21.7)
+      get-tsconfig: 4.10.1
+      is-bun-module: 2.0.0
+      stable-hash: 0.0.5
+      tinyglobby: 0.2.15
+      unrs-resolver: 1.11.1
+    optionalDependencies:
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7))
+    transitivePeerDependencies:
+      - supports-color
+
   eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
@@ -14048,6 +15282,28 @@ snapshots:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.45.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      eslint: 9.37.0(jiti@1.21.7)
+      eslint-import-resolver-node: 0.3.9
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7))
+    transitivePeerDependencies:
+      - supports-color
+
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)):
+    dependencies:
+      debug: 3.2.7
+    optionalDependencies:
+      '@typescript-eslint/parser': 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      eslint: 9.37.0(jiti@1.21.7)
+      eslint-import-resolver-node: 0.3.9
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7))
+    transitivePeerDependencies:
+      - supports-color
+
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)):
+    dependencies:
+      debug: 3.2.7
+    optionalDependencies:
+      '@typescript-eslint/parser': 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
       eslint: 9.37.0(jiti@1.21.7)
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7))
@@ -14078,6 +15334,64 @@ snapshots:
       tsconfig-paths: 3.15.0
     optionalDependencies:
       '@typescript-eslint/parser': 8.45.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+    transitivePeerDependencies:
+      - eslint-import-resolver-typescript
+      - eslint-import-resolver-webpack
+      - supports-color
+
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)):
+    dependencies:
+      '@rtsao/scc': 1.1.0
+      array-includes: 3.1.9
+      array.prototype.findlastindex: 1.2.6
+      array.prototype.flat: 1.3.3
+      array.prototype.flatmap: 1.3.3
+      debug: 3.2.7
+      doctrine: 2.1.0
+      eslint: 9.37.0(jiti@1.21.7)
+      eslint-import-resolver-node: 0.3.9
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7))
+      hasown: 2.0.2
+      is-core-module: 2.16.1
+      is-glob: 4.0.3
+      minimatch: 3.1.2
+      object.fromentries: 2.0.8
+      object.groupby: 1.0.3
+      object.values: 1.2.1
+      semver: 6.3.1
+      string.prototype.trimend: 1.0.9
+      tsconfig-paths: 3.15.0
+    optionalDependencies:
+      '@typescript-eslint/parser': 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+    transitivePeerDependencies:
+      - eslint-import-resolver-typescript
+      - eslint-import-resolver-webpack
+      - supports-color
+
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7)):
+    dependencies:
+      '@rtsao/scc': 1.1.0
+      array-includes: 3.1.9
+      array.prototype.findlastindex: 1.2.6
+      array.prototype.flat: 1.3.3
+      array.prototype.flatmap: 1.3.3
+      debug: 3.2.7
+      doctrine: 2.1.0
+      eslint: 9.37.0(jiti@1.21.7)
+      eslint-import-resolver-node: 0.3.9
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.37.0(jiti@1.21.7)))(eslint@9.37.0(jiti@1.21.7))
+      hasown: 2.0.2
+      is-core-module: 2.16.1
+      is-glob: 4.0.3
+      minimatch: 3.1.2
+      object.fromentries: 2.0.8
+      object.groupby: 1.0.3
+      object.values: 1.2.1
+      semver: 6.3.1
+      string.prototype.trimend: 1.0.9
+      tsconfig-paths: 3.15.0
+    optionalDependencies:
+      '@typescript-eslint/parser': 8.49.0(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
@@ -15523,6 +16837,8 @@ snapshots:
     dependencies:
       immediate: 3.0.6
 
+  lilconfig@2.1.0: {}
+
   lilconfig@3.1.3: {}
 
   linebreak@1.1.0:
@@ -16496,6 +17812,14 @@ snapshots:
     dependencies:
       camelcase-css: 2.0.1
       postcss: 8.5.6
+
+  postcss-load-config@4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@24.6.2)(typescript@5.9.3)):
+    dependencies:
+      lilconfig: 3.1.3
+      yaml: 2.8.1
+    optionalDependencies:
+      postcss: 8.5.6
+      ts-node: 10.9.2(@types/node@24.6.2)(typescript@5.9.3)
 
   postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.6)(yaml@2.8.1):
     dependencies:
@@ -17669,9 +18993,38 @@ snapshots:
 
   tailwind-merge@3.3.1: {}
 
+  tailwind-merge@3.4.0: {}
+
   tailwindcss-animate@1.0.7(tailwindcss@3.4.18(yaml@2.8.1)):
     dependencies:
       tailwindcss: 3.4.18(yaml@2.8.1)
+
+  tailwindcss@3.4.1(ts-node@10.9.2(@types/node@24.6.2)(typescript@5.9.3)):
+    dependencies:
+      '@alloc/quick-lru': 5.2.0
+      arg: 5.0.2
+      chokidar: 3.6.0
+      didyoumean: 1.2.2
+      dlv: 1.1.3
+      fast-glob: 3.3.3
+      glob-parent: 6.0.2
+      is-glob: 4.0.3
+      jiti: 1.21.7
+      lilconfig: 2.1.0
+      micromatch: 4.0.8
+      normalize-path: 3.0.0
+      object-hash: 3.0.0
+      picocolors: 1.1.1
+      postcss: 8.5.6
+      postcss-import: 15.1.0(postcss@8.5.6)
+      postcss-js: 4.1.0(postcss@8.5.6)
+      postcss-load-config: 4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@24.6.2)(typescript@5.9.3))
+      postcss-nested: 6.2.0(postcss@8.5.6)
+      postcss-selector-parser: 6.1.2
+      resolve: 1.22.10
+      sucrase: 3.35.0
+    transitivePeerDependencies:
+      - ts-node
 
   tailwindcss@3.4.18(yaml@2.8.1):
     dependencies:
@@ -18429,8 +19782,7 @@ snapshots:
 
   yaml@1.10.2: {}
 
-  yaml@2.8.1:
-    optional: true
+  yaml@2.8.1: {}
 
   yargs-parser@21.1.1: {}
 

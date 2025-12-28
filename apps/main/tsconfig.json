@@ -1,0 +1,163 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "forceConsistentCasingInFileNames": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@/components/*": [
+        "./src/app/components/*",
+        "./src/components/*"
+      ],
+      "@/lib/*": [
+        "./src/lib/*"
+      ],
+      "@/hooks/*": [
+        "./src/app/hooks/*"
+      ],
+      "@/generated": [
+        "generated/index.d.ts"
+      ],
+      "@/generated/*": [
+        "generated/*"
+      ],
+      "@/types/*": [
+        "./src/lib/types/*"
+      ],
+      "@/utils/*": [
+        "./src/lib/utils/*"
+      ],
+      "@/stores/*": [
+        "./src/lib/stores/*"
+      ],
+      "@/styles/*": [
+        "./src/app/styles/*"
+      ],
+      "@/css/*": [
+        "./src/app/css/*"
+      ],
+      "@/public/*": [
+        "./public/*"
+      ],
+      "@/api/*": [
+        "./src/app/api/*"
+      ],
+      "@/database/*": [
+        "./src/app/database/*"
+      ],
+      "@/state/*": [
+        "./src/app/state/*"
+      ],
+      "@/memory-explorer/*": [
+        "./src/app/memory-explorer/*"
+      ],
+      "@/opportunity/*": [
+        "./src/app/opportunity/*"
+      ],
+      "@/wallpaper-generator/*": [
+        "./src/app/wallpaper-generator/*"
+      ],
+      "@/journal/*": [
+        "app/api/orion/journal/*"
+      ],
+      "@/decks/*": [
+        "./decks/*"
+      ],
+      "@/fonts/*": [
+        "./src/app/fonts/*"
+      ],
+      "@/global-error": [
+        "./src/app/global-error"
+      ],
+      "@/globals": [
+        "./src/app/globals"
+      ],
+      "@/fonts": [
+        "./src/app/fonts"
+      ],
+      "@/layout": [
+        "./src/app/layout"
+      ],
+      "@/page": [
+        "./src/app/page"
+      ],
+      "@/not-found": [
+        "./src/app/not-found"
+      ],
+      "@/reports/*": [
+        "./src/app/components/reports/*"
+      ],
+      "@/data/*": [
+        "./data/*"
+      ],
+      "@merislabs/ui": [
+        "../../packages/ui/src/index.ts"
+      ],
+      "@merislabs/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@merislabs/config/*": [
+        "../../packages/config/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "api/**/*.ts",
+    "api/**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "types/**/*.ts",
+    "types/**/*.tsx",
+    "prisma/**/*.ts",
+    "scripts/**/*.ts",
+    "docs/**/*.ts",
+    "docs/**/*.tsx",
+    "data/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "build",
+    "coverage",
+    "*.config.js",
+    "*.config.mjs",
+    "orion_python_backend/**/*",
+    "venv/**/*",
+    "logs/**/*",
+    "build-log.txt"
+  ]
+}

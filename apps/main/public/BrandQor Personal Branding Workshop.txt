@@ -1,0 +1,377 @@
+﻿DELIVERY SPECS (global)
+1. Slide format: 16:9 (1920×1080 px).
+
+2. Slides total: 26 (numbered). Export as PDF + PPTX + editable Figma/Canva file.
+
+3. Color palette: Dark charcoal (#0F1115), Off-white (#F6F6F6), Gold accent (#D4A76A), Teal/Accent (#0FA3A3) for graphs/CTA. Use the gold sparingly for prize elements.
+
+4. Typography:
+
+   * Headline: Mont (or Inter ExtraBold) — big, tight, minimal.
+
+   * Subhead / Body: Inter / Roboto Regular (400) for readability.
+
+   * Mono / small labels: Roboto Mono or Inter Mono.
+
+      5. Imagery style: Cinematic, shallow-depth, warm light; hyphenate with grayscale backgrounds and a single warm accent on focal subjects. Realistic photos, tasteful portraits.
+
+      6. Icons: Simple line icons (Stroke 1.5–2px). Use a consistent set (Feather / Heroicons).
+
+      7. Graph style: Clean vector — avoid gridlines. Use the Flip L-graph as key visual; annotate with concise callouts.
+
+      8. Animation (optional): Minimal, tasteful: fade-ins, slide-ups, simple chart growth reveal. Don’t over-animate.
+
+      9. Accessibility: 18pt+ body text, 28pt+ headings. High contrast for legibility. Provide alt text for all images.
+
+      10. Assets we need from you (provide these files to designer):
+
+         * Hi-res portrait of Tobi (3 poses: headshot, 3/4 profile, candid working)
+
+         * BrandQor logo (SVG + PNG)
+
+         * 1–2 case study screenshots (Instagram growth, DM or testimonial screenshots)
+
+         * LinkedIn profile screenshot (mock or real)
+
+         * Any client logos you wish to show (transparent PNGs)
+
+         * Any before/after metrics data (numbers to show)
+
+            11. Deliverables: Editable source (Figma/Canva), PPTX, high-res PDF, single-page PNG hero image for social, separate JPG/PNG assets for the Flip L-graph and timeline.
+
+________________
+
+
+DESIGN RULES (global micro-guidelines)
+               * One main idea per slide. Keep copy to 5–10 words for headline slides; 12–25 words maximum for content slides.
+
+               * Use visual hierarchy: large headline, medium subhead, small caption.
+
+               * Use breathing space: min padding 64 px around content.
+
+               * Use consistent grid: 12-col grid.
+
+               * Use large, clear CTA buttons on offer slides.
+
+               * Make the Flip L-graph slide the visual centrepiece: clean axes, bold curve, annotated breakout point.
+
+               * Use subtle vignette on portrait slides to make text pop.
+
+________________
+
+
+SLIDE-BY-SLIDE CREATION INSTRUCTIONS
+Below each slide title I give the exact on-slide text (use exactly), layout notes, visual direction, assets to use, and animation suggestions.
+________________
+
+
+Slide 1 — Title Slide
+Text: SHOW UP & SHINE 2026 (headline)
+Subtext: Turn your 2025 work into 10x opportunities
+ Footer: BrandQor + small logo
+Layout: Full-bleed hero image (Tobi silhouette or cinematic cityscape), headline center-left, logo bottom-right.
+Visuals: Warm spotlight behind figure; gold accent on small detail.
+Animation: Slow fade-in of the headline.
+Alt text: Hero image of person stepping into light.
+________________
+
+
+Slide 2 — Imagine You… (Mirror Hook)
+Text: Imagine you’re brilliant at what you do…
+ Layout: Big headline centered. Background: soft blurred office / commute photo.
+Visual: Use a semi-transparent dark overlay to make text pop.
+Note: Keep text large and dramatic.
+________________
+
+
+Slide 3 — Deeper Mirror (Seen vs Unseen)
+Text (left column): You work hard. You deliver results. You support everyone else’s dream.
+ Text (right column): But when people talk about experts…your name never comes up.
+ Layout: Split screen (left = grayscale photo of person at laptop; right = crowd, raised hands).
+Visual: Subtle red dot or gold accent on the right side representing "others who are seen".
+________________
+
+
+Slide 4 — The Pain
+Text: You earn enough to survive — not evolve.
+ Subtext (smaller): Talent without visibility is invisible value.
+ Layout: Left: quote block. Right: glass jar with flame visual (use stock image or vector).
+Visual: Emotional, minimal.
+________________
+
+
+Slide 5 — This Was Me Too (Your Reveal)
+Text: This was me. (large)
+Subtext: I used to be brilliant and unseen.
+ Layout: Before/after portrait: left old photo faded, right current sharp portrait. Center small line: "A change started when I began showing my work."
+Assets: use provided Tobi photos.
+________________
+
+
+Slide 6 — People Don’t Follow Businesses
+Text: People follow PEOPLE.
+ Layout: 3×2 tile of famous examples (Rihanna/Fenty, KieKie, Layi Wasabi, Shania Daly, etc.). Small caption under each: one short line of value.
+Visual: Use minimal grayscale tiles with color accent on one tile to draw attention.
+________________
+
+
+Slide 7 — What Showing Up Unlocks
+Text: When you show up, things happen:
+ Bullets (icons): Collaborations • Better pay • Clients • Partnerships • Invitations • Community
+Layout: Row of icons with short labels, centered.
+Visual: Use gold accent for "Collaborations".
+________________
+
+
+Slide 8 — Case Study: The 9–5 Woman
+Text (headline): Case Study: She Quit → Tripled Her Income
+ Subtext: 6 months of documenting, consistent posts, clear narrative.
+ Layout: Left: timeline of 6 months (icons for posting, quitting, applying); Right: results: ×3 salary, new role, testimonial.
+Assets: Use mock testimonials if real ones unavailable.
+________________
+
+
+Slide 9 — Case Study: Daniel
+Text: Daniel: 3,000 → 20,000+ followers
+ Subtext: Consistency turned curiosity into demand. ₦300k+ collaborations.
+ Layout: Instagram-style mock screenshot on left; growth chart on the right with bar for months.
+Visual: Use real screenshots if available; otherwise generate mock images that look authentic.
+________________
+
+
+Slide 10 — Case Study Roll-Up (Fast Proof)
+Text: More examples — same pattern:
+ Layout: Grid of mini-cards (6 cards): each card: name, 1 line result (followers/income/partnership). Keep visuals small and minimal.
+Animation: quick fade-in grid.
+________________
+
+
+Slide 11 — The Worker Bee Loop (Problem Visual)
+Text: The Worker-Bee Loop (headline)
+Subtext: Work → No visibility → Low pay → Switch → Repeat
+ Layout: Circular loop diagram with small icons for each step.
+Visual: Muted colors; highlight "No visibility".
+________________
+
+
+Slide 12 — Flip L-Shaped Graph (Centerpiece)
+Text: Visibility compounds — the Flip L-curve
+ Graph spec:
+                  * X-axis: Time (months/years) — label “Time”
+
+                  * Y-axis: Influence / Opportunities — label “Influence”
+
+                  * Curve: long flat line then sharp upward inflection (gold), annotate “Inflection Point”.
+
+                  * Annotate left flat: “quiet years” and right steep: “breakout”
+
+                  * Add red dashed vertical showing "years lost by not showing up" with label.
+Layout: Graph centered, short caption under.
+Visual: Smooth vector curve, no grids. Use teal for axis and gold for curve.
+Animation: Draw the curve animation from left to right.
+
+________________
+
+
+Slide 13 — Influence Flywheel (Framework)
+Text: The Visibility Engine
+ Bullets inside wheel segments: Positioning • Storytelling • Consistency • Distribution • Engagement
+Layout: Circular flywheel with center: “Opportunities”.
+Visual: Subtle shadows, gold center.
+________________
+
+
+Slide 14 — Identity Shift (Before / After)
+Text (left): Before: Worker • Invisible • Replaceable
+ Text (right): After: Key Person of Influence • Valued • In Demand
+ Layout: Two columns, icons, and a middle arrow. Background: subtle gradient.
+Visual: Use gold for "After" column.
+________________
+
+
+Slide 15 — The 5 Storytelling Posts (Clear Breakdown)
+Headline: The 5 Posts That Build Influence
+ Cards (5) — exact copy for each card:
+                     1. Origin Story — Where you started; why you care.
+
+                     2. Expertise Story — A process, a framework you own.
+
+                     3. Transformation / Impact Story — One person or project you changed.
+
+                     4. Level-Up Moment — A risk you took and what changed.
+
+                     5. 2026 Mission — Who you serve and the opportunities you want.
+Layout: Horizontal carousel cards or vertical stacked cards; use small icons per card.
+Visual: Each card should have a micro-example prompt (one-liner) in microcopy: e.g., for Origin: “When I started, I couldn’t afford X — here’s what changed.”
+
+________________
+
+
+Slide 16 — Content That Converts (Examples)
+Text: Doc • Teach • Break down • Show results
+ Layout: 3×2 grid: Documentation, Teaching, Process, Results, Social Proof, CTA Examples. Each tile: icon + 1 line.
+Visual: Use sample post mockups beside text.
+________________
+
+
+Slide 17 — “Every Day You Don’t Show Up…” (Urgency)
+Text: Every day you don’t show up… is a day removed from your possible future.
+ Layout: Large centered text, subtle falling calendar pages background.
+Visual: High emotional weight. Use gold for emphasis.
+________________
+
+
+Slide 18 — Future Self Vision (12-Month Outcome)
+Text: If you commit for 12 months, you could be:
+ Bullets / icons: Speaker • Higher fees • Brand deals • Bigger clients • Community • Team
+Layout: Big silhouette filled with icons (visual mosaic).
+Animation: icons fade/slide into silhouette.
+________________
+
+
+Slide 19 — The BrandQor Mission (Authority)
+Text: We help people show their work. Clearly. Consistently. Powerfully.
+ Subtext: 2026 goal: Help 5,000 creators become visible.
+ Layout: Centered, logo above, soft light background.
+________________
+
+
+Slide 20 — Offer Intro (Lead-in to Split Screen)
+Text: We built a system for people like you.
+ Layout: Minimal headline with small subtitle: “Choose your path.” Background: subtle split gradient hinting at two pathways.
+________________
+
+
+Slide 21 — Split Screen Offers (Founders vs 9–5s)
+Left — Founders/Entrepreneurs:
+ Title: Influence Engine — Founders
+ Bullets: Monthly video shoot • Batch content • Thought leadership articles • Distribution system • Team execution • 10x visibility potential
+Right — Freelancers / 9–5 Professionals:
+ Title: BrandQor Exclusive — 9–5s
+ Bullets: Bi-weekly 1:1 • Content roadmap • Accountability • Growth metrics • Systems that fit 5–7 hrs/week
+Layout: Two balanced columns with icons and small value bullets. CTA buttons under each: “Apply — Founders” and “Apply — 9–5s”.
+Visual: Use different accent color tints to differentiate (Founders = teal; 9–5s = gold).
+________________
+
+
+Slide 22 — Hormozi-Style Value Stack (Pricing & Bonuses)
+Text headline: Value Stack
+ Layout: Stack blocks showing item, estimated value, and your price. Example format:
+                        * Positioning workshop — Value ₦200k
+
+                        * Content engine (3 months) — Value ₦400k
+
+                        * Distribution + engagement — Value ₦150k
+
+                        * Bonuses: Templates + Community — Value ₦100k
+Big line: Total value ₦850,000+
+ CTA: Today: ₦240,000
+ Visual: Bar stack or boxed list with bold numbers.
+
+________________
+
+
+Slide 23 — 90-Day Roadmap (Timeline)
+Layout: Horizontal timeline with 3 months: Month 1 (Positioning), Month 2 (Systems), Month 3 (Visibility & Growth). Under each month list 3 activities.
+Visual: Clean icons, progress dots.
+________________
+
+
+Slide 24 — Scarcity / Social Proof
+Text: Only X spots available • Cohort closes on (date)
+ Below: 3 short testimonials or logos.
+Layout: Left: scarcity box; Right: testimonials stacked.
+________________
+
+
+Slide 25 — Final Emotional Return (Tie Back)
+Text: Remember the invisible professional who became sought-after?
+ Subtext: That was me. It can be you.
+ Layout: Photo of you (warm), short 1-line personal sign-off. Keep it intimate.
+________________
+
+
+Slide 26 — Final CTA + Contact
+Text: Show your work. Let the world catch up.
+ Subtext: Apply now / Book your brand call
+ Buttons / Links: CTA button and QR code linking to booking page (include short URL).
+Footer: BrandQor logo + contact email + socials.
+Export assets: Include clickable links in PPTX and embed QR code PNG.
+________________
+
+
+SPEAKER NOTES SUMMARY (for designer to embed small cue in notes)
+For each slide, add 1–2 short speaker cues (10–15 words) in presenter notes. Example for Slide 2: “Pause 2s — ask audience: ‘Who feels seen today?’” Designer should set notes area with small grey text lines.
+________________
+
+
+IMAGES / ASSET CREATION INSTRUCTIONS
+                           * Provide Tobi’s photos: 3 high-res (2000px min). Designer should crop 16:9 friendly versions.
+
+                           * Create Instagram & LinkedIn mockups: designer to generate realistic-looking mockups (don’t use real usernames if sensitive).
+
+                           * Case study visuals: use anonymized data or ask for permission; otherwise create believable mock screenshots and clearly mark them as “example” in small caption.
+
+                           * Graphs: vector SVG exports and PNGs for slides, so you can reuse on socials.
+
+                           * Icons: export as SVGs.
+
+________________
+
+
+ANIMATION & TRANSITION GUIDELINES
+                              * Title slide: slow fade-in (1.2s).
+
+                              * Important graphs (Flip L): “draw path” animation.
+
+                              * Case study growth charts: bar growing from left to right (0.8s).
+
+                              * Split-screen offer: simple slide-in for each column.
+
+                              * Keep transitions fast and elegant (0.4–0.7s). Avoid Zoom or flashy spins.
+
+________________
+
+
+EXPORT & DELIVERY CHECKLIST (give to designer)
+                                 * Figma/Canva source file (editable) with layers named.
+
+                                 * PPTX (16:9) exported.
+
+                                 * High-res PDF (all slides) exported.
+
+                                 * PNG export of Flip L-graph (transparent bg).
+
+                                 * Separate 1200×628 JPG hero image for social.
+
+                                 * All fonts and asset licenses included or substituted.
+
+                                 * Link to prototype or presentation mode.
+
+                                 * Alt text for every image in a separate CSV.
+
+                                 * Presenter notes included in the PPTX notes section.
+
+________________
+
+
+TIMELINE & CHECKPOINTS (recommended)
+                                    * Day 0: Provide assets to designer (photos, logos, case data).
+
+                                    * Day 1: Designer delivers draft of slides 1–6 for review.
+
+                                    * Day 2: Designer delivers slides 7–14. Review.
+
+                                    * Day 3: Designer delivers slides 15–26 + final polish + export.
+
+                                    * Day 4: Final revisions & handoff.
+
+________________
+
+
+FINAL TEMPLATES / PROMPTS (one-liners to paste to designer)
+                                       1. “Design Slide 12 (Flip L-graph) as a vector without gridlines; highlight the inflection point with gold and label ‘Inflection Point — Where opportunity multiplies.’ Add a red dotted vertical showing ‘years lost’.”
+
+                                       2. “Make Slide 21 the split-screen offer with two CTAs and ensure the founder column is teal and the 9–5 column gold; use identical layout for fairness.”
+
+                                       3. “Export all graphs as SVG + PNG, and include editable data in an Excel sheet attached to the Figma file.”

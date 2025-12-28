@@ -1,0 +1,182 @@
+.project-media-container {
+  max-width: 36rem;
+  margin: 0 auto;
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (width >= 768px) {
+  .project-media-container {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+.project-tabs-list {
+  display: grid;
+  width: 100%;
+}
+
+.project-video {
+  border-radius: 1rem;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  min-height: 400px; /* Increased minimum height */
+  max-height: 600px; /* Increased maximum height */
+  position: relative;
+  z-index: 1;
+}
+
+.project-image {
+  object-fit: contain;
+  padding: 0 1rem;
+  align-self: center;
+  border-radius: 40px;
+  min-height: 400px; /* Added minimum height */
+  max-height: 600px; /* Increased maximum height */
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.project-iframe-container {
+  object-fit: contain;
+  border-radius: 1rem;
+  padding: 0 1rem;
+  align-self: center;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16/9;
+  min-height: 400px; /* Increased minimum height */
+  max-height: 600px; /* Increased maximum height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  z-index: 1;
+}
+
+.project-iframe {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: inherit;
+  object-fit: contain;
+}
+
+.project-iframe-loading {
+  background-color: #e5e7eb;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 300px;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Fullscreen modal styles */
+.project-media-container.fullscreen {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-video-fullscreen {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.project-image-fullscreen {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 1rem;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.project-iframe-container-fullscreen {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 16/9;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  contain: layout style paint;
+}
+
+/* Scrollable container for media that exceeds height */
+.media-scroll-container {
+  min-height: 400px; /* Added minimum height */
+  max-height: 600px; /* Increased maximum height */
+  overflow-y: auto;
+  border-radius: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #9ca3af #e5e7eb;
+  position: relative;
+  z-index: 1;
+}
+
+.media-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.media-scroll-container::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+.media-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #9ca3af;
+  border-radius: 4px;
+}
+
+.media-aspect-ratio-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.media-aspect-ratio-container > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure iframes are properly contained */
+.project-iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

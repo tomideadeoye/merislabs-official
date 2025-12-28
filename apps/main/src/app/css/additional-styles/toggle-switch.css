@@ -1,0 +1,29 @@
+/* === TAILWIND V4 MIGRATION: All @apply usages for non-atomic utilities have been removed or replaced. Use utility classes directly in your HTML/JSX. === */
+
+/* Switch element */
+.form-switch {
+  width: 60px;
+}
+
+.form-switch label {
+  /* Add utility classes directly in your JSX: className="block overflow-hidden cursor-pointer h-8 rounded-full" */
+}
+
+.form-switch label > span:first-child {
+  width: 28px;
+  height: 28px;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  transition: all 0.15s ease-out;
+
+  /* Add utility classes directly in your JSX: className="absolute block rounded-full" */
+}
+
+.form-switch input[type='checkbox']:checked + label {
+  /* Add utility class directly in your JSX: className="bg-purple-600" */
+}
+
+.form-switch input[type='checkbox']:checked + label > span:first-child {
+  left: 30px;
+}

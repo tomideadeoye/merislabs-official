@@ -2,6 +2,7 @@
   "name": "merislabs",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.12.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -111,7 +112,7 @@
     "@types/node": "^24"
   },
   "engines": {
-    "node": "^20.0.0"
+    "node": ">=20.0.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",

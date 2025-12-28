@@ -1,0 +1,29 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BrandQor//Workshop//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTART:20251211T160000Z
+DTEND:20251211T180000Z
+DTSTAMP:20251210T080000Z
+UID:brandqor-workshop-dec2025@brandqor.com
+SUMMARY:BrandQor Personal Branding Workshop
+DESCRIPTION:Join the BrandQor December Personal Branding Workshop!\n\nZoom Link: https://us05web.zoom.us/j/81889534938?pwd=3yaa5ORmDHSMCOpGl92y1COI7IHC8p.1\n\nCome ready to learn how to position yourself for 2026!
+LOCATION:Zoom - https://us05web.zoom.us/j/81889534938?pwd=3yaa5ORmDHSMCOpGl92y1COI7IHC8p.1
+ORGANIZER;CN=Tobi from BrandQor:mailto:tobi@brandqor.com
+STATUS:CONFIRMED
+BEGIN:VALARM
+TRIGGER:-PT540M
+ACTION:EMAIL
+DESCRIPTION:Reminder: BrandQor Workshop is TODAY at 5PM WAT!
+SUMMARY:BrandQor Workshop Reminder - Today at 5PM
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT60M
+ACTION:EMAIL
+DESCRIPTION:The BrandQor Personal Branding Workshop starts in 1 hour! Join via Zoom: https://us05web.zoom.us/j/81889534938?pwd=3yaa5ORmDHSMCOpGl92y1COI7IHC8p.1
+SUMMARY:BrandQor Workshop - Starting in 1 Hour!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

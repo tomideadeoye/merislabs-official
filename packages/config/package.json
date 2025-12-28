@@ -1,0 +1,13 @@
+{
+    "name": "@merislabs/config",
+    "version": "1.0.0",
+    "type": "module",
+    "private": true,
+    "main": "./src/index.ts",
+    "exports": {
+        "./tailwind": "./src/tailwind/index.ts"
+    },
+    "dependencies": {
+        "tailwindcss": "3.4.1"
+    }
+}

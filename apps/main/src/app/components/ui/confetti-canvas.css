@@ -1,0 +1,4 @@
+/* Confetti canvas placeholder to resolve Stylelint error */
+.confetti-canvas-placeholder {
+  display: none;
+}
