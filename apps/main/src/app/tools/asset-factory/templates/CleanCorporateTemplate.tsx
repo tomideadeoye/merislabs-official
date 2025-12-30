@@ -25,23 +25,36 @@ const FireworkBurst = ({ className, style }: { className?: string; style?: React
     </svg>
 );
 
-export const CleanCorporateTemplate = ({ client, content, containerRef, visualAsset }: TemplateProps) => {
+export const CleanCorporateTemplate = ({ client, content, containerRef, visualAsset, activePalette }: TemplateProps) => {
+    // Theme configuration from activePalette or default
+    const theme = activePalette ? {
+        bg: activePalette.background,
+        accent: activePalette.secondary,
+        text: activePalette.text,
+        bgGradient: `linear-gradient(180deg, ${activePalette.background} 0%, ${activePalette.primary} 100%)`
+    } : {
+        bg: '#1a1f3c',
+        accent: '#D4AF37', // Gold default
+        text: '#ffffff',
+        bgGradient: 'linear-gradient(180deg, #1a1f3c 0%, #0f1225 100%)'
+    };
+
     return (
         <div
             ref={containerRef}
             className="relative w-full aspect-square overflow-hidden shadow-2xl"
-            style={{ background: 'linear-gradient(180deg, #1a1f3c 0%, #0f1225 100%)' }}
+            style={{ background: theme.bgGradient }}
         >
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;500;700&display=swap');
             `}</style>
-
+            
             {/* Logo Badge - Top Left */}
             {client.type === 'corporate' && client.logo ? (
                 <div className="absolute top-6 left-6 z-20">
                     <div 
                         className="w-20 h-20 rounded-2xl flex items-center justify-center p-3"
-                        style={{ backgroundColor: client.secondaryColor || '#D4AF37' }}
+                        style={{ backgroundColor: theme.accent }}
                     >
                         <img src={client.logo} alt={client.name} className="w-full h-full object-contain" />
                     </div>
@@ -50,7 +63,7 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
                 <div className="absolute top-6 left-6 z-20">
                     <div 
                         className="px-6 py-4 rounded-2xl"
-                        style={{ backgroundColor: client.secondaryColor || '#D4AF37' }}
+                        style={{ backgroundColor: theme.accent }}
                     >
                         <p className="text-xs font-bold text-slate-900 uppercase tracking-wide">LOGO</p>
                         <p className="text-[8px] text-slate-700">YOUR LOGO HERE</p>
@@ -68,11 +81,11 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
             </div>
 
             {/* Decorative sparkles */}
-            <SparkStar className="absolute top-24 left-32 w-3 h-3 text-amber-400 animate-pulse" />
-            <SparkStar className="absolute top-40 right-24 w-2 h-2 text-amber-300 animate-pulse" style={{ animationDelay: '0.3s' }} />
-            <SparkStar className="absolute top-1/3 left-20 w-4 h-4 text-amber-400 animate-pulse" style={{ animationDelay: '0.5s' }} />
-            <FireworkBurst className="absolute top-1/4 right-1/4 w-10 h-10 text-amber-400/40" />
-            <FireworkBurst className="absolute bottom-1/3 left-1/4 w-8 h-8 text-amber-300/30" />
+            <SparkStar className="absolute top-24 left-32 w-3 h-3 animate-pulse" style={{ color: theme.accent }} />
+            <SparkStar className="absolute top-40 right-24 w-2 h-2 animate-pulse" style={{ color: theme.accent, animationDelay: '0.3s' }} />
+            <SparkStar className="absolute top-1/3 left-20 w-4 h-4 animate-pulse" style={{ color: theme.accent, animationDelay: '0.5s' }} />
+            <FireworkBurst className="absolute top-1/4 right-1/4 w-10 h-10 opacity-40" style={{ color: theme.accent }} />
+            <FireworkBurst className="absolute bottom-1/3 left-1/4 w-8 h-8 opacity-30" style={{ color: theme.accent }} />
 
             {/* Main Typography - Center */}
             <div className="absolute inset-0 flex flex-col items-center justify-center px-12">
@@ -83,7 +96,7 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
                         style={{ 
                             fontFamily: "'Playfair Display', serif",
                             fontStyle: 'italic',
-                            color: '#D4AF37'
+                            color: theme.accent
                         }}
                     >
                         happy
@@ -93,7 +106,7 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
                         style={{ 
                             fontFamily: "'Playfair Display', serif",
                             fontStyle: 'italic',
-                            background: 'linear-gradient(180deg, #D4AF37 0%, #F4E6AA 50%, #D4AF37 100%)',
+                            background: `linear-gradient(180deg, ${theme.accent} 0%, #FFF 50%, ${theme.accent} 100%)`,
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent'
                         }}
@@ -104,10 +117,10 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
 
                 {/* Quote marks and message */}
                 <div className="text-center max-w-sm">
-                    <span className="text-3xl text-amber-500" style={{ fontFamily: 'serif' }}>"</span>
+                    <span className="text-3xl" style={{ fontFamily: 'serif', color: theme.accent }}>"</span>
                     <p 
                         className="text-sm text-white/70 leading-relaxed mt-2"
-                        style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
+                        style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: theme.text }}
                     >
                         {content.message}
                     </p>
@@ -128,24 +141,24 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
             {/* Address Bar */}
             <div 
                 className="absolute bottom-16 left-6 right-6 py-3 px-6 rounded-full text-center"
-                style={{ backgroundColor: client.secondaryColor || '#D4AF37' }}
+                style={{ backgroundColor: theme.accent }}
             >
                 <p 
                     className="text-xs text-slate-900"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
-                    {client.name}{client.address ? `, ${client.address}` : ''}
+                    {content.brandName || client.name}{client.address ? `, ${client.address}` : ''}
                 </p>
             </div>
 
             {/* Footer with contact */}
             <div 
                 className="absolute bottom-4 left-6 right-6 py-2 rounded-full text-center"
-                style={{ backgroundColor: '#2a3057' }}
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
             >
                 <p 
                     className="text-[10px] text-white/70"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif", color: theme.text }}
                 >
                     {client.website || 'www.example.com'} | {client.phone || '+1 234 567 890'}
                 </p>

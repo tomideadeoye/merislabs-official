@@ -16,6 +16,7 @@ export interface ClientProfile {
     address?: string;
     website?: string;
     phone?: string;
+    title?: string;
 }
 
 export interface AssetContent {
@@ -24,6 +25,8 @@ export interface AssetContent {
     message: string;
     year: string;
     holiday: HolidayType;
+    customImage?: string;
+    brandName?: string;
 }
 
 export interface VisualAsset {
@@ -39,4 +42,16 @@ export interface TemplateProps {
     content: AssetContent;
     containerRef: React.RefObject<HTMLDivElement | null>;
     visualAsset: VisualAsset;
+    useBrandColors?: boolean;
+    activePalette?: ColorPalette;
+}
+
+export interface ColorPalette {
+    id: string;
+    name: string;
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    text: string;
 }

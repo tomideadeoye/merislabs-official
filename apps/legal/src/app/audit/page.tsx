@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -481,7 +483,15 @@ export default function AuditDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-
+              <div className="relative w-28 h-8 mb-2">
+                <Image
+                  src="/images/merislabswhite.png"
+                  alt="Meris Labs"
+                  fill
+                  className="object-contain invert filter brightness-0"
+                  priority
+                />
+              </div>
               <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight uppercase">
                 Litigation Audit <span className="text-blue-600">Report</span>
               </h1>
@@ -547,8 +557,8 @@ export default function AuditDashboard() {
               {/* CARD 1: TOTAL EXPOSURE (ALL CURRENCIES) - Click to reset all filters */}
               <div
                 className={`bg-white p-4 rounded-xl shadow-sm border flex flex-col items-center transition-all cursor-pointer ${currencyFilter !== 'all' || selectedRisk !== 'All' || showOnlyConfirmed || searchQuery
-                    ? 'border-blue-500 bg-blue-50 hover:bg-blue-100'
-                    : 'border-gray-100 hover:border-blue-200 hover:bg-gray-50'
+                  ? 'border-blue-500 bg-blue-50 hover:bg-blue-100'
+                  : 'border-gray-100 hover:border-blue-200 hover:bg-gray-50'
                   }`}
                 onClick={() => {
                   console.log('[AUDIT_DASHBOARD] Resetting all filters');

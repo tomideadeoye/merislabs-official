@@ -21,9 +21,9 @@ import { Label } from '@/app/components/ui/label';
 import { cn } from '@/lib/utils';
 
 // Local imports
-import { ClientProfile, HolidayType, AssetContent, VisualAsset } from './types';
-import { CLIENTS, VISUAL_ASSETS, INITIAL_CONTENT } from './data';
-import { PresidentialTemplate, LifestyleTemplate, DarkLuxuryTemplate, TealDrapesTemplate, CleanCorporateTemplate, NICArbLuxuryTemplate, RoyalObsidianTemplate, EmeraldPrestigeTemplate } from './templates';
+import { ClientProfile, HolidayType, AssetContent, VisualAsset, ColorPalette } from './types';
+import { CLIENTS, VISUAL_ASSETS, INITIAL_CONTENT, PRESET_PALETTES } from './data';
+import { PresidentialTemplate, PresidentialExecutiveTemplate, LifestyleTemplate, DarkLuxuryTemplate, TealDrapesTemplate, CleanCorporateTemplate, NICArbLuxuryTemplate, RoyalObsidianTemplate, EmeraldPrestigeTemplate, HolidayCardTemplate } from './templates';
 import { VisualAssetSelector } from './components';
 
 // --- Page Main ---
@@ -31,7 +31,9 @@ import { VisualAssetSelector } from './components';
 export default function AssetFactoryPage() {
     const [selectedClient, setSelectedClient] = useState<ClientProfile>(CLIENTS[0]);
     const [selectedHoliday, setSelectedHoliday] = useState<HolidayType>('new-year');
-    const [selectedTemplate, setSelectedTemplate] = useState<'presidential' | 'lifestyle' | 'dark-luxury' | 'teal-drapes' | 'clean-corporate' | 'nicarb-luxury' | 'royal-obsidian' | 'emerald-prestige'>('lifestyle');
+    const [selectedTemplate, setSelectedTemplate] = useState<'presidential' | 'presidential-executive' | 'lifestyle' | 'dark-luxury' | 'teal-drapes' | 'clean-corporate' | 'nicarb-luxury' | 'royal-obsidian' | 'emerald-prestige' | 'holiday-card'>('presidential-executive');
+    const [activePalette, setActivePalette] = useState<ColorPalette | undefined>(undefined);
+    const [useBrandColors, setUseBrandColors] = useState<boolean>(false); // Legacy toggle, kept for simple on/off for now
     const [content, setContent] = useState<AssetContent>(INITIAL_CONTENT['new-year']);
     const [selectedVisualAsset, setSelectedVisualAsset] = useState<VisualAsset>(VISUAL_ASSETS[0]); // Default to fireworks
     const [downloading, setDownloading] = useState(false);
@@ -208,91 +210,133 @@ export default function AssetFactoryPage() {
                             selectedVisualAsset={selectedVisualAsset}
                             onSelect={setSelectedVisualAsset}
                         />
-
                     </div>
 
                     {/* Preview Area (8 cols) */}
                     <div className="lg:col-span-8 flex flex-col gap-8">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Design Preview</h2>
-                            <div className="flex gap-2">
-                                <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white border border-transparent hover:border-slate-200">
-                                    <Eye className="w-5 h-5 text-slate-500" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white border border-transparent hover:border-slate-200">
-                                    <Settings2 className="w-5 h-5 text-slate-500" />
-                                </Button>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Design Preview</h2>
+
+                                {/* Palette Controls */}
+                                <div className="flex items-center gap-2">
+                                    <div className="flex items-center mr-4 bg-white rounded-xl border border-slate-200 p-1">
+                                        <button
+                                            onClick={() => setActivePalette(undefined)}
+                                            className={cn(
+                                                "w-6 h-6 rounded-lg flex items-center justify-center transition-all",
+                                                !activePalette ? "bg-slate-100 ring-2 ring-slate-900 ring-offset-1" : "hover:bg-slate-50"
+                                            )}
+                                            title="Default Theme"
+                                        >
+                                            <span className="w-3 h-3 rounded-full bg-slate-400" />
+                                        </button>
+
+                                        <div className="w-[1px] h-4 bg-slate-200 mx-2" />
+
+                                        {PRESET_PALETTES.map((palette) => (
+                                            <button
+                                                key={palette.id}
+                                                onClick={() => {
+                                                    setActivePalette(palette);
+                                                    setUseBrandColors(false); // Disable brand toggle when pallet selected
+                                                }}
+                                                className={cn(
+                                                    "w-6 h-6 rounded-lg mx-0.5 flex items-center justify-center transition-all overflow-hidden",
+                                                    activePalette?.id === palette.id ? "ring-2 ring-slate-900 ring-offset-1 scale-110" : "hover:scale-105"
+                                                )}
+                                                title={palette.name}
+                                            >
+                                                <div className="w-full h-full flex flex-col">
+                                                    <div className="h-1/2 w-full" style={{ backgroundColor: palette.primary }} />
+                                                    <div className="h-1/2 w-full flex">
+                                                        <div className="w-1/2 h-full" style={{ backgroundColor: palette.secondary }} />
+                                                        <div className="w-1/2 h-full" style={{ backgroundColor: palette.accent }} />
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
+
+                                        <div className="w-[1px] h-4 bg-slate-200 mx-2" />
+
+                                        {/* Client Brand Palette Button */}
+                                        <button
+                                            onClick={() => {
+                                                const brandPalette: ColorPalette = {
+                                                    id: 'brand',
+                                                    name: 'Brand Colors',
+                                                    primary: selectedClient.primaryColor,
+                                                    secondary: selectedClient.secondaryColor,
+                                                    accent: selectedClient.secondaryColor, // Fallback
+                                                    background: selectedClient.primaryColor,
+                                                    text: selectedClient.textColor
+                                                };
+                                                setActivePalette(brandPalette);
+                                            }}
+                                            className={cn(
+                                                "px-2 py-1 text-[10px] font-bold uppercase rounded-lg border transition-all flex items-center gap-2",
+                                                activePalette?.id === 'brand'
+                                                    ? "bg-slate-900 text-white border-slate-900"
+                                                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                                            )}
+                                        >
+                                            <div className="flex gap-1">
+                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: selectedClient.primaryColor }} />
+                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: selectedClient.secondaryColor }} />
+                                            </div>
+                                            Brand
+                                        </button>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white border text-slate-400 border-transparent hover:border-slate-200">
+                                            <Eye className="w-5 h-5" />
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        {/* Holiday Card Specific Controls */}
+                        {selectedTemplate === 'holiday-card' && (
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+                                <h3 className="text-sm font-bold text-slate-900 uppercase">Holiday Card Customization</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold text-slate-500 uppercase">Custom Image URL</Label>
+                                        <Input
+                                            value={content.customImage || ''}
+                                            onChange={(e) => setContent({ ...content, customImage: e.target.value })}
+                                            placeholder="/images/mum.jpeg"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold text-slate-500 uppercase">Brand/Person Name</Label>
+                                        <Input
+                                            value={content.brandName || ''}
+                                            onChange={(e) => setContent({ ...content, brandName: e.target.value })}
+                                            placeholder="John Doe"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Main Stage */}
                         <div className="relative group">
                             <div className="absolute inset-0 bg-slate-900/5 rounded-none blur-2xl group-hover:bg-slate-900/10 transition-colors" />
-                            <div className="relative p-1 bg-white rounded-none border border-slate-100 shadow-2xl overflow-hidden aspect-square max-w-[700px] mx-auto">
-                                {selectedTemplate === 'presidential' && (
-                                    <PresidentialTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
-                                {selectedTemplate === 'lifestyle' && (
-                                    <LifestyleTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
-                                {selectedTemplate === 'dark-luxury' && (
-                                    <DarkLuxuryTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
-                                {selectedTemplate === 'teal-drapes' && (
-                                    <TealDrapesTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
-                                {selectedTemplate === 'clean-corporate' && (
-                                    <CleanCorporateTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
-                                {selectedTemplate === 'nicarb-luxury' && (
-                                    <NICArbLuxuryTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
-                                {selectedTemplate === 'royal-obsidian' && (
-                                    <RoyalObsidianTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
-                                {selectedTemplate === 'emerald-prestige' && (
-                                    <EmeraldPrestigeTemplate
-                                        client={selectedClient}
-                                        content={content}
-                                        containerRef={flyerRef}
-                                        visualAsset={selectedVisualAsset}
-                                    />
-                                )}
+                            <div className="relative p-1 bg-white rounded-none border border-slate-100 shadow-2xl overflow-hidden aspect-square max-w-[700px]">
+                                {/* Template Rendering */}
+                                {selectedTemplate === 'presidential' && <PresidentialTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'presidential-executive' && <PresidentialExecutiveTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'lifestyle' && <LifestyleTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'dark-luxury' && <DarkLuxuryTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'teal-drapes' && <TealDrapesTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'clean-corporate' && <CleanCorporateTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'nicarb-luxury' && <NICArbLuxuryTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'royal-obsidian' && <RoyalObsidianTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'emerald-prestige' && <EmeraldPrestigeTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {selectedTemplate === 'holiday-card' && <HolidayCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
                             </div>
                         </div>
 
@@ -371,6 +415,20 @@ export default function AssetFactoryPage() {
                                 </button>
 
                                 <button
+                                    onClick={() => setSelectedTemplate('presidential-executive')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'presidential-executive' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">
+                                        <Award className="w-5 h-5 text-[#D4AF37]" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Presidential Exec</p>
+                                    {selectedTemplate === 'presidential-executive' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
                                     onClick={() => setSelectedTemplate('nicarb-luxury')}
                                     className={cn(
                                         "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
@@ -411,12 +469,26 @@ export default function AssetFactoryPage() {
                                     <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Emerald Prestige</p>
                                     {selectedTemplate === 'emerald-prestige' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
                                 </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('holiday-card')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'holiday-card' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">
+                                        <Sparkles className="w-5 h-5 text-red-600" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Holiday Card</p>
+                                    {selectedTemplate === 'holiday-card' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
                             </div>
                         </section>
                     </div>
 
-                </div >
-            </main >
+                </div>
+            </main>
 
             {/* Decorative Ornaments (Global) */}
             < div className="fixed bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-100/50 to-transparent pointer-events-none -z-10" />

@@ -38,8 +38,8 @@ export default function Hero() {
                 MERISLABS
               </h1>
               <p className="text-xl text-white mb-8" data-aos="fade-up" data-aos-delay="200">
-                We have experience in designing and developing web and mobile applications for various industries, from
-                financial services to legal.
+                Building the <span className="text-blue-400 font-bold">Unified Commercial Infrastructure</span> for the modern web.
+                From financial services to legal tech, we engineer sovereign systems for Africa's digital economy.
               </p>
               <div className="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center">
                 <div data-aos="fade-up" data-aos-delay="400">

@@ -73,7 +73,7 @@ export const EmeraldPrestigeTemplate = ({ client, content, containerRef, visualA
                     <div className="h-[0.5px] w-24 bg-[#D4AF37]/30" />
                     <span
                         className="text-[11px] tracking-[0.5em] text-[#D4AF37] font-bold"
-                        style={{ fontFamily: "'Cinzel', serif" }}
+                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
                         From NICArb
                     </span>

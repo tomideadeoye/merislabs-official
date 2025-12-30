@@ -8,6 +8,10 @@ export const navItems = [
     href: '/decks',
   },
   {
+    name: 'Flyers',
+    href: '/tools/nicarb-flyers',
+  },
+  {
     name: 'Business Software Notes',
     href: '/business-software-notes',
   },
