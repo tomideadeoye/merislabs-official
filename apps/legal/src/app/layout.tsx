@@ -105,8 +105,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           aria-hidden="true"
         />
         <ClientProviders>
-          <Header navItems={navItems} />
-          <main className="min-h-screen bg-gray-900 text-foreground pt-20">{children}</main>
+          {/* <Header navItems={navItems} /> Global header removed to prevent conflict with Landing Page */}
+          <main className="min-h-screen bg-gray-900 text-foreground">{children}</main>
         </ClientProviders>
       </body>
     </html>
