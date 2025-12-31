@@ -4,7 +4,8 @@
   "private": true,
   "packageManager": "pnpm@10.12.2",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev.mjs",
+    "map": "node scripts/dev.mjs --info-only",
     "build": "next build --webpack",
     "build:vercel": "next build --webpack",
     "start": "next start",

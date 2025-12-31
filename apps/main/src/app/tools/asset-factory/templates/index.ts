@@ -9,4 +9,5 @@ export { RoyalObsidianTemplate } from './RoyalObsidianTemplate';
 export { EmeraldPrestigeTemplate } from './EmeraldPrestigeTemplate';
 export { HolidayCardTemplate } from './HolidayCardTemplate';
 export { PresidentialExecutiveTemplate } from './PresidentialExecutiveTemplate';
+export { AppreciationCardTemplate } from './AppreciationCardTemplate';
 

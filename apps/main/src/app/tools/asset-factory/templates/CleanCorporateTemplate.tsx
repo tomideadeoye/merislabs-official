@@ -42,32 +42,32 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
     return (
         <div
             ref={containerRef}
-            className="relative w-full aspect-square overflow-hidden shadow-2xl"
+            className="relative w-full h-full overflow-hidden shadow-2xl"
             style={{ background: theme.bgGradient }}
         >
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;500;700&display=swap');
             `}</style>
-            
+
             {/* Logo Badge - Top Left */}
-            {client.type === 'corporate' && client.logo ? (
+            {(content.footerControls?.showLogo ?? true) && (
                 <div className="absolute top-6 left-6 z-20">
-                    <div 
-                        className="w-20 h-20 rounded-2xl flex items-center justify-center p-3"
-                        style={{ backgroundColor: theme.accent }}
-                    >
-                        <img src={client.logo} alt={client.name} className="w-full h-full object-contain" />
-                    </div>
-                </div>
-            ) : (
-                <div className="absolute top-6 left-6 z-20">
-                    <div 
-                        className="px-6 py-4 rounded-2xl"
-                        style={{ backgroundColor: theme.accent }}
-                    >
-                        <p className="text-xs font-bold text-slate-900 uppercase tracking-wide">LOGO</p>
-                        <p className="text-[8px] text-slate-700">YOUR LOGO HERE</p>
-                    </div>
+                    {client.type === 'corporate' && client.logo ? (
+                        <div
+                            className="w-20 h-20 rounded-2xl flex items-center justify-center p-3"
+                            style={{ backgroundColor: theme.accent }}
+                        >
+                            <img src={client.logo} alt={client.name} className="w-full h-full object-contain" />
+                        </div>
+                    ) : (
+                        <div
+                            className="px-6 py-4 rounded-2xl"
+                            style={{ backgroundColor: theme.accent }}
+                        >
+                            <p className="text-xs font-bold text-slate-900 uppercase tracking-wide">LOGO</p>
+                            <p className="text-[8px] text-slate-700">YOUR LOGO HERE</p>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -91,19 +91,21 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
             <div className="absolute inset-0 flex flex-col items-center justify-center px-12">
                 {/* Decorative line art "happy New Year" */}
                 <div className="text-center mb-8">
-                    <h2 
-                        className="text-5xl leading-tight"
-                        style={{ 
+                    <h2
+                        className="leading-tight"
+                        style={{
+                            fontSize: `${48 * (content.textScales?.title || 1)}px`,
                             fontFamily: "'Playfair Display', serif",
                             fontStyle: 'italic',
                             color: theme.accent
                         }}
                     >
-                        happy
+                        {content.title.split(' ')[0] || 'happy'}
                     </h2>
-                    <h2 
-                        className="text-7xl -mt-4"
-                        style={{ 
+                    <h2
+                        className="-mt-4"
+                        style={{
+                            fontSize: `${72 * (content.textScales?.title || 1)}px`,
                             fontFamily: "'Playfair Display', serif",
                             fontStyle: 'italic',
                             background: `linear-gradient(180deg, ${theme.accent} 0%, #FFF 50%, ${theme.accent} 100%)`,
@@ -111,16 +113,16 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
                             WebkitTextFillColor: 'transparent'
                         }}
                     >
-                        New Year
+                        {content.title.split(' ').slice(1).join(' ') || 'New Year'}
                     </h2>
                 </div>
 
                 {/* Quote marks and message */}
                 <div className="text-center max-w-sm">
                     <span className="text-3xl" style={{ fontFamily: 'serif', color: theme.accent }}>"</span>
-                    <p 
-                        className="text-sm text-white/70 leading-relaxed mt-2"
-                        style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: theme.text }}
+                    <p
+                        className="text-white/70 leading-relaxed mt-2"
+                        style={{ fontSize: `${14 * (content.textScales?.message || 1)}px`, fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: theme.text }}
                     >
                         {content.message}
                     </p>
@@ -139,30 +141,41 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
             )}
 
             {/* Address Bar */}
-            <div 
-                className="absolute bottom-16 left-6 right-6 py-3 px-6 rounded-full text-center"
-                style={{ backgroundColor: theme.accent }}
-            >
-                <p 
-                    className="text-xs text-slate-900"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+            {((content.footerControls?.showSignature ?? true) || (content.footerControls?.showAddress ?? true)) && (
+                <div
+                    className="absolute bottom-16 left-6 right-6 py-3 px-6 rounded-full text-center"
+                    style={{ backgroundColor: theme.accent }}
                 >
-                    {content.brandName || client.name}{client.address ? `, ${client.address}` : ''}
-                </p>
-            </div>
+                    <p
+                        className="text-slate-900"
+                        style={{
+                            fontSize: `${12 * (content.textScales?.signature || 1)}px`,
+                            fontFamily: "'Montserrat', sans-serif"
+                        }}
+                    >
+                        {(content.footerControls?.showSignature ?? true) && (content.brandName || client.name)}
+                        {(content.footerControls?.showSignature ?? true) && (content.footerControls?.showAddress ?? true) && client.address && ', '}
+                        {(content.footerControls?.showAddress ?? true) && client.address}
+                    </p>
+                </div>
+            )}
 
             {/* Footer with contact */}
-            <div 
-                className="absolute bottom-4 left-6 right-6 py-2 rounded-full text-center"
-                style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
-            >
-                <p 
-                    className="text-[10px] text-white/70"
-                    style={{ fontFamily: "'Montserrat', sans-serif", color: theme.text }}
+            {((content.footerControls?.showWebsite ?? true) || (content.footerControls?.showPhone ?? true)) && (
+                <div
+                    className="absolute bottom-4 left-6 right-6 py-2 rounded-full text-center"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                 >
-                    {client.website || 'www.example.com'} | {client.phone || '+1 234 567 890'}
-                </p>
-            </div>
+                    <p
+                        className="text-[10px] text-white/70"
+                        style={{ fontFamily: "'Montserrat', sans-serif", color: theme.text }}
+                    >
+                        {(content.footerControls?.showWebsite ?? true) && (client.website || 'www.example.com')}
+                        {(content.footerControls?.showWebsite ?? true) && (content.footerControls?.showPhone ?? true) && ' | '}
+                        {(content.footerControls?.showPhone ?? true) && (client.phone || '+1 234 567 890')}
+                    </p>
+                </div>
+            )}
         </div>
     );
 };

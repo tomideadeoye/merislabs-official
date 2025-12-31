@@ -27,6 +27,34 @@ export interface AssetContent {
     holiday: HolidayType;
     customImage?: string;
     brandName?: string;
+    textScales?: TextScales;
+    fontFamily?: string; // Legacy global font
+    fontFamilies?: TextFonts;
+    footerControls?: FooterControls;
+}
+
+export interface FooterControls {
+    showAddress: boolean;
+    showPhone: boolean;
+    showWebsite: boolean;
+    showEmail: boolean;
+    showSignature: boolean;
+    showLogo: boolean;
+}
+
+export interface TextFonts {
+    title?: string;
+    subtitle?: string;
+    message?: string;
+    year?: string;
+}
+
+export interface TextScales {
+    title: number;      // 0.5 to 2.0, default 1.0
+    subtitle: number;
+    message: number;
+    year: number;
+    signature: number;
 }
 
 export interface VisualAsset {
@@ -42,8 +70,8 @@ export interface TemplateProps {
     content: AssetContent;
     containerRef: React.RefObject<HTMLDivElement | null>;
     visualAsset: VisualAsset;
-    useBrandColors?: boolean;
     activePalette?: ColorPalette;
+    dimensions?: { width: number; height: number };
 }
 
 export interface ColorPalette {

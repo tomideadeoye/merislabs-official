@@ -126,10 +126,10 @@ export const CLIENTS: ClientProfile[] = [
     },
     {
         id: 'personal-mum',
-        name: 'Mum (Mrs Bose Adeoye)',
+        name: 'Mrs. B.J. Adeoye (BeeJayBee)',
         type: 'personal',
-        signature: 'Bose Adeoye',
-        primaryColor: '#8b0000',
+        signature: 'B.J. Adeoye (BeeJayBee)',
+        primaryColor: '#1a1a1a',
         secondaryColor: '#D4AF37',
         textColor: '#FFFFFF',
         fontFamily: 'Playfair Display, serif',
@@ -156,7 +156,16 @@ export const INITIAL_CONTENT: Record<HolidayType, AssetContent> = {
         year: '2025',
         holiday: 'christmas',
         customImage: '/images/mum.jpeg',
-        brandName: 'Mrs Bose Adeoye'
+        brandName: 'Mrs Bose Adeoye',
+        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1 },
+        footerControls: {
+            showAddress: true,
+            showPhone: true,
+            showWebsite: true,
+            showEmail: true,
+            showSignature: true,
+            showLogo: true
+        }
     },
     'new-year': {
         title: 'Happy New Year',
@@ -165,16 +174,34 @@ export const INITIAL_CONTENT: Record<HolidayType, AssetContent> = {
         year: '2026',
         holiday: 'new-year',
         customImage: '/images/mum.jpeg',
-        brandName: 'Mrs Bose Adeoye'
+        brandName: 'Mrs Bose Adeoye',
+        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1 },
+        footerControls: {
+            showAddress: true,
+            showPhone: true,
+            showWebsite: true,
+            showEmail: true,
+            showSignature: true,
+            showLogo: true
+        }
     },
     'custom': {
-        title: 'Warm Wishes',
-        subtitle: 'From All of Us',
-        message: 'Thank you for being part of our journey. We wish you the very best in the coming days.',
+        title: 'Appreciation',
+        subtitle: 'As the year closes',
+        message: 'As the year is closing, I found it necessary to appreciate your unflinching support, cooperation, encouragement, generosity. May the God of Heaven bless you richly and do you good at all times in Jesus Name. Counting on Our God who shall grant us more grace of togetherness and fulfilment in the incoming year. Thank you so much.',
         year: '2026',
         holiday: 'custom',
         customImage: '/images/mum.jpeg',
-        brandName: 'Mrs Bose Adeoye'
+        brandName: 'Mrs. Bose J Adeoye',
+        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1 },
+        footerControls: {
+            showAddress: true,
+            showPhone: true,
+            showWebsite: true,
+            showEmail: true,
+            showSignature: true,
+            showLogo: true
+        }
     }
 };
 
@@ -207,12 +234,48 @@ export const PRESET_PALETTES: import('./types').ColorPalette[] = [
         text: '#ffffff'
     },
     {
+        id: 'sage-serene',
+        name: 'Sage Serene',
+        primary: '#4d7c6f',    // Sage Green
+        secondary: '#a8d5ba',  // Light Mint
+        accent: '#e8f5e9',     // Pale Mint
+        background: '#2d5a4a', // Medium Sage
+        text: '#ffffff'
+    },
+    {
+        id: 'forest-mist',
+        name: 'Forest Mist',
+        primary: '#3d6b59',    // Muted Forest Green
+        secondary: '#7eb09b',  // Soft Green
+        accent: '#dceee5',     // Seafoam White
+        background: '#2a4d3e', // Forest Shadow
+        text: '#ffffff'
+    },
+    {
+        id: 'mint-luxe',
+        name: 'Mint Luxe',
+        primary: '#10b981',    // Emerald 500 (bright)
+        secondary: '#d4af37',  // Gold
+        accent: '#f0fdf4',     // Green 50
+        background: '#047857', // Emerald 700
+        text: '#ffffff'
+    },
+    {
         id: 'ocean-depths',
         name: 'Ocean Depths',
         primary: '#0c4a6e',    // Deep Sky
         secondary: '#38bdf8',  // Light Blue
         accent: '#f0f9ff',     // Pale Blue
         background: '#082f49', // Dark Blue
+        text: '#ffffff'
+    },
+    {
+        id: 'teal-elegance',
+        name: 'Teal Elegance',
+        primary: '#0d9488',    // Teal 600
+        secondary: '#5eead4',  // Teal 300
+        accent: '#f0fdfa',     // Teal 50
+        background: '#134e4a', // Teal 900
         text: '#ffffff'
     },
     {
@@ -241,5 +304,114 @@ export const PRESET_PALETTES: import('./types').ColorPalette[] = [
         accent: '#f8fafc',     // Slate 50
         background: '#0f172a', // Slate 900
         text: '#ffffff'
+    },
+    {
+        id: 'warm-charcoal',
+        name: 'Warm Charcoal',
+        primary: '#44403c',    // Stone 700
+        secondary: '#d6d3d1',  // Stone 300
+        accent: '#fafaf9',     // Stone 50
+        background: '#1c1917', // Stone 900
+        text: '#ffffff'
+    },
+    {
+        id: 'champagne-noir',
+        name: 'Champagne Noir',
+        primary: '#1f1f1f',    // Near Black
+        secondary: '#c9a962',  // Champagne Gold
+        accent: '#f5f0e6',     // Warm Cream
+        background: '#0a0a0a', // True Black
+        text: '#ffffff'
+    },
+    {
+        id: 'ivory-bronze',
+        name: 'Ivory & Bronze',
+        primary: '#78350f',    // Amber 900
+        secondary: '#fcd34d',  // Amber 300
+        accent: '#fffbeb',     // Amber 50
+        background: '#451a03', // Amber 950
+        text: '#ffffff'
+    },
+    {
+        id: 'nordic-green',
+        name: 'Nordic Green',
+        primary: '#166534',    // Green 800
+        secondary: '#86efac',  // Green 300
+        accent: '#f0fdf4',     // Green 50
+        background: '#14532d', // Green 900
+        text: '#ffffff'
+    },
+    {
+        id: 'olive-patina',
+        name: 'Olive Patina',
+        primary: '#4a5d4c',    // Muted Olive
+        secondary: '#a3b899',  // Sage Accent
+        accent: '#f4f7f4',     // Soft White
+        background: '#2d3a2f', // Dark Olive
+        text: '#ffffff'
+    },
+    {
+        id: 'jade-imperial',
+        name: 'Jade Imperial',
+        primary: '#15803d',    // Green 700
+        secondary: '#fbbf24',  // Gold
+        accent: '#fef9c3',     // Yellow 100
+        background: '#166534', // Green 800
+        text: '#ffffff'
+    },
+    // NICArb Brand Palettes (from Conference Brochure)
+    {
+        id: 'nicarb-teal-lime',
+        name: 'NICArb Teal & Lime',
+        primary: '#2dc27a',    // Bright Teal (from brochure)
+        secondary: '#a9ce46',  // Lime Accent
+        accent: '#f0f7ee',     // Mint background
+        background: '#064802', // Deep Forest
+        text: '#ffffff'
+    },
+    {
+        id: 'nicarb-lime-fresh',
+        name: 'NICArb Lime Fresh',
+        primary: '#559203',    // Lime Green (from brochure)
+        secondary: '#7cb342',  // Light Lime
+        accent: '#d9edd3',     // Pale Mint
+        background: '#2d5a4a', // Medium Forest
+        text: '#ffffff'
+    },
+    {
+        id: 'nicarb-soft-sage',
+        name: 'NICArb Soft Sage',
+        primary: '#7cb342',    // Light Lime
+        secondary: '#d9edd3',  // Pale Mint
+        accent: '#f0f7ee',     // Mint Background
+        background: '#559203', // Lime Green
+        text: '#ffffff'
+    },
+    {
+        id: 'nicarb-lime-gold',
+        name: 'NICArb Lime & Gold',
+        primary: '#559203',    // Lime Green
+        secondary: '#D4AF37',  // Gold
+        accent: '#f0f7ee',     // Mint Background
+        background: '#2dc27a', // Bright Teal
+        text: '#ffffff'
+    },
+    {
+        id: 'nicarb-forest-teal',
+        name: 'NICArb Forest Teal',
+        primary: '#064802',    // Deep Forest
+        secondary: '#2dc27a',  // Bright Teal
+        accent: '#c5e1a5',     // Sage Mint
+        background: '#032501', // Dark Forest
+        text: '#ffffff'
     }
+];
+
+export const FONT_OPTIONS = [
+    { name: 'Cinzel (Royal)', value: "'Cinzel', serif" },
+    { name: 'Playfair (Elegant)', value: "'Playfair Display', serif" },
+    { name: 'Cormorant (Classic)', value: "'Cormorant Garamond', serif" },
+    { name: 'Inter (Modern)', value: "'Inter', sans-serif" },
+    { name: 'Georgia (Corporate)', value: 'Georgia, serif' },
+    { name: 'Outfit (Clean)', value: "'Outfit', sans-serif" },
 ];
