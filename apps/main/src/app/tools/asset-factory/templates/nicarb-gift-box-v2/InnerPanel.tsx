@@ -5,7 +5,7 @@ import { BackgroundBeams } from '@/components/ui/background-beams';
 import { SovereignOrbit } from './SovereignOrbit';
 
 // INNER LID PANEL - Exquisite Minimalist Style
-export const InnerPanel = () => (
+export const InnerPanel = ({ rotation = 0 }: { rotation?: number }) => (
     <div className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center bg-white px-20">
         <style>{`
             .silk-overlay-inner {

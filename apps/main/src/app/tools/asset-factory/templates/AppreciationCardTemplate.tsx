@@ -83,7 +83,6 @@ export const AppreciationCardTemplate = ({ client, content, containerRef, visual
                         fontFamily: content.fontFamilies?.message || content.fontFamily || "'Cormorant Garamond', serif",
                         color: '#f3f4f6',
                         fontSize: `${1.25 * bodyScale}rem`,
-                        fontSize: `${1.25 * bodyScale}rem`,
                         lineHeight: '1.6',
                         whiteSpace: 'pre-wrap'
                     }}

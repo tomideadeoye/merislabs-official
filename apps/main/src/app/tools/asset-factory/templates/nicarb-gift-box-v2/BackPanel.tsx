@@ -5,7 +5,7 @@ import { BackgroundBeams } from '@/components/ui/background-beams';
 import { SovereignOrbit } from './SovereignOrbit';
 
 // BACK PANEL - Contact & Information Hub
-export const BackPanel = () => (
+export const BackPanel = ({ rotation = 0 }: { rotation?: number }) => (
     <div className="w-full h-full bg-white relative overflow-hidden flex items-center justify-between px-16">
         <style>{`
             .silk-overlay-back {

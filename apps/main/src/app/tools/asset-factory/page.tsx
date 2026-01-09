@@ -23,7 +23,7 @@ import { Label } from '@/app/components/ui/label';
 import { cn } from '@/lib/utils';
 
 // Local imports
-import { ClientProfile, HolidayType, AssetContent, VisualAsset, ColorPalette } from './types';
+import { ClientProfile, HolidayType, AssetContent, VisualAsset, ColorPalette, TextScales, FooterControls } from './types';
 import { CLIENTS, VISUAL_ASSETS, INITIAL_CONTENT, PRESET_PALETTES, FONT_OPTIONS } from './data';
 import { PresidentialTemplate, PresidentialExecutiveTemplate, LifestyleTemplate, DarkLuxuryTemplate, TealDrapesTemplate, CleanCorporateTemplate, NICArbLuxuryTemplate, RoyalObsidianTemplate, RoyalObsidianWhiteTemplate, EmeraldPrestigeTemplate, EmeraldPrestigeAllWhiteTemplate, EmeraldFestiveJazzTemplate, HolidayCardTemplate, AppreciationCardTemplate, NicarbGiftBoxTemplate, NicarbGiftBoxV2Template } from './templates';
 import { VisualAssetSelector } from './components';
@@ -171,7 +171,6 @@ export default function AssetFactoryPage() {
                         content={content}
                         containerRef={flyerRef}
                         visualAsset={selectedVisualAsset}
-                        useBrandColors={useBrandColors}
                         activePalette={activePalette}
                         dimensions={{ width: activeDimensions.width, height: activeDimensions.height }}
                     />
@@ -327,12 +326,12 @@ export default function AssetFactoryPage() {
                                                 </select>
                                                 <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, title: Math.max(0.5, (content.textScales?.title || 1) - 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, title: Math.max(0.5, (content.textScales?.title || 1) - 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >−</button>
                                                     <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.title || 1) * 100).toFixed(0)}%</span>
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, title: Math.min(2, (content.textScales?.title || 1) + 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, title: Math.min(2, (content.textScales?.title || 1) + 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >+</button>
                                                 </div>
@@ -359,12 +358,12 @@ export default function AssetFactoryPage() {
                                                 </select>
                                                 <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, subtitle: Math.max(0.5, (content.textScales?.subtitle || 1) - 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, subtitle: Math.max(0.5, (content.textScales?.subtitle || 1) - 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >−</button>
                                                     <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.subtitle || 1) * 100).toFixed(0)}%</span>
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, subtitle: Math.min(2, (content.textScales?.subtitle || 1) + 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, subtitle: Math.min(2, (content.textScales?.subtitle || 1) + 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >+</button>
                                                 </div>
@@ -391,12 +390,12 @@ export default function AssetFactoryPage() {
                                                 </select>
                                                 <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, message: Math.max(0.5, (content.textScales?.message || 1) - 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, message: Math.max(0.5, (content.textScales?.message || 1) - 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >−</button>
                                                     <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.message || 1) * 100).toFixed(0)}%</span>
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, message: Math.min(2, (content.textScales?.message || 1) + 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, message: Math.min(2, (content.textScales?.message || 1) + 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >+</button>
                                                 </div>
@@ -424,12 +423,12 @@ export default function AssetFactoryPage() {
                                                 </select>
                                                 <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, year: Math.max(0.5, (content.textScales?.year || 1) - 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, year: Math.max(0.5, (content.textScales?.year || 1) - 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >−</button>
                                                     <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.year || 1) * 100).toFixed(0)}%</span>
                                                     <button
-                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1 }, year: Math.min(2, (content.textScales?.year || 1) + 0.1) } })}
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, year: Math.min(2, (content.textScales?.year || 1) + 0.1) } })}
                                                         className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
                                                     >+</button>
                                                 </div>
@@ -721,7 +720,7 @@ export default function AssetFactoryPage() {
                                 {selectedTemplate === 'holiday-card' && <HolidayCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                                 {selectedTemplate === 'appreciation-card' && <AppreciationCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                                 {selectedTemplate === 'nicarb-gift-box' && <NicarbGiftBoxTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
-                                {selectedTemplate === 'nicarb-gift-box-v2' && <NicarbGiftBoxV2Template client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'nicarb-gift-box-v2' && <NicarbGiftBoxV2Template client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                             </div>
                         </div>
 

@@ -77,6 +77,7 @@ export interface TemplateProps {
     visualAsset: VisualAsset;
     activePalette?: ColorPalette;
     dimensions?: { width: number; height: number };
+    useBrandColors?: boolean;
 }
 
 export interface ColorPalette {

@@ -35,9 +35,11 @@ export const NicarbGiftBoxV2Template = ({ containerRef }: TemplateProps) => {
         const searchParams = new URLSearchParams(window.location.search);
         if (searchParams.get('export') === 'true') {
             setIsExportMode(true);
-            const panelParam = searchParams.get('panel') as BoxPanel;
-            if (panelParam && PANEL_DIMENSIONS[panelParam]) {
-                setActivePanel(panelParam);
+            const panelParam = searchParams.get('panel') as string;
+
+            // Safe guard: check if it's a valid key and not 'print_all' (strictly)
+            if (panelParam && panelParam !== 'print_all' && panelParam in PANEL_DIMENSIONS) {
+                setActivePanel(panelParam as BoxPanel);
             }
         }
     }, []);

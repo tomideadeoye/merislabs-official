@@ -8,7 +8,7 @@ import { SovereignOrbit } from './SovereignOrbit';
  * This file contains the exact original logic and visual design for the Top Panel
  * as requested.
  */
-export const TopPanel = () => {
+export const TopPanel = ({ rotation = 0 }: { rotation?: number }) => {
     return (
         <>
             <style>{`

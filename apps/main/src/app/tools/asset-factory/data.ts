@@ -194,7 +194,7 @@ export const INITIAL_CONTENT: Record<HolidayType, AssetContent> = {
         holiday: 'custom',
         customImage: '/images/mum.jpeg',
         brandName: 'Mrs. Bose J Adeoye',
-        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1 },
+        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 },
         footerControls: {
             showAddress: true,
             showPhone: true,

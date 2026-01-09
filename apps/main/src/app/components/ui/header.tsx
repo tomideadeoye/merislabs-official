@@ -83,8 +83,9 @@ export function Header({ navItems }: HeaderProps) {
                       </NavigationMenuContent>
                     </>
                   ) : (
-                    <Link href={item.href} legacyBehavior passHref>
-                      <NavigationMenuLink
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={item.href}
                         className={cn(
                           navigationMenuTriggerStyle(),
                           "bg-transparent hover:bg-muted/50 transition-colors",
@@ -92,8 +93,8 @@ export function Header({ navItems }: HeaderProps) {
                         )}
                       >
                         {item.name}
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   )}
                 </NavigationMenuItem>
               ))}
