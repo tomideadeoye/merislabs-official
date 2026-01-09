@@ -6,9 +6,9 @@ import { Mail, Phone, Globe, MapPin, ShieldCheck } from 'lucide-react';
 
 export const EmeraldPrestigeTemplate = ({ client, content, containerRef, visualAsset, activePalette }: TemplateProps) => {
     // Use palette colors if provided, otherwise use lighter default emerald tones
-    const primaryColor = activePalette?.primary || '#0d7a4d';  // Lighter emerald (was #064802)
-    const secondaryColor = activePalette?.secondary || '#34d399'; // Teal mint accent
-    const backgroundColor = activePalette?.background || '#064e3b'; // Medium dark emerald (was #032501)
+    const primaryColor = activePalette?.primary || '#10b981';  // Much brighter emerald
+    const secondaryColor = activePalette?.secondary || '#6ee7b7'; // Brighter mint
+    const backgroundColor = activePalette?.background || '#065f46'; // Lifted background
     const accentColor = activePalette?.accent || '#D4AF37'; // Gold accent
 
     return (
@@ -16,8 +16,8 @@ export const EmeraldPrestigeTemplate = ({ client, content, containerRef, visualA
             ref={containerRef}
             className="relative w-full h-full overflow-hidden shadow-2xl flex flex-col select-none"
             style={{
-                background: `radial-gradient(circle at 30% 70%, ${primaryColor} 0%, ${backgroundColor} 100%)`,
-                boxShadow: 'inset 0 0 120px rgba(0,0,0,0.4)'
+                background: `radial-gradient(circle at 40% 60%, ${primaryColor} 0%, ${backgroundColor} 100%)`, // Adjusted center
+                boxShadow: 'inset 0 0 150px rgba(0,0,0,0.3)'
             }}
         >
             <style>{`
@@ -76,14 +76,18 @@ export const EmeraldPrestigeTemplate = ({ client, content, containerRef, visualA
 
                 {/* Brand Header Stage */}
                 <div className="mb-10 flex items-center gap-6">
-                    <div className="h-[0.5px] w-24 bg-[#D4AF37]/30" />
+                    <div className="h-[0.5px] w-24 opacity-30" style={{ backgroundColor: content.headerColor || '#D4AF37' }} />
                     <span
-                        className="text-[11px] tracking-[0.5em] text-[#D4AF37] font-bold"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                        className="tracking-[0.5em] font-bold"
+                        style={{
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: `${18 * (content.textScales?.brandHeader || 1)}px`,
+                            color: content.headerColor || '#D4AF37'
+                        }}
                     >
                         From NICArb
                     </span>
-                    <div className="h-[0.5px] w-24 bg-[#D4AF37]/30" />
+                    <div className="h-[0.5px] w-24 opacity-30" style={{ backgroundColor: content.headerColor || '#D4AF37' }} />
                 </div>
 
                 {/* Holiday Greeting */}
@@ -125,13 +129,14 @@ export const EmeraldPrestigeTemplate = ({ client, content, containerRef, visualA
                 {/* Main Message */}
                 <div className="max-w-xl text-center">
                     <p
-                        className="text-white/70 font-light leading-relaxed tracking-wide italic"
+                        className="text-white font-medium leading-relaxed tracking-wide italic"
                         style={{
                             fontFamily: "'Cormorant Garamond', serif",
-                            fontSize: `${18 * (content.textScales?.message || 1)}px`
+                            fontSize: `${22 * (content.textScales?.message || 1)}px`,
+                            textShadow: '0 2px 10px rgba(0,0,0,0.3)'
                         }}
                     >
-                        "{content.message}"
+                        {content.message}
                     </p>
                 </div>
 
@@ -180,39 +185,51 @@ export const EmeraldPrestigeTemplate = ({ client, content, containerRef, visualA
                     <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-3 pt-4 border-l border-white/10 pl-8">
                         {(content.footerControls?.showAddress ?? true) && (
                             <div className="flex items-start gap-3">
-                                <MapPin className="w-3 h-3 text-[#D4AF37] mt-1 opacity-60" />
-                                <p className="text-[9px] text-white/50 font-medium leading-tight uppercase tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>
+                                <MapPin className="w-3.5 h-3.5 text-[#D4AF37] mt-1 shrink-0" />
+                                <p className="text-[11px] text-white font-bold leading-tight" style={{
+                                    fontFamily: content.fontFamilies?.footer || "'Cinzel', serif",
+                                    fontSize: `${11 * (content.textScales?.footer || 1)}px`
+                                }}>
                                     {client.address}
                                 </p>
                             </div>
                         )}
                         {(content.footerControls?.showWebsite ?? true) && (
-                            <div className="flex items-center gap-3">
-                                <Globe className="w-3 h-3 text-[#D4AF37] opacity-60" />
-                                <p className="text-[10px] text-white/80 font-bold tracking-[0.2em]" style={{ fontFamily: "'Cinzel', serif" }}>
+                            <div className="flex items-start gap-3">
+                                <Globe className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5" />
+                                <p className="text-[11px] text-white font-bold tracking-[0.2em] leading-tight" style={{
+                                    fontFamily: content.fontFamilies?.footer || "'Cinzel', serif",
+                                    fontSize: `${11 * (content.textScales?.footer || 1)}px`
+                                }}>
                                     {client.website}
                                 </p>
                             </div>
                         )}
                         {(content.footerControls?.showPhone ?? true) && (
-                            <div className="flex items-center gap-3">
-                                <Phone className="w-3 h-3 text-[#D4AF37] opacity-60" />
-                                <p className="text-[10px] text-white/80 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                            <div className="flex items-start gap-3">
+                                <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5" />
+                                <p className="text-[11px] text-white font-extrabold leading-tight" style={{
+                                    fontFamily: content.fontFamilies?.footer || "'Cinzel', serif",
+                                    fontSize: `${11 * (content.textScales?.footer || 1)}px`
+                                }}>
                                     {client.phone}
                                 </p>
                             </div>
                         )}
                         {(content.footerControls?.showEmail ?? true) && (
-                            <div className="flex items-center gap-3">
-                                <Mail className="w-3 h-3 text-[#D4AF37] opacity-60" />
-                                <p className="text-[10px] text-white/60 font-bold tracking-widest uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+                            <div className="flex items-start gap-3">
+                                <Mail className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5" />
+                                <p className="text-[11px] text-white font-extrabold leading-tight" style={{
+                                    fontFamily: content.fontFamilies?.footer || "'Cinzel', serif",
+                                    fontSize: `${11 * (content.textScales?.footer || 1)}px`
+                                }}>
                                     {client.email}
                                 </p>
                             </div>
                         )}
                         {(content.footerControls?.showSignature ?? true) && (
                             <div className="col-span-2 mt-1">
-                                <p className="text-[#D4AF37] font-bold uppercase tracking-widest" style={{ fontSize: `${12 * (content.textScales?.signature || 1)}px`, fontFamily: "'Cinzel', serif" }}>
+                                <p className="text-[#D4AF37] font-bold uppercase tracking-widest" style={{ fontSize: `${12 * (content.textScales?.signature || 1)}px`, fontFamily: content.fontFamilies?.footer || "'Cinzel', serif" }}>
                                     {client.signature || client.name}
                                 </p>
                             </div>

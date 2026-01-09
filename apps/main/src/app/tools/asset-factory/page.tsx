@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils';
 // Local imports
 import { ClientProfile, HolidayType, AssetContent, VisualAsset, ColorPalette } from './types';
 import { CLIENTS, VISUAL_ASSETS, INITIAL_CONTENT, PRESET_PALETTES, FONT_OPTIONS } from './data';
-import { PresidentialTemplate, PresidentialExecutiveTemplate, LifestyleTemplate, DarkLuxuryTemplate, TealDrapesTemplate, CleanCorporateTemplate, NICArbLuxuryTemplate, RoyalObsidianTemplate, EmeraldPrestigeTemplate, HolidayCardTemplate, AppreciationCardTemplate } from './templates';
+import { PresidentialTemplate, PresidentialExecutiveTemplate, LifestyleTemplate, DarkLuxuryTemplate, TealDrapesTemplate, CleanCorporateTemplate, NICArbLuxuryTemplate, RoyalObsidianTemplate, RoyalObsidianWhiteTemplate, EmeraldPrestigeTemplate, EmeraldPrestigeAllWhiteTemplate, EmeraldFestiveJazzTemplate, HolidayCardTemplate, AppreciationCardTemplate, NicarbGiftBoxTemplate, NicarbGiftBoxV2Template } from './templates';
 import { VisualAssetSelector } from './components';
 
 const TEMPLATE_LABELS: Record<string, string> = {
@@ -37,9 +37,14 @@ const TEMPLATE_LABELS: Record<string, string> = {
     'clean-corporate': 'Clean Corporate',
     'nicarb-luxury': 'NICArb Luxury',
     'royal-obsidian': 'Royal Obsidian',
+    'royal-obsidian-white': 'Royal Obsidian (White)',
     'emerald-prestige': 'Emerald Prestige',
+    'emerald-prestige-white': 'Emerald Prestige (White)',
+    'emerald-festive-jazz': 'Emerald Festive Jazz',
     'holiday-card': 'Holiday Card',
-    'appreciation-card': 'Appreciation Card'
+    'appreciation-card': 'Appreciation Card',
+    'nicarb-gift-box': 'NICArb Gift Box',
+    'nicarb-gift-box-v2': 'NICArb Gift Box V2'
 };
 
 const ASSET_FORMATS = [
@@ -54,7 +59,21 @@ const ASSET_FORMATS = [
 export default function AssetFactoryPage() {
     const [selectedClient, setSelectedClient] = useState<ClientProfile>(CLIENTS[0]);
     const [selectedHoliday, setSelectedHoliday] = useState<HolidayType>('new-year');
-    const [selectedTemplate, setSelectedTemplate] = useState<'presidential' | 'presidential-executive' | 'lifestyle' | 'dark-luxury' | 'teal-drapes' | 'clean-corporate' | 'nicarb-luxury' | 'royal-obsidian' | 'emerald-prestige' | 'holiday-card' | 'appreciation-card'>('presidential-executive');
+    const [selectedTemplate, setSelectedTemplate] = useState<'presidential' | 'presidential-executive' | 'lifestyle' | 'dark-luxury' | 'teal-drapes' | 'clean-corporate' | 'nicarb-luxury' | 'royal-obsidian' | 'royal-obsidian-white' | 'emerald-prestige' | 'emerald-prestige-white' | 'emerald-festive-jazz' | 'holiday-card' | 'appreciation-card' | 'nicarb-gift-box' | 'nicarb-gift-box-v2'>('presidential-executive');
+    const [isExportMode, setIsExportMode] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('export') === 'true') {
+                setIsExportMode(true);
+                // Force appropriate template for nicarb box
+                if (params.get('template') === 'nicarb-gift-box-v2' || params.get('panel')) {
+                    setSelectedTemplate('nicarb-gift-box-v2');
+                }
+            }
+        }
+    }, []);
     const [activePalette, setActivePalette] = useState<ColorPalette | undefined>(undefined);
     const [useBrandColors, setUseBrandColors] = useState<boolean>(false); // Legacy toggle, kept for simple on/off for now
     const [content, setContent] = useState<AssetContent>(INITIAL_CONTENT['new-year']);
@@ -142,6 +161,24 @@ export default function AssetFactoryPage() {
             setDownloading(false);
         }
     };
+
+    if (isExportMode) {
+        return (
+            <div className="bg-white min-h-screen w-full flex items-center justify-center">
+                {selectedTemplate === 'nicarb-gift-box-v2' && (
+                    <NicarbGiftBoxV2Template
+                        client={selectedClient}
+                        content={content}
+                        containerRef={flyerRef}
+                        visualAsset={selectedVisualAsset}
+                        useBrandColors={useBrandColors}
+                        activePalette={activePalette}
+                        dimensions={{ width: activeDimensions.width, height: activeDimensions.height }}
+                    />
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50/50">
@@ -268,7 +305,7 @@ export default function AssetFactoryPage() {
                         {/* Context/Holiday Toggle */}
                         <section>
                             <Label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 block">Context & Content</Label>
-                            <Tabs value={selectedHoliday} onValueChange={(v) => handleHolidayChange(v as HolidayType)}>
+                            <Tabs value={selectedHoliday} onValueChange={(v) => handleHolidayChange(v as HolidayType)} suppressHydrationWarning>
                                 <TabsList className="w-full h-12 bg-white border border-slate-100 rounded-xl p-1 mb-6">
                                     <TabsTrigger value="christmas" className="flex-1 rounded-lg">Christmas</TabsTrigger>
                                     <TabsTrigger value="new-year" className="flex-1 rounded-lg">New Year</TabsTrigger>
@@ -404,6 +441,73 @@ export default function AssetFactoryPage() {
                                             className="rounded-xl border-slate-100"
                                             style={{ fontFamily: content.fontFamilies?.year || undefined }}
                                         />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Banner Header Color</Label>
+                                            <div className="flex items-center gap-2">
+                                                <div
+                                                    className="w-4 h-4 rounded-full border border-slate-200"
+                                                    style={{ backgroundColor: content.headerColor || '#D4AF37' }}
+                                                />
+                                                <Input
+                                                    type="text"
+                                                    value={content.headerColor || ''}
+                                                    onChange={(e) => setContent({ ...content, headerColor: e.target.value })}
+                                                    placeholder="#D4AF37"
+                                                    className="h-7 text-[10px] w-24 rounded-lg bg-slate-50 border-none px-2"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Footer Font</Label>
+                                            <select
+                                                className="text-[9px] bg-slate-50 border-none rounded-lg p-1 outline-none font-medium text-slate-500 cursor-pointer hover:bg-slate-100"
+                                                value={content.fontFamilies?.footer || ''}
+                                                onChange={(e) => setContent({ ...content, fontFamilies: { ...content.fontFamilies, footer: e.target.value } })}
+                                            >
+                                                <option value="">Default Font (Cinzel)</option>
+                                                {FONT_OPTIONS.map(f => <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.name.split(' ')[0]}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Brand Header Size</Label>
+                                            <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, brandHeader: Math.max(0.5, (content.textScales?.brandHeader || 1) - 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >−</button>
+                                                <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.brandHeader || 1) * 100).toFixed(0)}%</span>
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, brandHeader: Math.min(2, (content.textScales?.brandHeader || 1) + 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Footer Text Size</Label>
+                                            <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, footer: Math.max(0.5, (content.textScales?.footer || 1) - 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >−</button>
+                                                <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.footer || 1) * 100).toFixed(0)}%</span>
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, footer: Math.min(2, (content.textScales?.footer || 1) + 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >+</button>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="space-y-2">
@@ -610,9 +714,14 @@ export default function AssetFactoryPage() {
                                 {selectedTemplate === 'clean-corporate' && <CleanCorporateTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                                 {selectedTemplate === 'nicarb-luxury' && <NICArbLuxuryTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                                 {selectedTemplate === 'royal-obsidian' && <RoyalObsidianTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'royal-obsidian-white' && <RoyalObsidianWhiteTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                                 {selectedTemplate === 'emerald-prestige' && <EmeraldPrestigeTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'emerald-prestige-white' && <EmeraldPrestigeAllWhiteTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'emerald-festive-jazz' && <EmeraldFestiveJazzTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                                 {selectedTemplate === 'holiday-card' && <HolidayCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                                 {selectedTemplate === 'appreciation-card' && <AppreciationCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'nicarb-gift-box' && <NicarbGiftBoxTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'nicarb-gift-box-v2' && <NicarbGiftBoxV2Template client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                             </div>
                         </div>
 
@@ -733,6 +842,20 @@ export default function AssetFactoryPage() {
                                 </button>
 
                                 <button
+                                    onClick={() => setSelectedTemplate('royal-obsidian-white')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'royal-obsidian-white' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 rounded-full bg-white border-2 border-[#D4AF37]" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Royal Obsidian (White)</p>
+                                    {selectedTemplate === 'royal-obsidian-white' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
                                     onClick={() => setSelectedTemplate('emerald-prestige')}
                                     className={cn(
                                         "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
@@ -744,6 +867,33 @@ export default function AssetFactoryPage() {
                                     </div>
                                     <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Emerald Prestige</p>
                                     {selectedTemplate === 'emerald-prestige' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('emerald-prestige-white')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'emerald-prestige-white' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 rounded-full bg-white border-2 border-[#064802]" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Emerald Prestige (White)</p>
+                                    {selectedTemplate === 'emerald-prestige-white' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+                                <button
+                                    onClick={() => setSelectedTemplate('emerald-festive-jazz')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'emerald-festive-jazz' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#064802] to-[#D4AF37]" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Emerald Jazz</p>
+                                    {selectedTemplate === 'emerald-festive-jazz' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
                                 </button>
 
                                 <button
@@ -773,7 +923,36 @@ export default function AssetFactoryPage() {
                                     <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Appreciation Card</p>
                                     {selectedTemplate === 'appreciation-card' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
                                 </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('nicarb-gift-box')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'nicarb-gift-box' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 bg-[#B01E23] rounded-sm shadow-sm" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">NICArb Gift Box</p>
+                                    {selectedTemplate === 'nicarb-gift-box' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('nicarb-gift-box-v2')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'nicarb-gift-box-v2' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 bg-gradient-to-br from-[#064802] to-[#D4AF37] rounded-sm shadow-sm" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Gift Box V2</p>
+                                    {selectedTemplate === 'nicarb-gift-box-v2' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
                             </div>
+
                         </section>
                     </div>
 

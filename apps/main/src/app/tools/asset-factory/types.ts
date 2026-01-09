@@ -16,6 +16,7 @@ export interface ClientProfile {
     address?: string;
     website?: string;
     phone?: string;
+    email?: string;
     title?: string;
 }
 
@@ -27,6 +28,7 @@ export interface AssetContent {
     holiday: HolidayType;
     customImage?: string;
     brandName?: string;
+    headerColor?: string;
     textScales?: TextScales;
     fontFamily?: string; // Legacy global font
     fontFamilies?: TextFonts;
@@ -47,6 +49,7 @@ export interface TextFonts {
     subtitle?: string;
     message?: string;
     year?: string;
+    footer?: string;
 }
 
 export interface TextScales {
@@ -55,6 +58,8 @@ export interface TextScales {
     message: number;
     year: number;
     signature: number;
+    footer: number;
+    brandHeader: number; // "From NICArb" text
 }
 
 export interface VisualAsset {

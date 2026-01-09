@@ -173,6 +173,7 @@ export const CleanCorporateTemplate = ({ client, content, containerRef, visualAs
                         {(content.footerControls?.showWebsite ?? true) && (client.website || 'www.example.com')}
                         {(content.footerControls?.showWebsite ?? true) && (content.footerControls?.showPhone ?? true) && ' | '}
                         {(content.footerControls?.showPhone ?? true) && (client.phone || '+1 234 567 890')}
+                        {(content.footerControls?.showEmail ?? true) && client.email && ` | ${client.email}`}
                     </p>
                 </div>
             )}

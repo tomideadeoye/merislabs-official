@@ -102,8 +102,13 @@ export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAss
                 <div className="w-full mt-16 flex flex-col items-start pr-32">
                     {/* Prefix Accent */}
                     <div className="flex items-center gap-3 mb-6">
-                        <Award className="w-4 h-4 text-[#D4AF37] opacity-60" />
-                        <span className="text-[10px] tracking-[0.5em] text-[#D4AF37] opacity-50 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                        <Award className="w-4 h-4 opacity-70" style={{ color: content.headerColor || '#D4AF37' }} />
+                        <span className="tracking-[0.5em] font-bold" style={{
+                            fontFamily: "'Cinzel', serif",
+                            color: content.headerColor || '#D4AF37',
+                            opacity: content.headerColor ? 1 : 0.5,
+                            fontSize: `${18 * (content.textScales?.brandHeader || 1)}px`
+                        }}>
                             From NICArb
                         </span>
                     </div>
@@ -177,7 +182,7 @@ export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAss
                                 <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Connect</span>
                                 <div className="flex items-center gap-6">
                                     <p className="text-[11px] text-gray-300 font-bold tracking-[0.1em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                                        {client.website || 'WWW.NICARB.ORG'}
+                                        {client.website || 'nicarb.org'}
                                     </p>
                                 </div>
                             </div>
@@ -198,7 +203,7 @@ export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAss
                             <div className="flex flex-col gap-1">
                                 <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Official</span>
                                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
-                                    {client.id === 'nicarb' ? 'INFO@NICARB.ORG' : client.id}
+                                    {client.email || (client.id === 'nicarb' ? 'INFO@NICARB.ORG' : '')}
                                 </p>
                             </div>
                         )}

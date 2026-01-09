@@ -110,8 +110,9 @@ export const CLIENTS: ClientProfile[] = [
         textColor: '#FFFFFF',
         fontFamily: 'Georgia, serif',
         address: '10 Adedeji Adekola Close, Lekki Phase 1, Lagos',
-        website: 'www.nicarb.org',
-        phone: '+234 908 718 7414'
+        website: 'nicarb.org',
+        phone: '+234 908 718 7414',
+        email: 'info@nicarb.org'
     },
     {
         id: 'merislabs',
@@ -157,7 +158,7 @@ export const INITIAL_CONTENT: Record<HolidayType, AssetContent> = {
         holiday: 'christmas',
         customImage: '/images/mum.jpeg',
         brandName: 'Mrs Bose Adeoye',
-        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1 },
+        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 },
         footerControls: {
             showAddress: true,
             showPhone: true,
@@ -168,14 +169,14 @@ export const INITIAL_CONTENT: Record<HolidayType, AssetContent> = {
         }
     },
     'new-year': {
-        title: 'Happy New Year',
+        title: 'A Happy and Prosperous New Year',
         subtitle: 'A New Chapter Begins',
-        message: 'Wishing you a year filled with prosperity, success, and peaceful resolutions. Here\'s to new beginnings!',
+        message: 'Wishing you a year filled with prosperity, growth and excellence.',
         year: '2026',
         holiday: 'new-year',
         customImage: '/images/mum.jpeg',
         brandName: 'Mrs Bose Adeoye',
-        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1 },
+        textScales: { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 },
         footerControls: {
             showAddress: true,
             showPhone: true,

@@ -157,12 +157,12 @@ export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsse
                 <div className="w-[1px] h-12 bg-[#D4AF37]/20 mx-10" />
 
                 {/* Info Grid */}
-                <div className="flex-1 grid grid-cols-2 gap-x-12 gap-y-2">
+                <div className="flex-1 grid grid-cols-2 gap-x-12 gap-y-3">
                     {/* Address - Only show if available and allowed */}
                     {client.address && (content.footerControls?.showAddress ?? true) && (
                         <div className="flex items-start gap-3">
-                            <MapPin className="w-3 h-3 text-[#D4AF37] mt-1 shrink-0" />
-                            <p className="text-[10px] text-gray-400 font-medium leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
+                            <MapPin className="w-3.5 h-3.5 text-[#D4AF37] mt-1 shrink-0" />
+                            <p className="text-[11px] text-white font-bold leading-tight uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
                                 {client.address}
                             </p>
                         </div>
@@ -171,8 +171,8 @@ export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsse
                     {/* Website - Only show if available and allowed */}
                     {client.website && (content.footerControls?.showWebsite ?? true) && (
                         <div className="flex items-center gap-3">
-                            <Globe className="w-3 h-3 text-[#D4AF37] shrink-0" />
-                            <p className="text-[10px] text-gray-400 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
+                            <Globe className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                            <p className="text-[11px] text-white font-bold tracking-widest uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
                                 {client.website}
                             </p>
                         </div>
@@ -181,9 +181,19 @@ export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsse
                     {/* Phone - Only show if available and allowed */}
                     {client.phone && (content.footerControls?.showPhone ?? true) && (
                         <div className="flex items-center gap-3">
-                            <Phone className="w-3 h-3 text-[#D4AF37] shrink-0" />
-                            <p className="text-[10px] text-gray-400 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                            <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                            <p className="text-[11px] text-white font-bold uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
                                 {client.phone}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Email - Only show if available and allowed */}
+                    {client.email && (content.footerControls?.showEmail ?? true) && (
+                        <div className="flex items-center gap-3">
+                            <Mail className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                            <p className="text-[11px] text-white font-bold uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+                                {client.email}
                             </p>
                         </div>
                     )}

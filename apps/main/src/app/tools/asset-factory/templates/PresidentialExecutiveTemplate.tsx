@@ -200,12 +200,20 @@ export const PresidentialExecutiveTemplate = ({ client, content, containerRef, v
                                     <Phone className="w-3 h-3" />
                                 </div>
                             )}
+                            {client.email && (content.footerControls?.showEmail ?? true) && (
+                                <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                                    <p className="text-[9px] uppercase tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        {client.email}
+                                    </p>
+                                    <Mail className="w-3 h-3" />
+                                </div>
+                            )}
                         </div>
 
                     </div>
                 </div>
             </div>
 
-        </div>
+        </div >
     );
 };
