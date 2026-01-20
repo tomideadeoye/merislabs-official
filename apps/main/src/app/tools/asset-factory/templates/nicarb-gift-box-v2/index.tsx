@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, Maximize, Move, RotateCw, Download } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize, Move, RotateCw, Download, Sparkles } from 'lucide-react';
 import { TemplateProps } from '../../types';
 import { TopPanel } from './TopPanel';
 import { FrontPanel } from './FrontPanel';
@@ -30,6 +30,8 @@ export const NicarbGiftBoxV2Template = ({ containerRef }: TemplateProps) => {
     const isTopPanel = ['top', 'inner', 'bottom'].includes(activePanel);
     const isRotated = Math.round(currentRotation / 90) % 2 !== 0;
     const [isExportMode, setIsExportMode] = useState(false);
+    const [activePalette, setActivePalette] = useState('institutional');
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
@@ -37,8 +39,9 @@ export const NicarbGiftBoxV2Template = ({ containerRef }: TemplateProps) => {
             setIsExportMode(true);
             const panelParam = searchParams.get('panel') as string;
 
-            // Safe guard: check if it's a valid key and not 'print_all' (strictly)
-            if (panelParam && panelParam !== 'print_all' && panelParam in PANEL_DIMENSIONS) {
+            if (panelParam === 'print_all') {
+                setActivePanel('print_all');
+            } else if (panelParam && panelParam in PANEL_DIMENSIONS) {
                 setActivePanel(panelParam as BoxPanel);
             }
         }
@@ -120,6 +123,7 @@ export const NicarbGiftBoxV2Template = ({ containerRef }: TemplateProps) => {
 
                                 {/* The Component Wrapper */}
                                 <div
+                                    id={`panel-export-${item.id}`}
                                     className="bg-white shadow-sm ring-1 ring-slate-200 print:shadow-none print:ring-0 overflow-hidden relative print:static"
                                     style={{
                                         // Screen: scaled for visibility
@@ -184,6 +188,14 @@ export const NicarbGiftBoxV2Template = ({ containerRef }: TemplateProps) => {
             <style>{`
                 .canvas-grid { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px); }
                 .canvas-grid-fine { background-size: 8px 8px; background-image: linear-gradient(to right, rgba(0,0,0,0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.01) 1px, transparent 1px); }
+
+                /* FORCE RAZOR SHARP TEXT */
+                #batch-print-container, #print-target, .panel-export-wrapper {
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    text-rendering: geometricPrecision;
+                    image-rendering: high-quality;
+                }
 
                 @media print {
                     @page {
@@ -253,6 +265,94 @@ export const NicarbGiftBoxV2Template = ({ containerRef }: TemplateProps) => {
                         >
                             <Download size={14} />
                             PRINT PDF
+                        </button>
+
+                        <button
+                            disabled={isGeneratingPdf}
+                            onClick={async () => {
+                                setIsGeneratingPdf(true);
+                                try {
+                                    const { default: jsPDF } = await import('jspdf');
+                                    const { default: html2canvas } = await import('html2canvas-pro');
+
+                                    // Ensure we are in print_all mode to have all elements in DOM
+                                    if (activePanel !== 'print_all') {
+                                        setActivePanel('print_all');
+                                        // Give it a moment to render
+                                        await new Promise(r => setTimeout(r, 800));
+                                    }
+
+                                    const pdf = new jsPDF({
+                                        orientation: 'landscape',
+                                        unit: 'in',
+                                        compress: true
+                                    });
+
+                                    const panelIds = ['top', 'inner', 'front', 'back', 'left', 'right', 'bottom'];
+                                    let firstPage = true;
+
+                                    for (const id of panelIds) {
+                                        const element = document.getElementById(`panel-export-${id}`);
+                                        if (!element) continue;
+
+                                        const dims = PANEL_DIMENSIONS[id as keyof typeof PANEL_DIMENSIONS];
+
+                                        // Set page size for this panel
+                                        if (!firstPage) {
+                                            pdf.addPage([dims.width + 0.5, dims.height + 0.5], 'landscape');
+                                        } else {
+                                            // Update first page size
+                                            // @ts-ignore
+                                            pdf.internal.pageSize.width = dims.width + 0.5;
+                                            // @ts-ignore
+                                            pdf.internal.pageSize.height = dims.height + 0.5;
+                                            firstPage = false;
+                                        }
+
+                                        const canvas = await html2canvas(element, {
+                                            scale: 8, // MAX High-res (~800 DPI)
+                                            useCORS: true,
+                                            backgroundColor: '#ffffff',
+                                            logging: false,
+                                            windowWidth: element.offsetWidth,
+                                            windowHeight: element.offsetHeight,
+                                            onclone: (clonedDoc) => {
+                                                const el = clonedDoc.getElementById(`panel-export-${id}`);
+                                                if (el) {
+                                                    el.style.transform = 'none';
+                                                    el.style.textRendering = 'geometricPrecision';
+                                                }
+                                            }
+                                        });
+
+                                        const imgData = canvas.toDataURL('image/png', 1.0);
+                                        pdf.addImage(imgData, 'PNG', 0.25, 0.25, dims.width, dims.height, undefined, 'FAST');
+                                    }
+
+                                    pdf.save(`NICArb_Gift_Box_V2_PRO_PRODUCTION_${new Date().toISOString().split('T')[0]}.pdf`);
+                                } catch (error) {
+                                    console.error("PDF Generation failed:", error);
+                                    alert("HQ PDF Generation failed. Try reducing complexity.");
+                                } finally {
+                                    setIsGeneratingPdf(false);
+                                }
+                            }}
+                            className={cn(
+                                "flex items-center gap-2 px-3 py-1.5 bg-emerald-700 border border-emerald-800 rounded-md text-[10px] font-bold text-white transition-all shadow-md ml-2",
+                                isGeneratingPdf ? "opacity-50 cursor-not-allowed" : "hover:bg-emerald-800"
+                            )}
+                        >
+                            {isGeneratingPdf ? (
+                                <>
+                                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    GENERATING...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles size={14} />
+                                    HQ BATCH PDF (PROD)
+                                </>
+                            )}
                         </button>
 
                         {activePanel !== 'print_all' && (

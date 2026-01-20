@@ -7,7 +7,7 @@ export const NICARB_BRAND = {
     motto: "Leadership and Integrity",
     founded: '1979',
     years: '47',
-    logo: '/nicarb-logo.png',
+    logo: '/nicarb/NICArb-Logo-Stacked.svg',
     qrCode: '/nicarb/nicarb-qr-code.png',
     skylineImage: '/nicarb/lagos-skyline.jpg',
     conferenceMapImage: '/nicarb/Generated_Image_November_26__2025_-_8_29AM-removebg-preview.png',

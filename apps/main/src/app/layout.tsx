@@ -36,7 +36,11 @@ import { ClientProviders } from './client-providers';
 import { Header } from './components/ui/header';
 import { navItems } from '@/lib/routes';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Arial', 'sans-serif'],
+});
 
 export const metadata = {
   metadataBase: new URL('https://merislabs.com'),

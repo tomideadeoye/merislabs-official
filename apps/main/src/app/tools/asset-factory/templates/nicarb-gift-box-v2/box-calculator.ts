@@ -82,7 +82,7 @@ function calculateFlatSheet(box: BoxDimensions, flapSize: number = 20): FlatShee
     // Vertical span: Height + Length (or Width, depending on top/bottom orientation) + flaps
     const flatHeight = box.height + box.width + (2 * flapSize);
 
-    const bleed = 3; // mm on each side
+    const bleed = 5; // mm on each side per Sovereign Protocol
 
     return {
         width: flatWidth,
