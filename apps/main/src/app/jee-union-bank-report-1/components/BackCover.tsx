@@ -4,7 +4,7 @@ import React from 'react';
 
 export const BackCover = () => {
     return (
-        <div className="max-w-[210mm] w-full mx-auto bg-[#0A1930] shadow-2xl overflow-hidden mb-12 print:mb-0 print:shadow-none print:break-before-page h-[297mm] relative flex flex-col items-center justify-center shrink-0 print:break-inside-avoid back-cover-print">
+        <div className="max-w-[210mm] w-full mx-auto bg-[#0A1930] shadow-2xl overflow-hidden h-[297mm] relative flex flex-col items-center justify-center shrink-0">
             <div className="absolute inset-0 opacity-10 bg-[url('/union-bank/pattern.png')] bg-repeat" />
 
             {/* Centered Logo */}

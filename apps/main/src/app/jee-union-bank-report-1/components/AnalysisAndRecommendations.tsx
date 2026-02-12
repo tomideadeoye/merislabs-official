@@ -5,7 +5,7 @@ import { Search, CheckCircle2 } from 'lucide-react';
 
 export const Analysis = () => {
     return (
-        <div id="analysis" className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0 overflow-hidden">
+        <div id="analysis" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden">
 
             {/* Background Pattern */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />

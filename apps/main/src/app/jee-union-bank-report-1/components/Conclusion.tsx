@@ -5,7 +5,7 @@ import { CheckCircle } from 'lucide-react';
 
 export const Conclusion = () => {
     return (
-        <div id="conclusion" className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0 flex flex-col justify-center items-center overflow-hidden">
+        <div id="conclusion" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] flex flex-col justify-center items-center overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
@@ -27,7 +27,6 @@ export const Conclusion = () => {
 
                 <div className="mt-20">
                     <img src="/clients/jackson etti and edu logo (1).png" alt="Jackson Etti & Edu" className="h-16 mx-auto grayscale opacity-50" />
-                    <p className="mt-4 text-sm font-serif font-bold text-gray-400 tracking-widest uppercase">Jackson, Etti & Edu</p>
                 </div>
             </div>
         </div>

@@ -30,7 +30,7 @@ const RoadmapStep: React.FC<RoadmapStepProps> = ({ icon, title, timeline, descri
 
 export const ImplementationRoadmap = () => {
     return (
-        <div className="w-full py-12 px-8 bg-slate-50/50 rounded-2xl border border-slate-100 mt-10 not-prose">
+        <div className="w-full py-8 px-4 bg-slate-50/50 rounded-2xl border border-slate-100 mt-6 not-prose">
             <div className="text-center mb-12">
                 <h3 className="text-lg font-serif font-bold text-[#0A1930] uppercase tracking-widest">
                     Timelines
