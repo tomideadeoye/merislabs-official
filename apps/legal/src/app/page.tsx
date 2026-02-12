@@ -26,6 +26,7 @@ export default function LandingPage() {
 
                     <div className="flex items-center gap-6">
                         <a href="#products" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Products</a>
+                        <Link href="/library" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Legal Library</Link>
                         <a href="#about" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">About</a>
                         <Link href="/audit" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold transition-all shadow-lg shadow-blue-600/25">
                             View Demo
@@ -210,12 +211,12 @@ export default function LandingPage() {
                                     </li>
                                 </ul>
 
-                                <a href="https://unicom-report-official.vercel.app/home" target="_blank" className="inline-flex items-center gap-2 text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">
-                                    View Demo
+                                <Link href="/library" className="inline-flex items-center gap-2 text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">
+                                    Access Sovereign Library
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                     </svg>
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>
