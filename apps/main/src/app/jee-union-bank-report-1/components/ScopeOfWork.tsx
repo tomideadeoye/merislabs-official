@@ -6,7 +6,7 @@ import { Search, ExternalLink } from 'lucide-react';
 export const ScopeOfWork = () => {
     return (
         <>
-            <div id="scope" className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0 overflow-hidden">
+            <div id="scope" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
@@ -41,8 +41,13 @@ export const ScopeOfWork = () => {
                         <div className="flex gap-2"><span className="font-bold min-w-[20px]">l)</span> <span>Personal Guarantee</span></div>
                         <div className="flex gap-2"><span className="font-bold min-w-[20px]">m)</span> <span>Undertaking to Domicile Sales Proceeds (2 variants)</span></div>
                     </div>
+                </div>
+            </div>
 
-                    <h3 className="text-xl font-bold mt-8 mb-3">2.3. Assumptions & Limitations</h3>
+            {/* Section 2.3 on a New Page */}
+            <div className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0">
+                <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930]">
+                    <h3 className="text-xl font-bold mb-3">2.3. Assumptions & Limitations</h3>
                     <p>
                         Our review was based solely on the documentation provided by the Bank, and we assumed such documentation to be authentic and complete. We further assumed that operational references within the templates accurately reflect current internal processes unless otherwise indicated.
                     </p>

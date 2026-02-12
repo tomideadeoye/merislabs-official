@@ -5,14 +5,22 @@ import React from 'react';
 export const TableOfContents = () => {
     const items = [
         { id: 'summary', label: '1. EXECUTIVE SUMMARY', page: 3 },
-        { id: 'scope', label: '2. SCOPE OF WORK', page: 4 },
+        {
+            id: 'scope',
+            label: '2. SCOPE OF WORK',
+            page: 4,
+            subItems: [
+                { id: 'scope-2.3', label: '2.3 Assumptions & Limitations', page: 5 },
+                { id: 'scope-2.4', label: '2.4 Legal and Regulatory Framework Considered', page: 6 }
+            ]
+        },
         {
             id: 'findings',
             label: '3. KEY DOCUMENT REVIEW OUTCOMES',
-            page: 6,
+            page: 7,
             subItems: [
-                { id: 'findings-credit', label: '3.1 Global Credit Templates', page: 6 },
-                { id: 'findings-secured', label: '3.2 Secured Lending Instruments', page: 6 },
+                { id: 'findings-credit', label: '3.1 Global Credit Templates', page: 7 },
+                { id: 'findings-secured', label: '3.2 Secured Lending Instruments', page: 7 },
                 { id: 'findings-third-party', label: '3.3 Third-Party Support Documents', page: 7 },
                 { id: 'findings-specialized', label: '3.4 Specialized Finance Documentation', page: 7 }
             ]
@@ -22,18 +30,22 @@ export const TableOfContents = () => {
             label: '4. ANALYSIS',
             page: 8,
         },
-        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS', page: 10 },
+        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS', page: 9 },
         {
             id: 'recommendations',
             label: '6. RECOMMENDATIONS',
-            page: 11,
+            page: 10,
             subItems: [
-                { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 11 },
-                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 11 },
-                { id: 'roadmap', label: '6.3 Implementation Timelines', page: 12 }
+                { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 10 },
+                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 10 }
             ]
         },
-        { id: 'conclusion', label: '7. CONCLUSION', page: 13 }
+        {
+            id: 'roadmap',
+            label: '6.3 Implementation Timelines',
+            page: 11
+        },
+        { id: 'conclusion', label: '7. CONCLUSION', page: 12 }
     ];
 
     return (
