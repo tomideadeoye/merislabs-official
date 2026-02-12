@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { MorganHacksPage } from '../../components/reports/esg-pages/MorganHacksPage';
+import { MorganHacksPage } from '@/components/reports/esg-pages/MorganHacksPage';
 
 export const MorganHacksClient: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);

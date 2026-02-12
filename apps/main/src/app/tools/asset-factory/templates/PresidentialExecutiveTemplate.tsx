@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { TemplateProps } from '../types';
 import { Mail, Phone, Globe, MapPin, Award } from 'lucide-react';
 
-export const PresidentialExecutiveTemplate = ({ client, content, containerRef, visualAsset, activePalette }: TemplateProps) => {
+export const PresidentialExecutiveTemplate = ({ client, content, containerRef, visualAsset, activePalette, dimensions }: TemplateProps) => {
     // Determine colors based on active palette or client defaults
     const primaryColor = activePalette?.primary || client.primaryColor || '#064802';
     const accentColor = activePalette?.secondary || client.secondaryColor || '#D4AF37';
@@ -13,7 +13,7 @@ export const PresidentialExecutiveTemplate = ({ client, content, containerRef, v
     return (
         <div
             ref={containerRef}
-            className="relative w-full aspect-square overflow-hidden flex flex-col select-none"
+            className="relative w-full h-full overflow-hidden flex flex-col select-none"
             style={{
                 background: `radial-gradient(circle at 50% 30%, ${primaryColor} 0%, #001a00 100%)`,
                 boxShadow: 'inset 0 0 150px rgba(0,0,0,0.8)'
@@ -72,20 +72,22 @@ export const PresidentialExecutiveTemplate = ({ client, content, containerRef, v
             <div className="relative z-10 flex-1 flex flex-col items-center pt-20 px-16 pb-12">
 
                 {/* 1. Header & Logo Plate */}
-                <div className="mb-12 relative group">
-                    {/* The "Plate" behind the logo */}
-                    <div className="absolute inset-0 bg-black/40 blur-xl rounded-full transform scale-110" />
-                    <div className="relative bg-gradient-to-b from-[#ffffff]/10 to-[#ffffff]/5 backdrop-blur-md border border-[#D4AF37]/30 px-10 py-4 rounded-lg shadow-2xl">
-                        {/* Shimmer effect on plate */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                {(content.footerControls?.showLogo ?? true) && (
+                    <div className="mb-12 relative group">
+                        {/* The "Plate" behind the logo */}
+                        <div className="absolute inset-0 bg-black/40 blur-xl rounded-full transform scale-110" />
+                        <div className="relative bg-gradient-to-b from-[#ffffff]/10 to-[#ffffff]/5 backdrop-blur-md border border-[#D4AF37]/30 px-10 py-4 rounded-lg shadow-2xl">
+                            {/* Shimmer effect on plate */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-                        <img
-                            src={client.logo || '/nicarb-logo.png'}
-                            alt={client.name}
-                            className="h-20 w-auto object-contain drop-shadow-lg"
-                        />
+                            <img
+                                src={client.logo || '/nicarb-logo.png'}
+                                alt={client.name}
+                                className="h-20 w-auto object-contain drop-shadow-lg"
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* 2. The Greeting - Typography Mastery */}
                 <div className="text-center mb-10 w-full relative">
@@ -97,22 +99,31 @@ export const PresidentialExecutiveTemplate = ({ client, content, containerRef, v
                     </div>
 
                     <h2
-                        className="text-6xl text-white font-medium tracking-wide mb-2 drop-shadow-2xl"
-                        style={{ fontFamily: "'Cinzel', serif" }}
+                        className="text-white font-medium tracking-wide mb-2 drop-shadow-2xl"
+                        style={{
+                            fontFamily: content.fontFamilies?.title || content.fontFamily || "'Cinzel', serif",
+                            fontSize: `${3.75 * (content.textScales?.title || 1)}rem`
+                        }}
                     >
                         {content.title.split(' ')[0]}
                     </h2>
 
                     <h1
-                        className="text-[5rem] leading-[0.9] font-[700] uppercase tracking-wider text-gold-gradient mb-4"
-                        style={{ fontFamily: "'Cinzel', serif" }}
+                        className="leading-[0.9] font-[700] uppercase tracking-wider text-gold-gradient mb-4"
+                        style={{
+                            fontFamily: content.fontFamilies?.title || content.fontFamily || "'Cinzel', serif",
+                            fontSize: `${5 * (content.textScales?.title || 1)}rem`
+                        }}
                     >
                         {content.title.split(' ').slice(1).join(' ')}
                     </h1>
 
                     <p
-                        className="text-[#D4AF37] text-sm tracking-[0.4em] uppercase font-bold"
-                        style={{ fontFamily: "'Cinzel', serif" }}
+                        className="text-[#D4AF37] tracking-[0.4em] uppercase font-bold"
+                        style={{
+                            fontFamily: content.fontFamilies?.subtitle || content.fontFamily || "'Cinzel', serif",
+                            fontSize: `${0.875 * (content.textScales?.subtitle || 1)}rem`
+                        }}
                     >
                         A New Chapter Begins • {content.year}
                     </p>
@@ -121,12 +132,16 @@ export const PresidentialExecutiveTemplate = ({ client, content, containerRef, v
                 {/* 3. The Message Body */}
                 <div className="relative max-w-2xl text-center mb-8">
                     {/* Quote marks background */}
-                    <div className="absolute -top-6 -left-4 text-8xl text-white/5 font-serif">“</div>
-                    <div className="absolute -bottom-16 -right-4 text-8xl text-white/5 font-serif transform rotate-180">“</div>
+                    <div className="absolute -top-6 -left-4 text-8xl text-white/5 font-serif">"</div>
+                    <div className="absolute -bottom-16 -right-4 text-8xl text-white/5 font-serif transform rotate-180">"</div>
 
                     <p
-                        className="text-xl md:text-2xl text-white/90 leading-relaxed font-light italic drop-shadow-md"
-                        style={{ fontFamily: "'Playfair Display', serif" }}
+                        className="text-white/90 leading-relaxed font-light italic drop-shadow-md"
+                        style={{
+                            fontFamily: content.fontFamilies?.message || content.fontFamily || "'Playfair Display', serif",
+                            fontSize: `${1.5 * (content.textScales?.message || 1)}rem`,
+                            whiteSpace: 'pre-wrap'
+                        }}
                     >
                         {content.message}
                     </p>
@@ -141,12 +156,14 @@ export const PresidentialExecutiveTemplate = ({ client, content, containerRef, v
 
                         {/* Address - Left Aligned */}
                         <div className="text-left space-y-2 col-span-1">
-                            <div className="flex items-start gap-2 opacity-80 hover:opacity-100 transition-opacity">
-                                <MapPin className="w-3 h-3 mt-0.5" />
-                                <p className="text-[9px] uppercase tracking-widest leading-relaxed font-medium" style={{ fontFamily: "'Cinzel', serif" }}>
-                                    {client.address || 'Lekki Phase 1, Lagos'}
-                                </p>
-                            </div>
+                            {client.address && (content.footerControls?.showAddress ?? true) && (
+                                <div className="flex items-start gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                                    <MapPin className="w-3 h-3 mt-0.5" />
+                                    <p className="text-[9px] uppercase tracking-widest leading-relaxed font-medium" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        {client.address}
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Center - Visual Asset or Year Badge */}
@@ -160,24 +177,43 @@ export const PresidentialExecutiveTemplate = ({ client, content, containerRef, v
 
                         {/* Contact - Right Aligned */}
                         <div className="text-right space-y-2 col-span-1 flex flex-col items-end">
-                            <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-                                <p className="text-[9px] uppercase tracking-widest font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
-                                    {client.website || 'WWW.NICARB.ORG'}
-                                </p>
-                                <Globe className="w-3 h-3" />
-                            </div>
-                            <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-                                <p className="text-[9px] uppercase tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
-                                    {client.phone || '+234 908 718 7414'}
-                                </p>
-                                <Phone className="w-3 h-3" />
-                            </div>
+                            {(content.footerControls?.showSignature ?? true) && (
+                                <div className="mb-2">
+                                    <p className="text-[#D4AF37] font-bold italic uppercase tracking-widest" style={{ fontSize: `${12 * (content.textScales?.signature || 1)}px`, fontFamily: "'Playfair Display', serif" }}>
+                                        {client.signature || client.name}
+                                    </p>
+                                </div>
+                            )}
+                            {client.website && (content.footerControls?.showWebsite ?? true) && (
+                                <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                                    <p className="text-[9px] uppercase tracking-widest font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        {client.website}
+                                    </p>
+                                    <Globe className="w-3 h-3" />
+                                </div>
+                            )}
+                            {client.phone && (content.footerControls?.showPhone ?? true) && (
+                                <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                                    <p className="text-[9px] uppercase tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        {client.phone}
+                                    </p>
+                                    <Phone className="w-3 h-3" />
+                                </div>
+                            )}
+                            {client.email && (content.footerControls?.showEmail ?? true) && (
+                                <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                                    <p className="text-[9px] uppercase tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        {client.email}
+                                    </p>
+                                    <Mail className="w-3 h-3" />
+                                </div>
+                            )}
                         </div>
 
                     </div>
                 </div>
             </div>
 
-        </div>
+        </div >
     );
 };

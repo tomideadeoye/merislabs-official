@@ -112,7 +112,7 @@
         "./src/app/components/reports/*"
       ],
       "@/data/*": [
-        "./data/*"
+        "./src/data/*"
       ],
       "@merislabs/ui": [
         "../../packages/ui/src/index.ts"

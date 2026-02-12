@@ -23,12 +23,19 @@ const GoldRibbon = ({ className, style }: { className?: string; style?: React.CS
     </svg>
 );
 
-export const DarkLuxuryTemplate = ({ client, content, containerRef, visualAsset }: TemplateProps) => {
+export const DarkLuxuryTemplate = ({ client, content, containerRef, visualAsset, activePalette, dimensions }: TemplateProps) => {
+    // Use palette colors when provided
+    const primaryColor = activePalette?.primary || '#0a0a0a';
+    const secondaryColor = activePalette?.secondary || '#D4AF37';
+    const backgroundColor = activePalette?.background || '#0d0d0d';
+
     return (
         <div
             ref={containerRef}
-            className="relative w-full aspect-square overflow-hidden shadow-2xl"
-            style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d0d0d 100%)' }}
+            className="relative w-full h-full overflow-hidden shadow-2xl"
+            style={{
+                background: `linear-gradient(135deg, ${primaryColor} 0%, ${backgroundColor} 50%, ${primaryColor} 100%)`
+            }}
         >
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap');
@@ -54,9 +61,10 @@ export const DarkLuxuryTemplate = ({ client, content, containerRef, visualAsset 
 
                 {/* Horizontal Arabic Numerals - 2026 */}
                 <div
-                    className="text-3xl font-bold tracking-[0.15em] py-2"
+                    className="font-bold tracking-[0.15em] py-2"
                     style={{
-                        fontFamily: "'Cinzel', serif",
+                        fontSize: `${30 * (content.textScales?.year || 1)}px`,
+                        fontFamily: content.fontFamilies?.year || content.fontFamily || "'Cinzel', serif",
                         background: 'linear-gradient(180deg, #D4AF37 0%, #F4E6AA 50%, #D4AF37 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
@@ -93,15 +101,16 @@ export const DarkLuxuryTemplate = ({ client, content, containerRef, visualAsset 
             {/* Main Text - Center Bottom */}
             <div className="absolute bottom-28 left-1/2 transform -translate-x-1/4 text-left">
                 <h2
-                    className="text-5xl font-light text-white mb-2"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    className="font-light text-white mb-2"
+                    style={{ fontSize: `${48 * (content.textScales?.title || 1)}px`, fontFamily: content.fontFamilies?.title || content.fontFamily || "'Cormorant Garamond', serif" }}
                 >
                     {content.title.split(' ')[0]}
                 </h2>
                 <h2
-                    className="text-6xl font-semibold italic"
+                    className="font-semibold italic"
                     style={{
-                        fontFamily: "'Cormorant Garamond', serif",
+                        fontSize: `${60 * (content.textScales?.title || 1)}px`,
+                        fontFamily: content.fontFamilies?.title || content.fontFamily || "'Cormorant Garamond', serif",
                         color: '#D4AF37'
                     }}
                 >
@@ -119,15 +128,23 @@ export const DarkLuxuryTemplate = ({ client, content, containerRef, visualAsset 
 
             {/* Message */}
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center max-w-md">
-                <p className="text-sm text-gray-400 font-light" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <p className="text-gray-400 font-light" style={{ fontSize: `${14 * (content.textScales?.message || 1)}px`, fontFamily: content.fontFamilies?.message || content.fontFamily || "'Cormorant Garamond', serif", whiteSpace: 'pre-wrap' }}>
                     {content.message}
                 </p>
             </div>
 
             {/* Brand Footer */}
-            {client.type === 'corporate' && client.logo && (
+            {(content.footerControls?.showLogo ?? true) && client.logo && (
                 <div className="absolute bottom-4 left-6">
                     <img src={client.logo} alt={client.name} className="h-8 w-auto opacity-70" />
+                </div>
+            )}
+
+            {(content.footerControls?.showSignature ?? true) && (
+                <div className="absolute bottom-4 right-10">
+                    <p className="text-[#D4AF37] font-bold italic uppercase tracking-widest opacity-80" style={{ fontSize: `${10 * (content.textScales?.signature || 1)}px`, fontFamily: "'Cinzel', serif" }}>
+                        {client.signature || client.name}
+                    </p>
                 </div>
             )}
         </div>

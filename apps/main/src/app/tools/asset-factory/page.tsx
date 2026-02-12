@@ -12,6 +12,8 @@ import {
     Wine,
     Building2,
     Award,
+    ChevronDown,
+    Type,
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -21,36 +23,123 @@ import { Label } from '@/app/components/ui/label';
 import { cn } from '@/lib/utils';
 
 // Local imports
-import { ClientProfile, HolidayType, AssetContent, VisualAsset, ColorPalette } from './types';
-import { CLIENTS, VISUAL_ASSETS, INITIAL_CONTENT, PRESET_PALETTES } from './data';
-import { PresidentialTemplate, PresidentialExecutiveTemplate, LifestyleTemplate, DarkLuxuryTemplate, TealDrapesTemplate, CleanCorporateTemplate, NICArbLuxuryTemplate, RoyalObsidianTemplate, EmeraldPrestigeTemplate, HolidayCardTemplate } from './templates';
+import { ClientProfile, HolidayType, AssetContent, VisualAsset, ColorPalette, TextScales, FooterControls } from './types';
+import { CLIENTS, VISUAL_ASSETS, INITIAL_CONTENT, PRESET_PALETTES, FONT_OPTIONS } from './data';
+import { PresidentialTemplate, PresidentialExecutiveTemplate, LifestyleTemplate, DarkLuxuryTemplate, TealDrapesTemplate, CleanCorporateTemplate, NICArbLuxuryTemplate, RoyalObsidianTemplate, RoyalObsidianWhiteTemplate, EmeraldPrestigeTemplate, EmeraldPrestigeAllWhiteTemplate, EmeraldFestiveJazzTemplate, HolidayCardTemplate, AppreciationCardTemplate, NicarbGiftBoxTemplate, NicarbGiftBoxV2Template } from './templates';
 import { VisualAssetSelector } from './components';
+
+const TEMPLATE_LABELS: Record<string, string> = {
+    'presidential': 'Presidential Standard',
+    'presidential-executive': 'Presidential Executive',
+    'lifestyle': 'Lifestyle',
+    'dark-luxury': 'Dark Luxury',
+    'teal-drapes': 'Teal Drapes',
+    'clean-corporate': 'Clean Corporate',
+    'nicarb-luxury': 'NICArb Luxury',
+    'royal-obsidian': 'Royal Obsidian',
+    'royal-obsidian-white': 'Royal Obsidian (White)',
+    'emerald-prestige': 'Emerald Prestige',
+    'emerald-prestige-white': 'Emerald Prestige (White)',
+    'emerald-festive-jazz': 'Emerald Festive Jazz',
+    'holiday-card': 'Holiday Card',
+    'appreciation-card': 'Appreciation Card',
+    'nicarb-gift-box': 'NICArb Gift Box',
+    'nicarb-gift-box-v2': 'NICArb Gift Box V2'
+};
+
+const ASSET_FORMATS = [
+    { id: 'square', name: 'Square (IG Post)', width: 1080, height: 1080, ratio: '1:1' },
+    { id: 'portrait', name: 'Portrait (4:5)', width: 1080, height: 1350, ratio: '4:5' },
+    { id: 'story', name: 'Story (9:16)', width: 1080, height: 1920, ratio: '9:16' },
+    { id: 'landscape', name: 'Landscape (16:9)', width: 1920, height: 1080, ratio: '16:9' },
+];
 
 // --- Page Main ---
 
 export default function AssetFactoryPage() {
     const [selectedClient, setSelectedClient] = useState<ClientProfile>(CLIENTS[0]);
     const [selectedHoliday, setSelectedHoliday] = useState<HolidayType>('new-year');
-    const [selectedTemplate, setSelectedTemplate] = useState<'presidential' | 'presidential-executive' | 'lifestyle' | 'dark-luxury' | 'teal-drapes' | 'clean-corporate' | 'nicarb-luxury' | 'royal-obsidian' | 'emerald-prestige' | 'holiday-card'>('presidential-executive');
+    const [selectedTemplate, setSelectedTemplate] = useState<'presidential' | 'presidential-executive' | 'lifestyle' | 'dark-luxury' | 'teal-drapes' | 'clean-corporate' | 'nicarb-luxury' | 'royal-obsidian' | 'royal-obsidian-white' | 'emerald-prestige' | 'emerald-prestige-white' | 'emerald-festive-jazz' | 'holiday-card' | 'appreciation-card' | 'nicarb-gift-box' | 'nicarb-gift-box-v2'>('presidential-executive');
+    const [isExportMode, setIsExportMode] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('export') === 'true') {
+                setIsExportMode(true);
+                // Force appropriate template for nicarb box
+                if (params.get('template') === 'nicarb-gift-box-v2' || params.get('panel')) {
+                    setSelectedTemplate('nicarb-gift-box-v2');
+                }
+            }
+        }
+    }, []);
     const [activePalette, setActivePalette] = useState<ColorPalette | undefined>(undefined);
     const [useBrandColors, setUseBrandColors] = useState<boolean>(false); // Legacy toggle, kept for simple on/off for now
     const [content, setContent] = useState<AssetContent>(INITIAL_CONTENT['new-year']);
     const [selectedVisualAsset, setSelectedVisualAsset] = useState<VisualAsset>(VISUAL_ASSETS[0]); // Default to fireworks
     const [downloading, setDownloading] = useState(false);
+    const [selectedFormat, setSelectedFormat] = useState<string>('square');
+    const [clientSelectorOpen, setClientSelectorOpen] = useState(false); // Accordion state
     const flyerRef = useRef<HTMLDivElement>(null);
 
+    const activeDimensions = ASSET_FORMATS.find(f => f.id === selectedFormat) || ASSET_FORMATS[0];
+
     // Sync content when holiday changes
+    // Load state from local storage on mount
+    // Sync content when holiday changes
+    const STORAGE_KEY = 'ASSET_FACTORY_STATE_V3';
+
+    // Load state from local storage on mount
     useEffect(() => {
-        setContent(INITIAL_CONTENT[selectedHoliday]);
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState) {
+            try {
+                const parsed = JSON.parse(savedState);
+                if (parsed.selectedClient) setSelectedClient(parsed.selectedClient);
+                if (parsed.selectedHoliday) setSelectedHoliday(parsed.selectedHoliday);
+                if (parsed.selectedTemplate) setSelectedTemplate(parsed.selectedTemplate);
+                if (parsed.activePalette) setActivePalette(parsed.activePalette);
+                if (parsed.content) setContent(parsed.content);
+                if (parsed.selectedVisualAsset) setSelectedVisualAsset(parsed.selectedVisualAsset);
+                if (parsed.selectedFormat) setSelectedFormat(parsed.selectedFormat);
+                // useBrandColors is a boolean, explicitly check for undefined
+                if (parsed.useBrandColors !== undefined) setUseBrandColors(parsed.useBrandColors);
+            } catch (e) {
+                console.error("Failed to load asset factory state", e);
+            }
+        }
+    }, []);
+
+    // Save state to local storage on change
+    useEffect(() => {
+        const stateToSave = {
+            selectedClient,
+            selectedHoliday,
+            selectedTemplate,
+            activePalette,
+            useBrandColors,
+            content,
+            selectedVisualAsset,
+            selectedFormat
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+    }, [selectedClient, selectedHoliday, selectedTemplate, activePalette, useBrandColors, content, selectedVisualAsset, selectedFormat]);
+
+    // Handle holiday change manually to avoid conflict with initial load
+    const handleHolidayChange = (holiday: HolidayType) => {
+        setSelectedHoliday(holiday);
+        setContent(INITIAL_CONTENT[holiday]);
+
         // Auto-select appropriate visual asset when holiday changes
-        if (selectedHoliday === 'christmas') {
+        if (holiday === 'christmas') {
             const christmasAsset = VISUAL_ASSETS.find(a => a.category === 'christmas');
             if (christmasAsset) setSelectedVisualAsset(christmasAsset);
-        } else if (selectedHoliday === 'new-year') {
+        } else if (holiday === 'new-year') {
             const newYearAsset = VISUAL_ASSETS.find(a => a.category === 'new-year');
             if (newYearAsset) setSelectedVisualAsset(newYearAsset);
         }
-    }, [selectedHoliday]);
+    };
 
     const handleDownload = async () => {
         if (!flyerRef.current) return;
@@ -72,6 +161,23 @@ export default function AssetFactoryPage() {
             setDownloading(false);
         }
     };
+
+    if (isExportMode) {
+        return (
+            <div className="bg-white min-h-screen w-full flex items-center justify-center">
+                {selectedTemplate === 'nicarb-gift-box-v2' && (
+                    <NicarbGiftBoxV2Template
+                        client={selectedClient}
+                        content={content}
+                        containerRef={flyerRef}
+                        visualAsset={selectedVisualAsset}
+                        activePalette={activePalette}
+                        dimensions={{ width: activeDimensions.width, height: activeDimensions.height }}
+                    />
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50/50">
@@ -120,47 +226,85 @@ export default function AssetFactoryPage() {
                     {/* Sidebar & Controls (4 cols) */}
                     <div className="lg:col-span-4 space-y-8">
 
-                        {/* Client Selection */}
+                        {/* Client Selection - Accordion Style */}
                         <section>
                             <Label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 block">Select Brand Tenant</Label>
-                            <div className="grid grid-cols-1 gap-3">
-                                {CLIENTS.map((client) => (
-                                    <button
-                                        key={client.id}
-                                        onClick={() => setSelectedClient(client)}
-                                        className={cn(
-                                            "flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 text-left",
-                                            selectedClient.id === client.id
-                                                ? "bg-white border-slate-900 shadow-xl shadow-slate-200 ring-2 ring-slate-900/5"
-                                                : "bg-white border-slate-100 hover:border-slate-300 opacity-60 hover:opacity-100"
-                                        )}
+                            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                                {/* Accordion Header - Shows Selected Client */}
+                                <button
+                                    onClick={() => setClientSelectorOpen(!clientSelectorOpen)}
+                                    className="w-full flex items-center gap-4 p-4 text-left hover:bg-slate-50 transition-colors"
+                                >
+                                    <div
+                                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm"
+                                        style={{ backgroundColor: selectedClient.primaryColor }}
                                     >
-                                        <div
-                                            className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-sm"
-                                            style={{ backgroundColor: client.primaryColor }}
-                                        >
-                                            {client.logo ? (
-                                                <img src={client.logo} alt="" className="w-8 h-8 object-contain brightness-0 invert" />
-                                            ) : (
-                                                client.name[0]
-                                            )}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-slate-900">{client.name}</p>
-                                            <p className="text-xs text-slate-400 font-medium capitalize">{client.type} Profile</p>
-                                        </div>
-                                        {selectedClient.id === client.id && (
-                                            <CheckCircle2 className="ml-auto w-5 h-5 text-slate-900" />
+                                        {selectedClient.logo ? (
+                                            <img src={selectedClient.logo} alt="" className="w-6 h-6 object-contain brightness-0 invert" />
+                                        ) : (
+                                            selectedClient.name[0]
                                         )}
-                                    </button>
-                                ))}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-slate-900 text-sm">{selectedClient.name}</p>
+                                        <p className="text-[10px] text-slate-400 font-medium capitalize">{selectedClient.type} Profile</p>
+                                    </div>
+                                    <ChevronDown
+                                        className={cn(
+                                            "w-5 h-5 text-slate-400 transition-transform duration-200",
+                                            clientSelectorOpen && "rotate-180"
+                                        )}
+                                    />
+                                </button>
+
+                                {/* Accordion Content - Client List */}
+                                <div className={cn(
+                                    "overflow-hidden transition-all duration-300 ease-in-out",
+                                    clientSelectorOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                                )}>
+                                    <div className="border-t border-slate-100 p-2 space-y-1">
+                                        {CLIENTS.map((client) => (
+                                            <button
+                                                key={client.id}
+                                                onClick={() => {
+                                                    setSelectedClient(client);
+                                                    setClientSelectorOpen(false);
+                                                }}
+                                                className={cn(
+                                                    "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left",
+                                                    selectedClient.id === client.id
+                                                        ? "bg-slate-100"
+                                                        : "hover:bg-slate-50"
+                                                )}
+                                            >
+                                                <div
+                                                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+                                                    style={{ backgroundColor: client.primaryColor }}
+                                                >
+                                                    {client.logo ? (
+                                                        <img src={client.logo} alt="" className="w-5 h-5 object-contain brightness-0 invert" />
+                                                    ) : (
+                                                        client.name[0]
+                                                    )}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-medium text-slate-900 text-sm">{client.name}</p>
+                                                    <p className="text-[10px] text-slate-400 capitalize">{client.type}</p>
+                                                </div>
+                                                {selectedClient.id === client.id && (
+                                                    <CheckCircle2 className="w-4 h-4 text-slate-900" />
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </section>
 
                         {/* Context/Holiday Toggle */}
                         <section>
                             <Label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 block">Context & Content</Label>
-                            <Tabs defaultValue="new-year" onValueChange={(v) => setSelectedHoliday(v as HolidayType)}>
+                            <Tabs value={selectedHoliday} onValueChange={(v) => handleHolidayChange(v as HolidayType)} suppressHydrationWarning>
                                 <TabsList className="w-full h-12 bg-white border border-slate-100 rounded-xl p-1 mb-6">
                                     <TabsTrigger value="christmas" className="flex-1 rounded-lg">Christmas</TabsTrigger>
                                     <TabsTrigger value="new-year" className="flex-1 rounded-lg">New Year</TabsTrigger>
@@ -169,37 +313,217 @@ export default function AssetFactoryPage() {
 
                                 <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5 shadow-sm">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase text-slate-400">Greeting Title</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Greeting Title</Label>
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    className="text-[9px] bg-slate-50 border-none rounded-lg p-1 outline-none font-medium text-slate-500 cursor-pointer hover:bg-slate-100"
+                                                    value={content.fontFamilies?.title || ''}
+                                                    onChange={(e) => setContent({ ...content, fontFamilies: { ...content.fontFamilies, title: e.target.value } })}
+                                                >
+                                                    <option value="">Default Font</option>
+                                                    {FONT_OPTIONS.map(f => <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.name.split(' ')[0]}</option>)}
+                                                </select>
+                                                <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, title: Math.max(0.5, (content.textScales?.title || 1) - 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >−</button>
+                                                    <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.title || 1) * 100).toFixed(0)}%</span>
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, title: Math.min(2, (content.textScales?.title || 1) + 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >+</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <Input
                                             value={content.title}
                                             onChange={(e) => setContent({ ...content, title: e.target.value })}
                                             className="rounded-xl border-slate-100"
+                                            style={{ fontFamily: content.fontFamilies?.title || undefined }}
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase text-slate-400">Subtitle</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Subtitle</Label>
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    className="text-[9px] bg-slate-50 border-none rounded-lg p-1 outline-none font-medium text-slate-500 cursor-pointer hover:bg-slate-100"
+                                                    value={content.fontFamilies?.subtitle || ''}
+                                                    onChange={(e) => setContent({ ...content, fontFamilies: { ...content.fontFamilies, subtitle: e.target.value } })}
+                                                >
+                                                    <option value="">Default Font</option>
+                                                    {FONT_OPTIONS.map(f => <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.name.split(' ')[0]}</option>)}
+                                                </select>
+                                                <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, subtitle: Math.max(0.5, (content.textScales?.subtitle || 1) - 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >−</button>
+                                                    <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.subtitle || 1) * 100).toFixed(0)}%</span>
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, subtitle: Math.min(2, (content.textScales?.subtitle || 1) + 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >+</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <Input
                                             value={content.subtitle}
                                             onChange={(e) => setContent({ ...content, subtitle: e.target.value })}
                                             className="rounded-xl border-slate-100"
+                                            style={{ fontFamily: content.fontFamilies?.subtitle || undefined }}
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase text-slate-400">Personal Message</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Personal Message</Label>
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    className="text-[9px] bg-slate-50 border-none rounded-lg p-1 outline-none font-medium text-slate-500 cursor-pointer hover:bg-slate-100"
+                                                    value={content.fontFamilies?.message || ''}
+                                                    onChange={(e) => setContent({ ...content, fontFamilies: { ...content.fontFamilies, message: e.target.value } })}
+                                                >
+                                                    <option value="">Default Font</option>
+                                                    {FONT_OPTIONS.map(f => <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.name.split(' ')[0]}</option>)}
+                                                </select>
+                                                <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, message: Math.max(0.5, (content.textScales?.message || 1) - 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >−</button>
+                                                    <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.message || 1) * 100).toFixed(0)}%</span>
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, message: Math.min(2, (content.textScales?.message || 1) + 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >+</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <textarea
                                             value={content.message}
                                             onChange={(e) => setContent({ ...content, message: e.target.value })}
-                                            className="w-full p-3 rounded-xl border border-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/5"
+                                            className="w-full p-3 rounded-xl border border-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/5 transition-all"
                                             rows={3}
+                                            style={{ fontFamily: content.fontFamilies?.message || undefined }}
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase text-slate-400">Target Year</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Target Year</Label>
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    className="text-[9px] bg-slate-50 border-none rounded-lg p-1 outline-none font-medium text-slate-500 cursor-pointer hover:bg-slate-100"
+                                                    value={content.fontFamilies?.year || ''}
+                                                    onChange={(e) => setContent({ ...content, fontFamilies: { ...content.fontFamilies, year: e.target.value } })}
+                                                >
+                                                    <option value="">Default Font</option>
+                                                    {FONT_OPTIONS.map(f => <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.name.split(' ')[0]}</option>)}
+                                                </select>
+                                                <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, year: Math.max(0.5, (content.textScales?.year || 1) - 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >−</button>
+                                                    <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.year || 1) * 100).toFixed(0)}%</span>
+                                                    <button
+                                                        onClick={() => setContent({ ...content, textScales: { ...content.textScales || { title: 1, subtitle: 1, message: 1, year: 1, signature: 1, footer: 1, brandHeader: 1 }, year: Math.min(2, (content.textScales?.year || 1) + 0.1) } })}
+                                                        className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                    >+</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <Input
                                             value={content.year}
                                             onChange={(e) => setContent({ ...content, year: e.target.value })}
                                             className="rounded-xl border-slate-100"
+                                            style={{ fontFamily: content.fontFamilies?.year || undefined }}
                                         />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Banner Header Color</Label>
+                                            <div className="flex items-center gap-2">
+                                                <div
+                                                    className="w-4 h-4 rounded-full border border-slate-200"
+                                                    style={{ backgroundColor: content.headerColor || '#D4AF37' }}
+                                                />
+                                                <Input
+                                                    type="text"
+                                                    value={content.headerColor || ''}
+                                                    onChange={(e) => setContent({ ...content, headerColor: e.target.value })}
+                                                    placeholder="#D4AF37"
+                                                    className="h-7 text-[10px] w-24 rounded-lg bg-slate-50 border-none px-2"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Footer Font</Label>
+                                            <select
+                                                className="text-[9px] bg-slate-50 border-none rounded-lg p-1 outline-none font-medium text-slate-500 cursor-pointer hover:bg-slate-100"
+                                                value={content.fontFamilies?.footer || ''}
+                                                onChange={(e) => setContent({ ...content, fontFamilies: { ...content.fontFamilies, footer: e.target.value } })}
+                                            >
+                                                <option value="">Default Font (Cinzel)</option>
+                                                {FONT_OPTIONS.map(f => <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.name.split(' ')[0]}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Brand Header Size</Label>
+                                            <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, brandHeader: Math.max(0.5, (content.textScales?.brandHeader || 1) - 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >−</button>
+                                                <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.brandHeader || 1) * 100).toFixed(0)}%</span>
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, brandHeader: Math.min(2, (content.textScales?.brandHeader || 1) + 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Footer Text Size</Label>
+                                            <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, footer: Math.max(0.5, (content.textScales?.footer || 1) - 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >−</button>
+                                                <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.footer || 1) * 100).toFixed(0)}%</span>
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, footer: Math.min(2, (content.textScales?.footer || 1) + 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-bold uppercase text-slate-400">Footer Signature Size</Label>
+                                            <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5">
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, signature: Math.max(0.5, (content.textScales?.signature || 1) - 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >−</button>
+                                                <span className="text-[9px] font-mono text-slate-500 w-8 text-center">{((content.textScales?.signature || 1) * 100).toFixed(0)}%</span>
+                                                <button
+                                                    onClick={() => setContent({ ...content, textScales: { ...content.textScales || INITIAL_CONTENT[selectedHoliday].textScales!, signature: Math.min(2, (content.textScales?.signature || 1) + 0.1) } })}
+                                                    className="w-5 h-5 rounded text-slate-500 hover:bg-slate-200 text-xs font-bold"
+                                                >+</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </Tabs>
@@ -210,6 +534,41 @@ export default function AssetFactoryPage() {
                             selectedVisualAsset={selectedVisualAsset}
                             onSelect={setSelectedVisualAsset}
                         />
+
+                        {/* Footer Display Controls */}
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+                            <Label className="text-xs font-bold text-slate-900 uppercase tracking-widest block">Footer Configuration</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {[
+                                    { key: 'showAddress', label: 'Address' },
+                                    { key: 'showPhone', label: 'Phone' },
+                                    { key: 'showWebsite', label: 'Website' },
+                                    { key: 'showEmail', label: 'Email' },
+                                    { key: 'showSignature', label: 'Signature' },
+                                    { key: 'showLogo', label: 'Logo Badge' }
+                                ].map((item) => (
+                                    <button
+                                        key={item.key}
+                                        onClick={() => setContent({
+                                            ...content,
+                                            footerControls: {
+                                                ...content.footerControls || INITIAL_CONTENT[selectedHoliday].footerControls!,
+                                                [item.key]: !(content.footerControls?.[item.key as keyof FooterControls] ?? true)
+                                            }
+                                        })}
+                                        className={cn(
+                                            "flex items-center justify-between px-3 py-2 rounded-lg border text-[10px] font-bold uppercase transition-all",
+                                            (content.footerControls?.[item.key as keyof FooterControls] ?? true)
+                                                ? "bg-slate-900 text-white border-slate-900"
+                                                : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
+                                        )}
+                                    >
+                                        {item.label}
+                                        {(content.footerControls?.[item.key as keyof FooterControls] ?? true) ? <CheckCircle2 className="w-3 h-3 ml-2" /> : <div className="w-3 h-3 ml-2 border border-slate-200 rounded-full" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Preview Area (8 cols) */}
@@ -297,6 +656,24 @@ export default function AssetFactoryPage() {
                             </div>
                         </div>
 
+                        <div className="flex items-center justify-between pl-1">
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">
+                                Using Template: <span className="text-slate-900 font-bold">{TEMPLATE_LABELS[selectedTemplate] || selectedTemplate}</span>
+                            </p>
+                            <div className="flex items-center gap-3 bg-white p-1 rounded-xl border border-slate-100">
+                                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Format</Label>
+                                <select
+                                    className="h-8 bg-slate-50 border-none rounded-lg px-3 text-[11px] font-bold uppercase outline-none cursor-pointer hover:bg-slate-100 transition-colors"
+                                    value={selectedFormat}
+                                    onChange={(e) => setSelectedFormat(e.target.value)}
+                                >
+                                    {ASSET_FORMATS.map(f => (
+                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
                         {/* Holiday Card Specific Controls */}
                         {selectedTemplate === 'holiday-card' && (
                             <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
@@ -325,18 +702,25 @@ export default function AssetFactoryPage() {
                         {/* Main Stage */}
                         <div className="relative group">
                             <div className="absolute inset-0 bg-slate-900/5 rounded-none blur-2xl group-hover:bg-slate-900/10 transition-colors" />
-                            <div className="relative p-1 bg-white rounded-none border border-slate-100 shadow-2xl overflow-hidden aspect-square max-w-[700px]">
+                            <div className="relative p-1 bg-white rounded-none border border-slate-100 shadow-2xl overflow-hidden max-w-[700px]" style={{ aspectRatio: activeDimensions.ratio.replace(':', '/') }}>
                                 {/* Template Rendering */}
-                                {selectedTemplate === 'presidential' && <PresidentialTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'presidential-executive' && <PresidentialExecutiveTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'lifestyle' && <LifestyleTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'dark-luxury' && <DarkLuxuryTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'teal-drapes' && <TealDrapesTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'clean-corporate' && <CleanCorporateTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'nicarb-luxury' && <NICArbLuxuryTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'royal-obsidian' && <RoyalObsidianTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'emerald-prestige' && <EmeraldPrestigeTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
-                                {selectedTemplate === 'holiday-card' && <HolidayCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} />}
+                                {/* Template Rendering */}
+                                {selectedTemplate === 'presidential' && <PresidentialTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'presidential-executive' && <PresidentialExecutiveTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'lifestyle' && <LifestyleTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'dark-luxury' && <DarkLuxuryTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'teal-drapes' && <TealDrapesTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'clean-corporate' && <CleanCorporateTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'nicarb-luxury' && <NICArbLuxuryTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'royal-obsidian' && <RoyalObsidianTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'royal-obsidian-white' && <RoyalObsidianWhiteTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'emerald-prestige' && <EmeraldPrestigeTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'emerald-prestige-white' && <EmeraldPrestigeAllWhiteTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'emerald-festive-jazz' && <EmeraldFestiveJazzTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'holiday-card' && <HolidayCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'appreciation-card' && <AppreciationCardTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'nicarb-gift-box' && <NicarbGiftBoxTemplate client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} useBrandColors={useBrandColors} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
+                                {selectedTemplate === 'nicarb-gift-box-v2' && <NicarbGiftBoxV2Template client={selectedClient} content={content} containerRef={flyerRef} visualAsset={selectedVisualAsset} activePalette={activePalette} dimensions={{ width: activeDimensions.width, height: activeDimensions.height }} />}
                             </div>
                         </div>
 
@@ -457,6 +841,20 @@ export default function AssetFactoryPage() {
                                 </button>
 
                                 <button
+                                    onClick={() => setSelectedTemplate('royal-obsidian-white')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'royal-obsidian-white' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 rounded-full bg-white border-2 border-[#D4AF37]" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Royal Obsidian (White)</p>
+                                    {selectedTemplate === 'royal-obsidian-white' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
                                     onClick={() => setSelectedTemplate('emerald-prestige')}
                                     className={cn(
                                         "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
@@ -468,6 +866,33 @@ export default function AssetFactoryPage() {
                                     </div>
                                     <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Emerald Prestige</p>
                                     {selectedTemplate === 'emerald-prestige' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('emerald-prestige-white')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'emerald-prestige-white' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 rounded-full bg-white border-2 border-[#064802]" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Emerald Prestige (White)</p>
+                                    {selectedTemplate === 'emerald-prestige-white' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+                                <button
+                                    onClick={() => setSelectedTemplate('emerald-festive-jazz')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'emerald-festive-jazz' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#064802] to-[#D4AF37]" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Emerald Jazz</p>
+                                    {selectedTemplate === 'emerald-festive-jazz' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
                                 </button>
 
                                 <button
@@ -483,20 +908,63 @@ export default function AssetFactoryPage() {
                                     <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Holiday Card</p>
                                     {selectedTemplate === 'holiday-card' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
                                 </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('appreciation-card')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'appreciation-card' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">
+                                        <Award className="w-5 h-5 text-slate-900" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Appreciation Card</p>
+                                    {selectedTemplate === 'appreciation-card' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('nicarb-gift-box')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'nicarb-gift-box' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 bg-[#B01E23] rounded-sm shadow-sm" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">NICArb Gift Box</p>
+                                    {selectedTemplate === 'nicarb-gift-box' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedTemplate('nicarb-gift-box-v2')}
+                                    className={cn(
+                                        "group relative aspect-square bg-white rounded-2xl border transition-all p-4 flex flex-col items-center justify-center gap-3 text-center",
+                                        selectedTemplate === 'nicarb-gift-box-v2' ? "border-slate-900 shadow-lg ring-2 ring-slate-900/5 opacity-100" : "border-slate-100 opacity-60 hover:opacity-100"
+                                    )}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+                                        <div className="w-5 h-5 bg-gradient-to-br from-[#064802] to-[#D4AF37] rounded-sm shadow-sm" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-tight">Gift Box V2</p>
+                                    {selectedTemplate === 'nicarb-gift-box-v2' && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-slate-900" />}
+                                </button>
                             </div>
+
                         </section>
                     </div>
 
-                </div>
-            </main>
+                </div >
+            </main >
 
             {/* Decorative Ornaments (Global) */}
             < div className="fixed bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-100/50 to-transparent pointer-events-none -z-10" />
 
             {/* Footer */}
-            <footer className="py-20 text-center text-slate-400 text-sm">
+            < footer className="py-20 text-center text-slate-400 text-sm" >
                 <p>© 2025 MerisLabs Asset Factory • Built for sovereign execution.</p>
-            </footer>
-        </div>
+            </footer >
+        </div >
     );
 }

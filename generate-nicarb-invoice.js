@@ -20,37 +20,45 @@ const invoiceData = {
     logo: '/clients/NICARB LOGO Green Text (1).png'
   },
   invoice: {
-    number: 'INV-002',
-    date: '2025-12-16',
-    dueDate: '2026-01-15',
+    number: 'INV-003',
+    date: '2026-01-09',
+    dueDate: '2026-02-09',
     currency: 'NGN',
     currencySymbol: '₦'
   },
   items: [
     {
-      description: 'Website QA & Review',
+      description: 'Balance Brought Forward (INV-002)',
       links: [
-        { label: 'NICArb Website', url: 'https://nicarb.org' }
+        { label: 'View INV-002 Email', url: 'https://mail.google.com/mail/u/0/#search/id%3A19b28239874ee980' }
+      ],
+      quantity: 1,
+      rate: 30000
+    },
+    {
+      description: '2026 Gift Box Design',
+      links: [
+        { label: 'View Design Assets', url: 'https://drive.google.com/drive/folders/1TI5bFZ3NbAcSH4SOv68KdvDbR77Ja3Ev' }
       ],
       quantity: 1,
       rate: 50000
     },
     {
-      description: 'PowerPoint Presentation Design',
-      links: [],
-      quantity: 1,
-      rate: 20000
-    },
-    {
-      description: 'Christmas E-Signature Design',
+      description: 'Logo Modernization & Vectorization',
       links: [
-        { label: 'E-Signature Tool', url: 'https://merislabs.com/tools/nicarb-signatures' }
+        { label: 'View Delivery Email', url: 'https://mail.google.com/mail/u/0/#search/id%3A19ba2c581eb0857f' }
       ],
       quantity: 1,
       rate: 10000
+    },
+    {
+      description: 'Holiday Designs (Christmas & New Year)',
+      links: [],
+      quantity: 1,
+      rate: 15000
     }
   ],
-  notes: ''
+  notes: 'Thank you for the opportunity to serve NICArb.'
 };
 
 // Calculate totals
@@ -58,14 +66,14 @@ const total = invoiceData.items.reduce((sum, item) => sum + (item.quantity * ite
 
 // HTML template for the invoice
 const generateInvoiceHTML = () => {
-  // Fix: Remove '..' since script is in root
-  const logoPath = join(__dirname, 'public', invoiceData.client.logo);
+  // Fix: Paths are in apps/main/public
+  const logoPath = join(__dirname, 'apps/main/public', invoiceData.client.logo);
   const logoBase64 = fs.existsSync(logoPath)
     ? `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`
     : '';
 
   // MerisLabs logo
-  const merisLogoPath = join(__dirname, 'public', 'images', 'merislabswhite.png');
+  const merisLogoPath = join(__dirname, 'apps/main/public', 'images', 'merislabswhite.png');
   const merisLogoBase64 = fs.existsSync(merisLogoPath)
     ? `data:image/png;base64,${fs.readFileSync(merisLogoPath).toString('base64')}`
     : '';

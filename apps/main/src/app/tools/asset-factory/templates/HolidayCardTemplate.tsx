@@ -47,22 +47,27 @@ const themes = {
     }
 };
 
-export const HolidayCardTemplate = ({ client, content, containerRef, visualAsset }: TemplateProps) => {
+export const HolidayCardTemplate = ({ client, content, containerRef, visualAsset, activePalette, dimensions }: TemplateProps) => {
     // For now, hardcode Emerald theme as default since that's the preferred one
     // In future refinement, we can expose theme selection in the props
     const themeKey: keyof typeof themes = 'emerald';
     const themeConfig = themes[themeKey];
     const image = content.customImage || '/images/mum.jpeg';
 
+    // Override theme colors with activePalette if provided
+    const bgColor = activePalette?.primary || (themeKey === 'emerald' ? '#064802' : undefined);
+    const accentColor = activePalette?.secondary || (themeKey === 'emerald' ? '#d4af37' : undefined);
+
     return (
         <div
             ref={containerRef}
-            className={`w-[600px] h-[990px] ${themeConfig.bg} rounded-3xl shadow-2xl relative overflow-hidden flex flex-col items-center text-center border-[6px] ${themeConfig.border} flex-shrink-0`}
+            className={`w-full h-full rounded-3xl shadow-2xl relative overflow-hidden flex flex-col items-center text-center border-[6px] ${themeConfig.border}`}
+            style={{ backgroundColor: bgColor }}
         >
-                <style>{`
+            <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
             `}</style>
-            
+
             {/* Decorative Elements */}
             {themeKey === 'emerald' ? (
                 <div className="absolute inset-0 opacity-20 pointer-events-none z-0" style={{
@@ -82,19 +87,19 @@ export const HolidayCardTemplate = ({ client, content, containerRef, visualAsset
                 <div className="mb-12">
                     {themeKey === 'emerald' ? (
                         <div className="space-y-2">
-                            <h2 className="text-6xl text-white drop-shadow-lg" style={{ fontFamily: "'Great Vibes', cursive" }}>
-                                Merry Christmas
+                            <h2 className="text-white drop-shadow-lg" style={{ fontSize: `${60 * (content.textScales?.title || 1)}px`, fontFamily: content.fontFamilies?.title || content.fontFamily || "'Great Vibes', cursive" }}>
+                                {content.title || 'Merry Christmas'}
                             </h2>
-                            <p className="text-xs tracking-[0.4em] text-[#d4af37] font-serif uppercase">
-                                & Happy New Year
+                            <p className="tracking-[0.4em] text-[#d4af37] font-serif uppercase" style={{ fontSize: `${12 * (content.textScales?.subtitle || 1)}px` }}>
+                                {content.subtitle || '& Happy New Year'}
                             </p>
                         </div>
                     ) : (
                         <>
-                            <h2 className={`text-4xl font-serif font-bold ${themeConfig.gradient} bg-clip-text text-transparent`}>
+                            <h2 className={`font-serif font-bold ${themeConfig.gradient} bg-clip-text text-transparent`} style={{ fontSize: `${36 * (content.textScales?.title || 1)}px`, fontFamily: content.fontFamilies?.title || content.fontFamily || undefined }}>
                                 {content.title}
                             </h2>
-                            <h3 className={`text-sm font-medium text-gray-500 tracking-widest uppercase mt-2`}>
+                            <h3 className={`font-medium text-gray-500 tracking-widest uppercase mt-2`} style={{ fontSize: `${14 * (content.textScales?.subtitle || 1)}px` }}>
                                 @{content.year}
                             </h3>
                         </>
@@ -125,28 +130,28 @@ export const HolidayCardTemplate = ({ client, content, containerRef, visualAsset
 
                 {/* Message Body */}
                 <div className="flex-1 flex flex-col justify-center px-4">
-                    <div className={`text-lg font-medium ${themeConfig.text} leading-relaxed italic mb-4`}>
+                    <div className={`font-medium ${themeConfig.text} leading-relaxed italic mb-4`} style={{ fontSize: `${18 * (content.textScales?.subtitle || 1)}px` }}>
                         "{content.subtitle || "Wishing you a merry Christmas and a prosperous new year in advance."}"
                     </div>
 
                     <div className="my-4 h-px w-24 mx-auto bg-current opacity-20"></div>
 
-                    <div className={`text-xl font-serif ${themeConfig.text} leading-relaxed`}>
+                    <div className={`font-serif ${themeConfig.text} leading-relaxed`} style={{ fontSize: `${20 * (content.textScales?.message || 1)}px`, fontFamily: content.fontFamilies?.message || content.fontFamily || undefined, whiteSpace: 'pre-wrap' }}>
                         {content.message}
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="mt-8 pt-6 pb-4 border-t border-gray-400/20 w-full">
-                        <>
-                            <p className={`text-xs tracking-widest uppercase ${themeConfig.accent} font-semibold mb-2`}>
-                                WITH LOVE FROM
-                            </p>
-                            <p className={`text-3xl font-serif ${themeConfig.text} font-bold`}>
-                                {content.brandName || client.name}
-                            </p>
-                        </>
-                </div>
+                {(content.footerControls?.showSignature ?? true) && (
+                    <div className="mt-8 pt-6 pb-4 border-t border-gray-400/20 w-full">
+                        <p className={`text-xs tracking-widest uppercase ${themeConfig.accent} font-semibold mb-2`}>
+                            WITH LOVE FROM
+                        </p>
+                        <p className={`font-serif ${themeConfig.text} font-bold`} style={{ fontSize: `${30 * (content.textScales?.signature || 1)}px` }}>
+                            {content.brandName || client.name}
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );

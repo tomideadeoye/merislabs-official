@@ -4,11 +4,11 @@ import sharedConfig from '@merislabs/config/tailwind';
 export default {
   ...sharedConfig,
   content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/(orion_admin)/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './lib/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/css/additional-styles/*.css',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/(orion_admin)/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/css/additional-styles/*.css',
     '../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
 };

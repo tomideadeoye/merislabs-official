@@ -2,9 +2,9 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { FileText, Download, Eye } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -73,26 +73,10 @@ const decks: Deck[] = [
         status: 'published',
         href: '/decks/brandqor-workshop-2026'
     },
-    {
-        id: 'nicarb-christmas-flyers',
-        title: 'NICArb flyers',
-        description: 'Custom branding and outreach assets for NICArb.',
-        category: 'Branding Assets',
-        lastUpdated: 'December 2025',
-        status: 'published',
-        href: '/tools/nicarb-flyers'
-    },
-    {
-        id: 'nicarb-email-signatures',
-        title: 'NICArb Email Signatures',
-        description: 'Professional standardized email signatures for unified institutional communication.',
-        category: 'Branding Assets',
-        lastUpdated: 'December 2025',
-        status: 'published',
-        href: '/tools/nicarb-signatures'
-    },
     // Add more decks here as they become available
 ];
+
+import Footer from '@/components/ui/footer';
 
 export default function DecksPage() {
     const { setTheme } = useTheme();
@@ -103,98 +87,72 @@ export default function DecksPage() {
     }, [setTheme]);
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Background Ornaments */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] bg-blue-50/50 rounded-full blur-3xl" />
-                <div className="absolute top-[20%] -left-[10%] w-[30%] h-[30%] bg-slate-50/50 rounded-full blur-3xl" />
-            </div>
-
-            <div className="container relative mx-auto py-16 px-4">
+        <div className="bg-gray-50 min-h-screen">
+            <div className="container mx-auto py-16 px-4">
                 <div className="max-w-6xl mx-auto">
-                    {/* Header Section */}
-                    <div className="max-w-3xl mb-16">
-                        <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6">
-                            Decks & Reports
-                        </h1>
-                        <p className="text-xl text-slate-600 leading-relaxed">
-                            Professional reports and presentations covering ESG, finance, and specialized industry research.
+                    {/* Header */}
+                    <div className="text-center mb-16">
+                        <h2 className="h2 font-playfair-display text-slate-900 mb-4">Decks & Reports</h2>
+                        <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                            Professional reports and presentations covering ESG, finance, and business insights.
                         </p>
                     </div>
 
                     {/* Decks Grid */}
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                         {decks.map((deck) => (
-                            <div
-                                key={deck.id}
-                                className="group relative bg-white rounded-2xl border border-slate-200/60 p-1 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:-translate-y-1"
-                            >
-                                <div className="h-full flex flex-col p-6">
-                                    {/* Category & Status */}
-                                    <div className="flex items-center justify-between mb-6">
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                            {deck.category}
-                                        </span>
-                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                            <span className="text-[9px] font-bold uppercase text-slate-500">
-                                                {deck.status}
-                                            </span>
+                            <Card key={deck.id} className="hover:shadow-2xl transition-all duration-300 border-slate-200">
+                                <CardHeader>
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <CardTitle className="text-xl font-bold text-slate-900 mb-2">{deck.title}</CardTitle>
+                                            <CardDescription className="text-sm text-slate-600 mb-3">
+                                                {deck.description}
+                                            </CardDescription>
                                         </div>
+                                        <Badge
+                                            variant={deck.status === 'published' ? 'default' : 'secondary'}
+                                            className="ml-2 uppercase tracking-wider text-[10px]"
+                                        >
+                                            {deck.status}
+                                        </Badge>
                                     </div>
-
-                                    {/* Title & Description */}
-                                    <div className="flex-1 mb-8">
-                                        <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">
-                                            {deck.title}
-                                        </h3>
-                                        <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                                            {deck.description}
-                                        </p>
-                                    </div>
-
-                                    {/* Meta Data */}
-                                    <div className="flex items-center gap-4 text-[11px] font-medium text-slate-400 mb-8 pb-6 border-b border-slate-50">
-                                        <div className="flex items-center gap-1">
-                                            <FileText className="w-3 h-3" />
-                                            <span>Report</span>
-                                        </div>
-                                        <div className="w-1 h-1 rounded-full bg-slate-200" />
+                                    <div className="flex items-center justify-between text-xs font-semibold text-slate-400 mt-2">
+                                        <span className="uppercase tracking-widest">{deck.category}</span>
                                         <span>{deck.lastUpdated}</span>
                                     </div>
-
-                                    {/* Actions */}
-                                    <div className="flex items-center gap-3">
-                                        <Button asChild className="flex-1 h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-200 transition-all active:scale-95">
+                                </CardHeader>
+                                <CardContent className="pt-4">
+                                    <div className="flex gap-3">
+                                        <Button asChild variant="default" size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
                                             <Link href={deck.href}>
                                                 <Eye className="w-4 h-4 mr-2" />
-                                                View Deck
+                                                Explore
                                             </Link>
                                         </Button>
-                                        <Button
-                                            variant="outline"
-                                            className="w-12 h-12 p-0 rounded-xl border-slate-200 hover:bg-slate-50 transition-all active:scale-95 group/pdf"
-                                        >
-                                            <Download className="w-4 h-4 text-slate-600 group-hover/pdf:text-blue-600 transition-colors" />
+                                        <Button variant="outline" size="sm" disabled className="text-slate-400">
+                                            <Download className="w-4 h-4 mr-2" />
+                                            PDF
                                         </Button>
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
 
                     {/* Empty State */}
                     {decks.length === 0 && (
-                        <div className="text-center py-24 rounded-3xl border-2 border-dashed border-slate-100 bg-slate-50/50">
-                            <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-6">
-                                <FileText className="w-8 h-8 text-slate-300" />
+                        <div className="text-center py-20">
+                            <div className="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <FileText className="w-10 h-10 text-slate-400" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">The archive is currently empty</h3>
-                            <p className="text-slate-500">New intelligence reports will appear here as they are published.</p>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-2">No decks available</h3>
+                            <p className="text-slate-600">Check back later for new reports and presentations.</p>
                         </div>
                     )}
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }

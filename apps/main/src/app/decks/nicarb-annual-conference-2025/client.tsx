@@ -5,10 +5,10 @@ import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 
 // Import Conference Brochure directly
-import ConferenceBrochure from '../../components/reports/nicarb-pages/ConferenceBrochure';
+import ConferenceBrochure from '@/components/reports/nicarb-pages/ConferenceBrochure';
 
 // Import Pitch Deck slides and components
-import { slides, Slide, BulletPoint } from '../../components/reports/nicarb-pages/pitch-deck/slides';
+import { slides, Slide, BulletPoint } from '@/components/reports/nicarb-pages/pitch-deck/slides';
 
 // Slide dimensions for 16:9 aspect ratio (print-ready)
 const SLIDE_WIDTH = 1280;

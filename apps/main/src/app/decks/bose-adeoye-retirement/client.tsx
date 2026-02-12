@@ -551,6 +551,107 @@ export const RetirementCelebrationClient: React.FC = () => {
                     </div>
                 </div>
 
+                {/* ==================== DESIGN 6: Royal Majestic (Dark Edition) ==================== */}
+                <div className="w-full min-h-screen bg-slate-950 print:bg-white print:min-h-0 py-12 print:py-0 print:mt-0 print:page-break-before-always flex flex-col items-center justify-center">
+                    <div className="text-center mb-6 print:hidden">
+                        <span className="bg-indigo-900/50 text-indigo-200 px-6 py-1.5 rounded-full text-sm font-bold tracking-[0.2em] uppercase border border-indigo-500/30 backdrop-blur-md">Design 6 - Royal Majestic</span>
+                    </div>
+
+                    <div className="max-w-[210mm] w-full mx-auto relative group">
+                        {/* Deep background with subtle texture/gradient */}
+                        <div className="bg-[#0c0a21] shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden relative border-[1px] border-amber-500/30 print:border-amber-600 print:bg-white min-h-[297mm] flex flex-col">
+
+                            {/* Animated/Glassy Gold Accents (Only on Screen) */}
+                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-amber-500/10 via-transparent to-transparent -rotate-12 transform translate-x-32 -translate-y-32 blur-3xl print:hidden"></div>
+                            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-500/10 via-transparent to-transparent rotate-12 transform -translate-x-32 translate-y-32 blur-3xl print:hidden"></div>
+
+                            {/* Ornate Gold Border Corners */}
+                            <div className="absolute top-8 left-8 w-16 h-16 border-t-[3px] border-l-[3px] border-amber-400 print:border-amber-600"></div>
+                            <div className="absolute top-8 right-8 w-16 h-16 border-t-[3px] border-r-[3px] border-amber-400 print:border-amber-600"></div>
+                            <div className="absolute bottom-8 left-8 w-16 h-16 border-b-[3px] border-l-[3px] border-amber-400 print:border-amber-600"></div>
+                            <div className="absolute bottom-8 right-8 w-16 h-16 border-b-[3px] border-r-[3px] border-amber-400 print:border-amber-600"></div>
+
+                            <div className="p-16 print:p-10 flex flex-col items-center text-center flex-grow">
+
+                                {/* Royal Emblem Removed */}
+                                <div className="mb-16"></div>
+
+                                <div className="space-y-4 mb-10">
+                                    <h1 className="text-xl font-serif text-amber-500 tracking-[0.5em] uppercase font-light print:text-amber-700">The Family of Adeoye</h1>
+                                    <div className="flex items-center justify-center gap-4">
+                                        <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-500/50 print:to-amber-600"></div>
+                                        <span className="text-amber-500/50">✧</span>
+                                        <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-500/50 print:to-amber-600"></div>
+                                    </div>
+                                    <p className="text-indigo-200/70 text-lg italic font-serif print:text-gray-500">invites you to witness the milestone of</p>
+                                </div>
+
+                                <div className="mb-12">
+                                    <h2 className="text-7xl md:text-8xl font-bold font-serif text-white tracking-tighter mb-2 uppercase print:text-gray-900 leading-[0.85]" style={{ textShadow: '0 10px 20px rgba(0,0,0,0.5)' }}>
+                                        Legacy
+                                    </h2>
+                                    <h3 className="text-3xl md:text-4xl font-serif text-amber-400 italic font-light print:text-amber-700">
+                                        & Uncommon Grace
+                                    </h3>
+                                </div>
+
+                                {/* Hero Section with Photo */}
+                                <div className="flex flex-col md:flex-row items-center justify-center gap-12 mb-16 w-full max-w-2xl">
+                                    <div className="relative group">
+                                        <div className="absolute -inset-4 border border-amber-400/20 rounded-full print:hidden"></div>
+                                        <div className="absolute -inset-2 border-2 border-amber-400/40 rounded-full print:border-amber-600"></div>
+                                        <div className="relative w-56 h-56 rounded-full overflow-hidden border-[6px] border-[#0c0a21] shadow-[0_0_30px_rgba(0,0,0,1)] group-hover:scale-105 transition-transform duration-500 print:border-amber-600">
+                                            <Image src="/images/mum.jpeg" alt="Mrs Bose Adeoye" fill className="object-cover" priority />
+                                        </div>
+                                    </div>
+
+                                    <div className="text-left space-y-4">
+                                        <div>
+                                            <p className="text-amber-500 text-sm uppercase tracking-[0.4em] font-bold mb-2 print:text-amber-700">Celebrating</p>
+                                            <h4 className="text-5xl font-bold text-white font-serif leading-tight print:text-gray-900 tracking-tight">Mrs Bose<br />Adeoye</h4>
+                                        </div>
+                                        <div className="w-20 h-1.5 bg-gradient-to-r from-amber-600 to-amber-400 print:bg-amber-600"></div>
+                                        <p className="text-indigo-200 text-sm font-medium tracking-[0.2em] uppercase print:text-gray-500">Retirement Service<br />& Thanksgiving Ceremony</p>
+                                    </div>
+                                </div>
+
+                                {/* Event Pillars */}
+                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                                    <div className="relative p-8 bg-white/5 border border-white/10 group overflow-hidden print:bg-gray-50 print:border-gray-200">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-amber-500 transform -translate-y-full group-hover:translate-y-0 transition-transform duration-500 print:hidden"></div>
+                                        <p className="text-amber-500 text-xs uppercase tracking-[0.3em] mb-4 font-bold print:text-amber-700">The Occasion</p>
+                                        <p className="text-white text-3xl font-serif mb-1 print:text-gray-900">6th Feb 2026</p>
+                                        <p className="text-indigo-300 text-lg print:text-gray-600 font-light">Friday, 11:00 AM Prompt</p>
+                                    </div>
+
+                                    <div className="relative p-8 bg-white/5 border border-white/10 group overflow-hidden print:bg-gray-50 print:border-gray-200">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-amber-500 transform -translate-y-full group-hover:translate-y-0 transition-transform duration-500 print:hidden"></div>
+                                        <p className="text-amber-500 text-xs uppercase tracking-[0.3em] mb-4 font-bold print:text-amber-700">The Sanctuary</p>
+                                        <p className="text-white text-3xl font-serif mb-1 print:text-gray-900">Christian Vigil</p>
+                                        <p className="text-indigo-300 text-sm print:text-gray-600 font-light leading-relaxed">Beside State Secretariat, Abere</p>
+                                    </div>
+                                </div>
+
+                                {/* RSVP & Footer */}
+                                <div className="mt-auto w-full pt-12 border-t border-white/10 flex flex-col items-center space-y-8 print:border-gray-200">
+                                    <div className="text-center">
+                                        <p className="text-amber-500 text-xs uppercase tracking-[0.6em] font-bold mb-4 print:text-amber-700">R.S.V.P</p>
+                                        <p className="text-white text-3xl font-serif print:text-gray-900">Tobi Adeoye</p>
+                                        <p className="text-amber-400 font-bold text-xl mt-1 tracking-widest print:text-amber-700">+234 813 920 7076</p>
+                                    </div>
+
+                                    <div className="flex items-center gap-6 text-amber-500/20 print:text-gray-300">
+                                        <div className="h-px w-32 bg-current"></div>
+                                        <span className="text-xl">✧</span>
+                                        <div className="h-px w-32 bg-current"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {/* Print Styles */}

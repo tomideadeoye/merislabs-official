@@ -10,12 +10,16 @@ const Diamond = ({ className, style }: { className?: string; style?: React.CSSPr
     </svg>
 );
 
-export const PresidentialTemplate = ({ client, content, containerRef, visualAsset }: TemplateProps) => {
+export const PresidentialTemplate = ({ client, content, containerRef, visualAsset, activePalette, dimensions }: TemplateProps) => {
+    // Use palette colors when provided, otherwise use client defaults
+    const primaryColor = activePalette?.primary || client.primaryColor;
+    const secondaryColor = activePalette?.secondary || client.secondaryColor;
+
     return (
         <div
             ref={containerRef}
-            className="relative w-full aspect-square overflow-hidden bg-white shadow-2xl"
-            style={{ backgroundColor: client.primaryColor }}
+            className="relative w-full h-full overflow-hidden bg-white shadow-2xl"
+            style={{ backgroundColor: primaryColor }}
         >
             {/* Texture & Overlays */}
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
@@ -34,15 +38,17 @@ export const PresidentialTemplate = ({ client, content, containerRef, visualAsse
             <div className="relative z-10 h-full flex flex-col items-center justify-center p-12 text-center text-white">
 
                 {/* Brand Logo/Signature */}
-                <div className="mb-8">
-                    {client.type === 'corporate' && client.logo ? (
-                        <div className="bg-white/95 p-4 rounded-xl shadow-lg border border-white/20">
-                            <img src={client.logo} alt={client.name} className="h-12 w-auto object-contain" />
-                        </div>
-                    ) : (
-                        <h3 className="text-4xl italic font-serif" style={{ color: client.secondaryColor }}>{client.signature}</h3>
-                    )}
-                </div>
+                {(content.footerControls?.showLogo ?? true) && (
+                    <div className="mb-8">
+                        {client.type === 'corporate' && client.logo ? (
+                            <div className="bg-white/95 p-4 rounded-xl shadow-lg border border-white/20">
+                                <img src={client.logo} alt={client.name} className="h-12 w-auto object-contain" />
+                            </div>
+                        ) : (
+                            <h3 className="italic font-serif" style={{ fontSize: `${36 * (content.textScales?.signature || 1)}px`, color: client.secondaryColor }}>{client.signature}</h3>
+                        )}
+                    </div>
+                )}
 
                 {/* Ornament Placeholder */}
                 <div className="mb-6">
@@ -50,34 +56,40 @@ export const PresidentialTemplate = ({ client, content, containerRef, visualAsse
                 </div>
 
                 {/* Text Items */}
-                <h2 className="text-5xl md:text-6xl font-bold mb-2 tracking-tight" style={{ fontFamily: client.fontFamily }}>
+                <h2 className="font-bold mb-2 tracking-tight" style={{ fontSize: `${60 * (content.textScales?.title || 1)}px`, fontFamily: content.fontFamilies?.title || content.fontFamily || client.fontFamily }}>
                     {content.title}
                 </h2>
-                <p className="text-xl md:text-2xl uppercase tracking-[0.3em] font-light mb-8" style={{ color: client.secondaryColor }}>
+                <p className="uppercase tracking-[0.3em] font-light mb-8" style={{ fontSize: `${24 * (content.textScales?.subtitle || 1)}px`, color: client.secondaryColor, fontFamily: content.fontFamilies?.subtitle || content.fontFamily || undefined }}>
                     {content.subtitle}
                 </p>
 
                 <div className="w-16 h-0.5 bg-white/20 mb-8" />
 
-                <p className="text-lg md:text-xl max-w-sm leading-relaxed mb-6 font-light italic">
+                <p className="max-w-sm leading-relaxed mb-6 font-light italic" style={{ fontSize: `${20 * (content.textScales?.message || 1)}px`, fontFamily: content.fontFamilies?.message || content.fontFamily || undefined, whiteSpace: 'pre-wrap' }}>
                     "{content.message}"
                 </p>
 
-                <div className="text-4xl font-bold tracking-widest opacity-80" style={{ fontFamily: client.fontFamily }}>
+                <div className="font-bold tracking-widest opacity-80" style={{ fontSize: `${36 * (content.textScales?.year || 1)}px`, fontFamily: content.fontFamilies?.year || content.fontFamily || client.fontFamily }}>
                     {content.year}
                 </div>
 
                 {/* Footer */}
-                {client.type === 'corporate' && client.address && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-white/95 py-4 px-6 border-t-4" style={{ borderColor: client.secondaryColor }}>
+                {client.address && (content.footerControls?.showAddress ?? true) && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-white/95 py-4 px-6 border-t-4" style={{ borderColor: secondaryColor }}>
                         <div className="flex items-center justify-between text-black">
                             <div className="text-left text-black">
-                                <p className="font-bold text-[10px] uppercase text-black">{client.name}</p>
+                                <p className="font-bold uppercase text-black" style={{ fontSize: `${10 * (content.textScales?.signature || 1)}px` }}>
+                                    {content.footerControls?.showSignature !== false ? (client.signature || client.name) : client.name}
+                                </p>
                                 <p className="text-[8px] text-gray-500">{client.address}</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-[10px] font-semibold" style={{ color: client.primaryColor }}>{client.website}</p>
-                                <p className="text-[8px] text-gray-400">{client.phone}</p>
+                                {(content.footerControls?.showWebsite ?? true) && (
+                                    <p className="text-[10px] font-semibold" style={{ color: primaryColor }}>{client.website}</p>
+                                )}
+                                {(content.footerControls?.showPhone ?? true) && (
+                                    <p className="text-[8px] text-gray-400">{client.phone}</p>
+                                )}
                             </div>
                         </div>
                     </div>

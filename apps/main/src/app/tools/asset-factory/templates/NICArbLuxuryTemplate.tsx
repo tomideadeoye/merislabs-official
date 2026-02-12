@@ -24,12 +24,21 @@ const GoldRibbon = ({ className, style }: { className?: string; style?: React.CS
     </svg>
 );
 
-export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsset }: TemplateProps) => {
+export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsset, activePalette, dimensions }: TemplateProps) => {
+    // Use palette colors when provided
+    const primaryColor = activePalette?.primary || '#050505';
+    const secondaryColor = activePalette?.secondary || '#D4AF37';
+    const backgroundColor = activePalette?.background || '#0a0a0a';
+
+    const hasFooterContent = client.address || client.website || client.phone || client.signature;
+
     return (
         <div
             ref={containerRef}
-            className="relative w-full aspect-square overflow-hidden shadow-2xl flex flex-col"
-            style={{ background: 'linear-gradient(135deg, #050505 0%, #151515 50%, #0a0a0a 100%)' }}
+            className="relative w-full h-full overflow-hidden shadow-2xl flex flex-col"
+            style={{
+                background: `linear-gradient(135deg, ${primaryColor} 0%, ${backgroundColor} 50%, ${primaryColor} 100%)`
+            }}
         >
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&display=swap');
@@ -45,12 +54,11 @@ export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsse
             <div className="absolute left-8 top-1/2 -translate-y-1/2 flex flex-col items-center select-none z-10">
                 <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-[#D4AF37] to-[#D4AF37] opacity-20" />
 
-                {/* Year Label Removed for cleaner look */}
-
                 {/* Horizontal Arabic Numerals - 2026 */}
                 <div
-                    className="text-2xl font-bold tracking-[0.2em] py-2"
+                    className="font-bold tracking-[0.2em] py-2"
                     style={{
+                        fontSize: `${24 * (content.textScales?.year || 1)}px`,
                         fontFamily: "'Cinzel', serif",
                         background: 'linear-gradient(180deg, #D4AF37 0%, #F4E6AA 50%, #D4AF37 100%)',
                         WebkitBackgroundClip: 'text',
@@ -90,14 +98,18 @@ export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsse
                 {/* Greeting Section */}
                 <div className="mt-8 flex flex-col items-center">
                     <h2
-                        className="text-6xl font-light text-white mb-2 tracking-tight"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                        className="font-light text-white mb-2 tracking-tight"
+                        style={{
+                            fontSize: `${60 * (content.textScales?.title || 1)}px`,
+                            fontFamily: "'Cormorant Garamond', serif"
+                        }}
                     >
                         {content.title.split(' ')[0]}
                     </h2>
                     <h2
-                        className="text-7xl font-semibold italic mb-6"
+                        className="font-semibold italic mb-6"
                         style={{
+                            fontSize: `${72 * (content.textScales?.title || 1)}px`,
                             fontFamily: "'Cormorant Garamond', serif",
                             color: '#D4AF37',
                             textShadow: '0 0 30px rgba(212,175,55,0.2)'
@@ -119,62 +131,81 @@ export const NICArbLuxuryTemplate = ({ client, content, containerRef, visualAsse
 
                 {/* Message */}
                 <div className="mt-12 max-w-lg">
-                    <p className="text-lg text-gray-300 font-light leading-relaxed italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    <p className="text-gray-300 font-light leading-relaxed italic" style={{ fontSize: `${18 * (content.textScales?.message || 1)}px`, fontFamily: "'Cormorant Garamond', serif" }}>
                         "{content.message}"
                     </p>
                 </div>
             </div>
 
-            {/* Exquisite Professional Footer */}
+            {/* Exquisite Professional Footer - Dynamic */}
             <div className="relative h-32 w-full bg-black/60 backdrop-blur-md border-t border-[#D4AF37]/20 flex items-center px-12">
-                {/* Logo Badge - Solving the White Background Issue */}
-                <div className="flex-shrink-0 relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-[#D4AF37] via-[#F4E6AA] to-[#D4AF37] rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                    <div className="relative bg-white p-2 rounded-md shadow-lg border border-[#D4AF37]/30">
-                        <img
-                            src={client.logo || '/nicarb-logo.png'}
-                            alt={client.name}
-                            className="h-10 w-auto object-contain"
-                        />
+                {/* Logo Badge */}
+                {(content.footerControls?.showLogo ?? true) && (
+                    <div className="flex-shrink-0 relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#D4AF37] via-[#F4E6AA] to-[#D4AF37] rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                        <div className="relative bg-white p-2 rounded-md shadow-lg border border-[#D4AF37]/30">
+                            <img
+                                src={client.logo || '/nicarb-logo.png'}
+                                alt={client.name}
+                                className="h-10 w-auto object-contain"
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Contact Information Vertical Divider */}
                 <div className="w-[1px] h-12 bg-[#D4AF37]/20 mx-10" />
 
                 {/* Info Grid */}
-                <div className="flex-1 grid grid-cols-2 gap-x-12 gap-y-2">
-                    {/* Address */}
-                    <div className="flex items-start gap-3">
-                        <MapPin className="w-3 h-3 text-[#D4AF37] mt-1 shrink-0" />
-                        <p className="text-[10px] text-gray-400 font-medium leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
-                            {client.address || 'Nigerian Institute of Chartered Arbitrators'}
-                        </p>
-                    </div>
+                <div className="flex-1 grid grid-cols-2 gap-x-12 gap-y-3">
+                    {/* Address - Only show if available and allowed */}
+                    {client.address && (content.footerControls?.showAddress ?? true) && (
+                        <div className="flex items-start gap-3">
+                            <MapPin className="w-3.5 h-3.5 text-[#D4AF37] mt-1 shrink-0" />
+                            <p className="text-[11px] text-white font-bold leading-tight uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+                                {client.address}
+                            </p>
+                        </div>
+                    )}
 
-                    {/* Website / Social */}
-                    <div className="flex items-center gap-3">
-                        <Globe className="w-3 h-3 text-[#D4AF37] shrink-0" />
-                        <p className="text-[10px] text-gray-400 font-bold tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
-                            {client.website || 'www.nicarb.org'}
-                        </p>
-                    </div>
+                    {/* Website - Only show if available and allowed */}
+                    {client.website && (content.footerControls?.showWebsite ?? true) && (
+                        <div className="flex items-center gap-3">
+                            <Globe className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                            <p className="text-[11px] text-white font-bold tracking-widest uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+                                {client.website}
+                            </p>
+                        </div>
+                    )}
 
-                    {/* Phone */}
-                    <div className="flex items-center gap-3">
-                        <Phone className="w-3 h-3 text-[#D4AF37] shrink-0" />
-                        <p className="text-[10px] text-gray-400 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
-                            {client.phone || '+234 908 718 7414'}
-                        </p>
-                    </div>
+                    {/* Phone - Only show if available and allowed */}
+                    {client.phone && (content.footerControls?.showPhone ?? true) && (
+                        <div className="flex items-center gap-3">
+                            <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                            <p className="text-[11px] text-white font-bold uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+                                {client.phone}
+                            </p>
+                        </div>
+                    )}
 
-                    {/* Social/Signature */}
-                    <div className="flex items-center gap-3">
-                        <Mail className="w-3 h-3 text-[#D4AF37] shrink-0" />
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter" style={{ fontFamily: "'Cinzel', serif" }}>
-                            {client.id === 'nicarb' ? 'info@nicarb.org' : client.id}
-                        </p>
-                    </div>
+                    {/* Email - Only show if available and allowed */}
+                    {client.email && (content.footerControls?.showEmail ?? true) && (
+                        <div className="flex items-center gap-3">
+                            <Mail className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                            <p className="text-[11px] text-white font-bold uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+                                {client.email}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Signature/Name - Default fallback, respect allowed */}
+                    {(content.footerControls?.showSignature ?? true) && (
+                        <div className="flex items-center gap-3">
+                            <p className="text-gray-400 font-bold uppercase tracking-tighter" style={{ fontSize: `${10 * (content.textScales?.signature || 1)}px`, fontFamily: "'Cinzel', serif" }}>
+                                {client.signature || client.name}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Decorative Right Corner Ornaments */}

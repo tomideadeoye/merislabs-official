@@ -4,13 +4,18 @@ import { cn } from '@/lib/utils';
 import { TemplateProps } from '../types';
 import { Mail, Phone, Globe, MapPin, Award } from 'lucide-react';
 
-export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAsset }: TemplateProps) => {
+export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAsset, activePalette }: TemplateProps) => {
+    // Use palette colors when provided
+    const primaryColor = activePalette?.primary || '#1a1a1a';
+    const secondaryColor = activePalette?.secondary || '#D4AF37';
+    const backgroundColor = activePalette?.background || '#050505';
+
     return (
         <div
             ref={containerRef}
-            className="relative w-full aspect-square overflow-hidden shadow-2xl flex flex-col select-none"
+            className="relative w-full h-full overflow-hidden shadow-2xl flex flex-col select-none"
             style={{
-                background: 'radial-gradient(circle at 70% 30%, #1a1a1a 0%, #050505 100%)',
+                background: `radial-gradient(circle at 70% 30%, ${primaryColor} 0%, ${backgroundColor} 100%)`,
                 boxShadow: 'inset 0 0 100px rgba(0,0,0,0.8)'
             }}
         >
@@ -53,14 +58,14 @@ export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAss
                     {/* Numeric Year */}
                     <div className="flex flex-col items-center leading-none">
                         <span
-                            className="text-4xl font-bold tracking-tighter gold-shimmer"
-                            style={{ fontFamily: "'Cinzel', serif" }}
+                            className="font-bold tracking-tighter gold-shimmer"
+                            style={{ fontSize: `${36 * (content.textScales?.year || 1)}px`, fontFamily: "'Cinzel', serif" }}
                         >
                             {content.year.slice(0, 2)}
                         </span>
                         <span
-                            className="text-4xl font-bold tracking-tighter gold-shimmer opacity-60"
-                            style={{ fontFamily: "'Cinzel', serif" }}
+                            className="font-bold tracking-tighter gold-shimmer opacity-60"
+                            style={{ fontSize: `${36 * (content.textScales?.year || 1)}px`, fontFamily: "'Cinzel', serif" }}
                         >
                             {content.year.slice(2)}
                         </span>
@@ -97,21 +102,27 @@ export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAss
                 <div className="w-full mt-16 flex flex-col items-start pr-32">
                     {/* Prefix Accent */}
                     <div className="flex items-center gap-3 mb-6">
-                        <Award className="w-4 h-4 text-[#D4AF37] opacity-60" />
-                        <span className="text-[10px] tracking-[0.5em] text-[#D4AF37] opacity-50 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                        <Award className="w-4 h-4 opacity-70" style={{ color: content.headerColor || '#D4AF37' }} />
+                        <span className="tracking-[0.5em] font-bold" style={{
+                            fontFamily: "'Cinzel', serif",
+                            color: content.headerColor || '#D4AF37',
+                            opacity: content.headerColor ? 1 : 0.5,
+                            fontSize: `${18 * (content.textScales?.brandHeader || 1)}px`
+                        }}>
                             From NICArb
                         </span>
                     </div>
 
                     <h2
-                        className="text-7xl font-light text-white leading-none mb-1 tracking-tight"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                        className="font-light text-white leading-none mb-1 tracking-tight"
+                        style={{ fontSize: `${72 * (content.textScales?.title || 1)}px`, fontFamily: "'Cormorant Garamond', serif" }}
                     >
                         {content.title.split(' ')[0]}
                     </h2>
                     <h2
-                        className="text-8xl font-bold italic mb-8 gold-shimmer"
+                        className="font-bold italic mb-8 gold-shimmer"
                         style={{
+                            fontSize: `${96 * (content.textScales?.title || 1)}px`,
                             fontFamily: "'Cormorant Garamond', serif",
                             textShadow: '0 0 40px rgba(212,175,55,0.1)'
                         }}
@@ -123,8 +134,8 @@ export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAss
                     <div className="w-48 h-[1px] gold-line-shimmer opacity-40 mb-10" />
 
                     <p
-                        className="text-xl text-gray-400 font-light max-w-md leading-relaxed"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                        className="text-gray-400 font-light max-w-md leading-relaxed"
+                        style={{ fontSize: `${20 * (content.textScales?.message || 1)}px`, fontFamily: "'Cormorant Garamond', serif" }}
                     >
                         {content.message}
                     </p>
@@ -138,58 +149,75 @@ export const RoyalObsidianTemplate = ({ client, content, containerRef, visualAss
                 <div className="absolute inset-0 opacity-[0.02] [mask-image:linear-gradient(to_top,black,transparent)] bg-[url('https://www.transparenttextures.com/patterns/geometric-leaves.png')]" />
 
                 {/* Logo Badge - Floating on the baseline */}
-                <div className="flex-shrink-0 z-10">
-                    <div className="relative p-3 bg-white/95 backdrop-blur shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-sm border-t border-l border-white overflow-hidden">
-                        {/* Subtle inner gold rim */}
-                        <div className="absolute inset-0 border border-[#D4AF37]/10" />
-                        <img
-                            src={client.logo || '/nicarb-logo.png'}
-                            alt={client.name}
-                            className="h-12 w-auto object-contain relative z-10"
-                        />
+                {(content.footerControls?.showLogo ?? true) && (
+                    <div className="flex-shrink-0 z-10">
+                        <div className="relative p-3 bg-white/95 backdrop-blur shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-sm border-t border-l border-white overflow-hidden">
+                            {/* Subtle inner gold rim */}
+                            <div className="absolute inset-0 border border-[#D4AF37]/10" />
+                            <img
+                                src={client.logo || '/nicarb-logo.png'}
+                                alt={client.name}
+                                className="h-12 w-auto object-contain relative z-10"
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Structured Contact Data */}
                 <div className="flex-1 ml-12 mb-1 z-10">
                     <div className="grid grid-cols-2 gap-x-16 gap-y-4 max-w-2xl">
                         {/* Address Block */}
-                        <div className="flex flex-col gap-1">
-                            <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Address</span>
-                            <p className="text-[10px] text-gray-400 font-medium leading-tight line-clamp-2 uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
-                                {client.address || 'Nigerian Institute of Chartered Arbitrators'}
-                            </p>
-                        </div>
-
-                        {/* Connection Block */}
-                        <div className="flex flex-col gap-1">
-                            <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Connect</span>
-                            <div className="flex items-center gap-6">
-                                <p className="text-[11px] text-gray-300 font-bold tracking-[0.1em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                                    {client.website || 'WWW.NICARB.ORG'}
+                        {(content.footerControls?.showAddress ?? true) && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Address</span>
+                                <p className="text-[10px] text-gray-400 font-medium leading-tight line-clamp-2 uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+                                    {client.address || 'Nigerian Institute of Chartered Arbitrators'}
                                 </p>
                             </div>
-                        </div>
+                        )}
+
+                        {/* Connection Block */}
+                        {(content.footerControls?.showWebsite ?? true) && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Connect</span>
+                                <div className="flex items-center gap-6">
+                                    <p className="text-[11px] text-gray-300 font-bold tracking-[0.1em]" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        {client.website || 'nicarb.org'}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Contact Block */}
-                        <div className="flex flex-col gap-1">
-                            <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Inquiries</span>
-                            <p className="text-[11px] text-gray-300 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
-                                {client.phone || '+234 908 718 7414'}
-                            </p>
-                        </div>
+                        {(content.footerControls?.showPhone ?? true) && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Inquiries</span>
+                                <p className="text-[11px] text-gray-300 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                                    {client.phone || '+234 908 718 7414'}
+                                </p>
+                            </div>
+                        )}
 
                         {/* Secondary Connect */}
-                        <div className="flex flex-col gap-1">
-                            <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Official</span>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
-                                {client.id === 'nicarb' ? 'INFO@NICARB.ORG' : client.id}
-                            </p>
-                        </div>
+                        {(content.footerControls?.showEmail ?? true) && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[8px] tracking-[0.3em] font-bold text-[#D4AF37] uppercase opacity-60" style={{ fontFamily: "'Cinzel', serif" }}>Official</span>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
+                                    {client.email || (client.id === 'nicarb' ? 'INFO@NICARB.ORG' : '')}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Signature Signature removed for standard professional look */}
+                {/* Signature area if enabled */}
+                {(content.footerControls?.showSignature ?? true) && (
+                    <div className="absolute bottom-10 right-12 z-10 text-right">
+                        <p className="gold-shimmer font-bold italic" style={{ fontSize: `${24 * (content.textScales?.signature || 1)}px`, fontFamily: "'Cormorant Garamond', serif" }}>
+                            {client.signature || client.name}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Corner Ornamental Flourish */}

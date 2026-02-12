@@ -16,6 +16,7 @@ export interface ClientProfile {
     address?: string;
     website?: string;
     phone?: string;
+    email?: string;
     title?: string;
 }
 
@@ -27,6 +28,38 @@ export interface AssetContent {
     holiday: HolidayType;
     customImage?: string;
     brandName?: string;
+    headerColor?: string;
+    textScales?: TextScales;
+    fontFamily?: string; // Legacy global font
+    fontFamilies?: TextFonts;
+    footerControls?: FooterControls;
+}
+
+export interface FooterControls {
+    showAddress: boolean;
+    showPhone: boolean;
+    showWebsite: boolean;
+    showEmail: boolean;
+    showSignature: boolean;
+    showLogo: boolean;
+}
+
+export interface TextFonts {
+    title?: string;
+    subtitle?: string;
+    message?: string;
+    year?: string;
+    footer?: string;
+}
+
+export interface TextScales {
+    title: number;      // 0.5 to 2.0, default 1.0
+    subtitle: number;
+    message: number;
+    year: number;
+    signature: number;
+    footer: number;
+    brandHeader: number; // "From NICArb" text
 }
 
 export interface VisualAsset {
@@ -42,8 +75,9 @@ export interface TemplateProps {
     content: AssetContent;
     containerRef: React.RefObject<HTMLDivElement | null>;
     visualAsset: VisualAsset;
-    useBrandColors?: boolean;
     activePalette?: ColorPalette;
+    dimensions?: { width: number; height: number };
+    useBrandColors?: boolean;
 }
 
 export interface ColorPalette {
