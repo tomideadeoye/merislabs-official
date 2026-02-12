@@ -2,7 +2,7 @@
 
 1. **EXECUTIVE SUMMARY**
 
-Further to the Letter of Engagement dated 4th December 2025 issued by Union Bank of Nigeria Plc (the **“Bank”** or **“Union Bank”**) to Jackson, Etti & Edu (our **“Firm”**), we conducted a comprehensive review and standardisation of the Bank’s legal documentation suite. 
+Further to the Letter of Engagement dated 4th December 2025 issued by Union Bank of Nigeria Plc (the **“Bank”** or **“Union Bank”**) to Jackson, Etti & Edu (our **“Firm”**), we conducted a comprehensive review and standardisation of the Bank’s legal documentation suite.
 
 The objective of the engagement was to enhance enforceability, strengthen regulatory compliance, harmonise post-merger documentation structures, and align the Bank’s credit documentation with prevailing market standards and international best practices. In carrying out this mandate, we undertook a detailed review of the Bank’s facility templates, security documentation, guarantee instruments, and foreign exchange–related agreements. The documentation was benchmarked against  applicable Central Bank of Nigeria (“CBN”) regulations and circulars, the Loan Market Association (“LMA”) standard templates, relevant judicial authorities on banker–customer relationships and enforceability of securities, and Industry best practices within the Nigerian and international banking markets
 
@@ -22,11 +22,11 @@ We also recommend the institutionalisation of a structured governance framework 
 
 **2\.  SCOPE OF WORK**
 
-**2.1. Nature of the Review** 
+**2.1. Nature of the Review**
 
 The Firm conducted  a full-scale review and standardisation of the Bank’s facility and ancillary documentation. The process included clause-by-clause legal  analysis, gap identification and risk mapping, regulatory compliance assessment, judicial enforceability review, benchmarking against LMA and industry standards, and harmonisation of definitions, representations, undertakings and enforcement provisions.
 
-The review was undertaken in alignment with the Bank’s strategic priorities, including documentation  harmonisation and enhanced credit governance.  
+The review was undertaken in alignment with the Bank’s strategic priorities, including documentation  harmonisation and enhanced credit governance.
 
 **2.2. Documents Reviewed**
 
@@ -58,7 +58,7 @@ A total of twenty-six (26) documents were reviewed, including multiple variants.
 
 13) Undertaking to Domicile Sales Proceeds (2 variants)
 
-    
+
 
 **2.3. Assumptions & Limitations**
 
@@ -68,9 +68,9 @@ We further assumed that operational references within the templates accurately r
 
 The scope of this engagement did not extend to (i) Tax structuring advisory; (ii) Off-balance sheet accounting assessments; (ii) Transaction-specific due diligence; (iii) Independent verification of collateral assets; (iv) Litigation risk analysis unrelated to documentation enforceability; and (v) ESG advisory beyond clause-level alignment where relevant.
 
-**2.4. Legal and Regulatory Framework Considered** 
+**2.4. Legal and Regulatory Framework Considered**
 
-The review was conducted with reference to applicable statutory, regulatory, and judicial authorities, including: 
+The review was conducted with reference to applicable statutory, regulatory, and judicial authorities, including:
 
 **(A)  Statutory and Regulatory Authorities**
 
@@ -84,7 +84,7 @@ The review was conducted with reference to applicable statutory, regulatory, and
 
 5. CBN Customer Protection Regulations, 2019
 
-6. CBN Trade and Exchange Department FX Manual, 2018 
+6. CBN Trade and Exchange Department FX Manual, 2018
 
 7. CBN Guide to Charges by Banks, other Financial and Non-Bank Financial Institutions, 2019
 
@@ -92,7 +92,7 @@ The review was conducted with reference to applicable statutory, regulatory, and
 
 9. CBN (Anti Money Laundering, Combating the Financing of Terrorism and Countering Proliferation Financing of Weapons of Mass Destruction in Financial Institutions) Regulations, 2022
 
-   
+
 
 **(B) Judicial Authorities**
 
@@ -110,9 +110,9 @@ The review was conducted with reference to applicable statutory, regulatory, and
 
 (VII) First Bank v. Pan Bisbilder (1990) 2 NWLR (Pt. 134\) 647 C.A,
 
-**3\. KEY DOCUMENT REVIEW OUTCOMES**  
+**3\. KEY DOCUMENT REVIEW OUTCOMES**
 
-Below is a summary of material revisions and enhancements made across the documentation suite: 
+Below is a summary of material revisions and enhancements made across the documentation suite:
 
 | Document | Review Outcome  |
 | :---- | :---- |
@@ -133,11 +133,11 @@ Below is a summary of material revisions and enhancements made across the docume
 
 **4\.	ANALYSIS**
 
-The amendments were necessitated by evolving regulatory directives, changes in jurisprudence regarding banker-customer contracts, the Bank’s post-merger documentation harmonisation needs, and emerging risks in credit operations, FX markets, and collateral enforcement. 
+The amendments were necessitated by evolving regulatory directives, changes in jurisprudence regarding banker-customer contracts, the Bank’s post-merger documentation harmonisation needs, and emerging risks in credit operations, FX markets, and collateral enforcement.
 
 The revised suite now constitutes a unified documentation ecosystem that eliminates duplication and drafting inconsistencies, strengthens security creation and enforcement mechanics, enhances clarity in borrower undertakings, and aligns FX exposure provisions with regulatory expectations
 
-The documentation now materially complies with: 
+The documentation now materially complies with:
 
 1) CBN prudential and consumer-protection directives;
 
@@ -153,11 +153,11 @@ While the revised documentation suite substantially strengthens the Bank’s leg
 
 Among the key residual risks identified are:
 
-1) **Operational misalignment** in the implementation of the revised templates across business units and branches;  
-2) **Inconsistent deployment or legacy template usage**, which may undermine standardisation efforts;  
+1) **Operational misalignment** in the implementation of the revised templates across business units and branches;
+2) **Inconsistent deployment or legacy template usage**, which may undermine standardisation efforts;
 3) **Identified procedural gaps** in documentation governance and version control; and
 
-These risks can be effectively mitigated through structured governance controls, centralised template management, targeted staff training, and ongoing regulatory monitoring, as further outlined in the Recommendations section of this Report. 
+These risks can be effectively mitigated through structured governance controls, centralised template management, targeted staff training, and ongoing regulatory monitoring, as further outlined in the Recommendations section of this Report.
 
 **6\.	RECOMMENDATIONS**
 
@@ -196,7 +196,7 @@ We recommend the following phased implementation approach:
 
 **7\.	CONCLUSION**
 
-Based on the depth of analysis undertaken, we are satisfied that the revised documentation suite represents a coherent, enforceable, and regulatory-aligned framework appropriate for the Bank’s operational and strategic objectives. 
+Based on the depth of analysis undertaken, we are satisfied that the revised documentation suite represents a coherent, enforceable, and regulatory-aligned framework appropriate for the Bank’s operational and strategic objectives.
 
 The revised suite enhances enforceability, reduces litigation and regulatory exposure, clarifies risk allocation, aligns with the Bank’s credit governance architecture; and modernises the Bank’s legal instruments in line with contemporary banking practice.
 

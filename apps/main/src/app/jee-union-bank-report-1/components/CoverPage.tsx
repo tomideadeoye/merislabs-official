@@ -21,26 +21,32 @@ export const CoverPage = () => {
             </div>
 
             {/* Gold Separation Line */}
-            <div className="h-2 bg-[#C8B273] w-full shrink-0" />
+            <div className="h-2 bg-[#009fe3] w-full shrink-0" />
 
-            {/* Bottom Section: Navy for Title */}
-            <div className="bg-[#0A1930] h-[65%] w-full p-16 flex flex-col items-center text-center relative overflow-hidden shrink-0">
+            {/* Bottom Section: Navy for Title with Skyline Background */}
+            <div className="h-[65%] w-full flex flex-col items-center text-center relative overflow-hidden shrink-0">
+                {/* Background Image */}
+                <div
+                    className="absolute inset-0 bg-[url('/union-bank/marina-skyline.jpg')] bg-cover bg-center"
+                    style={{ filter: 'brightness(0.7)' }}
+                />
+
+                {/* Blue Overlay: Slightly less opaque as requested */}
+                <div className="absolute inset-0 bg-[#0A1930]/65" />
+
                 <div className="absolute inset-0 opacity-10 bg-[url('/union-bank/pattern.png')] bg-repeat" />
 
-                <h1 className="text-5xl font-serif font-bold mb-6 relative z-10 text-[#C8B273] leading-tight mt-12">
-                    Comprehensive Review <br />& Standardisation
+                <h1 className="text-4xl font-serif font-bold mb-8 relative z-10 text-[#009fe3] leading-tight mt-12 uppercase tracking-wide px-8 drop-shadow-lg">
+                    Report on the Comprehensive Review AND Standardisation of Union Bank Plc’s Legal Documentation
                 </h1>
-                <p className="text-sm uppercase tracking-[0.3em] font-medium opacity-90 relative z-10 text-white">
-                    Legal Documentation Suite
-                </p>
 
-                <div className="mt-auto relative z-10 flex flex-col items-center gap-6 pb-8">
-                    <div className="w-16 h-1 bg-[#C8B273]" />
-                    <div className="text-white opacity-80 font-medium">
+                <div className="mt-auto relative z-10 flex flex-col items-center gap-6 pb-20">
+                    <div className="w-16 h-1 bg-[#009fe3]" />
+                    <div className="text-white opacity-80 font-medium tracking-widest text-xs">
                         <p>PREPARED FOR</p>
-                        <p className="font-bold text-lg mt-1">Union Bank of Nigeria</p>
+                        <p className="font-bold text-xl mt-2 text-white">Union Bank of Nigeria Plc</p>
                     </div>
-                    <div className="text-white opacity-60 text-sm mt-4">
+                    <div className="text-white opacity-60 text-xs tracking-[0.2em] mt-4 font-light">
                         DATE: FEBRUARY 12, 2026
                     </div>
                 </div>

@@ -6,39 +6,87 @@ export const TableOfContents = () => {
     const items = [
         { id: 'summary', label: '1. EXECUTIVE SUMMARY', page: 3 },
         { id: 'scope', label: '2. SCOPE OF WORK', page: 4 },
-        { id: 'findings', label: '3. KEY DOCUMENT REVIEW OUTCOMES', page: 5 },
-        { id: 'analysis', label: '4. ANALYSIS', page: 7 },
-        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS CONSIDERATIONS', page: 8 },
-        { id: 'recommendations', label: '6. RECOMMENDATIONS', page: 9 },
-        { id: 'conclusion', label: '7. CONCLUSION', page: 10 },
+        {
+            id: 'findings',
+            label: '3. KEY DOCUMENT REVIEW OUTCOMES',
+            page: 6,
+            subItems: [
+                { id: 'findings-credit', label: '3.1 Global Credit Templates', page: 6 },
+                { id: 'findings-secured', label: '3.2 Secured Lending Instruments', page: 6 },
+                { id: 'findings-third-party', label: '3.3 Third-Party Support Documents', page: 7 },
+                { id: 'findings-specialized', label: '3.4 Specialized Finance Documentation', page: 7 }
+            ]
+        },
+        {
+            id: 'analysis',
+            label: '4. ANALYSIS',
+            page: 8,
+        },
+        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS', page: 10 },
+        {
+            id: 'recommendations',
+            label: '6. RECOMMENDATIONS',
+            page: 11,
+            subItems: [
+                { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 11 },
+                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 11 },
+                { id: 'roadmap', label: '6.3 Implementation Timelines', page: 12 }
+            ]
+        },
+        { id: 'conclusion', label: '7. CONCLUSION', page: 13 }
     ];
 
     return (
         <div className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0">
             <div className="toc-header mb-16 text-center">
                 <h2 className="text-3xl font-serif font-bold text-[#0A1930] uppercase tracking-wider">Table of Contents</h2>
-                <div className="w-16 h-1 bg-[#C8B273] mx-auto mt-4" />
+                <div className="w-16 h-1 bg-[#009fe3] mx-auto mt-4" />
             </div>
 
-            <div className="space-y-8 max-w-2xl mx-auto">
+            <div className="space-y-4 max-w-3xl mx-auto text-sm">
                 {items.map((item, index) => (
-                    <a
-                        key={index}
-                        href={`#${item.id}`}
-                        className="flex items-baseline gap-4 group cursor-pointer hover:opacity-70 transition-opacity no-underline"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                    >
-                        <span className="font-serif font-bold text-lg text-[#0A1930] whitespace-nowrap min-w-[300px] border-b border-transparent group-hover:border-[#C8B273]">
-                            {item.label}
-                        </span>
-                        <div className="flex-grow border-b border-dotted border-gray-300 relative bottom-[6px]" />
-                        <span className="font-serif font-bold text-[#C8B273] text-xl min-w-[20px] text-right">
-                            {item.page}
-                        </span>
-                    </a>
+                    <div key={index} className="space-y-3">
+                        <a
+                            href={`#${item.id}`}
+                            className="flex items-baseline gap-4 group cursor-pointer hover:text-[#009fe3] transition-all no-underline"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                        >
+                            <span className="font-serif font-bold text-base text-[#0A1930] group-hover:text-[#009fe3] whitespace-nowrap min-w-[340px] uppercase tracking-tight">
+                                {item.label}
+                            </span>
+                            <div className="flex-grow border-b border-dotted border-gray-300 relative bottom-[6px]" />
+                            <span className="font-serif font-bold text-[#009fe3] text-lg min-w-[20px] text-right">
+                                {item.page}
+                            </span>
+                        </a>
+
+                        {item.subItems && (
+                            <div className="ml-8 space-y-2 pb-2">
+                                {item.subItems.map((sub, sIdx) => (
+                                    <a
+                                        key={sIdx}
+                                        href={`#${sub.id}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            document.getElementById(sub.id)?.scrollIntoView({ behavior: 'smooth' });
+                                        }}
+                                        className="flex items-baseline gap-4 opacity-70 hover:opacity-100 hover:text-[#009fe3] transition-all no-underline group/sub"
+                                    >
+                                        <span className="font-sans text-xs text-[#0A1930] group-hover/sub:text-[#009fe3] whitespace-nowrap min-w-[300px]">
+                                            {sub.label}
+                                        </span>
+                                        <div className="flex-grow border-b border-dotted border-gray-200 relative bottom-[4px]" />
+                                        <span className="font-sans font-medium text-gray-500 text-xs min-w-[20px] text-right italic group-hover/sub:text-[#009fe3]">
+                                            {sub.page}
+                                        </span>
+                                    </a>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 ))}
             </div>
 

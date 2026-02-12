@@ -2,20 +2,20 @@
  * ============================================================================
  * NAVIGATION BAR COMPONENT
  * ============================================================================
- * 
+ *
  * PURPOSE:
  * Provides the main navigation header for the Ecobank Litigation Dashboard.
  * Displays firm logos, navigation links, and logout functionality.
- * 
+ *
  * CRITICAL CHANGE (Dec 2025) - PRINT PAGE DOM REMOVAL:
  * ============================================================================
- * 
+ *
  * PROBLEM STATEMENT:
  * When generating PDFs via browser print or Puppeteer, the NavigationBar was
- * causing a "blank first page" issue. Even with CSS `display: none` or 
- * `print:hidden`, the element's presence in the DOM triggered layout 
+ * causing a "blank first page" issue. Even with CSS `display: none` or
+ * `print:hidden`, the element's presence in the DOM triggered layout
  * calculations that offset the CoverPage content.
- * 
+ *
  * WHY CSS HIDING IS INSUFFICIENT:
  * 1. Fixed/absolute positioned elements can still affect document flow
  *    calculations in print engines (Chrome, Safari, Puppeteer).
@@ -23,7 +23,7 @@
  *    which can push content onto subsequent pages.
  * 3. Browser print engines sometimes pre-render hidden elements before
  *    applying print stylesheets, causing phantom spacing.
- * 
+ *
  * SOLUTION - DOM REMOVAL VIA CONDITIONAL RETURN:
  * By returning `null` when the route starts with `/print-`, we completely
  * eliminate this component from the Virtual DOM and the real DOM. This
@@ -31,15 +31,15 @@
  * - The CoverPage is the absolute first element in the document
  * - No layout offsets are introduced by navigation elements
  * - The print engine starts rendering from pixel (0,0) of the viewport
- * 
+ *
  * CONSTRAINT:
  * This approach requires that any route intended for PDF output must start
  * with `/print-`. Examples: `/print-all-cases`, `/print-executive-summary`.
- * 
+ *
  * MAINTENANCE NOTE:
  * If you add new print routes, ensure they follow the `/print-*` naming
  * convention, or update the conditional check below.
- * 
+ *
  * ============================================================================
  */
 'use client'
@@ -69,18 +69,18 @@ export function NavigationBar() {
   /**
    * PRINT PAGE EXCLUSION LOGIC
    * ==========================
-   * 
+   *
    * REASONING:
    * On print-specific routes, we need the CoverPage to be the first DOM element.
    * Any preceding elements (even hidden ones) can trigger blank page offsets.
-   * 
+   *
    * RATIONALE:
    * Returning `null` ensures zero DOM footprint on print pages, eliminating
    * any possibility of layout interference.
-   * 
+   *
    * CONSTRAINT:
    * All PDF-generating routes MUST start with `/print-` for this to work.
-   * 
+   *
    * TESTED WITH:
    * - Chrome Print Preview (Cmd+P)
    * - Puppeteer headless PDF generation
@@ -120,11 +120,10 @@ export function NavigationBar() {
             <NavigationMenuList>
               {NAV_ITEMS.map((item) => (
                 <NavigationMenuItem key={item.href}>
-                  <Link 
-                    href={item.href} 
-                    className={`px-4 py-2 text-sm font-medium transition-colors hover:text-gray-900 ${
-                      pathname === item.href ? 'text-gray-900 font-bold' : 'text-gray-500'
-                    }`}
+                  <Link
+                    href={item.href}
+                    className={`px-4 py-2 text-sm font-medium transition-colors hover:text-gray-900 ${pathname === item.href ? 'text-gray-900 font-bold' : 'text-gray-500'
+                      }`}
                     onClick={() => console.log(`[NAVBAR] Navigating to: ${item.label} (${item.href})`)}
                   >
                     {item.label}

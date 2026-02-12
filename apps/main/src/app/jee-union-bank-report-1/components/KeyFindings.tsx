@@ -111,39 +111,42 @@ export const KeyFindings = () => {
     ];
 
     return (
-        <div id="findings" className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0">
-            <div className="flex items-center gap-3 mb-8 border-b border-[#C8B273]/30 pb-4">
-                <Scale className="w-8 h-8 text-[#C8B273]" />
+        <div id="findings" className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0 overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
+
+            <div className="flex items-center gap-3 mb-8 border-b border-[#009fe3]/30 pb-4 relative z-10">
                 <h2 className="text-3xl font-serif font-bold text-[#0A1930]">3. KEY DOCUMENT REVIEW OUTCOMES</h2>
             </div>
 
-            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930]">
-                <p className="mb-6">
+            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] mb-8 relative z-10">
+                <p>
                     Below is a summary of material revisions and enhancements made across the documentation suite:
                 </p>
+            </div>
 
-                <div className="overflow-hidden rounded-lg border border-gray-200 mt-6 not-prose">
-                    <table className="w-full text-xs text-left border-collapse">
-                        <thead className="bg-[#0A1930] text-white">
-                            <tr>
-                                <th className="p-4 w-[25%] border-r border-[#C8B273]/20">Document</th>
-                                <th className="p-4">Review Outcome</th>
+            <div className="overflow-hidden rounded-lg border border-gray-200 not-prose relative z-10">
+                <table className="w-full text-xs text-left border-collapse">
+                    <thead className="bg-[#0A1930] text-white">
+                        <tr>
+                            <th className="p-3 w-[25%] border-r border-[#009fe3]/20">Document</th>
+                            <th className="p-3">Review Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                        {findings.map((finding, index) => (
+                            <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                                <td className="p-4 font-bold text-[#0A1930] border-r border-gray-100 align-top">
+                                    {finding.document}
+                                </td>
+                                <td className="p-4 text-gray-700 leading-relaxed text-justify">
+                                    {finding.outcome}
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {findings.map((item, index) => (
-                                <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
-                                    <td className="p-4 font-bold text-[#0A1930] border-r border-gray-100 align-top">
-                                        {item.document}
-                                    </td>
-                                    <td className="p-4 text-gray-700 leading-relaxed text-justify">
-                                        {item.outcome}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

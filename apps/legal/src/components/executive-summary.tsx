@@ -53,7 +53,7 @@ export function ExecutiveSummary() {
 
       {/* Content Container - Constrained Width */}
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
-        
+
         {/* Document Header */}
         <div className="text-center space-y-2">
           <Badge variant="outline" className="mb-4">Ecobank Nigeria Limited</Badge>
