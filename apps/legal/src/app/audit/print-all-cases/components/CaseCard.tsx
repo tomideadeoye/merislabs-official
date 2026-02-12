@@ -18,21 +18,21 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
   const risk = normalizeRisk(caseItem.RiskAssessment || caseItem.riskAssessment);
   const externalCounsel = caseItem.externalCounsel || caseItem.ExternalCounsel || 'N/A';
   const category = caseItem.Category || caseItem.category || 'N/A';
-  
+
   // Appeal specific fields
   const appealNo = caseItem.AppealNo || caseItem.appealNo || 'N/A';
   const originalSuitNo = caseItem.OriginalSuitNo || caseItem.originalSuitNo || 'N/A';
   const appellant = caseItem.Appellant || caseItem.appellant || 'N/A';
-  
+
   // Helper to check for "invalid" values that act like nulls
   const isValidValue = (val: string) => {
     if (!val) return false;
     const v = val.trim().toLowerCase();
     return (
-      v !== 'n/a' && 
-      v !== 'none' && 
-      v !== 'not stated' && 
-      v !== 'ca/none' && 
+      v !== 'n/a' &&
+      v !== 'none' &&
+      v !== 'not stated' &&
+      v !== 'ca/none' &&
       v !== 'ca/not stated' &&
       v !== 'null' &&
       v !== ''
@@ -41,7 +41,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
 
   // Determine Header Title
   let headerTitle = 'N/A';
-  
+
   if (isValidValue(appealNo)) {
     headerTitle = appealNo;
   } else if (isValidValue(suitNo)) {
@@ -57,14 +57,14 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
   const excludedKeys = [
     'CaseID', 'id', 'suitNo', 'SuitNo', 'parties', 'Parties', 'causeOfAction',
     'CauseOfAction', 'claimsMonetary', 'ClaimantMonetaryClaim', 'currency',
-    'Currency', 'claimsCurrency', 'court', 'Court', 'caseStatus', 'CaseStatus', 
-    'riskAssessment', 'RiskAssessment', 'ReportSection', 'uniqueId', 'section', 
+    'Currency', 'claimsCurrency', 'court', 'Court', 'caseStatus', 'CaseStatus',
+    'riskAssessment', 'RiskAssessment', 'ReportSection', 'uniqueId', 'section',
     'externalCounsel', 'ExternalCounsel', 'Category', 'category', 'status', 'Status',
     'AppealNo', 'appealNo', 'OriginalSuitNo', 'originalSuitNo', 'Appellant', 'appellant'
   ];
-  
+
   const additionalDetails = Object.entries(caseItem)
-    .filter(([key, value]) => 
+    .filter(([key, value]) =>
       !excludedKeys.includes(key) &&
       value !== null &&
       value !== undefined &&
@@ -74,9 +74,9 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
     )
     .map(([key, value]) => {
       const isMonetaryValue = key.toLowerCase().includes('monetary') ||
-                            key.toLowerCase().includes('counterclaim') ||
-                            key.toLowerCase().includes('claim');
-      
+        key.toLowerCase().includes('counterclaim') ||
+        key.toLowerCase().includes('claim');
+
       let displayValue = String(value);
       if (isMonetaryValue && typeof value === 'number' && !isNaN(value)) {
         displayValue = `${currency} ${value.toLocaleString('en-NG', {
@@ -89,7 +89,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
           maximumFractionDigits: 2
         });
       }
-      
+
       return {
         key: key.replace(/([A-Z])/g, ' $1').trim().toLowerCase().replace(/^./, str => str.toUpperCase()),
         value: displayValue
@@ -109,7 +109,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
           {risk} Risk
         </span>
       </div>
-      
+
       <div className="case-body">
         <div className="case-grid">
           <div className="case-section">
@@ -120,7 +120,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
                 <div className="field-value">{appealNo}</div>
               </div>
             )}
-             {isValidValue(originalSuitNo) && (
+            {isValidValue(originalSuitNo) && (
               <div className="case-field">
                 <div className="field-label">Original Suit No</div>
                 <div className="field-value">{originalSuitNo}</div>
@@ -157,7 +157,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
               </div>
             )}
           </div>
-          
+
           <div className="case-section">
             <h3>Court Information</h3>
             {court !== 'N/A' && (
@@ -166,7 +166,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
                 <div className="field-value">{court}</div>
               </div>
             )}
-          
+
             {externalCounsel !== 'N/A' && (
               <div className="case-field">
                 <div className="field-label">External Counsel</div>
@@ -181,7 +181,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
 
           </div>
         </div>
-        
+
         {additionalDetails.length > 0 && (
           <div className="additional-details">
             <h3>Additional Details</h3>
@@ -195,7 +195,7 @@ export default function CaseCard({ caseItem, sectionKey }: CaseCardProps) {
             </div>
           </div>
         )}
-        
+
         <div className="case-footer">
           <img src="/law-firm-logo/jackson etti and edu logo.png" alt="Jackson, Etti & Edu" />
           <img src="/client-logo/Ecobank_Logo.svg.png" alt="Ecobank" />

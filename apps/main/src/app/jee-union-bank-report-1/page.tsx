@@ -54,7 +54,7 @@ export default function UnionBankReportPage() {
             {/* Print Control FAB - Fixed relative to viewport */}
             <button
                 onClick={() => window.print()}
-                className="fixed bottom-8 right-8 bg-[#0A1930] text-white p-4 rounded-full shadow-2xl hover:bg-[#C8B273] transition-colors z-[10000] print:hidden flex items-center gap-2 cursor-pointer"
+                className="fixed bottom-8 right-8 bg-[#0A1930] text-white p-4 rounded-full shadow-2xl hover:bg-[#009fe3] transition-colors z-[10000] print:hidden flex items-center gap-2 cursor-pointer"
                 title="Print / Save as PDF"
             >
                 <Printer className="w-6 h-6" />

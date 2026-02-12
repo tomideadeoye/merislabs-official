@@ -17,11 +17,11 @@ export const BackCover = () => {
             </div>
 
             {/* Gold Divider */}
-            <div className="w-16 h-1 bg-[#C8B273] mb-12 relative z-10" />
+            <div className="w-16 h-1 bg-[#009fe3] mb-12 relative z-10" />
 
             {/* Contact Info */}
             <div className="text-center text-white/80 space-y-4 relative z-10 px-12">
-                <p className="font-serif text-2xl font-bold text-[#C8B273]">Jackson, Etti & Edu</p>
+                <p className="font-serif text-2xl font-bold text-[#009fe3]">Jackson, Etti & Edu</p>
                 <div className="text-sm tracking-widest uppercase opacity-60">Legal Excellence | Sector Focus</div>
 
                 <div className="pt-12 space-y-2 text-sm max-w-sm mx-auto">
@@ -29,21 +29,16 @@ export const BackCover = () => {
                     <p>Off Ajose Adeogun, Victoria Island, Lagos</p>
                     <div className="pt-8 space-y-2">
                         <div className="space-y-1">
-                            <p className="text-[#C8B273] font-bold tracking-wider">+234 (1) 462 6841/3</p>
-                            <p className="text-[#C8B273] font-bold tracking-wider">(1) 2806989</p>
+                            <p className="text-[#009fe3] font-bold tracking-wider">+234 (1) 462 6841/3</p>
+                            <p className="text-[#009fe3] font-bold tracking-wider">(1) 2806989</p>
                         </div>
                         <p className="opacity-80 text-[13px] pt-2">jee@jee.africa</p>
-                        <p className="text-[#C8B273] font-bold pt-4 uppercase tracking-widest text-[10px]">www.jee.africa</p>
+                        <p className="text-[#009fe3] font-bold pt-4 uppercase tracking-widest text-[10px]">www.jee.africa</p>
                     </div>
                 </div>
             </div>
 
-            {/* Footer Branding */}
-            <div className="absolute bottom-16 w-full flex flex-col items-center gap-4">
-                <p className="text-[10px] text-white/30 uppercase tracking-[0.4em]">Strictly Private & Confidential</p>
-                <div className="w-8 h-px bg-white/10" />
-                <img src="/MERISLABS-LOGO.png" alt="MerisLabs" className="h-6 opacity-20 grayscale brightness-200" />
-            </div>
+
         </div>
     );
 };
