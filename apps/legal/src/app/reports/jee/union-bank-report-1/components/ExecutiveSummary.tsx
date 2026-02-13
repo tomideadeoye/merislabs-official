@@ -23,7 +23,7 @@ export const ExecutiveSummary = () => {
 
             <div className="prose prose-slate max-w-none relative z-10 flex flex-col gap-6">
                 <p className="text-lg leading-relaxed text-[#211B1B] text-justify">
-                    <span className="text-[#E80000]">Jackson, Etti & Edu</span> was engaged by <strong>Union Bank of Nigeria Plc</strong> ("the Bank") to undertake a comprehensive review and standardisation of its credit and collateral documentation suite.
+                    <span className="text-[#211B1B] font-bold">Jackson, Etti & Edu</span> was engaged by <strong>Union Bank of Nigeria Plc</strong> ("the Bank") to undertake a comprehensive review and standardisation of its credit and collateral documentation suite.
                 </p>
                 <p className="text-justify text-[#211B1B]/80 leading-relaxed text-lg">
                     This exercise was necessitated by the evolving regulatory landscape, recent judicial authorities on banker–customer relationships and enforceability of securities, and Industry best practices within the Nigerian and international banking markets.

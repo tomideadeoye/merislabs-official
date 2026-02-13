@@ -5,17 +5,6 @@ import React from 'react';
 export const CoverPage = () => {
     return (
         <div className="max-w-[210mm] w-full mx-auto bg-[#F9F7ED] shadow-2xl print:shadow-none print:m-0 overflow-hidden h-full relative flex flex-col shrink-0 font-sans">
-            {/* Top Accent Border (JEE Imperial) */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#211B1B] via-[#E80000] to-[#211B1B] z-50 shadow-[0_0_20px_rgba(232,0,0,0.2)]"></div>
-
-            {/* Geometric Corner Accents */}
-            <div className="absolute top-0 left-0 z-5 pointer-events-none">
-                <div className="relative w-48 h-48">
-                    <div className="absolute top-0 left-0 w-32 h-1 bg-gradient-to-r from-[#211B1B] to-[#E80000]"></div>
-                    <div className="absolute top-0 left-0 w-1 h-32 bg-gradient-to-b from-[#211B1B] to-[#E80000]"></div>
-                    <div className="absolute top-8 left-8 w-16 h-16 border-l-2 border-t-2 border-[#E80000]/30"></div>
-                </div>
-            </div>
 
             <div className="absolute bottom-0 right-0 z-5 pointer-events-none">
                 <div className="relative w-48 h-48 translate-y-[-20%]">
@@ -43,6 +32,9 @@ export const CoverPage = () => {
                     />
                 </div>
             </div>
+
+            {/* JEE Imperial Accent Divider */}
+            <div className="h-1 bg-gradient-to-r from-[#211B1B] via-[#E80000] to-[#211B1B] w-full relative z-30 shadow-[0_2px_10px_rgba(232,0,0,0.1)]"></div>
 
             {/* Main Content Area */}
             <div className="flex-1 bg-gradient-to-br from-[#F9F7ED] to-white flex flex-col justify-center items-center p-16 relative overflow-hidden">
@@ -74,10 +66,10 @@ export const CoverPage = () => {
                 <div className="relative z-10 text-center max-w-4xl space-y-12 px-8 flex flex-col items-center">
                     <div className="space-y-8 flex flex-col items-center">
                         <div className="px-6 py-2 bg-[#E80000]/5 border border-[#E80000]/10 rounded-full">
-                            <div className="text-[#211B1B] text-sm font-bold tracking-[0.3em] uppercase italic text-center">Legal Compliance Assessment</div>
+                            <div className="text-[#211B1B] text-sm font-bold tracking-[0.3em] uppercase text-center">Legal Compliance Assessment</div>
                         </div>
 
-                        <h1 className="text-3xl md:text-5xl font-serif font-black text-[#211B1B] leading-tight text-center max-w-5xl mx-auto">
+                        <h1 className="text-4xl font-serif font-black text-[#211B1B] text-center max-w-4xl mx-auto tracking-wide">
                             Report on the Comprehensive Review and Standardisation of Union Bank Plc&apos;s Legal Documentation.
                         </h1>
 
@@ -99,7 +91,7 @@ export const CoverPage = () => {
                 </div>
 
                 <div className="relative z-10 flex flex-col justify-center">
-                    <div className="text-[#E80000] text-[9px] font-black uppercase tracking-[0.5em] mb-2 leading-none">By</div>
+                    <div className="text-[#E80000] text-[9px] font-black uppercase tracking-[0.5em] mb-2 leading-none">Prepared by</div>
                     <div className="text-2xl font-serif font-bold leading-none">JACKSON, ETTI & EDU</div>
                 </div>
 
