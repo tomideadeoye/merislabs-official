@@ -10,6 +10,8 @@ export const TableOfContents = () => {
             label: '2. SCOPE OF WORK',
             page: 4,
             subItems: [
+                { id: 'nature-review', label: '2.1 Nature of the Review', page: 4 },
+                { id: 'docs-reviewed', label: '2.2 Documents Reviewed', page: 4 },
                 { id: 'scope-2.3', label: '2.3 Assumptions & Limitations', page: 5 },
                 { id: 'scope-2.4', label: '2.4 Legal and Regulatory Framework Considered', page: 6 }
             ]
@@ -21,41 +23,41 @@ export const TableOfContents = () => {
             subItems: [
                 { id: 'findings-credit', label: '3.1 Global Credit Templates', page: 7 },
                 { id: 'findings-secured', label: '3.2 Secured Lending Instruments', page: 7 },
-                { id: 'findings-third-party', label: '3.3 Third-Party Support Documents', page: 7 },
-                { id: 'findings-specialized', label: '3.4 Specialized Finance Documentation', page: 7 }
+                { id: 'findings-third-party', label: '3.3 Third-Party Support Documents', page: 8 },
+                { id: 'findings-specialized', label: '3.4 Specialized Finance Documentation', page: 10 }
             ]
         },
         {
             id: 'analysis',
             label: '4. ANALYSIS',
-            page: 8,
+            page: 11,
         },
-        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS', page: 9 },
+        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS', page: 12 },
         {
             id: 'recommendations',
             label: '6. RECOMMENDATIONS',
-            page: 10,
+            page: 13,
             subItems: [
-                { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 10 },
-                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 10 }
+                { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 13 },
+                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 13 },
+                { id: 'roadmap', label: '6.3 Implementation Timelines', page: 14 }
             ]
         },
-        {
-            id: 'roadmap',
-            label: '6.3 Implementation Timelines',
-            page: 11
-        },
-        { id: 'conclusion', label: '7. CONCLUSION', page: 12 }
+        { id: 'conclusion', label: '7. CONCLUSION', page: 15 }
     ];
 
     return (
-        <div className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page min-h-[297mm] relative text-[#0A1930] shrink-0">
-            <div className="toc-header mb-16 text-center">
+        <div className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page relative text-[#0A1930] shrink-0 flex flex-col flex-grow overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
+
+            <div className="toc-header mb-16 text-left relative z-10">
                 <h2 className="text-3xl font-serif font-bold text-[#0A1930] uppercase tracking-wider">Table of Contents</h2>
-                <div className="w-16 h-1 bg-[#009fe3] mx-auto mt-4" />
+                <div className="w-16 h-1 bg-[#009fe3] mt-4" />
             </div>
 
-            <div className="space-y-4 max-w-3xl mx-auto text-sm">
+            <div className="space-y-4 max-w-3xl text-sm">
                 {items.map((item, index) => (
                     <div key={index} className="space-y-3">
                         <a
