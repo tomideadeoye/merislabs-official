@@ -26,7 +26,7 @@ export const Analysis = () => {
                         <CheckCircle2 className="w-24 h-24 text-[#0A1930]" />
                     </div>
                     <h3 className="text-white font-black text-base mb-2 uppercase tracking-wider opacity-80">Outcome</h3>
-                    <p className="text-white text-base leading-relaxed m-0 relative z-10 font-semibold text-justify">
+                    <p className="text-white text-base leading-relaxed m-0 relative z-10  text-justify">
                         The revised suite now constitutes a unified documentation ecosystem that eliminates duplication and drafting inconsistencies, strengthens security creation and enforcement mechanics, enhances clarity in borrower undertakings, and aligns FX exposure provisions with regulatory expectations.
                     </p>
                 </div>

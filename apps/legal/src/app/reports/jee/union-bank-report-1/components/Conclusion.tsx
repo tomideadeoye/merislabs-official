@@ -5,7 +5,7 @@ import { CheckCircle } from 'lucide-react';
 
 export const Conclusion = () => {
     return (
-        <div id="conclusion" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden">
+        <div id="conclusion" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden flex flex-col flex-grow min-h-full">
             {/* Background Pattern */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
@@ -19,7 +19,7 @@ export const Conclusion = () => {
                 </div>
             </div>
 
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col flex-grow">
                 <div className="flex items-center gap-3 mb-8 border-b border-[#009fe3]/30 pb-4 relative z-10">
                     <h2 className="text-3xl font-serif font-bold text-[#0A1930]">7. CONCLUSION</h2>
                 </div>
