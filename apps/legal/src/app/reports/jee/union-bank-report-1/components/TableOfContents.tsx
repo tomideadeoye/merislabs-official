@@ -2,6 +2,14 @@
 
 import React from 'react';
 
+const BackgroundPattern = () => (
+    <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full border-[40px] border-[#E80000]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[60%] aspect-square rounded-full border-[60px] border-[#211B1B]" />
+        <div className="absolute top-[20%] left-[-5%] w-[30%] aspect-square rounded-full border-[2px] border-[#E80000]" />
+    </div>
+);
+
 export const TableOfContents = () => {
     const items = [
         { id: 'summary', label: '1. EXECUTIVE SUMMARY', page: 3 },
@@ -27,58 +35,52 @@ export const TableOfContents = () => {
                 { id: 'findings-specialized', label: '3.4 Specialized Finance Documentation', page: 10 }
             ]
         },
-        {
-            id: 'analysis',
-            label: '4. ANALYSIS',
-            page: 11,
-        },
-        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS', page: 12 },
+        { id: 'analysis', label: '4. ANALYSIS', page: 12 },
+        { id: 'risk-considerations', label: '5. CURRENT RISKS AND MITIGATIONS', page: 13 },
         {
             id: 'recommendations',
             label: '6. RECOMMENDATIONS',
-            page: 13,
+            page: 14,
             subItems: [
-                { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 13 },
-                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 13 },
-                { id: 'roadmap', label: '6.3 Implementation Timelines', page: 14 }
+                { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 14 },
+                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 14 },
+                { id: 'roadmap', label: '6.3 Implementation Timelines', page: 15 }
             ]
         },
-        { id: 'conclusion', label: '7. CONCLUSION', page: 15 }
+        { id: 'conclusion', label: '7. CONCLUSION', page: 16 }
     ];
 
     return (
-        <div className="max-w-[210mm] w-full mx-auto bg-white shadow-2xl p-16 mb-12 print:mb-0 print:shadow-none print:break-after-page relative text-[#0A1930] shrink-0 flex flex-col flex-grow overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
+        <div className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] shrink-0 flex flex-col flex-grow overflow-hidden font-sans">
+            <BackgroundPattern />
 
             <div className="toc-header mb-16 text-left relative z-10">
-                <h2 className="text-3xl font-serif font-bold text-[#0A1930] uppercase tracking-wider">Table of Contents</h2>
-                <div className="w-16 h-1 bg-[#009fe3] mt-4" />
+                <h2 className="text-4xl font-serif font-black text-[#211B1B] uppercase tracking-tighter">Table of Contents</h2>
+                <div className="w-24 h-1 bg-[#E80000] mt-4" />
             </div>
 
-            <div className="space-y-4 max-w-3xl text-sm">
+            <div className="space-y-8 max-w-4xl relative z-10">
                 {items.map((item, index) => (
-                    <div key={index} className="space-y-3">
+                    <div key={index} className="space-y-4">
                         <a
                             href={`#${item.id}`}
-                            className="flex items-baseline gap-4 group cursor-pointer hover:text-[#009fe3] transition-all no-underline"
+                            className="flex items-baseline group cursor-pointer hover:text-[#E80000] transition-all no-underline w-full"
                             onClick={(e) => {
                                 e.preventDefault();
                                 document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
                             }}
                         >
-                            <span className="font-serif font-bold text-base text-[#0A1930] group-hover:text-[#009fe3] whitespace-nowrap min-w-[340px] uppercase tracking-tight">
+                            <span className="font-serif font-black text-lg text-[#211B1B] group-hover:text-[#E80000] uppercase pr-4">
                                 {item.label}
                             </span>
-                            <div className="flex-grow border-b border-dotted border-gray-300 relative bottom-[6px]" />
-                            <span className="font-serif font-bold text-[#009fe3] text-lg min-w-[20px] text-right">
+                            <div className="flex-1 border-b-2 border-dotted border-[#211B1B]/10 relative bottom-[6px]" />
+                            <span className="font-serif font-black text-[#E80000] text-xl w-10 text-right ml-4">
                                 {item.page}
                             </span>
                         </a>
 
                         {item.subItems && (
-                            <div className="ml-8 space-y-2 pb-2">
+                            <div className="space-y-4 pb-4">
                                 {item.subItems.map((sub, sIdx) => (
                                     <a
                                         key={sIdx}
@@ -87,13 +89,15 @@ export const TableOfContents = () => {
                                             e.preventDefault();
                                             document.getElementById(sub.id)?.scrollIntoView({ behavior: 'smooth' });
                                         }}
-                                        className="flex items-baseline gap-4 opacity-70 hover:opacity-100 hover:text-[#009fe3] transition-all no-underline group/sub"
+                                        className="flex items-baseline opacity-80 hover:opacity-100 hover:text-[#E80000] transition-all no-underline group/sub w-full"
                                     >
-                                        <span className="font-sans text-xs text-[#0A1930] group-hover/sub:text-[#009fe3] whitespace-nowrap min-w-[300px]">
-                                            {sub.label}
-                                        </span>
-                                        <div className="flex-grow border-b border-dotted border-gray-200 relative bottom-[4px]" />
-                                        <span className="font-sans font-medium text-gray-500 text-xs min-w-[20px] text-right italic group-hover/sub:text-[#009fe3]">
+                                        <div className="pl-12 flex items-baseline flex-1">
+                                            <span className="font-sans text-sm font-bold text-[#211B1B] group-hover/sub:text-[#E80000] pr-4">
+                                                {sub.label}
+                                            </span>
+                                            <div className="flex-1 border-b border-dotted border-[#211B1B]/10 relative bottom-[4px]" />
+                                        </div>
+                                        <span className="font-sans font-black text-[#211B1B]/40 text-sm w-10 text-right ml-4 group-hover/sub:text-[#E80000]">
                                             {sub.page}
                                         </span>
                                     </a>
@@ -104,11 +108,8 @@ export const TableOfContents = () => {
                 ))}
             </div>
 
-            {/* Subtle branding for the TOC page */}
-            <div className="absolute bottom-16 left-16 right-16 flex justify-between items-center border-t border-gray-100 pt-8 opacity-40 no-justify">
-                <span className="text-[10px] uppercase tracking-widest no-justify">Legal Documentation Suite</span>
-                <img src="/union-bank/logo.png" alt="Union Bank" className="h-4 grayscale" />
-            </div>
+
+
         </div>
     );
 };

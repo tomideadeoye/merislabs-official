@@ -7,7 +7,7 @@ interface Finding {
     outcome: React.ReactNode;
 }
 
-// Page 1: 3 long entries (BOI, All Asset Debenture, Overdraft)
+// Page 1: BOI + All Asset Debenture
 const findingsPage1: Finding[] = [
     {
         document: "BOI Facility Agreement",
@@ -35,6 +35,10 @@ const findingsPage1: Finding[] = [
             </div>
         )
     },
+];
+
+// Page 2: Overdraft + Personal Guarantee + General Indemnity
+const findingsPage2: Finding[] = [
     {
         document: "Overdraft Agreements",
         outcome: (
@@ -50,10 +54,6 @@ const findingsPage1: Finding[] = [
             </div>
         )
     },
-];
-
-// Page 2: 5 shorter/medium entries
-const findingsPage2: Finding[] = [
     {
         document: "Personal Guarantee",
         outcome: "The Personal Guarantee template did not require material amendments. However, minor drafting refinements and technical comments were provided for the Bank's consideration to enhance clarity, consistency with the revised facility documentation suite, and overall enforceability."
@@ -62,6 +62,10 @@ const findingsPage2: Finding[] = [
         document: "General Indemnity",
         outcome: "The General Indemnity documentation was reviewed and updated to ensure full alignment with the CBN Consumer Protection Regulations and the CBN Guide to Charges for Banks and Other Financial Institutions (OFIs). The revisions focused on regulatory compliance, transparency of obligations, and clarity in the scope of indemnified liabilities, thereby strengthening enforceability while maintaining fairness in contractual allocation of risk."
     },
+];
+
+// Page 3: FX Trade + Letter of Consent + Letter of Hypothecation
+const findingsPage3: Finding[] = [
     {
         document: "FX Trade Master Agreement",
         outcome: "The FX Trade Master Agreement did not require substantive amendments. Minor drafting comments and technical refinements were provided to improve internal consistency, enhance clarity of obligations, and ensure continued alignment with applicable FX regulatory guidelines and market practice."
@@ -81,8 +85,8 @@ const findingsPage2: Finding[] = [
     },
 ];
 
-// Page 3: 2 long entries
-const findingsPage3: Finding[] = [
+// Page 4: Irrevocable Undertaking + Letter of Domiciliation
+const findingsPage4: Finding[] = [
     {
         document: "Irrevocable Undertaking for Domiciliation of Sales Proceeds",
         outcome: (
@@ -103,8 +107,8 @@ const findingsPage3: Finding[] = [
     },
 ];
 
-// Page 4: 2 entries
-const findingsPage4: Finding[] = [
+// Page 5: Bid Bond + Offer Letters
+const findingsPage5: Finding[] = [
     {
         document: "Bid Bond",
         outcome: (
@@ -126,22 +130,30 @@ const findingsPage4: Finding[] = [
     }
 ];
 
+const BackgroundPattern = () => (
+    <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full border-[40px] border-[#E80000]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[60%] aspect-square rounded-full border-[60px] border-[#211B1B]" />
+        <div className="absolute top-[20%] left-[-5%] w-[30%] aspect-square rounded-full border-[2px] border-[#E80000]" />
+    </div>
+);
+
 const FindingsTable = ({ findings, startIndex = 0 }: { findings: Finding[]; startIndex?: number }) => (
-    <div className="overflow-hidden rounded-lg border border-gray-200 not-prose relative z-10">
+    <div className="overflow-hidden rounded-xl border border-[#211B1B]/10 not-prose relative z-10 shadow-sm bg-white">
         <table className="w-full text-xs text-left border-collapse">
-            <thead className="bg-[#0A1930] text-white">
+            <thead className="bg-[#211B1B] text-white">
                 <tr>
-                    <th className="p-3 w-[25%] border-r border-[#009fe3]/20">Document</th>
-                    <th className="p-3">Review Outcome</th>
+                    <th className="p-4 w-[28%] border-r border-white/10 uppercase tracking-[0.1em] font-black text-[10px]">Document Category</th>
+                    <th className="p-4 uppercase tracking-[0.1em] font-black text-[10px]">Review Outcome</th>
                 </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[#211B1B]/5">
                 {findings.map((finding, index) => (
-                    <tr key={index} className={(startIndex + index) % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
-                        <td className="p-3 font-bold text-[#0A1930] border-r border-gray-100 align-top">
+                    <tr key={index} className={(startIndex + index) % 2 === 0 ? "bg-white" : "bg-[#F9F7ED]/30"}>
+                        <td className="p-4 font-black text-[#211B1B] border-r border-[#211B1B]/5 align-top text-sm uppercase tracking-tight">
                             {finding.document}
                         </td>
-                        <td className="p-3 text-gray-700 leading-relaxed text-justify">
+                        <td className="p-4 text-[#211B1B]/80 leading-relaxed text-justify text-[13px] font-medium">
                             {finding.outcome}
                         </td>
                     </tr>
@@ -151,22 +163,25 @@ const FindingsTable = ({ findings, startIndex = 0 }: { findings: Finding[]; star
     </div>
 );
 
+const SectionHeader = ({ id, hasSubtitle = false }: { id?: string; hasSubtitle?: boolean }) => (
+    <div className="flex items-center gap-4 mb-8 border-b-2 border-[#E80000]/20 pb-4 relative z-10">
+        <span className="text-4xl font-serif font-black text-[#E80000] opacity-20">03</span>
+        <h2 id={id} className={`${hasSubtitle ? 'text-3xl' : 'text-xl'} font-serif font-black text-[#211B1B] uppercase scroll-mt-20 no-justify`}>
+            KEY DOCUMENT REVIEW OUTCOMES
+        </h2>
+    </div>
+);
+
 export const KeyFindingsPage1 = () => {
     return (
-        <div id="findings" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden flex-grow">
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
+        <div id="findings-1" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+            <BackgroundPattern />
 
-            <div className="flex items-center gap-3 mb-6 border-b border-[#009fe3]/30 pb-4 relative z-10">
-                <h2 id="findings-credit" className="text-3xl font-serif font-bold text-[#0A1930] scroll-mt-20">
-                    <span id="findings-secured" className="absolute -top-20"></span>
-                    3. KEY DOCUMENT REVIEW OUTCOMES
-                </h2>
-            </div>
+            <SectionHeader id="findings-credit" hasSubtitle={true} />
+            <span id="findings-secured" className="absolute top-0"></span>
 
-            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] mb-6 relative z-10">
-                <p>
+            <div className="mb-8 relative z-10">
+                <p className="text-lg text-[#211B1B]/60 font-medium italic">
                     Below is a summary of material revisions and enhancements made across the documentation suite:
                 </p>
             </div>
@@ -178,48 +193,40 @@ export const KeyFindingsPage1 = () => {
 
 export const KeyFindingsPage2 = () => {
     return (
-        <div className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden flex-grow">
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
-
-            <div className="flex items-center gap-3 mb-6 border-b border-[#009fe3]/30 pb-4 relative z-10">
-                <h2 id="findings-third-party" className="text-xl font-serif font-bold text-[#0A1930] scroll-mt-20">3. KEY DOCUMENT REVIEW OUTCOMES <span className="text-sm font-normal text-gray-400">(continued)</span></h2>
-            </div>
-
-            <FindingsTable findings={findingsPage2} startIndex={3} />
+        <div id="findings-2" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
+            <BackgroundPattern />
+            <SectionHeader id="third-party" />
+            <FindingsTable findings={findingsPage2} startIndex={2} />
         </div>
     );
 };
 
 export const KeyFindingsPage3 = () => {
     return (
-        <div className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden flex-grow">
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
-
-            <div className="flex items-center gap-3 mb-6 border-b border-[#009fe3]/30 pb-4 relative z-10">
-                <h2 className="text-xl font-serif font-bold text-[#0A1930]">3. KEY DOCUMENT REVIEW OUTCOMES <span className="text-sm font-normal text-gray-400">(continued)</span></h2>
-            </div>
-
-            <FindingsTable findings={findingsPage3} startIndex={8} />
+        <div id="findings-3" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
+            <BackgroundPattern />
+            <SectionHeader />
+            <FindingsTable findings={findingsPage3} startIndex={5} />
         </div>
     );
 };
 
 export const KeyFindingsPage4 = () => {
     return (
-        <div className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden flex-grow">
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
+        <div id="findings-4" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
+            <BackgroundPattern />
+            <SectionHeader />
+            <FindingsTable findings={findingsPage4} startIndex={8} />
+        </div>
+    );
+};
 
-            <div className="flex items-center gap-3 mb-6 border-b border-[#009fe3]/30 pb-4 relative z-10">
-                <h2 id="findings-specialized" className="text-xl font-serif font-bold text-[#0A1930] scroll-mt-20">3. KEY DOCUMENT REVIEW OUTCOMES <span className="text-sm font-normal text-gray-400">(continued)</span></h2>
-            </div>
-
-            <FindingsTable findings={findingsPage4} startIndex={10} />
+export const KeyFindingsPage5 = () => {
+    return (
+        <div id="findings-5" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
+            <BackgroundPattern />
+            <SectionHeader id="findings-specialized" />
+            <FindingsTable findings={findingsPage5} startIndex={10} />
         </div>
     );
 };

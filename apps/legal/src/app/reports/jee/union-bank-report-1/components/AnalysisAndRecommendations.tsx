@@ -3,57 +3,63 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
+const BackgroundPattern = () => (
+    <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full border-[40px] border-[#E80000]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[60%] aspect-square rounded-full border-[60px] border-[#211B1B]" />
+        <div className="absolute top-[20%] left-[-5%] w-[30%] aspect-square rounded-full border-[2px] border-[#E80000]" />
+    </div>
+);
+
 export const Analysis = () => {
     return (
-        <div id="analysis" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden flex-grow">
+        <div id="analysis" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+            <BackgroundPattern />
 
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
-
-            <div className="flex items-center gap-3 mb-8 border-b-2 border-[#009fe3] pb-4 relative z-10">
-                <h2 className="text-3xl font-serif font-bold text-[#0A1930]">4. ANALYSIS</h2>
+            <div className="flex items-center gap-4 mb-8 border-b-2 border-[#E80000]/20 pb-4 relative z-10">
+                <span className="text-4xl font-serif font-black text-[#E80000] opacity-20">04</span>
+                <h2 className="text-3xl font-serif font-black text-[#211B1B] uppercase no-justify">ANALYSIS</h2>
             </div>
 
-            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] relative z-10 text-justify">
-                <p className="text-base leading-relaxed text-slate-700 text-justify">
-                    The amendments were necessitated by evolving regulatory directives, changes in jurisprudence regarding banker-customer contracts, the Bank&apos;s post-merger documentation harmonisation needs, and emerging risks in credit operations, FX markets, and collateral enforcement.
+            <div className="relative z-10 space-y-8 flex flex-col">
+                <p className="text-lg leading-relaxed text-[#211B1B]/80 text-justify">
+                    The amendments were necessitated by evolving regulatory directives, changes in jurisprudence regarding banker-customer contracts, the Bank's post-merger documentation harmonisation needs, and emerging risks in credit operations, FX markets, and collateral enforcement.
                 </p>
 
-                {/* Highlight Box - Inverted Colors */}
-                <div className="my-8 p-6 bg-[#009fe3] text-white rounded-xl shadow-lg border-l-8 border-[#0A1930] relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <CheckCircle2 className="w-24 h-24 text-[#0A1930]" />
+                {/* Highlight Box - JEE Implementation */}
+                <div className="my-8 p-10 bg-[#211B1B] text-white rounded-2xl shadow-2xl border-l-[12px] border-[#E80000] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <CheckCircle2 className="w-32 h-32 text-white" />
                     </div>
-                    <h3 className="text-white font-black text-base mb-2 uppercase tracking-wider opacity-80">Outcome</h3>
-                    <p className="text-white text-base leading-relaxed m-0 relative z-10  text-justify">
-                        The revised suite now constitutes a unified documentation ecosystem that eliminates duplication and drafting inconsistencies, strengthens security creation and enforcement mechanics, enhances clarity in borrower undertakings, and aligns FX exposure provisions with regulatory expectations.
-                    </p>
+                    <div className="relative z-10">
+                        <h3 className="text-white font-black text-xs mb-6 uppercase tracking-wider border-b border-white/10 pb-2 w-fit">
+                            Review Outcome
+                        </h3>
+                        <p className="text-white text-lg leading-relaxed m-0 text-justify">
+                            The revised suite now constitutes a unified documentation ecosystem that eliminates duplication and drafting inconsistencies, strengthens security creation and enforcement mechanics, enhances clarity in borrower undertakings, and aligns FX exposure provisions with regulatory expectations.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="mt-8">
-                    <p className="font-bold text-[#0A1930] text-lg mb-5 flex items-center gap-2">
-                        <span className="w-2 h-8 bg-[#009fe3] rounded-full inline-block"></span>
-                        The documentation now materially complies with:
-                    </p>
-
-                    <div className="space-y-4 not-prose">
-                        {[
-                            { letter: 'A', text: 'CBN prudential and consumer-protection directives' },
-                            { letter: 'B', text: 'LMA standards' },
-                            { letter: 'C', text: 'NFIU documentation standards for financial institutions' },
-                            { letter: 'D', text: 'Judicial standards requiring fairness of terms and clarity in loan transactions' }
-                        ].map((item, index) => (
-                            <div key={index} className="p-4 bg-white border border-slate-200 rounded-lg group hover:border-[#0A1930]/30 hover:shadow-md transition-all duration-300">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-2 bg-[#0A1930] rounded-lg w-10 h-10 flex items-center justify-center shrink-0 border border-[#0A1930]/20">
-                                        <span className="font-serif font-bold text-lg text-white">{item.letter}</span>
-                                    </div>
-                                    <p className="text-[15px] font-medium text-[#0A1930] leading-tight">{item.text}</p>
-                                </div>
-                            </div>
-                        ))}
+                <div className="mt-8 flex flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-1 bg-[#E80000]"></div>
+                        <p className="font-black text-[#211B1B] text-xs uppercase tracking-[0.3em]">Compliance Benchmarks Met</p>
                     </div>
+
+                    <ul className="space-y-3 list-none pl-0">
+                        {[
+                            'CBN Prudential and Consumer-Protection Directives',
+                            'LMA International Standards',
+                            'NFIU Documentation Standards',
+                            'Judicial Standards on Fairness and Clarity'
+                        ].map((item, index) => (
+                            <li key={index} className="flex items-start gap-4">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#E80000] mt-2 shrink-0"></div>
+                                <span className="text-[15px] font-bold text-[#211B1B]/80 leading-relaxed">{item}</span>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             </div>
         </div>
