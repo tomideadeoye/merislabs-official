@@ -69,9 +69,9 @@ export const ScopeOfWork = () => {
                             <h4 className="font-bold text-sm text-[#009fe3] uppercase mb-4 tracking-wide border-b border-[#009fe3]/20 pb-2">(A) Statutory and Regulatory Authorities</h4>
                             <ul className="text-sm space-y-3 text-[#0A1930] list-none pl-0">
                                 {[
-                                    "Nigeria Tax Act, 2025",
-                                    "Companies and Allied Matters Act (CAMA), 2020",
-                                    "Banks and Other Financial Institutions Act (BOFIA), 2020"
+                                    "Nigeria Tax Act 2025",
+                                    "Companies and Allied Matters Act (CAMA) 2020",
+                                    "Banks and Other Financial Institutions Act (BOFIA) 2020"
                                 ].map((doc, idx) => (
                                     <li key={idx} className="flex items-center gap-3 group">
                                         <span className="w-1.5 h-1.5 rounded-full bg-[#009fe3] shadow-[0_0_8px_rgba(0,159,227,0.5)] shrink-0"></span>
@@ -96,7 +96,7 @@ export const ScopeOfWork = () => {
                                         rel="noopener noreferrer"
                                         className="hover:text-[#009fe3] transition-colors flex items-center gap-2 font-medium"
                                     >
-                                        CBN Prudential Guidelines for Deposit Money Banks in Nigeria, 2019
+                                        CBN Prudential Guidelines for Deposit Money Banks in Nigeria 2019
                                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </a>
                                 </li>
@@ -108,7 +108,7 @@ export const ScopeOfWork = () => {
                                         rel="noopener noreferrer"
                                         className="hover:text-[#009fe3] transition-colors flex items-center gap-2 font-medium"
                                     >
-                                        CBN Customer Protection Regulations, 2019
+                                        CBN Customer Protection Regulations 2019
                                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </a>
                                 </li>
@@ -120,7 +120,7 @@ export const ScopeOfWork = () => {
                                         rel="noopener noreferrer"
                                         className="hover:text-[#009fe3] transition-colors flex items-center gap-2 font-medium"
                                     >
-                                        CBN Trade and Exchange Department FX Manual, 2018
+                                        CBN Trade and Exchange Department FX Manual 2018
                                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </a>
                                 </li>
@@ -132,7 +132,7 @@ export const ScopeOfWork = () => {
                                         rel="noopener noreferrer"
                                         className="hover:text-[#009fe3] transition-colors flex items-center gap-2 font-medium"
                                     >
-                                        CBN Guide to Charges by Banks, other Financial and Non-Bank Financial Institutions, 2019
+                                        CBN Guide to Charges by Banks other Financial and Non-Bank Financial Institutions 2019
                                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </a>
                                 </li>
@@ -144,7 +144,7 @@ export const ScopeOfWork = () => {
                                         rel="noopener noreferrer"
                                         className="hover:text-[#009fe3] transition-colors flex items-center gap-2 font-medium"
                                     >
-                                        CBN Letter to All Banks – New Offer Letter Clause for Credit Facilities, 2019
+                                        CBN Letter to All Banks – New Offer Letter Clause for Credit Facilities 2019
                                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </a>
                                 </li>
@@ -156,7 +156,7 @@ export const ScopeOfWork = () => {
                                         rel="noopener noreferrer"
                                         className="hover:text-[#009fe3] transition-colors flex items-center gap-2 font-medium"
                                     >
-                                        CBN (Anti Money Laundering, Combating the Financing of Terrorism and Countering Proliferation Financing of Weapons of Mass Destruction in Financial Institutions) Regulations, 2022
+                                        CBN (Anti Money Laundering Combating the Financing of Terrorism and Countering Proliferation Financing of Weapons of Mass Destruction in Financial Institutions) Regulations 2022
                                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </a>
                                 </li>
@@ -170,9 +170,9 @@ export const ScopeOfWork = () => {
                                 <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(II)</span> <span>First Bank v. Pan Bisbilder (1990) 2 NWLR (Pt. 134) 647 C.A</span></li>
                                 <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(III)</span> <span>F.B.N. (Nig.) Ltd. v. Osunsedo (1997) 11 NWLR (Pt. 527) 132 C.A</span></li>
                                 <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(IV)</span> <span>Thor Ltd v. FCMB Ltd (2005) LPELR-3242 (SC)</span></li>
-                                <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(V)</span> <span>Owena Mass Transportation Co. Ltd v. Enterprise Bank (2014) LPELR-22100 (CA);</span></li>
+                                <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(V)</span> <span>Owena Mass Transportation Co. Ltd v. Enterprise Bank (2014) LPELR-22100 (CA)</span></li>
                                 <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(VI)</span> <span>Everly United Associates Ltd. & Anor v FBN LTD. (2025) LPELR- 81736 (CA)</span></li>
-                                <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(VII)</span> <span>First Bank v. Pan Bisbilder (1990) 2 NWLR (Pt. 134) 647 C.A,</span></li>
+                                <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(VII)</span> <span>First Bank v. Pan Bisbilder (1990) 2 NWLR (Pt. 134) 647 C.A</span></li>
                             </ul>
                         </div>
                     </div>

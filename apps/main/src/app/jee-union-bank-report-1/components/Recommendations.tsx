@@ -6,8 +6,8 @@ import { ImplementationRoadmap } from './ImplementationRoadmap';
 
 export const Recommendations = () => {
     return (
-        <>
-            <div id="recommendations" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden">
+        <div className="flex flex-col flex-grow">
+            <div id="recommendations" className="max-w-[210mm] w-full mx-auto bg-white p-16 relative text-[#0A1930] overflow-hidden flex-grow">
                 {/* Background Pattern */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
@@ -63,17 +63,6 @@ export const Recommendations = () => {
                     </div>
                 </div>
             </div>
-
-            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify font-sans relative z-10">
-                <h3 className="text-xl font-bold mb-4 text-[#0A1930] scroll-mt-20">6.3. Implementation Timelines</h3>
-                <p className="mb-8">
-                    We recommend the following phased implementation approach:
-                </p>
-
-                <ImplementationRoadmap />
-
-
-            </div>
-        </>
+        </div>
     );
 };

@@ -16,18 +16,19 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
 }) => {
     return (
         <div
-            className={`relative ${isCover || isBackCover ? 'page-break-avoid' : ''}`}
+            className={`relative page-wrapper ${isCover || isBackCover ? 'page-break-avoid' : ''}`}
             style={{
                 width: '210mm',
-                minHeight: '297mm',
+                height: '297mm',
+                maxHeight: '297mm',
                 backgroundColor: 'white',
                 display: 'flex',
                 flexDirection: 'column',
-                ...(isCover || isBackCover ? {} : { pageBreakAfter: 'always' })
+                overflow: 'hidden',
             }}
         >
             {/* Content area - leaving space at the bottom for footer */}
-            <div className="flex-grow" style={{ paddingBottom: '80px' }}>
+            <div className="flex-grow flex flex-col" style={{ paddingBottom: isCover || isBackCover ? '0' : '80px' }}>
                 {children}
             </div>
 
