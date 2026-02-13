@@ -32,7 +32,7 @@ export const TableOfContents = () => {
                 { id: 'findings-credit', label: '3.1 Global Credit Templates', page: 7 },
                 { id: 'findings-secured', label: '3.2 Secured Lending Instruments', page: 7 },
                 { id: 'findings-third-party', label: '3.3 Third-Party Support Documents', page: 8 },
-                { id: 'findings-specialized', label: '3.4 Specialized Finance Documentation', page: 10 }
+                { id: 'findings-specialized', label: '3.4 Specialized Finance Documentation', page: 11 }
             ]
         },
         { id: 'analysis', label: '4. ANALYSIS', page: 12 },
@@ -43,7 +43,7 @@ export const TableOfContents = () => {
             page: 14,
             subItems: [
                 { id: 'recom-short', label: '6.1 Governance and Sustainability Measures', page: 14 },
-                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 14 },
+                { id: 'recom-strategic', label: '6.2 Risk Mitigation and Compliance', page: 15 },
                 { id: 'roadmap', label: '6.3 Implementation Timelines', page: 15 }
             ]
         },

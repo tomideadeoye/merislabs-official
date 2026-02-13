@@ -19,6 +19,10 @@ import { PageWrapper } from './components/PageWrapper';
 export default function UnionBankReportPage() {
     const [currentPage, setCurrentPage] = useState(1);
 
+    useEffect(() => {
+        document.title = "JEE - Union Bank Documentation Review Report - 2026";
+    }, []);
+
     return (
         <div className="fixed inset-0 z-[9999] bg-slate-100 overflow-y-auto print:static print:bg-white print:overflow-visible">
             <style dangerouslySetInnerHTML={{

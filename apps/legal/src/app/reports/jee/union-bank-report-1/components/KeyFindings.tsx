@@ -174,7 +174,7 @@ const SectionHeader = ({ id, hasSubtitle = false }: { id?: string; hasSubtitle?:
 
 export const KeyFindingsPage1 = () => {
     return (
-        <div id="findings-1" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+        <div id="findings" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
             <BackgroundPattern />
 
             <SectionHeader id="findings-credit" hasSubtitle={true} />
@@ -195,7 +195,7 @@ export const KeyFindingsPage2 = () => {
     return (
         <div id="findings-2" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
             <BackgroundPattern />
-            <SectionHeader id="third-party" />
+            <SectionHeader id="findings-third-party" />
             <FindingsTable findings={findingsPage2} startIndex={2} />
         </div>
     );

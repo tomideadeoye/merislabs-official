@@ -23,14 +23,14 @@ export const ScopeOfWork = () => {
 
             <div className="prose prose-slate max-w-none relative z-10 flex flex-col gap-8">
                 <div>
-                    <h3 className="text-xl font-black text-[#211B1B] mb-4 uppercase">2.1. Nature of the Review</h3>
+                    <h3 id="nature-review" className="text-xl font-black text-[#211B1B] mb-4 uppercase scroll-mt-20">2.1. Nature of the Review</h3>
                     <p className="text-justify text-[#211B1B]/80 leading-relaxed text-lg">
                         The Firm conducted a full-scale review and standardisation of the Bank's facility and ancillary documentation. The process included clause-by-clause legal analysis, gap identification and risk mapping, regulatory compliance assessment, judicial enforceability review, benchmarking against LMA and industry standards, and harmonisation of definitions, representations, undertakings and enforcement provisions.
                     </p>
                 </div>
 
                 <div>
-                    <h3 className="text-xl font-black text-[#211B1B] mb-4 uppercase">2.2. Documents Reviewed</h3>
+                    <h3 id="docs-reviewed" className="text-xl font-black text-[#211B1B] mb-4 uppercase scroll-mt-20">2.2. Documents Reviewed</h3>
                     <p className="text-justify text-[#211B1B]/80 leading-relaxed text-lg mb-6">
                         A total of twenty-four (24) documents were reviewed, including multiple variants. These comprised:
                     </p>
@@ -75,7 +75,7 @@ export const ScopeOfWork = () => {
 
 export const ScopeAssumptions = () => {
     return (
-        <div id="scope-assumptions" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
+        <div id="scope-2.3" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
             <BackgroundPattern />
 
             <div className="prose prose-slate max-w-none relative z-10">
@@ -112,7 +112,7 @@ export const ScopeAssumptions = () => {
 
 export const ScopeFramework = () => {
     return (
-        <div id="scope-framework" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
+        <div id="scope-2.4" className="max-w-[210mm] w-full mx-auto bg-transparent p-16 relative text-[#211B1B] overflow-hidden flex flex-col flex-grow font-sans">
             <BackgroundPattern />
 
             <div className="prose prose-slate max-w-none relative z-10">
