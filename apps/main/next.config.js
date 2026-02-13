@@ -70,6 +70,17 @@ const nextConfig = {
 
   // Enable compression
   compress: true,
+
+  // Redirects
+  async redirects() {
+    return [
+      {
+        source: '/jee-union-bank-report-1',
+        destination: 'https://legal.merislabs.com/reports/jee/union-bank-report-1',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
