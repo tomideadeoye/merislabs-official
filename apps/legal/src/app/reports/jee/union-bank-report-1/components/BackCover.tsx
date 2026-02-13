@@ -51,11 +51,18 @@ export const BackCover = () => {
                     <p>Off Ajose Adeogun, Victoria Island, Lagos</p>
                     <div className="pt-8 space-y-2">
                         <div className="space-y-1">
-                            <p className="text-[#009fe3] font-bold tracking-wider">+234 (1) 462 6841/3</p>
-                            <p className="text-[#009fe3] font-bold tracking-wider">(1) 2806989</p>
+                            <a href="tel:+23414626841" className="text-[#009fe3] font-bold tracking-wider hover:underline block">+234 (1) 462 6841/3</a>
+                            <a href="tel:+23412806989" className="text-[#009fe3] font-bold tracking-wider hover:underline block">(1) 2806989</a>
                         </div>
-                        <p className="opacity-80 text-[13px] pt-2">jee@jee.africa</p>
-                        <p className="text-[#009fe3] font-bold pt-4 uppercase tracking-widest text-[10px]">www.jee.africa</p>
+                        <a href="mailto:jee@jee.africa" className="opacity-80 text-[13px] pt-2 block hover:text-[#009fe3] transition-colors font-medium">jee@jee.africa</a>
+                        <a
+                            href="https://jee.africa"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#009fe3] font-bold pt-4 uppercase tracking-widest text-[10px] block hover:underline"
+                        >
+                            www.jee.africa
+                        </a>
                     </div>
                 </div>
             </div>

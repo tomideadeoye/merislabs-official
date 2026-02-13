@@ -14,6 +14,7 @@ import { Recommendations } from './components/Recommendations';
 import { ImplementationRoadmap } from './components/ImplementationRoadmap';
 import { Conclusion } from './components/Conclusion';
 import { BackCover } from './components/BackCover';
+import { DownloadControls } from './components/DownloadControls';
 
 export default function UnionBankReportPage() {
     const [currentPage, setCurrentPage] = useState(1);
@@ -77,15 +78,8 @@ export default function UnionBankReportPage() {
                 }
             ` }} />
 
-            {/* Print Control FAB - Fixed relative to viewport */}
-            <button
-                onClick={() => window.print()}
-                className="fixed bottom-8 right-8 bg-[#0A1930] text-white p-4 rounded-full shadow-2xl hover:bg-[#009fe3] transition-colors z-[10000] print:hidden flex items-center gap-2 cursor-pointer no-print"
-                title="Print / Save as PDF"
-            >
-                <Printer className="w-6 h-6" />
-                <span className="font-bold pr-2">Print Dossier</span>
-            </button>
+            {/* Premium Download Control Suite */}
+            <DownloadControls />
 
             {/* Scrollable Content Container */}
             <div className="min-h-full w-full flex flex-col items-center pt-0 px-8 pb-20 print:p-0 print:m-0 print:block print:bg-white">
