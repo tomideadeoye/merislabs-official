@@ -20,7 +20,7 @@ export const CoverPage = () => {
                     <img
                         src="/union-bank/logo.png"
                         alt="Union Bank"
-                        className="h-14 w-auto object-contain"
+                        className="h-16 w-auto object-contain"
                     />
                 </div>
 
