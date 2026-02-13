@@ -14,13 +14,13 @@ export default function LandingPage() {
                 {/* Navigation */}
                 <nav className="relative z-10 flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                            </svg>
-                        </div>
-                        <span className="text-xl font-bold text-white">
-                            MerisLabs <span className="text-blue-400">Legal</span>
+                        <img
+                            src="/images/merislabswhite.png"
+                            alt="MerisLabs"
+                            className="h-10 w-auto"
+                        />
+                        <span className="text-xl font-bold text-white border-l border-white/20 pl-3">
+                            Legal
                         </span>
                     </div>
 
@@ -55,14 +55,11 @@ export default function LandingPage() {
                         </p>
 
                         <div className="flex flex-wrap gap-4">
-                            <Link href="/audit" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-lg font-semibold transition-all shadow-xl shadow-blue-600/30 flex items-center gap-2">
-                                Explore Demo
+                            <a href="mailto:tomide@merislabs.com" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-lg font-semibold transition-all shadow-xl shadow-blue-600/30 flex items-center gap-2">
+                                Request Access
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
-                            </Link>
-                            <a href="mailto:tomideadeoye@gmail.com" className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-lg font-semibold transition-all flex items-center gap-2">
-                                Request Access
                             </a>
                         </div>
                     </div>
@@ -117,7 +114,7 @@ export default function LandingPage() {
                                     </li>
                                 </ul>
 
-                                <a href="mailto:tomideadeoye@gmail.com" className="inline-flex items-center gap-2 text-purple-400 font-semibold hover:text-purple-300 transition-colors">
+                                <a href="mailto:tomide@merislabs.com" className="inline-flex items-center gap-2 text-purple-400 font-semibold hover:text-purple-300 transition-colors">
                                     Partner with us
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -207,7 +204,7 @@ export default function LandingPage() {
                                         <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
-                                        SCOUT compliance tracking tool
+                                        Compliance tracking tool
                                     </li>
                                 </ul>
 
@@ -223,27 +220,19 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* About Section */}
-            <section id="about" className="py-24 px-8">
+            {/* Contact CTA Section */}
+            <section id="contact" className="py-24 px-8 border-t border-slate-800">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Built by Practitioners</h2>
-                    <p className="text-lg text-slate-400 leading-relaxed mb-8">
-                        MerisLabs Legal is built by <strong className="text-white">Tomide Adeoye</strong>—a Barrister and Solicitor of the
-                        Supreme Court of Nigeria with 5+ years of experience in software engineering. This unique combination
-                        of legal domain expertise and technical capability allows us to build tools that actually solve
-                        problems faced by legal departments.
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to transform your legal infrastructure?</h2>
+                    <p className="text-lg text-slate-400 mb-12">
+                        Get in touch to learn how MerisLabs can help your institution build digital-first legal and compliance frameworks.
                     </p>
-                    <p className="text-lg text-slate-400 leading-relaxed mb-12">
-                        We've delivered solutions for top-tier Nigerian law firms and multinational institutions.
-                        Our approach: understand the workflow first, then build technology that fits.
-                    </p>
-
                     <div className="flex flex-wrap justify-center gap-6">
-                        <a href="mailto:tomideadeoye@gmail.com" className="px-8 py-4 bg-white text-slate-900 rounded-xl text-lg font-semibold transition-all hover:bg-slate-100 flex items-center gap-2">
+                        <a href="mailto:tomide@merislabs.com" className="px-8 py-4 bg-white text-slate-900 rounded-xl text-lg font-semibold transition-all hover:bg-slate-100 flex items-center gap-2 font-mono">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            tomideadeoye@gmail.com
+                            tomide@merislabs.com
                         </a>
                         <a href="https://merislabs.com" target="_blank" className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-lg font-semibold transition-all flex items-center gap-2">
                             Visit MerisLabs
@@ -259,16 +248,16 @@ export default function LandingPage() {
             <footer className="border-t border-slate-800 py-8 px-8">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                            </svg>
-                        </div>
+                        <img
+                            src="/images/merislabswhite.png"
+                            alt="MerisLabs"
+                            className="h-6 w-auto opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
+                        />
                         <span className="text-slate-400 text-sm">© 2025 MerisLabs. All rights reserved.</span>
                     </div>
                     <div className="flex items-center gap-6 text-slate-400 text-sm">
                         <a href="https://merislabs.com" className="hover:text-white transition-colors">MerisLabs</a>
-                        <a href="mailto:tomideadeoye@gmail.com" className="hover:text-white transition-colors">Contact</a>
+                        <a href="mailto:tomide@merislabs.com" className="hover:text-white transition-colors">Contact</a>
                     </div>
                 </div>
             </footer>
