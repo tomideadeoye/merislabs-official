@@ -17,7 +17,7 @@ export const Recommendations = () => {
                     <h2 className="text-3xl font-serif font-bold text-[#0A1930]">6. RECOMMENDATIONS</h2>
                 </div>
 
-                <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify prose-li:text-justify font-sans relative z-10">
+                <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] text-justify font-sans relative z-10">
                     <p>
                         To ensure the long-term effectiveness, integrity, and sustainability of the revised documentation suite, we recommend the implementation of a structured governance and compliance framework. While the documentation has been substantively strengthened, its continued robustness will depend on disciplined adoption, regulatory responsiveness, and institutional oversight. The recommendations below are designed to embed the revised standards across the Bank’s operations and mitigate future legal and regulatory risks.
                     </p>

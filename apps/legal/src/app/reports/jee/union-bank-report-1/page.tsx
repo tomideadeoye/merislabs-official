@@ -76,6 +76,14 @@ export default function UnionBankReportPage() {
                         page-break-after: always;
                     }
                 }
+
+                /* Force justification on all report content for both screen and print, except explicitly centered items */
+                .page-wrapper p:not(.no-justify):not(.text-center),
+                .page-wrapper li:not(.no-justify):not(.text-center),
+                .page-wrapper span:not(.no-justify):not(.text-center) {
+                    text-align: justify !important;
+                    text-justify: inter-word;
+                }
             ` }} />
 
             {/* Premium Download Control Suite */}
@@ -109,7 +117,7 @@ export default function UnionBankReportPage() {
                             <h2 className="text-3xl font-serif font-bold text-[#0A1930]">2. SCOPE OF WORK</h2>
                         </div>
 
-                        <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930]">
+                        <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify prose-li:text-justify">
                             <h3 id="nature-review" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">2.1. Nature of the Review</h3>
                             <p>
                                 The Firm conducted a full-scale review and standardisation of the Bank's facility and ancillary documentation. The process included clause-by-clause legal analysis, gap identification and risk mapping, regulatory compliance assessment, judicial enforceability review, benchmarking against LMA and industry standards, and harmonisation of definitions, representations, undertakings and enforcement provisions.
@@ -145,7 +153,7 @@ export default function UnionBankReportPage() {
                         {/* Background Pattern */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
                         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
-                        <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930]">
+                        <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify prose-li:text-justify">
                             <h3 id="scope-2.3" className="text-xl font-bold mb-3 scroll-mt-20">2.3. Assumptions & Limitations</h3>
                             <p>
                                 Our review was based solely on the documentation provided by the Bank, and we assumed such documentation to be authentic and complete. We further assumed that operational references within the templates accurately reflect current internal processes unless otherwise indicated.
@@ -164,7 +172,7 @@ export default function UnionBankReportPage() {
                                     ].map((exclusion, i) => (
                                         <li key={i} className="flex gap-3 items-start">
                                             <span className="font-bold text-[#009fe3] min-w-[20px]">({['i', 'ii', 'iii', 'iv', 'v', 'vi'][i]})</span>
-                                            <span>{exclusion}</span>
+                                            <span className="text-justify">{exclusion}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -179,7 +187,7 @@ export default function UnionBankReportPage() {
                         {/* Background Pattern */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
                         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
-                        <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930]">
+                        <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify prose-li:text-justify">
                             <h3 id="scope-2.4" className="text-xl font-bold mb-3 scroll-mt-20">2.4. Legal and Regulatory Framework Considered</h3>
                             <p>The review was conducted with reference to applicable statutory, regulatory, and judicial authorities, including:</p>
 

@@ -14,7 +14,7 @@ export const RiskConsiderations = () => {
                 <h2 className="text-3xl font-serif font-bold text-[#0A1930]">5. CURRENT RISKS AND MITIGATIONS CONSIDERATIONS</h2>
             </div>
 
-            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify font-sans relative z-10">
+            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify prose-li:text-justify font-sans relative z-10">
 
                 <p>
                     While the revised documentation suite substantially strengthens the Bank’s legal and regulatory position, certain residual implementation and operational risks remain. These risks are not structural deficiencies in the documentation itself, but rather relate to deployment, governance, and evolving regulatory dynamics.
@@ -26,15 +26,15 @@ export const RiskConsiderations = () => {
                 <ul className="space-y-4 list-none pl-0">
                     <li className="flex gap-4 p-4 bg-red-50/30 border-l-4 border-red-200 rounded-r-lg">
                         <div className="font-bold text-[#0A1930] shrink-0">i)</div>
-                        <p className="m-0 text-sm">Operational misalignment in the implementation of the revised templates across business units and branches;</p>
+                        <p className="m-0 text-sm text-justify">Operational misalignment in the implementation of the revised templates across business units and branches;</p>
                     </li>
                     <li className="flex gap-4 p-4 bg-red-50/30 border-l-4 border-red-200 rounded-r-lg">
                         <div className="font-bold text-[#0A1930] shrink-0">ii)</div>
-                        <p className="m-0 text-sm">Inconsistent deployment or legacy template usage, which may undermine standardisation efforts;</p>
+                        <p className="m-0 text-sm text-justify">Inconsistent deployment or legacy template usage, which may undermine standardisation efforts;</p>
                     </li>
                     <li className="flex gap-4 p-4 bg-red-50/30 border-l-4 border-red-200 rounded-r-lg">
                         <div className="font-bold text-[#0A1930] shrink-0">iii)</div>
-                        <p className="m-0 text-sm">Identified procedural gaps in documentation governance and version control; and</p>
+                        <p className="m-0 text-sm text-justify">Identified procedural gaps in documentation governance and version control; and</p>
                     </li>
                 </ul>
                 <p className="mt-8">

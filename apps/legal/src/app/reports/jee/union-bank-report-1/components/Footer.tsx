@@ -6,8 +6,8 @@ const JeeUnionBankFooter = ({ pageNumber }: { pageNumber: string }) => (
         <div className="text-3xl font-bold text-[#009fe3]/20 font-serif">{pageNumber}</div>
 
         {/* Center - Report Title */}
-        <div className="text-center flex-1">
-            <p className="text-gray-500 text-xs">Review and Standardisation of Union Bank Plc&apos;s Legal Documentation</p>
+        <div className="text-center flex-1 no-justify">
+            <p className="text-gray-500 text-xs no-justify">Review and Standardisation of Union Bank Plc&apos;s Legal Documentation</p>
         </div>
 
         {/* Right - Union Bank and Jackson Etti & Edu Logos */}

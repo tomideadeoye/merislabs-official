@@ -22,20 +22,20 @@ export const Conclusion = () => {
             <div className="text-center relative z-10">
                 <h2 className="text-3xl font-serif font-bold text-[#0A1930] mb-8 border-b border-[#009fe3]/30 pb-4 inline-block px-8">7. CONCLUSION</h2>
 
-                <div className="space-y-6">
-                    <p className="max-w-3xl mx-auto text-gray-600 leading-relaxed text-justify">
+                <div className="space-y-6 no-justify">
+                    <p className="max-w-3xl mx-auto text-gray-600 leading-relaxed text-justify no-justify">
                         Based on the depth of analysis undertaken, we are satisfied that the revised documentation suite represents a <strong>coherent, enforceable, and regulatory-aligned framework</strong> appropriate for the Bank&apos;s operational and strategic objectives.
                     </p>
-                    <p className="max-w-3xl mx-auto text-gray-600 leading-relaxed text-justify">
+                    <p className="max-w-3xl mx-auto text-gray-600 leading-relaxed text-justify no-justify">
                         The revised suite enhances enforceability, reduces litigation and regulatory exposure, clarifies risk allocation, aligns with the Bank&apos;s credit governance architecture; and modernises the Bank&apos;s legal instruments in line with contemporary banking practice.
                     </p>
-                    <p className="max-w-3xl mx-auto text-gray-600 leading-relaxed text-justify">
+                    <p className="max-w-3xl mx-auto text-gray-600 leading-relaxed text-justify no-justify">
                         We believe that no material documentation gaps remain. However, regulatory shifts; particularly those relating to FX, consumer protection and sustainability should be monitored to ensure continued compliance.
                     </p>
                 </div>
 
-                <div className="mt-auto pt-10">
-                    <img src="/clients/jackson etti and edu logo (1).png" alt="Jackson Etti & Edu" className="h-16 mx-auto grayscale opacity-50" />
+                <div className="mt-auto pt-10 no-justify">
+                    <img src="/clients/jackson etti and edu logo (1).png" alt="Jackson Etti & Edu" className="h-16 mx-auto grayscale opacity-50 no-justify" />
                 </div>
             </div>
         </div>

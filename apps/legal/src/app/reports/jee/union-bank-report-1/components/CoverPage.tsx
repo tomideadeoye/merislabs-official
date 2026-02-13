@@ -86,7 +86,7 @@ export const CoverPage = () => {
 
                         <div className="w-32 h-px bg-gradient-to-r from-transparent via-[#009fe3] to-transparent mx-auto my-6" />
 
-                        <div className="text-gray-700 text-lg italic max-w-2xl mx-auto px-4">
+                        <div className="text-gray-700 text-lg italic max-w-2xl mx-auto px-4 no-justify">
                             Legal frameworks, documentation standards, and compliance protocols for Union Bank Plc's operational efficiency.
                         </div>
                     </div>

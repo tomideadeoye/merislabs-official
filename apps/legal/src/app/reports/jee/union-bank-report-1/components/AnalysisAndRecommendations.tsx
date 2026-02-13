@@ -15,8 +15,8 @@ export const Analysis = () => {
                 <h2 className="text-3xl font-serif font-bold text-[#0A1930]">4. ANALYSIS</h2>
             </div>
 
-            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] prose-p:text-justify relative z-10">
-                <p className="text-base leading-relaxed text-slate-700">
+            <div className="prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#0A1930] relative z-10 text-justify">
+                <p className="text-base leading-relaxed text-slate-700 text-justify">
                     The amendments were necessitated by evolving regulatory directives, changes in jurisprudence regarding banker-customer contracts, the Bank&apos;s post-merger documentation harmonisation needs, and emerging risks in credit operations, FX markets, and collateral enforcement.
                 </p>
 
@@ -26,7 +26,7 @@ export const Analysis = () => {
                         <CheckCircle2 className="w-24 h-24 text-[#0A1930]" />
                     </div>
                     <h3 className="text-white font-black text-base mb-2 uppercase tracking-wider opacity-80">Outcome</h3>
-                    <p className="text-white text-base leading-relaxed m-0 relative z-10 font-bold">
+                    <p className="text-white text-base leading-relaxed m-0 relative z-10 font-semibold text-justify">
                         The revised suite now constitutes a unified documentation ecosystem that eliminates duplication and drafting inconsistencies, strengthens security creation and enforcement mechanics, enhances clarity in borrower undertakings, and aligns FX exposure provisions with regulatory expectations.
                     </p>
                 </div>

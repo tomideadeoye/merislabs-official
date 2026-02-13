@@ -105,8 +105,8 @@ export const TableOfContents = () => {
             </div>
 
             {/* Subtle branding for the TOC page */}
-            <div className="absolute bottom-16 left-16 right-16 flex justify-between items-center border-t border-gray-100 pt-8 opacity-40">
-                <span className="text-[10px] uppercase tracking-widest">Legal Documentation Suite</span>
+            <div className="absolute bottom-16 left-16 right-16 flex justify-between items-center border-t border-gray-100 pt-8 opacity-40 no-justify">
+                <span className="text-[10px] uppercase tracking-widest no-justify">Legal Documentation Suite</span>
                 <img src="/union-bank/logo.png" alt="Union Bank" className="h-4 grayscale" />
             </div>
         </div>

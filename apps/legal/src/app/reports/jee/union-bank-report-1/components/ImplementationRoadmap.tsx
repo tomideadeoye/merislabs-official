@@ -49,7 +49,7 @@ export const ImplementationRoadmap = () => {
                                     {phase.title}
                                 </h4>
                                 <div className="w-4 h-[1px] bg-slate-300 mx-auto mb-3" />
-                                <p className="text-[14px] leading-relaxed text-slate-600 font-medium">
+                                <p className="text-[14px] leading-relaxed text-slate-600 font-medium text-center no-justify">
                                     {phase.summary}
                                 </p>
                             </div>

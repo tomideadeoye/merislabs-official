@@ -43,23 +43,23 @@ export const BackCover = () => {
 
             {/* Contact Info */}
             <div className="text-center text-white/80 space-y-4 relative z-10 px-12">
-                <p className="font-serif text-2xl font-bold text-[#009fe3]">Jackson, Etti & Edu</p>
-                <div className="text-sm tracking-widest opacity-60">The Full-Service Law Firm with Sector Expertise</div>
+                <p className="font-serif text-2xl font-bold text-[#009fe3] no-justify">Jackson, Etti & Edu</p>
+                <div className="text-sm tracking-widest opacity-60 no-justify">The Full-Service Law Firm with Sector Expertise</div>
 
-                <div className="pt-12 space-y-2 text-sm max-w-sm mx-auto">
-                    <p>RCO Court, 3-5 Sinari Daranijo Street</p>
-                    <p>Off Ajose Adeogun, Victoria Island, Lagos</p>
-                    <div className="pt-8 space-y-2">
-                        <div className="space-y-1">
-                            <a href="tel:+23414626841" className="text-[#009fe3] font-bold tracking-wider hover:underline block">+234 (1) 462 6841/3</a>
-                            <a href="tel:+23412806989" className="text-[#009fe3] font-bold tracking-wider hover:underline block">(1) 2806989</a>
+                <div className="pt-12 space-y-2 text-sm max-w-sm mx-auto no-justify">
+                    <p className="no-justify">RCO Court, 3-5 Sinari Daranijo Street</p>
+                    <p className="no-justify">Off Ajose Adeogun, Victoria Island, Lagos</p>
+                    <div className="pt-8 space-y-2 no-justify">
+                        <div className="space-y-1 no-justify">
+                            <a href="tel:+23414626841" className="text-[#009fe3] font-bold tracking-wider hover:underline block no-justify">+234 (1) 462 6841/3</a>
+                            <a href="tel:+23412806989" className="text-[#009fe3] font-bold tracking-wider hover:underline block no-justify">(1) 2806989</a>
                         </div>
-                        <a href="mailto:jee@jee.africa" className="opacity-80 text-[13px] pt-2 block hover:text-[#009fe3] transition-colors font-medium">jee@jee.africa</a>
+                        <a href="mailto:jee@jee.africa" className="opacity-80 text-[13px] pt-2 block hover:text-[#009fe3] transition-colors font-medium no-justify">jee@jee.africa</a>
                         <a
                             href="https://jee.africa"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[#009fe3] font-bold pt-4 uppercase tracking-widest text-[10px] block hover:underline"
+                            className="text-[#009fe3] font-bold pt-4 uppercase tracking-widest text-[10px] block hover:underline no-justify"
                         >
                             www.jee.africa
                         </a>
