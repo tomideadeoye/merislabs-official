@@ -26,20 +26,24 @@ export const ScopeOfWork = () => {
 
                     <h3 className="text-xl font-bold mt-8 mb-3">2.2. Documents Reviewed</h3>
                     <p>A total of twenty-four (24) documents were reviewed, including multiple variants. These comprised:</p>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4 not-prose text-[13px] text-[#0A1930]">
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">a)</span> <span>All Asset Debenture</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">b)</span> <span>Bid Bond</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">c)</span> <span>BOI Facility Agreement</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">d)</span> <span>Consolidated FX Trade Master Agreement (2 variants)</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">e)</span> <span>General Indemnity (3 variants)</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">f)</span> <span>Irrevocable Undertaking for Domiciliation of Sales Proceeds</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">g)</span> <span>Letter of Consent to Register Tripartite Legal Mortgage</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">h)</span> <span>Letter of Domiciliation of Contract Proceeds to Offtakers</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">i)</span> <span>Letter of Hypothecation (3 variants)</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">j)</span> <span>Offer Letters (6 variants)</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">k)</span> <span>Overdraft Agreement (3 variants)</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">l)</span> <span>Personal Guarantee</span></div>
-                        <div className="flex gap-2"><span className="font-bold min-w-[20px]">m)</span> <span>Undertaking to Domicile Sales Proceeds (2 variants)</span></div>
+                    <div className="flex gap-x-12 mt-4 not-prose text-[13px] text-[#0A1930]">
+                        <div className="flex-1 space-y-3">
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">a)</span> <span className="leading-tight">All Asset Debenture</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">c)</span> <span className="leading-tight">BOI Facility Agreement</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">e)</span> <span className="leading-tight">General Indemnity (3 variants)</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">g)</span> <span className="leading-tight">Letter of Consent to Register Tripartite Legal Mortgage</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">i)</span> <span className="leading-tight">Letter of Hypothecation (3 variants)</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">k)</span> <span className="leading-tight">Overdraft Agreement (3 variants)</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">m)</span> <span className="leading-tight">Undertaking to Domicile Sales Proceeds (2 variants)</span></div>
+                        </div>
+                        <div className="flex-1 space-y-3">
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">b)</span> <span className="leading-tight">Bid Bond</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">d)</span> <span className="leading-tight">Consolidated FX Trade Master Agreement (2 variants)</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">f)</span> <span className="leading-tight">Irrevocable Undertaking for Domiciliation of Sales Proceeds</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">h)</span> <span className="leading-tight">Letter of Domiciliation of Contract Proceeds to Offtakers</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">j)</span> <span className="leading-tight">Offer Letters (6 variants)</span></div>
+                            <div className="flex gap-3 items-start"><span className="font-bold text-[#009fe3] min-w-[24px]">l)</span> <span className="leading-tight">Personal Guarantee</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
