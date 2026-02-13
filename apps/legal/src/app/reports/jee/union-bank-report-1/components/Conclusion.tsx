@@ -10,12 +10,12 @@ export const Conclusion = () => {
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#009fe3]/5 rounded-bl-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0A1930]/5 rounded-tr-full pointer-events-none" />
 
-            {/* Premium Decorative Accent (Adapted from request) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-40">
-                <div className="relative w-[600px] h-[600px]">
+            {/* Premium Decorative Accent (Moved to bottom) */}
+            <div className="absolute -bottom-24 -left-24 pointer-events-none opacity-40">
+                <div className="relative w-[500px] h-[500px]">
                     <div className="absolute inset-0 border-[40px] border-[#009fe3]/5 rounded-full animate-pulse"></div>
                     <div className="absolute inset-20 border border-[#0A1930]/5 rounded-full"></div>
-                    <div className="absolute inset-[150px] bg-gradient-to-br from-[#009fe3]/5 to-transparent rounded-full blur-3xl"></div>
+                    <div className="absolute inset-[100px] bg-gradient-to-br from-[#009fe3]/5 to-transparent rounded-full blur-3xl"></div>
                 </div>
             </div>
 

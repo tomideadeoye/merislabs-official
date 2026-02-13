@@ -127,7 +127,7 @@ export default function UnionBankReportPage() {
                             </p>
 
                             <h3 id="docs-reviewed" className="text-xl font-bold mt-8 mb-3 scroll-mt-20">2.2. Documents Reviewed</h3>
-                            <p>A total of twenty-six (26) documents were reviewed, including multiple variants. These comprised:</p>
+                            <p>A total of twenty-four (24) documents were reviewed, including multiple variants. These comprised:</p>
                             <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4 not-prose text-[13px] text-[#0A1930]">
                                 <div className="flex gap-2"><span className="font-bold min-w-[20px]">a)</span> <span>All Asset Debenture</span></div>
                                 <div className="flex gap-2"><span className="font-bold min-w-[20px]">b)</span> <span>Bid Bond</span></div>
