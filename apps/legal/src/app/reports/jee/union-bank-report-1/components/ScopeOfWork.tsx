@@ -25,7 +25,7 @@ export const ScopeOfWork = () => {
                     </p>
 
                     <h3 className="text-xl font-bold mt-8 mb-3">2.2. Documents Reviewed</h3>
-                    <p>A total of twenty-six (26) documents were reviewed, including multiple variants. These comprised:</p>
+                    <p>A total of twenty-four (24) documents were reviewed, including multiple variants. These comprised:</p>
                     <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4 not-prose text-[13px] text-[#0A1930]">
                         <div className="flex gap-2"><span className="font-bold min-w-[20px]">a)</span> <span>All Asset Debenture</span></div>
                         <div className="flex gap-2"><span className="font-bold min-w-[20px]">b)</span> <span>Bid Bond</span></div>
@@ -172,7 +172,6 @@ export const ScopeOfWork = () => {
                                 <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(IV)</span> <span>Thor Ltd v. FCMB Ltd (2005) LPELR-3242 (SC)</span></li>
                                 <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(V)</span> <span>Owena Mass Transportation Co. Ltd v. Enterprise Bank (2014) LPELR-22100 (CA)</span></li>
                                 <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(VI)</span> <span>Everly United Associates Ltd. & Anor v FBN LTD. (2025) LPELR- 81736 (CA)</span></li>
-                                <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(VII)</span> <span>First Bank v. Pan Bisbilder (1990) 2 NWLR (Pt. 134) 647 C.A</span></li>
                             </ul>
                         </div>
                     </div>

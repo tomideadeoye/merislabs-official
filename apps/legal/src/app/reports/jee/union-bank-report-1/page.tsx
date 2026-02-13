@@ -313,7 +313,7 @@ export default function UnionBankReportPage() {
                                         <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(IV)</span> <span>Thor Ltd v. FCMB Ltd (2005) LPELR-3242 (SC)</span></li>
                                         <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(V)</span> <span>Owena Mass Transportation Co. Ltd v. Enterprise Bank (2014) LPELR-22100 (CA)</span></li>
                                         <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(VI)</span> <span>Everly United Associates Ltd. & Anor v FBN LTD. (2025) LPELR- 81736 (CA)</span></li>
-                                        <li className="flex gap-2"><span className="not-italic font-bold min-w-[30px] text-[#009fe3]">(VII)</span> <span>First Bank v. Pan Bisbilder (1990) 2 NWLR (Pt. 134) 647 C.A</span></li>
+
                                     </ul>
                                 </div>
                             </div>
