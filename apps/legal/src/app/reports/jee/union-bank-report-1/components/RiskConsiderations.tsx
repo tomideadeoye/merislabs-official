@@ -30,7 +30,7 @@ export const RiskConsiderations = () => {
                     </li>
                     <li className="flex gap-4 p-4 bg-red-50/30 border-l-4 border-red-200 rounded-r-lg">
                         <div className="font-bold text-[#0A1930] shrink-0">ii)</div>
-                        <p className="m-0 text-sm text-justify">Inconsistent deployment or legacy template usage, which may undermine standardisation efforts;</p>
+                        <p className="m-0 text-sm text-justify">Inconsistent deployment or legacy template usage, which may undermine standardisation efforts; and</p>
                     </li>
                     <li className="flex gap-4 p-4 bg-red-50/30 border-l-4 border-red-200 rounded-r-lg">
                         <div className="font-bold text-[#0A1930] shrink-0">iii)</div>
