@@ -33,8 +33,7 @@ export const CoverPage = () => {
                 </div>
             </div>
 
-            {/* JEE Imperial Accent Divider */}
-            <div className="h-1 bg-gradient-to-r from-[#211B1B] via-[#E80000] to-[#211B1B] w-full relative z-30 shadow-[0_2px_10px_rgba(232,0,0,0.1)]"></div>
+
 
             {/* Main Content Area */}
             <div className="flex-1 bg-gradient-to-br from-[#F9F7ED] to-white flex flex-col justify-center items-center p-16 relative overflow-hidden">
