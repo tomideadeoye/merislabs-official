@@ -32,7 +32,7 @@ export const PrioritiesSlide = () => {
                 {/* Visual / Icon Box */}
                 <div className="col-span-4 flex flex-col justify-center">
                     <div className="relative group">
-                        <div className="absolute inset-0 bg-red-600/20 blur-[100px] rounded-full group-hover:bg-red-600/30 transition-all duration-1000" />
+                        <div className="absolute inset-0 bg-red-600/10 blur-[100px] rounded-full group-hover:bg-red-600/20 transition-all duration-1000" />
                         <div className="relative w-full aspect-square border-2 border-red-600/30 rounded-sm flex items-center justify-center p-12 bg-[#0F0F0F] overflow-hidden">
                             {/* Technical Compass / Aim */}
                             <div className="absolute inset-4 border border-white/5 rounded-full" />
@@ -40,14 +40,18 @@ export const PrioritiesSlide = () => {
                             <div className="absolute top-1/2 left-0 right-0 h-px bg-white/10" />
                             <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/10" />
 
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-[40%] h-[40%] text-red-600 animate-pulse relative z-10">
-                                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                            {/* PROFESSIONAL TARGET ICON (Replacing the heart) */}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-[45%] h-[45%] text-red-600 relative z-10 opacity-80">
+                                <circle cx="12" cy="12" r="10" />
+                                <circle cx="12" cy="12" r="6" />
+                                <circle cx="12" cy="12" r="2" fill="currentColor" />
+                                <path strokeLinecap="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" />
                             </svg>
                         </div>
                     </div>
                     <div className="mt-8 text-center px-4">
                         <p className="text-white/40 text-[10px] font-bold tracking-[0.4em] uppercase leading-relaxed">
-                            Securing positive outcomes through proactive legal engineering
+                            Precision targeting of legal objectives and commercial risk mitigation
                         </p>
                     </div>
                 </div>
