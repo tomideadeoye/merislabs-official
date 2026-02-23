@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DownloadControls } from '../union-bank-report-1/components/DownloadControls';
 import { SlideWrapper } from './components/SlideWrapper';
 import { CoverSlide } from './components/CoverSlide';
@@ -14,10 +15,25 @@ import { SectionHeaderSlide } from './components/SectionHeaderSlide';
 
 import { litigationCases, closedCases2025 } from './data';
 
-export default function BakerHughesReportPage() {
+function BakerHughesReportContent() {
+    const searchParams = useSearchParams();
     const [viewMode, setViewMode] = useState<'scroll' | 'deck'>('scroll');
     const [currentSlide, setCurrentSlide] = useState(0);
     const [scale, setScale] = useState(1);
+
+    // Initial check for URL parameters
+    useEffect(() => {
+        const mode = searchParams.get('mode');
+        if (mode === 'deck' || mode === 'presentation') {
+            setViewMode('deck');
+        }
+
+        const slideIdx = searchParams.get('slide');
+        if (slideIdx) {
+            const idx = parseInt(slideIdx) - 1;
+            if (!isNaN(idx)) setCurrentSlide(idx);
+        }
+    }, [searchParams]);
 
     // Scaling engine
     const handleResize = useCallback(() => {
@@ -236,5 +252,13 @@ export default function BakerHughesReportPage() {
                 }
             `}</style>
         </div>
+    );
+}
+
+export default function BakerHughesReportPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-black" />}>
+            <BakerHughesReportContent />
+        </Suspense>
     );
 }
