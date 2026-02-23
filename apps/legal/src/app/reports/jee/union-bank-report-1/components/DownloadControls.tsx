@@ -58,25 +58,18 @@ export const DownloadControls = () => {
                 </button>
             </div>
 
-            {/* Main Action Group */}
-            <div className="flex items-center gap-3">
-                <button
-                    onClick={() => window.print()}
-                    className="flex items-center gap-4 bg-[#211B1B] text-white px-10 py-5 rounded-full shadow-[0_20px_50px_rgba(33,27,27,0.3)] hover:bg-[#E80000] transition-all duration-500 font-bold tracking-[0.1em] uppercase text-xs relative overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                    <Printer className="w-5 h-5 relative z-10" />
-                    <span className="relative z-10">Export PDF . Print</span>
-                </button>
-
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className={`p-5 rounded-full shadow-2xl transition-all duration-500 border-2 ${isOpen ? 'bg-[#E80000] border-[#E80000] text-white rotate-180' : 'bg-white border-[#211B1B]/10 text-[#211B1B] hover:border-[#E80000] hover:text-[#E80000]'}`}
-                    title="Export Options"
-                >
-                    <ChevronUp className="w-6 h-6" />
-                </button>
-            </div>
+            {/* Main Action Toggle */}
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex items-center gap-4 px-10 py-5 rounded-full shadow-[0_20px_50px_rgba(33,27,27,0.3)] transition-all duration-500 font-bold tracking-[0.1em] uppercase text-xs relative overflow-hidden group border-2 ${isOpen
+                        ? 'bg-[#E80000] border-[#E80000] text-white'
+                        : 'bg-[#211B1B] border-[#211B1B] text-white hover:bg-red-600 hover:border-red-600'
+                    }`}
+            >
+                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                <Download className={`w-5 h-5 relative z-10 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
+                <span className="relative z-10">Download Options</span>
+            </button>
         </div>
     );
 };
