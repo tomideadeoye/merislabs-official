@@ -5,114 +5,106 @@ import { useDeckNavigation } from './NavigationContext';
 export const PrioritiesSlide = () => {
     const { goToSlideById } = useDeckNavigation();
     return (
-        <div className="w-full h-full relative overflow-hidden bg-white font-sans flex flex-col p-16">
-            {/* Header Branding */}
-            <div className="flex items-center justify-between mb-20 relative z-30">
-                <div className="flex items-center space-x-4">
-                    <img
-                        src="/clients/jackson etti and edu logo (1).png"
-                        alt="JEE"
-                        className="h-6 w-auto opacity-80"
-                    />
-                    <div className="h-4 w-px bg-gray-200" />
-                    <span className="text-gray-400 text-[10px] font-bold tracking-[0.5em] uppercase">2026 Strategic Mandate</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                    <div className="h-px w-12 bg-red-600 shadow-[0_0_10px_rgba(232,0,0,0.5)]" />
-                    <span className="text-red-600 font-black tracking-[0.4em] text-[10px] uppercase">Strategic Roadmap</span>
-                </div>
+        <div className="w-full h-full relative overflow-hidden bg-white font-sans">
+            {/* Background branding */}
+            <div className="absolute top-10 left-16 z-20 flex items-center space-x-4">
+                <img
+                    src="/clients/jackson etti and edu logo (1).png"
+                    alt="JEE"
+                    className="h-6 w-auto opacity-70"
+                />
+                <div className="h-4 w-px bg-gray-300" />
+                <span className="text-gray-400 text-[10px] font-bold tracking-[0.4em] uppercase">Strategic Roadmap . 2026</span>
             </div>
 
-            {/* Content Core */}
-            <div className="relative z-10 flex-grow grid grid-cols-12 gap-16 min-h-0">
+            {/* Slide Title - MOVED HIGHER */}
+            <div className="absolute top-24 left-16 right-16 z-20">
+                <div className="flex items-center space-x-4 mb-3">
+                    <div className="h-[2px] w-8 bg-red-600" />
+                    <span className="text-red-500 font-bold tracking-[0.4em] text-xs uppercase underline-offset-8">Execution Priorities</span>
+                </div>
+                <h2 className="text-gray-900 text-5xl font-black uppercase tracking-tighter">
+                    Forward <span className="text-red-600">Strategy</span>
+                </h2>
+            </div>
 
-                {/* Visual Strategy Column */}
-                <div className="col-span-5 flex flex-col justify-center">
-                    <h2 className="text-gray-900 text-[6rem] font-black uppercase tracking-tighter leading-[0.85] mb-12 italic skew-x-[-4deg] origin-left">
-                        Forward<br />
-                        <span className="text-red-600 not-italic skew-x-0">Strategy</span>
-                    </h2>
+            {/* Content Core - MOVED HIGHER AND TIGHTENED */}
+            <div className="absolute top-[180px] bottom-12 left-16 right-16 z-10 grid grid-cols-12 gap-8">
 
-                    <div className="relative group max-w-sm">
-                        <div className="absolute inset-0 bg-red-600/5 blur-[100px] rounded-full group-hover:bg-red-600/15 transition-all duration-1000" />
-                        <div className="relative glass-card bg-white/50 border border-red-600/20 rounded-sm p-12 overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4">
-                                <span className="text-gray-200 font-mono text-[80px] font-black opacity-40 select-none">2026</span>
-                            </div>
-                            <p className="text-gray-500 font-bold tracking-[0.4em] text-[10px] uppercase mb-12 relative z-10">2026 Core Pillars</p>
+                {/* Visual / Icon Box */}
+                <div className="col-span-4 flex flex-col justify-center">
+                    <div className="relative group">
+                        <div className="absolute inset-0 bg-red-600/10 blur-[100px] rounded-full group-hover:bg-red-600/20 transition-all duration-1000" />
+                        <div className="relative w-full aspect-square border-2 border-red-600/30 rounded-sm flex items-center justify-center p-10 bg-gray-50 overflow-hidden">
+                            <div className="absolute inset-4 border border-gray-200 rounded-full" />
+                            <div className="absolute inset-10 border border-gray-200 rounded-full" />
+                            <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-200" />
+                            <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-200" />
 
-                            <div className="space-y-6 relative z-10">
-                                <div className="flex items-center space-x-4">
-                                    <div className="w-2 h-2 bg-red-600 rounded-full" />
-                                    <span className="text-gray-900 font-black text-xs tracking-widest uppercase italic">Commercial Resolution</span>
-                                </div>
-                                <div className="flex items-center space-x-4">
-                                    <div className="w-2 h-2 bg-gray-900 rounded-full" />
-                                    <span className="text-gray-900 font-black text-xs tracking-widest uppercase italic">Matter Oversight</span>
-                                </div>
-                                <div className="flex items-center space-x-4">
-                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                                    <span className="text-gray-900 font-black text-xs tracking-widest uppercase italic">Asset Recovery</span>
-                                </div>
-                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-[45%] h-[45%] text-red-600 relative z-10 opacity-90">
+                                <circle cx="12" cy="12" r="10" />
+                                <circle cx="12" cy="12" r="6" />
+                                <circle cx="12" cy="12" r="2" fill="currentColor" />
+                                <path strokeLinecap="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" />
+                            </svg>
                         </div>
                     </div>
                 </div>
 
-                {/* Priority Cards Column */}
-                <div className="col-span-7 flex flex-col justify-start space-y-6 min-h-0">
-                    <div className="flex-1 overflow-y-auto pr-8 custom-scrollbar space-y-8">
+                {/* Text Content - HIGH CONTRAST */}
+                <div className="col-span-8 flex flex-col justify-start space-y-4 h-full overflow-hidden">
+                    <div className="flex-1 min-h-0 overflow-y-auto pr-4 custom-scrollbar space-y-4">
                         {priorities2026.split('\n\n').map((paragraph, index) => (
-                            <div key={index} className="relative group slide-transition">
-                                <div className="absolute -left-4 top-0 bottom-0 w-px bg-gray-100 group-hover:bg-red-600/30 transition-colors" />
-                                <div className="bg-gray-50/50 hover:bg-white border border-gray-100 hover:border-red-600/20 p-10 rounded-sm transition-all duration-700 shadow-sm hover:shadow-xl">
-                                    <div className="flex items-start space-x-10">
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-red-600 font-mono text-3xl font-black italic opacity-20 group-hover:opacity-100 transition-all duration-700 transform group-hover:scale-110">
-                                                {String(index + 1).padStart(2, '0')}
-                                            </span>
-                                            <div className="w-px h-12 bg-gray-200 mt-4 group-hover:bg-red-600/30 transition-colors" />
-                                        </div>
-                                        <p className="text-gray-800 leading-[1.8] text-[17px] font-medium tracking-wide">
-                                            {paragraph}
-                                        </p>
-                                    </div>
+                            <div key={index} className="bg-gray-50 border border-gray-200 p-7 rounded-sm relative group hover:border-red-600/50 transition-all shadow-sm shrink-0">
+                                <div className="absolute top-0 left-0 w-1 h-12 bg-red-600" />
+                                <div className="flex items-start space-x-6">
+                                    <span className="text-red-600 font-mono text-2xl font-black italic mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                        0{index + 1}
+                                    </span>
+                                    <p className="text-gray-700 leading-relaxed text-[15px] pt-1 text-justify">
+                                        {paragraph}
+                                    </p>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* Navigation Bar */}
-                    <div className="mt-8 flex items-center justify-between px-10 py-8 bg-[#0A0A0A] rounded-sm group cursor-pointer overflow-hidden relative"
-                        onClick={() => goToSlideById('04')}>
-                        <div className="absolute inset-0 bg-red-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-700 opacity-10" />
-                        <div className="relative z-10 flex flex-col">
-                            <span className="text-white/30 text-[9px] font-bold tracking-[0.5em] uppercase mb-1">Up Next</span>
-                            <span className="text-white text-sm font-black tracking-widest uppercase">Value-Add Advisory Services</span>
-                        </div>
-                        <div className="relative z-10 w-12 h-12 flex items-center justify-center border border-white/10 rounded-full group-hover:border-red-600 group-hover:bg-red-600 transition-all duration-500">
-                            <svg className="w-5 h-5 text-white transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                        </div>
+                    <div className="mt-4 flex flex-row items-center justify-between px-6 border-l border-red-600/30 shrink-0 gap-4">
+                        <p className="text-gray-500 text-[9px] font-bold tracking-[0.4em] uppercase leading-relaxed flex-1">
+                            Securing positive outcomes through precision legal engineering
+                        </p>
+                        <button
+                            onClick={() => goToSlideById('04')}
+                            className="text-red-600 border border-red-600/30 bg-red-600/5 hover:bg-red-600/20 hover:text-red-500 px-4 py-2 text-[10px] font-bold tracking-widest uppercase transition-colors shrink-0 flex items-center space-x-2"
+                        >
+                            <span>Explore Value-Add Advisory</span>
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                        </button>
                     </div>
                 </div>
+
+                <style jsx>{`
+                    .custom-scrollbar::-webkit-scrollbar {
+                        width: 4px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: rgba(232, 0, 0, 0.4);
+                        border-radius: 10px;
+                    }
+                `}</style>
+
             </div>
 
-            {/* Custom Scrollbar Styles */}
-            <style jsx>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: rgba(0, 0, 0, 0.05);
-                    border-radius: 10px;
-                }
-                .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-                    background: rgba(232, 0, 0, 0.2);
-                }
-            `}</style>
+            {/* Frame outline aesthetic */}
+            <div className="absolute inset-8 border border-gray-200 pointer-events-none"></div>
+
+            {/* Pagination / ID */}
+            <div className="absolute bottom-12 left-16 text-gray-900/10 font-mono text-xs tracking-widest uppercase">
+                Strategy Module . Ref. BK-2026
+            </div>
         </div>
     );
 };

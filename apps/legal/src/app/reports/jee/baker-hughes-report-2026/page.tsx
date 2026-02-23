@@ -13,7 +13,6 @@ import { ValueAddSlide } from './components/ValueAddSlide';
 import { ThankYouSlide } from './components/ThankYouSlide';
 import { SectionHeaderSlide } from './components/SectionHeaderSlide';
 import { NavigationContext } from './components/NavigationContext';
-import './premium.css';
 
 import { litigationCases, closedCases2025 } from './data';
 

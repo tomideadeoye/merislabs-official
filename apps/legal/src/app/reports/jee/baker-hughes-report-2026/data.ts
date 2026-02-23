@@ -1,13 +1,15 @@
 export const litigationCases = [
     {
         suitNo: "SUIT NO: NHC/9/CS/2024 PARTIES: INTELS NIGERIA LIMITED V BAKER HUGHES COMPANY LIMITED",
-        summary: "Intels instituted the action before the High Court of Rivers State vide a Writ of Summons dated 8th February 2024. The Claimant is seeking relief in the sum of USD$4,236,447.18 for payment of the lease of 12,381.71 square metres of developed hardstand at the FLT and 4,726 square metres at FOT in Onne from the last quarter of 2021 up till year 2023, as well as other monetary reliefs.",
+        summary: "This is an action challenging the outcome of the Request for Proposal proceedings initiated by Total E&P for the execution of Bonga Main Phases 4 & 5. Intels, as Claimant, contends that the award process was tainted by irregularities and seeks to invalidate the contract awarded to Baker Hughes.",
         status: "The High Court has issued an interim injunction restraining Baker Hughes from mobilization or performing any activities pursuant to the contract. The Federal High Court granted a preliminary injunction restraining Baker Hughes pending the determination of the substantive suit.\n\nBaker Hughes has filed its Statement of Defence and a Preliminary Objection challenging the jurisdiction of the Court on the ground that the action constitutes a dispute within the exclusive purview of the Nigerian Content Development and Monitoring Board (NCDMB).\n\nThe hearing date for the Preliminary Objection has been fixed for 12th March 2026.",
+        nextSteps: "Continue to vigorously pursue the Preliminary Objection as it presents a substantive bar to the Claimant’s action.",
     },
     {
         suitNo: "SUIT NO: LD/4853CMW/2023 - PRESSURE CONTROL SYSTEMS LIMITED V. EROTON EXPLORATION AND PRODUCTION AND PRODUCTION CO. LTD",
         summary: "Baker Hughes obtained judgment against Eroton Exploration and Production Company Limited for the sum of US$3,200,000.00. Garnishee proceedings were subsequently initiated to enforce the judgment. To date, no credit position has been reported by the garnishees. Our experience indicates that the Judgment Debtor is a chronic defaulter, owing substantial sums to other entities.",
         status: "The pending garnishee proceedings have yielded no results thus far. Nonetheless, we are prepared to attach any funds which may come under the control of any of the garnishees.\n\nMeanwhile, by an order of the Federal High Court in Suit No: FHC/L/CS/2499/2025, an Administrator has been appointed to manage the company’s affairs under court supervision.",
+        nextSteps: "Proceed with garnishee and other enforcement options.\n\nSubmit our claim for the judgment sum to the Administrator for settlement, in line with the Companies and Allied Matters Act and the Insolvency Regulations 2022.\n\nIn the event of delay or non-settlement, consider applying to the Court for appointment as Co-Administrator of the company to protect Baker Hughes’ interests."
     },
     {
         suitNo: "SUIT NO: FHC/L/CS/919/2007 - BAKER NIGERIA LIMITED, BAKER HUGHES NIGERIA LIMITED & ONE OTHER V. PEAK PETROLEUM",
@@ -43,11 +45,13 @@ export const litigationCases = [
         suitNo: "SUIT NO: FHC/ABJ/CS/49/2025 - DOLPHIN DRILLING LTD & ANOR. V. GENERAL HYDROCARBONS LTD & 37 ORS.",
         summary: "The Claimants commenced garnishee proceedings to enforce an arbitral award against General Hydrocarbons Limited and joined Baker Hughes as 37th Garnishee, alleging it may hold funds belonging to the Judgment Debtor.\n\nWhilst there is privity of relationship between the Judgment Debtor and Baker Hughes by virtue of the Master Service Agreement and Service Level Agreement executed between the parties, Baker Hughes does not hold funds or receivables for the Judgment Debtor. BHNL filed a Conditional Appearance, an Affidavit of Non-Existence of Garnishable Funds.",
         status: "On the 14th of July 2025, the Federal High Court refused the garnishee orders sought by the Applicant, on the ground that same is premature. The Applicant, being dissatisfied with the Court’s ruling, filed an appeal at the Court of Appeal. Same is yet pending.",
+        nextSteps: "Monitor proceedings at the Court of Appeal and await the Court’s decision on the appeal."
     },
     {
         suitNo: "SUIT NO: FHC/L/CS/2378/2024 – FIRST BANK OF NIGERIA LIMITED & ANOR V. GENERAL HYDROCARBONS LTD & 16 ORS",
         summary: "The Plaintiffs seek to recover an alleged debt from General Hydrocarbons Limited and other Defendants, including Baker Hughes, on the basis of a purported assignment of receivables.\n\nHowever, under its contracts with the 1st Defendant, Baker Hughes requires 100% upfront payment before mobilization and does not hold any funds or receivables capable of assignment.\n\nAccordingly, Baker Hughes entered a Conditional Appearance and filed an application to strike out its name for misjoinder and failure to disclose a reasonable cause of action.",
         status: "The Court set aside its earlier Mareva orders on 29 January 2025. The Plaintiffs subsequently appealed against this order and concurrently. sought injunction pending appeal. The matter was subsequently adjourned sine die pending the outcome of the appeal. The matter comes up at the Court of Appeal on 26th February 2026",
+        nextSteps: "Monitor proceedings at the Court of Appeal and await the Court’s decision on the appeal."
     },
     {
         suitNo: "POLICE INVESTIGATION INTO THE DEATH OF MR OBIDIKE BONIFACE",
@@ -82,7 +86,6 @@ export const closedCases2025 = [
 export const priorities2026 = "In 2026, our overarching objective is to secure a positive and commercially beneficial resolution of all Baker Hughes–related matters within our portfolio. While other cases will continue to progress in the ordinary course, focused strategic attention will be directed at the Intels v. Baker Hughes, Trexm, and Pressure Control Systems v. Eroton matters.\n\nWith respect to Intels v. Baker Hughes, we intend to actively pursue expedited resolution, whether through fast-track or accelerated trial procedures, or by exploring an amicable settlement where commercially feasible and strategically advantageous. In the Pressure Control Systems matter, we will intensify enforcement efforts, including the continued exploration of garnishee proceedings and other targeted recovery mechanisms to maximize enforceability and value realization.";
 
 export const valueAdd2026 = [
-    "Monitor, at no cost, the General Hydrocarbon appeals to ensure that there is no adverse impact on Baker Hughes.",
     "Support on legal/industry related training programs",
     "To share thought leadership articles and newsletters relevant to Baker Hughes’ business.",
     "Facilitating free training alongside a tax consultant on the new tax regime."
