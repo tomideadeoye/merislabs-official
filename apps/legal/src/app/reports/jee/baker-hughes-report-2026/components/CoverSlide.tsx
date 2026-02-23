@@ -50,6 +50,10 @@ export const CoverSlide = () => {
                         <span className="text-white/30 text-[10px] font-bold tracking-widest uppercase mb-1">Confidentiality</span>
                         <div className="text-red-600 font-bold text-sm tracking-widest uppercase">Privileged</div>
                     </div>
+                    <div className="flex flex-col border-l border-white/10 pl-12">
+                        <span className="text-white/30 text-[10px] font-bold tracking-widest uppercase mb-1">Infrastructure</span>
+                        <div className="text-white/60 font-mono text-[10px] tracking-widest uppercase">Powered by Meris Labs</div>
+                    </div>
                 </div>
             </div>
 

@@ -52,9 +52,6 @@ function BakerHughesReportContent() {
         return () => window.removeEventListener('resize', handleResize);
     }, [handleResize]);
 
-    useEffect(() => {
-        document.title = "Baker Hughes Group Status Report 2026";
-    }, []);
 
     // Define all slides in a flat array for the deck view
     const allSlides = [
