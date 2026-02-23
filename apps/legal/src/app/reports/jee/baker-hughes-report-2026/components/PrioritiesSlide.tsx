@@ -50,27 +50,42 @@ export const PrioritiesSlide = () => {
                 </div>
 
                 {/* Text Content - HIGH CONTRAST */}
-                <div className="col-span-8 flex flex-col justify-start space-y-4">
-                    {priorities2026.split('\n\n').map((paragraph, index) => (
-                        <div key={index} className="bg-[#111] border border-white/10 p-7 rounded-sm relative group hover:border-red-600/50 transition-all">
-                            <div className="absolute top-0 left-0 w-1 h-12 bg-red-600" />
-                            <div className="flex items-start space-x-6">
-                                <span className="text-red-600 font-mono text-2xl font-black italic mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                                    0{index + 1}
-                                </span>
-                                <p className="text-gray-100 leading-relaxed text-[15px] pt-1 text-justify">
-                                    {paragraph}
-                                </p>
+                <div className="col-span-8 flex flex-col justify-start space-y-4 h-full overflow-hidden">
+                    <div className="flex-grow overflow-y-auto pr-4 custom-scrollbar space-y-4">
+                        {priorities2026.split('\n\n').map((paragraph, index) => (
+                            <div key={index} className="bg-[#111] border border-white/10 p-7 rounded-sm relative group hover:border-red-600/50 transition-all shrink-0">
+                                <div className="absolute top-0 left-0 w-1 h-12 bg-red-600" />
+                                <div className="flex items-start space-x-6">
+                                    <span className="text-red-600 font-mono text-2xl font-black italic mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                        0{index + 1}
+                                    </span>
+                                    <p className="text-gray-100 leading-relaxed text-[15px] pt-1 text-justify">
+                                        {paragraph}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
 
-                    <div className="mt-4 px-6 border-l border-red-600/30">
+                    <div className="mt-4 px-6 border-l border-red-600/30 shrink-0">
                         <p className="text-white/40 text-[9px] font-bold tracking-[0.4em] uppercase leading-relaxed">
                             Securing positive outcomes through precision legal engineering
                         </p>
                     </div>
                 </div>
+
+                <style jsx>{`
+                    .custom-scrollbar::-webkit-scrollbar {
+                        width: 3px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-track {
+                        background: rgba(255, 255, 255, 0.05);
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: rgba(232, 0, 0, 0.4);
+                        border-radius: 10px;
+                    }
+                `}</style>
 
             </div>
 
