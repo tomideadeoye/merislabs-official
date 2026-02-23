@@ -2,54 +2,72 @@ import React from 'react';
 
 export const CoverSlide = () => {
     return (
-        <div className="w-full h-full relative overflow-hidden bg-white border-[12px] border-[#ececec]">
-            {/* Top Red Bar */}
-            <div className="absolute top-[88px] left-0 w-full h-[6px] bg-[#E80000] z-20"></div>
-
-            {/* Header Logos */}
-            <div className="absolute top-6 left-12 z-20 flex space-x-4 items-center h-12">
-                <img
-                    src="/clients/jackson etti and edu logo (1).png"
-                    alt="Jackson Etti & Edu"
-                    className="h-full w-auto object-contain"
-                />
+        <div className="w-full h-full relative overflow-hidden bg-[#0A0A0A] font-sans">
+            {/* Background Image Setup - Right Aligned with dark gradient overlay */}
+            <div className="absolute right-0 top-0 bottom-0 w-[65%] z-0">
+                <div className="w-full h-full bg-[url('/union-bank/marina-skyline.jpg')] bg-cover bg-left grayscale opacity-30 shadow-[inset_100px_0_100px_rgba(10,10,10,1)]"></div>
+                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#0A0A0A]/40 to-[#0A0A0A]"></div>
             </div>
 
-            <div className="absolute top-6 right-12 z-20 flex space-x-3 items-center h-10">
-                <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Baker_Hughes_Logo.svg/2560px-Baker_Hughes_Logo.svg.png"
-                    alt="Baker Hughes"
-                    className="h-full w-auto object-contain"
-                />
-            </div>
+            {/* Left Content Area */}
+            <div className="relative z-10 h-full w-[55%] flex flex-col justify-center px-24">
+                {/* JEE Logo */}
+                <div className="mb-14">
+                    <img
+                        src="/clients/jackson etti and edu logo (1).png"
+                        alt="Jackson, Etti & Edu"
+                        className="h-10 w-auto brightness-0 invert"
+                    />
+                </div>
 
-            {/* Background Image Setup */}
-            <div className="absolute right-0 top-[94px] bottom-[24px] w-[55%] z-0">
-                <div className="w-full h-full bg-[url('/union-bank/marina-skyline.jpg')] bg-cover bg-right"></div>
-            </div>
+                {/* Accent line */}
+                <div className="flex items-center space-x-4 mb-8">
+                    <div className="h-[2px] w-12 bg-[#E80000]" />
+                    <span className="text-red-500 font-bold tracking-[0.4em] text-xs uppercase opacity-80">Legal Excellence</span>
+                </div>
 
-            {/* The White Overlay for left side */}
-            <div className="absolute left-0 top-[94px] bottom-[24px] w-[45%] bg-white z-10"></div>
-
-            {/* The Red Chevron Shape */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-0 w-[65%] h-[200px] z-20 flex items-center pr-[10%]" style={{
-                background: 'linear-gradient(90deg, #db2b2b 0%, #E80000 85%, #b21f1f 100%)',
-                clipPath: 'polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%)',
-                boxShadow: '10px 10px 30px rgba(0,0,0,0.5)'
-            }}>
-                <h1 className="text-white text-[32px] font-bold leading-[1.2] uppercase tracking-wide ml-12 drop-shadow-md">
-                    JEE STATUS<br />REPORT TO BAKER<br />HUGHES-2026
+                <h1 className="text-white text-[5.5rem] font-black uppercase leading-[0.85] tracking-tighter mb-4 italic skew-x-[-4deg]">
+                    Baker Hughes<br />
+                    <span className="text-red-600 not-italic skew-x-0">Status Report</span><br />
+                    <span className="text-white/20">2026</span>
                 </h1>
+
+                <div className="mt-12 space-y-2">
+                    <p className="text-gray-400 text-sm font-bold tracking-[0.5em] uppercase">
+                        Litigation Portfolio Update
+                    </p>
+                    <div className="h-[1px] w-full bg-gradient-to-r from-white/10 to-transparent" />
+                </div>
+
+                {/* Bottom Details */}
+                <div className="mt-16 flex items-center space-x-12">
+                    <div className="flex flex-col">
+                        <span className="text-white/30 text-[10px] font-bold tracking-widest uppercase mb-1">Presented on</span>
+                        <div className="text-white font-mono text-sm tracking-widest">23.02.2026</div>
+                    </div>
+                    <div className="w-px h-8 bg-white/10" />
+                    <div className="flex flex-col">
+                        <span className="text-white/30 text-[10px] font-bold tracking-widest uppercase mb-1">Confidentiality</span>
+                        <div className="text-red-600 font-bold text-sm tracking-widest uppercase">Privileged</div>
+                    </div>
+                </div>
             </div>
 
-            {/* Date Badge */}
-            <div className="absolute top-[calc(50%+120px)] left-12 bg-[#4a4a4a] text-white px-8 py-2 font-semibold text-sm shadow-md z-30">
-                February 2026
+            {/* Baker Hughes Logo - Bottom Right */}
+            <div className="absolute bottom-12 right-12 z-20 flex flex-col items-end">
+                <span className="text-white/20 text-[10px] font-bold tracking-widest uppercase mb-4">Client Representative</span>
+                <img
+                    src="/clients/Baker-Hughes-Logo.png"
+                    alt="Baker Hughes"
+                    className="h-14 w-auto brightness-0 invert opacity-40 hover:opacity-100 transition-opacity duration-700"
+                />
             </div>
 
-            {/* Bottom Red Bar */}
-            <div className="absolute bottom-[24px] left-0 w-full h-[6px] bg-[#E80000] z-20"></div>
+            {/* Decorative Grid Pattern Overlay */}
+            <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 0)', backgroundSize: '40px 40px' }} />
 
+            {/* Signature Red Pulse */}
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-red-600/10 blur-[120px] rounded-full animate-pulse" />
         </div>
     );
 };

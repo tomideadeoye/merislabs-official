@@ -8,44 +8,52 @@ interface SectionHeaderProps {
 
 export const SectionHeaderSlide: React.FC<SectionHeaderProps> = ({ title, subtitle, sectionNumber }) => {
     return (
-        <div className="w-full h-full relative overflow-hidden bg-white p-12 flex flex-col items-center justify-center font-sans border-[12px] border-[#ececec]">
-            {/* Background Accent */}
-            <div className="absolute top-[-10%] right-[-5%] w-[40%] aspect-square rounded-full bg-red-500/5 blur-3xl z-0" />
-            <div className="absolute bottom-[-15%] left-[-10%] w-[50%] aspect-square rounded-full bg-red-600/5 blur-3xl z-0" />
+        <div className="w-full h-full relative overflow-hidden bg-[#0A0A0A] flex flex-col items-center justify-center font-sans">
+            {/* Background Grain/Noise Overlay */}
+            <div className="absolute inset-0 opacity-[0.03] z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-            {/* Section Number Badge */}
-            <div className="relative z-10 mb-8 flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-[#E80000] flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-red-500/20 mb-4">
-                    {sectionNumber}
-                </div>
-                <div className="h-0.5 w-12 bg-[#E80000]" />
+            {/* Large Faded Background Number */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/[0.02] text-[30rem] font-black italic select-none z-0">
+                {sectionNumber}
             </div>
 
-            {/* Title Content */}
-            <div className="relative z-10 text-center max-w-4xl px-8">
-                <h2 className="text-white bg-[#211B1B] text-5xl font-black uppercase tracking-[0.2em] px-12 py-6 shadow-2xl skew-x-[-2deg] mb-6">
+            {/* Glowing Accent */}
+            <div className="absolute top-[20%] right-[-10%] w-[50%] aspect-square rounded-full bg-red-600/10 blur-[150px] z-0 animate-pulse" />
+
+            {/* Content */}
+            <div className="relative z-10 flex flex-col items-center max-w-6xl text-center px-20">
+                <div className="inline-flex items-center space-x-6 mb-10">
+                    <div className="h-[2px] w-16 bg-red-600" />
+                    <span className="text-red-500 font-bold tracking-[0.6em] text-sm uppercase">Section {String(sectionNumber).padStart(2, '0')}</span>
+                    <div className="h-[2px] w-16 bg-red-600" />
+                </div>
+
+                <h2 className="text-white text-[7.5rem] font-black uppercase tracking-tighter leading-[0.9] mb-12 italic skew-x-[-2deg]">
                     {title}
                 </h2>
+
                 {subtitle && (
-                    <p className="text-red-600 text-lg font-bold tracking-[0.4em] uppercase opacity-80 mt-4 leading-relaxed">
-                        {subtitle}
-                    </p>
+                    <div className="relative inline-block">
+                        <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-8 h-[1px] bg-red-600/30" />
+                        <p className="text-gray-400 text-lg font-bold tracking-[0.4em] uppercase max-w-3xl">
+                            {subtitle}
+                        </p>
+                        <div className="absolute -right-12 top-1/2 -translate-y-1/2 w-8 h-[1px] bg-red-600/30" />
+                    </div>
                 )}
             </div>
 
-            {/* Brand elements */}
-            <div className="absolute bottom-12 left-12 z-20 flex space-x-3 items-center opacity-40 grayscale">
+            {/* Grid Pattern Overlay */}
+            <div className="absolute inset-0 opacity-[0.02] z-[1] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+
+            {/* Brand Logo */}
+            <div className="absolute bottom-16 z-20 opacity-20 hover:opacity-100 transition-opacity">
                 <img
                     src="/clients/jackson etti and edu logo (1).png"
                     alt="JEE"
-                    className="h-8 w-auto grayscale"
+                    className="h-6 w-auto brightness-0 invert"
                 />
             </div>
-
-            {/* Decorative Ribbon */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E80000]" style={{
-                clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
-            }} />
         </div>
     );
 };

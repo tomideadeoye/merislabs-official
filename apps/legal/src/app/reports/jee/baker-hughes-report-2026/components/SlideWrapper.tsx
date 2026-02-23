@@ -13,28 +13,23 @@ export const SlideWrapper: React.FC<SlideWrapperProps> = ({
 }) => {
     return (
         <div
-            className="relative page-wrapper shrink-0 w-[297mm] h-[167mm] bg-white overflow-hidden shadow-sm"
+            className="relative page-wrapper shrink-0 w-[297mm] h-[167mm] bg-[#0A0A0A] overflow-hidden"
             style={{
                 display: 'flex',
                 flexDirection: 'column',
                 pageBreakAfter: 'always',
                 pageBreakInside: 'avoid',
-                border: '1px solid #eee'
             }}
         >
-            {!hideHeader && (
-                <div className="absolute top-0 left-0 right-0 h-4 bg-red-600 z-50"></div>
-            )}
-
             {/* Main Content */}
             <div className="flex-grow flex flex-col relative z-10 w-full h-full">
                 {children}
             </div>
 
-            {/* Page Number */}
+            {/* Subtle Tracking Number - Only if not hidden */}
             {!hideHeader && (
-                <div className="absolute bottom-4 right-6 text-gray-400 font-bold text-lg rotate-90 transform origin-bottom-right z-50">
-                    {pageNumber}
+                <div className="absolute bottom-6 right-8 text-white/5 font-mono text-xs tracking-widest z-50 pointer-events-none">
+                    [ SLIDE // {String(pageNumber).padStart(2, '0')} ]
                 </div>
             )}
         </div>

@@ -3,34 +3,66 @@ import { valueAdd2026 } from '../data';
 
 export const ValueAddSlide = () => {
     return (
-        <div className="w-full h-full relative overflow-hidden bg-white p-12 flex flex-col">
-            <div className="absolute top-8 left-12 font-extrabold text-xl tracking-tighter text-red-600">JEE</div>
+        <div className="w-full h-full relative overflow-hidden bg-[#0A0A0A] font-sans">
+            {/* Background branding */}
+            <div className="absolute top-10 left-16 z-20 flex items-center space-x-4">
+                <img
+                    src="/clients/jackson etti and edu logo (1).png"
+                    alt="JEE"
+                    className="h-6 w-auto brightness-0 invert opacity-30"
+                />
+                <div className="h-4 w-px bg-white/10" />
+                <span className="text-white/20 text-[10px] font-bold tracking-[0.4em] uppercase">Service Portfolio // Beyond Litigation</span>
+            </div>
 
             {/* Slide Title */}
-            <div className="w-full text-center mt-2 mb-16">
-                <h2 className="text-3xl font-black text-red-600 uppercase tracking-wide inline-block border-b-2 border-red-200 pb-1">
-                    Value-Add Services for 2026
+            <div className="absolute top-32 left-16 right-16 z-20">
+                <div className="flex items-center space-x-4 mb-3">
+                    <div className="h-[2px] w-8 bg-red-600" />
+                    <span className="text-red-500 font-bold tracking-[0.4em] text-xs uppercase underline-offset-8">Support Ecosystem</span>
+                </div>
+                <h2 className="text-white text-5xl font-black uppercase tracking-tighter">
+                    Value-Add <span className="text-red-600">Services</span>
                 </h2>
             </div>
 
-            {/* Visual Grid Split */}
-            <div className="flex-grow grid grid-cols-2 md:grid-cols-3 gap-8 items-start justify-center max-w-6xl mx-auto">
+            {/* Content Core - High fidelity cards */}
+            <div className="absolute top-[280px] bottom-24 left-16 right-16 z-10 grid grid-cols-3 gap-8 items-start">
                 {valueAdd2026.map((item, index) => (
-                    <div key={index} className="flex flex-col relative bg-[#f9f9f9] rounded-2xl p-8 border border-gray-100 shadow-sm h-full group hover:bg-red-50 transition-colors duration-300">
-                        {/* Number Indicator */}
-                        <div className="absolute -top-6 -left-6 bg-red-600 text-white font-black text-4xl w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <div key={index} className="group relative bg-[#111] border border-white/5 p-12 rounded-sm h-full flex flex-col justify-start hover:border-red-600/40 transition-all duration-500 overflow-hidden">
+                        {/* Background glowing number */}
+                        <div className="absolute -top-4 -right-4 text-white/[0.03] text-8xl font-black italic group-hover:text-red-600/10 transition-colors">
                             {String(index + 1).padStart(2, '0')}
                         </div>
 
+                        {/* Top Indicator */}
+                        <div className="w-10 h-1 bg-red-600 mb-8" />
+
                         {/* Text Content */}
-                        <p className="text-gray-700 font-medium text-lg leading-relaxed mt-8 pl-4 border-l-4 border-red-200 group-hover:border-red-600 transition-colors text-justify">
+                        <p className="text-gray-300 font-bold text-xl leading-relaxed tracking-tight relative z-10 group-hover:text-white transition-colors">
                             {item}
                         </p>
+
+                        <div className="mt-auto pt-8">
+                            <div className="inline-flex items-center space-x-2 text-white/20 group-hover:text-red-500/50 transition-colors">
+                                <span className="text-[10px] font-bold tracking-[0.3em] uppercase">JEE Advisory</span>
+                                <div className="h-px w-4 bg-current" />
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>
 
-            <div className="absolute inset-4 border border-red-100 pointer-events-none rounded-xl"></div>
+            {/* Background Texture Overlay */}
+            <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+
+            {/* Outline Frame */}
+            <div className="absolute inset-8 border border-white/5 pointer-events-none"></div>
+
+            {/* Pagination / ID */}
+            <div className="absolute bottom-12 left-16 text-white/20 font-mono text-xs tracking-widest">
+                [ SERVICE MODULE // Q1-Q4.26 ]
+            </div>
         </div>
     );
 };

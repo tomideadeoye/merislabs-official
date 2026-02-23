@@ -1,71 +1,61 @@
 import React from 'react';
 
-const BackgroundPattern = () => (
-    <div className="absolute inset-0 pointer-events-none opacity-[0.05] z-0 overflow-hidden">
-        <div className="absolute top-[-20%] right-[-5%] w-[40%] aspect-square rounded-full border-[40px] border-white" />
-        <div className="absolute bottom-[-30%] left-[-10%] w-[50%] aspect-square rounded-full border-[60px] border-[#E80000]" />
-        <div className="absolute top-[10%] left-[5%] w-[20%] aspect-square rounded-full border-[2px] border-white" />
-    </div>
-);
-
 export const ThankYouSlide = () => {
     return (
-        <div className="w-full h-full relative overflow-hidden bg-[#211B1B] p-12 flex flex-col items-center justify-center border-4 border-[#211B1B] font-sans">
-            <BackgroundPattern />
+        <div className="w-full h-full relative overflow-hidden bg-[#0A0A0A] flex flex-col items-center justify-center font-sans">
+            {/* Background Graphic - Refracted light / Grain */}
+            <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05]" />
 
-            {/* Header / Brand Connection */}
-            <div className="absolute top-8 right-12 z-20 flex space-x-3 items-center">
-                <div className="font-bold text-xl text-white tracking-tight">Baker Hughes</div>
-                <div className="w-4 h-4 bg-teal-600 rounded-sm"></div>
+            {/* Massive Faded Logo Text */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/[0.01] text-[40rem] font-black italic select-none z-0">
+                JEE
             </div>
 
-            {/* Centered Top Content */}
-            <div className="relative z-10 w-full flex flex-col items-center">
-                <h1 className="text-white text-5xl font-black uppercase tracking-[0.2em] text-center drop-shadow-md mb-8">
-                    Thank You For<br />
-                    <span className="text-red-500">Your Attention</span>
-                </h1>
+            {/* Glowing Focal Point */}
+            <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[60%] aspect-square rounded-full bg-red-600/10 blur-[150px] z-0 animate-pulse" />
 
-                {/* Signature JEE Red Divider */}
-                <div className="w-24 h-1.5 bg-[#E80000] mb-8 relative z-10 shadow-[0_0_20px_rgba(232,0,0,0.3)]" />
-
-                {/* Logo Section */}
-                <div className="text-center flex flex-col items-center group mb-6">
+            <div className="relative z-10 flex flex-col items-center text-center">
+                {/* JEE Logo Inverted */}
+                <div className="mb-20 scale-150 grayscale brightness-200">
                     <img
                         src="/clients/jackson etti and edu logo (1).png"
-                        alt="Jackson Etti & Edu"
-                        className="h-20 w-auto brightness-0 invert relative z-10"
+                        alt="Jackson, Etti & Edu"
+                        className="h-10 w-auto"
                     />
                 </div>
-            </div>
 
-            {/* Agency Info Split Grid */}
-            <div className="relative z-10 px-8 max-w-4xl w-full mt-6">
-                <div className="grid grid-cols-2 gap-16 pt-8 border-t border-white/10 w-full">
-                    <div className="flex flex-col gap-4 text-left border-l border-[#E80000] pl-6">
-                        <div className="space-y-1 text-white/70 font-medium">
-                            <p className="text-md font-bold text-white">RCO Court, 3-5 Sinari Daranijo Street</p>
-                            <p className="text-sm opacity-60">Off Ajose Adeogun, Victoria Island, Lagos</p>
-                        </div>
-                    </div>
+                <div className="h-px w-24 bg-red-600 mb-12 shadow-[0_0_20px_rgba(232,0,0,0.5)]" />
 
-                    <div className="flex flex-col gap-4 text-left border-l border-white/10 pl-6 justify-center">
-                        <div className="flex flex-row justify-between w-full pr-8">
-                            <a href="tel:+23414626841" className="text-base font-black text-white hover:text-[#E80000] transition-colors tracking-tight whitespace-nowrap">
-                                +234 (1) 462 6841
-                            </a>
-                            <a href="https://jee.africa" target="_blank" className="text-base font-black text-white hover:text-[#E80000] transition-colors tracking-tight uppercase">
-                                jee.africa
-                            </a>
-                        </div>
+                <h2 className="text-white text-9xl font-black uppercase tracking-tighter leading-none mb-12 italic skew-x-[-2deg]">
+                    Thank <span className="text-red-600">You.</span>
+                </h2>
+
+                <div className="space-y-4">
+                    <p className="text-gray-400 text-xl font-bold tracking-[0.5em] uppercase">
+                        Legal Excellence in Partnership
+                    </p>
+                    <div className="flex justify-center items-center space-x-6">
+                        <span className="text-white/20 text-xs font-mono tracking-widest whitespace-nowrap">JEE // BAKER HUGHES</span>
+                        <div className="w-1 h-1 rounded-full bg-red-600" />
+                        <span className="text-white/20 text-xs font-mono tracking-widest whitespace-nowrap">2026 STATUS UPDATE</span>
                     </div>
                 </div>
             </div>
 
-            {/* Footer Copyright */}
-            <div className="absolute bottom-6 w-full text-center">
-                <p className="text-[9px] font-black uppercase tracking-[0.6em] text-white/20">© 2026 Jackson, Etti & Edu. All Rights Reserved.</p>
+            {/* Contact Details Bottom */}
+            <div className="absolute bottom-16 w-full flex justify-center space-x-24 z-20">
+                <div className="flex flex-col items-center">
+                    <span className="text-white/40 text-[10px] font-bold tracking-[0.3em] uppercase mb-1 underline decoration-red-600/50 underline-offset-4">Location</span>
+                    <span className="text-white text-xs font-bold tracking-widest">LAGOS, NIGERIA</span>
+                </div>
+                <div className="flex flex-col items-center">
+                    <span className="text-white/40 text-[10px] font-bold tracking-[0.3em] uppercase mb-1 underline decoration-red-600/50 underline-offset-4">Digital</span>
+                    <span className="text-white text-xs font-bold tracking-widest uppercase">www.JEE.africa</span>
+                </div>
             </div>
+
+            {/* Scanning Line Animation Effect */}
+            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600/50 to-transparent shadow-[0_0_15px_rgba(232,0,0,0.5)]" />
         </div>
     );
 };
