@@ -21,40 +21,39 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
     return (
         <div className="w-full h-full relative overflow-hidden bg-white font-sans">
             {/* Header Branding */}
-            <div className="absolute top-10 left-16 z-20 flex items-center space-x-4">
+            <div className="absolute top-6 left-16 z-30 flex items-center space-x-4">
                 <img
                     src="/clients/jackson etti and edu logo (1).png"
                     alt="JEE"
-                    className="h-6 w-auto opacity-70"
+                    className="h-8 w-auto"
                 />
                 <div className="h-4 w-px bg-gray-300" />
-                <span className="text-gray-400 text-[10px] font-bold tracking-[0.4em] uppercase">Portfolio Update // 2026</span>
+                <span className="text-gray-400 text-[10px] font-bold tracking-[0.4em] uppercase">Status Update // 2026</span>
             </div>
 
-            <div className="absolute top-28 left-16 right-16 z-20">
-                <div className="flex items-center space-x-4 mb-3">
-                    <div className="h-[2px] w-6 bg-red-600" />
-                    <span className="text-red-500 font-bold tracking-[0.3em] text-[10px] uppercase">Active Litigation</span>
+            <div className="absolute top-[180px] left-16 right-16 z-20">
+                <div className="flex items-center space-x-4 mb-5">
+                    <div className="h-[2px] w-10 bg-red-600" />
+                    <span className="text-red-600 font-black tracking-[0.5em] text-[10.5px] uppercase">Active Litigation</span>
                 </div>
-                <div className="flex items-center space-x-4 group">
-                    <h2 className="text-gray-900 text-2xl font-black uppercase tracking-tighter leading-[1.1] max-w-5xl">
+                <div className="flex items-start space-x-6 group">
+                    <h2 className="text-gray-900 text-4xl font-black uppercase tracking-tighter leading-[0.95] max-w-5xl">
                         {data.suitNo}
                     </h2>
-                    <button
-                        onClick={handleCopy}
-                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full hover:bg-gray-100 shrink-0"
-                        title="Copy Suit Number"
-                    >
-                        {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
-                    </button>
-                    <Link href={`/lawyers?suit=${encodeURIComponent(data.suitNo)}`} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full hover:bg-gray-100 shrink-0" title="View Counsel Directory">
-                        <ExternalLink className="w-5 h-5" />
-                    </Link>
+                    <div className="flex items-center space-x-3 mt-2 shrink-0">
+                        <button
+                            onClick={handleCopy}
+                            className="text-gray-400 hover:text-red-500 transition-all p-2.5 rounded-full hover:bg-gray-100"
+                            title="Copy Suit Number"
+                        >
+                            {copied ? <Check className="w-6 h-6 text-green-500" /> : <Copy className="w-6 h-6" />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Content Core - STACKED LAYOUT CONSISTENT WITH SVG GUIDE */}
-            <div className="absolute top-[220px] bottom-16 left-16 right-16 z-10 flex flex-col space-y-6">
+            <div className="absolute top-[380px] bottom-16 left-16 right-16 z-10 flex flex-col space-y-8">
 
                 {/* Summary Section - Larger Box */}
                 <div className="flex-1 flex flex-col min-h-0">
