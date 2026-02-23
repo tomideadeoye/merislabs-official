@@ -1,7 +1,7 @@
 import React from 'react';
 import { valueAdd2026 } from '../data';
 
-export const ValueAddSlide = () => {
+const ValueAddSlide = () => {
     return (
         <div className="w-full h-full relative overflow-hidden bg-white font-sans">
             {/* Background branding */}
@@ -66,3 +66,5 @@ export const ValueAddSlide = () => {
         </div>
     );
 };
+
+export default ValueAddSlide;

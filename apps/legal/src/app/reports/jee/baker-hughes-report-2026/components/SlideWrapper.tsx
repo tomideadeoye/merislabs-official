@@ -7,7 +7,7 @@ interface SlideWrapperProps {
     hideHeader?: boolean;
 }
 
-export const SlideWrapper: React.FC<SlideWrapperProps> = ({
+const SlideWrapper: React.FC<SlideWrapperProps> = ({
     children,
     pageNumber,
     hideHeader = false
@@ -44,3 +44,5 @@ export const SlideWrapper: React.FC<SlideWrapperProps> = ({
         </div>
     );
 };
+
+export default SlideWrapper;

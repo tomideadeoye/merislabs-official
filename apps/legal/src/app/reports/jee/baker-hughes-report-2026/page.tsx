@@ -3,15 +3,15 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { DownloadControls } from '../union-bank-report-1/components/DownloadControls';
-import { SlideWrapper } from './components/SlideWrapper';
-import { CoverSlide } from './components/CoverSlide';
-import { TOCSlide } from './components/TOCSlide';
-import { LitigationSlide } from './components/LitigationSlide';
-import { ClosedCasesSlide } from './components/ClosedCasesSlide';
-import { PrioritiesSlide } from './components/PrioritiesSlide';
-import { ValueAddSlide } from './components/ValueAddSlide';
-import { ThankYouSlide } from './components/ThankYouSlide';
-import { SectionHeaderSlide } from './components/SectionHeaderSlide';
+import SlideWrapper from './components/SlideWrapper';
+import CoverSlide from './components/CoverSlide';
+import TOCSlide from './components/TOCSlide';
+import LitigationSlide from './components/LitigationSlide';
+import ClosedCasesSlide from './components/ClosedCasesSlide';
+import PrioritiesSlide from './components/PrioritiesSlide';
+import ValueAddSlide from './components/ValueAddSlide';
+import ThankYouSlide from './components/ThankYouSlide';
+import SectionHeaderSlide from './components/SectionHeaderSlide';
 import { NavigationContext } from './components/NavigationContext';
 
 import { litigationCases, closedCases2025 } from './data';
@@ -220,12 +220,14 @@ function BakerHughesReportContent() {
                                     {allSlides[currentSlide]?.component}
                                 </SlideWrapper>
                                 {viewMode === 'deck' && (
-                                    <div className="group">
-                                        <div className="deck-controls absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center space-x-8 bg-white/80 backdrop-blur-md border border-gray-200 px-8 py-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <>
+                                        {/* Persistent Bottom Controls */}
+                                        <div className="deck-controls absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center space-x-8 bg-white shadow-2xl border border-gray-200 px-8 py-3 rounded-full z-[1000] opacity-90 hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={prevSlide}
                                                 disabled={currentSlide === 0}
-                                                className="text-gray-400 hover:text-red-500 disabled:opacity-10 transition-colors"
+                                                className="text-gray-400 hover:text-red-500 disabled:opacity-10 transition-colors p-2"
+                                                title="Previous Slide"
                                             >
                                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                                             </button>
@@ -237,24 +239,44 @@ function BakerHughesReportContent() {
                                                         style={{ width: `${((currentSlide + 1) / allSlides.length) * 100}%` }}
                                                     />
                                                 </div>
-                                                <span className="text-gray-400 font-mono text-sm">
-                                                    {currentSlide + 1} / {allSlides.length}
+                                                <span className="text-gray-400 font-mono text-xs font-bold">
+                                                    {String(currentSlide + 1).padStart(2, '0')} / {allSlides.length}
                                                 </span>
                                             </div>
 
                                             <button
                                                 onClick={nextSlide}
                                                 disabled={currentSlide === allSlides.length - 1}
-                                                className="text-gray-400 hover:text-red-500 disabled:opacity-10 transition-colors"
+                                                className="text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-200 px-6 py-2 rounded-full shadow-lg transition-all flex items-center space-x-3 group/btn"
+                                                title="Next Slide"
                                             >
-                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                                                <span className="font-bold text-[10px] tracking-widest uppercase">Next Page</span>
+                                                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                                             </button>
                                         </div>
 
-                                        <div className="absolute top-8 right-12 text-gray-400/20 font-mono text-[10px] tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                                            Press Space or Arrows to Navigate
+                                        {/* Side Navigation Zones */}
+                                        <div
+                                            onClick={prevSlide}
+                                            className="absolute left-0 top-0 bottom-0 w-32 cursor-pointer z-[500] group/prev hidden sm:block"
+                                        >
+                                            <div className="absolute left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover/prev:opacity-30 transition-opacity">
+                                                <svg className="w-12 h-12 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 19l-7-7 7-7" /></svg>
+                                            </div>
                                         </div>
-                                    </div>
+                                        <div
+                                            onClick={nextSlide}
+                                            className="absolute right-0 top-0 bottom-0 w-32 cursor-pointer z-[500] group/next hidden sm:block"
+                                        >
+                                            <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover/next:opacity-30 transition-opacity text-right">
+                                                <svg className="w-12 h-12 text-gray-900 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 5l7 7-7 7" /></svg>
+                                            </div>
+                                        </div>
+
+                                        <div className="absolute top-8 right-12 text-gray-400/20 font-mono text-[9px] tracking-[0.3em] uppercase pointer-events-none">
+                                            Keys: SPACE / ARROWS
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </div>

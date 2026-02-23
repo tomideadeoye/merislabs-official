@@ -7,7 +7,7 @@ interface SectionHeaderProps {
     sectionNumber: number;
 }
 
-export const SectionHeaderSlide: React.FC<SectionHeaderProps> = ({ title, subtitle, sectionNumber }) => {
+const SectionHeaderSlide: React.FC<SectionHeaderProps> = ({ title, subtitle, sectionNumber }) => {
     const { goToSlideById } = useDeckNavigation();
     return (
         <div className="w-full h-full relative overflow-hidden bg-white flex flex-col items-center justify-center font-sans">
@@ -63,3 +63,5 @@ export const SectionHeaderSlide: React.FC<SectionHeaderProps> = ({ title, subtit
         </div>
     );
 };
+
+export default SectionHeaderSlide;

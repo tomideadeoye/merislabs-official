@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ThankYouSlide = () => {
+const ThankYouSlide = () => {
     return (
         <div className="w-full h-full relative overflow-hidden bg-white flex flex-col items-center justify-center font-sans">
             {/* Background Graphic - Refracted light / Grain */}
@@ -59,3 +59,5 @@ export const ThankYouSlide = () => {
         </div>
     );
 };
+
+export default ThankYouSlide;

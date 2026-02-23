@@ -2,7 +2,7 @@ import React from 'react';
 import { priorities2026 } from '../data';
 import { useDeckNavigation } from './NavigationContext';
 
-export const PrioritiesSlide = () => {
+const PrioritiesSlide = () => {
     const { goToSlideById } = useDeckNavigation();
     return (
         <div className="w-full h-full relative overflow-hidden bg-white font-sans">
@@ -108,3 +108,5 @@ export const PrioritiesSlide = () => {
         </div>
     );
 };
+
+export default PrioritiesSlide;

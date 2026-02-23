@@ -5,7 +5,7 @@ interface ClosedCaseData {
     status: string;
 }
 
-export const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, total: number }> = ({ data, index, total }) => {
+const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, total: number }> = ({ data, index, total }) => {
     return (
         <div className="w-full h-full relative overflow-hidden bg-white font-sans">
             {/* Background branding */}
@@ -77,3 +77,5 @@ export const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, t
         </div>
     );
 };
+
+export default ClosedCasesSlide;

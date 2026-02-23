@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const CoverSlide = () => {
+const CoverSlide = () => {
     return (
         <div className="w-full h-full relative overflow-hidden bg-white font-sans">
             {/* Background Image Setup - Right Aligned with light gradient overlay */}
@@ -71,3 +71,5 @@ export const CoverSlide = () => {
         </div>
     );
 };
+
+export default CoverSlide;

@@ -9,7 +9,7 @@ interface LitigationData {
     nextSteps?: string;
 }
 
-export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) => {
+const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -21,7 +21,7 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
     return (
         <div className="w-full h-full relative overflow-hidden bg-white font-sans">
             {/* Header Branding */}
-            <div className="absolute top-10 left-16 z-20 flex items-center space-x-4">
+            <div className="absolute top-12 left-16 z-20 flex items-center space-x-4">
                 <img
                     src="/clients/jackson etti and edu logo (1).png"
                     alt="JEE"
@@ -31,7 +31,7 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                 <span className="text-gray-400 text-[10px] font-bold tracking-[0.4em] uppercase">Status Report . 2026</span>
             </div>
 
-            <div className="absolute top-22 left-16 right-16 z-20">
+            <div className="absolute top-40 left-16 right-16 z-20">
                 <div className="flex items-center space-x-4 mb-2">
                     <div className="h-[2px] w-6 bg-red-600" />
                     <span className="text-red-500 font-bold tracking-[0.3em] text-[10px] uppercase">Active Litigation</span>
@@ -118,3 +118,5 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
         </div>
     );
 };
+
+export default LitigationSlide;
