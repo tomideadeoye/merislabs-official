@@ -42,13 +42,13 @@ export const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, t
                         <span className="text-green-500 text-3xl font-bold">✓</span>
                     </div>
 
-                    <h3 className="text-gray-900 text-2xl font-black uppercase tracking-tight mb-8 max-w-[85%] leading-snug">
+                    <h3 className="text-gray-900 text-2xl font-black uppercase tracking-tight mb-8 max-w-[85%] leading-snug shrink-0">
                         {data.suitNo}
                     </h3>
 
-                    <div className="h-px w-20 bg-gray-200 mb-8" />
+                    <div className="h-px w-20 bg-gray-200 mb-8 shrink-0" />
 
-                    <div className="text-gray-700 text-lg leading-relaxed text-justify space-y-6 overflow-y-auto pr-4 custom-scrollbar flex-grow">
+                    <div className="text-gray-700 text-lg leading-relaxed text-justify space-y-6 overflow-y-auto pr-4 custom-scrollbar flex-1 min-h-0">
                         {data.status.split('\n').map((para, i) => (
                             <p key={i}>{para}</p>
                         ))}
@@ -64,10 +64,10 @@ export const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, t
 
             <style jsx>{`
                 .custom-scrollbar::-webkit-scrollbar {
-                    width: 3px;
+                    width: 4px;
                 }
                 .custom-scrollbar::-webkit-scrollbar-track {
-                    background: rgba(0, 0, 0, 0.05);
+                    background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
                     background: rgba(34, 197, 94, 0.4);

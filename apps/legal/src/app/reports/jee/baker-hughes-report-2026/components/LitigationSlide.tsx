@@ -61,7 +61,7 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                     <div className="bg-gray-50 border border-gray-200 rounded-sm p-7 h-full relative group hover:border-red-600/30 shadow-sm transition-colors flex flex-col">
                         <div className="absolute top-0 left-0 w-1 h-12 bg-red-600" />
                         <h3 className="text-red-600 text-[10px] font-black tracking-[0.4em] uppercase mb-5 shrink-0">Case Summary</h3>
-                        <div className="text-gray-700 text-[14px] leading-relaxed text-justify space-y-4 overflow-y-auto pr-4 custom-scrollbar">
+                        <div className="text-gray-700 text-[14px] leading-relaxed text-justify space-y-4 overflow-y-auto pr-4 custom-scrollbar flex-1 min-h-0">
                             {data.summary.split('\n').map((para, i) => (
                                 <p key={i} className={i > 0 ? "mt-4" : ""}>{para}</p>
                             ))}
@@ -81,7 +81,7 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                             </div>
                         </Link>
                         <h3 className="text-gray-400 text-[10px] font-black tracking-[0.4em] uppercase mb-5 shrink-0">Status Update</h3>
-                        <div className="text-gray-700 text-[14px] leading-relaxed space-y-4 overflow-y-auto pr-4 custom-scrollbar">
+                        <div className="text-gray-700 text-[14px] leading-relaxed space-y-4 overflow-y-auto pr-4 custom-scrollbar flex-1 min-h-0">
                             {data.status.split('\n').map((para, i) => (
                                 <p key={i} className={i > 0 ? "mt-4" : ""}>{para}</p>
                             ))}
@@ -111,10 +111,10 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
 
             <style jsx>{`
                 .custom-scrollbar::-webkit-scrollbar {
-                    width: 3px;
+                    width: 4px;
                 }
                 .custom-scrollbar::-webkit-scrollbar-track {
-                    background: rgba(0, 0, 0, 0.05);
+                    background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
                     background: rgba(232, 0, 0, 0.4);

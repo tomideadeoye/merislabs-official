@@ -53,7 +53,7 @@ export const PrioritiesSlide = () => {
 
                 {/* Text Content - HIGH CONTRAST */}
                 <div className="col-span-8 flex flex-col justify-start space-y-4 h-full overflow-hidden">
-                    <div className="flex-grow overflow-y-auto pr-4 custom-scrollbar space-y-4">
+                    <div className="flex-1 min-h-0 overflow-y-auto pr-4 custom-scrollbar space-y-4">
                         {priorities2026.split('\n\n').map((paragraph, index) => (
                             <div key={index} className="bg-gray-50 border border-gray-200 p-7 rounded-sm relative group hover:border-red-600/50 transition-all shadow-sm shrink-0">
                                 <div className="absolute top-0 left-0 w-1 h-12 bg-red-600" />
@@ -85,10 +85,10 @@ export const PrioritiesSlide = () => {
 
                 <style jsx>{`
                     .custom-scrollbar::-webkit-scrollbar {
-                        width: 3px;
+                        width: 4px;
                     }
                     .custom-scrollbar::-webkit-scrollbar-track {
-                        background: rgba(0, 0, 0, 0.05);
+                        background: transparent;
                     }
                     .custom-scrollbar::-webkit-scrollbar-thumb {
                         background: rgba(232, 0, 0, 0.4);
