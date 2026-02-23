@@ -7,14 +7,13 @@ import SlideWrapper from './components/SlideWrapper';
 import CoverSlide from './components/CoverSlide';
 import TOCSlide from './components/TOCSlide';
 import LitigationSlide from './components/LitigationSlide';
-import ClosedCasesSlide from './components/ClosedCasesSlide';
 import PrioritiesSlide from './components/PrioritiesSlide';
 import ValueAddSlide from './components/ValueAddSlide';
 import ThankYouSlide from './components/ThankYouSlide';
 import SectionHeaderSlide from './components/SectionHeaderSlide';
 import { NavigationContext } from './components/NavigationContext';
 
-import { litigationCases, closedCases2025 } from './data';
+import { litigationCases } from './data';
 
 function BakerHughesReportContent() {
     const searchParams = useSearchParams();
@@ -57,16 +56,14 @@ function BakerHughesReportContent() {
         let targetIdx = -1;
         if (id === 'toc') targetIdx = 1;
         if (id === '01') targetIdx = 2; // Pending Litigation Header
-        if (id === '02') targetIdx = 3 + litigationCases.length; // Completed Matters Header
-        if (id === '03') targetIdx = 4 + litigationCases.length + closedCases2025.length; // Future Strategy Header
-        if (id === '04') targetIdx = 5 + litigationCases.length + closedCases2025.length; // Value Add (after priorities)
+        if (id === '02') targetIdx = 3 + litigationCases.length; // Future Strategy Header
+        if (id === '03') targetIdx = 4 + litigationCases.length; // Value Add (after priorities)
 
         // Support for granular case navigation: case:litigation:0, case:closed:1, etc.
         if (id.startsWith('case:')) {
             const [, type, indexStr] = id.split(':');
             const index = parseInt(indexStr);
             if (type === 'litigation') targetIdx = 3 + index;
-            if (type === 'closed') targetIdx = 4 + litigationCases.length + index;
         }
 
         if (targetIdx !== -1) {
@@ -94,17 +91,7 @@ function BakerHughesReportContent() {
         ...litigationCases.map((caseData) => ({ type: 'litigation', component: <LitigationSlide data={caseData} />, title: "Active Litigation" })),
         {
             type: 'header',
-            component: <SectionHeaderSlide sectionNumber={2} title="Completed Matters" subtitle="Update on closed cases in 2025" />,
-            hideHeader: true
-        },
-        ...closedCases2025.map((caseItem, idx) => ({
-            type: 'closed',
-            component: <ClosedCasesSlide data={caseItem} index={idx} total={closedCases2025.length} />,
-            title: "Resolved Cases"
-        })),
-        {
-            type: 'header',
-            component: <SectionHeaderSlide sectionNumber={3} title="Future Strategy" subtitle="Our Priorities and Value-Add Services for 2026" />,
+            component: <SectionHeaderSlide sectionNumber={2} title="Future Strategy" subtitle="Our Priorities and Value-Add Services for 2026" />,
             hideHeader: true
         },
         { type: 'priorities', component: <PrioritiesSlide />, title: "Execution Priorities" },

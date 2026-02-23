@@ -71,39 +71,6 @@ export const litigationCases = [
     }
 ];
 
-export const closedCases2025 = [
-    {
-        suitNo: "SUIT NO: PHC/1160/CS/2024 PARTIES: F.T GEOSOLUTIONS LIMITED V. BAKER HUGHES NIGERIA LIMITED & 5 ORS",
-        status: "Based on the strength of our defence in the matter the Claimant’s Counsel was constrained to discontinuing the matter against Baker Hughes. The case was closed as it pertains to Baker Hughes.",
-        link: "https://www.google.com/search?q=F.T+GEOSOLUTIONS+Baker+Hughes",
-        link: "https://www.google.com/search?q=F.T+GEOSOLUTIONS+Baker+Hughes",
-    },
-    {
-        suitNo: "SUIT NO: PHC/3042/CS/2023 PARTIES: PASTOR DOUGLAS AMADI & 2 ORS V. BAKER HUGHES & 8 ORS",
-        status: "The Claimants are allegedly indigenes of Nkpor-Ogwu Community in Rebisi Kingdom, Rivers State, and they predicate their case on the factual assertion that the Nkpor Ogwu Community, and not the 1st and 2nd Defendants, are entitled to direct benefit from Baker Hughes (Nig) Ltd and other settlors within the Nkpor-Ogwu Community. The Claimants sought a number of adjournments stalling the progress of the matter. When the case came up on 5th December 2025, we urged the Court to dismiss the matter for want of diligent prosecution. On the strength of our arguments, the Court dismissed the matter.",
-        link: "https://www.google.com/search?q=PASTOR+DOUGLAS+AMADI+Baker+Hughes",
-        link: "https://www.google.com/search?q=PASTOR+DOUGLAS+AMADI+Baker+Hughes",
-    },
-    {
-        suitNo: "SUIT NO: PHC/CS/3115/2023: FIRST MARINE & ENGINEERING SERVICES LIMITED V. BAKER HUGHES NIGERIA LIMITED & 2 ORS",
-        status: "Trial had commenced in this matter. The Claimant had already called two witnesses. However, the Claimant reached an agreement with Intels. The Claimant also filed a notice of discontinuance in favour of Baker Hughes. Accordingly, the matter was struck out.",
-        link: "https://www.google.com/search?q=FIRST+MARINE+%26+ENGINEERING+SERVICES+Baker+Hughes",
-        link: "https://www.google.com/search?q=FIRST+MARINE+%26+ENGINEERING+SERVICES+Baker+Hughes",
-    },
-    {
-        suitNo: "SUIT NO: PHC/1014/2007 - TONWE SUTE V. BAKER OIL TOOLS LTD AND OTHERS; CA/PHC/127/2026- BAKER OIL TOOLS V TONWE SUTE AND OTHERS",
-        status: "The Court of Appeal had directed all parties to approach the Court of Appeal Alternative Dispute Centre (CAADRC) for mediation, to enable parties explore an out of Court settlement of the dispute. We attended series of mediation meetings on behalf of Baker Oil Tools. We made it clear to the mediator that our position was that Baker Oil Tools would not concede to any amount as we believe the grant of N2,000,000,000.00. The Attorney General of Rivers State was however able to convince the Rivers State Government to settle the judgement sum by paying the sum of N1,200,000,000.00. The terms of settlement was drawn up and adopted on 14th January 2026.",
-        link: "https://www.google.com/search?q=TONWE+SUTE+BAKER+OIL+TOOLS",
-        link: "https://www.google.com/search?q=TONWE+SUTE+BAKER+OIL+TOOLS",
-    },
-    {
-        suitNo: "CHARGE NO: PMC/977EHA/2025- ENVIROMENTAL HEALTH AUTHORITY V BAKER HUGHES NIGERIA LIMITED AND 5 OTHERS",
-        status: "The Environmental Health Authority instituted a criminal action against Baker Hughes vide a criminal summons dated 29th September 2025. The Authority preferred a 3-count charge against Baker Hughes and some of its officials on allegations of nonpayment of premises fitness fees for the years 2007- 2025. We successfully negotiated the settlement of the matter. The terms of settlement was adopted in Court and the matter struck out.",
-        link: "https://www.google.com/search?q=ENVIRONMENTAL+HEALTH+AUTHORITY+Baker+Hughes",
-        link: "https://www.google.com/search?q=ENVIRONMENTAL+HEALTH+AUTHORITY+Baker+Hughes",
-    }
-];
-
 export const priorities2026 = "In 2026, our overarching objective is to secure a positive and commercially beneficial resolution of all Baker Hughes–related matters within our portfolio. While other cases will continue to progress in the ordinary course, focused strategic attention will be directed at the Intels v. Baker Hughes, Trexm, and Pressure Control Systems v. Eroton matters.\n\nWith respect to Intels v. Baker Hughes, we intend to actively pursue expedited resolution, whether through fast-track or accelerated trial procedures, or by exploring an amicable settlement where commercially feasible and strategically advantageous. In the Pressure Control Systems matter, we will intensify enforcement efforts, including the continued exploration of garnishee proceedings and other targeted recovery mechanisms to maximize enforceability and value realization.";
 
 export const valueAdd2026 = [

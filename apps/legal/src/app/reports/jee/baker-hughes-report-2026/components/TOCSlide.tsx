@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDeckNavigation } from './NavigationContext';
-import { litigationCases, closedCases2025 } from '../data';
+import { litigationCases } from '../data';
 import { JEE_WEBSITE_URL } from '../../constants';
 
 const TOCSlide = () => {
@@ -78,38 +78,7 @@ const TOCSlide = () => {
 
                     {/* Right Column: Other Sections */}
                     <div className="col-span-12 xl:col-span-4 flex flex-col space-y-8">
-                        {/* Section 02: Completed */}
-                        <div>
-                            <div
-                                onClick={() => goToSlideById('02')}
-                                className="group cursor-pointer flex items-center space-x-4 mb-4 border-b border-[#211B1B]/10 pb-2 hover:bg-white/[0.02] transition-all px-2 -ml-2"
-                            >
-                                <span className="text-red-600 font-mono text-lg font-bold">02</span>
-                                <span className="text-[#211B1B] text-lg font-bold tracking-tight uppercase group-hover:text-red-500 transition-colors">Completed</span>
-                            </div>
-                            <div className="space-y-2">
-                                {closedCases2025.slice(0, 4).map((caseItem, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex items-center space-x-3 opacity-40 hover:opacity-100 cursor-pointer transition-opacity"
-                                        onClick={() => goToSlideById(`case:closed:${idx}`)}
-                                    >
-                                        <div className="w-1 h-1 rounded-full bg-green-500" />
-                                        <span className="text-[10px] font-bold uppercase tracking-tight line-clamp-1">{getShortName(caseItem.suitNo)}</span>
-                                    </div>
-                                ))}
-                                {closedCases2025.length > 4 && (
-                                    <span
-                                        className="text-[9px] text-[#211B1B]/20 italic pl-4 cursor-pointer hover:text-[#211B1B]/50"
-                                        onClick={() => goToSlideById('02')}
-                                    >
-                                        + {closedCases2025.length - 4} more finalized matters
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Section 03 & 04 */}
+                        {/* Section 02 & 03 */}
                         <div className="space-y-2">
                             {[
                                 { id: '03', title: 'Priorities 2026', desc: 'Strategic Objectives' },
