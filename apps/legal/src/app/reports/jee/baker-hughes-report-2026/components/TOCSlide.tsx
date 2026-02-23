@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDeckNavigation } from './NavigationContext';
 import { litigationCases, closedCases2025 } from '../data';
+import { JEE_WEBSITE_URL } from '../../constants';
 
 const TOCSlide = () => {
     const { goToSlideById } = useDeckNavigation();
@@ -17,11 +18,13 @@ const TOCSlide = () => {
             {/* Background branding */}
             <div className="absolute top-12 left-12 right-12 z-50 flex justify-between items-center border-b border-[#211B1B]/10 pb-6">
                 <div className="flex items-center space-x-4">
-                    <img
-                        src="/clients/jackson etti and edu logo (1).png"
-                        alt="JEE"
-                        className="h-6 w-auto object-contain opacity-80"
-                    />
+                    <a href={JEE_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="shrink-0 transition-transform hover:scale-105">
+                        <img
+                            src="/clients/jackson etti and edu logo (1).png"
+                            alt="JEE"
+                            className="h-6 w-auto object-contain opacity-80 hover:opacity-100"
+                        />
+                    </a>
                     <div className="h-4 w-px bg-[#211B1B]/20" />
                     <span className="text-[#211B1B]/40 text-[10px] font-bold tracking-[0.4em] uppercase">Status Report . 2026</span>
                 </div>

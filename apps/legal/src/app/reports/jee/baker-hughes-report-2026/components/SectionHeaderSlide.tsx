@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDeckNavigation } from './NavigationContext';
+import { JEE_WEBSITE_URL } from '../../constants';
 
 interface SectionHeaderProps {
     title: string;
@@ -51,12 +52,14 @@ const SectionHeaderSlide: React.FC<SectionHeaderProps> = ({ title, subtitle, sec
             <div className="absolute inset-0 opacity-[0.03] z-[1] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
 
             {/* Brand Logo */}
-            <div className="absolute bottom-16 z-20 opacity-60">
-                <img
-                    src="/clients/jackson etti and edu logo (1).png"
-                    alt="JEE"
-                    className="h-6 w-auto object-contain"
-                />
+            <div className="absolute bottom-16 z-20 opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                <a href={JEE_WEBSITE_URL} target="_blank" rel="noopener noreferrer">
+                    <img
+                        src="/clients/jackson etti and edu logo (1).png"
+                        alt="JEE"
+                        className="h-6 w-auto object-contain transition-transform hover:scale-105"
+                    />
+                </a>
             </div>
         </div>
     );

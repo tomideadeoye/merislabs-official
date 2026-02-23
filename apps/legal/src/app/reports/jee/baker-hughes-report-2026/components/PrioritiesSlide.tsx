@@ -2,6 +2,7 @@ import React from 'react';
 import { priorities2026 } from '../data';
 import { useDeckNavigation } from './NavigationContext';
 import { Target } from 'lucide-react';
+import { JEE_WEBSITE_URL } from '../../constants';
 
 const PrioritiesSlide = () => {
     const { goToSlideById } = useDeckNavigation();
@@ -10,11 +11,13 @@ const PrioritiesSlide = () => {
             {/* Background branding */}
             <div className="absolute top-12 left-12 right-12 z-50 flex justify-between items-center border-b border-[#211B1B]/10 pb-6">
                 <div className="flex items-center space-x-4">
-                    <img
-                        src="/clients/jackson etti and edu logo (1).png"
-                        alt="JEE"
-                        className="h-6 w-auto object-contain opacity-80"
-                    />
+                    <a href={JEE_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="shrink-0 transition-transform hover:scale-105">
+                        <img
+                            src="/clients/jackson etti and edu logo (1).png"
+                            alt="JEE"
+                            className="h-6 w-auto object-contain opacity-80 hover:opacity-100"
+                        />
+                    </a>
                     <div className="h-4 w-px bg-[#211B1B]/20" />
                     <span className="text-[#211B1B]/40 text-[10px] font-bold tracking-[0.4em] uppercase">Strategic Roadmap . 2026</span>
                 </div>
@@ -68,7 +71,9 @@ const PrioritiesSlide = () => {
                     <div className="mt-6 flex items-center justify-between opacity-50">
                         <span className="text-[10px] font-mono tracking-widest uppercase">Strategy Module . Ref. BK-2026</span>
                         <div className="h-px flex-1 mx-8 bg-[#211B1B]/10" />
-                        <span className="text-[10px] font-mono tracking-widest uppercase">Jackson, Etti & Edu</span>
+                        <span className="text-[10px] font-mono tracking-widest uppercase hover:text-red-500 transition-colors cursor-pointer">
+                            <a href={JEE_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="text-inherit no-underline">Jackson, Etti & Edu</a>
+                        </span>
                     </div>
                 </div>
             </div>

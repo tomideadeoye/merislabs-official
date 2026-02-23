@@ -1,4 +1,5 @@
 import React from 'react';
+import { JEE_WEBSITE_URL } from '../../constants';
 
 const CoverSlide = () => {
     return (
@@ -13,11 +14,13 @@ const CoverSlide = () => {
             <div className="relative z-10 h-full w-[70%] flex flex-col px-24 py-16">
                 {/* Dual Branding Header */}
                 <div className="flex items-center space-x-6 shrink-0 border-b border-[#211B1B]/10 pb-10">
-                    <img
-                        src="/clients/jackson etti and edu logo (1).png"
-                        alt="Jackson, Etti & Edu"
-                        className="h-8 w-auto object-contain"
-                    />
+                    <a href={JEE_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="shrink-0 transition-transform hover:scale-105">
+                        <img
+                            src="/clients/jackson etti and edu logo (1).png"
+                            alt="Jackson, Etti & Edu"
+                            className="h-8 w-auto object-contain"
+                        />
+                    </a>
                     <div className="h-4 w-px bg-[#211B1B]/20" />
                     <img
                         src="/clients/baker-hughes-logo.png"

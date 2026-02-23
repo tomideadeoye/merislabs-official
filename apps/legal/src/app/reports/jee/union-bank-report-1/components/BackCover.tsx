@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { JEE_WEBSITE_URL } from '../../constants';
 
 const BackgroundPattern = () => (
     <div className="absolute inset-0 pointer-events-none opacity-[0.05] z-0 overflow-hidden">
@@ -56,7 +57,7 @@ export const BackCover = () => {
 
                         <div className="flex flex-col gap-8 text-left border-l border-white/10 pl-8">
                             <div className="flex flex-col gap-2">
-                                <a href="https://jee.africa" target="_blank" className="text-lg font-black text-white hover:text-[#E80000] transition-colors tracking-tight uppercase">
+                                <a href={JEE_WEBSITE_URL} target="_blank" className="text-lg font-black text-white hover:text-[#E80000] transition-colors tracking-tight uppercase">
                                     jee.africa
                                 </a>
                                 <a href="mailto:jee@jee.africa" className="text-[10px] font-black text-white/30 hover:text-white transition-all uppercase tracking-[0.4em]">

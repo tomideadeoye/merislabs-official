@@ -1,3 +1,5 @@
+import { JEE_WEBSITE_URL } from '../../constants';
+
 const JeeUnionBankFooter = ({ pageNumber }: { pageNumber: string }) => (
     <div className="h-20 bg-transparent flex items-center justify-between px-12 relative mt-auto font-sans">
         {/* Top Border - clearly separated from text */}
@@ -20,11 +22,13 @@ const JeeUnionBankFooter = ({ pageNumber }: { pageNumber: string }) => (
                 className="h-8 w-auto object-contain brightness-0 opacity-50"
             />
             <div className="w-px h-6 bg-[#211B1B]/10"></div>
-            <img
-                src="/clients/jackson etti and edu logo (1).png"
-                alt="Jackson, Etti & Edu"
-                className="h-4 w-auto object-contain brightness-0 opacity-30"
-            />
+            <a href={JEE_WEBSITE_URL} target="_blank" rel="noopener noreferrer">
+                <img
+                    src="/clients/jackson etti and edu logo (1).png"
+                    alt="Jackson, Etti & Edu"
+                    className="h-4 w-auto object-contain brightness-0 opacity-30 cursor-pointer hover:opacity-100 transition-opacity"
+                />
+            </a>
         </div>
     </div>
 );

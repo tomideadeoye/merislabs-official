@@ -16,12 +16,14 @@ const ThankYouSlide = () => {
 
             <div className="relative z-10 flex flex-col items-center text-center">
                 {/* JEE Logo */}
-                <div className="mb-20 scale-150 opacity-90">
-                    <img
-                        src="/clients/jackson etti and edu logo (1).png"
-                        alt="Jackson, Etti & Edu"
-                        className="h-10 w-auto object-contain"
-                    />
+                <div className="mb-20 scale-150 opacity-90 transition-opacity hover:opacity-100 cursor-pointer">
+                    <a href="https://jee.africa/" target="_blank" rel="noopener noreferrer" className="inline-block transition-transform hover:scale-105">
+                        <img
+                            src="/clients/jackson etti and edu logo (1).png"
+                            alt="Jackson, Etti & Edu"
+                            className="h-10 w-auto object-contain"
+                        />
+                    </a>
                 </div>
 
                 <div className="h-px w-24 bg-red-600 mb-12 shadow-[0_0_20px_rgba(232,0,0,0.5)]" />
@@ -48,13 +50,9 @@ const ThankYouSlide = () => {
                     <span className="text-[#211B1B]/20 text-[10px] font-bold tracking-[0.4em] uppercase mb-2">Location</span>
                     <span className="text-[#211B1B]/80 text-xs font-bold tracking-widest">LAGOS, NIGERIA</span>
                 </div>
-                <div className="flex flex-col items-center border-x border-[#211B1B]/5 px-12">
+                <div className="flex flex-col items-center border-l border-[#211B1B]/5 pl-12 ml-6">
                     <span className="text-[#211B1B]/20 text-[10px] font-bold tracking-[0.4em] uppercase mb-2">Digital</span>
                     <span className="text-[#211B1B]/80 text-xs font-bold tracking-widest uppercase">www.JEE.africa</span>
-                </div>
-                <div className="flex flex-col items-center">
-                    <span className="text-[#211B1B]/20 text-[10px] font-bold tracking-[0.4em] uppercase mb-2">Security</span>
-                    <span className="text-[#211B1B]/80 text-xs font-bold tracking-widest uppercase">Encrypted Deck</span>
                 </div>
             </div>
 

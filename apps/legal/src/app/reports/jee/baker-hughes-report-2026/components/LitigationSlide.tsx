@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Copy, Check, ExternalLink, Shield } from 'lucide-react';
+import { JEE_WEBSITE_URL } from '../../constants';
 
 interface LitigationData {
     suitNo: string;
@@ -24,28 +25,30 @@ const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) => {
             {/* Header Branding */}
             <div className="absolute top-12 left-12 right-12 z-50 flex justify-between items-center border-b border-[#211B1B]/10 pb-6">
                 <div className="flex items-center space-x-4">
-                    <img
-                        src="/clients/jackson etti and edu logo (1).png"
-                        alt="JEE"
-                        className="h-6 w-auto object-contain opacity-80"
-                    />
+                    <a href={JEE_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="shrink-0 transition-transform hover:scale-105">
+                        <img
+                            src="/clients/jackson etti and edu logo (1).png"
+                            alt="JEE"
+                            className="h-6 w-auto object-contain opacity-80 hover:opacity-100"
+                        />
+                    </a>
                     <div className="h-4 w-px bg-[#211B1B]/20" />
                     <span className="text-[#211B1B]/40 text-[10px] font-bold tracking-[0.4em] uppercase">Status Report . 2026</span>
                 </div>
             </div>
 
             {/* Main Content Container */}
-            <div className="absolute inset-0 top-32 left-12 right-12 bottom-16 z-20 flex flex-col">
+            <div className="absolute inset-0 top-28 left-12 right-12 bottom-12 z-20 flex flex-col">
 
                 {/* Case Header Section */}
-                <div className="mb-6 shrink-0">
+                <div className="mb-4 shrink-0">
                     <div className="flex items-center space-x-3 mb-2">
                         <div className="h-[1px] w-8 bg-red-600" />
-                        <span className="text-red-500 font-bold tracking-[0.4em] text-[10px] uppercase">Active Litigation</span>
+                        <span className="text-red-500 font-bold tracking-[0.4em] text-[9px] uppercase">Active Litigation</span>
                     </div>
 
                     <div className="flex items-start justify-between">
-                        <h2 className="text-2xl font-black uppercase tracking-tighter leading-tight max-w-[85%] text-transparent bg-clip-text bg-gradient-to-r from-[#211B1B] via-[#211B1B] to-[#211B1B]/50">
+                        <h2 className="text-[20px] font-black uppercase tracking-tighter leading-tight max-w-[85%] text-transparent bg-clip-text bg-gradient-to-r from-[#211B1B] via-[#211B1B] to-[#211B1B]/50 line-clamp-2">
                             {data.suitNo}
                         </h2>
                         <div className="flex space-x-2 mt-1 shrink-0">
@@ -72,12 +75,12 @@ const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) => {
                 </div>
 
                 {/* Info Grid */}
-                <div className="flex-1 grid grid-cols-12 gap-6 min-h-0">
+                <div className="flex-1 grid grid-cols-12 gap-5 min-h-0">
                     {/* Summary Card */}
                     <div className="col-span-12 lg:col-span-5 h-full flex flex-col min-h-0">
-                        <div className="glass-card flex-1 p-6 relative flex flex-col min-h-0 border-l-2 border-l-red-600">
-                            <h3 className="text-red-600 text-[10px] font-black tracking-[0.4em] uppercase mb-4 shrink-0">Case Summary</h3>
-                            <div className="text-[#211B1B]/80 text-[13px] leading-relaxed text-justify overflow-y-auto pr-4 custom-scrollbar flex-1 whitespace-pre-wrap">
+                        <div className="glass-card flex-1 p-5 relative flex flex-col min-h-0 border-l-2 border-l-red-600">
+                            <h3 className="text-red-600 text-[9px] font-black tracking-[0.4em] uppercase mb-3 shrink-0">Case Summary</h3>
+                            <div className="text-[#211B1B]/80 text-[12px] leading-[1.6] text-justify overflow-y-auto pr-2 custom-scrollbar flex-1 whitespace-pre-wrap">
                                 {data.summary}
                             </div>
                         </div>
@@ -86,21 +89,21 @@ const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) => {
                     {/* Status & Next Steps Column */}
                     <div className="col-span-12 lg:col-span-7 flex flex-col space-y-4 min-h-0 cursor-default">
                         {/* Status Card */}
-                        <div className="glass-card flex-1 p-6 relative flex flex-col min-h-0">
-                            <h3 className="text-[#211B1B]/50 text-[10px] font-black tracking-[0.4em] uppercase mb-4 shrink-0">Status Update</h3>
-                            <div className="text-[#211B1B] text-[13px] leading-relaxed overflow-y-auto pr-4 custom-scrollbar flex-1 whitespace-pre-wrap">
+                        <div className="glass-card flex-1 p-5 relative flex flex-col min-h-0">
+                            <h3 className="text-[#211B1B]/50 text-[9px] font-black tracking-[0.4em] uppercase mb-3 shrink-0">Status Update</h3>
+                            <div className="text-[#211B1B] text-[12px] leading-[1.6] overflow-y-auto pr-2 custom-scrollbar flex-1 whitespace-pre-wrap">
                                 {data.status}
                             </div>
                         </div>
 
                         {/* Next Steps Card */}
                         {data.nextSteps && (
-                            <div className="bg-red-500/[0.03] border border-red-500/10 p-6 flex flex-col relative overflow-hidden shrink-0 group">
-                                <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
-                                    <Shield className="w-20 h-20 rotate-12 text-[#211B1B]" />
+                            <div className="bg-red-500/[0.03] border border-red-500/10 p-5 flex flex-col relative overflow-hidden shrink-0 group">
+                                <div className="absolute top-0 right-0 p-5 opacity-5 pointer-events-none">
+                                    <Shield className="w-16 h-16 rotate-12 text-[#211B1B]" />
                                 </div>
-                                <h3 className="text-red-600 text-[10px] font-black tracking-[0.4em] uppercase mb-3 relative z-10 shrink-0">Strategic Next Steps</h3>
-                                <div className="text-[#211B1B] text-[13px] font-semibold leading-relaxed relative z-10 overflow-y-auto pr-4 custom-scrollbar whitespace-pre-wrap max-h-[9rem]">
+                                <h3 className="text-red-600 text-[9px] font-black tracking-[0.4em] uppercase mb-2 relative z-10 shrink-0">Strategic Next Steps</h3>
+                                <div className="text-[#211B1B] text-[12px] font-semibold leading-[1.6] relative z-10 overflow-y-auto pr-2 custom-scrollbar whitespace-pre-wrap max-h-[10rem]">
                                     {data.nextSteps}
                                 </div>
                             </div>
