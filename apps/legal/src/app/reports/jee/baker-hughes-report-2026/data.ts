@@ -1,7 +1,7 @@
 export const litigationCases = [
     {
         suitNo: "SUIT NO: NHC/9/CS/2024 PARTIES: INTELS NIGERIA LIMITED V BAKER HUGHES COMPANY LIMITED",
-        summary: "This is an action challenging the outcome of the Request for Proposal proceedings initiated by Total E&P for the execution of Bonga Main Phases 4 & 5. Intels, as Claimant, contends that the award process was tainted by irregularities and seeks to invalidate the contract awarded to Baker Hughes.",
+        summary: "Intels instituted the action before the High Court of Rivers State vide a Writ of Summons dated 8th February 2024. The Claimant is seeking relief in the sum of USD$4,236,447.18 for payment of the lease of 12,381.71 square metres of developed hardstand at the FLT and 4,726 square metres at FOT in Onne from the last quarter of 2021 up till year 2023, as well as other monetary reliefs.",
         status: "The High Court has issued an interim injunction restraining Baker Hughes from mobilization or performing any activities pursuant to the contract. The Federal High Court granted a preliminary injunction restraining Baker Hughes pending the determination of the substantive suit.\n\nBaker Hughes has filed its Statement of Defence and a Preliminary Objection challenging the jurisdiction of the Court on the ground that the action constitutes a dispute within the exclusive purview of the Nigerian Content Development and Monitoring Board (NCDMB).\n\nThe hearing date for the Preliminary Objection has been fixed for 12th March 2026.",
         nextSteps: "Continue to vigorously pursue the Preliminary Objection as it presents a substantive bar to the Claimant’s action.",
     },
