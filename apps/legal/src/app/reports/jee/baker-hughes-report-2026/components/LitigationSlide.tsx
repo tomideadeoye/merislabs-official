@@ -31,30 +31,30 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                 <span className="text-gray-400 text-[10px] font-bold tracking-[0.4em] uppercase">Portfolio Update // 2026</span>
             </div>
 
-            <div className="absolute top-22 left-16 right-16 z-20">
-                <div className="flex items-center space-x-4 mb-2">
+            <div className="absolute top-28 left-16 right-16 z-20">
+                <div className="flex items-center space-x-4 mb-3">
                     <div className="h-[2px] w-6 bg-red-600" />
                     <span className="text-red-500 font-bold tracking-[0.3em] text-[10px] uppercase">Active Litigation</span>
                 </div>
                 <div className="flex items-center space-x-4 group">
-                    <h2 className="text-gray-900 text-2xl font-black uppercase tracking-tighter leading-tight max-w-5xl">
+                    <h2 className="text-gray-900 text-2xl font-black uppercase tracking-tighter leading-[1.1] max-w-5xl">
                         {data.suitNo}
                     </h2>
                     <button
                         onClick={handleCopy}
-                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full hover:bg-gray-100"
+                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full hover:bg-gray-100 shrink-0"
                         title="Copy Suit Number"
                     >
                         {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
                     </button>
-                    <Link href={`/lawyers?suit=${encodeURIComponent(data.suitNo)}`} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full hover:bg-gray-100" title="View Counsel Directory">
+                    <Link href={`/lawyers?suit=${encodeURIComponent(data.suitNo)}`} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full hover:bg-gray-100 shrink-0" title="View Counsel Directory">
                         <ExternalLink className="w-5 h-5" />
                     </Link>
                 </div>
             </div>
 
             {/* Content Core - STACKED LAYOUT CONSISTENT WITH SVG GUIDE */}
-            <div className="absolute top-[130px] bottom-16 left-16 right-16 z-10 flex flex-col space-y-6">
+            <div className="absolute top-[220px] bottom-16 left-16 right-16 z-10 flex flex-col space-y-6">
 
                 {/* Summary Section - Larger Box */}
                 <div className="flex-1 flex flex-col min-h-0">
