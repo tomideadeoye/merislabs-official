@@ -13,6 +13,7 @@ import { ValueAddSlide } from './components/ValueAddSlide';
 import { ThankYouSlide } from './components/ThankYouSlide';
 import { SectionHeaderSlide } from './components/SectionHeaderSlide';
 import { NavigationContext } from './components/NavigationContext';
+import './premium.css';
 
 import { litigationCases, closedCases2025 } from './data';
 
@@ -182,7 +183,7 @@ function BakerHughesReportContent() {
                         </div>
                         <div className="h-4 w-px bg-gray-200" />
                         <span className="text-gray-400 text-[10px] font-mono tracking-widest uppercase">
-                            Baker Hughes Group // Status Report 2026
+                            Baker Hughes Group . Status Report 2026
                         </span>
                     </div>
 

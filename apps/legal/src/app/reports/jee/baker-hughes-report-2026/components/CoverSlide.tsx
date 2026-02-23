@@ -2,76 +2,77 @@ import React from 'react';
 
 export const CoverSlide = () => {
     return (
-        <div className="w-full h-full relative overflow-hidden bg-white font-sans">
-            {/* Background Image Setup - Right Aligned with light gradient overlay */}
-            <div className="absolute right-0 top-0 bottom-0 w-[65%] z-0">
-                <div className="w-full h-full bg-[url('/union-bank/marina-skyline.jpg')] bg-cover bg-left grayscale opacity-10 shadow-[inset_100px_0_100px_rgba(255,255,255,1)]"></div>
-                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/80 to-white"></div>
+        <div className="w-full h-full relative overflow-hidden bg-[#0A0A0A] font-sans">
+            {/* Background Image Layer */}
+            <div className="absolute inset-0 z-0">
+                <img
+                    src="/baker_hughes_industrial_abstract_1771855197762.png"
+                    alt="Industrial"
+                    className="w-full h-full object-cover opacity-60 scale-105 animate-pulse-slow"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
             </div>
 
-            {/* Left Content Area */}
-            <div className="relative z-10 h-full w-[55%] flex flex-col justify-center px-24">
-                {/* JEE Logo */}
-                <div className="mb-14">
+            {/* Content Area */}
+            <div className="relative z-10 h-full w-[60%] flex flex-col justify-center px-24">
+                {/* Branding Block */}
+                <div className="flex items-center space-x-6 mb-16">
+                    <div className="bg-white/90 backdrop-blur-md p-3 rounded-sm shadow-xl">
+                        <img
+                            src="/clients/jackson etti and edu logo (1).png"
+                            alt="Jackson, Etti & Edu"
+                            className="h-8 w-auto invert-0"
+                        />
+                    </div>
+                    <div className="h-4 w-px bg-white/20" />
+                    <span className="text-white/40 font-bold tracking-[0.5em] text-[10px] uppercase">Legal Council . Status Report</span>
+                </div>
+
+                {/* Primary Title */}
+                <div className="relative">
+                    <div className="absolute -left-8 top-0 bottom-0 w-1 bg-red-600 shadow-[0_0_20px_rgba(232,0,0,0.8)]" />
+                    <h1 className="text-white text-[6.5rem] font-black uppercase leading-[0.8] tracking-tighter mb-6 flex flex-col">
+                        <span className="opacity-40 italic skew-x-[-8deg] origin-left">Baker</span>
+                        <span className="relative z-10">Hughes</span>
+                        <span className="text-red-600 text-[4rem] tracking-normal -mt-4 font-black">2026 Strategy</span>
+                    </h1>
+                </div>
+
+                <div className="max-w-md mt-8">
+                    <div className="h-px w-full bg-gradient-to-r from-red-600 to-transparent mb-6" />
+                    <p className="text-white/60 text-sm leading-relaxed tracking-wide font-light uppercase">
+                        Comprehensive Litigation Intelligence & <br />
+                        <span className="text-white font-bold">Execution Portfolio Update</span>
+                    </p>
+                </div>
+
+                {/* Footer Details */}
+                <div className="mt-20 flex items-center space-x-12">
+                    <div className="flex flex-col">
+                        <span className="text-white/30 text-[9px] font-bold tracking-widest uppercase mb-1">Issue Date</span>
+                        <div className="text-white font-mono text-xs tracking-[0.2em]">23 . 02 . 2026</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Right Brand Mark */}
+            <div className="absolute bottom-12 right-12 z-20 flex flex-col items-end group">
+                <div className="mb-6 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
+                    <span className="text-white/20 text-[8px] font-mono tracking-[0.4em] uppercase">Portfolio Alignment Secured</span>
+                </div>
+                <div className="bg-white p-6 rounded-sm shadow-2xl transition-transform duration-700 group-hover:scale-105">
                     <img
-                        src="/clients/jackson etti and edu logo (1).png"
-                        alt="Jackson, Etti & Edu"
-                        className="h-10 w-auto"
+                        src="/clients/baker-hughes-logo.png"
+                        alt="Baker Hughes"
+                        className="h-10 w-auto object-contain"
                     />
                 </div>
-
-                {/* Accent line */}
-                <div className="flex items-center space-x-4 mb-8">
-                    <div className="h-[2px] w-12 bg-[#E80000]" />
-                    <span className="text-red-500 font-bold tracking-[0.4em] text-xs uppercase opacity-80">Legal Excellence</span>
-                </div>
-
-                <h1 className="text-gray-900 text-[5.5rem] font-black uppercase leading-[0.85] tracking-tighter mb-4 italic skew-x-[-4deg]">
-                    Baker Hughes<br />
-                    <span className="text-red-600 not-italic skew-x-0">Status Report</span><br />
-                    <span className="text-gray-300">2026</span>
-                </h1>
-
-                <div className="mt-12 space-y-2">
-                    <p className="text-gray-500 text-sm font-bold tracking-[0.5em] uppercase">
-                        Litigation Portfolio Update
-                    </p>
-                    <div className="h-[1px] w-full bg-gradient-to-r from-gray-200 to-transparent" />
-                </div>
-
-                {/* Bottom Details */}
-                <div className="mt-16 flex items-center space-x-12">
-                    <div className="flex flex-col">
-                        <span className="text-gray-400 text-[10px] font-bold tracking-widest uppercase mb-1">Presented on</span>
-                        <div className="text-gray-900 font-mono text-sm tracking-widest">23.02.2026</div>
-                    </div>
-                    <div className="w-px h-8 bg-gray-200" />
-                    <div className="flex flex-col">
-                        <span className="text-gray-400 text-[10px] font-bold tracking-widest uppercase mb-1">Confidentiality</span>
-                        <div className="text-red-600 font-bold text-sm tracking-widest uppercase">Privileged</div>
-                    </div>
-                    <div className="flex flex-col border-l border-gray-200 pl-12">
-                        <span className="text-gray-400 text-[10px] font-bold tracking-widest uppercase mb-1">Infrastructure</span>
-                        <div className="text-gray-500 font-mono text-[10px] tracking-widest uppercase">Powered by Meris Labs</div>
-                    </div>
-                </div>
             </div>
 
-            {/* Baker Hughes Logo - Bottom Right */}
-            <div className="absolute bottom-12 right-12 z-20 flex flex-col items-end">
-                <span className="text-gray-400 text-[10px] font-bold tracking-widest uppercase mb-4">Client Representative</span>
-                <img
-                    src="/clients/baker-hughes-logo.png"
-                    alt="Baker Hughes"
-                    className="h-14 w-auto object-contain"
-                />
-            </div>
-
-            {/* Decorative Grid Pattern Overlay */}
-            <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-
-            {/* Signature Red Pulse */}
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-red-600/10 blur-[120px] rounded-full animate-pulse" />
+            {/* Floating Elements */}
+            <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-red-600/10 blur-[120px] rounded-full animate-float pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-red-600/5 blur-[150px] rounded-full animate-pulse-slow pointer-events-none" />
         </div>
     );
 };
