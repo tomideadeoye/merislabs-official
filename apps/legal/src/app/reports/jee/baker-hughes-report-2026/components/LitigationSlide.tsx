@@ -56,11 +56,11 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
             <div className="absolute top-[380px] bottom-16 left-16 right-16 z-10 flex flex-col space-y-8">
 
                 {/* Summary Section - Larger Box */}
-                <div className="flex-1 flex flex-col min-h-0">
+                <div className="h-[55%] flex flex-col min-h-0">
                     <div className="bg-gray-50 border border-gray-200 rounded-sm p-8 flex-1 relative group hover:border-red-600/30 shadow-sm transition-colors flex flex-col overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-16 bg-red-600" />
                         <h3 className="text-red-600 text-[10px] font-black tracking-[0.4em] uppercase mb-4 shrink-0">Case Summary</h3>
-                        <div className="text-gray-700 text-[15px] leading-relaxed text-justify space-y-4 overflow-y-auto pr-6 custom-scrollbar flex-1">
+                        <div className="text-gray-900 text-[15px] leading-relaxed space-y-4 overflow-y-auto pr-6 custom-scrollbar flex-1">
                             {data.summary.split('\n').map((para, i) => (
                                 <p key={i}>{para}</p>
                             ))}
@@ -69,10 +69,10 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                 </div>
 
                 {/* Status Section - Filling the rest of the space */}
-                <div className="flex-1 flex flex-col min-h-0">
+                <div className="h-[45%] flex flex-col min-h-0">
                     <div className="flex-1 bg-gray-50 border border-gray-200 rounded-sm p-8 flex flex-col relative overflow-hidden group/status hover:border-red-600/30 shadow-sm transition-colors min-h-0">
                         <h3 className="text-gray-400 text-[10px] font-black tracking-[0.4em] uppercase mb-4 shrink-0">Current Status Update</h3>
-                        <div className="text-gray-700 text-[15px] leading-relaxed space-y-4 overflow-y-auto pr-6 custom-scrollbar flex-1">
+                        <div className="text-gray-900 text-[15px] leading-relaxed space-y-4 overflow-y-auto pr-6 custom-scrollbar flex-1">
                             {data.status.split('\n').map((para, i) => (
                                 <p key={i}>{para}</p>
                             ))}
