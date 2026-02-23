@@ -20,13 +20,13 @@ export const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, t
             </div>
 
             {/* Slide Title */}
-            <div className="absolute top-28 left-16 right-16 z-20 flex justify-between items-end">
+            <div className="absolute top-24 left-16 right-16 z-20 flex justify-between items-end">
                 <div>
                     <div className="flex items-center space-x-4 mb-3">
                         <div className="h-[2px] w-8 bg-green-500" />
                         <span className="text-green-500 font-bold tracking-[0.4em] text-xs uppercase underline-offset-8">Resolution Complete</span>
                     </div>
-                    <h2 className="text-white text-4xl font-black uppercase tracking-tighter">
+                    <h2 className="text-white text-5xl font-black uppercase tracking-tighter">
                         Closed <span className="text-white/30">Cases</span>
                     </h2>
                 </div>
@@ -35,21 +35,20 @@ export const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, t
                 </div>
             </div>
 
-            {/* Content Core */}
-            <div className="absolute top-[240px] bottom-24 left-16 right-16 z-10">
+            {/* Content Core - HIGH CONTRAST */}
+            <div className="absolute top-[220px] bottom-24 left-16 right-16 z-10">
                 <div className="bg-[#111] border-l-8 border-green-600 rounded-sm p-10 h-full shadow-2xl relative flex flex-col">
-                    {/* Success Icon */}
-                    <div className="absolute top-8 right-8 w-16 h-16 border-2 border-green-600/20 rounded-full flex items-center justify-center opacity-50">
+                    <div className="absolute top-8 right-8 w-16 h-16 border-2 border-green-600/20 rounded-full flex items-center justify-center opacity-70">
                         <span className="text-green-500 text-3xl font-bold">✓</span>
                     </div>
 
-                    <h3 className="text-white text-xl font-black uppercase tracking-tight mb-6 max-w-[85%] leading-snug">
+                    <h3 className="text-white text-2xl font-black uppercase tracking-tight mb-8 max-w-[85%] leading-snug">
                         {data.suitNo}
                     </h3>
 
                     <div className="h-px w-20 bg-white/10 mb-8" />
 
-                    <div className="text-gray-400 text-base leading-relaxed text-justify space-y-5 overflow-y-auto pr-2 custom-scrollbar flex-grow">
+                    <div className="text-gray-100 text-lg leading-relaxed text-justify space-y-6 overflow-y-auto pr-4 custom-scrollbar flex-grow">
                         {data.status.split('\n').map((para, i) => (
                             <p key={i}>{para}</p>
                         ))}
@@ -63,20 +62,15 @@ export const ClosedCasesSlide: React.FC<{ data: ClosedCaseData, index: number, t
             {/* Outline Frame */}
             <div className="absolute inset-8 border border-white/5 pointer-events-none"></div>
 
-            {/* Success Badge */}
-            <div className="absolute bottom-12 right-16 bg-green-600/10 border border-green-600/30 px-5 py-2">
-                <span className="text-green-500 text-[9px] font-black tracking-widest uppercase">Outcome Verified // 2025</span>
-            </div>
-
             <style jsx>{`
                 .custom-scrollbar::-webkit-scrollbar {
-                    width: 2px;
+                    width: 3px;
                 }
                 .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
+                    background: rgba(255, 255, 255, 0.05);
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: rgba(34, 197, 94, 0.2);
+                    background: rgba(34, 197, 94, 0.4);
                     border-radius: 10px;
                 }
             `}</style>

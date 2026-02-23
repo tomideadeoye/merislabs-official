@@ -15,8 +15,8 @@ export const PrioritiesSlide = () => {
                 <span className="text-white/20 text-[10px] font-bold tracking-[0.4em] uppercase">Strategic Roadmap // 2026</span>
             </div>
 
-            {/* Slide Title */}
-            <div className="absolute top-32 left-16 right-16 z-20">
+            {/* Slide Title - MOVED HIGHER */}
+            <div className="absolute top-24 left-16 right-16 z-20">
                 <div className="flex items-center space-x-4 mb-3">
                     <div className="h-[2px] w-8 bg-red-600" />
                     <span className="text-red-500 font-bold tracking-[0.4em] text-xs uppercase underline-offset-8">Execution Priorities</span>
@@ -26,22 +26,20 @@ export const PrioritiesSlide = () => {
                 </h2>
             </div>
 
-            {/* Content Core */}
-            <div className="absolute top-[280px] bottom-24 left-16 right-16 z-10 grid grid-cols-12 gap-12">
+            {/* Content Core - MOVED HIGHER AND TIGHTENED */}
+            <div className="absolute top-[180px] bottom-12 left-16 right-16 z-10 grid grid-cols-12 gap-8">
 
                 {/* Visual / Icon Box */}
                 <div className="col-span-4 flex flex-col justify-center">
                     <div className="relative group">
                         <div className="absolute inset-0 bg-red-600/10 blur-[100px] rounded-full group-hover:bg-red-600/20 transition-all duration-1000" />
-                        <div className="relative w-full aspect-square border-2 border-red-600/30 rounded-sm flex items-center justify-center p-12 bg-[#0F0F0F] overflow-hidden">
-                            {/* Technical Compass / Aim */}
+                        <div className="relative w-full aspect-square border-2 border-red-600/30 rounded-sm flex items-center justify-center p-10 bg-[#0F0F0F] overflow-hidden">
                             <div className="absolute inset-4 border border-white/5 rounded-full" />
-                            <div className="absolute inset-12 border border-white/5 rounded-full" />
+                            <div className="absolute inset-10 border border-white/5 rounded-full" />
                             <div className="absolute top-1/2 left-0 right-0 h-px bg-white/10" />
                             <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/10" />
 
-                            {/* PROFESSIONAL TARGET ICON (Replacing the heart) */}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-[45%] h-[45%] text-red-600 relative z-10 opacity-80">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-[45%] h-[45%] text-red-600 relative z-10 opacity-90">
                                 <circle cx="12" cy="12" r="10" />
                                 <circle cx="12" cy="12" r="6" />
                                 <circle cx="12" cy="12" r="2" fill="currentColor" />
@@ -49,28 +47,29 @@ export const PrioritiesSlide = () => {
                             </svg>
                         </div>
                     </div>
-                    <div className="mt-8 text-center px-4">
-                        <p className="text-white/40 text-[10px] font-bold tracking-[0.4em] uppercase leading-relaxed">
-                            Precision targeting of legal objectives and commercial risk mitigation
-                        </p>
-                    </div>
                 </div>
 
-                {/* Text Content */}
-                <div className="col-span-8 flex flex-col justify-center space-y-8">
+                {/* Text Content - HIGH CONTRAST */}
+                <div className="col-span-8 flex flex-col justify-start space-y-4">
                     {priorities2026.split('\n\n').map((paragraph, index) => (
-                        <div key={index} className="bg-[#111] border border-white/5 p-10 rounded-sm relative group hover:border-red-600/30 transition-all">
+                        <div key={index} className="bg-[#111] border border-white/10 p-7 rounded-sm relative group hover:border-red-600/50 transition-all">
                             <div className="absolute top-0 left-0 w-1 h-12 bg-red-600" />
                             <div className="flex items-start space-x-6">
-                                <span className="text-red-600 font-mono text-2xl font-black italic mt-1 opacity-50 group-hover:opacity-100 transition-opacity">
+                                <span className="text-red-600 font-mono text-2xl font-black italic mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
                                     0{index + 1}
                                 </span>
-                                <p className="text-gray-400 leading-relaxed text-lg pt-1">
+                                <p className="text-gray-100 leading-relaxed text-[15px] pt-1 text-justify">
                                     {paragraph}
                                 </p>
                             </div>
                         </div>
                     ))}
+
+                    <div className="mt-4 px-6 border-l border-red-600/30">
+                        <p className="text-white/40 text-[9px] font-bold tracking-[0.4em] uppercase leading-relaxed">
+                            Securing positive outcomes through precision legal engineering
+                        </p>
+                    </div>
                 </div>
 
             </div>
@@ -79,8 +78,8 @@ export const PrioritiesSlide = () => {
             <div className="absolute inset-8 border border-white/5 pointer-events-none"></div>
 
             {/* Pagination / ID */}
-            <div className="absolute bottom-12 left-16 text-white/20 font-mono text-xs tracking-widest">
-                [ STRATEGY MODULE // 23.02 ]
+            <div className="absolute bottom-12 left-16 text-white/10 font-mono text-xs tracking-widest uppercase">
+                Strategy Module // Ref. BK-2026
             </div>
         </div>
     );

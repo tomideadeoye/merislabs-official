@@ -16,7 +16,7 @@ export const ValueAddSlide = () => {
             </div>
 
             {/* Slide Title */}
-            <div className="absolute top-32 left-16 right-16 z-20">
+            <div className="absolute top-24 left-16 right-16 z-20">
                 <div className="flex items-center space-x-4 mb-3">
                     <div className="h-[2px] w-8 bg-red-600" />
                     <span className="text-red-500 font-bold tracking-[0.4em] text-xs uppercase underline-offset-8">Support Ecosystem</span>
@@ -26,20 +26,20 @@ export const ValueAddSlide = () => {
                 </h2>
             </div>
 
-            {/* Content Core - High fidelity cards */}
-            <div className="absolute top-[280px] bottom-24 left-16 right-16 z-10 grid grid-cols-3 gap-8 items-start">
+            {/* Content Core - HIGH CONTRAST */}
+            <div className="absolute top-[220px] bottom-24 left-16 right-16 z-10 grid grid-cols-3 gap-8 items-start">
                 {valueAdd2026.map((item, index) => (
-                    <div key={index} className="group relative bg-[#111] border border-white/5 p-12 rounded-sm h-full flex flex-col justify-start hover:border-red-600/40 transition-all duration-500 overflow-hidden">
+                    <div key={index} className="group relative bg-[#111] border border-white/10 p-10 rounded-sm h-full flex flex-col justify-start hover:border-red-600/40 transition-all duration-500 overflow-hidden">
                         {/* Background glowing number */}
-                        <div className="absolute -top-4 -right-4 text-white/[0.03] text-8xl font-black italic group-hover:text-red-600/10 transition-colors">
+                        <div className="absolute -top-4 -right-4 text-white/[0.05] text-8xl font-black italic group-hover:text-red-600/10 transition-colors">
                             {String(index + 1).padStart(2, '0')}
                         </div>
 
                         {/* Top Indicator */}
                         <div className="w-10 h-1 bg-red-600 mb-8" />
 
-                        {/* Text Content */}
-                        <p className="text-gray-300 font-bold text-xl leading-relaxed tracking-tight relative z-10 group-hover:text-white transition-colors">
+                        {/* Text Content - HIGH CONTRAST */}
+                        <p className="text-gray-100 font-bold text-[19px] leading-relaxed tracking-tight relative z-10">
                             {item}
                         </p>
 
