@@ -56,10 +56,18 @@ function BakerHughesReportContent() {
     const goToSlideById = useCallback((id: string) => {
         let targetIdx = -1;
         if (id === 'toc') targetIdx = 1;
-        if (id === '01') targetIdx = 2; // Pending Litigation
-        if (id === '02') targetIdx = 3 + litigationCases.length; // Completed Matters
-        if (id === '03') targetIdx = 4 + litigationCases.length + closedCases2025.length; // Future Strategy
+        if (id === '01') targetIdx = 2; // Pending Litigation Header
+        if (id === '02') targetIdx = 3 + litigationCases.length; // Completed Matters Header
+        if (id === '03') targetIdx = 4 + litigationCases.length + closedCases2025.length; // Future Strategy Header
         if (id === '04') targetIdx = 5 + litigationCases.length + closedCases2025.length; // Value Add (after priorities)
+
+        // Support for granular case navigation: case:litigation:0, case:closed:1, etc.
+        if (id.startsWith('case:')) {
+            const [, type, indexStr] = id.split(':');
+            const index = parseInt(indexStr);
+            if (type === 'litigation') targetIdx = 3 + index;
+            if (type === 'closed') targetIdx = 4 + litigationCases.length + index;
+        }
 
         if (targetIdx !== -1) {
             if (viewMode === 'deck') {
@@ -67,7 +75,6 @@ function BakerHughesReportContent() {
             } else {
                 const el = document.getElementById(`slide-${targetIdx}`);
                 if (el) {
-                    // Small delay to ensure render is consistent
                     setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                 }
             }
@@ -137,7 +144,7 @@ function BakerHughesReportContent() {
             totalSlides: allSlides.length,
             viewMode
         }}>
-            <div className="fixed inset-0 z-[9999] bg-gray-100 overflow-hidden flex flex-col">
+            <div className="fixed inset-0 z-[9999] bg-[#F9F7ED] overflow-hidden flex flex-col">
                 <style dangerouslySetInnerHTML={{
                     __html: `
                 @media print {
@@ -163,25 +170,25 @@ function BakerHughesReportContent() {
                 }
             ` }} />
 
-                {/* Top Toolbar */}
-                <div className="no-print h-16 shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-[10000]">
+                {/* Top Toolbar - DARK THEME */}
+                <div className="no-print h-16 shrink-0 bg-[#F9F7ED] border-b border-[#211B1B]/10 flex items-center justify-between px-8 z-[10000]">
                     <div className="flex items-center space-x-6">
-                        <div className="flex bg-gray-100 p-1 rounded-sm">
+                        <div className="flex bg-[#211B1B]/5 p-1 rounded-sm">
                             <button
                                 onClick={() => setViewMode('scroll')}
-                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'scroll' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-gray-900'}`}
+                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'scroll' ? 'bg-red-600 text-[#211B1B] shadow-lg' : 'text-[#211B1B]/40 hover:text-[#211B1B]'}`}
                             >
                                 Document
                             </button>
                             <button
                                 onClick={() => setViewMode('deck')}
-                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'deck' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-gray-900'}`}
+                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'deck' ? 'bg-red-600 text-[#211B1B] shadow-lg' : 'text-[#211B1B]/40 hover:text-[#211B1B]'}`}
                             >
                                 Presentation
                             </button>
                         </div>
-                        <div className="h-4 w-px bg-gray-200" />
-                        <span className="text-gray-400 text-[10px] font-mono tracking-widest uppercase">
+                        <div className="h-4 w-px bg-[#211B1B]/10" />
+                        <span className="text-[#211B1B]/40 text-[10px] font-mono tracking-widest uppercase">
                             Baker Hughes Group . Status Report 2026
                         </span>
                     </div>
@@ -192,7 +199,7 @@ function BakerHughesReportContent() {
                 </div>
 
                 {/* Main Content Area */}
-                <div className={`flex-grow relative ${viewMode === 'scroll' ? 'overflow-y-auto scroll-smooth bg-gray-100' : 'overflow-hidden flex items-center justify-center p-8 bg-gray-200'}`}>
+                <div className={`flex-grow relative ${viewMode === 'scroll' ? 'overflow-y-auto scroll-smooth bg-gray-100' : 'overflow-hidden flex items-center justify-center p-8 bg-gray-100'}`}>
 
                     {viewMode === 'scroll' ? (
                         <div className="flex flex-col items-center py-12 gap-12 print:p-0 print:gap-0">
@@ -205,9 +212,9 @@ function BakerHughesReportContent() {
                             ))}
                         </div>
                     ) : (
-                        <div className="relative group w-full h-full flex items-center justify-center overflow-hidden bg-gray-200">
+                        <div className="relative group w-full h-full flex items-center justify-center overflow-hidden bg-gray-100">
                             <div
-                                className="transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_0_100px_rgba(232,0,0,0.1)]"
+                                className="transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_0_150px_rgba(0,0,0,0.5)]"
                                 style={{
                                     transform: `scale(${scale})`,
                                     transformOrigin: 'center center'
@@ -221,25 +228,25 @@ function BakerHughesReportContent() {
                                 </SlideWrapper>
                                 {viewMode === 'deck' && (
                                     <>
-                                        {/* Persistent Bottom Controls */}
-                                        <div className="deck-controls absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center space-x-8 bg-white shadow-2xl border border-gray-200 px-8 py-3 rounded-full z-[1000] opacity-90 hover:opacity-100 transition-opacity">
+                                        {/* Persistent Bottom Controls - DARK */}
+                                        <div className="deck-controls absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center space-x-8 bg-[#F9F7ED]/90 backdrop-blur-xl shadow-2xl border border-[#211B1B]/10 px-8 py-3 rounded-full z-[1000] opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
                                             <button
                                                 onClick={prevSlide}
                                                 disabled={currentSlide === 0}
-                                                className="text-gray-400 hover:text-red-500 disabled:opacity-10 transition-colors p-2"
+                                                className="text-[#211B1B]/40 hover:text-red-500 disabled:opacity-10 transition-colors p-2"
                                                 title="Previous Slide"
                                             >
                                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                                             </button>
 
                                             <div className="flex items-center space-x-4">
-                                                <div className="h-1 w-12 bg-gray-200 rounded-full relative">
+                                                <div className="h-1 w-12 bg-[#211B1B]/10 rounded-full relative">
                                                     <div
                                                         className="absolute top-0 left-0 h-full bg-red-600 rounded-full transition-all duration-300"
                                                         style={{ width: `${((currentSlide + 1) / allSlides.length) * 100}%` }}
                                                     />
                                                 </div>
-                                                <span className="text-gray-400 font-mono text-xs font-bold">
+                                                <span className="text-[#211B1B]/40 font-mono text-xs font-bold">
                                                     {String(currentSlide + 1).padStart(2, '0')} / {allSlides.length}
                                                 </span>
                                             </div>
@@ -247,7 +254,7 @@ function BakerHughesReportContent() {
                                             <button
                                                 onClick={nextSlide}
                                                 disabled={currentSlide === allSlides.length - 1}
-                                                className="text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-200 px-6 py-2 rounded-full shadow-lg transition-all flex items-center space-x-3 group/btn"
+                                                className="text-[#211B1B] bg-red-600 hover:bg-red-700 disabled:bg-[#211B1B]/5 px-6 py-2 rounded-full shadow-lg transition-all flex items-center space-x-3 group/btn"
                                                 title="Next Slide"
                                             >
                                                 <span className="font-bold text-[10px] tracking-widest uppercase">Next Page</span>
@@ -261,7 +268,7 @@ function BakerHughesReportContent() {
                                             className="absolute left-0 top-0 bottom-0 w-32 cursor-pointer z-[500] group/prev hidden sm:block"
                                         >
                                             <div className="absolute left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover/prev:opacity-30 transition-opacity">
-                                                <svg className="w-12 h-12 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 19l-7-7 7-7" /></svg>
+                                                <svg className="w-12 h-12 text-[#211B1B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 19l-7-7 7-7" /></svg>
                                             </div>
                                         </div>
                                         <div
@@ -269,11 +276,11 @@ function BakerHughesReportContent() {
                                             className="absolute right-0 top-0 bottom-0 w-32 cursor-pointer z-[500] group/next hidden sm:block"
                                         >
                                             <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover/next:opacity-30 transition-opacity text-right">
-                                                <svg className="w-12 h-12 text-gray-900 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 5l7 7-7 7" /></svg>
+                                                <svg className="w-12 h-12 text-[#211B1B] inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 5l7 7-7 7" /></svg>
                                             </div>
                                         </div>
 
-                                        <div className="absolute top-8 right-12 text-gray-400/20 font-mono text-[9px] tracking-[0.3em] uppercase pointer-events-none">
+                                        <div className="absolute top-8 right-12 text-[#211B1B]/10 font-mono text-[9px] tracking-[0.3em] uppercase pointer-events-none">
                                             Keys: SPACE / ARROWS
                                         </div>
                                     </>

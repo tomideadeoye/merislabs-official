@@ -1,67 +1,63 @@
 import React from 'react';
 import { priorities2026 } from '../data';
 import { useDeckNavigation } from './NavigationContext';
+import { Target } from 'lucide-react';
 
 const PrioritiesSlide = () => {
     const { goToSlideById } = useDeckNavigation();
     return (
-        <div className="w-full h-full relative overflow-hidden bg-white font-sans">
+        <div className="w-full h-full relative overflow-hidden bg-[#F9F7ED] font-sans text-[#211B1B]">
             {/* Background branding */}
-            <div className="absolute top-10 left-16 z-20 flex items-center space-x-4">
-                <img
-                    src="/clients/jackson etti and edu logo (1).png"
-                    alt="JEE"
-                    className="h-6 w-auto opacity-70"
-                />
-                <div className="h-4 w-px bg-gray-300" />
-                <span className="text-gray-400 text-[10px] font-bold tracking-[0.4em] uppercase">Strategic Roadmap . 2026</span>
-            </div>
-
-            {/* Slide Title - MOVED HIGHER */}
-            <div className="absolute top-24 left-16 right-16 z-20">
-                <div className="flex items-center space-x-4 mb-3">
-                    <div className="h-[2px] w-8 bg-red-600" />
-                    <span className="text-red-500 font-bold tracking-[0.4em] text-xs uppercase underline-offset-8">Execution Priorities</span>
+            <div className="absolute top-12 left-12 right-12 z-50 flex justify-between items-center border-b border-[#211B1B]/10 pb-6">
+                <div className="flex items-center space-x-4">
+                    <img
+                        src="/clients/jackson etti and edu logo (1).png"
+                        alt="JEE"
+                        className="h-6 w-auto object-contain opacity-80"
+                    />
+                    <div className="h-4 w-px bg-[#211B1B]/20" />
+                    <span className="text-[#211B1B]/40 text-[10px] font-bold tracking-[0.4em] uppercase">Strategic Roadmap . 2026</span>
                 </div>
-                <h2 className="text-gray-900 text-5xl font-black uppercase tracking-tighter">
-                    Forward <span className="text-red-600">Strategy</span>
-                </h2>
             </div>
 
-            {/* Content Core - MOVED HIGHER AND TIGHTENED */}
-            <div className="absolute top-[180px] bottom-12 left-16 right-16 z-10 grid grid-cols-12 gap-8">
+            {/* Scale background indicator */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#211B1B]/[0.02] text-[40rem] font-black italic select-none z-0">
+                P
+            </div>
 
-                {/* Visual / Icon Box */}
-                <div className="col-span-4 flex flex-col justify-center">
-                    <div className="relative group">
-                        <div className="absolute inset-0 bg-red-600/10 blur-[100px] rounded-full group-hover:bg-red-600/20 transition-all duration-1000" />
-                        <div className="relative w-full aspect-square border-2 border-red-600/30 rounded-sm flex items-center justify-center p-10 bg-gray-50 overflow-hidden">
-                            <div className="absolute inset-4 border border-gray-200 rounded-full" />
-                            <div className="absolute inset-10 border border-gray-200 rounded-full" />
-                            <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-200" />
-                            <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-200" />
+            {/* Main Content Container */}
+            <div className="absolute inset-0 top-32 left-12 right-12 bottom-12 z-20 grid grid-cols-12 gap-8">
 
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-[45%] h-[45%] text-red-600 relative z-10 opacity-90">
-                                <circle cx="12" cy="12" r="10" />
-                                <circle cx="12" cy="12" r="6" />
-                                <circle cx="12" cy="12" r="2" fill="currentColor" />
-                                <path strokeLinecap="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" />
-                            </svg>
-                        </div>
+                {/* Visual Section */}
+                <div className="col-span-12 lg:col-span-4 flex flex-col justify-center">
+                    <div className="relative group p-8 glass-card aspect-square flex flex-col items-center justify-center text-center overflow-hidden">
+                        <div className="absolute inset-0 bg-red-600/5 group-hover:bg-red-600/10 transition-colors" />
+                        <Target className="w-24 h-24 text-red-600 mb-6 opacity-80 group-hover:scale-110 transition-transform duration-500" />
+                        <h3 className="text-[#211B1B] text-xl font-bold uppercase tracking-widest leading-tight"> Precision <br /><span className="text-red-600">Execution</span></h3>
+                        <p className="mt-4 text-[#211B1B]/40 text-[10px] uppercase tracking-[0.3em] font-bold">Securing positive outcomes</p>
                     </div>
                 </div>
 
-                {/* Text Content - HIGH CONTRAST */}
-                <div className="col-span-8 flex flex-col justify-start space-y-4 h-full overflow-hidden">
-                    <div className="flex-1 min-h-0 overflow-y-auto pr-4 custom-scrollbar space-y-4">
+                {/* Text Content - TIGHTENED FOR PDF */}
+                <div className="col-span-12 lg:col-span-8 flex flex-col justify-center space-y-6">
+                    <div className="mb-4">
+                        <div className="flex items-center space-x-3 mb-3">
+                            <div className="h-[1px] w-8 bg-red-600" />
+                            <span className="text-red-500 font-bold tracking-[0.4em] text-[10px] uppercase">Execution Priorities</span>
+                        </div>
+                        <h2 className="text-4xl font-black uppercase tracking-tighter leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#211B1B] via-[#211B1B] to-[#211B1B]/50">
+                            Forward <span className="opacity-50">Strategy</span>
+                        </h2>
+                    </div>
+
+                    <div className="space-y-4">
                         {priorities2026.split('\n\n').map((paragraph, index) => (
-                            <div key={index} className="bg-gray-50 border border-gray-200 p-7 rounded-sm relative group hover:border-red-600/50 transition-all shadow-sm shrink-0">
-                                <div className="absolute top-0 left-0 w-1 h-12 bg-red-600" />
+                            <div key={index} className="glass-card p-6 border-l-2 border-l-red-600 relative overflow-hidden group hover:bg-white/[0.05] transition-all">
                                 <div className="flex items-start space-x-6">
-                                    <span className="text-red-600 font-mono text-2xl font-black italic mt-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-red-600 font-mono text-xl font-black italic opacity-50">
                                         0{index + 1}
                                     </span>
-                                    <p className="text-gray-700 leading-relaxed text-[15px] pt-1 text-justify">
+                                    <p className="text-[#211B1B]/70 leading-relaxed text-[13px] text-justify max-w-[95%]">
                                         {paragraph}
                                     </p>
                                 </div>
@@ -69,42 +65,26 @@ const PrioritiesSlide = () => {
                         ))}
                     </div>
 
-                    <div className="mt-4 flex flex-row items-center justify-between px-6 border-l border-red-600/30 shrink-0 gap-4">
-                        <p className="text-gray-500 text-[9px] font-bold tracking-[0.4em] uppercase leading-relaxed flex-1">
-                            Securing positive outcomes through precision legal engineering
-                        </p>
-                        <button
-                            onClick={() => goToSlideById('04')}
-                            className="text-red-600 border border-red-600/30 bg-red-600/5 hover:bg-red-600/20 hover:text-red-500 px-4 py-2 text-[10px] font-bold tracking-widest uppercase transition-colors shrink-0 flex items-center space-x-2"
-                        >
-                            <span>Explore Value-Add Advisory</span>
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-                        </button>
+                    <div className="mt-6 flex items-center justify-between opacity-50">
+                        <span className="text-[10px] font-mono tracking-widest uppercase">Strategy Module . Ref. BK-2026</span>
+                        <div className="h-px flex-1 mx-8 bg-[#211B1B]/10" />
+                        <span className="text-[10px] font-mono tracking-widest uppercase">Jackson, Etti & Edu</span>
                     </div>
                 </div>
-
-                <style jsx>{`
-                    .custom-scrollbar::-webkit-scrollbar {
-                        width: 4px;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-track {
-                        background: transparent;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-thumb {
-                        background: rgba(232, 0, 0, 0.4);
-                        border-radius: 10px;
-                    }
-                `}</style>
-
             </div>
 
-            {/* Frame outline aesthetic */}
-            <div className="absolute inset-8 border border-gray-200 pointer-events-none"></div>
+            {/* Background Texture */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(220,38,38,0.05)_0%,transparent_50%)] z-0" />
+            <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-0"
+                style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-            {/* Pagination / ID */}
-            <div className="absolute bottom-12 left-16 text-gray-900/10 font-mono text-xs tracking-widest uppercase">
-                Strategy Module . Ref. BK-2026
-            </div>
+            <style jsx>{`
+                .glass-card {
+                    background: rgba(33, 27, 27, 0.02);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(33, 27, 27, 0.05);
+                }
+            `}</style>
         </div>
     );
 };
