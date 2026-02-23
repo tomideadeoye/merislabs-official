@@ -137,7 +137,7 @@ function BakerHughesReportContent() {
             totalSlides: allSlides.length,
             viewMode
         }}>
-            <div className="fixed inset-0 z-[9999] bg-[#0A0A0A] overflow-hidden flex flex-col">
+            <div className="fixed inset-0 z-[9999] bg-gray-100 overflow-hidden flex flex-col">
                 <style dangerouslySetInnerHTML={{
                     __html: `
                 @media print {
@@ -164,24 +164,24 @@ function BakerHughesReportContent() {
             ` }} />
 
                 {/* Top Toolbar */}
-                <div className="no-print h-16 shrink-0 bg-[#111] border-b border-white/5 flex items-center justify-between px-8 z-[10000]">
+                <div className="no-print h-16 shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-[10000]">
                     <div className="flex items-center space-x-6">
-                        <div className="flex bg-white/5 p-1 rounded-sm">
+                        <div className="flex bg-gray-100 p-1 rounded-sm">
                             <button
                                 onClick={() => setViewMode('scroll')}
-                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'scroll' ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
+                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'scroll' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-gray-900'}`}
                             >
                                 Document
                             </button>
                             <button
                                 onClick={() => setViewMode('deck')}
-                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'deck' ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
+                                className={`px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-all ${viewMode === 'deck' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-gray-900'}`}
                             >
                                 Presentation
                             </button>
                         </div>
-                        <div className="h-4 w-px bg-white/10" />
-                        <span className="text-white/40 text-[10px] font-mono tracking-widest uppercase">
+                        <div className="h-4 w-px bg-gray-200" />
+                        <span className="text-gray-400 text-[10px] font-mono tracking-widest uppercase">
                             Baker Hughes Group // Status Report 2026
                         </span>
                     </div>
@@ -192,7 +192,7 @@ function BakerHughesReportContent() {
                 </div>
 
                 {/* Main Content Area */}
-                <div className={`flex-grow relative ${viewMode === 'scroll' ? 'overflow-y-auto scroll-smooth bg-gray-900/50' : 'overflow-hidden flex items-center justify-center p-8 bg-black'}`}>
+                <div className={`flex-grow relative ${viewMode === 'scroll' ? 'overflow-y-auto scroll-smooth bg-gray-100' : 'overflow-hidden flex items-center justify-center p-8 bg-gray-200'}`}>
 
                     {viewMode === 'scroll' ? (
                         <div className="flex flex-col items-center py-12 gap-12 print:p-0 print:gap-0">
@@ -205,7 +205,7 @@ function BakerHughesReportContent() {
                             ))}
                         </div>
                     ) : (
-                        <div className="relative group w-full h-full flex items-center justify-center overflow-hidden bg-black">
+                        <div className="relative group w-full h-full flex items-center justify-center overflow-hidden bg-gray-200">
                             <div
                                 className="transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_0_100px_rgba(232,0,0,0.1)]"
                                 style={{
@@ -219,51 +219,50 @@ function BakerHughesReportContent() {
                                 >
                                     {allSlides[currentSlide]?.component}
                                 </SlideWrapper>
-                            </div>
+                                {viewMode === 'deck' && (
+                                    <div className="group">
+                                        <div className="deck-controls absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center space-x-8 bg-white/80 backdrop-blur-md border border-gray-200 px-8 py-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={prevSlide}
+                                                disabled={currentSlide === 0}
+                                                className="text-gray-400 hover:text-red-500 disabled:opacity-10 transition-colors"
+                                            >
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                                            </button>
 
-                            {/* Deck Navigation - Overlay */}
-                            <div className="deck-controls absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center space-x-8 bg-black/60 backdrop-blur-md border border-white/10 px-8 py-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={prevSlide}
-                                    disabled={currentSlide === 0}
-                                    className="text-white/40 hover:text-red-500 disabled:opacity-10 transition-colors"
-                                >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-                                </button>
+                                            <div className="flex items-center space-x-4">
+                                                <div className="h-1 w-12 bg-gray-200 rounded-full relative">
+                                                    <div
+                                                        className="absolute top-0 left-0 h-full bg-red-600 rounded-full transition-all duration-300"
+                                                        style={{ width: `${((currentSlide + 1) / allSlides.length) * 100}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-gray-400 font-mono text-sm">
+                                                    {currentSlide + 1} / {allSlides.length}
+                                                </span>
+                                            </div>
 
-                                <div className="flex items-center space-x-3 pointer-events-none">
-                                    <span className="text-red-500 font-mono font-bold text-sm">
-                                        {String(currentSlide + 1).padStart(2, '0')}
-                                    </span>
-                                    <div className="h-1 w-12 bg-white/10 rounded-full relative">
-                                        <div
-                                            className="absolute h-full bg-red-600 transition-all duration-300 rounded-full"
-                                            style={{ width: `${((currentSlide + 1) / allSlides.length) * 100}%` }}
-                                        />
+                                            <button
+                                                onClick={nextSlide}
+                                                disabled={currentSlide === allSlides.length - 1}
+                                                className="text-gray-400 hover:text-red-500 disabled:opacity-10 transition-colors"
+                                            >
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                                            </button>
+                                        </div>
+
+                                        <div className="absolute top-8 right-12 text-gray-400/20 font-mono text-[10px] tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Press Space or Arrows to Navigate
+                                        </div>
                                     </div>
-                                    <span className="text-white/20 font-mono text-sm">
-                                        {String(allSlides.length).padStart(2, '0')}
-                                    </span>
-                                </div>
-
-                                <button
-                                    onClick={nextSlide}
-                                    disabled={currentSlide === allSlides.length - 1}
-                                    className="text-white/40 hover:text-red-500 disabled:opacity-10 transition-colors"
-                                >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-                                </button>
-                            </div>
-
-                            {/* Title Indicator Top Right */}
-                            <div className="absolute top-8 right-12 text-white/10 font-mono text-[10px] tracking-[0.3em] uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                                {allSlides[currentSlide].title || "System Module"}
+                                )}
                             </div>
                         </div>
                     )}
                 </div>
+            </div>
 
-                <style jsx global>{`
+            <style jsx global>{`
                 ::-webkit-scrollbar {
                     width: 6px;
                 }
@@ -271,21 +270,20 @@ function BakerHughesReportContent() {
                     background: transparent;
                 }
                 ::-webkit-scrollbar-thumb {
-                    background: rgba(255, 255, 255, 0.1);
+                    background: rgba(0, 0, 0, 0.1);
                     border-radius: 10px;
                 }
                 ::-webkit-scrollbar-thumb:hover {
                     background: rgba(232, 0, 0, 0.5);
                 }
             `}</style>
-            </div>
         </NavigationContext.Provider>
     );
 }
 
 export default function BakerHughesReportPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-black" />}>
+        <Suspense fallback={<div className="min-h-screen bg-gray-100" />}>
             <BakerHughesReportContent />
         </Suspense>
     );
