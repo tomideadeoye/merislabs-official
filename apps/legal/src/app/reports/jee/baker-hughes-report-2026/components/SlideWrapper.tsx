@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDeckNavigation } from './NavigationContext';
 
 interface SlideWrapperProps {
     children: React.ReactNode;
@@ -11,9 +12,10 @@ export const SlideWrapper: React.FC<SlideWrapperProps> = ({
     pageNumber,
     hideHeader = false
 }) => {
+    const { goToSlideById } = useDeckNavigation();
     return (
         <div
-            className="relative page-wrapper shrink-0 w-[297mm] h-[167mm] bg-[#0A0A0A] overflow-hidden"
+            className="relative page-wrapper shrink-0 w-[297mm] h-[167mm] bg-white overflow-hidden"
             style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -28,9 +30,15 @@ export const SlideWrapper: React.FC<SlideWrapperProps> = ({
 
             {/* Subtle Tracking Number - Only if not hidden */}
             {!hideHeader && (
-                <div className="absolute bottom-6 left-8 right-8 flex justify-between items-center text-white/5 font-mono text-[10px] tracking-widest z-50 pointer-events-none">
-                    <div className="uppercase">Infrastructure Secured by Meris Labs</div>
-                    <div>[ SLIDE // {String(pageNumber).padStart(2, '0')} ]</div>
+                <div className="absolute bottom-6 left-8 right-8 flex justify-between items-center text-gray-900/10 font-mono text-[10px] tracking-widest z-50">
+                    <div className="uppercase pointer-events-none">Infrastructure Secured by Meris Labs</div>
+                    <div
+                        onClick={() => goToSlideById('toc')}
+                        className="cursor-pointer hover:text-red-500/50 transition-colors"
+                        title="Return to Table of Contents"
+                    >
+                        [ SLIDE // {String(pageNumber).padStart(2, '0')} ]
+                    </div>
                 </div>
             )}
         </div>

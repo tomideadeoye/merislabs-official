@@ -38,6 +38,7 @@ import { navItems } from '../lib/routes';
 
 const inter = Inter({ subsets: ['latin'] });
 
+// eslint-disable-next-line @next/next/no-metadata-type
 export const metadata = {
   metadataBase: new URL('https://merislabs.com'),
   title: {
