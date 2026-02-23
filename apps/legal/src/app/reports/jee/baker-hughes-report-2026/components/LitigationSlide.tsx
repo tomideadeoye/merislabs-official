@@ -68,8 +68,8 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                     </div>
                 </div>
 
-                {/* Status & Next Steps Section - Secondary Box */}
-                <div className="flex-[0.8] flex flex-col space-y-6 min-h-0">
+                {/* Status Section - Filling the rest of the space */}
+                <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex-1 bg-gray-50 border border-gray-200 rounded-sm p-8 flex flex-col relative overflow-hidden group/status hover:border-red-600/30 shadow-sm transition-colors min-h-0">
                         <h3 className="text-gray-400 text-[10px] font-black tracking-[0.4em] uppercase mb-4 shrink-0">Current Status Update</h3>
                         <div className="text-gray-700 text-[15px] leading-relaxed space-y-4 overflow-y-auto pr-6 custom-scrollbar flex-1">
@@ -78,22 +78,6 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                             ))}
                         </div>
                     </div>
-
-                    {/* Next Steps - Integrated if exists */}
-                    {data.nextSteps && (
-                        <div className="bg-red-600 p-6 rounded-sm shadow-xl relative overflow-hidden group shrink-0">
-                            <div className="absolute inset-0 bg-white/5 group-hover:bg-white/0 transition-colors" />
-                            <div className="flex items-start justify-between relative z-10">
-                                <div className="flex-1">
-                                    <h3 className="text-white text-[10px] font-black tracking-[0.4em] uppercase mb-2">Strategic Next Steps</h3>
-                                    <p className="text-white font-bold text-[14px] leading-relaxed drop-shadow-sm">
-                                        {data.nextSteps}
-                                    </p>
-                                </div>
-                                <div className="text-white/20 text-5xl font-black italic select-none ml-4 self-end">NEXT</div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
 
