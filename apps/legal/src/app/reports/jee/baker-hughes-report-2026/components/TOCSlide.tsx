@@ -40,7 +40,7 @@ export const TOCSlide = () => {
                     }}></div>
 
                     {/* The Image inside */}
-                    <div className="absolute top-1/2 -translate-y-1/2 left-8 right-8 h-[70%] bg-[url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center rounded-sm shadow-2xl border-4 border-white"></div>
+                    <div className="absolute top-1/2 -translate-y-1/2 left-8 right-8 h-[70%] bg-[url('/union-bank/marina-skyline.jpg')] bg-cover bg-center rounded-sm shadow-2xl border-4 border-white"></div>
                 </div>
             </div>
 
