@@ -25,7 +25,7 @@ export const CoverSlide = () => {
 
             {/* Background Image Setup */}
             <div className="absolute right-0 top-[94px] bottom-[24px] w-[55%] z-0">
-                <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1600')] bg-cover bg-right"></div>
+                <div className="w-full h-full bg-[url('/union-bank/marina-skyline.jpg')] bg-cover bg-right"></div>
             </div>
 
             {/* The White Overlay for left side */}
