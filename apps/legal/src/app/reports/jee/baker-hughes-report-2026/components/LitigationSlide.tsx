@@ -71,13 +71,6 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
                 {/* Status & Next Steps Section - Secondary Box */}
                 <div className="flex-[0.8] flex flex-col space-y-6 min-h-0">
                     <div className="flex-1 bg-gray-50 border border-gray-200 rounded-sm p-8 flex flex-col relative overflow-hidden group/status hover:border-red-600/30 shadow-sm transition-colors min-h-0">
-                        <Link href={`/audit?search=${encodeURIComponent(data.suitNo)}`} className="absolute top-0 right-0 p-3 z-20 cursor-pointer">
-                            <div className="flex items-center space-x-1.5 bg-red-600/5 hover:bg-red-600/10 px-3 py-1 border border-red-600/20 hover:border-red-200 transition-colors rounded-sm group/badge">
-                                <div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
-                                <span className="text-red-600 group-hover/badge:text-red-700 text-[9px] font-bold tracking-widest uppercase transition-colors">Live Status Update</span>
-                                <ExternalLink className="w-3 h-3 text-red-600 opacity-0 group-hover/badge:opacity-100 transition-opacity ml-1" />
-                            </div>
-                        </Link>
                         <h3 className="text-gray-400 text-[10px] font-black tracking-[0.4em] uppercase mb-4 shrink-0">Current Status Update</h3>
                         <div className="text-gray-700 text-[15px] leading-relaxed space-y-4 overflow-y-auto pr-6 custom-scrollbar flex-1">
                             {data.status.split('\n').map((para, i) => (
