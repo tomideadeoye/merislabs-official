@@ -57,7 +57,7 @@ export const LitigationSlide: React.FC<{ data: LitigationData }> = ({ data }) =>
 
                 {/* Summary Section - Larger Box */}
                 <div className="flex-1 flex flex-col min-h-0">
-                    <div className="bg-gray-50 border border-gray-200 rounded-sm p-8 h-full relative group hover:border-red-600/30 shadow-sm transition-colors flex flex-col overflow-hidden">
+                    <div className="bg-gray-50 border border-gray-200 rounded-sm p-8 flex-1 relative group hover:border-red-600/30 shadow-sm transition-colors flex flex-col overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-16 bg-red-600" />
                         <h3 className="text-red-600 text-[10px] font-black tracking-[0.4em] uppercase mb-4 shrink-0">Case Summary</h3>
                         <div className="text-gray-700 text-[15px] leading-relaxed text-justify space-y-4 overflow-y-auto pr-6 custom-scrollbar flex-1">
