@@ -1,8 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { projects } from '../../../app/components/projects';
-import ProjectDetail from '../../../app/components/ProjectDetail';
+import { projects } from '../../../components/projects';
+import ProjectDetail from '../../../components/ProjectDetail';
 import { use } from 'react';
 
 export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {

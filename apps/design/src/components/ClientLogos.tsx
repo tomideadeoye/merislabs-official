@@ -17,7 +17,7 @@ export default function ClientLogos() {
         },
         {
             name: 'BrandQor',
-            logo: '/brandqor.png',
+            logo: '/clients/brandqor.png',
             description: 'Personal Branding Platform'
         },
         {

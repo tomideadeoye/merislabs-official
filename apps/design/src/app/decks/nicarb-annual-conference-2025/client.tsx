@@ -156,7 +156,7 @@ function ContentSlide({ slide, slideNumber }: { slide: Slide; slideNumber: numbe
                     {slide.partnerLogos && (
                         <div className="w-[35%] flex flex-col items-center justify-center gap-4 bg-white/80 rounded-2xl p-6 border border-gray-200">
                             <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">International Partners</p>
-                            {slide.partnerLogos.map((logo, index) => (
+                            {slide.partnerLogos.map((logo: string, index: number) => (
                                 <img
                                     key={index}
                                     src={logo}
@@ -219,7 +219,7 @@ function TwoColumnSlide({ slide, slideNumber }: { slide: Slide; slideNumber: num
                             <h3 className="text-xl font-bold text-[#064802]">{slide.leftColumn?.title}</h3>
                         </div>
                         <ul className="space-y-3">
-                            {slide.leftColumn?.items.map((item, i) => (
+                            {slide.leftColumn?.items.map((item: string, i: number) => (
                                 <li key={i} className="flex items-start">
                                     <div className="w-2 h-2 bg-[#a9ce46] rounded-full mt-2 mr-3" />
                                     <span className="text-gray-700">{item}</span>
@@ -237,7 +237,7 @@ function TwoColumnSlide({ slide, slideNumber }: { slide: Slide; slideNumber: num
                             <h3 className="text-xl font-bold text-[#064802]">{slide.rightColumn?.title}</h3>
                         </div>
                         <ul className="space-y-3">
-                            {slide.rightColumn?.items.map((item, i) => (
+                            {slide.rightColumn?.items.map((item: string, i: number) => (
                                 <li key={i} className="flex items-start">
                                     <div className="w-2 h-2 bg-[#064802] rounded-full mt-2 mr-3" />
                                     <span className="text-gray-700">{item}</span>
@@ -291,7 +291,7 @@ function QuoteSlide({ slide, slideNumber }: { slide: Slide; slideNumber: number 
 
                 {/* Bullets */}
                 <ul className="flex-1 flex flex-col justify-center space-y-4 mt-4">
-                    {slide.bullets?.map((bullet, index) => (
+                    {slide.bullets?.map((bullet: BulletPoint, index: number) => (
                         <li key={index} className="flex items-start">
                             <div className="w-3 h-3 bg-[#a9ce46] rounded-full mt-1.5 mr-4 flex-shrink-0" />
                             <span className="text-gray-700 text-base leading-relaxed">{renderBulletText(bullet)}</span>
@@ -334,7 +334,7 @@ function AreasSlide({ slide, slideNumber }: { slide: Slide; slideNumber: number 
 
                 {/* Areas grid - 2 rows x 3 cols */}
                 <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-5">
-                    {slide.areas?.map((area, index) => (
+                    {slide.areas?.map((area: Slide['areas'][number], index: number) => (
                         <div key={index} className="bg-white rounded-2xl p-5 border-2 border-[#075302]/10 hover:border-[#a9ce46] transition-all hover:shadow-xl group flex flex-col items-center justify-center text-center">
                             <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">{area.icon}</div>
                             <h3 className="text-[#064802] font-bold text-xl mb-2">{area.title}</h3>
@@ -474,7 +474,7 @@ function OutcomesSlide({ slide, slideNumber }: { slide: Slide; slideNumber: numb
 
                 {/* Outcomes grid - 2x3 with prominent checkmarks */}
                 <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-5">
-                    {slide.bullets?.map((bullet, index) => (
+                    {slide.bullets?.map((bullet: BulletPoint, index: number) => (
                         <div key={index} className="bg-gradient-to-br from-white to-[#f8faf8] rounded-2xl p-5 border-2 border-[#075302]/10 flex items-center shadow-md hover:shadow-xl transition-shadow">
                             <div className="w-14 h-14 bg-gradient-to-br from-[#a9ce46] to-[#559203] rounded-xl flex items-center justify-center mr-4 flex-shrink-0 shadow-lg">
                                 <span className="text-white text-2xl font-bold">✓</span>
@@ -534,7 +534,7 @@ function RoadmapSlide({ slide, slideNumber }: { slide: Slide; slideNumber: numbe
 
                         {/* Steps */}
                         <div className="relative flex justify-between">
-                            {slide.roadmapSteps?.map((step, index) => (
+                            {slide.roadmapSteps?.map((step: Slide['roadmapSteps'][number], index: number) => (
                                 <div key={index} className="flex flex-col items-center" style={{ width: '18%' }}>
                                     {/* Circle with number */}
                                     <div className="w-16 h-16 bg-gradient-to-br from-[#064802] to-[#075302] rounded-full flex items-center justify-center shadow-xl border-4 border-white mb-4">

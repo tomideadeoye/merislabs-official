@@ -14,3 +14,8 @@ export { InternalBarriersPage1, InternalBarriersPage2, InternalBarriersPage3 } f
 export { ExternalBarriersPage } from './ExternalBarriersPage';
 export { TableOfContents } from './TableOfContents';
 export { MorganHacksPage } from './MorganHacksPage';
+export { CoverPage } from './CoverPage';
+export { EndnotesPage } from './EndnotesPage';
+export { ESGAppendix } from './ESGAppendix';
+export { ESGFinanceGapVisual } from './ESGFinanceGapVisual';
+export { HybridESGMainContent } from './HybridESGMainContent';

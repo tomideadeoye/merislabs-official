@@ -54,7 +54,7 @@ export default function Clients() {
                         <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
                             <div className="relative w-full h-full">
                                 <Image
-                                    src="/brandqor.png"
+                                    src="/clients/brandqor.png"
                                     alt="BrandQor"
                                     fill
                                     className="object-contain"
