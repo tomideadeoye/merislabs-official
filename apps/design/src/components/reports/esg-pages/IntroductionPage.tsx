@@ -1,7 +1,7 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
 import { IntroductionSection } from '../ESGDashboard';
-import { defaultFootnotes } from '../../../../data/esgFootnotes';
+import { defaultFootnotes } from '@/data/esgFootnotes';
 
 interface IntroductionPageProps {
 	pageNumber: number;

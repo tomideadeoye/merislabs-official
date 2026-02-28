@@ -5,9 +5,9 @@ import { useTheme } from "next-themes";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { pdf } from "@react-pdf/renderer";
-import { EndnotesPage } from "../../components/reports/esg-pages/EndnotesPage";
-import { Endpage } from "../../components/reports/pages/EndPage";
-import { CoverPage } from "../../components/reports/esg-pages/CoverPage";
+import { EndnotesPage } from "@/components/reports/esg-pages/EndnotesPage";
+import { Endpage } from "@/components/reports/pages/EndPage";
+import { CoverPage } from "@/components/reports/esg-pages/CoverPage";
 import {
 	IntroductionPage,
 	TableOfContents,
@@ -23,11 +23,11 @@ import {
 	ESGPage11,
 	ESGPage12,
 	ESGPage13,
-} from "../../components/reports/esg-pages";
+} from "@/components/reports/esg-pages";
 import {
 	PDFGenerator,
 	ComponentRef,
-} from "../../lib/pdfUtils";
+} from "@/lib/pdfUtils";
 
 export default function HybridESGDemoClient() {
 	const { setTheme } = useTheme();

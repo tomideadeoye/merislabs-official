@@ -5,10 +5,10 @@ import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 
 // Import Conference Brochure directly
-import ConferenceBrochure from '../../components/reports/nicarb-pages/ConferenceBrochure';
+import ConferenceBrochure from '@/components/reports/nicarb-pages/ConferenceBrochure';
 
 // Import Pitch Deck slides and components
-import { slides, Slide, BulletPoint } from '../../components/reports/nicarb-pages/pitch-deck/slides';
+import { slides, Slide, BulletPoint } from '@/components/reports/nicarb-pages/pitch-deck/slides';
 
 // Slide dimensions for 16:9 aspect ratio (print-ready)
 const SLIDE_WIDTH = 1280;
@@ -128,7 +128,7 @@ function ContentSlide({ slide, slideNumber }: { slide: Slide; slideNumber: numbe
                 <div className={`flex-1 flex ${hasImage ? 'gap-8' : ''}`}>
                     {/* Bullets column */}
                     <ul className={`flex-1 flex flex-col justify-center space-y-5 ${hasImage ? 'max-w-[55%]' : ''}`}>
-                        {slide.bullets?.map((bullet, index) => (
+                        {slide.bullets?.map((bullet: BulletPoint, index: number) => (
                             <li key={index} className="flex items-start group">
                                 <div className="w-3 h-3 bg-[#a9ce46] rounded-full mt-1.5 mr-5 flex-shrink-0 group-hover:scale-125 transition-transform" />
                                 <span className="text-gray-700 text-lg leading-relaxed">
@@ -334,7 +334,7 @@ function AreasSlide({ slide, slideNumber }: { slide: Slide; slideNumber: number 
 
                 {/* Areas grid - 2 rows x 3 cols */}
                 <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-5">
-                    {slide.areas?.map((area: Slide['areas'][number], index: number) => (
+                    {slide.areas?.map((area: { icon: string; title: string; description: string }, index: number) => (
                         <div key={index} className="bg-white rounded-2xl p-5 border-2 border-[#075302]/10 hover:border-[#a9ce46] transition-all hover:shadow-xl group flex flex-col items-center justify-center text-center">
                             <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">{area.icon}</div>
                             <h3 className="text-[#064802] font-bold text-xl mb-2">{area.title}</h3>
@@ -534,7 +534,7 @@ function RoadmapSlide({ slide, slideNumber }: { slide: Slide; slideNumber: numbe
 
                         {/* Steps */}
                         <div className="relative flex justify-between">
-                            {slide.roadmapSteps?.map((step: Slide['roadmapSteps'][number], index: number) => (
+                            {slide.roadmapSteps?.map((step: { step: number; title: string; description: string }, index: number) => (
                                 <div key={index} className="flex flex-col items-center" style={{ width: '18%' }}>
                                     {/* Circle with number */}
                                     <div className="w-16 h-16 bg-gradient-to-br from-[#064802] to-[#075302] rounded-full flex items-center justify-center shadow-xl border-4 border-white mb-4">

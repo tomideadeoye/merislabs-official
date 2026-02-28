@@ -38,16 +38,16 @@ export default function Clients() {
                     </div>
 
                     {/* Items */}
-                    <div className="flex flex-wrap justify-center gap-12 items-center">
+                    <div className="flex flex-wrap justify-center gap-6 items-center">
                         {clients.map((client) => (
                             <Link
                                 href={client.url}
                                 key={client.name}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group flex flex-col items-center gap-4 p-6 bg-white rounded-xl w-64 shadow-lg hover:scale-105 transition-all duration-300"
+                                className="group flex flex-col items-center gap-3 p-4 bg-white rounded-xl w-48 shadow-md hover:scale-105 transition-all duration-300"
                             >
-                                <div className="relative w-full h-32">
+                                <div className="relative w-full h-24">
                                     <Image
                                         src={client.logo}
                                         alt={client.name}
@@ -55,7 +55,7 @@ export default function Clients() {
                                         className="object-contain"
                                     />
                                 </div>
-                                <div className="text-gray-900 font-bold text-sm tracking-tight text-center group-hover:text-[#f06600] transition-colors">
+                                <div className="text-gray-900 font-bold text-xs tracking-tight text-center group-hover:text-[#f06600] transition-colors">
                                     {client.name}
                                 </div>
                             </Link>
