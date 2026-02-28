@@ -75,16 +75,16 @@ export const CoverPage = () => {
                     {/* Key metrics preview */}
                     <div className="grid grid-cols-3 gap-8 mt-12 w-full max-w-3xl">
                         <div className="text-center p-6 bg-white/80 backdrop-blur-sm rounded-xl border border-[#f06600]/10 shadow-lg">
-                            <div className="text-3xl font-black text-[#f06600]">$60.79M</div>
-                            <div className="text-xs uppercase tracking-[0.1em] text-[#211B1B]/60 mt-2">CAPEX Deployed</div>
+                            <div className="text-3xl font-black text-[#f06600]">20.3 Ha</div>
+                            <div className="text-xs uppercase tracking-[0.1em] text-[#211B1B]/60 mt-2">Total Footprint</div>
                         </div>
                         <div className="text-center p-6 bg-white/80 backdrop-blur-sm rounded-xl border border-[#f06600]/10 shadow-lg">
-                            <div className="text-3xl font-black text-[#f06600]">20,000</div>
-                            <div className="text-xs uppercase tracking-[0.1em] text-[#211B1B]/60 mt-2">SQM Phase I</div>
+                            <div className="text-3xl font-black text-[#f06600]">36,000</div>
+                            <div className="text-xs uppercase tracking-[0.1em] text-[#211B1B]/60 mt-2">SQM Active Hub</div>
                         </div>
                         <div className="text-center p-6 bg-white/80 backdrop-blur-sm rounded-xl border border-[#f06600]/10 shadow-lg">
-                            <div className="text-3xl font-black text-[#f06600]">667 Ha</div>
-                            <div className="text-xs uppercase tracking-[0.1em] text-[#211B1B]/60 mt-2">Phase II Land Bank</div>
+                            <div className="text-3xl font-black text-[#f06600]">540m</div>
+                            <div className="text-xs uppercase tracking-[0.1em] text-[#211B1B]/60 mt-2">Marine Quay Wall</div>
                         </div>
                     </div>
                 </div>
@@ -110,7 +110,8 @@ export const CoverPage = () => {
                     <div className="text-[9px] uppercase tracking-[0.25em] font-bold opacity-40 mb-1">CONTACT</div>
                     <div className="text-sm font-semibold">Omobola Abiru</div>
                     <div className="text-[10px] opacity-60">Managing Director, GK&A Logistics</div>
-                    <div className="text-[10px] opacity-60 mt-1">+234 703 834 1611</div>
+                    <div className="text-[10px] opacity-60 mt-1">info@gkaports.com | mobola.abiru@gkaports.com</div>
+                    <div className="text-[10px] opacity-60">+234 703 834 1611</div>
                 </div>
 
                 <div className="text-right relative z-10 self-center">

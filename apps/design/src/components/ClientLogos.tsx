@@ -19,6 +19,11 @@ export default function ClientLogos() {
             name: 'BrandQor',
             logo: '/brandqor.png',
             description: 'Personal Branding Platform'
+        },
+        {
+            name: 'GK&A Logistics',
+            logo: '/gka/gka-logo.png',
+            description: 'Regional Inland Port Terminal'
         }
     ];
 
@@ -30,7 +35,7 @@ export default function ClientLogos() {
                     <p className="text-gray-400">Building digital solutions for forward-thinking companies</p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center">
                     {clients.map((client) => (
                         <div
                             key={client.name}

@@ -30,6 +30,7 @@
  *   - Error boundaries and providers are client components
  */
 
+import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ClientProviders } from './client-providers';
@@ -38,7 +39,7 @@ import { navItems } from '@/lib/routes';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL('https://merislabs.com'),
   title: {
     default: 'Meris Labs - Web & Mobile Development',

@@ -38,6 +38,29 @@ export default function Clients() {
                                 />
                             </div>
                         </div>
+                        {/* Client 3 */}
+                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
+                            <div className="relative w-full h-full">
+                                <Image
+                                    src="/gka/gka-logo.png"
+                                    alt="GK&A Logistics Terminal"
+                                    fill
+                                    className="object-contain"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Client 4 */}
+                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
+                            <div className="relative w-full h-full">
+                                <Image
+                                    src="/brandqor.png"
+                                    alt="BrandQor"
+                                    fill
+                                    className="object-contain"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
