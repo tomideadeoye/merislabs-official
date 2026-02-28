@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { DownloadControls } from '../union-bank-report-1/components/DownloadControls';
+import { DownloadControls } from '@merislabs/ui';
 import SlideWrapper from './components/SlideWrapper';
 import CoverSlide from './components/CoverSlide';
 import TOCSlide from './components/TOCSlide';

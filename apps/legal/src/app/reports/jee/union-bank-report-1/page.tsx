@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Printer } from 'lucide-react';
-import { DownloadControls } from './components/DownloadControls';
+import { DownloadControls } from '@merislabs/ui';
 import { CoverPage } from './components/CoverPage';
 import { TableOfContents } from './components/TableOfContents';
 import { ExecutiveSummary } from './components/ExecutiveSummary';

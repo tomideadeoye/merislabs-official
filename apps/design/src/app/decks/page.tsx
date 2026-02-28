@@ -20,6 +20,15 @@ interface Deck {
 
 const decks: Deck[] = [
   {
+    id: 'gka-investment-teaser',
+    title: 'GK&A Logistics - Investment Teaser',
+    description: 'Ikorodu Regional Inland Port & Customs Direct Ship Call Terminal - $60.79M deployed infrastructure opportunity',
+    category: 'Investment',
+    lastUpdated: 'February 2026',
+    status: 'published',
+    href: '/decks/gka-investment-teaser'
+  },
+  {
     id: 'nicarb-conference-2025',
     title: 'NICArb Annual Conference 2025',
     description: 'Strengthening Institutional Arbitration & ADR in Africa: Charting a New Path',
