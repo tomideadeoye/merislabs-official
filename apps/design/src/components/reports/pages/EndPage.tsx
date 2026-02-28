@@ -2,8 +2,8 @@ import React from 'react';
 import { HybridPage } from '../HybridPage';
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar';
 import { ModernCard, ModernCardContent } from '../../ui/modern-card';
-import { reportData } from '../../../../data';
-import { Contact } from '../../../../types';
+import { reportData } from '@/data';
+import type { Contact } from '@/types';
 import dynamic from 'next/dynamic';
 
 // Dynamically import QRCode to avoid SSR issues

@@ -1,6 +1,30 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Clients() {
+    const clients = [
+        {
+            name: 'NICArb',
+            logo: '/clients/NICARB LOGO Green Text (1).png',
+            url: 'https://nicarb.org'
+        },
+        {
+            name: 'Jackson, Etti & Edu',
+            logo: '/clients/jackson etti and edu logo (1).png',
+            url: 'https://jacksonettiandedu.com'
+        },
+        {
+            name: 'GK&A Logistics',
+            logo: '/gka/gka-logo.png',
+            url: 'https://www.gkaports.com'
+        },
+        {
+            name: 'BrandQor',
+            logo: '/clients/brandqor.png',
+            url: 'https://www.brandqor.com'
+        }
+    ];
+
     return (
         <section>
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -15,52 +39,27 @@ export default function Clients() {
 
                     {/* Items */}
                     <div className="flex flex-wrap justify-center gap-12 items-center">
-                        {/* Client 1 */}
-                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
-                            <div className="relative w-full h-full">
-                                <Image
-                                    src="/clients/NICARB LOGO Green Text (1).png"
-                                    alt="NICArb"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Client 2 */}
-                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
-                            <div className="relative w-full h-full">
-                                <Image
-                                    src="/clients/jackson etti and edu logo (1).png"
-                                    alt="Jackson, Etti & Edu"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
-                        {/* Client 3 */}
-                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
-                            <div className="relative w-full h-full">
-                                <Image
-                                    src="/gka/gka-logo.png"
-                                    alt="GK&A Logistics Terminal"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Client 4 */}
-                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
-                            <div className="relative w-full h-full">
-                                <Image
-                                    src="/clients/brandqor.png"
-                                    alt="BrandQor"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
+                        {clients.map((client) => (
+                            <Link
+                                href={client.url}
+                                key={client.name}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group flex flex-col items-center gap-4 p-6 bg-white rounded-xl w-64 shadow-lg hover:scale-105 transition-all duration-300"
+                            >
+                                <div className="relative w-full h-32">
+                                    <Image
+                                        src={client.logo}
+                                        alt={client.name}
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <div className="text-gray-900 font-bold text-sm tracking-tight text-center group-hover:text-[#f06600] transition-colors">
+                                    {client.name}
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </div>

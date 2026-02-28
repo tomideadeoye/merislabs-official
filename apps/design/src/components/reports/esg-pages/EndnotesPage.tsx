@@ -1,6 +1,6 @@
 import React from 'react';
 import { HybridPage } from '../HybridPage';
-import { defaultFootnotes as mainFootnotes } from '../../../../data';
+import { defaultFootnotes as mainFootnotes } from '@/data';
 
 // Helper function to convert footnote text with URLs to HTML links
 const convertFootnoteToHtml = (text: string): string => {
@@ -85,7 +85,7 @@ export const EndnotesPage: React.FC<EndnotesPageProps> = ({
       )}
 
       <div className="text-[8px] leading-tight columns-2 gap-6 h-full pb-8 column-fill-auto">
-        {pageFootnotes.map((note, index) => {
+        {pageFootnotes.map((note: string, index: number) => {
           const displayNumber = displayStartNumber + index;
           const actualIndex = startIndex + index;
           return (

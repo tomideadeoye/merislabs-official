@@ -2,8 +2,8 @@ import React from "react";
 import { HybridPage } from "../HybridPage";
 import { Badge, Card, CardContent } from "../../ui/index";
 import { Avatar, AvatarImage, AvatarFallback } from "../../ui/index";
-import { reportData } from "../../../../data";
-import { Contact } from "../../../../types";
+import { reportData } from "@/data";
+import type { Contact } from "@/types";
 
 interface CoverPageProps {
 	pageNumber?: number;
