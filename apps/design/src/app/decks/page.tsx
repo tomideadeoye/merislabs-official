@@ -1,5 +1,6 @@
-"use client";
-
+import type { Metadata } from 'next';
+import { StructuredData } from '@/components/seo';
+import { generatePageSEO, seoPresets } from '@/lib/seo';
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, Eye } from 'lucide-react';
 import { useTheme } from 'next-themes';
+
+export const metadata: Metadata = generatePageSEO({
+  ...seoPresets.decks,
+  image: '/images/decks-og-image.png',
+});
 
 interface Deck {
   id: string;

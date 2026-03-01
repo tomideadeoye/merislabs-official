@@ -9,20 +9,20 @@ import ProjectMediaDisplay from './ProjectMediaDisplay';
 
 export default function ProjectDetail({
     project,
-    onBack
+    onBackAction
 }: {
     project: Project;
-    onBack?: () => void;
+    onBackAction?: () => void;
 }) {
     const typedLinks = project.links || [];
 
     return (
         <div className="max-w-7xl mx-auto p-4 sm:p-6">
             <div className="flex flex-col h-full">
-                {onBack && (
+                {onBackAction && (
                     <button
                         className="self-start mb-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-                        onClick={onBack}
+                        onClick={onBackAction}
                     >
                         <X className="h-6 w-6 text-white" />
                         <span className="sr-only">Close</span>

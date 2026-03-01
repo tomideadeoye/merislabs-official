@@ -30,7 +30,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         <div className="min-h-screen bg-gray-900 text-white">
             <ProjectDetail
                 project={project}
-                onBack={() => router.back()}
+                onBackAction={() => router.back()}
             />
         </div>
     );

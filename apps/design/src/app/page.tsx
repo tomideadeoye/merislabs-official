@@ -36,6 +36,8 @@
  *   - **SEO Optimization**: Add more detailed meta descriptions, open graph tags, and structured data for improved search engine visibility.
  */
 import type { Metadata } from 'next/types';
+import { StructuredData } from '@/components/seo';
+import { generatePageSEO, generateOrganizationSchema, seoPresets } from '@/lib/seo';
 import Hero from '@/components/Hero';
 import Clients from '@/components/Clients';
 import Zigzag from '@/components/zigzag';
@@ -43,38 +45,17 @@ import Testimonials from '@/components/Testimonials';
 import Newsletter from '@/components/Newsletter';
 import Footer from '@/components/ui/footer';
 
-export const metadata: Metadata = {
-  title: 'Home',
-  description: 'Welcome to Meris Labs - Your partner in innovative software development, ESG consulting, and cutting-edge technology solutions. Discover our expertise in web and mobile development.',
-  keywords: ['software development', 'web development', 'mobile apps', 'ESG consulting', 'fintech solutions', 'AI development', 'blockchain', 'Nigeria tech'],
-  openGraph: {
-    title: 'Meris Labs - Innovative Software Development & ESG Consulting',
-    description: 'Expert software development and ESG consulting services. Building innovative solutions for financial services, legal tech, and sustainable business growth.',
-    url: '/',
-    siteName: 'Meris Labs',
-    images: [
-      {
-        url: '/images/merislabswhite.png',
-        width: 1200,
-        height: 630,
-        alt: 'Meris Labs - Innovative Software Development',
-      },
-    ],
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Meris Labs - Innovative Software Development & ESG Consulting',
-    description: 'Expert software development and ESG consulting services. Building innovative solutions for financial services, legal tech, and sustainable business growth.',
-    images: ['/images/merislabswhite.png'],
-    creator: '@merislabs',
-  },
-};
+export const metadata: Metadata = generatePageSEO({
+  ...seoPresets.home,
+  image: '/images/merislabs-og-image.png',
+});
 
 export default function Home() {
+  const organizationSchema = generateOrganizationSchema();
+
   return (
     <>
+      <StructuredData data={organizationSchema} />
       <Hero />
       <Clients />
       <Zigzag />
