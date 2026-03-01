@@ -5,128 +5,45 @@
 ## 📊 Current Deployment Status
 
 ### **MerisLabs (apps/design)**
-- **Latest Deployment:** `merislabs-mgapjg7jn` - ❌ **Error** (17 minutes ago)
-- **Previous:** `merislabs-dcamz4q3p` - ❌ **Error** (24 minutes ago)
-- **Last Successful:** `merislabs-5giksush5` - ✅ **Ready** (1 hour ago)
-  - URL: https://merislabs-5giksush5-tomideadeoyes-projects.vercel.app
+- **Latest Deployment:** `merislabs-105fz9e1y` - ✅ **Ready** (just now)
+  - URL: https://merislabs-105fz9e1y-tomideadeoyes-projects.vercel.app
+- **Previous:** `merislabs-mgapjg7jn` - ❌ **Error** (1 hour ago)
 
 ### **Legal (apps/legal)**
-- **Latest Deployment:** `legal-2qqcga4qy` - ✅ **Ready** (17 minutes ago)
+- **Latest Deployment:** `legal-2qqcga4qy` - ✅ **Ready** (1 hour ago)
   - URL: https://legal-2qqcga4qy-tomideadeoyes-projects.vercel.app
-- **Previous:** `legal-4pdqqhexh` - ✅ **Ready** (24 minutes ago)
 
 ## 🔍 Recent Deployment History
 
 ### Last 24 Hours:
 | Age | Project | Deployment | Status | Environment | Duration |
 |-----|---------|-----------|--------|-------------|----------|
-| 17m | legal | legal-2qqcga4qy | ✅ Ready | Production | 46s |
-| 17m | merislabs | merislabs-mgapjg7jn | ❌ Error | Production | 1m |
-| 24m | legal | legal-4pdqqhexh | ✅ Ready | Production | 33s |
-| 24m | merislabs | merislabs-dcamz4q3p | ❌ Error | Production | 1m |
-| 1h | merislabs | merislabs-5giksush5 | ✅ Ready | Production | 28s |
-| 1h | legal | legal-cz1o9j32r | ✅ Ready | Production | 33s |
-
-### Last Week:
-- **Total Deployments:** 18+
-- **Success Rate:** ~85%
-- **Average Build Time:** 35s (legal), 45s (merislabs)
-
-## 🎯 Production URLs
-
-### Primary Sites:
-- **MerisLabs Main:** https://merislabs.com (custom domain - check DNS)
-- **Legal:** https://legal.merislabs.com (custom domain - check DNS)
-
-### Vercel Preview URLs:
-- **MerisLabs Latest:** https://merislabs-5giksush5-tomideadeoyes-projects.vercel.app
-- **Legal Latest:** https://legal-2qqcga4qy-tomideadeoyes-projects.vercel.app
+| 1m  | merislabs | merislabs-105fz9e1y | ✅ Ready | Production | 28s |
+| 1h | legal | legal-2qqcga4qy | ✅ Ready | Production | 46s |
+| 1h | merislabs | merislabs-mgapjg7jn | ❌ Error | Production | 1m |
+| 1h | legal | legal-4pdqqhexh | ✅ Ready | Production | 33s |
+| 1.5h | merislabs | merislabs-dcamz4q3p | ❌ Error | Production | 1m |
+| 3h | merislabs | merislabs-5giksush5 | ✅ Ready | Production | 28s |
 
 ## ⚠️ Recent Build Errors
 
-The two most recent MerisLabs deployments failed. Common causes:
-1. TypeScript compilation errors
-2. Missing environment variables
-3. Build timeout
-4. Package resolution issues
+The recent deployments failed due to a misconfigured `vercel.json` file placed in `apps/design`. By forcing `"NODE_ENV": "production"`, `pnpm install` skipped `devDependencies` (like `tailwindcss`), breaking Turbopack compilation and triggering network errors on Vercel's end (`ERR_INVALID_THIS` when installing).
 
 ### ✅ Solution Applied:
-Fixed `@merislabs/config/tailwind` package export issue in:
-- `packages/config/package.json` - Added wildcard export pattern
-- `apps/design/tailwind.config.mjs` - Corrected import path
+- Removed the problematic `apps/design/vercel.json` completely.
+- Git pushed the fix to `master`.
+- Vercel automatically redeployed using defaults, successfully building in 28 seconds.
 
 ## 🚀 Recommended Actions
 
-### Immediate:
-1. **Deploy Latest Build:**
-   ```bash
-   cd apps/design
-   npm run build  # ✅ Already successful locally
-   vercel --prod  # Deploy to production
-   ```
-
-2. **Check Vercel Build Logs:**
-   ```bash
-   vercel logs --follow
-   ```
-
-3. **Verify Environment Variables:**
-   - Check Vercel dashboard for required env vars
-   - Ensure `VERCEL_TOKEN` is set if using SDK
-
-### Next Steps:
-1. **Link Project Locally:**
-   ```bash
-   cd apps/design
-   vercel link
-   ```
-
-2. **Set Up Custom Domains:**
-   - merislabs.com
-   - legal.merislabs.com
-
-3. **Configure Automatic Deployments:**
-   - Connect GitHub repository
-   - Enable auto-deploy on push to main branch
-
-## 📈 Deployment Metrics
-
-### Build Performance:
-- **Legal App:** ~35s average (excellent)
-- **MerisLabs App:** ~45s average (good)
-- **Target:** <60s for both ✅
-
-### Success Rate:
-- **Last 24h:** 67% (4/6 successful)
-- **Last Week:** 85%+ (15+/18 successful)
-- **Target:** 95%+ ⚠️
+### Keep using Dashboard defaults for `merislabs`
+Do not place overriding `vercel.json` configurations in `apps/design/vercel.json` unless absolutely necessary, and avoid setting `NODE_ENV: production` during the install phase.
 
 ## 🔧 Configuration Files
 
 ### Vercel Configuration:
-- **MerisLabs:** `apps/design/vercel.json` (create if missing)
+- **MerisLabs:** Controlled by Vercel Dashboard defaults (Root Directory: `apps/design`)
 - **Legal:** `apps/legal/vercel.json` (exists)
-
-### Recommended `vercel.json` for MerisLabs:
-```json
-{
-  "framework": "nextjs",
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm run build",
-  "devCommand": "pnpm run dev",
-  "regions": ["fra1"],
-  "env": {
-    "NODE_ENV": "production"
-  }
-}
-```
-
-## 📝 Notes
-
-- **Package Manager:** pnpm v10.12.2 (specified in package.json)
-- **Node Version:** 20.0.0+ (specified in engines)
-- **Next.js Version:** 16.0.8
-- **Build Tool:** Turbopack (enabled by default in Next.js 16)
 
 ---
 
