@@ -50,7 +50,7 @@ export function generatePageSEO(options: PageSEOOptions): Metadata {
         },
       ],
       locale: 'en_US',
-      type: options.type || 'website',
+      type: options.type === 'article' ? 'article' : 'website',
       publishedTime: options.publishedTime,
     },
     twitter: {

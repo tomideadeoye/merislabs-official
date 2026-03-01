@@ -1,25 +1,19 @@
-import { MetadataRoute } from 'next';
+import { Metadata } from 'next';
 
 /**
  * Generate favicon metadata
- * Place your favicon.ico, icon.png, and apple-icon.png in the /public/app directory
+ * Place your favicon.ico, icon.png, and apple-icon.png in the /public directory
  */
-export default function favicon(): MetadataRoute.Favicon {
-  return [
-    {
-      rel: 'icon',
-      url: '/favicon.ico',
-      sizes: 'any',
+export default function favicon(): Metadata {
+  return {
+    icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/icon.svg', type: 'image/svg+xml' },
+      ],
+      apple: [
+        { url: '/apple-touch-icon.png', sizes: '180x180' },
+      ],
     },
-    {
-      rel: 'icon',
-      url: '/icon.svg',
-      type: 'image/svg+xml',
-    },
-    {
-      rel: 'apple-touch-icon',
-      url: '/apple-touch-icon.png',
-      sizes: '180x180',
-    },
-  ];
+  };
 }
