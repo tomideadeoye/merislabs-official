@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-import sharedConfig from '@merislabs/config/tailwind';
+import sharedConfig from '../../packages/config/dist/tailwind/index.js';
 
 export default {
   ...sharedConfig,
