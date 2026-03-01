@@ -3,10 +3,17 @@
     "version": "1.0.0",
     "type": "module",
     "private": true,
-    "main": "./src/index.ts",
+    "main": "./dist/index.js",
     "exports": {
-        "./tailwind": "./src/tailwind/index.ts",
-        "./*": "./src/*"
+        "./tailwind": "./dist/tailwind/index.js",
+        "./*": "./dist/*"
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
+    },
+    "devDependencies": {
+        "typescript": "^5"
     },
     "dependencies": {
         "tailwindcss": "3.4.1"

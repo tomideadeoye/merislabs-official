@@ -42,6 +42,8 @@ apps/**/.next/
 packages/**/dist/
 *.tsbuildinfo
 .contentlayer
+# Exception: config package dist must be included for deployment
+!packages/config/dist/
 
 
 # Python build/cache
