@@ -52,6 +52,16 @@ const projects: Project[] = [
     ],
   },
   {
+    id: 'africa-grc-summit-2026',
+    name: 'Africa GRC Summit 1.0 (2026)',
+    description: 'A full event platform for the Africa GRC Summit featuring a dynamic agenda, speakers, sponsors, venue, and attendance flow. The system includes an admin panel backed by Supabase for managing event content with production-ready workflows.',
+    technologies: ['Next.js', 'TypeScript', 'Supabase', 'Tailwind CSS', 'Vercel'],
+    iframe: 'https://www.africagrcsummit.com',
+    img: '/clients/africa-grc-summit.png',
+    tag: 'AFRICA GRC SUMMIT: Event Platform and Admin CMS',
+    links: [{ type: 'website', url: 'https://www.africagrcsummit.com' }],
+  },
+  {
     id: 'bundul-due-payments',
     name: 'Bundul Due Payments',
     description: 'Bundul Due Payments is a React Native Expo application that displays a list of upcoming payments for user subscriptions with a modern fintech dark theme UI. It features payment tracking with service name, amount, due date, and "Pay Now" functionality. The app includes "Due Soon" badges with pulse effects for payments within 3 days, sorted by due date with highlighted rows. Users can tap "Pay Now" to open confirmation modals, pull-to-refresh, search payments, and filter by All, Due Soon, or Paid status. It tracks payment history with persistent storage and real-time updates across tabs, plus an insights dashboard with payment visualization charts. The app delivers a modern dark theme fintech UI with animations and responsive design.',

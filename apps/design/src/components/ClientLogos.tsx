@@ -7,6 +7,12 @@ export default function ClientLogos() {
             url: 'https://nicarb.org'
         },
         {
+            name: 'Africa GRC Summit',
+            logo: '/clients/africa-grc-summit.png',
+            description: 'Governance, Risk, and Compliance Summit Platform',
+            url: 'https://www.africagrcsummit.com'
+        },
+        {
             name: 'Jackson, Etti & Edu',
             logo: '/clients/jackson etti and edu logo (1).png',
             description: 'Leading Law Firm',
@@ -40,7 +46,7 @@ export default function ClientLogos() {
                     <p className="text-gray-400">Building digital solutions for forward-thinking companies</p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center">
                     {clients.map((client) => (
                         <a
                             key={client.name}
