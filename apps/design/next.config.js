@@ -20,6 +20,22 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
 
+  // Redirect clients from the design app to the main app where we built the logo lab
+  async redirects() {
+    return [
+      {
+        source: '/tools/jee-logo-lab',
+        destination: 'https://merislabs.com/tools/jee-logo-lab', // Assuming main app is on merislabs.com
+        permanent: false,
+      },
+      {
+        source: '/tools/jee-logo-lab2',
+        destination: 'https://merislabs.com/tools/jee-logo-lab2',
+        permanent: false,
+      }
+    ]
+  },
+
   // Webpack configuration for better performance and compatibility
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Add path aliases
