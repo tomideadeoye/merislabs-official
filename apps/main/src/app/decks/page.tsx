@@ -124,12 +124,12 @@ export default function DecksPage() {
                                 </CardHeader>
                                 <CardContent className="pt-4">
                                     <div className="flex gap-3">
-                                        <Button asChild variant="default" size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                                            <Link href={deck.href}>
+                                        <Link href={deck.href} className="flex-1">
+                                            <Button variant="default" size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                                                 <Eye className="w-4 h-4 mr-2" />
                                                 Explore
-                                            </Link>
-                                        </Button>
+                                            </Button>
+                                        </Link>
                                         <Button variant="outline" size="sm" disabled className="text-slate-400">
                                             <Download className="w-4 h-4 mr-2" />
                                             PDF
