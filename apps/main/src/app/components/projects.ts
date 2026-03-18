@@ -88,7 +88,6 @@ const projects: Project[] = [
   {
     id: 'qorepay',
     name: 'QorePay Payment Orchestration',
-    tag: 'QOREPAY: Payment Orchestration for African Businesses',
     description: `**Payment Orchestration Platform** enabling African businesses to make global payments with local currency.
 
 **Version 2 Architecture:**
@@ -112,7 +111,7 @@ const projects: Project[] = [
 - AWS deployment with auto-scaling for high availability`,
     technologies: ['Express.js', 'Next.js', 'AWS', 'Algolia', 'Postman', 'Paystack API', 'Slack API', 'Vercel Cron'],
     img: '/qorepay.png',
-    tag: 'QOREPAY: Payment Orchestration Platform',
+    tag: 'QOREPAY: Payment Orchestration Platform for African Businesses',
     links: [
       { type: 'website', url: 'https://qorepay.com/' },
       { type: 'documentation', url: 'https://docs.qorepay.com', label: 'API Documentation' },
