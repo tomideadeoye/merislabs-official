@@ -40,7 +40,6 @@ import Hero from './components/Hero';
 import Clients from './components/Clients';
 import Zigzag from './components/zigzag';
 import Testimonials from './components/Testimonials';
-import Newsletter from './components/Newsletter';
 import Footer from './components/ui/footer';
 
 export const metadata: Metadata = {
@@ -79,7 +78,6 @@ export default function Home() {
       <Clients />
       <Zigzag />
       <Testimonials />
-      <Newsletter />
       <Footer />
     </>
   );

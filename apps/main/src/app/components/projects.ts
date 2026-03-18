@@ -29,10 +29,22 @@ export interface Project {
 
 const projects: Project[] = [
   {
+    id: 'project-compass',
+    name: 'Project Compass: Ecobank Litigation Audit',
+    description: 'Led engineering for a N25M litigation audit system at Jackson, Etti & Edu. Built a Next.js dashboard and automated reporting engine that tracked ₦273B+ in financial exposure across 350+ cases. Solved critical data deduplication challenges preventing a ₦107B overestimation and implemented batch PDF processing (via Puppeteer/Playwright) to automatically generate 500+ page executive reports.',
+    technologies: ['Next.js 15', 'TypeScript', 'Tailwind CSS', 'Puppeteer', 'Playwright', 'Vercel'],
+    iframe: 'https://jee-ecobank-compass.vercel.app/',
+    tag: 'ARCHITECT: ₦273B+ Litigation Audit System',
+    links: [
+      { type: 'website', url: 'https://jee-ecobank-compass.vercel.app/' },
+    ],
+    img: '/merislabswhite.png',
+  },
+  {
     id: 'brandqor',
     name: 'BrandQor',
     description: 'BrandQor is a personal branding platform designed for visionary leaders, founders, executives, and creators. It helps build authentic authority, attract the right opportunities, and grow businesses sustainably without burnout. Through their Influence Engine, they provide a done-for-you visibility system that turns expertise into influence with strategic content creation, distribution, and storytelling. The platform offers two paths: the Executive version for busy professionals who want full-service management, and the Starter version for DIY growth with structured guidance. BrandQor focuses on clarifying your story, designing your online presence, creating compelling content, distributing effectively, and compounding visibility into trust and opportunities.',
-    technologies: ['NextJs', 'Personal Branding', 'Content Strategy'],
+    technologies: ['NextJs', 'Supabase', 'Google Cloud', 'Gmail API', 'Google Sheets API', 'Vercel', 'Zod'],
     iframe: 'https://brandqor.com',
     img: '/brandqor.png',
     tag: 'BRANDQOR: Personal Branding for Visionary Leaders',
@@ -75,31 +87,39 @@ const projects: Project[] = [
   },
   {
     id: 'qorepay',
-    name: 'QorePay Payment Gateway',
-    tag: 'QOREPAY: Payment settlement for Nigerian Businesses',
-    description:
-      'QorePay is a payment app that allows users to send and receive money from anywhere in the world. It also allows users to pay bills, buy airtime, and make transfers to bank accounts.',
-    technologies: ['ExpressJs', 'React/NextJs', 'AWS'],
-    iframe: 'https://qorepay.com',
+    name: 'QorePay Payment Orchestration',
+    tag: 'QOREPAY: Payment Orchestration for African Businesses',
+    description: `**Payment Orchestration Platform** enabling African businesses to make global payments with local currency.
+
+**Version 2 Architecture:**
+- **Backend**: Express.js microservices with payment provider abstraction layer
+- **Frontend**: Next.js dashboard for transaction management and analytics
+- **Documentation**: Algolia-powered developer docs with Postman API collections
+- **White-Label**: Multi-tenant architecture for B2B2C deployments
+
+**Key Features:**
+- Integrated 5+ FinTech APIs (Paystack, Klasha, SarePay) with unified abstraction
+- 2 ERP system integrations for automated reconciliation
+- Real-time transaction failure reporting via Slack API
+- Vercel Cron Jobs for scheduled settlement processes
+- Multi-gateway routing for optimal transaction costs
+
+**Technical Implementation:**
+- Payment Provider Abstraction Layer for seamless provider switching
+- White-label infrastructure for enterprise clients
+- Algolia documentation search for developer experience
+- Postman API collections for integration teams
+- AWS deployment with auto-scaling for high availability`,
+    technologies: ['Express.js', 'Next.js', 'AWS', 'Algolia', 'Postman', 'Paystack API', 'Slack API', 'Vercel Cron'],
     img: '/qorepay.png',
+    tag: 'QOREPAY: Payment Orchestration Platform',
     links: [
       { type: 'website', url: 'https://qorepay.com/' },
+      { type: 'documentation', url: 'https://docs.qorepay.com', label: 'API Documentation' },
       {
         type: 'video',
         url: 'https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4',
       },
-    ],
-  },
-  {
-    id: 'pitchr',
-    name: 'PitchR',
-    tag: 'Business funding for startups',
-    description: 'PitchR provides advisory services for startups to grow their businesses.',
-    technologies: ['NextJs'],
-    iframe: 'https://pitchr.vercel.app/',
-    img: '/pitchr.png',
-    links: [
-      { type: 'website', url: 'https://pitchr.vercel.app' },
     ],
   },
   {
@@ -130,23 +150,6 @@ const projects: Project[] = [
       { type: 'npm-package', url: 'https://www.npmjs.com/package/cyber-stream-sdk' },
       { type: 'github', url: 'https://github.com/tomideadeoye/cyberstream' },
       { type: 'video', url: 'https://github.com/tomideadeoye/merislabs-github-media/raw/main/tutorials/cyberstream-sdk/CyberStream%20JavaScript%20SDK%20Complete%20Walkthrough%3A%20Integrating%20IMDB%20Movie%20Data%20API%20with%20NPM%20Package%20Installation%2C%20Random%20Movie%20Generation%2C%20Search%20Functionality%2C%20and%20Cross-Platform%20Electron%20App%20Development%20Tutorial.mp4' },
-    ],
-    img: '/cyberstream.png',
-  },
-  {
-    id: 'price-history-chart',
-    name: 'Price History Chart',
-    description:
-      "Built a candlestick chart to describe price movements of a cryptocurrencies.  Each 'candlestick' typically shows one day, thus a one-month chart may show the 20 trading days as 20 candlesticks. Candlestick charts can also be built using intervals shorter or longer than one day.",
-    technologies: ['React', 'Binance API', 'Apex Charts'],
-    iframe: 'https://sisyphus-tomide.vercel.app',
-    tag: 'PROPRIETARY: live Rate Conversion Data',
-    links: [
-      { type: 'website', url: 'https://sisyphus-tomide.vercel.app/' },
-      {
-        type: 'video',
-        url: 'https://user-images.githubusercontent.com/55337742/241746561-b4bbc74e-9729-4285-bf09-e1d830ed323e.mp4',
-      },
     ],
     img: '/cyberstream.png',
   },
@@ -302,11 +305,60 @@ export const reviews: Reviews[] = [
 // All deck data is now in this file
 export const decks: Deck[] = [
   {
-    title: 'African Startup Review presentation for Timi',
+    title: 'NICArb Annual Conference 2025',
+    iframe: '/decks/nicarb-annual-conference-2025',
+    link: '/decks/nicarb-annual-conference-2025',
+    client: 'NICArb',
+    tags: ['Arbitration', 'ADR', 'Conference'],
+  },
+  {
+    title: 'NICArb-FGN Partnership Proposal',
+    iframe: '/decks/nicarb-annual-conference-2025?view=pitch-deck',
+    link: '/decks/nicarb-annual-conference-2025?view=pitch-deck',
+    client: 'NICArb',
+    tags: ['Pitch Deck', 'Partnership', 'FGN'],
+  },
+  {
+    title: 'Bridging the ESG Finance Gap',
+    iframe: '/decks/bridging-the-esg-finance-gap',
+    link: '/decks/bridging-the-esg-finance-gap',
+    client: 'MerisLabs',
+    tags: ['ESG', 'Finance', 'SMEs'],
+  },
+  {
+    title: 'MorganHacks 2026 Sponsorship',
+    iframe: '/decks/morganhacks-2026',
+    link: '/decks/morganhacks-2026',
+    client: 'Morgan State University',
+    tags: ['Hackathon', 'Sponsorship', 'Tech City'],
+  },
+  {
+    title: 'Mrs Bose Adeoye - Retirement Celebration',
+    iframe: '/decks/bose-adeoye-retirement',
+    link: '/decks/bose-adeoye-retirement',
+    client: 'Personal',
+    tags: ['Celebration', 'Retirement', 'Legacy'],
+  },
+  {
+    title: 'SHOW UP & SHINE 2026',
+    iframe: '/decks/brandqor-workshop-2026',
+    link: '/decks/brandqor-workshop-2026',
+    client: 'BrandQor',
+    tags: ['Workshop', 'Branding', 'Influence'],
+  },
+  {
+    title: 'GK&A Logistics - Investment Teaser',
+    iframe: '/decks/gka-investment-teaser',
+    link: '/decks/gka-investment-teaser',
+    client: 'GK&A Logistics',
+    tags: ['Investment', 'Logistics', 'Infrastructure'],
+  },
+  {
+    title: 'African Startup Review',
     iframe: 'https://www.slideshare.net/slideshow/embed_code/key/uSHyLAV4WE3y4D?hostedIn=slideshare&page=upload',
     link: 'https://www.slideshare.net/slideshow/embed_code/key/uSHyLAV4WE3y4D?hostedIn=slideshare&page=upload',
     client: 'Timileyin Idowu',
-    tags: ['Africa', 'Startup', 'Review', 'Presentation', 'Timi'],
+    tags: ['Africa', 'Startup', 'Review'],
   },
   {
     title: 'DeFi Protocols: Business Models, Revenue Streams, and Sustainability',
@@ -337,21 +389,21 @@ export const decks: Deck[] = [
     tags: ['Tax', 'Nigeria', 'Handbook', 'Finance'],
   },
   {
-    title: 'The Nigerian Insurance Industry An Overview of the Regulatory & Commercial Landscape - Obafemi Agaba .pdf',
+    title: 'The Nigerian Insurance Industry',
     iframe: 'https://www.slideshare.net/slideshow/embed_code/key/NINRrQFB4UdTre?startSlide=1',
     link: 'https://www.slideshare.net/slideshow/the-nigerian-insurance-industry-an-overview-of-the-regulatory-commercial-landscape-obafemi-agaba-pdf/276154806',
     client: 'MerisLabs',
     tags: ['Insurance', 'Nigeria', 'Regulation', 'Commerce'],
   },
   {
-    title: 'VerifyPro: A real estate management pitch deck',
+    title: 'VerifyPro Pitch Deck',
     iframe: 'https://www.slideshare.net/slideshow/embed_code/key/C0cFij9FGAU0Hg?startSlide=1',
     link: 'https://www.slideshare.net/slideshow/verifypro-a-real-estate-management-pitch-deck/276153996',
     client: 'MerisLabs',
     tags: ['Real Estate', 'Management', 'Pitch Deck'],
   },
   {
-    title: 'AI IN FRAUD DETECTION; TOMIDE ADEOYE.pdf',
+    title: 'AI in Fraud Detection',
     iframe: 'https://www.slideshare.net/slideshow/embed_code/key/whmgP1moV0ydMl?startSlide=1',
     link: 'https://www.slideshare.net/slideshow/ai-in-fraud-detection-tomide-adeoye-pdf/276133039',
     client: 'MerisLabs',
@@ -365,53 +417,38 @@ export const decks: Deck[] = [
     tags: ['Land Ownership', 'Transparency', 'Tech'],
   },
   {
-    title: 'JEE Data Protection Newsletter - January 2025 - MerisLabs.pdf',
+    title: 'JEE Data Protection Newsletter',
     iframe: 'https://www.slideshare.net/slideshow/embed_code/key/KmM7Ofqe4N4hTi?startSlide=1',
     link: 'https://www.slideshare.net/slideshow/jee-data-protection-newsletter-january-2025-merislabs-pdf/275746018',
     client: 'MerisLabs',
     tags: ['Data Protection', 'Newsletter', '2025'],
   },
   {
-    title: 'Nigerian Tax Research Network Presentation; Tomide Adeoye.ppsx',
+    title: 'Nigerian Tax Research Network Presentation',
     iframe: 'https://www.slideshare.net/slideshow/embed_code/key/tsTd0FoVFnfeS?startSlide=1',
     link: 'https://www.slideshare.net/slideshow/nigerian-tax-research-network-presentation-tomide-adeoye-ppsx/274809170',
     client: 'MerisLabs',
     tags: ['Tax', 'Nigeria', 'Research', 'Presentation'],
   },
   {
-    title: 'Copy of Blue Home Decor Interior Design Presentation',
-    iframe: 'https://www.canva.com/design/DAGhK2aVnRo/TyrIsHbSZJYBokRxZZ8VeA/view?embed',
-    link: 'https://www.canva.com/design/DAGhK2aVnRo/TyrIsHbSZJYBokRxZZ8VeA/view?utm_content=DAGhK2aVnRo&utm_campaign=designshare&utm_medium=embeds&utm_source=link',
-    client: 'Tomide Adeoye',
-    tags: ['Interior Design', 'Home Decor', 'Presentation'],
-  },
-  {
-    title: 'TLcom Assessment  ',
-    iframe: 'https://www.canva.com/design/DAFetMaQ5jQ/M67_tLZX0yVEYVOgyGw0Gg/view?embed',
-    link: 'https://www.canva.com/design/DAFetMaQ5jQ/M67_tLZX0yVEYVOgyGw0Gg/view?utm_content=DAFetMaQ5jQ&utm_campaign=designshare&utm_medium=embeds&utm_source=link',
-    client: 'Adeoye Tomide',
-    tags: ['Assessment', 'TLcom'],
-  },
-  {
-    title: 'Kuramo Investment paper - Timileyin Idowu',
-    iframe: 'https://www.canva.com/design/DAGJjBzb9RQ/pLJHolL-ZO-8gQUMZ42dMw/view?embed',
-    link: 'https://www.canva.com/design/DAGJjBzb9RQ/pLJHolL-ZO-8gQUMZ42dMw/view?utm_content=DAGJjBzb9RQ&utm_campaign=designshare&utm_medium=embeds&utm_source=link',
-    client: 'Timileyin Idowu',
-    tags: ['Investment', 'Kuramo'],
-  },
-  {
-    title: 'Copy of QOREPAY DECK (SALES)',
-    iframe: 'https://www.canva.com/design/DAGhKw2BNsw/reaCdwf5J9FTklFUaeFZIg/view?embed',
-    link: 'https://www.canva.com/design/DAGhKw2BNsw/reaCdwf5J9FTklFUaeFZIg/view?utm_content=DAGhKw2BNsw&utm_campaign=designshare&utm_medium=embeds&utm_source=link',
-    client: 'Tomide Adeoye',
-    tags: ['QOREPAY', 'Sales', 'Deck'],
-  },
-  {
-    title:
-      "Copy of Businesses in Africa struggle with: - Poor customer service - High operational costs - Limited access to skilled outsourcing solutions Global BPO providers do not fully cater to Africa's unique needs.",
+    title: 'Outsourcing Solutions in Africa',
     iframe: 'https://www.canva.com/design/DAGnUK85WoQ/6_wLW_7NDbcCUnJLcnW1uQ/view?embed',
-    link: 'https://www.canva.com/design/DAGnUK85WoQ/6_wLW_7NDbcCUnJLcnW1uQ/view?utm_content=DAGnUK85WoQ&utm_campaign=designshare&utm_medium=embeds&utm_source=link',
-    client: 'Tomide Adeoye',
-    tags: ['Africa', 'Customer Service', 'BPO', 'Operations'],
+    link: 'https://www.canva.com/design/DAGnUK85WoQ/6_wLW_7NDbcCUnJLcnW1uQ/view?embed',
+    client: 'MerisLabs',
+    tags: ['BPO', 'Africa', 'Operations'],
+  },
+  {
+    title: 'Kuramo Investment Paper',
+    iframe: 'https://www.canva.com/design/DAGJjBzb9RQ/pLJHolL-ZO-8gQUMZ42dMw/view?embed',
+    link: 'https://www.canva.com/design/DAGJjBzb9RQ/pLJHolL-ZO-8gQUMZ42dMw/view?embed',
+    client: 'Kuramo Capital',
+    tags: ['Investment', 'Research', 'Finance'],
+  },
+  {
+    title: 'QorePay Sales Deck',
+    iframe: 'https://www.canva.com/design/DAGhKw2BNsw/reaCdwf5J9FTklFUaeFZIg/view?embed',
+    link: 'https://www.canva.com/design/DAGhKw2BNsw/reaCdwf5J9FTklFUaeFZIg/view?embed',
+    client: 'QorePay',
+    tags: ['Sales', 'Fintech', 'Payments'],
   },
 ];

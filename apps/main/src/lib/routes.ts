@@ -1,9 +1,15 @@
-import { Layout, FileText, Cpu } from 'lucide-react';
+import { Layout, FileText, Cpu, Briefcase } from 'lucide-react';
 
 export const navItems = [
   {
     name: 'Home',
     href: '/',
+  },
+  {
+    name: 'Case Studies',
+    href: '/case-studies',
+    icon: 'Briefcase',
+    description: 'Proprietary systems architecture and software business knowledge base.',
   },
   {
     name: 'Design Studio',
@@ -28,9 +34,5 @@ export const navItems = [
         description: 'Automated brand asset and visual content production.',
       },
     ],
-  },
-  {
-    name: 'Business Software Notes',
-    href: '/business-software-notes',
   },
 ];

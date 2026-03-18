@@ -32,7 +32,7 @@ const projects: Project[] = [
     id: 'brandqor',
     name: 'BrandQor',
     description: 'BrandQor is a personal branding platform designed for visionary leaders, founders, executives, and creators. It helps build authentic authority, attract the right opportunities, and grow businesses sustainably without burnout. Through their Influence Engine, they provide a done-for-you visibility system that turns expertise into influence with strategic content creation, distribution, and storytelling. The platform offers two paths: the Executive version for busy professionals who want full-service management, and the Starter version for DIY growth with structured guidance. BrandQor focuses on clarifying your story, designing your online presence, creating compelling content, distributing effectively, and compounding visibility into trust and opportunities.',
-    technologies: ['NextJs', 'Personal Branding', 'Content Strategy'],
+    technologies: ['NextJs', 'Supabase', 'Google Cloud', 'Gmail API', 'Google Sheets API', 'Vercel', 'Zod'],
     iframe: 'https://brandqor.com',
     img: '/brandqor.png',
     tag: 'BRANDQOR: Personal Branding for Visionary Leaders',
@@ -75,15 +75,35 @@ const projects: Project[] = [
   },
   {
     id: 'qorepay',
-    name: 'QorePay Payment Gateway',
-    tag: 'QOREPAY: Payment settlement for Nigerian Businesses',
-    description:
-      'QorePay is a payment app that allows users to send and receive money from anywhere in the world. It also allows users to pay bills, buy airtime, and make transfers to bank accounts.',
-    technologies: ['ExpressJs', 'React/NextJs', 'AWS'],
-    iframe: 'https://qorepay.com',
+    name: 'QorePay Payment Orchestration',
+    tag: 'QOREPAY: Payment Orchestration for African Businesses',
+    description: `**Payment Orchestration Platform** enabling African businesses to make global payments with local currency.
+
+**Version 2 Architecture:**
+- **Backend**: Express.js microservices with payment provider abstraction layer
+- **Frontend**: Next.js dashboard for transaction management and analytics
+- **Documentation**: Algolia-powered developer docs with Postman API collections
+- **White-Label**: Multi-tenant architecture for B2B2C deployments
+
+**Key Features:**
+- Integrated 5+ FinTech APIs (Paystack, Klasha, SarePay) with unified abstraction
+- 2 ERP system integrations for automated reconciliation
+- Real-time transaction failure reporting via Slack API
+- Vercel Cron Jobs for scheduled settlement processes
+- Multi-gateway routing for optimal transaction costs
+
+**Technical Implementation:**
+- Payment Provider Abstraction Layer for seamless provider switching
+- White-label infrastructure for enterprise clients
+- Algolia documentation search for developer experience
+- Postman API collections for integration teams
+- AWS deployment with auto-scaling for high availability`,
+    technologies: ['Express.js', 'Next.js', 'AWS', 'Algolia', 'Postman', 'Paystack API', 'Slack API', 'Vercel Cron'],
     img: '/qorepay.png',
+    tag: 'QOREPAY: Payment Orchestration Platform',
     links: [
       { type: 'website', url: 'https://qorepay.com/' },
+      { type: 'documentation', url: 'https://docs.qorepay.com', label: 'API Documentation' },
       {
         type: 'video',
         url: 'https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4',

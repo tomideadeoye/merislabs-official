@@ -34,55 +34,31 @@ export default function Footer() {
 
           </div>
 
-          {/* Column 2: Services */}
-          <div>
-            <h3 className="text-white font-semibold mb-3">Services</h3>
-            <ul className="space-y-2">
-              <li><Link href="/services/web-development" className="hover:text-white">Web Development</Link></li>
-              <li><Link href="/services/mobile-development" className="hover:text-white">Mobile Development</Link></li>
-              <li><Link href="/services/ui-ux-design" className="hover:text-white">UI/UX Design</Link></li>
-              <li><Link href="/services/api-integration" className="hover:text-white">API Integration</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 3: Solutions */}
-          <div>
-            <h3 className="text-white font-semibold mb-3">Solutions</h3>
-            <ul className="space-y-2">
-              <li><Link href="/solutions/enterprise" className="hover:text-white">Enterprise</Link></li>
-              <li><Link href="/solutions/startups" className="hover:text-white">Startups</Link></li>
-              <li><Link href="/solutions/e-commerce" className="hover:text-white">E-commerce</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 4: Company */}
-          <div>
-            <h3 className="text-white font-semibold mb-3">Company</h3>
-            <ul className="space-y-2">
-              <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-              <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
-              <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
-              <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 5: Resources */}
-          <div>
-            <h3 className="text-white font-semibold mb-3">Resources</h3>
-            <ul className="space-y-2">
-              <li><Link href="/docs" className="hover:text-white">Documentation</Link></li>
-              <li><Link href="/tutorials" className="hover:text-white">Tutorials</Link></li>
-              <li><Link href="/support" className="hover:text-white">Support</Link></li>
-              <li><button className="bg-transparent border-none p-0 hover:text-white text-sm">Cookie preferences</button></li>
-            </ul>
+          {/* Column 2: Legal & Contact */}
+          <div className="md:col-span-4 flex flex-col md:flex-row md:justify-end gap-x-12 gap-y-6">
+            <div>
+              <h3 className="text-white font-semibold mb-3">Architect</h3>
+              <ul className="space-y-2">
+                <li><span className="text-gray-400 block">Tomide Adeoye</span></li>
+                <li><a href="mailto:tomide@merislabs.com" className="hover:text-white">tomide@merislabs.com</a></li>
+                <li><span className="text-gray-400 block">+234 818 192 7251</span></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-3">Focus</h3>
+              <ul className="space-y-2">
+                <li><span className="block">Systems Architecture</span></li>
+                <li><span className="block">Compliance Engineering</span></li>
+                <li><span className="block">High-Stakes Data Platforms</span></li>
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Legal Disclaimers */}
         <div className="mt-20 space-y-4 text-xs text-gray-600">
           <p>© {new Date().getFullYear()} MerisLabs. All rights reserved.</p>
-          <p className="text-gray-500">Building the Digital Infrastructure for African Professionals. We design and develop web and mobile applications for various industries, from financial services to legal, with expertise in Next.js, React, TypeScript, and modern web technologies.</p>
-          <p className="text-gray-500">Contact: <a href="mailto:tomide@merislabs.com" className="hover:text-white">tomide@merislabs.com</a> | +234 818 192 7251</p>
+          <p className="text-gray-500">Tomide Adeoye — Solutions Architect & Legal Technologist. Building high-stakes technical infrastructure.</p>
         </div>
       </div>
     </footer>

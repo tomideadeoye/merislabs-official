@@ -1,56 +1,59 @@
 import Image from 'next/image';
 
 export default function Clients() {
+    const clients = [
+        {
+            name: 'NICArb',
+            logo: '/clients/NICARB LOGO Green Text (1).png',
+            description: 'Nigerian Institute of Chartered Arbitrators'
+        },
+        {
+            name: 'Africa GRC Summit',
+            logo: '/clients/africa-grc-summit.png',
+            description: 'Governance, Risk, and Compliance Summit Platform'
+        },
+        {
+            name: 'Jackson, Etti & Edu',
+            logo: '/clients/jackson etti and edu logo (1).png',
+            description: 'Leading Law Firm'
+        },
+        {
+            name: 'BrandQor',
+            logo: '/brandqor.png',
+            description: 'Personal Branding Platform'
+        }
+    ];
+
     return (
-        <section>
+        <section className="bg-white py-12 border-y border-slate-100">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                <div className="py-12 md:py-20 border-t border-gray-800">
-                    {/* Section header */}
-                    <div className="max-w-3xl mx-auto text-center pb-12 md:pb-16">
-                        <h2 className="h2 mb-4 text-white">Our Clients</h2>
-                        <p className="text-xl text-gray-400">
-                            Trusted by leading organizations.
-                        </p>
-                    </div>
+                <div className="text-center mb-12">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                        Trusted by Leading Organizations
+                    </h2>
+                </div>
 
-                    {/* Items */}
-                    <div className="flex flex-wrap justify-center gap-12 items-center">
-                        {/* Client 1 */}
-                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
-                            <div className="relative w-full h-full">
-                                <Image
-                                    src="/clients/NICARB LOGO Green Text (1).png"
-                                    alt="NICArb"
-                                    fill
-                                    className="object-contain"
-                                />
+                <div className="flex flex-wrap justify-center gap-12 items-center">
+                    {clients.map((client) => (
+                        <div
+                            key={client.name}
+                            className="group relative flex items-center justify-center w-32 h-12 transition-all duration-300 grayscale hover:grayscale-0"
+                        >
+                            <img
+                                src={client.logo}
+                                alt={client.name}
+                                className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-110"
+                            />
+
+                            
+                            {/* Tooltip */}
+                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-slate-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10 shadow-xl">
+                                {client.name}
+                                {/* Tooltip Arrow */}
+                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45" />
                             </div>
                         </div>
-
-                        {/* Client 2 */}
-                        <div className="flex items-center justify-center p-6 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
-                            <div className="relative w-full h-full">
-                                <Image
-                                    src="/clients/jackson etti and edu logo (1).png"
-                                    alt="Jackson, Etti & Edu"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Client 3 */}
-                        <div className="flex items-center justify-center p-3 bg-white rounded-xl w-64 h-32 shadow-lg hover:scale-105 transition-transform duration-300">
-                            <div className="relative w-full h-full">
-                                <Image
-                                    src="/brandqor.png"
-                                    alt="BrandQor"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
         </section>

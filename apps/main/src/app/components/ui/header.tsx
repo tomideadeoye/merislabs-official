@@ -31,7 +31,7 @@ export function Header({ navItems }: HeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border print:hidden">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white backdrop-blur-md border-b border-border print:hidden text-slate-900">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
@@ -44,11 +44,11 @@ export function Header({ navItems }: HeaderProps) {
                 <NavigationMenuItem key={item.name}>
                   {item.children ? (
                     <>
-                      <NavigationMenuTrigger className="bg-transparent hover:bg-muted/50 text-muted-foreground data-[active]:text-foreground data-[state=open]:text-foreground">
+                      <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 text-slate-600 data-[active]:text-slate-900 data-[state=open]:text-slate-900">
                         {item.name}
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-background/95 backdrop-blur-xl border border-border shadow-2xl rounded-xl">
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white backdrop-blur-xl border border-slate-200 shadow-2xl rounded-xl">
                           {item.children.map((child) => {
                             const IconComponent = child.icon ? (Icons as any)[child.icon] : null;
                             return (
@@ -57,8 +57,8 @@ export function Header({ navItems }: HeaderProps) {
                                   <Link
                                     href={child.href}
                                     className={cn(
-                                      "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all hover:bg-muted hover:text-accent-foreground group",
-                                      pathname === child.href ? "bg-muted/50 border border-primary/10" : "border border-transparent"
+                                      "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all hover:bg-slate-50 hover:text-slate-900 group",
+                                      pathname === child.href ? "bg-slate-100 border border-primary/10" : "border border-transparent"
                                     )}
                                   >
                                     <div className="flex items-center gap-3">
@@ -70,7 +70,7 @@ export function Header({ navItems }: HeaderProps) {
                                       <div className="text-sm font-medium leading-none">{child.name}</div>
                                     </div>
                                     {child.description && (
-                                      <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-2 pl-11">
+                                      <p className="line-clamp-2 text-xs leading-snug text-slate-500 mt-2 pl-11">
                                         {child.description}
                                       </p>
                                     )}
@@ -88,8 +88,8 @@ export function Header({ navItems }: HeaderProps) {
                         href={item.href}
                         className={cn(
                           navigationMenuTriggerStyle(),
-                          "bg-transparent hover:bg-muted/50 transition-colors",
-                          pathname === item.href ? "text-foreground font-semibold" : "text-muted-foreground"
+                          "bg-transparent hover:bg-slate-100 transition-colors",
+                          pathname === item.href ? "text-slate-900 font-semibold" : "text-slate-600"
                         )}
                       >
                         {item.name}
