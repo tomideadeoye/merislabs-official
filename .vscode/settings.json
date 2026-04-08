@@ -7,10 +7,8 @@
     "*.txt": "markdown"
   },
   "git.ignoreLimitWarning": true,
-
   // --- Recommended Python Settings ---
   "python.analysis.typeCheckingMode": "basic", // Keep user's setting if desired, or change to "strict"
-
   // --- Use Ruff for Formatting & Linting (Recommended) ---
   "[python]": {
     "editor.defaultFormatter": "ms-python.python",
@@ -22,11 +20,16 @@
   },
   "ruff.lint.args": [], // Optional: Add custom ruff lint args if needed
   "ruff.format.args": [], // Optional: Add custom ruff format args if needed
-
   // --- General File Handling ---
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
-  "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "*test.py"],
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    ".",
+    "-p",
+    "*test.py"
+  ],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true,
   "typescript.validate.enable": true,
@@ -40,7 +43,11 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-  "eslint.validate": ["javascript", "typescript", "typescriptreact"],
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "typescriptreact"
+  ],
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.fixAll.eslint": "explicit"
@@ -49,16 +56,29 @@
   "less.validate": false,
   "scss.validate": false,
   "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    [
+      "cva\\(([^)]*)\\)",
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ],
+    [
+      "cx\\(([^)]*)\\)",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ]
   ],
-
   // --- Auto Barrel Configuration ---
   "autoBarrel.enable": true,
   "autoBarrel.language.defaultLanguage": "TypeScript",
   "autoBarrel.files.disableRecursiveBarrelling": false,
-  "autoBarrel.files.includeExtensionOnExport": ["ts", "tsx", "vue"],
-  "autoBarrel.files.ignoreFilePathPatternOnExport": ["**/*.spec.*", "**/*.test.*", "**/*.stories.*"],
+  "autoBarrel.files.includeExtensionOnExport": [
+    "ts",
+    "tsx",
+    "vue"
+  ],
+  "autoBarrel.files.ignoreFilePathPatternOnExport": [
+    "**/*.spec.*",
+    "**/*.test.*",
+    "**/*.stories.*"
+  ],
   "autoBarrel.files.maxSearchRecursionDepth": 10,
   "autoBarrel.files.supportsHiddenFiles": true,
   "autoBarrel.files.preserveGitignoreSettings": false,
@@ -97,7 +117,6 @@
       "isAsync": true
     }
   ],
-
   // --- Exclude backup and venv folders ---
   "files.exclude": {
     "**/venv/": true,
