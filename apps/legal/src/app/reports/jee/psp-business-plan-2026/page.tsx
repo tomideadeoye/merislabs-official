@@ -24,7 +24,11 @@ export default function PspBusinessPlanPage() {
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @media print {
-                    @page { size: A4; margin: 0; }
+                    @page { size: 210mm 297mm; margin: 0; }
+                    *, *::before, *::after {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
                     .page-wrapper {
                         page-break-after: always;
                         page-break-inside: avoid;
@@ -34,14 +38,13 @@ export default function PspBusinessPlanPage() {
                         width: 210mm !important;
                         height: 297mm !important;
                         max-height: 297mm !important;
+                        min-height: 297mm !important;
                         overflow: hidden !important;
                         box-sizing: border-box !important;
                     }
                     .page-wrapper:last-child { page-break-after: avoid; }
                     .no-print, button { display: none !important; }
                     body, html {
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
                         margin: 0 !important;
                         padding: 0 !important;
                         background-color: #F9F7ED !important;

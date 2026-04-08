@@ -126,11 +126,43 @@ function PspPresentationContent() {
                 <style dangerouslySetInnerHTML={{
                     __html: `
                     @media print {
-                        @page { size: A4 landscape; margin: 0; }
-                        .page-wrapper { page-break-after: always; }
+                        @page {
+                            size: 297mm 167mm;
+                            margin: 0;
+                        }
+                        *, *::before, *::after {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        body, html {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            width: 297mm !important;
+                            background: white !important;
+                        }
                         .no-print, .deck-controls { display: none !important; }
-                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                        .fixed { position: static !important; overflow: visible !important; }
+                        .fixed {
+                            position: static !important;
+                            overflow: visible !important;
+                            height: auto !important;
+                        }
+                        .page-wrapper {
+                            display: block !important;
+                            width: 297mm !important;
+                            height: 167mm !important;
+                            max-height: 167mm !important;
+                            min-height: 167mm !important;
+                            overflow: hidden !important;
+                            page-break-after: always !important;
+                            page-break-inside: avoid !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            box-sizing: border-box !important;
+                            position: relative !important;
+                        }
+                        .page-wrapper:last-child {
+                            page-break-after: avoid !important;
+                        }
                     }
                 `}} />
 
@@ -159,7 +191,7 @@ function PspPresentationContent() {
                 {/* Content */}
                 <div className={`flex-grow relative ${viewMode === 'scroll' ? 'overflow-y-auto scroll-smooth bg-gray-100' : 'overflow-hidden flex items-center justify-center bg-gray-100'}`}>
                     {viewMode === 'scroll' ? (
-                        <div className="flex flex-col items-center py-12 gap-12 print:p-0 print:gap-0">
+                        <div className="print-slide-container flex flex-col items-center py-12 gap-12 print:p-0 print:gap-0">
                             {allSlides.map((slide, idx) => (
                                 <div key={idx} id={`slide-${idx}`} className="w-full flex justify-center">
                                     <SlideWrapper pageNumber={idx + 1} hideHeader={slide.hideHeader}>
