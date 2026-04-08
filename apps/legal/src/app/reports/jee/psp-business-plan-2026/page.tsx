@@ -8,7 +8,7 @@ import { TableOfContents } from './components/TableOfContents';
 import { ExecutiveSummary } from './components/ExecutiveSummary';
 import { PersonalCase } from './components/PersonalCase';
 import { Platform1, Platform2 } from './components/ProposedBusiness';
-import { ImplementationPlan } from './components/ImplementationPlan';
+import { ImplementationPlan, ImplementationPlanContinued } from './components/ImplementationPlan';
 import { FinancialRequirements } from './components/FinancialRequirements';
 import { SuccessFactors } from './components/SuccessFactors';
 import { Conclusion } from './components/Conclusion';
@@ -124,18 +124,22 @@ export default function PspBusinessPlanPage() {
                 </PageWrapper>
 
                 <PageWrapper pageNumber="8">
-                    <FinancialRequirements />
+                    <ImplementationPlanContinued />
                 </PageWrapper>
 
                 <PageWrapper pageNumber="9">
-                    <SuccessFactors />
+                    <FinancialRequirements />
                 </PageWrapper>
 
                 <PageWrapper pageNumber="10">
+                    <SuccessFactors />
+                </PageWrapper>
+
+                <PageWrapper pageNumber="11">
                     <Conclusion />
                 </PageWrapper>
 
-                <PageWrapper pageNumber="11" isBackCover={true}>
+                <PageWrapper pageNumber="12" isBackCover={true}>
                     <BackCover />
                 </PageWrapper>
             </div>
