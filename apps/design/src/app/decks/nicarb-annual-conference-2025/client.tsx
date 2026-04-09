@@ -764,9 +764,21 @@ export default function NicarbConferenceClient() {
                     <style jsx global>{`
                         @media print {
                             @page { size: A4 landscape; margin: 0; }
-                            html, body { margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; }
-                            .print-slide { width: 297mm !important; height: 210mm !important; page-break-after: always; }
+                            html, body { margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                            .print-slide {
+                                width: 297mm !important;
+                                height: 210mm !important;
+                                page-break-after: always;
+                                page-break-inside: avoid !important;
+                                break-after: page !important;
+                                break-inside: avoid !important;
+                            }
+                            .print-slide:last-child {
+                                page-break-after: avoid !important;
+                                break-after: avoid !important;
+                            }
                             .no-print { display: none !important; }
+                            .print-instructions { display: none !important; }
                         }
                     `}</style>
                     <div className="print-instructions bg-green-50 border-b p-4 sticky top-0 z-50 no-print">
@@ -775,9 +787,9 @@ export default function NicarbConferenceClient() {
                             <button onClick={() => setIsPrintMode(false)} className="px-4 py-2 bg-green-600 text-white rounded-lg">← Back</button>
                         </div>
                     </div>
-                    <div className="p-8">
+                    <div className="print-slides-wrapper">
                         {slides.map((s: Slide, i: number) => (
-                            <div key={i} className="print-slide mb-8" style={{ aspectRatio: '16/9', maxWidth: '1120px', margin: '0 auto 20px' }}>
+                            <div key={i} className="print-slide" style={{ aspectRatio: '16/9', width: '297mm', height: '210mm' }}>
                                 {renderSlideContent(s, i)}
                             </div>
                         ))}
