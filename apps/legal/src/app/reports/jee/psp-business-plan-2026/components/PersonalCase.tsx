@@ -22,6 +22,7 @@ const matters = [
     { matter: 'Targeted proposals', desc: 'Led proposals to OPay, TotalEnergies CPFA and Ecobank', outcome: 'Instructions secured from all three clients' },
 ];
 
+// Page 4 — Leadership + Revenue Table
 export const PersonalCase = () => (
     <div id="personal-case" className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
         <BG />
@@ -54,30 +55,69 @@ export const PersonalCase = () => (
                     ))}
                 </div>
             </div>
+        </div>
+    </div>
+);
 
-            <div className="grid grid-cols-2 gap-3">
+// Page 5 — Market Visibility, Institutional Contribution, Summary
+export const PersonalCaseContinued = () => (
+    <div className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+        <BG />
+        <div className="flex items-center gap-3 mb-5 relative z-10">
+            <div className="w-1 h-10 bg-[#E80000]"></div>
+            <div>
+                <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 2 – Continued</p>
+                <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Personal Case, Commercial Impact &amp; Contributions</h2>
+            </div>
+        </div>
+        <div className="relative z-10 flex flex-col gap-5 text-xs leading-relaxed">
+            <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Market Visibility &amp; Positioning</p>
-                    <div className="space-y-1.5">
-                        {['INSOL Future Leader of Nigeria', 'NICArb Award of Excellence – debt recovery & arbitration', 'Appointed Arbitrator on ₦170M three-member tribunal alongside SANs', 'Active at LIDW; relationships with Magic Circle & Silver Circle firms', 'Active: INSOL, BRIPAN, NICArb, ICMC, Young ICCA, ITA, NBA-SBL'].map((p, i) => (
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-3">Market Visibility &amp; Professional Positioning</p>
+                    <div className="space-y-2">
+                        {[
+                            'INSOL Future Leader of Nigeria',
+                            'NICArb Award of Excellence – debt recovery & arbitration practice',
+                            'Appointed Arbitrator on ₦170M three-member tribunal alongside Senior Advocates of Nigeria',
+                            'Active participation in London International Disputes Week (LIDW)',
+                            'Relationships with partners/senior associates in Magic Circle and Silver Circle firms',
+                            'Active member: INSOL International, BRIPAN, NICArb, ICMC, Young ICCA, ITA, NBA-SBL',
+                        ].map((p, i) => (
                             <div key={i} className="flex gap-2 items-start">
                                 <div className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E80000] shrink-0"></div>
-                                <p className="text-[#211B1B]/60 text-[10px]">{p}</p>
+                                <p className="text-[#211B1B]/65 text-[10px]">{p}</p>
                             </div>
                         ))}
                     </div>
                 </div>
                 <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Institutional Contribution</p>
-                    <div className="space-y-1.5">
-                        {['Technical & strategic training to CLDR associates on arbitration & enforcement', 'Editorial Board member; Graduate & Associate Recruitment and HR Committees', 'Cross-practice engagement with Corporate, Finance & Energy on dispute risk identification', 'Thought leadership and client knowledge products as BD tools', 'IR3 UK initiative — structured international referral pipeline development'].map((p, i) => (
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-3">Institutional Contribution &amp; Team Development</p>
+                    <div className="space-y-2">
+                        {[
+                            'Technical and strategic training to CLDR associates on commercial arbitration and enforcement',
+                            'Editorial Board member; active in Graduate & Associate Recruitment and HR Committees',
+                            'Cross-practice engagement with Corporate, Finance and Energy to identify dispute risks from transactions',
+                            'Thought leadership and client knowledge products used as practical BD tools',
+                            'Internal BD discussions and strategic initiatives to expand international workstreams and referral opportunities',
+                            'IR3 UK initiative — structured international referral pipeline development and conversion',
+                        ].map((p, i) => (
                             <div key={i} className="flex gap-2 items-start">
                                 <div className="mt-1 w-1.5 h-1.5 rounded-full bg-[#211B1B]/30 shrink-0"></div>
-                                <p className="text-[#211B1B]/60 text-[10px]">{p}</p>
+                                <p className="text-[#211B1B]/65 text-[10px]">{p}</p>
                             </div>
                         ))}
                     </div>
                 </div>
+            </div>
+
+            <div className="bg-[#211B1B]/5 border-l-4 border-[#E80000] p-5 rounded-r-xl">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#E80000] mb-2">Summary Statement</p>
+                <p className="text-[#211B1B]/75 text-justify leading-relaxed">
+                    Taken together, my experience at Jackson, Etti &amp; Edu demonstrates a combination of leadership, commercial impact, market positioning and institutional contribution that provides a credible foundation for Project Fortify. I have shown the ability to translate disputes expertise into business results, to deepen and expand client relationships, to engage meaningfully within the wider disputes ecosystem, and to contribute to the development of the Firm beyond my own practice.
+                </p>
+                <p className="text-[#211B1B]/60 text-justify leading-relaxed mt-3">
+                    Project Fortify is intended to build on these foundations by providing a structured framework for converting those capabilities into a repeatable, scalable and revenue-driven disputes platform. In that sense, this proposal is not a departure from the work I have already been doing. It is the next and more deliberate stage of it.
+                </p>
             </div>
         </div>
     </div>

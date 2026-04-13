@@ -146,7 +146,7 @@ export const ImplementationPlan = () => (
         <BackgroundPattern />
 
         <div className="flex items-center gap-4 mb-5 border-b-2 border-[#E80000]/20 pb-4 relative z-10">
-            <span className="text-4xl font-serif font-black text-[#E80000] opacity-20">04</span>
+            <span className="text-4xl font-serif font-black text-[#E80000] opacity-20">06</span>
             <div>
                 <h2 className="text-2xl font-serif font-black text-[#211B1B] uppercase">Implementation Plan</h2>
                 <p className="text-xs text-[#211B1B]/40 uppercase tracking-widest mt-1">Five Strategic Workstreams – 24-Month Cycle</p>
@@ -172,7 +172,7 @@ export const ImplementationPlanContinued = () => (
         <div className="flex items-center gap-3 mb-5 relative z-10">
             <div className="w-1 h-10 bg-[#E80000]"></div>
             <div>
-                <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 4 – Continued</p>
+                <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 6 – Continued</p>
                 <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Implementation Plan</h2>
             </div>
         </div>

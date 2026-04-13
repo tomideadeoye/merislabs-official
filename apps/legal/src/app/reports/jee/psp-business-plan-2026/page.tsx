@@ -6,7 +6,7 @@ import { PageWrapper } from './components/PageWrapper';
 import { CoverPage } from './components/CoverPage';
 import { TableOfContents } from './components/TableOfContents';
 import { ExecutiveSummary } from './components/ExecutiveSummary';
-import { PersonalCase } from './components/PersonalCase';
+import { PersonalCase, PersonalCaseContinued } from './components/PersonalCase';
 import { Platform1, Platform2 } from './components/ProposedBusiness';
 import { MarketAnalysis, CompetitiveLandscape } from './components/MarketAnalysis';
 import { StrategicObjectives } from './components/StrategicObjectives';
@@ -80,23 +80,24 @@ export default function PspBusinessPlanPage() {
                 {/* 2 */}<PageWrapper pageNumber="2"><TableOfContents /></PageWrapper>
                 {/* 3 */}<PageWrapper pageNumber="3"><ExecutiveSummary /></PageWrapper>
                 {/* 4 */}<PageWrapper pageNumber="4"><PersonalCase /></PageWrapper>
-                {/* 5 */}<PageWrapper pageNumber="5"><Platform1 /></PageWrapper>
-                {/* 6 */}<PageWrapper pageNumber="6"><Platform2 /></PageWrapper>
-                {/* 7 */}<PageWrapper pageNumber="7"><MarketAnalysis /></PageWrapper>
-                {/* 8 */}<PageWrapper pageNumber="8"><CompetitiveLandscape /></PageWrapper>
-                {/* 9 */}<PageWrapper pageNumber="9"><StrategicObjectives /></PageWrapper>
-                {/* 10 */}<PageWrapper pageNumber="10"><ImplementationPlan /></PageWrapper>
-                {/* 11 */}<PageWrapper pageNumber="11"><ImplementationPlanContinued /></PageWrapper>
-                {/* 12 */}<PageWrapper pageNumber="12"><InternationalReferral /></PageWrapper>
-                {/* 13 */}<PageWrapper pageNumber="13"><TeamDevelopment /></PageWrapper>
-                {/* 14 */}<PageWrapper pageNumber="14"><FinancialRequirements /></PageWrapper>
-                {/* 15 */}<PageWrapper pageNumber="15"><RevenueModel /></PageWrapper>
-                {/* 16 */}<PageWrapper pageNumber="16"><Profitability /></PageWrapper>
-                {/* 17 */}<PageWrapper pageNumber="17"><SuccessFactors /></PageWrapper>
-                {/* 18 */}<PageWrapper pageNumber="18"><RiskRegister /></PageWrapper>
-                {/* 19 */}<PageWrapper pageNumber="19"><PhasedTimeline /></PageWrapper>
-                {/* 20 */}<PageWrapper pageNumber="20"><Conclusion /></PageWrapper>
-                {/* 21 */}<PageWrapper pageNumber="21" isBackCover={true}><BackCover /></PageWrapper>
+                {/* 5 */}<PageWrapper pageNumber="5"><PersonalCaseContinued /></PageWrapper>
+                {/* 6 */}<PageWrapper pageNumber="6"><Platform1 /></PageWrapper>
+                {/* 7 */}<PageWrapper pageNumber="7"><Platform2 /></PageWrapper>
+                {/* 8 */}<PageWrapper pageNumber="8"><MarketAnalysis /></PageWrapper>
+                {/* 9 */}<PageWrapper pageNumber="9"><CompetitiveLandscape /></PageWrapper>
+                {/* 10 */}<PageWrapper pageNumber="10"><StrategicObjectives /></PageWrapper>
+                {/* 11 */}<PageWrapper pageNumber="11"><ImplementationPlan /></PageWrapper>
+                {/* 12 */}<PageWrapper pageNumber="12"><ImplementationPlanContinued /></PageWrapper>
+                {/* 13 */}<PageWrapper pageNumber="13"><InternationalReferral /></PageWrapper>
+                {/* 14 */}<PageWrapper pageNumber="14"><TeamDevelopment /></PageWrapper>
+                {/* 15 */}<PageWrapper pageNumber="15"><FinancialRequirements /></PageWrapper>
+                {/* 16 */}<PageWrapper pageNumber="16"><RevenueModel /></PageWrapper>
+                {/* 17 */}<PageWrapper pageNumber="17"><Profitability /></PageWrapper>
+                {/* 18 */}<PageWrapper pageNumber="18"><SuccessFactors /></PageWrapper>
+                {/* 19 */}<PageWrapper pageNumber="19"><RiskRegister /></PageWrapper>
+                {/* 20 */}<PageWrapper pageNumber="20"><PhasedTimeline /></PageWrapper>
+                {/* 21 */}<PageWrapper pageNumber="21"><Conclusion /></PageWrapper>
+                {/* 22 */}<PageWrapper pageNumber="22" isBackCover={true}><BackCover /></PageWrapper>
             </div>
         </div>
     );
