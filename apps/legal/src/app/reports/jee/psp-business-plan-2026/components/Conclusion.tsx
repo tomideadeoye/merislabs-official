@@ -34,8 +34,8 @@ export const Conclusion = () => (
 
       <p className="text-[#211B1B]/80 text-justify text-sm leading-relaxed">
         Project Fortify is also a structured commercial plan for building a stronger disputes platform within Jackson,
-        Etti & Edu and, in doing so, contributing more deliberately to the Firm's long-term growth, market standing and
-        institutional strength.
+        Etti &amp; Edu and, in doing so, contributing more deliberately to the Firm's long-term growth, market standing
+        and institutional strength.
       </p>
 
       <div className="grid grid-cols-2 gap-3">
@@ -70,29 +70,6 @@ export const Conclusion = () => (
             <p className="text-[#211B1B]/55 leading-relaxed">{desc}</p>
           </div>
         ))}
-      </div>
-
-      <div className="bg-[#211B1B]/5 border-l-4 border-[#E80000] p-5 rounded-r-xl">
-        <p className="text-[#211B1B]/80 text-justify leading-relaxed">
-          I am presenting this proposal not as an abstract growth ambition, but as a practical and commercially grounded
-          plan for how I intend to contribute to the Firm&apos;s future. Through deliberate positioning, disciplined
-          execution and sustained institutional commitment, I believe Project Fortify can help establish the CLDR
-          practice as a more competitive, self-sustaining and strategically valuable platform within Jackson, Etti &amp;
-          Edu.
-        </p>
-      </div>
-
-      <div className="mt-4 pt-5 border-t border-[#211B1B]/10 flex items-end justify-between">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#211B1B]/30 mb-1">Submitted by</p>
-          <p className="font-serif font-black text-base text-[#211B1B]">Taiwo Ogbara</p>
-          <p className="text-xs text-[#211B1B]/50">Senior Associate, CLDR · Jackson, Etti &amp; Edu</p>
-        </div>
-        <div className="text-right">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#211B1B]/30 mb-1">Date</p>
-          <p className="font-serif font-black text-base text-[#211B1B]">March 2026</p>
-          <p className="text-xs text-[#211B1B]/50">Partnership Selection Programme</p>
-        </div>
       </div>
     </div>
   </div>

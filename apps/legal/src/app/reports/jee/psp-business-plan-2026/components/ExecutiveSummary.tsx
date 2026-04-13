@@ -87,7 +87,24 @@ export const ExecutiveSummary = () => (
           growth, and cross-border enforcement demand.
         </p>
       </div>
+    </div>
+  </div>
+);
 
+export const ExecutiveSummaryContinued = () => (
+  <div
+    id="executive-summary-continued"
+    className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans"
+  >
+    <BG />
+    <div className="flex items-center gap-3 mb-5 relative z-10">
+      <div className="w-1 h-10 bg-[#E80000]"></div>
+      <div>
+        <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 1 – Continued</p>
+        <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Executive Summary</h2>
+      </div>
+    </div>
+    <div className="relative z-10 flex flex-col gap-4 text-xs leading-relaxed">
       <div>
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Execution Workstreams</p>
         <div className="grid grid-cols-2 gap-2">
