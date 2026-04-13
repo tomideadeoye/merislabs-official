@@ -22,7 +22,7 @@ import { RevenueModel, RevenueModelContinued } from './components/RevenueModel';
 import { Profitability } from './components/Profitability';
 import { SuccessFactors, RiskRegister } from './components/SuccessFactors';
 import { PhasedTimeline } from './components/PhasedTimeline';
-import { Conclusion } from './components/Conclusion';
+import { Conclusion, ConclusionPart2 } from './components/Conclusion';
 import { BackCover } from './components/BackCover';
 
 export default function PspBusinessPlanPage() {
@@ -190,8 +190,10 @@ export default function PspBusinessPlanPage() {
         <PageWrapper pageNumber="26">
           <Conclusion />
         </PageWrapper>
-        {/* 27 */}
-        <PageWrapper pageNumber="27" isBackCover={true}>
+        <PageWrapper pageNumber="27">
+          <ConclusionPart2 />
+        </PageWrapper>
+        <PageWrapper pageNumber="28" isBackCover={true}>
           <BackCover />
         </PageWrapper>
       </div>

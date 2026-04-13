@@ -31,7 +31,9 @@ export const ExecutiveSummary = () => (
         credibility, and enables the origination, conversion and retention of high-value disputes mandates across the
         Firm's priority sectors. This is particularly important in a market where peer firms, and even some lower-tier
         practices, are becoming more intentional about how they position for complex dispute work through visibility,
-        strategic relationships and disciplined business development.
+        strategic relationships and disciplined business development. For JEE to attain and sustain the position it
+        should hold in this space, the CLDR practice must evolve from a support function into a proactive,
+        client-originating business platform.
       </p>
       <p className="text-[#211B1B]/70 text-justify">
         Project Fortify is intended to drive that transition. It is not simply a plan for more activity within the
@@ -41,7 +43,50 @@ export const ExecutiveSummary = () => (
         a more predictable and scalable disputes pipeline. At its core, the plan is about moving from waiting for briefs
         to creating the conditions that make those briefs more likely to come to us, stay with us and grow with us.
       </p>
+      <p className="text-[#211B1B]/80 text-justify">
+        The strategy is built around three integrated business platforms. The first is the Institutional Debt Recovery,
+        Insolvency & Enforcement Platform, which is designed to generate recurring mandates from financial institutions
+        and corporates through structured recovery and enforcement solutions. The second is the Commercial,
+        Transactional & Shareholder Disputes Platform, which is aimed at deepening wallet share from existing and
+        prospective corporate clients by positioning the practice as the first point of call when commercial tensions
+        mature into disputes. The third is the Domestic and International Arbitration & Cross-Border Enforcement
+        Platform, which is intended to secure higher-value and foreign currency-denominated mandates through arbitral
+        visibility, international relationships and cross-border enforcement capability.
+      </p>
+      <p className="text-[#211B1B]/80 text-justify">
+        Project Fortify is designed to deliver USD 500,000 in annual attributable incremental revenue by the end of the
+        24-month Partnership Selection Programme cycle. That target is ambitious, but it is also credible. It is
+        grounded in identifiable market drivers, including sustained banking sector stress, credit recovery activity,
+        energy sector restructuring, the continued growth of the fintech and payments ecosystem, and increasing demand
+        for arbitration and cross-border enforcement work. In that sense, the proposal is not built on abstract
+        ambition, but on real demand conditions that align closely with the Firm's client base, sector priorities and
+        competitive strengths.
+      </p>
+      <p className="text-[#211B1B]/70 text-justify">
+        Execution will be driven through focused workstreams that convert expertise and relationships into mandates.
+        These include the productisation of dispute offerings, targeted institutional engagement, strategic thought
+        leadership, ecosystem and panel positioning, international referral development and stronger internal referral
+        capture across practice areas. The objective is not merely to increase activity, but to build a repeatable and
+        disciplined origination engine for the practice.
+      </p>
+    </div>
+  </div>
+);
 
+export const ExecutiveSummaryContinued = () => (
+  <div
+    id="executive-summary-continued"
+    className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans"
+  >
+    <BG />
+    <div className="flex items-center gap-3 mb-5 relative z-10">
+      <div className="w-1 h-10 bg-[#E80000]"></div>
+      <div>
+        <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 1 – Continued</p>
+        <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Executive Summary</h2>
+      </div>
+    </div>
+    <div className="relative z-10 flex flex-col gap-4 text-xs leading-relaxed">
       <div>
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">
           Three Integrated Business Platforms
@@ -87,24 +132,7 @@ export const ExecutiveSummary = () => (
           growth, and cross-border enforcement demand.
         </p>
       </div>
-    </div>
-  </div>
-);
 
-export const ExecutiveSummaryContinued = () => (
-  <div
-    id="executive-summary-continued"
-    className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans"
-  >
-    <BG />
-    <div className="flex items-center gap-3 mb-5 relative z-10">
-      <div className="w-1 h-10 bg-[#E80000]"></div>
-      <div>
-        <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 1 – Continued</p>
-        <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Executive Summary</h2>
-      </div>
-    </div>
-    <div className="relative z-10 flex flex-col gap-4 text-xs leading-relaxed">
       <div>
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Execution Workstreams</p>
         <div className="grid grid-cols-2 gap-2">
@@ -125,12 +153,12 @@ export const ExecutiveSummaryContinued = () => (
       </div>
 
       <p className="italic text-[#211B1B]/50 text-[10px] border-t border-[#211B1B]/10 pt-4 text-justify">
-        Project Fortify is more than a practice growth proposal. It is my business case for how I intend to contribute
-        to the Firm's long-term growth through the development of a stronger disputes platform — one that delivers more
-        predictable revenue, enhances the Firm's standing in priority sectors, deepens institutional client
-        relationships and positions JEE more competitively within the Nigerian and cross-border disputes market. It
-        reflects the kind of partner I aspire to be within the Firm: commercially minded, institutionally committed, and
-        accountable for building a practice that is both high-performing and enduring.
+        Ultimately, Project Fortify is more than a practice growth proposal. It is my business case for how I intend to
+        contribute to the Firm's long-term growth through the development of a stronger disputes platform — one that
+        delivers more predictable revenue, enhances the Firm's standing in priority sectors, deepens institutional
+        client relationships and positions JEE more competitively within the Nigerian and cross-border disputes market.
+        It reflects the kind of partner I aspire to be within the Firm: commercially minded, institutionally committed,
+        and accountable for building a practice that is both high-performing and enduring.
       </p>
     </div>
   </div>
