@@ -7,66 +7,7 @@ const BG = () => (
   </div>
 );
 
-const matters = [
-  {
-    matter: '2025 ComLit team revenue',
-    desc: 'Supported Head of Department in leading Commercial Litigation revenue performance',
-    outcome: 'USD 300,000+ in departmental revenue in 2025',
-  },
-  {
-    matter: 'OPay relationship',
-    desc: 'Grew from narrow garnishee-focused instructions into a broader strategic client account',
-    outcome: 'USD 60,000+ revenue in 2025; USD 15,000 in 2026 YTD',
-  },
-  {
-    matter: 'Project Compass – Ecobank Litigation Portfolio Audit',
-    desc: 'Led the Ecobank portfolio audit mandate from origination to delivery',
-    outcome: '₦25 million in fees generated',
-  },
-  {
-    matter: 'AGTF / Sony advisory',
-    desc: 'Legal advisory and support services',
-    outcome: 'USD 10,000 per client; USD 20,000 combined',
-  },
-  { matter: 'Multitan advisory', desc: 'Legal support and advisory services', outcome: '₦8 million in fees' },
-  {
-    matter: 'Axa Mansard advisory',
-    desc: 'Led Commercial Litigation team on advisory mandate',
-    outcome: '₦6 million in fees',
-  },
-  {
-    matter: 'Baker Hughes – General Hydrocarbons & First Bank',
-    desc: 'Led the Baker Hughes team on two major instructions',
-    outcome: '₦20 million in fees across both matters',
-  },
-  {
-    matter: 'AMCON portfolio management',
-    desc: 'Managed AMCON portfolio across multiple recovery matters since 2024',
-    outcome: '₦75 million+ in cumulative recovery professional fees',
-  },
-  {
-    matter: 'Emple arbitration',
-    desc: 'Lead team; negotiated and secured professional fee exceeding co-counsel billing',
-    outcome: '₦80 million professional fee; ₦20 million above co-counsel billing',
-  },
-  {
-    matter: 'UBA v Epe Resort',
-    desc: 'Led team to a major reduction in client obligations and amicable settlement',
-    outcome: '₦2 billion+ in client savings preserved',
-  },
-  {
-    matter: 'Receivables clean-up (2023–2024)',
-    desc: 'Led clean-up of aged receivables previously unbilled or unsupported',
-    outcome: 'Improved practice financial position; material cash recovery',
-  },
-  {
-    matter: 'Targeted proposals',
-    desc: 'Led proposals to OPay, TotalEnergies CPFA and Ecobank',
-    outcome: 'Instructions secured from all three clients',
-  },
-];
-
-// Page 4 — Leadership + Revenue Table
+// Page 4 — Leadership + Commercial Impact intro (no table)
 export const PersonalCase = () => (
   <div
     id="personal-case"
@@ -109,7 +50,7 @@ export const PersonalCase = () => (
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">
           Commercial Impact &amp; Revenue Contributions
         </p>
-        <p className="text-[#211B1B]/70 text-justify mb-2">
+        <p className="text-[#211B1B]/70 text-justify">
           A central feature of my practice has been the ability to translate technical disputes capability into
           measurable commercial outcomes for both clients and the Firm. Over the course of my career, I have built a
           proven record in dispute positioning, advocacy, enforcement strategy and commercial resolution. That record
@@ -118,33 +59,108 @@ export const PersonalCase = () => (
           These experiences have provided a strong practical foundation for the development of creditor-side mandates,
           enforcement work and complex commercial disputes within the Firm.
         </p>
-        <p className="text-[#211B1B]/70 text-justify mb-2">
+        <p className="text-[#211B1B]/70 text-justify mt-2">
           Since joining JEE, I have contributed directly to the practice's commercial performance in a number of
           significant ways, summarised in the table below:
         </p>
-        <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
-          <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
-            <div className="col-span-3 px-3 py-2">Matter / Client</div>
-            <div className="col-span-5 px-3 py-2">Description</div>
-            <div className="col-span-4 px-3 py-2">Commercial Outcome</div>
-          </div>
-          {matters.map(({ matter, desc, outcome }, i) => (
-            <div
-              key={i}
-              className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}
-            >
-              <div className="col-span-3 px-3 py-2 font-bold text-[#211B1B]">{matter}</div>
-              <div className="col-span-5 px-3 py-2 text-[#211B1B]/60">{desc}</div>
-              <div className="col-span-4 px-3 py-2 font-black text-[#E80000]">{outcome}</div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   </div>
 );
 
-// Page 5 — Market Visibility, Institutional Contribution, Summary
+// Page 5 — Revenue Table only
+export const PersonalCaseTable = () => (
+  <div className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+    <BG />
+    <div className="flex items-center gap-3 mb-5 relative z-10">
+      <div className="w-1 h-10 bg-[#E80000]"></div>
+      <div>
+        <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 2 – Continued</p>
+        <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">
+          Commercial Impact &amp; Revenue Contributions
+        </h2>
+      </div>
+    </div>
+    <div className="relative z-10 flex flex-col gap-4 text-xs leading-relaxed">
+      <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
+          <div className="col-span-3 px-3 py-2">Matter / Client</div>
+          <div className="col-span-5 px-3 py-2">Description</div>
+          <div className="col-span-4 px-3 py-2">Commercial Outcome</div>
+        </div>
+        {[
+          {
+            matter: '2025 ComLit team revenue',
+            desc: 'Supported Head of Department in leading Commercial Litigation revenue performance',
+            outcome: 'USD 300,000+ in departmental revenue in 2025',
+          },
+          {
+            matter: 'OPay relationship',
+            desc: 'Grew from narrow garnishee-focused instructions into a broader strategic client account',
+            outcome: 'USD 60,000+ revenue in 2025; USD 15,000 in 2026 YTD',
+          },
+          {
+            matter: 'Project Compass – Ecobank Litigation Portfolio Audit',
+            desc: 'Led the Ecobank portfolio audit mandate from origination to delivery',
+            outcome: '₦25 million in fees generated',
+          },
+          {
+            matter: 'AGTF / Sony advisory',
+            desc: 'Legal advisory and support services',
+            outcome: 'USD 10,000 per client; USD 20,000 combined',
+          },
+          { matter: 'Multitan advisory', desc: 'Legal support and advisory services', outcome: '₦8 million in fees' },
+          {
+            matter: 'Axa Mansard advisory',
+            desc: 'Led Commercial Litigation team on advisory mandate',
+            outcome: '₦6 million in fees',
+          },
+          {
+            matter: 'Baker Hughes – General Hydrocarbons & First Bank',
+            desc: 'Led the Baker Hughes team on two major instructions',
+            outcome: '₦20 million in fees across both matters',
+          },
+          {
+            matter: 'AMCON portfolio management',
+            desc: 'Managed AMCON portfolio across multiple recovery matters since 2024',
+            outcome: '₦75 million+ in cumulative recovery professional fees',
+          },
+          {
+            matter: 'Emple arbitration',
+            desc: 'Lead team; negotiated and secured professional fee exceeding co-counsel billing',
+            outcome: '₦80 million professional fee; ₦20 million above co-counsel billing',
+          },
+          {
+            matter: 'UBA v Epe Resort',
+            desc: 'Led team to a major reduction in client obligations and amicable settlement',
+            outcome: '₦2 billion+ in client savings preserved',
+          },
+          {
+            matter: 'Receivables clean-up (2023–2024)',
+            desc: 'Led clean-up of aged receivables previously unbilled or unsupported',
+            outcome: 'Improved practice financial position; material cash recovery',
+          },
+          {
+            matter: 'Targeted proposals',
+            desc: 'Led proposals to OPay, TotalEnergies CPFA and Ecobank',
+            outcome: 'Instructions secured from all three clients',
+          },
+        ].map(({ matter, desc, outcome }, i) => (
+          <div
+            key={i}
+            className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}
+          >
+            <div className="col-span-3 px-3 py-2 font-bold text-[#211B1B]">{matter}</div>
+            <div className="col-span-5 px-3 py-2 text-[#211B1B]/60">{desc}</div>
+            <div className="col-span-4 px-3 py-2 font-black text-[#E80000]">{outcome}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// Page 6 — Market Visibility, Institutional Contribution, Summary
 export const PersonalCaseContinued = () => (
   <div className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
     <BG />

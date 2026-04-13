@@ -6,7 +6,7 @@ import { PageWrapper } from './components/PageWrapper';
 import { CoverPage } from './components/CoverPage';
 import { TableOfContents } from './components/TableOfContents';
 import { ExecutiveSummary, ExecutiveSummaryContinued } from './components/ExecutiveSummary';
-import { PersonalCase, PersonalCaseContinued } from './components/PersonalCase';
+import { PersonalCase, PersonalCaseTable, PersonalCaseContinued } from './components/PersonalCase';
 import { Platform1, Platform2 } from './components/ProposedBusiness';
 import { MarketAnalysis, CompetitiveLandscape, CompetitiveLandscapeTier2 } from './components/MarketAnalysis';
 import { StrategicObjectives } from './components/StrategicObjectives';
@@ -101,6 +101,12 @@ export default function PspBusinessPlanPage() {
         {/* 4  */}
         <PageWrapper pageNumber="4">
           <PersonalCase />
+        </PageWrapper>
+        <PageWrapper pageNumber="5">
+          <PersonalCaseTable />
+        </PageWrapper>
+        <PageWrapper pageNumber="6">
+          <PersonalCaseContinued />
         </PageWrapper>
         {/* 5  */}
         <PageWrapper pageNumber="5">
