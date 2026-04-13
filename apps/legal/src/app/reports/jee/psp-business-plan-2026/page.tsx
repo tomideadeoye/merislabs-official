@@ -8,9 +8,16 @@ import { TableOfContents } from './components/TableOfContents';
 import { ExecutiveSummary } from './components/ExecutiveSummary';
 import { PersonalCase } from './components/PersonalCase';
 import { Platform1, Platform2 } from './components/ProposedBusiness';
+import { MarketAnalysis, CompetitiveLandscape } from './components/MarketAnalysis';
+import { StrategicObjectives } from './components/StrategicObjectives';
 import { ImplementationPlan, ImplementationPlanContinued } from './components/ImplementationPlan';
+import { InternationalReferral } from './components/InternationalReferral';
+import { TeamDevelopment } from './components/TeamDevelopment';
 import { FinancialRequirements } from './components/FinancialRequirements';
-import { SuccessFactors } from './components/SuccessFactors';
+import { RevenueModel } from './components/RevenueModel';
+import { Profitability } from './components/Profitability';
+import { SuccessFactors, RiskRegister } from './components/SuccessFactors';
+import { PhasedTimeline } from './components/PhasedTimeline';
 import { Conclusion } from './components/Conclusion';
 import { BackCover } from './components/BackCover';
 
@@ -59,92 +66,37 @@ export default function PspBusinessPlanPage() {
                     }
                     main { padding-top: 0 !important; }
                 }
-
-                :root {
-                    --jee-red: #E80000;
-                    --jee-charcoal: #211B1B;
-                    --jee-cream: #F9F7ED;
-                }
-
-                .page-wrapper {
-                    background-color: var(--jee-cream) !important;
-                    color: #454545;
-                    font-family: 'Inter', sans-serif;
-                }
-
-                h1, h2, h3, h4 {
-                    color: var(--jee-charcoal);
-                    font-family: 'Playfair Display', serif;
-                    text-align: left !important;
-                }
-
-                h1.text-center, h2.text-center, h3.text-center, h4.text-center {
-                    text-align: center !important;
-                }
-
-                .page-wrapper p:not(.no-justify):not(.text-center),
-                .page-wrapper li:not(.no-justify):not(.text-center) {
-                    text-align: justify !important;
-                    text-justify: inter-word;
-                }
-
-                h1, h2, h3, h4, .no-justify {
-                    text-align: left !important;
-                    text-justify: none !important;
-                    word-spacing: normal !important;
-                }
+                :root { --jee-red: #E80000; --jee-charcoal: #211B1B; --jee-cream: #F9F7ED; }
+                .page-wrapper { background-color: var(--jee-cream) !important; color: #454545; font-family: 'Inter', sans-serif; }
+                h1, h2, h3, h4 { color: var(--jee-charcoal); font-family: 'Playfair Display', serif; text-align: left !important; }
+                .page-wrapper p:not(.no-justify):not(.text-center), .page-wrapper li:not(.no-justify):not(.text-center) { text-align: justify !important; text-justify: inter-word; }
+                h1, h2, h3, h4, .no-justify { text-align: left !important; text-justify: none !important; word-spacing: normal !important; }
             `}} />
 
             <DownloadControls />
 
             <div className="print-container flex flex-col items-center py-12 px-4 gap-12 print:p-0 print:gap-0 bg-slate-50 min-h-screen">
-                <PageWrapper pageNumber="1" isCover={true}>
-                    <CoverPage />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="2">
-                    <TableOfContents />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="3">
-                    <ExecutiveSummary />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="4">
-                    <PersonalCase />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="5">
-                    <Platform1 />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="6">
-                    <Platform2 />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="7">
-                    <ImplementationPlan />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="8">
-                    <ImplementationPlanContinued />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="9">
-                    <FinancialRequirements />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="10">
-                    <SuccessFactors />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="11">
-                    <Conclusion />
-                </PageWrapper>
-
-                <PageWrapper pageNumber="12" isBackCover={true}>
-                    <BackCover />
-                </PageWrapper>
+                {/* 1 */}<PageWrapper pageNumber="1" isCover={true}><CoverPage /></PageWrapper>
+                {/* 2 */}<PageWrapper pageNumber="2"><TableOfContents /></PageWrapper>
+                {/* 3 */}<PageWrapper pageNumber="3"><ExecutiveSummary /></PageWrapper>
+                {/* 4 */}<PageWrapper pageNumber="4"><PersonalCase /></PageWrapper>
+                {/* 5 */}<PageWrapper pageNumber="5"><Platform1 /></PageWrapper>
+                {/* 6 */}<PageWrapper pageNumber="6"><Platform2 /></PageWrapper>
+                {/* 7 */}<PageWrapper pageNumber="7"><MarketAnalysis /></PageWrapper>
+                {/* 8 */}<PageWrapper pageNumber="8"><CompetitiveLandscape /></PageWrapper>
+                {/* 9 */}<PageWrapper pageNumber="9"><StrategicObjectives /></PageWrapper>
+                {/* 10 */}<PageWrapper pageNumber="10"><ImplementationPlan /></PageWrapper>
+                {/* 11 */}<PageWrapper pageNumber="11"><ImplementationPlanContinued /></PageWrapper>
+                {/* 12 */}<PageWrapper pageNumber="12"><InternationalReferral /></PageWrapper>
+                {/* 13 */}<PageWrapper pageNumber="13"><TeamDevelopment /></PageWrapper>
+                {/* 14 */}<PageWrapper pageNumber="14"><FinancialRequirements /></PageWrapper>
+                {/* 15 */}<PageWrapper pageNumber="15"><RevenueModel /></PageWrapper>
+                {/* 16 */}<PageWrapper pageNumber="16"><Profitability /></PageWrapper>
+                {/* 17 */}<PageWrapper pageNumber="17"><SuccessFactors /></PageWrapper>
+                {/* 18 */}<PageWrapper pageNumber="18"><RiskRegister /></PageWrapper>
+                {/* 19 */}<PageWrapper pageNumber="19"><PhasedTimeline /></PageWrapper>
+                {/* 20 */}<PageWrapper pageNumber="20"><Conclusion /></PageWrapper>
+                {/* 21 */}<PageWrapper pageNumber="21" isBackCover={true}><BackCover /></PageWrapper>
             </div>
         </div>
     );
