@@ -186,20 +186,16 @@ export const PersonalCaseContinued = () => (
           deliberate effort to remain embedded in the communities that shape arbitration, restructuring, insolvency and
           cross-border disputes work, and to position the Firm more credibly within those networks.
         </p>
-        <div className="space-y-2">
-          {[
-            'INSOL Future Leader of Nigeria',
-            'Award of Excellence from the Nigerian Institute of Chartered Arbitrators for contributions to debt recovery, insolvency and arbitration practice',
-            'Served as Arbitrator on ₦170 million three-member tribunal alongside Senior Advocates of Nigeria',
-            'Active participation in London International Disputes Week',
-            'Cultivation of relationships with partners/senior associates in Magic Circle and Silver Circle firms',
-          ].map((p, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <div className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E80000] shrink-0"></div>
-              <p className="text-[#211B1B]/65 text-[10px]">{p}</p>
-            </div>
-          ))}
-        </div>
+        <p className="text-[#211B1B]/70 text-justify mb-3">
+          I have also been recognised as an INSOL Future Leader of Nigeria and received an Award of Excellence from the
+          Nigerian Institute of Chartered Arbitrators for contributions to debt recovery, insolvency and arbitration
+          practice. In addition, I have served as arbitrator on a ₦170 million three-member tribunal alongside Senior
+          Advocates of Nigeria, which I regard as an important indication of both technical confidence and peer
+          recognition within the market. My market-facing efforts have also included active participation in London
+          International Disputes Week and the cultivation of relationships with partners/senior associates in Magic
+          Circle and Silver Circle firms, with the aim of building a more structured referral pipeline for cross-border
+          disputes and arbitration work.
+        </p>
       </div>
 
       <div>
