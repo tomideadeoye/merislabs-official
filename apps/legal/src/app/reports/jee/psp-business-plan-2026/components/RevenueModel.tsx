@@ -101,6 +101,27 @@ export const RevenueModel = () => (
                     <div className="col-span-2 px-4 py-3 text-white/40 font-black text-[10px]">USD 720,000</div>
                 </div>
             </div>
+            {/* Fee Structure */}
+            <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
+                    <div className="col-span-2 px-4 py-2.5">Platform</div>
+                    <div className="col-span-3 px-4 py-2.5">Primary Fee Structure</div>
+                    <div className="col-span-4 px-4 py-2.5">Secondary / Supplementary</div>
+                    <div className="col-span-3 px-4 py-2.5">Rationale</div>
+                </div>
+                {[
+                    { p: 'Platform 1', primary: 'Fixed fee per portfolio tier (productised)', secondary: 'Success fee (5–15% of recovery) for key mandates', rationale: 'Predictable revenue flow; aligns incentives with banks\' recovery outcomes' },
+                    { p: 'Platform 2', primary: 'Hourly / blended rate for litigation', secondary: 'Retainer for ongoing advisory relationships', rationale: 'Matches complexity billing; retainers provide pipeline visibility' },
+                    { p: 'Platform 3', primary: 'USD-denominated hourly / lump sum', secondary: 'Co-counsel fee-split arrangements', rationale: 'FX protection and international rate parity; referral arrangements formalise pipeline' },
+                ].map(({ p, primary, secondary, rationale }, i) => (
+                    <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                        <div className="col-span-2 px-4 py-2.5 font-black text-[#E80000]">{p}</div>
+                        <div className="col-span-3 px-4 py-2.5 text-[#211B1B]/70">{primary}</div>
+                        <div className="col-span-4 px-4 py-2.5 text-[#211B1B]/60">{secondary}</div>
+                        <div className="col-span-3 px-4 py-2.5 text-[#211B1B]/55 leading-relaxed">{rationale}</div>
+                    </div>
+                ))}
+            </div>
         </div>
     </div>
 );

@@ -1,6 +1,6 @@
 'use client';
 
-const BackgroundPattern = () => (
+const BG = () => (
     <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 overflow-hidden">
         <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full border-[40px] border-[#E80000]" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[60%] aspect-square rounded-full border-[60px] border-[#211B1B]" />
@@ -8,103 +8,79 @@ const BackgroundPattern = () => (
 );
 
 const items = [
-    {
-        item: 'Professional Memberships, Credentials & Panel Registrations',
-        detail: 'INSOL, CIArb, NICArb, BRIPAN, CIBN, arbitral panels',
-        purpose: 'Strengthen ecosystem credibility',
-        cost: '₦20M – ₦25M',
-        source: 'CPD / Professional Development',
-    },
-    {
-        item: 'Commercial Chambers & Industry Associations',
-        detail: 'NACCIMA, LCCI, bilateral chambers, BNLF',
-        purpose: 'Access institutional decision-makers',
-        cost: '₦10M – ₦12.5M',
-        source: 'Marketing / BD',
-    },
-    {
-        item: 'Conferences & Events',
-        detail: 'INSOL, BRIPAN, LIDW, London Arbitration Week, ICC/CIArb forums',
-        purpose: 'Visibility & international referrals',
-        cost: '₦20M – ₦25M',
-        source: 'Professional Development / BD',
-    },
-    {
-        item: 'Thought Leadership Publications & Dissemination',
-        detail: 'Articles, series, client alerts',
-        purpose: 'Authority positioning',
-        cost: '₦5M – ₦7.5M',
-        source: 'Marketing / BD',
-    },
-    {
-        item: 'Client-Facing Engagements',
-        detail: 'Roundtables, seminars, client events',
-        purpose: 'Origination & retention',
-        cost: '₦10M – ₦15M',
-        source: 'Firm Events / Marketing',
-    },
-    {
-        item: 'Team Capability Development',
-        detail: 'Training, certifications',
-        purpose: 'Internal capacity building',
-        cost: '₦5M – ₦7.5M',
-        source: 'CPD / Training',
-    },
+    { n: '1', item: 'Professional memberships & credentials', detail: 'INSOL, CIArb, NICArb, BRIPAN, CIBN, Young ICCA, ITA – membership subscriptions and annual dues', budget: '₦18–24M', owner: 'CPD / Professional Development' },
+    { n: '2', item: 'Arbitral & insolvency panel registrations', detail: 'LCA, NICArb, NCIA, ICC Nigeria, BRIPAN insolvency panel – application fees and annual maintenance', budget: '₦4–7M', owner: 'CPD / Professional Development' },
+    { n: '3', item: 'Commercial chamber memberships', detail: 'NACCIMA, LCCI, bilateral chambers – BNLF, NBCC, NBBC – annual subscriptions', budget: '₦10–14M', owner: 'Marketing / BD' },
+    { n: '4', item: 'International conferences & travel', detail: 'LIDW ×2, London Arbitration Week, INSOL Global, ICC/CIArb forums – 4–5 trips over 24 months', budget: '₦28–45M', owner: 'Professional Development / BD' },
+    { n: '5', item: 'Domestic conferences & events', detail: 'BRIPAN, NICArb, NBA-SBL, local forums – 8–10 engagements over 24 months', budget: '₦6–10M', owner: 'Professional Development / BD' },
+    { n: '6', item: 'Thought leadership production & dissemination', detail: 'Design, Mondaq/platform fees, digital amplification, event materials, PR support', budget: '₦12–18M', owner: 'Marketing / BD' },
+    { n: '7', item: 'Client-facing events & event sponsorship', detail: '2 major roundtables, webinar series, seminar materials, venue, AV, catering', budget: '₦15–22M', owner: 'Firm Events / Marketing' },
+    { n: '8', item: 'Institutional client entertainment & relationship management', detail: 'Regular engagement across 15 target relationships — ₦300K–500K per month', budget: '₦10–15M', owner: 'Marketing / BD' },
+    { n: '9', item: 'Team capability development', detail: 'CIArb Fellowship pathway ×1–2 members, BRIPAN programme, INSOL short courses, NICArb certification, internal training', budget: '₦12–18M', owner: 'CPD / Training' },
+    { n: '10', item: 'Branded materials & capacity statement design', detail: '6 productised offerings, firm profile materials, event collateral, pitch materials', budget: '₦4–6M', owner: 'Marketing / BD' },
+    { n: '11', item: 'BD pipeline tools & infrastructure', detail: 'CRM adaptation, pipeline tracking tool, opportunity management system', budget: '₦2–4M', owner: 'IT / Operations' },
+    { n: '12', item: 'Digital presence & content amplification', detail: 'LinkedIn Premium, Mondaq subscription, platform distribution, digital outreach', budget: '₦3–6M', owner: 'Marketing / BD' },
+    { n: '13', item: 'International travel documentation', detail: 'UK/Other country visa applications, biometrics, travel insurance across 24-month cycle', budget: '₦2–3M', owner: 'Professional Development' },
+    { n: '14', item: 'Contingency (10% of base)', detail: 'FX volatility, event cost inflation, unplanned professional opportunities', budget: '₦13–19M', owner: 'Firm Reserve' },
 ];
 
-export const FinancialRequirements = () => {
-    return (
-        <div id="financial" className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
-            <BackgroundPattern />
+const roiRows = [
+    { item: 'Total proposed investment (24-month cycle)', figure: '₦139M – ₦211M' },
+    { item: 'USD equivalent at ₦1,600/USD (conservative rate)', figure: 'USD 87,000 – USD 132,000' },
+    { item: 'Year 2 target revenue', figure: 'USD 500,000 (≈ ₦800M+)' },
+    { item: 'Revenue-to-investment ratio (mid-point)', figure: '~4.4x to ~6.0x' },
+    { item: 'Net profit contribution at 20% margin', figure: 'USD 100,000 per annum at target' },
+    { item: 'Payback period at Year 2 run rate', figure: '< 12 months' },
+];
 
-            <div className="flex items-center gap-4 mb-6 border-b-2 border-[#E80000]/20 pb-4 relative z-10">
-                <span className="text-4xl font-serif font-black text-[#E80000] opacity-20">05</span>
-                <div>
-                    <h2 className="text-2xl font-serif font-black text-[#211B1B] uppercase">Financial Requirements</h2>
-                    <p className="text-xs text-[#211B1B]/40 uppercase tracking-widest mt-1">24-Month Investment Framework</p>
-                </div>
-            </div>
-
-            <div className="relative z-10 flex flex-col gap-5">
-                <p className="text-xs text-[#211B1B]/70 text-justify leading-relaxed">
-                    Execution requires modest, targeted investment. Significant mandates routinely exceed these costs in fee value. The projected financial requirements are outlined below.
-                </p>
-
-                {/* Table */}
-                <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
-                    <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[9px] font-black uppercase tracking-widest">
-                        <div className="col-span-4 px-4 py-3">Investment Item</div>
-                        <div className="col-span-3 px-4 py-3">Purpose</div>
-                        <div className="col-span-2 px-4 py-3 text-right">Est. Cost (NGN)</div>
-                        <div className="col-span-3 px-4 py-3">Budget Source</div>
-                    </div>
-                    {items.map(({ item, detail, purpose, cost, source }, i) => (
-                        <div key={i} className={`grid grid-cols-12 text-[10px] border-t border-[#211B1B]/8 ${i % 2 === 0 ? 'bg-[#211B1B]/2' : 'bg-transparent'}`}>
-                            <div className="col-span-4 px-4 py-3">
-                                <p className="font-bold text-[#211B1B]">{item}</p>
-                                <p className="text-[#211B1B]/40 text-[9px] mt-0.5">{detail}</p>
-                            </div>
-                            <div className="col-span-3 px-4 py-3 text-[#211B1B]/60 flex items-center">{purpose}</div>
-                            <div className="col-span-2 px-4 py-3 text-right font-black text-[#E80000] flex items-center justify-end">{cost}</div>
-                            <div className="col-span-3 px-4 py-3 text-[#211B1B]/50 flex items-center">{source}</div>
-                        </div>
-                    ))}
-                    <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[10px] font-black border-t-2 border-[#E80000]">
-                        <div className="col-span-4 px-4 py-3 uppercase tracking-widest">Total</div>
-                        <div className="col-span-3 px-4 py-3"></div>
-                        <div className="col-span-2 px-4 py-3 text-right text-[#E80000]">₦70M – ₦92.5M</div>
-                        <div className="col-span-3 px-4 py-3"></div>
-                    </div>
-                </div>
-
-                {/* ROI Note */}
-                <div className="bg-[#E80000]/5 border border-[#E80000]/15 rounded-lg p-5">
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-[#E80000] mb-2">Return on Investment</p>
-                    <p className="text-[#211B1B]/70 text-xs text-justify leading-relaxed">
-                        The total investment of ₦70M–₦92.5M over 24 months is designed to generate <strong>USD 500,000 in annual attributable revenue</strong> by the end of the PSP cycle. A single institutional enforcement mandate or arbitration instruction routinely exceeds the total annual investment, making this a high-leverage, low-risk commercial proposition.
-                    </p>
-                </div>
+export const FinancialRequirements = () => (
+    <div id="financial" className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+        <BG />
+        <div className="flex items-center gap-4 mb-5 border-b-2 border-[#E80000]/20 pb-4 relative z-10">
+            <span className="text-4xl font-serif font-black text-[#E80000] opacity-20">09</span>
+            <div>
+                <h2 className="text-2xl font-serif font-black text-[#211B1B] uppercase">Financial Requirements</h2>
+                <p className="text-xs text-[#211B1B]/40 uppercase tracking-widest mt-1">24-Month Investment Framework · ₦139M – ₦211M</p>
             </div>
         </div>
-    );
-};
+        <div className="relative z-10 flex flex-col gap-4">
+            <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
+                    <div className="col-span-1 px-3 py-2">#</div>
+                    <div className="col-span-4 px-3 py-2">Investment Line</div>
+                    <div className="col-span-2 px-3 py-2 text-right">Budget (₦M)</div>
+                    <div className="col-span-5 px-3 py-2">Budget Owner</div>
+                </div>
+                {items.map(({ n, item, detail, budget, owner }, i) => (
+                    <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                        <div className="col-span-1 px-3 py-2 font-black text-[#E80000]">{n}</div>
+                        <div className="col-span-4 px-3 py-2">
+                            <p className="font-bold text-[#211B1B]">{item}</p>
+                            <p className="text-[#211B1B]/35 text-[8px] mt-0.5">{detail}</p>
+                        </div>
+                        <div className="col-span-2 px-3 py-2 text-right font-black text-[#E80000] flex items-center justify-end">{budget}</div>
+                        <div className="col-span-5 px-3 py-2 text-[#211B1B]/50 flex items-center">{owner}</div>
+                    </div>
+                ))}
+                <div className="grid grid-cols-12 bg-[#211B1B] border-t-2 border-[#E80000]">
+                    <div className="col-span-5 px-3 py-3 text-white font-black text-[10px] uppercase tracking-widest">Total (24-Month Cycle)</div>
+                    <div className="col-span-2 px-3 py-3 text-right text-[#E80000] font-black text-sm">₦139–211M</div>
+                    <div className="col-span-5 px-3 py-3 text-white/30 text-[9px] flex items-center">~4–6x ROI at Year 2 target revenue of ₦800M+</div>
+                </div>
+            </div>
+
+            <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-2 bg-[#211B1B]/5 text-[#211B1B]/40 text-[8px] font-black uppercase tracking-widest border-b border-[#211B1B]/8">
+                    <div className="px-4 py-2">Investment Logic & ROI</div>
+                    <div className="px-4 py-2 text-right">Figure</div>
+                </div>
+                {roiRows.map(({ item, figure }, i) => (
+                    <div key={i} className={`grid grid-cols-2 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                        <div className="px-4 py-2 text-[#211B1B]/65">{item}</div>
+                        <div className="px-4 py-2 text-right font-black text-[#211B1B]">{figure}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);

@@ -10,12 +10,16 @@ const BG = () => (
 const matters = [
     { matter: '2025 ComLit team revenue', desc: 'Supported Head of Department in leading Commercial Litigation revenue performance', outcome: 'USD 300,000+ in departmental revenue in 2025' },
     { matter: 'OPay relationship', desc: 'Grew from narrow garnishee-focused instructions into a broader strategic client account', outcome: 'USD 60,000+ revenue in 2025; USD 15,000 in 2026 YTD' },
-    { matter: 'Project Compass – Ecobank', desc: 'Led the Ecobank portfolio audit mandate from origination to delivery', outcome: '₦25 million in fees generated' },
+    { matter: 'Project Compass – Ecobank Litigation Portfolio Audit', desc: 'Led the Ecobank portfolio audit mandate from origination to delivery', outcome: '₦25 million in fees generated' },
     { matter: 'AGTF / Sony advisory', desc: 'Legal advisory and support services', outcome: 'USD 10,000 per client; USD 20,000 combined' },
+    { matter: 'Multitan advisory', desc: 'Legal support and advisory services', outcome: '₦8 million in fees' },
+    { matter: 'Axa Mansard advisory', desc: 'Led Commercial Litigation team on advisory mandate', outcome: '₦6 million in fees' },
     { matter: 'Baker Hughes – General Hydrocarbons & First Bank', desc: 'Led the Baker Hughes team on two major instructions', outcome: '₦20 million in fees across both matters' },
     { matter: 'AMCON portfolio management', desc: 'Managed AMCON portfolio across multiple recovery matters since 2024', outcome: '₦75 million+ in cumulative recovery professional fees' },
     { matter: 'Emple arbitration', desc: 'Lead team; negotiated and secured professional fee exceeding co-counsel billing', outcome: '₦80 million professional fee; ₦20 million above co-counsel billing' },
     { matter: 'UBA v Epe Resort', desc: 'Led team to a major reduction in client obligations and amicable settlement', outcome: '₦2 billion+ in client savings preserved' },
+    { matter: 'Receivables clean-up (2023–2024)', desc: 'Led clean-up of aged receivables previously unbilled or unsupported', outcome: 'Improved practice financial position; material cash recovery' },
+    { matter: 'Targeted proposals', desc: 'Led proposals to OPay, TotalEnergies CPFA and Ecobank', outcome: 'Instructions secured from all three clients' },
 ];
 
 export const PersonalCase = () => (

@@ -61,6 +61,31 @@ export const TeamDevelopment = () => (
                 </div>
             </div>
 
+            <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Knowledge Management &amp; Operational Excellence</p>
+                <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
+                        <div className="col-span-4 px-3 py-2">Initiative</div>
+                        <div className="col-span-6 px-3 py-2">Description</div>
+                        <div className="col-span-2 px-3 py-2">Target Date</div>
+                    </div>
+                    {[
+                        { init: 'Litigation Precedent Bank', desc: 'Digital precedent bank covering all standard CLDR pleadings, applications, letters, enforcement templates and arbitration documents', date: 'Month 3 (Jun 2026)' },
+                        { init: 'Matter Timeline & Cost Tracking', desc: 'Litigation WBS for all major mandates enabling real-time cost tracking, billing milestone management and post-matter profit review', date: 'Month 4 (Jul 2026)' },
+                        { init: 'Case Law Repository', desc: 'Searchable internal database of Nigerian commercial litigation, enforcement and arbitration decisions; quarterly updates for client alerts', date: 'Month 6 (Sep 2026)' },
+                        { init: 'Capacity Statement Library', desc: 'Updated capacity statements for each Platform and productised offering; marketing-ready versions available at 24 hours\' notice', date: 'Month 2 (May 2026)' },
+                        { init: 'Client Satisfaction Protocol', desc: 'Structured post-matter satisfaction review for all matters above ₦10M in fees; responses reviewed at quarterly team meetings', date: 'Month 6 (Sep 2026)' },
+                        { init: 'Digital Knowledge Hub', desc: 'Centralised access to case law, matter notes, templates and precedents for the full CLDR team', date: 'Month 6 (Sep 2026)' },
+                    ].map(({ init, desc, date }, i) => (
+                        <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                            <div className="col-span-4 px-3 py-2 font-black text-[#211B1B]">{init}</div>
+                            <div className="col-span-6 px-3 py-2 text-[#211B1B]/60 leading-relaxed">{desc}</div>
+                            <div className="col-span-2 px-3 py-2 text-[#E80000] font-black">{date}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             <div className="bg-[#211B1B]/5 border border-[#211B1B]/10 rounded-lg p-4">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-1">Team Leverage Target</p>
                 <p className="text-[#211B1B]/70 leading-relaxed">At full staffing, the practice is expected to operate at an approximate associate-to-partner leverage ratio of 4:1 at current team size, moving toward 6:1 as the practice scales toward its 2028 target. Partner time concentrated on origination, client management and complex advocacy.</p>

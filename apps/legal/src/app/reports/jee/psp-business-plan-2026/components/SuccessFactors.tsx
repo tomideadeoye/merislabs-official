@@ -23,6 +23,29 @@ export const SuccessFactors = () => (
             <h2 className="text-2xl font-serif font-black text-[#211B1B] uppercase">Success Factors, KPIs &amp; Risk Register</h2>
         </div>
         <div className="relative z-10 flex flex-col gap-4">
+            <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Critical Success Factors</p>
+                <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
+                        <div className="col-span-1 px-3 py-2">#</div>
+                        <div className="col-span-3 px-3 py-2">Success Factor</div>
+                        <div className="col-span-8 px-3 py-2">Why It Matters</div>
+                    </div>
+                    {[
+                        { n: '1', factor: 'Consistent and visible market positioning', why: 'The disputes market is competitive and relationship-driven; credibility must be built before it can convert' },
+                        { n: '2', factor: 'Effective client and referral conversion', why: 'Stronger visibility only generates revenue where it is followed by disciplined follow-through and conversion activity' },
+                        { n: '3', factor: 'Internal alignment and referral capture', why: 'A meaningful share of the commercial opportunity lies within the Firm\'s own client base and sector teams' },
+                        { n: '4', factor: 'Specialist credibility in priority segments', why: 'In insolvency, restructuring and arbitration, recognised expertise materially affects mandate access' },
+                        { n: '5', factor: 'Delivery discipline and commercial execution', why: 'Winning mandates is not enough; scope, staffing, billing and collection discipline protect profitability' },
+                    ].map(({ n, factor, why }, i) => (
+                        <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                            <div className="col-span-1 px-3 py-2.5 font-black text-[#E80000]">{n}</div>
+                            <div className="col-span-3 px-3 py-2.5 font-black text-[#211B1B]">{factor}</div>
+                            <div className="col-span-8 px-3 py-2.5 text-[#211B1B]/60 leading-relaxed">{why}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
             <div className="grid grid-cols-1 gap-3">
                 {kpis.map(({ category, color, items }) => (
                     <div key={category} className="flex gap-0 border border-[#211B1B]/10 rounded-lg overflow-hidden">
@@ -47,12 +70,15 @@ export const SuccessFactors = () => (
 
 export const RiskRegister = () => {
     const risks = [
-        { risk: 'Fee collection failure', likelihood: 'Medium', impact: 'High', level: 'HIGH', mitigation: 'Collection protocols in Section 11. Retainer structures for institutional clients. Monthly debtor review. Client creditworthiness screening at intake.' },
+        { risk: 'Key-person dependency: plan is architected around candidate\'s relationships and profile', likelihood: 'Low', impact: 'High', level: 'MEDIUM', mitigation: 'Institutionalise relationships through team engagement. All key client relationships to involve at least one other CLDR team member. Document pipeline in CRM.' },
+        { risk: 'Fee collection failure: bad debt provision reached 17% in 2025', likelihood: 'Medium', impact: 'High', level: 'HIGH', mitigation: 'Implement collection protocols in Section 11. Retainer structures for institutional clients. Monthly debtor review. Client creditworthiness screening at intake.' },
         { risk: 'Market competition intensifies', likelihood: 'Medium', impact: 'Medium', level: 'MEDIUM', mitigation: 'Differentiate through productised offerings, INSOL/BRIPAN credentialing. Target mid-tier banks and FMCG corporates underserved by larger firms.' },
-        { risk: 'Court inefficiency impedes milestone billing', likelihood: 'High', impact: 'Medium', level: 'MEDIUM', mitigation: 'Prioritise arbitration and out-of-court settlement tracks. Milestone billing minimises dependency on court timetables.' },
-        { risk: 'Talent attrition', likelihood: 'Medium', impact: 'Medium', level: 'MEDIUM', mitigation: 'Structured mentorship and development path. Team members named on key mandates. Engage HR committee on competitive compensation benchmarking.' },
-        { risk: 'Slower international referral conversion', likelihood: 'Medium', impact: 'Medium', level: 'MEDIUM', mitigation: 'Formalise referral MOUs with at least 2 international firms by end of Year 1. Target smaller instructions first to build track record.' },
-        { risk: 'Macroeconomic deterioration', likelihood: 'Low', impact: 'Medium', level: 'LOW-MED', mitigation: 'USD-denominated revenue provides partial hedge. Economic stress typically increases litigation and recovery volumes — CLDR is a counter-cyclical practice area.' },
+        { risk: 'Budget constraint: reduced BD budget limits conference attendance and thought leadership', likelihood: 'Low-Medium', impact: 'Medium', level: 'MEDIUM', mitigation: 'Prioritise LIDW and INSOL as non-negotiable international events. Phase domestic activities. Seek co-sponsorship with practice groups.' },
+        { risk: 'Macroeconomic deterioration: NGN devaluation or recession reduces legal spend', likelihood: 'Low', impact: 'Medium', level: 'LOW-MED', mitigation: 'USD-denominated revenue provides partial hedge. Economic stress typically increases litigation and recovery volumes — CLDR is a counter-cyclical practice area.' },
+        { risk: 'Court inefficiency: Nigerian court delays impede milestone billing', likelihood: 'High', impact: 'Medium', level: 'MEDIUM', mitigation: 'Prioritise arbitration and out-of-court settlement tracks. Milestone billing minimises dependency on court timetables. Garnishee and enforcement workstreams less affected.' },
+        { risk: 'Talent attrition: key associates depart mid-programme', likelihood: 'Medium', impact: 'Medium', level: 'MEDIUM', mitigation: 'Structured mentorship and development path. Team members named on key mandates. Engage HR committee on competitive compensation benchmarking.' },
+        { risk: 'Conflict of interest: creditor-side mandates create conflicts in debtor-side disputes', likelihood: 'Medium', impact: 'Low-Medium', level: 'LOW-MED', mitigation: 'Maintain formal conflicts checking protocol. Identify in advance which financial institution relationships are creditor-only. Build separate debtor-advisory capacity for FMCG and energy clients.' },
+        { risk: 'Slower referral conversion: international pipeline takes longer to mature', likelihood: 'Medium', impact: 'Medium', level: 'MEDIUM', mitigation: 'Formalise referral MOUs with at least 2 international firms by end of Year 1. Target smaller instructions first to build track record. Publish on Kluwer/CIArb to increase inbound visibility.' },
     ];
 
     const levelColor = (level: string) => {
