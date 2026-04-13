@@ -83,129 +83,133 @@ export default function PspBusinessPlanPage() {
       <DownloadControls />
 
       <div className="print-container flex flex-col items-center py-12 px-4 gap-12 print:p-0 print:gap-0 bg-slate-50 min-h-screen">
-        {/* 1  */}
+        {/* Section 01: Cover */}
         <PageWrapper pageNumber="1" isCover={true}>
           <CoverPage />
         </PageWrapper>
-        {/* 2  */}
+
+        {/* Section 02: Table of Contents */}
         <PageWrapper pageNumber="2">
           <TableOfContents />
         </PageWrapper>
-        {/* 3  */}
+
+        {/* Section 03: Executive Summary (2 pages) */}
         <PageWrapper pageNumber="3">
           <ExecutiveSummary />
         </PageWrapper>
         <PageWrapper pageNumber="4">
           <ExecutiveSummaryContinued />
         </PageWrapper>
-        {/* 4  */}
-        <PageWrapper pageNumber="4">
+
+        {/* Section 04: Personal Case (3 pages) */}
+        <PageWrapper pageNumber="5">
           <PersonalCase />
         </PageWrapper>
-        <PageWrapper pageNumber="5">
+        <PageWrapper pageNumber="6">
           <PersonalCaseTable />
         </PageWrapper>
-        <PageWrapper pageNumber="6">
+        <PageWrapper pageNumber="7">
           <PersonalCaseContinued />
         </PageWrapper>
-        {/* 5  */}
-        <PageWrapper pageNumber="5">
-          <PersonalCaseContinued />
-        </PageWrapper>
-        {/* 6  */}
-        <PageWrapper pageNumber="6">
+
+        {/* Section 05: Proposed Business - Platforms (2 pages) */}
+        <PageWrapper pageNumber="8">
           <Platform1 />
         </PageWrapper>
-        {/* 7  */}
-        <PageWrapper pageNumber="7">
+        <PageWrapper pageNumber="9">
           <Platform2 />
         </PageWrapper>
-        {/* 8  */}
-        <PageWrapper pageNumber="8">
+
+        {/* Section 06: Market & Competitive Landscape (3 pages) */}
+        <PageWrapper pageNumber="10">
           <MarketAnalysis />
         </PageWrapper>
-        {/* 9  */}
-        <PageWrapper pageNumber="9">
+        <PageWrapper pageNumber="11">
           <CompetitiveLandscape />
         </PageWrapper>
-        {/* 10 */}
-        <PageWrapper pageNumber="10">
+        <PageWrapper pageNumber="12">
           <CompetitiveLandscapeTier2 />
         </PageWrapper>
-        {/* 11 */}
-        <PageWrapper pageNumber="11">
+
+        {/* Section 07: Strategic Objectives */}
+        <PageWrapper pageNumber="13">
           <StrategicObjectives />
         </PageWrapper>
-        {/* 12 */}
-        <PageWrapper pageNumber="12">
+
+        {/* Section 08: Implementation Plan (2 pages) */}
+        <PageWrapper pageNumber="14">
           <ImplementationPlan />
         </PageWrapper>
-        {/* 13 */}
-        <PageWrapper pageNumber="13">
+        <PageWrapper pageNumber="15">
           <ImplementationPlanContinued />
         </PageWrapper>
-        {/* 14 */}
-        <PageWrapper pageNumber="14">
+
+        {/* Section 09: International Referral Architecture */}
+        <PageWrapper pageNumber="16">
           <InternationalReferral />
         </PageWrapper>
-        {/* 15 */}
-        <PageWrapper pageNumber="15">
+
+        {/* Section 10: Team Development (2 pages) */}
+        <PageWrapper pageNumber="17">
           <TeamDevelopment />
         </PageWrapper>
-        {/* 16 */}
-        <PageWrapper pageNumber="16">
+        <PageWrapper pageNumber="18">
           <TeamDevelopmentContinued />
         </PageWrapper>
-        {/* 17 */}
-        <PageWrapper pageNumber="17">
+
+        {/* Section 11: Financial Requirements (3 pages) */}
+        <PageWrapper pageNumber="19">
           <FinancialRequirements />
         </PageWrapper>
-        {/* 18 */}
-        <PageWrapper pageNumber="18">
+        <PageWrapper pageNumber="20">
           <FinancialRequirementsContinued />
         </PageWrapper>
-        {/* 19 */}
-        <PageWrapper pageNumber="19">
+        <PageWrapper pageNumber="21">
           <FinancialROI />
         </PageWrapper>
-        {/* 20 */}
-        <PageWrapper pageNumber="20">
+
+        {/* Section 12: Revenue Model (2 pages) */}
+        <PageWrapper pageNumber="22">
           <RevenueModel />
         </PageWrapper>
-        {/* 21 */}
-        <PageWrapper pageNumber="21">
+        <PageWrapper pageNumber="23">
           <RevenueModelContinued />
         </PageWrapper>
-        {/* 22 */}
-        <PageWrapper pageNumber="22">
+
+        {/* Section 13: Profitability */}
+        <PageWrapper pageNumber="24">
           <Profitability />
         </PageWrapper>
-        {/* 23 */}
-        <PageWrapper pageNumber="23">
+
+        {/* Section 14: Success Factors & Risk Register (2 pages) */}
+        <PageWrapper pageNumber="25">
           <SuccessFactors />
         </PageWrapper>
-        {/* 24 */}
-        <PageWrapper pageNumber="24">
+        <PageWrapper pageNumber="26">
           <RiskRegister />
         </PageWrapper>
-        {/* 25 */}
-        <PageWrapper pageNumber="25">
+
+        {/* Section 15: Phased Implementation (3 pages) */}
+        <PageWrapper pageNumber="27">
           <PhasedTimeline />
         </PageWrapper>
-        <PageWrapper pageNumber="26">
+        <PageWrapper pageNumber="28">
           <PhasedTimelinePart2 />
         </PageWrapper>
-        <PageWrapper pageNumber="27">
+        <PageWrapper pageNumber="29">
           <PhasedTimelinePart3 />
         </PageWrapper>
-        {/* 26 */}
-        <PageWrapper pageNumber="28">
+
+        {/* Section 16: Conclusion (2 pages) */}
+        <PageWrapper pageNumber="30">
           <Conclusion />
         </PageWrapper>
-        <PageWrapper pageNumber="29">
+        <PageWrapper pageNumber="31">
           <ConclusionPart2 />
         </PageWrapper>
-        <PageWrapper pageNumber="30" isBackCover={true}>
+
+        {/* Back Cover */}
+        <PageWrapper pageNumber="32" isBackCover={true}>
           <BackCover />
         </PageWrapper>
       </div>
