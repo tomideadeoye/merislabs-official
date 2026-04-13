@@ -43,7 +43,10 @@ export const FinancialRequirements = () => (
                 <p className="text-xs text-[#211B1B]/40 uppercase tracking-widest mt-1">24-Month Investment Framework · ₦139M – ₦211M</p>
             </div>
         </div>
-        <div className="relative z-10 flex flex-col gap-4">
+        <div className="relative z-10 flex flex-col gap-3">
+            <p className="text-xs text-[#211B1B]/70 text-justify leading-relaxed">
+                Project Fortify requires targeted and disciplined investment to be executed effectively — not capital expenditure in the traditional sense, but investment in market visibility, specialist positioning, relationship development, capability-building and operational support.
+            </p>
             <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
                 <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
                     <div className="col-span-1 px-3 py-2">#</div>
@@ -68,18 +71,39 @@ export const FinancialRequirements = () => (
                     <div className="col-span-5 px-3 py-3 text-white/30 text-[9px] flex items-center">~4–6x ROI at Year 2 target revenue of ₦800M+</div>
                 </div>
             </div>
+        </div>
+    </div>
+);
 
+export const FinancialROI = () => (
+    <div className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+        <BG />
+        <div className="flex items-center gap-3 mb-5 relative z-10">
+            <div className="w-1 h-10 bg-[#E80000]"></div>
+            <div>
+                <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 9 – Continued</p>
+                <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Investment Logic &amp; Return on Investment</h2>
+            </div>
+        </div>
+        <div className="relative z-10 flex flex-col gap-5">
             <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
                 <div className="grid grid-cols-2 bg-[#211B1B]/5 text-[#211B1B]/40 text-[8px] font-black uppercase tracking-widest border-b border-[#211B1B]/8">
-                    <div className="px-4 py-2">Investment Logic & ROI</div>
-                    <div className="px-4 py-2 text-right">Figure</div>
+                    <div className="px-4 py-2.5">Item</div>
+                    <div className="px-4 py-2.5 text-right">Figure</div>
                 </div>
                 {roiRows.map(({ item, figure }, i) => (
-                    <div key={i} className={`grid grid-cols-2 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
-                        <div className="px-4 py-2 text-[#211B1B]/65">{item}</div>
-                        <div className="px-4 py-2 text-right font-black text-[#211B1B]">{figure}</div>
+                    <div key={i} className={`grid grid-cols-2 border-t border-[#211B1B]/8 text-xs ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                        <div className="px-4 py-3 text-[#211B1B]/65">{item}</div>
+                        <div className="px-4 py-3 text-right font-black text-[#211B1B]">{figure}</div>
                     </div>
                 ))}
+            </div>
+
+            <div className="bg-[#E80000]/5 border border-[#E80000]/15 rounded-lg p-5">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#E80000] mb-2">Phasing Logic</p>
+                <p className="text-[#211B1B]/70 text-justify leading-relaxed text-xs">
+                    The investment must be phased and purposeful. Foundational items — capability materials, credentialing, thought leadership launch and early relationship development — should be prioritised in Phase 1 (Months 1–6). Broader market amplification, international engagement and expanded capability-building may be sequenced in line with pipeline traction and platform development through Phases 2 and 3.
+                </p>
             </div>
         </div>
     </div>

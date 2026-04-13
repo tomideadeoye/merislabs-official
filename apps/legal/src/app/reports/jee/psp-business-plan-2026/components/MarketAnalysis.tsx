@@ -86,31 +86,46 @@ export const CompetitiveLandscape = () => (
                     JEE benefits from structural advantages Project Fortify is designed to leverage: longstanding strength in Brand Protection and IP litigation creating cross-sell access; full-service sector teams providing multiple entry points for disputes work; a differentiated opportunity in fintech and payments-related disputes; and the IR3 UK initiative providing an institutional framework for converting international relationships into mandates.
                 </p>
             </div>
+        </div>
+    </div>
+);
 
+export const CompetitiveLandscapeTier2 = () => (
+    <div className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+        <BG />
+        <div className="flex items-center gap-3 mb-5 relative z-10">
+            <div className="w-1 h-10 bg-[#E80000]"></div>
             <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Tier 2 – Specialist & Mid-Tier Competitors by Platform</p>
-                <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
-                    <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
-                        <div className="col-span-3 px-4 py-2">Platform</div>
-                        <div className="col-span-4 px-4 py-2">Key Competitors</div>
-                        <div className="col-span-5 px-4 py-2">Competitive Dynamic</div>
-                    </div>
-                    {[
-                        { platform: 'Platform 1 — Debt Recovery, Insolvency & Enforcement', competitors: 'Pinheiro LP, Insolvency Forte, Stren & Bran, Temilolu Adamolekun & Co, Perchstone & Graeys, Resolution Law Firm, Kunle Ogunba & Associates, Alliance Law Firm, Tayo Oyetibo LP, Fred-Young & Evans', dynamic: 'Most crowded tier. JEE differentiates through productised recovery solutions, INSOL credentialing and full-lifecycle capability from insolvency through enforcement.' },
-                        { platform: 'Platform 2 — Commercial & Shareholder Disputes', competitors: 'Punuka Attorneys & Solicitors, ACAS-Law, Babalakin & Co, G. Elias & Co, Detail Solicitors', dynamic: 'Relationship-driven. JEE\'s full-service structure and existing corporate client base provide natural entry points.' },
-                        { platform: 'Platform 3 — Arbitration & Cross-Border Enforcement', competitors: 'Punuka Attorneys & Solicitors, ACAS-Law, DLA Piper Africa/Nigeria (Olajide Oyewole), Kola Awodein & Co, Detail Disputes, Chris Ogunbanjo & Co', dynamic: 'Brand and credibility sensitive. JEE builds its lane through ecosystem participation, international referral architecture, arbitral panel appointments and strong Nigerian enforcement capability.' },
-                    ].map(({ platform, competitors, dynamic }, i) => (
-                        <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
-                            <div className="col-span-3 px-4 py-3 font-black text-[#211B1B]">{platform}</div>
-                            <div className="col-span-4 px-4 py-3 text-[#211B1B]/55 leading-relaxed">{competitors}</div>
-                            <div className="col-span-5 px-4 py-3 text-[#211B1B]/65 leading-relaxed">{dynamic}</div>
-                        </div>
-                    ))}
-                </div>
+                <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 4 – Continued</p>
+                <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Competitive Landscape – Tier 2 Specialists</h2>
             </div>
-            <p className="text-[#211B1B]/70 text-justify leading-relaxed">
-                The target of USD 500,000 in annual attributable incremental revenue requires a measured increase in market capture rather than an unrealistic leap in competitive position. The proposal does not depend on market disruption — it depends on focused execution, stronger visibility, better internal capture, and more deliberate client and referral conversion within a market where JEE already has a credible foundation.
-            </p>
+        </div>
+        <div className="relative z-10 flex flex-col gap-4 text-xs">
+            <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
+                    <div className="col-span-3 px-4 py-2.5">Platform</div>
+                    <div className="col-span-4 px-4 py-2.5">Key Competitors</div>
+                    <div className="col-span-5 px-4 py-2.5">Competitive Dynamic</div>
+                </div>
+                {[
+                    { platform: 'Platform 1 — Debt Recovery, Insolvency & Enforcement', competitors: 'Pinheiro LP, Insolvency Forte, Stren & Bran, Temilolu Adamolekun & Co, Perchstone & Graeys, Resolution Law Firm, Kunle Ogunba & Associates, Alliance Law Firm, Tayo Oyetibo LP, Fred-Young & Evans', dynamic: 'Most crowded tier. JEE differentiates through productised recovery solutions, INSOL credentialing and full-lifecycle capability from insolvency through enforcement.' },
+                    { platform: 'Platform 2 — Commercial & Shareholder Disputes', competitors: 'Punuka Attorneys & Solicitors, ACAS-Law, Babalakin & Co, G. Elias & Co, Detail Solicitors', dynamic: 'Relationship-driven. JEE\'s full-service structure and existing corporate client base provide natural entry points.' },
+                    { platform: 'Platform 3 — Arbitration & Cross-Border Enforcement', competitors: 'Punuka Attorneys & Solicitors, ACAS-Law, DLA Piper Africa/Nigeria (Olajide Oyewole), Kola Awodein & Co, Detail Disputes, Chris Ogunbanjo & Co', dynamic: 'Brand and credibility sensitive. JEE builds its lane through ecosystem participation, international referral architecture, arbitral panel appointments and strong Nigerian enforcement capability.' },
+                ].map(({ platform, competitors, dynamic }, i) => (
+                    <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                        <div className="col-span-3 px-4 py-4 font-black text-[#211B1B]">{platform}</div>
+                        <div className="col-span-4 px-4 py-4 text-[#211B1B]/55 leading-relaxed">{competitors}</div>
+                        <div className="col-span-5 px-4 py-4 text-[#211B1B]/65 leading-relaxed">{dynamic}</div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="bg-[#211B1B]/5 border border-[#211B1B]/10 rounded-lg p-5">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">Addressable Market Opportunity</p>
+                <p className="text-[#211B1B]/70 text-justify leading-relaxed">
+                    The target of USD 500,000 in annual attributable incremental revenue requires a measured increase in market capture rather than an unrealistic leap in competitive position. The proposal does not depend on market disruption — it depends on focused execution, stronger visibility, better internal capture, and more deliberate client and referral conversion within a market where JEE already has a credible foundation.
+                </p>
+            </div>
         </div>
     </div>
 );

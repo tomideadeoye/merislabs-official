@@ -8,12 +8,12 @@ import { TableOfContents } from './components/TableOfContents';
 import { ExecutiveSummary } from './components/ExecutiveSummary';
 import { PersonalCase, PersonalCaseContinued } from './components/PersonalCase';
 import { Platform1, Platform2 } from './components/ProposedBusiness';
-import { MarketAnalysis, CompetitiveLandscape } from './components/MarketAnalysis';
+import { MarketAnalysis, CompetitiveLandscape, CompetitiveLandscapeTier2 } from './components/MarketAnalysis';
 import { StrategicObjectives } from './components/StrategicObjectives';
 import { ImplementationPlan, ImplementationPlanContinued } from './components/ImplementationPlan';
 import { InternationalReferral } from './components/InternationalReferral';
-import { TeamDevelopment } from './components/TeamDevelopment';
-import { FinancialRequirements } from './components/FinancialRequirements';
+import { TeamDevelopment, TeamDevelopmentContinued } from './components/TeamDevelopment';
+import { FinancialRequirements, FinancialROI } from './components/FinancialRequirements';
 import { RevenueModel } from './components/RevenueModel';
 import { Profitability } from './components/Profitability';
 import { SuccessFactors, RiskRegister } from './components/SuccessFactors';
@@ -76,28 +76,31 @@ export default function PspBusinessPlanPage() {
             <DownloadControls />
 
             <div className="print-container flex flex-col items-center py-12 px-4 gap-12 print:p-0 print:gap-0 bg-slate-50 min-h-screen">
-                {/* 1 */}<PageWrapper pageNumber="1" isCover={true}><CoverPage /></PageWrapper>
-                {/* 2 */}<PageWrapper pageNumber="2"><TableOfContents /></PageWrapper>
-                {/* 3 */}<PageWrapper pageNumber="3"><ExecutiveSummary /></PageWrapper>
-                {/* 4 */}<PageWrapper pageNumber="4"><PersonalCase /></PageWrapper>
-                {/* 5 */}<PageWrapper pageNumber="5"><PersonalCaseContinued /></PageWrapper>
-                {/* 6 */}<PageWrapper pageNumber="6"><Platform1 /></PageWrapper>
-                {/* 7 */}<PageWrapper pageNumber="7"><Platform2 /></PageWrapper>
-                {/* 8 */}<PageWrapper pageNumber="8"><MarketAnalysis /></PageWrapper>
-                {/* 9 */}<PageWrapper pageNumber="9"><CompetitiveLandscape /></PageWrapper>
-                {/* 10 */}<PageWrapper pageNumber="10"><StrategicObjectives /></PageWrapper>
-                {/* 11 */}<PageWrapper pageNumber="11"><ImplementationPlan /></PageWrapper>
-                {/* 12 */}<PageWrapper pageNumber="12"><ImplementationPlanContinued /></PageWrapper>
-                {/* 13 */}<PageWrapper pageNumber="13"><InternationalReferral /></PageWrapper>
-                {/* 14 */}<PageWrapper pageNumber="14"><TeamDevelopment /></PageWrapper>
-                {/* 15 */}<PageWrapper pageNumber="15"><FinancialRequirements /></PageWrapper>
-                {/* 16 */}<PageWrapper pageNumber="16"><RevenueModel /></PageWrapper>
-                {/* 17 */}<PageWrapper pageNumber="17"><Profitability /></PageWrapper>
-                {/* 18 */}<PageWrapper pageNumber="18"><SuccessFactors /></PageWrapper>
-                {/* 19 */}<PageWrapper pageNumber="19"><RiskRegister /></PageWrapper>
-                {/* 20 */}<PageWrapper pageNumber="20"><PhasedTimeline /></PageWrapper>
-                {/* 21 */}<PageWrapper pageNumber="21"><Conclusion /></PageWrapper>
-                {/* 22 */}<PageWrapper pageNumber="22" isBackCover={true}><BackCover /></PageWrapper>
+                {/* 1  */}<PageWrapper pageNumber="1" isCover={true}><CoverPage /></PageWrapper>
+                {/* 2  */}<PageWrapper pageNumber="2"><TableOfContents /></PageWrapper>
+                {/* 3  */}<PageWrapper pageNumber="3"><ExecutiveSummary /></PageWrapper>
+                {/* 4  */}<PageWrapper pageNumber="4"><PersonalCase /></PageWrapper>
+                {/* 5  */}<PageWrapper pageNumber="5"><PersonalCaseContinued /></PageWrapper>
+                {/* 6  */}<PageWrapper pageNumber="6"><Platform1 /></PageWrapper>
+                {/* 7  */}<PageWrapper pageNumber="7"><Platform2 /></PageWrapper>
+                {/* 8  */}<PageWrapper pageNumber="8"><MarketAnalysis /></PageWrapper>
+                {/* 9  */}<PageWrapper pageNumber="9"><CompetitiveLandscape /></PageWrapper>
+                {/* 10 */}<PageWrapper pageNumber="10"><CompetitiveLandscapeTier2 /></PageWrapper>
+                {/* 11 */}<PageWrapper pageNumber="11"><StrategicObjectives /></PageWrapper>
+                {/* 12 */}<PageWrapper pageNumber="12"><ImplementationPlan /></PageWrapper>
+                {/* 13 */}<PageWrapper pageNumber="13"><ImplementationPlanContinued /></PageWrapper>
+                {/* 14 */}<PageWrapper pageNumber="14"><InternationalReferral /></PageWrapper>
+                {/* 15 */}<PageWrapper pageNumber="15"><TeamDevelopment /></PageWrapper>
+                {/* 16 */}<PageWrapper pageNumber="16"><TeamDevelopmentContinued /></PageWrapper>
+                {/* 17 */}<PageWrapper pageNumber="17"><FinancialRequirements /></PageWrapper>
+                {/* 18 */}<PageWrapper pageNumber="18"><FinancialROI /></PageWrapper>
+                {/* 19 */}<PageWrapper pageNumber="19"><RevenueModel /></PageWrapper>
+                {/* 20 */}<PageWrapper pageNumber="20"><Profitability /></PageWrapper>
+                {/* 21 */}<PageWrapper pageNumber="21"><SuccessFactors /></PageWrapper>
+                {/* 22 */}<PageWrapper pageNumber="22"><RiskRegister /></PageWrapper>
+                {/* 23 */}<PageWrapper pageNumber="23"><PhasedTimeline /></PageWrapper>
+                {/* 24 */}<PageWrapper pageNumber="24"><Conclusion /></PageWrapper>
+                {/* 25 */}<PageWrapper pageNumber="25" isBackCover={true}><BackCover /></PageWrapper>
             </div>
         </div>
     );
