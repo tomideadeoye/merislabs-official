@@ -13,8 +13,8 @@ import { StrategicObjectives } from './components/StrategicObjectives';
 import { ImplementationPlan, ImplementationPlanContinued } from './components/ImplementationPlan';
 import { InternationalReferral } from './components/InternationalReferral';
 import { TeamDevelopment, TeamDevelopmentContinued } from './components/TeamDevelopment';
-import { FinancialRequirements, FinancialROI } from './components/FinancialRequirements';
-import { RevenueModel } from './components/RevenueModel';
+import { FinancialRequirements, FinancialRequirementsContinued, FinancialROI } from './components/FinancialRequirements';
+import { RevenueModel, RevenueModelContinued } from './components/RevenueModel';
 import { Profitability } from './components/Profitability';
 import { SuccessFactors, RiskRegister } from './components/SuccessFactors';
 import { PhasedTimeline } from './components/PhasedTimeline';
@@ -93,14 +93,16 @@ export default function PspBusinessPlanPage() {
                 {/* 15 */}<PageWrapper pageNumber="15"><TeamDevelopment /></PageWrapper>
                 {/* 16 */}<PageWrapper pageNumber="16"><TeamDevelopmentContinued /></PageWrapper>
                 {/* 17 */}<PageWrapper pageNumber="17"><FinancialRequirements /></PageWrapper>
-                {/* 18 */}<PageWrapper pageNumber="18"><FinancialROI /></PageWrapper>
-                {/* 19 */}<PageWrapper pageNumber="19"><RevenueModel /></PageWrapper>
-                {/* 20 */}<PageWrapper pageNumber="20"><Profitability /></PageWrapper>
-                {/* 21 */}<PageWrapper pageNumber="21"><SuccessFactors /></PageWrapper>
-                {/* 22 */}<PageWrapper pageNumber="22"><RiskRegister /></PageWrapper>
-                {/* 23 */}<PageWrapper pageNumber="23"><PhasedTimeline /></PageWrapper>
-                {/* 24 */}<PageWrapper pageNumber="24"><Conclusion /></PageWrapper>
-                {/* 25 */}<PageWrapper pageNumber="25" isBackCover={true}><BackCover /></PageWrapper>
+                {/* 18 */}<PageWrapper pageNumber="18"><FinancialRequirementsContinued /></PageWrapper>
+                {/* 19 */}<PageWrapper pageNumber="19"><FinancialROI /></PageWrapper>
+                {/* 20 */}<PageWrapper pageNumber="20"><RevenueModel /></PageWrapper>
+                {/* 21 */}<PageWrapper pageNumber="21"><RevenueModelContinued /></PageWrapper>
+                {/* 22 */}<PageWrapper pageNumber="22"><Profitability /></PageWrapper>
+                {/* 23 */}<PageWrapper pageNumber="23"><SuccessFactors /></PageWrapper>
+                {/* 24 */}<PageWrapper pageNumber="24"><RiskRegister /></PageWrapper>
+                {/* 25 */}<PageWrapper pageNumber="25"><PhasedTimeline /></PageWrapper>
+                {/* 26 */}<PageWrapper pageNumber="26"><Conclusion /></PageWrapper>
+                {/* 27 */}<PageWrapper pageNumber="27" isBackCover={true}><BackCover /></PageWrapper>
             </div>
         </div>
     );

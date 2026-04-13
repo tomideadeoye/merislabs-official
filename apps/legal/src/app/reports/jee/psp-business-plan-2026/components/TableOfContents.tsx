@@ -18,11 +18,11 @@ export const TableOfContents = () => {
         { label: '7. International Referral Architecture', page: 14 },
         { label: '8. Team Development & Practice Capacity Plan', page: 15 },
         { label: '9. Financial Requirements', page: 17 },
-        { label: '10. Bottom-Up Revenue Model & Financial Projections', page: 19 },
-        { label: '11. Profitability, Leverage & Fee Collection', page: 20 },
-        { label: '12. Success Factors, KPIs & Risk Register', page: 21 },
-        { label: '13. Phased Implementation Timeline', page: 23 },
-        { label: '14. Conclusion – Commitment to Partnership & Firm Growth', page: 24 },
+        { label: '10. Bottom-Up Revenue Model & Financial Projections', page: 20 },
+        { label: '11. Profitability, Leverage & Fee Collection', page: 22 },
+        { label: '12. Success Factors, KPIs & Risk Register', page: 23 },
+        { label: '13. Phased Implementation Timeline', page: 25 },
+        { label: '14. Conclusion – Commitment to Partnership & Firm Growth', page: 26 },
     ];
 
     return (

@@ -33,6 +33,7 @@ const roiRows = [
     { item: 'Payback period at Year 2 run rate', figure: '< 12 months' },
 ];
 
+// Page 1 — rows 1–8
 export const FinancialRequirements = () => (
     <div id="financial" className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
         <BG />
@@ -45,7 +46,7 @@ export const FinancialRequirements = () => (
         </div>
         <div className="relative z-10 flex flex-col gap-3">
             <p className="text-xs text-[#211B1B]/70 text-justify leading-relaxed">
-                Project Fortify requires targeted and disciplined investment to be executed effectively — not capital expenditure in the traditional sense, but investment in market visibility, specialist positioning, relationship development, capability-building and operational support.
+                Project Fortify requires targeted and disciplined investment — not capital expenditure in the traditional sense, but investment in market visibility, specialist positioning, relationship development, capability-building and operational support.
             </p>
             <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
                 <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
@@ -54,7 +55,42 @@ export const FinancialRequirements = () => (
                     <div className="col-span-2 px-3 py-2 text-right">Budget (₦M)</div>
                     <div className="col-span-5 px-3 py-2">Budget Owner</div>
                 </div>
-                {items.map(({ n, item, detail, budget, owner }, i) => (
+                {items.slice(0, 8).map(({ n, item, detail, budget, owner }, i) => (
+                    <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
+                        <div className="col-span-1 px-3 py-2 font-black text-[#E80000]">{n}</div>
+                        <div className="col-span-4 px-3 py-2">
+                            <p className="font-bold text-[#211B1B]">{item}</p>
+                            <p className="text-[#211B1B]/35 text-[8px] mt-0.5">{detail}</p>
+                        </div>
+                        <div className="col-span-2 px-3 py-2 text-right font-black text-[#E80000] flex items-center justify-end">{budget}</div>
+                        <div className="col-span-5 px-3 py-2 text-[#211B1B]/50 flex items-center">{owner}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
+// Page 2 — rows 9–14 + total
+export const FinancialRequirementsContinued = () => (
+    <div className="max-w-[210mm] w-full mx-auto bg-transparent px-16 pt-12 pb-20 relative text-[#211B1B] overflow-hidden flex-grow flex flex-col font-sans">
+        <BG />
+        <div className="flex items-center gap-3 mb-5 relative z-10">
+            <div className="w-1 h-10 bg-[#E80000]"></div>
+            <div>
+                <p className="text-[9px] text-[#211B1B]/40 uppercase tracking-widest mb-0.5">Section 9 – Continued</p>
+                <h2 className="text-xl font-serif font-black text-[#211B1B] uppercase">Financial Requirements</h2>
+            </div>
+        </div>
+        <div className="relative z-10 flex flex-col gap-4">
+            <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
+                    <div className="col-span-1 px-3 py-2">#</div>
+                    <div className="col-span-4 px-3 py-2">Investment Line</div>
+                    <div className="col-span-2 px-3 py-2 text-right">Budget (₦M)</div>
+                    <div className="col-span-5 px-3 py-2">Budget Owner</div>
+                </div>
+                {items.slice(8).map(({ n, item, detail, budget, owner }, i) => (
                     <div key={i} className={`grid grid-cols-12 border-t border-[#211B1B]/8 text-[9px] ${i % 2 === 0 ? 'bg-[#211B1B]/2' : ''}`}>
                         <div className="col-span-1 px-3 py-2 font-black text-[#E80000]">{n}</div>
                         <div className="col-span-4 px-3 py-2">
