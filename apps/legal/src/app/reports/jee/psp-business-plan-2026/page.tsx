@@ -21,7 +21,7 @@ import {
 import { RevenueModel, RevenueModelContinued } from './components/RevenueModel';
 import { Profitability } from './components/Profitability';
 import { SuccessFactors, RiskRegister } from './components/SuccessFactors';
-import { PhasedTimeline } from './components/PhasedTimeline';
+import { PhasedTimeline, PhasedTimelinePart2, PhasedTimelinePart3 } from './components/PhasedTimeline';
 import { Conclusion, ConclusionPart2 } from './components/Conclusion';
 import { BackCover } from './components/BackCover';
 
@@ -192,14 +192,20 @@ export default function PspBusinessPlanPage() {
         <PageWrapper pageNumber="25">
           <PhasedTimeline />
         </PageWrapper>
-        {/* 26 */}
         <PageWrapper pageNumber="26">
-          <Conclusion />
+          <PhasedTimelinePart2 />
         </PageWrapper>
         <PageWrapper pageNumber="27">
+          <PhasedTimelinePart3 />
+        </PageWrapper>
+        {/* 26 */}
+        <PageWrapper pageNumber="28">
+          <Conclusion />
+        </PageWrapper>
+        <PageWrapper pageNumber="29">
           <ConclusionPart2 />
         </PageWrapper>
-        <PageWrapper pageNumber="28" isBackCover={true}>
+        <PageWrapper pageNumber="30" isBackCover={true}>
           <BackCover />
         </PageWrapper>
       </div>

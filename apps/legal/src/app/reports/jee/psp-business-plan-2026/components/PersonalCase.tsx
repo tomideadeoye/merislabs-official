@@ -45,7 +45,6 @@ export const PersonalCase = () => (
           UK-facing visibility, referrals and cross-border opportunity development.
         </p>
       </div>
-
       <div>
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-2">
           Commercial Impact &amp; Revenue Contributions
@@ -58,10 +57,6 @@ export const PersonalCase = () => (
           prior to joining JEE, as well as securing over ₦5 billion in recoveries for Tier 1 financial institutions.
           These experiences have provided a strong practical foundation for the development of creditor-side mandates,
           enforcement work and complex commercial disputes within the Firm.
-        </p>
-        <p className="text-[#211B1B]/70 text-justify mt-2">
-          Since joining JEE, I have contributed directly to the practice's commercial performance in a number of
-          significant ways, summarised in the table below:
         </p>
       </div>
     </div>
@@ -82,6 +77,10 @@ export const PersonalCaseTable = () => (
       </div>
     </div>
     <div className="relative z-10 flex flex-col gap-4 text-xs leading-relaxed">
+      <p className="text-[#211B1B]/70 text-justify mb-4">
+        Since joining JEE, I have contributed directly to the practice's commercial performance in a number of
+        significant ways, summarised in the table below:
+      </p>
       <div className="border border-[#211B1B]/10 rounded-lg overflow-hidden">
         <div className="grid grid-cols-12 bg-[#211B1B] text-white text-[8px] font-black uppercase tracking-widest">
           <div className="col-span-3 px-3 py-2">Matter / Client</div>
@@ -197,7 +196,6 @@ export const PersonalCaseContinued = () => (
           disputes and arbitration work.
         </p>
       </div>
-
       <div>
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#211B1B]/40 mb-3">
           Institutional Contribution &amp; Team Development
@@ -220,7 +218,6 @@ export const PersonalCaseContinued = () => (
           opportunities and strengthening the CLDR practice as a more structured and commercially aligned platform.
         </p>
       </div>
-
       <div className="bg-[#211B1B]/5 border-l-4 border-[#E80000] p-5 rounded-r-xl">
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#E80000] mb-2">Summary Statement</p>
         <p className="text-[#211B1B]/75 text-justify leading-relaxed">
