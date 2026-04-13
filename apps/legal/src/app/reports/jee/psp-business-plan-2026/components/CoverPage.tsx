@@ -17,7 +17,8 @@ const BackgroundOrbs = () => (
 );
 
 export const CoverPage = () => (
-    <div className="max-w-[210mm] w-full mx-auto bg-[#F9F7ED] overflow-hidden h-full relative flex flex-col shrink-0 font-sans">
+    <div className="max-w-[210mm] w-full mx-auto bg-[#F9F7ED] overflow-hidden relative flex flex-col shrink-0 font-sans"
+        style={{ width: '210mm', height: '297mm' }}>
         <div className="absolute bottom-0 right-0 z-5 pointer-events-none">
             <div className="relative w-48 h-48">
                 <div className="absolute bottom-0 right-0 w-32 h-1 bg-gradient-to-l from-[#211B1B] to-[#E80000]"></div>
@@ -26,27 +27,27 @@ export const CoverPage = () => (
             </div>
         </div>
 
-        {/* Header */}
-        <div className="h-[14%] w-full flex items-center justify-between px-16 py-4 border-b border-[#211B1B]/10 relative z-20">
+        {/* Header — fixed height */}
+        <div className="w-full flex items-center justify-between px-16 py-4 border-b border-[#211B1B]/10 relative z-20 shrink-0" style={{ height: '14%' }}>
             <div className="text-[#211B1B]/30 text-[10px] font-black uppercase tracking-[0.4em]">Partnership Selection Programme</div>
             <img src="/clients/jackson etti and edu logo (1).png" alt="Jackson Etti & Edu" className="h-9 w-auto object-contain" />
         </div>
 
-        {/* Main */}
-        <div className="flex-1 flex flex-col justify-center items-center p-16 relative overflow-hidden">
+        {/* Main — fills remaining space between header and footer */}
+        <div className="flex flex-col justify-center items-center px-16 relative overflow-hidden" style={{ height: '70%' }}>
             <BackgroundOrbs />
-            <div className="relative z-10 text-center max-w-4xl space-y-8 flex flex-col items-center">
+            <div className="relative z-10 text-center max-w-4xl space-y-6 flex flex-col items-center w-full">
                 <div className="px-6 py-2 bg-[#E80000]/5 border border-[#E80000]/10 rounded-full">
-                    <div className="text-[#211B1B] text-sm font-bold tracking-[0.3em] uppercase">Business Plan Submission · Partnership Selection Programme</div>
+                    <div className="text-[#211B1B] text-xs font-bold tracking-[0.3em] uppercase">Business Plan Submission · Partnership Selection Programme</div>
                 </div>
                 <h1 className="text-5xl font-serif font-black text-[#211B1B] text-center tracking-wide leading-tight">Project Fortify</h1>
-                <p className="text-lg font-serif font-bold text-[#211B1B]/70 text-center tracking-widest uppercase">Commercial Disputes Practice Growth Plan</p>
+                <p className="text-base font-serif font-bold text-[#211B1B]/70 text-center tracking-widest uppercase">Commercial Disputes Practice Growth Plan</p>
                 <div className="w-32 h-px bg-gradient-to-r from-transparent via-[#E80000] to-transparent mx-auto" />
                 <div className="text-center">
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[#211B1B]/30 mb-1">Submitted to</p>
                     <p className="text-sm font-bold text-[#211B1B]/60 uppercase tracking-widest">The Partnership Selection Committee</p>
                 </div>
-                <div className="grid grid-cols-2 gap-5 w-full max-w-lg mt-4">
+                <div className="grid grid-cols-2 gap-4 w-full max-w-lg mt-2">
                     {[
                         { label: 'Candidate', value: 'Taiwo Ogbara' },
                         { label: 'Position', value: 'Senior Associate' },
@@ -64,8 +65,9 @@ export const CoverPage = () => (
             </div>
         </div>
 
-        {/* Footer */}
-        <div className="h-[16%] bg-[#211B1B] w-full flex items-center justify-between px-16 py-6 text-white relative overflow-hidden border-t-2 border-[#E80000]">
+        {/* Footer — fixed height */}
+        <div className="w-full flex items-center justify-between px-16 py-6 text-white relative overflow-hidden border-t-2 border-[#E80000] shrink-0"
+            style={{ height: '16%', backgroundColor: '#211B1B' }}>
             <div className="absolute inset-0 opacity-[0.03]">
                 <div className="absolute top-[-50%] right-[-10%] w-[40%] aspect-square border border-white rounded-full" />
             </div>
