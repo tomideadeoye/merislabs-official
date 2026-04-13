@@ -112,11 +112,11 @@ export const ConclusionPart2 = () => (
 
       <div className="bg-[#211B1B]/5 border-l-4 border-[#E80000] p-5 rounded-r-xl">
         <p className="text-[#211B1B]/80 text-justify leading-relaxed">
-          I am presenting this proposal not as an abstract growth ambition, but as a practical and commercially grounded
-          plan for how I intend to contribute to the Firm's future. Through deliberate positioning, disciplined
-          execution and sustained institutional commitment, I believe Project Fortify can help establish the CLDR
-          practice as a more competitive, self-sustaining and strategically valuable platform within Jackson, Etti &amp;
-          Edu.
+          I am therefore presenting this proposal not as an abstract growth ambition, but as a practical and
+          commercially grounded plan for how I intend to contribute to the Firm's future. Through deliberate
+          positioning, disciplined execution and sustained institutional commitment, I believe Project Fortify can help
+          establish the CLDR practice as a more competitive, self-sustaining and strategically valuable platform within
+          Jackson, Etti &amp; Edu.
         </p>
       </div>
 
