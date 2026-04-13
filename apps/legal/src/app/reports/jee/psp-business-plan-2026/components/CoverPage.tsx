@@ -37,14 +37,15 @@ export const CoverPage = () => (
             <BackgroundOrbs />
             <div className="relative z-10 text-center max-w-4xl space-y-8 flex flex-col items-center">
                 <div className="px-6 py-2 bg-[#E80000]/5 border border-[#E80000]/10 rounded-full">
-                    <div className="text-[#211B1B] text-sm font-bold tracking-[0.3em] uppercase">Business Plan Submission</div>
+                    <div className="text-[#211B1B] text-sm font-bold tracking-[0.3em] uppercase">Business Plan Submission · Partnership Selection Programme</div>
                 </div>
                 <h1 className="text-5xl font-serif font-black text-[#211B1B] text-center tracking-wide leading-tight">Project Fortify</h1>
-                <p className="text-xl font-serif text-[#211B1B]/60 text-center tracking-wide">CLDR Practice Growth Plan · 2026–2028</p>
+                <p className="text-lg font-serif font-bold text-[#211B1B]/70 text-center tracking-widest uppercase">Commercial Disputes Practice Growth Plan</p>
                 <div className="w-32 h-px bg-gradient-to-r from-transparent via-[#E80000] to-transparent mx-auto" />
-                <p className="text-[#211B1B]/60 text-sm italic max-w-xl text-center leading-relaxed">
-                    A structured commercial framework for building JEE&apos;s Commercial Litigation &amp; Dispute Resolution practice into a proactive, client-originating and revenue-generating platform.
-                </p>
+                <div className="text-center">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[#211B1B]/30 mb-1">Submitted to</p>
+                    <p className="text-sm font-bold text-[#211B1B]/60 uppercase tracking-widest">The Partnership Selection Committee</p>
+                </div>
                 <div className="grid grid-cols-2 gap-5 w-full max-w-lg mt-4">
                     {[
                         { label: 'Candidate', value: 'Taiwo Ogbara' },
