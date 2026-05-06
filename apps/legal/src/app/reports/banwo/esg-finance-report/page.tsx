@@ -39,13 +39,14 @@ const ReportPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-12 print:p-0 print:bg-white overflow-x-hidden relative">
       {/* Download Action Button */}
-      <button 
-        onClick={() => window.print()}
+      <a 
+        href="/reports/banwo/esg-finance-report.pdf"
+        download="B&I_ESG_Finance_Gap_Analysis_SME_Report_2026_v1.0.pdf"
         className="fixed top-8 right-8 z-[100] flex items-center gap-2 px-6 py-3 bg-[#05386f] text-white text-xs font-bold rounded-full hover:bg-[#D4AF37] transition-all shadow-xl uppercase tracking-widest print:hidden"
       >
         <DownloadIcon className="w-4 h-4" />
         Download PDF
-      </button>
+      </a>
 
       <div className="max-w-[210mm] mx-auto space-y-8 print:space-y-0">
         {pages.map((page, index) => {
