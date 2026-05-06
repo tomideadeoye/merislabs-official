@@ -7,17 +7,17 @@ import {
   TableOfContents, 
   IntroductionSection, 
   MarketContextSection,
-  DemandSideSection,
+  DemandSideInternalSection,
+  DemandSideExternalSection,
   SupplySideSection,
   SupplySideInfoGapSection,
   SupplySideContSection,
   TheWayForwardSection,
   ConclusionSection,
-  FootnotesPage1,
-  FootnotesPage2,
-  FootnotesPage3,
+  FootnotesPage,
   BackCover 
 } from './components/ContentPages';
+import { Download as DownloadIcon } from 'lucide-react';
 
 const ReportPage = () => {
   const pages = [
@@ -25,20 +25,28 @@ const ReportPage = () => {
     <TableOfContents key="toc" />,
     <IntroductionSection key="intro" />,
     <MarketContextSection key="market" />,
-    <DemandSideSection key="demand" />,
+    <DemandSideInternalSection key="demand-int" />,
+    <DemandSideExternalSection key="demand-ext" />,
     <SupplySideSection key="supply" />,
     <SupplySideInfoGapSection key="supply-info" />,
     <SupplySideContSection key="supply-cont" />,
     <TheWayForwardSection key="way" />,
     <ConclusionSection key="conc" />,
-    <FootnotesPage1 key="fn1" />,
-    <FootnotesPage2 key="fn2" />,
-    <FootnotesPage3 key="fn3" />,
+    <FootnotesPage key="fn" />,
     <BackCover key="back" />
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 print:p-0 print:bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-gray-100 py-12 print:p-0 print:bg-white overflow-x-hidden relative">
+      {/* Download Action Button */}
+      <button 
+        onClick={() => window.print()}
+        className="fixed top-8 right-8 z-[100] flex items-center gap-2 px-6 py-3 bg-[#05386f] text-white text-xs font-bold rounded-full hover:bg-[#D4AF37] transition-all shadow-xl uppercase tracking-widest print:hidden"
+      >
+        <DownloadIcon className="w-4 h-4" />
+        Download PDF
+      </button>
+
       <div className="max-w-[210mm] mx-auto space-y-8 print:space-y-0">
         {pages.map((page, index) => {
           const isCover = index === 0;
