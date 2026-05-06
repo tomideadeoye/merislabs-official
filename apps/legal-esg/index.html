@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridging the ESG Finance Gap | Nigerian SMEs Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #08090d;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-gold: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --font-header: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* --- Header/Nav --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(8, 9, 13, 0.8);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-header);
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify(content): center;
+            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(34, 197, 94, 0.05) 0%, transparent 70%);
+        }
+
+        .hero-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.5;
+            filter: grayscale(10%) brightness(0.6);
+            z-index: -1;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-family: var(--font-header);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            line-height: 1.1;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--accent-green), #16a34a);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
+        }
+
+        /* --- Definition Section --- */
+        .section {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-family: var(--font-header);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .esg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-10px);
+        }
+
+        .card h3 {
+            font-family: var(--font-header);
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card.env h3 { color: var(--accent-green); }
+        .card.soc h3 { color: var(--accent-blue); }
+        .card.gov h3 { color: var(--accent-gold); }
+
+        .card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        /* --- Stats Section --- */
+        .stats-bg {
+            background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.05), transparent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            text-align: center;
+        }
+
+        .stat-item h4 {
+            font-family: var(--font-header);
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item .label {
+            color: var(--accent-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .stat-item p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* --- Barriers Section --- */
+        .barriers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 900px) {
+            .barriers-grid { grid-template-columns: 1fr; }
+        }
+
+        .barrier-group h3 {
+            font-family: var(--font-header);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-green);
+            display: inline-block;
+        }
+
+        .barrier-list {
+            list-style: none;
+        }
+
+        .barrier-item {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .barrier-item h5 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 5rem 0;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: var(--font-header);
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <div class="logo">ORION | MERIS</div>
+            <div class="nav-links">
+                <a href="#about">The Focus</a>
+                <a href="#stats">The Data</a>
+                <a href="#barriers">The Barriers</a>
+                <a href="#wayforward">Impact</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <img src="assets/hero.png" alt="ESG Nigeria" class="hero-img">
+        <div class="container hero-content">
+            <div class="hero-tag">Special Report 2026</div>
+            <h1>Bridging the <br><span style="color: var(--accent-green)">ESG Finance</span> Gap</h1>
+            <p>A comprehensive analysis of demand and supply-side constraints facing Nigerian Small and Medium-sized Enterprises (SMEs) in the pursuit of sustainable capital.</p>
+            <a href="#about" class="btn-primary">Explore Findings</a>
+        </div>
+    </header>
+
+    <section id="about" class="section">
+        <div class="container">
+            <div class="section-title reveal">
+                <h2>The ESG Ecosystem</h2>
+                <p>Environment, Social, and Governance criteria have evolved into a crucial method for assessing long-term value creation.</p>
+            </div>
+            <div class="esg-grid">
+                <div class="card env reveal">
+                    <h3><span>🌿</span> Environmental</h3>
+                    <p>Performance as a steward of the natural world. Climate strategy, carbon management, resource efficiency, and biodiversity protection.</p>
+                </div>
+                <div class="card soc reveal">
+                    <h3><span>🤝</span> Social</h3>
+                    <p>Stakeholder relationship management. Labour standards, health & safety, diversity, human rights, and community engagement.</p>
+                </div>
+                <div class="card gov reveal">
+                    <h3><span>⚖️</span> Governance</h3>
+                    <p>Leadership and operational structure. Board independence, audit transparency, shareholder rights, and anti-corruption policies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="stats" class="section stats-bg">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item reveal">
+                    <h4>90<span>%</span></h4>
+                    <div class="label">Economic Core</div>
+                    <p>SMEs represent approximately 90% of businesses worldwide.</p>
+                </div>
+                <div class="stat-item reveal">
+                    <h4>96<span>%</span></h4>
+                    <div class="label">Nigerian Presence</div>
+                    <p>Nigerian SMEs account for nearly all businesses in the country.</p>
+                </div>
+                <div class="stat-item reveal">
+                    <h4>48<span>%</span></h4>
+                    <div class="label">GDP Contribution</div>
+                    <p>Despite representing 96% of businesses, they contribute under half of national GDP.</p>
+                </div>
+                <div class="stat-item reveal">
+                    <h4>69<span>%</span></h4>
+                    <div class="label">Funding Gap</div>
+                    <p>SMEs that report zero receipt of government grants or formal credit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="barriers" class="section">
+        <div class="container">
+            <div class="section-title reveal">
+                <h2>Structural Barriers</h2>
+                <p>The gap is caused by a lopsided relationship between demand-side readiness and supply-side requirements.</p>
+            </div>
+            
+            <div class="barriers-grid">
+                <div class="barrier-group reveal">
+                    <h3>Demand Side</h3>
+                    <ul class="barrier-list">
+                        <li class="barrier-item">
+                            <h5>Limited Awareness</h5>
+                            <p>Knowledge gap regarding ESG metrics and climate risk disclosures.</p>
+                        </li>
+                        <li class="barrier-item">
+                            <h5>Poor Reporting Capacity</h5>
+                            <p>Only 9% of SMEs operate formal sustainability reporting programs.</p>
+                        </li>
+                        <li class="barrier-item">
+                            <h5>Survival Focus</h5>
+                            <p>Short-term cash flow needs supersede long-term green planning.</p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="barrier-group reveal">
+                    <h3>Supply Side</h3>
+                    <ul class="barrier-list">
+                        <li class="barrier-item" style="border-left-color: var(--accent-gold);">
+                            <h5>The Information Gap</h5>
+                            <p>Traditional credit metrics are insufficient for modern ESG due diligence.</p>
+                        </li>
+                        <li class="barrier-item" style="border-left-color: var(--accent-gold);">
+                            <h5>Risk Perception</h5>
+                            <p>Lack of data heightens perceived exposure to environmental and social shocks.</p>
+                        </li>
+                        <li class="barrier-item" style="border-left-color: var(--accent-gold);">
+                            <h5>Regulatory Disparity</h5>
+                            <p>Lopsided compliance burdens between financiers and borrowers.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="wayforward" class="section" style="background: rgba(34, 197, 94, 0.02)">
+        <div class="container">
+            <div class="section-title reveal">
+                <h2>The Way Forward</h2>
+                <p>Transitioning to a greener and more inclusive Nigerian economy by 2060.</p>
+            </div>
+            <div style="max-width: 800px; margin: 0 auto; line-height: 1.8;">
+                <p class="reveal">The disconnect between financier expectations and SME realities requires coordinated legislative action. Mandating disclosure standards aligned with international best practices is no longer optional—it is vital for SME survival in a global economy that prioritizes sustainability.</p>
+                <div class="reveal" style="margin-top: 2rem; padding: 2rem; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--accent-green);">
+                    <h4 style="color: var(--accent-green); margin-bottom: 1rem;">Key Action Points</h4>
+                    <ul style="list-style: square; padding-left: 1.5rem; color: var(--text-muted);">
+                        <li>Mandatory legislative action for enabling environments.</li>
+                        <li>Digital transformation for automated ESG reporting.</li>
+                        <li>Phased implementation of ISSB (IFRS S1 & S2) standards.</li>
+                        <li>Developing SME-specific ESG products.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">BRIDGING THE GAP</div>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Part One of a Three-Part Series on Sustainable Finance in Nigeria.</p>
+            <div class="footer-links">
+                <a href="#">Report PDF</a>
+                <a href="#">Legal Disclaimer</a>
+                <a href="#">Contact Meris Labs</a>
+            </div>
+            <p style="margin-top: 3rem; font-size: 0.75rem; color: var(--text-muted);">&copy; 2026 Orion | Meris Labs Official</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Reveal Animation
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
