@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 const REPORT_PASSWORDS: Record<string, string> = {
   'union-bank-report-1': process.env.UNION_BANK_PASSWORD || 'UB130226',
+  'project-fortify-2026': process.env.PROJECT_FORTIFY_PASSWORD || 'PF2026JEE',
 };
 
 export async function POST(request: Request) {

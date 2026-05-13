@@ -102,3 +102,16 @@
 [x-cloak=''] {
   display: none;
 }
+
+/* Print page breaks */
+@media print {
+  .break-before-print {
+    page-break-before: always;
+  }
+  .break-after-print {
+    page-break-after: always;
+  }
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+}

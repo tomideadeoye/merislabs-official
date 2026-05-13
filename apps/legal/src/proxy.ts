@@ -4,10 +4,11 @@ import type { NextRequest } from 'next/server';
 // Store report passwords - in production, these should come from environment variables or a database
 const REPORT_PASSWORDS: Record<string, string> = {
   'union-bank-report-1': process.env.UNION_BANK_PASSWORD || 'UB130226',
+  'project-fortify-2026': process.env.PROJECT_FORTIFY_PASSWORD || 'PF2026JEE',
   // Add future reports here
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Only protect /reports/* routes
