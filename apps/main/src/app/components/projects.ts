@@ -134,6 +134,18 @@ const projects: Project[] = [
     demoAvailable: true,
   },
   {
+    id: 'lawyard',
+    name: 'Lawyard',
+    description: 'A Nigerian legal media platform and marketplace featuring a legal directory with lawyer/chamber profiles, a media/publishing section (articles, podcasts, TV, Brand Press paid submissions), and an admin dashboard for content moderation and verification. Replaces a legacy WordPress system with a modern Next.js monorepo architecture — three independent apps deployed on Vercel: directory, publish, and admin.',
+    technologies: ['Next.js 16', 'TypeScript', 'Supabase', 'Tailwind CSS', 'Turborepo', 'Paystack', 'Resend', 'Vercel'],
+    iframe: 'https://lawyard-v2.vercel.app',
+    img: '/clients/lawyard-logo.png',
+    tag: 'LAWYARD: Legal Media Platform & Directory',
+    links: [
+      { type: 'website', url: 'https://lawyard-v2.vercel.app', label: 'Directory App' },
+    ],
+  },
+  {
     id: 'nicarb-conference-programme',
     name: 'NICArb Annual Conference Programme',
     description: 'A comprehensive digital conference programme for the Nigerian Institute of Chartered Arbitrators (NICArb) 2025 Annual Conference. The platform features an interactive schedule, speaker profiles, session details, and sponsor information. Built with Next.js and React, it provides a seamless experience for conference attendees to navigate the event agenda, learn about speakers and panelists, and access important conference information. The programme includes detailed session breakdowns, keynote speaker bios, plenary sessions on arbitration topics including energy disputes, construction disputes, and sports arbitration, plus information about the planning committee and state chapters.',
