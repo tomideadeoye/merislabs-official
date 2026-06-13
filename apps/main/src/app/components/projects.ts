@@ -16,15 +16,21 @@ export interface Link {
 }
 
 export interface Project {
-  id: string; // Added ID field for dynamic routing
+  id: string;
   name: string;
-  description: string; // Supports Markdown formatting
+  description: string;
   technologies: string[];
   image?: string;
   iframe?: string;
   tag: string;
   links: Link[];
   img: string;
+  challenge?: string;
+  solution?: string;
+  impact?: string[];
+  systemsDesign?: string[];
+  metrics?: { value: string; label: string }[];
+  demoAvailable?: boolean;
 }
 
 const projects: Project[] = [
@@ -39,6 +45,29 @@ const projects: Project[] = [
       { type: 'website', url: 'https://jee-ecobank-compass.vercel.app/' },
     ],
     img: '/merislabswhite.png',
+    challenge: 'A Tier-1 Nigerian bank needed to audit 350+ litigation matters across 6 states, tracking financial exposure across multiple currencies (NGN, USD, GBP, EUR). The existing data had 9 duplicate cases across 4 data sources, risking a ₦107B overestimation.',
+    solution: 'Built a comprehensive digital infrastructure with Next.js 15, featuring real-time filtering, dynamic financial calculations, cross-reference analysis for deduplication, and an automated PDF report generation engine using Puppeteer and Playwright with batch processing.',
+    impact: [
+      'Prevented ₦107B double-counting error through cross-reference analysis',
+      'Reduced PDF generation time from hours to 8 seconds with batch processing',
+      'Standardized data for 37 external law firms with 100+ name variations',
+      'Enabled real-time filtering by risk level, currency, case status, and litigation theme',
+    ],
+    systemsDesign: [
+      'Data Deduplication Engine - Cross-reference analysis preventing financial discrepancies',
+      'Batch Processing Pipeline - 5-case batches for PDF generation optimization',
+      'Multi-Currency Architecture - Smart formatting with context-aware statistics',
+      'Type-Safe Data Layer - Centralized TypeScript types from 4 data sources',
+    ],
+    metrics: [
+      { value: '₦273B+', label: 'Financial Exposure Tracked' },
+      { value: '353+', label: 'Litigation Cases' },
+      { value: '₦107B', label: 'Discrepancy Prevented' },
+      { value: '500+', label: 'Pages Auto-Generated' },
+      { value: '37', label: 'Law Firms Evaluated' },
+      { value: '8s', label: 'PDF Generation Time' },
+    ],
+    demoAvailable: true,
   },
   {
     id: 'brandqor',
@@ -49,6 +78,60 @@ const projects: Project[] = [
     img: '/brandqor.png',
     tag: 'BRANDQOR: Personal Branding for Visionary Leaders',
     links: [{ type: 'website', url: 'https://brandqor.com' }],
+    challenge: 'Needed a scalable platform for personal brand building with automated test result collection, email delivery, and content management for high-profile clients without the complexity of traditional e-commerce platforms.',
+    solution: 'Built a full-stack platform with Next.js 15, Supabase for database/auth/real-time subscriptions, Google Sheets API for data collection, Gmail API for automated email delivery with personalized results, and Vercel edge deployment for global low-latency access.',
+    impact: [
+      'Automated personal brand assessment with instant results delivery',
+      'Google Sheets integration for seamless data collection and analysis',
+      'Automated Gmail delivery with personalized test results and recommendations',
+      'Edge deployment for sub-100ms response times globally',
+      'Zod schema validation ensuring data integrity across client/server boundary',
+    ],
+    systemsDesign: [
+      'Serverless Architecture - Supabase for database, auth, and real-time subscriptions',
+      'API Integration Layer - Google Cloud Console, Sheets API, Gmail API orchestration',
+      'Schema-First Validation - Zod schemas as single source of truth for form submissions',
+      'Edge Caching - Vercel CDN for sub-100ms response times worldwide',
+      'Email Automation - Nodemailer + Gmail API for personalized result delivery',
+    ],
+    metrics: [
+      { value: '100+', label: 'Assessments Completed' },
+      { value: '<100ms', label: 'Response Time' },
+      { value: '100%', label: 'Email Delivery Rate' },
+      { value: '0', label: 'Manual Data Entry' },
+    ],
+    demoAvailable: true,
+  },
+  {
+    id: 'orion-mcp',
+    name: 'Orion MCP',
+    description: 'Autonomous AI orchestration system with 20+ MCP tools, distributed architecture, and multi-platform integration for task automation. The system manages communication (WhatsApp, Gmail, Beeper), calendar, Drive, memory, and task execution through a cascading LLM architecture with automatic failover.',
+    technologies: ['Node.js', 'TypeScript', 'Qdrant', 'PostgreSQL', 'Playwright', 'Google APIs', 'Vercel'],
+    iframe: 'https://merislabs.com',
+    img: '/merislabswhite.png',
+    tag: 'AI ORCHESTRATION: 20+ MCP Tools',
+    links: [{ type: 'website', url: 'https://merislabs.com' }],
+    challenge: 'Needed a unified system to orchestrate multiple AI models, communication platforms (WhatsApp, Gmail, Beeper), calendar, Drive, and memory systems with autonomous task execution capabilities.',
+    solution: 'Built a distributed MCP (Model Context Protocol) architecture with daemon processes, Qdrant vector memory, multi-model LLM routing, and 20+ integrated tools for WhatsApp, Gmail, Calendar, Drive, tasks, and network management.',
+    impact: [
+      'Autonomous task execution with background daemon processes',
+      'Multi-platform communication orchestration (WhatsApp, Gmail, Beeper, Telegram)',
+      'Vector-based memory system with Qdrant for semantic search',
+      'Cascading LLM architecture with automatic fallback (Gemini → Groq → Ollama)',
+    ],
+    systemsDesign: [
+      'Event-Driven Architecture - MCP daemons for autonomous background processing',
+      'Distributed State Management - Qdrant vector DB + PostgreSQL hybrid storage',
+      'Cascading Fallback Pattern - Multi-provider LLM routing with quota management',
+      'Tool Abstraction Layer - Unified interface for 20+ external APIs',
+    ],
+    metrics: [
+      { value: '20+', label: 'MCP Tools' },
+      { value: '6', label: 'Platforms Integrated' },
+      { value: '4', label: 'LLM Providers' },
+      { value: '∞', label: 'Autonomous Tasks' },
+    ],
+    demoAvailable: true,
   },
   {
     id: 'nicarb-conference-programme',
@@ -120,6 +203,33 @@ const projects: Project[] = [
         url: 'https://user-images.githubusercontent.com/55337742/268929386-345b9e34-a559-417e-b957-3f9971a77ecb.mp4',
       },
     ],
+    challenge: 'African businesses faced fragmented payment infrastructure — multiple gateways (Paystack, Klasha, SarePay) with different APIs, settlement processes, and compliance requirements. Needed unified abstraction, white-label capabilities for B2B2C, and developer-friendly documentation.',
+    solution: 'Built Version 2 with Express.js microservices architecture, Next.js dashboard, Algolia-powered developer documentation, Postman API collections, and white-label multi-tenant infrastructure. Integrated 5+ FinTech APIs with 2 ERP systems, automated failure reporting via Slack, and Vercel Cron for scheduled settlements.',
+    impact: [
+      'Compressed product lifecycle from 1 year to 3 months',
+      '80% reduction in ops overhead via automated reconciliation',
+      '30% potential annualized savings through multi-gateway cost routing',
+      '40% reduction in month-end closing time',
+      'Algolia documentation search improving developer onboarding',
+      'White-label architecture enabling B2B2C enterprise deployments',
+    ],
+    systemsDesign: [
+      'Payment Provider Abstraction Layer - Unified interface over 5+ heterogeneous APIs',
+      'API Gateway Pattern - Centralized routing, rate limiting, and provider failover',
+      'Multi-Tenant Architecture - White-label infrastructure for B2B2C deployments',
+      'Event-Driven Reporting - Slack API integration for real-time failure alerts',
+      'Scheduled Processing - Vercel Cron for automated settlement and reconciliation',
+      'Documentation as Product - Algolia search + Postman collections for DX',
+    ],
+    metrics: [
+      { value: '5+', label: 'Payment Providers' },
+      { value: '80%', label: 'Ops Overhead Reduction' },
+      { value: '30%', label: 'Cost Savings' },
+      { value: '3mo', label: 'Time to Launch' },
+      { value: '2', label: 'ERP Integrations' },
+      { value: '∞', label: 'White-Label Scale' },
+    ],
+    demoAvailable: true,
   },
   {
     id: 'unicom',
@@ -291,15 +401,6 @@ export const reviews: Reviews[] = [
     link: 'https://www.qorepay.com/about',
     role: 'CTO',
   },
-  {
-    name: 'Timileyin Idowu',
-    review:
-      'MerisLabs built us PitchR and assisted in linking this with multiple channels to create a platform facilitating good deal flow.',
-    image: `https://res.cloudinary.com/dnosyydcn/image/upload/v1708538644/merislabs/u8rgho2qrhlvwzny4ewe.jpg`,
-    company: 'PitchR',
-    link: 'https://www.linkedin.com/in/timileyin-idowu-507523146/',
-    role: 'Consultant',
-  },
 ];
 // All deck data is now in this file
 export const decks: Deck[] = [
@@ -351,13 +452,6 @@ export const decks: Deck[] = [
     link: '/decks/gka-investment-teaser',
     client: 'GK&A Logistics',
     tags: ['Investment', 'Logistics', 'Infrastructure'],
-  },
-  {
-    title: 'African Startup Review',
-    iframe: 'https://www.slideshare.net/slideshow/embed_code/key/uSHyLAV4WE3y4D?hostedIn=slideshare&page=upload',
-    link: 'https://www.slideshare.net/slideshow/embed_code/key/uSHyLAV4WE3y4D?hostedIn=slideshare&page=upload',
-    client: 'Timileyin Idowu',
-    tags: ['Africa', 'Startup', 'Review'],
   },
   {
     title: 'DeFi Protocols: Business Models, Revenue Streams, and Sustainability',

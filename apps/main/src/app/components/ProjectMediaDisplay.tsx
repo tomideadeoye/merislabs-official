@@ -49,7 +49,7 @@ interface ProjectMediaDisplayProps {
 }
 
 // Client-side only iframe component to prevent hydration mismatches
-function ClientIframe({ url, title, className }: { url: string; title: string; className: string }) {
+function ClientIframe({ url, title, className, containerClassName }: { url: string; title: string; className: string; containerClassName: string }) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -58,26 +58,23 @@ function ClientIframe({ url, title, className }: { url: string; title: string; c
 
   if (!isClient) {
     return (
-      <div className={`${className} project-iframe-loading`}>
+      <div className={`${containerClassName} project-iframe-loading`}>
         <span className="text-gray-500">Loading...</span>
       </div>
     );
   }
 
   return (
-    <iframe
-      src={url}
-      title={title}
-      allowFullScreen
-      className={`${className} project-iframe`}
-      allow="fullscreen"
-      style={{
-        width: '100%',
-        height: '100%',
-        border: 'none',
-        borderRadius: 'inherit'
-      }}
-    />
+    <div className={containerClassName}>
+      <iframe
+        src={url}
+        title={title}
+        allowFullScreen
+        className={className}
+        allow="fullscreen"
+        scrolling="no"
+      />
+    </div>
   );
 }
 
@@ -121,7 +118,12 @@ export default function ProjectMediaDisplay({ project, isFullscreen = false }: P
             {project.iframe && (
               <TabsContent value="iframe" className="h-full mt-4">
                 <div className="media-scroll-container h-full">
-                  <ClientIframe url={project.iframe} title={project.name} className={`project-iframe-container ${isFullscreen ? 'project-iframe-container-fullscreen' : ''}`} />
+                  <ClientIframe 
+                    url={project.iframe} 
+                    title={project.name} 
+                    className="project-iframe" 
+                    containerClassName={`project-iframe-container ${isFullscreen ? 'project-iframe-container-fullscreen' : ''}`} 
+                  />
                 </div>
               </TabsContent>
             )}

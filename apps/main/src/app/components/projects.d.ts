@@ -23,6 +23,12 @@ export interface Project {
   tag: string;
   links: Link[];
   img: string;
+  challenge?: string;
+  solution?: string;
+  impact?: string[];
+  systemsDesign?: string[];
+  metrics?: { value: string; label: string }[];
+  demoAvailable?: boolean;
 }
 
 export const projects: Project[];

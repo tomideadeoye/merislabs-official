@@ -10,17 +10,11 @@ const Nicarb2025ConferenceFooter = ({ pageNumber }: { pageNumber: string }) => (
             <p className="text-[#064802] font-bold tracking-[0.2em] text-xs md:text-sm">2025 International Arbitration and ADR Conference</p>
         </div>
 
-        {/* Right - Union Bank and Jackson Etti & Edu Logos */}
-        <div className="flex items-center gap-6">
+        {/* Right - NICArb Branding */}
+        <div className="flex items-center gap-4">
             <img
-                src="/union-bank/logo.png"
-                alt="Union Bank"
-                className="h-12 w-auto object-contain"
-            />
-            <div className="w-px h-10 bg-gray-300"></div>
-            <img
-                src="/clients/jackson etti and edu logo (1).png"
-                alt="Jackson, Etti & Edu"
+                src="/nicarb/NICARB-LOGO-GREEN-BOLD.webp"
+                alt="NICArb"
                 className="h-10 w-auto object-contain"
             />
         </div>

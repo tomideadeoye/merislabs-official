@@ -5,10 +5,10 @@ export default function Footer() {
     <footer className="bg-[#000710] py-20 lg:py-32 text-gray-400 text-sm">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         {/* Logo, Links, Social, and App Store Section */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-12 md:gap-y-0">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-y-12 md:gap-y-0">
 
           {/* Column 1: Logo and Social/App Links */}
-          <div className="col-span-2 md:col-span-1 pr-4">
+          <div className="col-span-1 md:col-span-1 pr-4">
             {/* MerisLabs Logo */}
             <Link href="/" aria-label="MerisLabs logo" className="inline-block">
               <img src="/MERISLABS-LOGO.png" alt="MerisLabs" className="h-20 w-auto" />

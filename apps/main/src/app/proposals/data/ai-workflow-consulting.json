@@ -1,0 +1,198 @@
+{
+  "slug": "ai-workflow-consulting",
+  "title": "AI Workflow Implementation for Professional Firms",
+  "template": "indigo",
+  "brand": {
+    "primary": "#4f46e5",
+    "accent": "#7c3aed",
+    "highlight": "#6d28d9",
+    "text": "#1e293b",
+    "textLight": "#64748b",
+    "background": "#ffffff",
+    "cardBg": "#f1f5f9"
+  },
+  "pages": [
+    {
+      "type": "cover",
+      "title": "AI Workflow Implementation",
+      "subtitle": "for Professional Firms",
+      "logo": "/MERISLABS-LOGO.png"
+    },
+    {
+      "type": "stats",
+      "title": "The Track Record",
+      "subtitle": "Built for High-Stakes Environments",
+      "highlight": "Every system is measured by the time it saves and the accuracy it guarantees.",
+      "stats": [
+        { "value": "353+", "label": "Litigation Cases Audited", "sub": "Project Compass (JEE/Ecobank)" },
+        { "value": "NGN 273B+", "label": "Financial Exposure Tracked", "sub": "6 States, 4 Currencies" },
+        { "value": "500+", "label": "Pages Auto-Generated", "sub": "Per Report, Under 10 Seconds" },
+        { "value": "70+", "label": "High-Stakes Documents", "sub": "Across 10+ Clients" },
+        { "value": "2x", "label": "Systems Built for NICArb", "sub": "Report Automation Engine" },
+        { "value": "NGN 107B", "label": "Discrepancy Prevented", "sub": "Data Deduplication Engine" }
+      ]
+    },
+    {
+      "type": "case_studies",
+      "title": "Past Projects",
+      "subtitle": "Systems we have built that demonstrate our approach to automating professional workflows.",
+      "items": [
+        {
+          "initial": "PC",
+          "title": "Project Compass",
+          "subtitle": "Litigation Audit System for a Tier-1 Nigerian Bank",
+          "link": "https://merislabs.com/case-studies",
+          "gradient": "linear-gradient(135deg, #1e3a5f, #2d5a8e)",
+          "tags": ["Next.js 15", "Puppeteer", "Playwright", "Vercel"],
+          "metrics": [
+            { "value": "NGN 273B+", "label": "Exposure Tracked" },
+            { "value": "353+", "label": "Cases Audited" },
+            { "value": "8s", "label": "Per Report" }
+          ]
+        },
+        {
+          "initial": "OR",
+          "title": "Orion MCP",
+          "subtitle": "Autonomous AI orchestration with 20+ integrated tools",
+          "link": "https://merislabs.com/case-studies",
+          "gradient": "linear-gradient(135deg, #4f46e5, #7c3aed)",
+          "tags": ["Node.js", "Qdrant", "PostgreSQL", "TypeScript"],
+          "metrics": [
+            { "value": "20+", "label": "MCP Tools" },
+            { "value": "6", "label": "Platforms" },
+            { "value": "4", "label": "LLM Providers" }
+          ]
+        },
+        {
+          "initial": "QP",
+          "title": "QorePay",
+          "subtitle": "Payment orchestration for African businesses",
+          "link": "https://merislabs.com/case-studies",
+          "gradient": "linear-gradient(135deg, #047857, #10b981)",
+          "tags": ["Express.js", "AWS", "Next.js", "Algolia"],
+          "metrics": [
+            { "value": "5+", "label": "Providers" },
+            { "value": "80%", "label": "Ops Saved" },
+            { "value": "3mo", "label": "To Launch" }
+          ]
+        },
+        {
+          "initial": "BQ",
+          "title": "BrandQor",
+          "subtitle": "Enterprise personal branding platform",
+          "link": "https://merislabs.com/case-studies",
+          "gradient": "linear-gradient(135deg, #be185d, #ec4899)",
+          "tags": ["Next.js 15", "Supabase", "Google Cloud", "Zod"],
+          "metrics": [
+            { "value": "100+", "label": "Assessments" },
+            { "value": "<100ms", "label": "Response" },
+            { "value": "100%", "label": "Delivery" }
+          ]
+        },
+        {
+          "initial": "NA",
+          "title": "NICArb Conference Suite",
+          "subtitle": "Auto-generated conference brochure, pitch deck, and report engine for Nigeria's leading arbitration body",
+          "link": "https://merislabs.com/case-studies",
+          "gradient": "linear-gradient(135deg, #075302, #0a8a04)",
+          "tags": ["Next.js", "Puppeteer", "Playwright", "PDF Generation"],
+          "metrics": [
+            { "value": "2", "label": "Systems Built" },
+            { "value": "60+", "label": "Auto Pages" },
+            { "value": "<10s", "label": "Per Report" }
+          ]
+        },
+        {
+          "initial": "LY",
+          "title": "Lawyard V2",
+          "subtitle": "Full legal publishing platform rebuild",
+          "link": "https://directory.lawyard.org",
+          "gradient": "linear-gradient(135deg, #0c4a6e, #0ea5e9)",
+          "tags": ["Next.js 14", "Sanity CMS", "Supabase", "Tailwind"],
+          "metrics": [
+            { "value": "10K+", "label": "Monthly Traffic" },
+            { "value": "4x", "label": "Page Speed" },
+            { "value": "CMS", "label": "Headless Sanity" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "offerings",
+      "title": "What We Build",
+      "subtitle": "Six areas where we eliminate manual work for professional firms.",
+      "items": [
+        { "icon": "📄", "title": "Document Intelligence", "desc": "AI-powered document review, classification, and extraction. Turn unstructured files into structured, queryable data." },
+        { "icon": "📊", "title": "Report & Compliance Automation", "desc": "End-to-end automated report generation with dynamic data binding. From raw data to branded PDF in seconds." },
+        { "icon": "⚡", "title": "Workflow Orchestration", "desc": "Connect email, calendar, CRM, and document systems into automated workflows that run without manual intervention." },
+        { "icon": "🤖", "title": "Content & Communication", "desc": "Automated content pipelines, newsletter systems, and multi-platform communication at scale." },
+        { "icon": "🔗", "title": "Data Integration", "desc": "Unify siloed data sources into a single, consistent, queryable layer." },
+        { "icon": "📈", "title": "Litigation Intelligence", "desc": "Real-time dashboards for legal audits, compliance tracking, and financial exposure monitoring." }
+      ]
+    },
+    {
+      "type": "pricing",
+      "title": "Service Tiers",
+      "subtitle": "Three engagement levels. One approach: build systems, not deliverables.",
+      "note": "All projects require 50% deposit upfront, 50% on delivery. Automation projects include a one-time build plus optional retainer.",
+      "tiers": [
+        {
+          "name": "Fast Cash (1-2 wks)",
+          "items": [
+            ["Presentation design", "NGN 150k — 300k"],
+            ["Proposal & capability statement", "NGN 100k — 250k"],
+            ["Brochure & marketing collateral", "NGN 100k — 200k"],
+            ["Brand identity package", "NGN 200k — 400k"]
+          ]
+        },
+        {
+          "name": "Mid-Ticket (2-4 wks)",
+          "items": [
+            ["Automated report & doc system", "NGN 400k — 800k"],
+            ["Corporate & firm website", "NGN 500k — 1M"],
+            ["Event branding package", "NGN 300k — 600k"],
+            ["Newsletter & content automation", "NGN 350k — 600k"]
+          ]
+        },
+        {
+          "name": "High-Ticket (4-8 wks)",
+          "items": [
+            ["Litigation & compliance dashboard", "NGN 1M — 2.5M"],
+            ["Custom client portal", "NGN 1.2M — 3M"],
+            ["Full LegalTech platform", "NGN 2M+"]
+          ]
+        },
+        {
+          "name": "Retainer (Ongoing)",
+          "items": [
+            ["Continuous system optimization", ""],
+            ["Feature enhancements & updates", ""],
+            ["Technical support & monitoring", "NGN 150k — 400k/mo"]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "process",
+      "title": "From Diagnosis to Delivery",
+      "subtitle": "Every engagement follows the same four-stage process. No surprises. No scope creep.",
+      "steps": [
+        { "step": "01", "title": "Discovery Call", "desc": "We map your manual workflows, identify automation opportunities, and quantify the ROI. No pitch, just diagnosis." },
+        { "step": "02", "title": "Blueprint & Proposal", "desc": "Detailed technical scope with timeline, integration points, and fixed price. You approve before we build." },
+        { "step": "03", "title": "Build & Iterate", "desc": "Staged development with working output at each milestone. You review everything as it is built." },
+        { "step": "04", "title": "Launch & Handover", "desc": "Deployed, tested, and handed over with documentation. Your team owns the system. Retainer available." }
+      ]
+    },
+    {
+      "type": "contact",
+      "title": "Let's Build Something",
+      "subtitle": "Tell us what you are doing manually. We will tell you how to make it run itself.",
+      "cta": "Response within 24 hours. No commitment required.",
+      "logo": "/MERISLABS-LOGO.png",
+      "blocks": [
+        { "heading": "Contact", "lines": ["Tomide Adeoye", "Founder, MerisLabs", "tomide@merislabs.com", "+234 818 192 7251"] },
+        { "heading": "Services", "lines": ["AI Workflow Implementation", "Web & Mobile Development", "Document Design & Automation"] }
+      ]
+    }
+  ]
+}

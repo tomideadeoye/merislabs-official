@@ -95,7 +95,7 @@ export default function Zigzag() {
                     <Link
                       key={project.id}
                       href={`/projects/${project.id}`}
-                      className="flex flex-col gap-4 p-6 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 transition-colors duration-200 min-h-[800px]"
+                      className="flex flex-col gap-4 p-6 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 transition-colors duration-200 min-h-[450px] md:min-h-[800px]"
                     >
                       <div className="w-full h-80 relative flex-shrink-0 overflow-hidden rounded">
                         <ProjectMediaDisplay project={project} />

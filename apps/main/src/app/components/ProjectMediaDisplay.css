@@ -17,13 +17,12 @@
   width: 100%;
 }
 
+/* Base media layouts (default to list view fitting) */
 .project-video {
   border-radius: 1rem;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  min-height: 400px; /* Increased minimum height */
-  max-height: 600px; /* Increased maximum height */
   position: relative;
   z-index: 1;
 }
@@ -33,30 +32,24 @@
   padding: 0 1rem;
   align-self: center;
   border-radius: 40px;
-  min-height: 400px; /* Added minimum height */
-  max-height: 600px; /* Increased maximum height */
   width: 100%;
-  height: auto;
+  height: 100%;
   position: relative;
   z-index: 1;
 }
 
 .project-iframe-container {
-  object-fit: contain;
   border-radius: 1rem;
   padding: 0 1rem;
   align-self: center;
   width: 100%;
   height: 100%;
   aspect-ratio: 16/9;
-  min-height: 400px; /* Increased minimum height */
-  max-height: 600px; /* Increased maximum height */
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
-  z-index: 1;
   z-index: 1;
 }
 
@@ -90,12 +83,33 @@
   }
 }
 
-/* Fullscreen modal styles */
+/* Fullscreen modal / Detail page styles */
 .project-media-container.fullscreen {
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Force min/max heights ONLY in fullscreen mode to prevent home-grid card overflows */
+.project-media-container.fullscreen .project-video {
+  min-height: 400px;
+  max-height: 600px;
+}
+
+.project-media-container.fullscreen .project-image {
+  min-height: 400px;
+  max-height: 600px;
+}
+
+.project-media-container.fullscreen .project-iframe-container {
+  min-height: 400px;
+  max-height: 600px;
+}
+
+.project-media-container.fullscreen .media-scroll-container {
+  min-height: 400px;
+  max-height: 600px;
 }
 
 .project-video-fullscreen {
@@ -134,8 +148,7 @@
 
 /* Scrollable container for media that exceeds height */
 .media-scroll-container {
-  min-height: 400px; /* Added minimum height */
-  max-height: 600px; /* Increased maximum height */
+  height: 100%;
   overflow-y: auto;
   border-radius: 1rem;
   scrollbar-width: thin;
@@ -179,4 +192,28 @@
   width: 100%;
   height: 100%;
   border: none;
+}
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  .project-iframe-container {
+    padding: 0;
+    max-width: 100% !important;
+    contain: paint !important;
+    overflow: hidden !important;
+  }
+
+  /* Smart mobile scaling hack for live desktop/tablet dashboard previews in list card view */
+  .project-media-container:not(.fullscreen) .project-iframe {
+    width: 200% !important;
+    height: 200% !important;
+    max-width: none !important;
+    max-height: none !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scale(0.5);
+    transform-origin: top left;
+    border-radius: inherit;
+  }
 }

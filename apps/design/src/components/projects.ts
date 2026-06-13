@@ -309,25 +309,9 @@ export const reviews: Reviews[] = [
     link: 'https://www.qorepay.com/about',
     role: 'CTO',
   },
-  {
-    name: 'Timileyin Idowu',
-    review:
-      'MerisLabs built us PitchR and assisted in linking this with multiple channels to create a platform facilitating good deal flow.',
-    image: `https://res.cloudinary.com/dnosyydcn/image/upload/v1708538644/merislabs/u8rgho2qrhlvwzny4ewe.jpg`,
-    company: 'PitchR',
-    link: 'https://www.linkedin.com/in/timileyin-idowu-507523146/',
-    role: 'Consultant',
-  },
 ];
 // All deck data is now in this file
 export const decks: Deck[] = [
-  {
-    title: 'African Startup Review presentation for Timi',
-    iframe: 'https://www.slideshare.net/slideshow/embed_code/key/uSHyLAV4WE3y4D?hostedIn=slideshare&page=upload',
-    link: 'https://www.slideshare.net/slideshow/embed_code/key/uSHyLAV4WE3y4D?hostedIn=slideshare&page=upload',
-    client: 'Timileyin Idowu',
-    tags: ['Africa', 'Startup', 'Review', 'Presentation', 'Timi'],
-  },
   {
     title: 'DeFi Protocols: Business Models, Revenue Streams, and Sustainability',
     iframe: 'https://www.slideshare.net/slideshow/embed_code/key/2ElMQ82Etd1bLI?startSlide=1',
@@ -411,13 +395,6 @@ export const decks: Deck[] = [
     link: 'https://www.canva.com/design/DAFetMaQ5jQ/M67_tLZX0yVEYVOgyGw0Gg/view?utm_content=DAFetMaQ5jQ&utm_campaign=designshare&utm_medium=embeds&utm_source=link',
     client: 'Adeoye Tomide',
     tags: ['Assessment', 'TLcom'],
-  },
-  {
-    title: 'Kuramo Investment paper - Timileyin Idowu',
-    iframe: 'https://www.canva.com/design/DAGJjBzb9RQ/pLJHolL-ZO-8gQUMZ42dMw/view?embed',
-    link: 'https://www.canva.com/design/DAGJjBzb9RQ/pLJHolL-ZO-8gQUMZ42dMw/view?utm_content=DAGJjBzb9RQ&utm_campaign=designshare&utm_medium=embeds&utm_source=link',
-    client: 'Timileyin Idowu',
-    tags: ['Investment', 'Kuramo'],
   },
   {
     title: 'Copy of QOREPAY DECK (SALES)',

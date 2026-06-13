@@ -122,6 +122,9 @@
       ],
       "@merislabs/config/*": [
         "../../packages/config/*"
+      ],
+      "@/proposals/*": [
+        "./src/app/proposals/*"
       ]
     }
   },

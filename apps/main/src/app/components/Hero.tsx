@@ -11,13 +11,13 @@ import { WavyBackground } from "@/components/ui/wavy-background";
 export default function Hero() {
   return (
     <WavyBackground
-      className="max-w-4xl mx-auto pb-40"
+      className="max-w-4xl mx-auto pb-16 md:pb-40"
       colors={["#5D5DFF", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"]}
       waveWidth={50}
       backgroundFill="black"
       blur={10}
       speed="fast"
-      waveOpacity={0.5}
+      waveOpacity={0.3}
     >
       <section>
         <div className="mx-auto sm:px-6 relative">
@@ -31,14 +31,14 @@ export default function Hero() {
 
           </div>
           {/* Hero content */}
-          <div className="relative pt-32 pb-10 md:pt-40 md:pb-16">
+          <div className="relative pt-24 pb-10 md:pt-40 md:pb-16">
             {/* Section header */}
             <div className="max-w-3xl mx-auto text-center pb-12 md:pb-16">
-              <h1 className="text-4xl font-extrabold leading-tight tracking-tighter mb-4 md:text-5xl text-white" data-aos="fade-up">
+              <h1 className="text-4xl font-extrabold leading-tight tracking-tighter mb-4 md:text-5xl text-white [text-shadow:0_4px_16px_rgba(0,0,0,0.9)]" data-aos="fade-up">
                 MERISLABS
               </h1>
-              <p className="text-xl text-white mb-8" data-aos="fade-up" data-aos-delay="200">
-                Building the <span className="text-blue-400 font-bold">Unified Commercial Infrastructure</span> for the modern web.
+              <p className="text-xl text-gray-100 mb-8 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]" data-aos="fade-up" data-aos-delay="200">
+                Building the <span className="text-blue-300 font-bold [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">Unified Commercial Infrastructure</span> for the modern web.
                 From financial services to legal tech, we engineer sovereign systems for Africa's digital economy.
               </p>
               <div className="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center">

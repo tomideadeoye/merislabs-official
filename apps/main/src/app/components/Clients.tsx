@@ -19,8 +19,13 @@ export default function Clients() {
         },
         {
             name: 'BrandQor',
-            logo: '/brandqor.png',
+            logo: '/clients/brandqor.png',
             description: 'Personal Branding Platform'
+        },
+        {
+            name: 'Lawyard',
+            logo: '/clients/lawyard-logo.png',
+            description: 'Legal Directory & Practice Management Platform'
         }
     ];
 
